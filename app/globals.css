@@ -1320,6 +1320,7 @@ html[data-theme="dark"] .project-dm { color: #38bdf8; background: rgba(56, 189, 
 }
 
 .coverage-ring > div {
+  grid-area: 1 / 1;
   position: relative;
   z-index: 1;
   display: grid;
