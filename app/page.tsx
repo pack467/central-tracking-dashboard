@@ -21,6 +21,17 @@ interface Ticket {
   history?: Array<{ time: string; action: string; author: string }>;
 }
 
+type HandoverState = "repeat" | "waiting" | "in-progress";
+
+interface HandoverTask {
+  id: number;
+  title: string;
+  project: string;
+  detail: string;
+  state: HandoverState;
+  completed: boolean;
+}
+
 const projects = [
   { name: "SM", status: "perlu perhatian", detail: "1 pengecualian", tone: "warning" as Tone },
   { name: "B2B", status: "perlu perhatian", detail: "Pemeriksaan Kafka", tone: "warning" as Tone },
@@ -139,13 +150,87 @@ const tickets: Ticket[] = [
   },
 ];
 
-const initialHandoverTasks = [
-  { id: 1, title: "Validasi status queue ActiveMQ 228", project: "SM", completed: true },
-  { id: 2, title: "Konfirmasi kesehatan producer pesan Kafka B2B", project: "B2B", completed: true },
-  { id: 3, title: "Verifikasi baseline alert CPU Grafana pada DM", project: "DM", completed: true },
-  { id: 4, title: "Tinjau tugas approval entities EPC Tools", project: "EPC Tools", completed: true },
-  { id: 5, title: "Periksa stream log gateway Graylog SIEM", project: "USIEM", completed: false },
-  { id: 6, title: "Selesaikan konfirmasi daftar operator shift malam", project: "Handover", completed: false },
+const initialHandoverTasks: HandoverTask[] = [
+  {
+    id: 1,
+    title: "Pemantauan Dump Automation EPC Tools",
+    project: "EPC Tools",
+    detail: "Perketat pemantauan Dump Automation. Pengecekan dapat menggunakan akun Teresa rosikin2011_x.",
+    state: "repeat",
+    completed: true,
+  },
+  {
+    id: 2,
+    title: "Pengecekan Email L2 Support di akhir shift",
+    project: "L2",
+    detail: "Pastikan seluruh folder sudah dibaca dan tidak ada request yang terlewat.",
+    state: "repeat",
+    completed: true,
+  },
+  {
+    id: 3,
+    title: "Monitoring penumpukan fulldecode SM",
+    project: "SM",
+    detail: "Pantau queue fulldecode pada ActiveMQ 228 dan direktori output smng109.",
+    state: "repeat",
+    completed: true,
+  },
+  {
+    id: 4,
+    title: "Monitoring disk usage B2B Prod",
+    project: "B2B",
+    detail: "Pantau /apps pada pv-bbsvsoe1-ctl08-20:9100; informasikan ke Mas Alfiant apabila mencapai 98%.",
+    state: "repeat",
+    completed: true,
+  },
+  {
+    id: 5,
+    title: "Monitoring performa APH per jam",
+    project: "APH",
+    detail: "Pantau Output Rate, APH Consumer Rate, serta Egress Listener F5 CGNAT Area 1 per PoP dan laporkan ke Teams APH.",
+    state: "repeat",
+    completed: true,
+  },
+  {
+    id: 6,
+    title: "Report Repsoses file Excel SM",
+    project: "SM",
+    detail: "Kirim report hasil Repsoses dari tim Solusi ke grup WA SM-MB Support Tritronik pada pagi dan malam hari.",
+    state: "repeat",
+    completed: true,
+  },
+  {
+    id: 7,
+    title: "Volume Roamware dan Backup SM",
+    project: "SM",
+    detail: "Lakukan pengisian di akhir shift serta monitoring total volume Huawei SGW.",
+    state: "repeat",
+    completed: true,
+  },
+  {
+    id: 8,
+    title: "Dashboard LintasArta DM",
+    project: "DM",
+    detail: "Perhatikan all device quota / over quota usage; eskalasi langsung jika setelah pukul 01.00 data masih kosong.",
+    state: "repeat",
+    completed: true,
+  },
+  {
+    id: 9,
+    title: "Perhitungan volume output data APH",
+    project: "APH",
+    detail: "Rekap output GGSN Ericsson, Huawei, ZTE dan UFP Huawei 5GC dalam volume serta events per hari.",
+    state: "waiting",
+    completed: false,
+  },
+  {
+    id: 10,
+    title: "Report SM MonthlyHealth-SMMB",
+    project: "SM",
+    detail: "Pengerjaan materi Presentation MonthlyHealth-SMMB masih berlangsung.",
+    state: "in-progress",
+    completed: false,
+  },
 ];
 
 const navItems = [
@@ -191,6 +276,7 @@ export default function Home() {
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [handoverOpen, setHandoverOpen] = useState(false);
   const [handoverTasks, setHandoverTasks] = useState(initialHandoverTasks);
+  const [handoverFilter, setHandoverFilter] = useState<"all" | HandoverState>("all");
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [notice, setNotice] = useState("");
   const [currentTime, setCurrentTime] = useState<string>("");
@@ -256,6 +342,11 @@ export default function Home() {
     const done = handoverTasks.filter((t) => t.completed).length;
     return Math.round((done / handoverTasks.length) * 100);
   }, [handoverTasks]);
+
+  const visibleHandoverTasks = useMemo(() => {
+    if (handoverFilter === "all") return handoverTasks;
+    return handoverTasks.filter((task) => task.state === handoverFilter);
+  }, [handoverFilter, handoverTasks]);
 
   const toggleHandoverTask = (id: number) => {
     setHandoverTasks((prev) =>
@@ -710,16 +801,16 @@ export default function Home() {
                 <div className="handover-label">
                   <span>⊙</span> KESIAPAN HANDOVER
                 </div>
-                <strong>{handoverTasks.filter((t) => !t.completed).length} item menunggu</strong>
-                <p>Pastikan catatan queue SM dan Kafka B2B selesai untuk tim shift malam.</p>
+                <strong>{handoverTasks.filter((t) => !t.completed).length} tugas perlu tindak lanjut</strong>
+                <p>Handover Subuh ke Pagi telah divalidasi; dua item prioritas masih perlu dikonfirmasi.</p>
                 <div className="handover-progress">
-                  <span>{handoverProgressPercent}% selesai</span>
+                  <span>{handoverProgressPercent}% diterima</span>
                   <i>
                     <b style={{ width: `${handoverProgressPercent}%` }} />
                   </i>
                 </div>
                 <button onClick={() => setHandoverOpen(true)}>
-                  Lanjutkan handover <span>→</span>
+                  Buka catatan handover <span>→</span>
                 </button>
               </article>
             </aside>
@@ -1019,74 +1110,141 @@ export default function Home() {
         </div>
       )}
 
-      {/* Handover Interactive Checklist Modal */}
+      {/* Handover operational record */}
       {handoverOpen && (
         <div className="modal-backdrop" onMouseDown={() => setHandoverOpen(false)}>
           <section
-            className="ticket-modal"
+            className="handover-modal"
             role="dialog"
             aria-modal="true"
-            aria-label="Checklist handover shift"
+            aria-label="Catatan handover shift Subuh ke Pagi"
             onMouseDown={(event) => event.stopPropagation()}
-            style={{ width: "min(640px, calc(100vw - 32px))" }}
           >
-            <div className="modal-title">
+            <header className="handover-modal-header">
               <div>
-                <strong>Handover Shift Sore → Malam</strong>
-                <small>Selesaikan semua tugas validasi operasional wajib sebelum sign-off.</small>
+                <div className="handover-modal-kicker"><span className="live-dot" /> CATATAN HANDOVER · 10/08/2026</div>
+                <h2>Handover Shift Subuh <span>→</span> Pagi</h2>
+                <p>Catatan operasional, temuan, dan tugas lanjutan yang telah diterima oleh tim shift pagi.</p>
               </div>
-              <button onClick={() => setHandoverOpen(false)}>×</button>
-            </div>
+              <button className="handover-modal-close" onClick={() => setHandoverOpen(false)} aria-label="Tutup catatan handover">×</button>
+            </header>
 
-            <div style={{ marginBottom: "16px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", marginBottom: "6px", fontFamily: "var(--font-mono)" }}>
-                <span>Progres kesiapan handover</span>
-                <strong style={{ color: "var(--accent-blue)" }}>{handoverProgressPercent}%</strong>
-              </div>
-              <div className="progress-line" style={{ height: "8px" }}>
-                <i style={{ width: `${handoverProgressPercent}%` }} />
-              </div>
-            </div>
+            <div className="handover-modal-scroll">
+              <section className="handover-meta" aria-label="Informasi shift">
+                <div className="handover-meta-item">
+                  <span>TANGGAL</span>
+                  <strong>10 Agustus 2026</strong>
+                </div>
+                <div className="handover-meta-item">
+                  <span>PIC SHIFT SUBUH</span>
+                  <strong>Agnes</strong>
+                </div>
+                <div className="handover-meta-item">
+                  <span>PIC SHIFT PAGI</span>
+                  <strong>Galih, Natanael, Pangondion</strong>
+                </div>
+              </section>
 
-            <div style={{ maxHeight: "320px", overflowY: "auto", margin: "16px 0" }}>
-              {handoverTasks.map((task) => (
-                <div
-                  key={task.id}
-                  className={`checklist-item ${task.completed ? "checked" : ""}`}
-                  onClick={() => toggleHandoverTask(task.id)}
-                >
-                  <input
-                    type="checkbox"
-                    checked={task.completed}
-                    onChange={() => toggleHandoverTask(task.id)}
-                    onClick={(e) => e.stopPropagation()}
-                  />
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-                      <ProjectMark name={task.project} />
-                      <strong style={{ fontSize: "12.5px", color: task.completed ? "var(--green)" : "var(--ink-primary)" }}>
-                        {task.title}
-                      </strong>
-                    </div>
+              <section className="handover-section handover-monitoring-card">
+                <div className="handover-section-heading">
+                  <div>
+                    <span>01</span>
+                    <h3>Monitoring &amp; Report Telegram</h3>
+                  </div>
+                  <Badge tone="success">Tervalidasi</Badge>
+                </div>
+                <p className="handover-section-copy">Pengecekan dan monitoring telah dilakukan serta dilaporkan di grup Telegram sesuai checkpoint yang ditentukan.</p>
+                <div className="handover-assignment">
+                  <div className="handover-person">
+                    <span className="avatar avatar-2">A</span>
+                    <div><small>PENANGGUNG JAWAB MONITORING</small><strong>Agnes · 8 project</strong></div>
+                  </div>
+                  <div className="handover-project-list" aria-label="Daftar proyek yang dimonitor">
+                    {["B2B", "DM", "EPC", "APH", "SM/ActiveMQ", "USIEM", "MB", "UNEM"].map((project) => <span key={project}>{project}</span>)}
                   </div>
                 </div>
-              ))}
+                <div className="handover-validation-note">
+                  <b>✓</b>
+                  <span><strong>Validasi Shift Pagi baik dan sesuai.</strong> Galih, Natanael, dan Pangondion telah memeriksa hasil monitoring pada sesi handover.</span>
+                </div>
+              </section>
+
+              <section className="handover-section">
+                <div className="handover-section-heading">
+                  <div>
+                    <span>02</span>
+                    <h3>Temuan dari Shift Subuh</h3>
+                  </div>
+                  <Badge tone="warning">2 tindak lanjut</Badge>
+                </div>
+                <div className="handover-finding-list">
+                  <article className="handover-finding">
+                    <div className="handover-finding-top"><ProjectMark name="USIEM" /><span className="handover-status handover-status-waiting">Dipantau</span></div>
+                    <strong>Log direct MSS belum tampil</strong>
+                    <p>Log MSS Eric dan MSS Nokia sempat tertumpuk pada log distributor. Layanan telah di-restart dan tren penumpukan mulai menurun.</p>
+                  </article>
+                  <article className="handover-finding">
+                    <div className="handover-finding-top"><ProjectMark name="USIEM" /><span className="handover-status handover-status-progress">On follow up</span></div>
+                    <strong>Input Graylog tidak menerima data</strong>
+                    <p>Input siem-fw-diameter-event, siem-fw-ss7-event, dan siem-fw-gtp-event tidak menerima data; sedang ditindaklanjuti di grup USIEM DevOps.</p>
+                  </article>
+                </div>
+              </section>
+
+              <section className="handover-section handover-task-section">
+                <div className="handover-section-heading handover-task-heading">
+                  <div>
+                    <span>03</span>
+                    <h3>Hasil Handover Shift Subuh → Pagi</h3>
+                  </div>
+                  <div className="handover-task-progress">
+                    <span>{handoverTasks.filter((task) => task.completed).length} dari {handoverTasks.length} diterima</span>
+                    <i><b style={{ width: `${handoverProgressPercent}%` }} /></i>
+                  </div>
+                </div>
+
+                <div className="handover-filters" aria-label="Filter status tugas handover">
+                  {([
+                    ["all", "Semua"],
+                    ["repeat", "Berulang"],
+                    ["waiting", "Menunggu konfirmasi"],
+                    ["in-progress", "On progress"],
+                  ] as Array<["all" | HandoverState, string]>).map(([value, label]) => (
+                    <button key={value} className={handoverFilter === value ? "active" : ""} onClick={() => setHandoverFilter(value)}>{label}</button>
+                  ))}
+                </div>
+
+                <div className="handover-task-list">
+                  {visibleHandoverTasks.map((task) => (
+                    <article className={`handover-task ${task.completed ? "confirmed" : ""}`} key={task.id}>
+                      <button
+                        className="handover-task-toggle"
+                        onClick={() => toggleHandoverTask(task.id)}
+                        aria-label={`${task.completed ? "Batalkan konfirmasi" : "Konfirmasi penerimaan"} tugas ${task.title}`}
+                        title={task.completed ? "Terkonfirmasi oleh shift pagi" : "Konfirmasi penerimaan tugas"}
+                      >
+                        {task.completed ? "✓" : ""}
+                      </button>
+                      <div className="handover-task-content">
+                        <div className="handover-task-title"><ProjectMark name={task.project} /><strong>{task.title}</strong></div>
+                        <p>{task.detail}</p>
+                      </div>
+                      <span className={`handover-status handover-status-${task.state}`}>
+                        {task.state === "repeat" ? "Berulang" : task.state === "waiting" ? "Menunggu konfirmasi" : "On progress"}
+                      </span>
+                    </article>
+                  ))}
+                </div>
+              </section>
             </div>
 
-            <div className="modal-actions">
-              <button className="button button-secondary" onClick={() => setHandoverOpen(false)}>
-                Simpan draf
-              </button>
-              <button
-                className="button button-primary"
-                onClick={() => {
-                  setHandoverOpen(false);
-                  announce("Checklist handover selesai dan dikirim ke tim shift malam!");
-                }}
-              >
-                Sign-off & transfer shift
-              </button>
-            </div>
+            <footer className="handover-modal-footer">
+              <span><b>●</b> 2 item prioritas masih memerlukan tindak lanjut.</span>
+              <div>
+                <button className="button button-secondary" onClick={() => { setHandoverOpen(false); announce("Catatan handover disimpan sebagai draf."); }}>Simpan catatan</button>
+                <button className="button button-primary" onClick={() => { setHandoverOpen(false); announce("Handover Shift Subuh ke Pagi telah dikonfirmasi."); }}>Konfirmasi handover</button>
+              </div>
+            </footer>
           </section>
         </div>
       )}
