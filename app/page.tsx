@@ -32,6 +32,42 @@ interface HandoverTask {
   completed: boolean;
 }
 
+interface HandoverRecordData {
+  sourceShift: string;
+  targetShift: string;
+  sourcePic: string;
+  targetPic: string;
+  monitoringSummary: string;
+  monitoringOwner: string;
+  monitoredProjects: string[];
+  validationNote: string;
+  findings: Array<{ project: string; title: string; detail: string; state: "waiting" | "in-progress" }>;
+  tasks: HandoverTask[];
+}
+
+interface StoredHandoverRecord {
+  id: number;
+  title: string;
+  handoverDate: string;
+  content: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+type HandoverDraft = {
+  date: string;
+  sourceShift: string;
+  targetShift: string;
+  sourcePic: string;
+  targetPic: string;
+  monitoringOwner: string;
+  monitoredProjects: string;
+  monitoringSummary: string;
+  validationNote: string;
+  findings: Array<{ project: string; title: string; detail: string; state: "waiting" | "in-progress" }>;
+  tasks: HandoverTask[];
+};
+
 const projects = [
   { name: "SM", status: "perlu perhatian", detail: "1 pengecualian", tone: "warning" as Tone },
   { name: "B2B", status: "perlu perhatian", detail: "Pemeriksaan Kafka", tone: "warning" as Tone },
@@ -233,6 +269,60 @@ const initialHandoverTasks: HandoverTask[] = [
   },
 ];
 
+const initialHandoverRecord: HandoverRecordData = {
+  sourceShift: "Subuh",
+  targetShift: "Pagi",
+  sourcePic: "Agnes",
+  targetPic: "Galih, Natanael, Pangondion",
+  monitoringSummary: "Pengecekan dan monitoring telah dilakukan serta dilaporkan di grup Telegram sesuai checkpoint yang ditentukan.",
+  monitoringOwner: "Agnes",
+  monitoredProjects: ["B2B", "DM", "EPC", "APH", "SM/ActiveMQ", "USIEM", "MB", "UNEM"],
+  validationNote: "Galih, Natanael, dan Pangondion telah memeriksa hasil monitoring pada sesi handover.",
+  findings: [
+    {
+      project: "USIEM",
+      title: "Log direct MSS belum tampil",
+      detail: "Log MSS Eric dan MSS Nokia sempat tertumpuk pada log distributor. Layanan telah di-restart dan tren penumpukan mulai menurun.",
+      state: "waiting",
+    },
+    {
+      project: "USIEM",
+      title: "Input Graylog tidak menerima data",
+      detail: "Input siem-fw-diameter-event, siem-fw-ss7-event, dan siem-fw-gtp-event tidak menerima data; sedang ditindaklanjuti di grup USIEM DevOps.",
+      state: "in-progress",
+    },
+  ],
+  tasks: initialHandoverTasks,
+};
+
+function toDateInputValue(date = new Date()) {
+  const timezoneOffset = date.getTimezoneOffset() * 60000;
+  return new Date(date.getTime() - timezoneOffset).toISOString().slice(0, 10);
+}
+
+function formatHandoverDate(value: string) {
+  const parsed = new Date(`${value}T00:00:00`);
+  return Number.isNaN(parsed.getTime())
+    ? value
+    : new Intl.DateTimeFormat("id-ID", { day: "2-digit", month: "long", year: "numeric" }).format(parsed);
+}
+
+function createHandoverDraft(record: HandoverRecordData = initialHandoverRecord, date = toDateInputValue()): HandoverDraft {
+  return {
+    date,
+    sourceShift: record.sourceShift,
+    targetShift: record.targetShift,
+    sourcePic: record.sourcePic,
+    targetPic: record.targetPic,
+    monitoringOwner: record.monitoringOwner,
+    monitoredProjects: record.monitoredProjects.join(", "),
+    monitoringSummary: record.monitoringSummary,
+    validationNote: record.validationNote,
+    findings: record.findings.map((finding) => ({ ...finding })),
+    tasks: record.tasks.map((task) => ({ ...task })),
+  };
+}
+
 const navItems = [
   ["⌂", "Utama"],
   ["◫", "Ticket"],
@@ -275,7 +365,14 @@ export default function Home() {
   const [ticketOpen, setTicketOpen] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [handoverOpen, setHandoverOpen] = useState(false);
-  const [handoverTasks, setHandoverTasks] = useState(initialHandoverTasks);
+  const [handoverRecord, setHandoverRecord] = useState<HandoverRecordData>(initialHandoverRecord);
+  const [handoverDate, setHandoverDate] = useState("2026-08-10");
+  const [handoverRecordId, setHandoverRecordId] = useState<number | null>(null);
+  const [handoverRecords, setHandoverRecords] = useState<StoredHandoverRecord[]>([]);
+  const [handoverDraftOpen, setHandoverDraftOpen] = useState(false);
+  const [handoverDraft, setHandoverDraft] = useState<HandoverDraft>(() => createHandoverDraft());
+  const [handoverSaving, setHandoverSaving] = useState(false);
+  const [handoverLoading, setHandoverLoading] = useState(true);
   const [handoverFilter, setHandoverFilter] = useState<"all" | HandoverState>("all");
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [notice, setNotice] = useState("");
@@ -285,6 +382,8 @@ export default function Home() {
   const [pendingAssessmentKey, setPendingAssessmentKey] = useState<string | null>(null);
   const [assessmentNote, setAssessmentNote] = useState("");
   const [showAdequacyGuide, setShowAdequacyGuide] = useState(false);
+
+  const handoverTasks = handoverRecord.tasks;
 
   // Live ticking clock
   useEffect(() => {
@@ -305,6 +404,22 @@ export default function Home() {
     document.documentElement.setAttribute("data-theme", theme);
   }, [theme]);
 
+  useEffect(() => {
+    const loadHandovers = async () => {
+      try {
+        const response = await fetch("/api/handovers");
+        if (!response.ok) throw new Error("Tidak dapat memuat catatan");
+        const payload = (await response.json()) as { notes: StoredHandoverRecord[] };
+        setHandoverRecords(payload.notes);
+      } catch {
+        announce("Catatan handover belum dapat dimuat. Anda tetap dapat membuat catatan baru.");
+      } finally {
+        setHandoverLoading(false);
+      }
+    };
+    void loadHandovers();
+  }, []);
+
   // Global hotkeys
   useEffect(() => {
     const listener = (event: KeyboardEvent) => {
@@ -317,6 +432,7 @@ export default function Home() {
         setTicketOpen(false);
         setSelectedTicket(null);
         setHandoverOpen(false);
+        setHandoverDraftOpen(false);
         setNotificationsOpen(false);
         setPendingAssessmentKey(null);
         setAssessmentNote("");
@@ -348,10 +464,137 @@ export default function Home() {
     return handoverTasks.filter((task) => task.state === handoverFilter);
   }, [handoverFilter, handoverTasks]);
 
+  const updateActiveHandover = (record: HandoverRecordData, date = handoverDate) => {
+    setHandoverRecord(record);
+    setHandoverDate(date);
+  };
+
+  const saveActiveHandover = async (record: HandoverRecordData) => {
+    if (!handoverRecordId) return;
+    const title = `Handover Shift ${record.sourceShift} → ${record.targetShift}`;
+    try {
+      const response = await fetch(`/api/handovers/${handoverRecordId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, handoverDate, content: JSON.stringify(record) }),
+      });
+      const payload = (await response.json()) as { note?: StoredHandoverRecord };
+      if (!response.ok || !payload.note) throw new Error("Tidak dapat menyimpan konfirmasi");
+      setHandoverRecords((previous) => previous.map((note) => (note.id === payload.note!.id ? payload.note! : note)));
+    } catch {
+      announce("Perubahan konfirmasi belum tersimpan. Coba lagi.");
+    }
+  };
+
   const toggleHandoverTask = (id: number) => {
-    setHandoverTasks((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, completed: !item.completed } : item))
-    );
+    const next = {
+      ...handoverRecord,
+      tasks: handoverRecord.tasks.map((item) => (item.id === id ? { ...item, completed: !item.completed } : item)),
+    };
+    setHandoverRecord(next);
+    void saveActiveHandover(next);
+  };
+
+  const openNewHandoverDraft = () => {
+    setHandoverDraft(createHandoverDraft({ ...initialHandoverRecord, tasks: initialHandoverTasks }, toDateInputValue()));
+    setHandoverDraftOpen(true);
+  };
+
+  const openStoredHandover = (record: StoredHandoverRecord) => {
+    try {
+      const content = JSON.parse(record.content) as HandoverRecordData;
+      updateActiveHandover(content, record.handoverDate);
+      setHandoverRecordId(record.id);
+      setHandoverFilter("all");
+      setHandoverOpen(true);
+    } catch {
+      announce("Catatan handover ini tidak dapat dibuka.");
+    }
+  };
+
+  const updateDraftTask = (taskId: number, change: Partial<HandoverTask>) => {
+    setHandoverDraft((previous) => ({
+      ...previous,
+      tasks: previous.tasks.map((task) => (task.id === taskId ? { ...task, ...change } : task)),
+    }));
+  };
+
+  const updateDraftFinding = (findingIndex: number, change: Partial<HandoverDraft["findings"][number]>) => {
+    setHandoverDraft((previous) => ({
+      ...previous,
+      findings: previous.findings.map((finding, index) => (index === findingIndex ? { ...finding, ...change } : finding)),
+    }));
+  };
+
+  const addDraftTask = () => {
+    setHandoverDraft((previous) => ({
+      ...previous,
+      tasks: [
+        ...previous.tasks,
+        { id: Date.now(), title: "", project: "NOC", detail: "", state: "repeat", completed: false },
+      ],
+    }));
+  };
+
+  const removeDraftTask = (taskId: number) => {
+    setHandoverDraft((previous) => ({ ...previous, tasks: previous.tasks.filter((task) => task.id !== taskId) }));
+  };
+
+  const addDraftFinding = () => {
+    setHandoverDraft((previous) => ({
+      ...previous,
+      findings: [...previous.findings, { project: "NOC", title: "", detail: "", state: "waiting" }],
+    }));
+  };
+
+  const removeDraftFinding = (findingIndex: number) => {
+    setHandoverDraft((previous) => ({ ...previous, findings: previous.findings.filter((_, index) => index !== findingIndex) }));
+  };
+
+  const saveHandoverDraft = async () => {
+    const tasks = handoverDraft.tasks.filter((task) => task.title.trim());
+    const findings = handoverDraft.findings.filter((finding) => finding.title.trim() || finding.detail.trim());
+    const record: HandoverRecordData = {
+      sourceShift: handoverDraft.sourceShift.trim() || "Shift sebelumnya",
+      targetShift: handoverDraft.targetShift.trim() || "Shift berikutnya",
+      sourcePic: handoverDraft.sourcePic.trim() || "Belum diisi",
+      targetPic: handoverDraft.targetPic.trim() || "Belum diisi",
+      monitoringSummary: handoverDraft.monitoringSummary.trim() || "Monitoring belum dicatat.",
+      monitoringOwner: handoverDraft.monitoringOwner.trim() || handoverDraft.sourcePic.trim() || "Belum diisi",
+      monitoredProjects: handoverDraft.monitoredProjects.split(",").map((project) => project.trim()).filter(Boolean),
+      validationNote: handoverDraft.validationNote.trim() || "Menunggu validasi shift penerima.",
+      findings,
+      tasks,
+    };
+
+    if (!handoverDraft.date || !record.sourcePic || !record.targetPic || !tasks.length) {
+      announce("Isi tanggal, PIC pengirim, PIC penerima, dan minimal satu tugas handover.");
+      return;
+    }
+
+    const title = `Handover Shift ${record.sourceShift} → ${record.targetShift}`;
+    setHandoverSaving(true);
+    try {
+      const response = await fetch("/api/handovers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, handoverDate: handoverDraft.date, content: JSON.stringify(record) }),
+      });
+      const payload = (await response.json()) as { note?: StoredHandoverRecord; error?: string };
+      if (!response.ok || !payload.note) throw new Error(payload.error || "Gagal menyimpan");
+
+      setHandoverRecords((previous) => [payload.note!, ...previous]);
+      setHandoverRecordId(payload.note.id);
+      updateActiveHandover(record, handoverDraft.date);
+      setHandoverFilter("all");
+      setHandoverDraftOpen(false);
+      setHandoverOpen(true);
+      announce("Catatan handover baru berhasil disimpan dan siap dikonfirmasi.");
+    } catch (error) {
+      announce(error instanceof Error ? error.message : "Catatan handover belum dapat disimpan.");
+    } finally {
+      setHandoverSaving(false);
+    }
   };
 
   const announce = (message: string) => {
@@ -802,7 +1045,7 @@ export default function Home() {
                   <span>⊙</span> KESIAPAN HANDOVER
                 </div>
                 <strong>{handoverTasks.filter((t) => !t.completed).length} tugas perlu tindak lanjut</strong>
-                <p>Handover Subuh ke Pagi telah divalidasi; dua item prioritas masih perlu dikonfirmasi.</p>
+                <p>{handoverRecordId ? `Handover ${handoverRecord.sourceShift} ke ${handoverRecord.targetShift} tersimpan dan siap dikonfirmasi.` : "Buat catatan baru untuk mendokumentasikan proses serah-terima shift."}</p>
                 <div className="handover-progress">
                   <span>{handoverProgressPercent}% diterima</span>
                   <i>
@@ -811,6 +1054,9 @@ export default function Home() {
                 </div>
                 <button onClick={() => setHandoverOpen(true)}>
                   Buka catatan handover <span>→</span>
+                </button>
+                <button className="handover-create-button" onClick={openNewHandoverDraft}>
+                  <span>＋</span> Buat handover baru
                 </button>
               </article>
             </aside>
@@ -1122,26 +1368,39 @@ export default function Home() {
           >
             <header className="handover-modal-header">
               <div>
-                <div className="handover-modal-kicker"><span className="live-dot" /> CATATAN HANDOVER · 10/08/2026</div>
-                <h2>Handover Shift Subuh <span>→</span> Pagi</h2>
-                <p>Catatan operasional, temuan, dan tugas lanjutan yang telah diterima oleh tim shift pagi.</p>
+                <div className="handover-modal-kicker"><span className="live-dot" /> CATATAN HANDOVER · {formatHandoverDate(handoverDate).toUpperCase()}</div>
+                <h2>Handover Shift {handoverRecord.sourceShift} <span>→</span> {handoverRecord.targetShift}</h2>
+                <p>Catatan operasional, temuan, dan tugas lanjutan yang telah diterima oleh tim shift {handoverRecord.targetShift.toLowerCase()}.</p>
               </div>
-              <button className="handover-modal-close" onClick={() => setHandoverOpen(false)} aria-label="Tutup catatan handover">×</button>
+              <div className="handover-header-actions">
+                <button className="handover-new-trigger" onClick={openNewHandoverDraft}>＋ Buat baru</button>
+                <button className="handover-modal-close" onClick={() => setHandoverOpen(false)} aria-label="Tutup catatan handover">×</button>
+              </div>
             </header>
 
             <div className="handover-modal-scroll">
+              <div className="handover-records-bar">
+                <span>CATATAN TERSIMPAN</span>
+                <div>
+                  {handoverLoading ? <small>Memuat catatan…</small> : handoverRecords.length ? handoverRecords.slice(0, 4).map((record) => (
+                    <button className={handoverRecordId === record.id ? "active" : ""} key={record.id} onClick={() => openStoredHandover(record)}>
+                      {formatHandoverDate(record.handoverDate)}
+                    </button>
+                  )) : <small>Belum ada catatan handover tersimpan.</small>}
+                </div>
+              </div>
               <section className="handover-meta" aria-label="Informasi shift">
                 <div className="handover-meta-item">
                   <span>TANGGAL</span>
-                  <strong>10 Agustus 2026</strong>
+                  <strong>{formatHandoverDate(handoverDate)}</strong>
                 </div>
                 <div className="handover-meta-item">
-                  <span>PIC SHIFT SUBUH</span>
-                  <strong>Agnes</strong>
+                  <span>PIC SHIFT {handoverRecord.sourceShift.toUpperCase()}</span>
+                  <strong>{handoverRecord.sourcePic}</strong>
                 </div>
                 <div className="handover-meta-item">
-                  <span>PIC SHIFT PAGI</span>
-                  <strong>Galih, Natanael, Pangondion</strong>
+                  <span>PIC SHIFT {handoverRecord.targetShift.toUpperCase()}</span>
+                  <strong>{handoverRecord.targetPic}</strong>
                 </div>
               </section>
 
@@ -1153,19 +1412,19 @@ export default function Home() {
                   </div>
                   <Badge tone="success">Tervalidasi</Badge>
                 </div>
-                <p className="handover-section-copy">Pengecekan dan monitoring telah dilakukan serta dilaporkan di grup Telegram sesuai checkpoint yang ditentukan.</p>
+                <p className="handover-section-copy">{handoverRecord.monitoringSummary}</p>
                 <div className="handover-assignment">
                   <div className="handover-person">
-                    <span className="avatar avatar-2">A</span>
-                    <div><small>PENANGGUNG JAWAB MONITORING</small><strong>Agnes · 8 project</strong></div>
+                    <span className="avatar avatar-2">{handoverRecord.monitoringOwner.split(" ").map((part) => part[0]).join("").slice(0, 2)}</span>
+                    <div><small>PENANGGUNG JAWAB MONITORING</small><strong>{handoverRecord.monitoringOwner} · {handoverRecord.monitoredProjects.length} project</strong></div>
                   </div>
                   <div className="handover-project-list" aria-label="Daftar proyek yang dimonitor">
-                    {["B2B", "DM", "EPC", "APH", "SM/ActiveMQ", "USIEM", "MB", "UNEM"].map((project) => <span key={project}>{project}</span>)}
+                    {handoverRecord.monitoredProjects.map((project) => <span key={project}>{project}</span>)}
                   </div>
                 </div>
                 <div className="handover-validation-note">
                   <b>✓</b>
-                  <span><strong>Validasi Shift Pagi baik dan sesuai.</strong> Galih, Natanael, dan Pangondion telah memeriksa hasil monitoring pada sesi handover.</span>
+                  <span><strong>Validasi Shift {handoverRecord.targetShift} baik dan sesuai.</strong> {handoverRecord.validationNote}</span>
                 </div>
               </section>
 
@@ -1175,19 +1434,16 @@ export default function Home() {
                     <span>02</span>
                     <h3>Temuan dari Shift Subuh</h3>
                   </div>
-                  <Badge tone="warning">2 tindak lanjut</Badge>
+                  <Badge tone="warning">{handoverRecord.findings.length} tindak lanjut</Badge>
                 </div>
                 <div className="handover-finding-list">
-                  <article className="handover-finding">
-                    <div className="handover-finding-top"><ProjectMark name="USIEM" /><span className="handover-status handover-status-waiting">Dipantau</span></div>
-                    <strong>Log direct MSS belum tampil</strong>
-                    <p>Log MSS Eric dan MSS Nokia sempat tertumpuk pada log distributor. Layanan telah di-restart dan tren penumpukan mulai menurun.</p>
-                  </article>
-                  <article className="handover-finding">
-                    <div className="handover-finding-top"><ProjectMark name="USIEM" /><span className="handover-status handover-status-progress">On follow up</span></div>
-                    <strong>Input Graylog tidak menerima data</strong>
-                    <p>Input siem-fw-diameter-event, siem-fw-ss7-event, dan siem-fw-gtp-event tidak menerima data; sedang ditindaklanjuti di grup USIEM DevOps.</p>
-                  </article>
+                  {handoverRecord.findings.length ? handoverRecord.findings.map((finding, index) => (
+                    <article className="handover-finding" key={`${finding.title}-${index}`}>
+                      <div className="handover-finding-top"><ProjectMark name={finding.project || "NOC"} /><span className={`handover-status handover-status-${finding.state}`}>{finding.state === "waiting" ? "Dipantau" : "On follow up"}</span></div>
+                      <strong>{finding.title || "Temuan tanpa judul"}</strong>
+                      <p>{finding.detail || "Belum ada keterangan temuan."}</p>
+                    </article>
+                  )) : <div className="handover-empty-note">Tidak ada temuan yang perlu ditindaklanjuti pada handover ini.</div>}
                 </div>
               </section>
 
@@ -1195,7 +1451,7 @@ export default function Home() {
                 <div className="handover-section-heading handover-task-heading">
                   <div>
                     <span>03</span>
-                    <h3>Hasil Handover Shift Subuh → Pagi</h3>
+                    <h3>Hasil Handover Shift {handoverRecord.sourceShift} → {handoverRecord.targetShift}</h3>
                   </div>
                   <div className="handover-task-progress">
                     <span>{handoverTasks.filter((task) => task.completed).length} dari {handoverTasks.length} diterima</span>
@@ -1239,10 +1495,97 @@ export default function Home() {
             </div>
 
             <footer className="handover-modal-footer">
-              <span><b>●</b> 2 item prioritas masih memerlukan tindak lanjut.</span>
+              <span><b>●</b> {handoverTasks.filter((task) => !task.completed).length} item prioritas masih memerlukan tindak lanjut.</span>
               <div>
-                <button className="button button-secondary" onClick={() => { setHandoverOpen(false); announce("Catatan handover disimpan sebagai draf."); }}>Simpan catatan</button>
-                <button className="button button-primary" onClick={() => { setHandoverOpen(false); announce("Handover Shift Subuh ke Pagi telah dikonfirmasi."); }}>Konfirmasi handover</button>
+                <button className="button button-secondary" onClick={() => { setHandoverOpen(false); announce("Catatan handover ditutup. Perubahan konfirmasi tersimpan pada catatan aktif."); }}>Tutup catatan</button>
+                <button className="button button-primary" onClick={() => { setHandoverOpen(false); announce(`Handover Shift ${handoverRecord.sourceShift} ke ${handoverRecord.targetShift} telah dikonfirmasi.`); }}>Konfirmasi handover</button>
+              </div>
+            </footer>
+          </section>
+        </div>
+      )}
+
+      {/* New handover form */}
+      {handoverDraftOpen && (
+        <div className="modal-backdrop" onMouseDown={() => setHandoverDraftOpen(false)}>
+          <section className="handover-form-modal" role="dialog" aria-modal="true" aria-label="Buat catatan handover baru" onMouseDown={(event) => event.stopPropagation()}>
+            <header className="handover-modal-header">
+              <div>
+                <div className="handover-modal-kicker"><span className="live-dot" /> CATATAN BARU</div>
+                <h2>Buat handover baru</h2>
+                <p>Lengkapi informasi serah-terima untuk membuat catatan yang dapat dibuka dan dikonfirmasi oleh shift berikutnya.</p>
+              </div>
+              <button className="handover-modal-close" onClick={() => setHandoverDraftOpen(false)} aria-label="Tutup formulir handover">×</button>
+            </header>
+
+            <div className="handover-form-scroll">
+              <section className="handover-form-section">
+                <div className="handover-form-section-title"><span>01</span><div><h3>Identitas handover</h3><p>Siapa yang menyerahkan dan menerima shift.</p></div></div>
+                <div className="handover-form-grid handover-form-grid-three">
+                  <label>Tanggal<input type="date" value={handoverDraft.date} onChange={(event) => setHandoverDraft((previous) => ({ ...previous, date: event.target.value }))} required /></label>
+                  <label>Shift pengirim<input value={handoverDraft.sourceShift} onChange={(event) => setHandoverDraft((previous) => ({ ...previous, sourceShift: event.target.value }))} placeholder="Contoh: Subuh" required /></label>
+                  <label>Shift penerima<input value={handoverDraft.targetShift} onChange={(event) => setHandoverDraft((previous) => ({ ...previous, targetShift: event.target.value }))} placeholder="Contoh: Pagi" required /></label>
+                  <label>PIC shift pengirim<input value={handoverDraft.sourcePic} onChange={(event) => setHandoverDraft((previous) => ({ ...previous, sourcePic: event.target.value }))} placeholder="Contoh: Agnes" required /></label>
+                  <label className="handover-form-wide">PIC shift penerima<input value={handoverDraft.targetPic} onChange={(event) => setHandoverDraft((previous) => ({ ...previous, targetPic: event.target.value }))} placeholder="Pisahkan beberapa nama dengan koma" required /></label>
+                </div>
+              </section>
+
+              <section className="handover-form-section">
+                <div className="handover-form-section-title"><span>02</span><div><h3>Monitoring &amp; validasi</h3><p>Ringkasan kegiatan yang telah dilakukan pada shift pengirim.</p></div></div>
+                <div className="handover-form-grid handover-form-grid-two">
+                  <label>Penanggung jawab monitoring<input value={handoverDraft.monitoringOwner} onChange={(event) => setHandoverDraft((previous) => ({ ...previous, monitoringOwner: event.target.value }))} placeholder="Nama PIC monitoring" /></label>
+                  <label>Project yang dimonitor<input value={handoverDraft.monitoredProjects} onChange={(event) => setHandoverDraft((previous) => ({ ...previous, monitoredProjects: event.target.value }))} placeholder="B2B, DM, EPC, ..." /></label>
+                </div>
+                <label>Ringkasan monitoring<textarea rows={3} value={handoverDraft.monitoringSummary} onChange={(event) => setHandoverDraft((previous) => ({ ...previous, monitoringSummary: event.target.value }))} placeholder="Jelaskan monitoring dan report yang telah dilakukan." /></label>
+                <label>Catatan validasi shift penerima<textarea rows={2} value={handoverDraft.validationNote} onChange={(event) => setHandoverDraft((previous) => ({ ...previous, validationNote: event.target.value }))} placeholder="Hasil validasi saat sesi handover." /></label>
+              </section>
+
+              <section className="handover-form-section">
+                <div className="handover-form-section-title handover-form-title-action">
+                  <div><span>03</span><div><h3>Temuan</h3><p>Tambahkan pengecualian atau isu yang harus ditindaklanjuti.</p></div></div>
+                  <button type="button" className="handover-inline-add" onClick={addDraftFinding}>＋ Tambah temuan</button>
+                </div>
+                <div className="handover-form-repeat-list">
+                  {handoverDraft.findings.length ? handoverDraft.findings.map((finding, index) => (
+                    <article className="handover-form-repeat" key={`finding-${index}`}>
+                      <div className="handover-form-repeat-head"><strong>Temuan {index + 1}</strong><button type="button" onClick={() => removeDraftFinding(index)} aria-label={`Hapus temuan ${index + 1}`}>Hapus</button></div>
+                      <div className="handover-form-grid handover-form-grid-three">
+                        <label>Project<input value={finding.project} onChange={(event) => updateDraftFinding(index, { project: event.target.value })} placeholder="USIEM" /></label>
+                        <label className="handover-form-wide">Judul temuan<input value={finding.title} onChange={(event) => updateDraftFinding(index, { title: event.target.value })} placeholder="Ringkasan masalah" /></label>
+                        <label>Status<select value={finding.state} onChange={(event) => updateDraftFinding(index, { state: event.target.value as "waiting" | "in-progress" })}><option value="waiting">Dipantau</option><option value="in-progress">On follow up</option></select></label>
+                      </div>
+                      <label>Detail temuan<textarea rows={2} value={finding.detail} onChange={(event) => updateDraftFinding(index, { detail: event.target.value })} placeholder="Kondisi terakhir dan langkah tindak lanjut." /></label>
+                    </article>
+                  )) : <div className="handover-form-empty">Tidak ada temuan. Tambahkan hanya jika ada isu yang perlu diteruskan.</div>}
+                </div>
+              </section>
+
+              <section className="handover-form-section">
+                <div className="handover-form-section-title handover-form-title-action">
+                  <div><span>04</span><div><h3>Tugas handover</h3><p>Gunakan ceklis hanya setelah PIC shift penerima mengonfirmasi tugas tersebut.</p></div></div>
+                  <button type="button" className="handover-inline-add" onClick={addDraftTask}>＋ Tambah tugas</button>
+                </div>
+                <div className="handover-form-repeat-list">
+                  {handoverDraft.tasks.map((task, index) => (
+                    <article className="handover-form-repeat handover-task-editor" key={task.id}>
+                      <div className="handover-form-repeat-head"><strong>Tugas {index + 1}</strong><button type="button" onClick={() => removeDraftTask(task.id)} aria-label={`Hapus tugas ${index + 1}`}>Hapus</button></div>
+                      <div className="handover-form-grid handover-form-grid-three">
+                        <label>Project<input value={task.project} onChange={(event) => updateDraftTask(task.id, { project: event.target.value })} placeholder="SM" /></label>
+                        <label className="handover-form-wide">Judul tugas<input value={task.title} onChange={(event) => updateDraftTask(task.id, { title: event.target.value })} placeholder="Tugas yang diteruskan" required /></label>
+                        <label>Status<select value={task.state} onChange={(event) => updateDraftTask(task.id, { state: event.target.value as HandoverState })}><option value="repeat">Berulang</option><option value="waiting">Menunggu konfirmasi</option><option value="in-progress">On progress</option></select></label>
+                      </div>
+                      <label>Instruksi / detail<textarea rows={2} value={task.detail} onChange={(event) => updateDraftTask(task.id, { detail: event.target.value })} placeholder="Jelaskan hal yang perlu dipantau atau dikerjakan." /></label>
+                    </article>
+                  ))}
+                </div>
+              </section>
+            </div>
+
+            <footer className="handover-modal-footer handover-form-footer">
+              <span>Catatan disimpan sebagai rekam handover dan dapat dibuka kembali dari dashboard.</span>
+              <div>
+                <button className="button button-secondary" onClick={() => setHandoverDraftOpen(false)} disabled={handoverSaving}>Batal</button>
+                <button className="button button-primary" onClick={() => void saveHandoverDraft()} disabled={handoverSaving}>{handoverSaving ? "Menyimpan…" : "Simpan & buka handover"}</button>
               </div>
             </footer>
           </section>
