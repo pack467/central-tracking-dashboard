@@ -556,6 +556,12 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb {
   background: var(--accent-blue-soft);
 }
 
+.icon-button svg,
+.theme-toggle-button svg,
+.notification-modal-icon svg {
+  display: block;
+}
+
 .notification-button i {
   position: absolute;
   top: -3px;
@@ -581,12 +587,27 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb {
   border: 1px solid var(--orange-border);
   border-radius: 7px;
   background: var(--orange-soft);
-  font-size: 15px;
   transition: all 0.15s ease;
 }
 
 .theme-toggle-button:hover {
   background: var(--orange-border);
+}
+
+html[data-theme="dark"] .theme-toggle-button {
+  color: var(--accent-blue);
+  border-color: var(--accent-blue-border);
+  background: var(--accent-blue-soft);
+}
+
+html[data-theme="dark"] .theme-toggle-button:hover {
+  background: var(--accent-blue-border);
+}
+
+.notification-modal-icon {
+  display: grid;
+  place-items: center;
+  color: var(--accent-blue);
 }
 
 /* ═══════════════════════════════════════════════

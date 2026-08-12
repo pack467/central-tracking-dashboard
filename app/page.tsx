@@ -355,6 +355,32 @@ function Sparkline({ color = "#10b981", points = "0,25 20,20 40,22 60,15 80,18 1
   );
 }
 
+function IconBell({ size = 17 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
+      <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+    </svg>
+  );
+}
+
+function IconSun({ size = 17 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+    </svg>
+  );
+}
+
+function IconMoon({ size = 17 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z" />
+    </svg>
+  );
+}
+
 export default function Home() {
   const [activeNav, setActiveNav] = useState("Utama");
   const [theme, setTheme] = useState<"dark" | "light">("light");
@@ -731,15 +757,16 @@ export default function Home() {
               aria-label="Notifikasi"
               title="Notifikasi sistem aktif"
             >
-              ♧<i>3</i>
+              <IconBell /><i>3</i>
             </button>
 
             <button
               className="theme-toggle-button"
               onClick={toggleTheme}
               title={`Ubah ke mode ${theme === "dark" ? "terang" : "gelap"}`}
+              aria-label={`Ubah ke mode ${theme === "dark" ? "terang" : "gelap"}`}
             >
-              {theme === "dark" ? "☀️" : "🌙"}
+              {theme === "dark" ? <IconSun /> : <IconMoon />}
             </button>
           </div>
         </header>
@@ -1604,7 +1631,7 @@ export default function Home() {
           >
             <div className="command-input" style={{ justifyContent: "space-between" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                <span style={{ fontSize: "18px" }}>♧</span>
+                <span className="notification-modal-icon"><IconBell size={18} /></span>
                 <strong style={{ fontSize: "14px" }}>Alert operasional (3)</strong>
               </div>
               <button onClick={() => setNotificationsOpen(false)} style={{ background: "transparent", color: "var(--ink-muted)", fontSize: "18px" }}>×</button>
