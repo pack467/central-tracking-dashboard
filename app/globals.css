@@ -729,7 +729,7 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb {
   border: 1px solid var(--panel-border);
   border-radius: 10px;
   box-shadow: var(--shadow-panel);
-  overflow-x: auto;
+  overflow: hidden;
 }
 
 .health-intro {
@@ -758,6 +758,7 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb {
   grid-template-columns: repeat(7, minmax(105px, 1fr));
   gap: 10px;
   flex: 1;
+  min-width: 0;
 }
 
 .project-pill {
@@ -765,6 +766,7 @@ html[data-theme="dark"] ::-webkit-scrollbar-thumb {
   display: flex;
   align-items: center;
   gap: 8px;
+  min-width: 0;
   padding: 6px 8px;
   text-align: left;
   background: var(--bg);
@@ -966,6 +968,10 @@ html[data-theme="dark"] .project-dm { color: #38bdf8; background: rgba(56, 189, 
   margin-bottom: 20px;
 }
 
+.dashboard-grid > *, .main-column, .side-column {
+  min-width: 0;
+}
+
 .main-column, .side-column {
   display: grid;
   align-content: start;
@@ -1137,13 +1143,18 @@ html[data-theme="dark"] .project-dm { color: #38bdf8; background: rgba(56, 189, 
 
 .schedule-table {
   padding: 0 20px;
+  min-width: 0;
 }
 
 .schedule-header, .schedule-row {
   display: grid;
-  grid-template-columns: 70px minmax(210px, 1.8fr) minmax(140px, 1fr) 90px;
+  grid-template-columns: 64px minmax(0, 1.8fr) minmax(132px, 0.8fr) minmax(166px, auto);
   align-items: center;
-  column-gap: 14px;
+  column-gap: 12px;
+}
+
+.schedule-header > *, .schedule-row > * {
+  min-width: 0;
 }
 
 .schedule-header {
@@ -1222,8 +1233,12 @@ html[data-theme="dark"] .project-dm { color: #38bdf8; background: rgba(56, 189, 
   display: flex;
   align-items: center;
   gap: 7px;
+  min-width: 0;
+  overflow: hidden;
   color: var(--ink-secondary);
   font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .mini-avatar {
@@ -1850,7 +1865,16 @@ html[data-theme="dark"] .project-dm { color: #38bdf8; background: rgba(56, 189, 
   .page-content { padding-left: 22px; padding-right: 22px; }
 }
 
+/* Keep the monitoring table readable before its action controls become cramped. */
+@media (max-width: 1380px) {
+  .dashboard-grid { grid-template-columns: minmax(0, 1fr); }
+  .side-column { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .project-pills { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
 @media (max-width: 940px) {
+  .app-shell { flex-direction: column; }
+
   .sidebar {
     position: static;
     width: 100%;
@@ -1862,8 +1886,8 @@ html[data-theme="dark"] .project-dm { color: #38bdf8; background: rgba(56, 189, 
   }
   .brand-lockup { padding: 0; }
   .sidebar-label, .nav-list:not(:first-of-type), .shift-card, .profile { display: none; }
-  .nav-list { display: flex; gap: 4px; }
-  .nav-item { width: auto; padding: 7px 10px; font-size: 12px; }
+  .nav-list { display: flex; flex: 1; min-width: 0; gap: 4px; overflow-x: auto; }
+  .nav-item { flex: 0 0 auto; width: auto; padding: 7px 10px; font-size: 12px; }
   .nav-icon { display: none; }
   .workspace { width: 100%; margin: 0; }
   .topbar { padding: 0 18px; }
@@ -1887,6 +1911,25 @@ html[data-theme="dark"] .project-dm { color: #38bdf8; background: rgba(56, 189, 
   .ticket-owner, .ticket-header > span:nth-child(3) { display: none; }
   .page-content { padding: 18px 16px 36px; }
   .live-clock-badge { display: none; }
+  .health-intro { display: flex; flex-wrap: wrap; gap: 4px; }
+  .health-title { flex-basis: 100%; }
+  .health-intro .badge { margin: 0; }
+}
+
+@media (max-width: 760px) {
+  .schedule-heading { flex-direction: column; align-items: flex-start; }
+  .filter-tabs { max-width: 100%; overflow-x: auto; }
+
+  .schedule-table {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-gutter: stable;
+  }
+
+  .schedule-header, .schedule-row {
+    min-width: 720px;
+    grid-template-columns: 64px 250px 160px 186px;
+  }
 }
 
 /* ═══════════════════════════════════════════════
@@ -1912,19 +1955,29 @@ html[data-theme="dark"] .project-dm { color: #38bdf8; background: rgba(56, 189, 
 .schedule-assessment-cell {
   display: flex;
   align-items: center;
-  gap: 6px;
+  justify-content: flex-end;
+  min-width: 0;
 }
 
 .assessment-actions {
-  display: flex;
-  gap: 5px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  width: 100%;
+  min-width: 0;
+  gap: 6px;
 }
 
 .assess-btn {
-  padding: 3px 8px;
+  width: 100%;
+  min-width: 0;
+  min-height: 32px;
+  padding: 4px 6px;
   border-radius: 5px;
   font-size: 10px;
   font-weight: 700;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+  text-align: center;
   cursor: pointer;
   transition: all 0.15s ease;
 }
@@ -1982,4 +2035,3 @@ html[data-theme="dark"] .project-dm { color: #38bdf8; background: rgba(56, 189, 
   font-family: var(--font-mono);
   word-break: break-word;
 }
-
