@@ -40,7 +40,22 @@ const worker = {
       }, allowedWidths);
     }
 
-    return handler.fetch(request, env, ctx);
+    const response = await handler.fetch(request, env, ctx);
+    const isStaticAsset = /\.(?:avif|css|gif|ico|jpe?g|js|mjs|png|svg|webp|woff2?)$/i.test(url.pathname);
+
+    // Hashed framework assets can safely be retained indefinitely. Public assets
+    // retain a shorter cache lifetime so a future logo or social-card update is
+    // still picked up without changing the user-facing URL.
+    if (!isStaticAsset || response.headers.has("cache-control")) return response;
+
+    const headers = new Headers(response.headers);
+    headers.set(
+      "cache-control",
+      url.pathname.startsWith("/_next/static/")
+        ? "public, max-age=31536000, immutable"
+        : "public, max-age=604800, stale-while-revalidate=86400",
+    );
+    return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
   },
 };
 

@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+﻿import { eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { handoverNotes } from "@/db/schema";
 
@@ -60,6 +60,27 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
   } catch {
     return Response.json(
       { error: "Perubahan status handover belum dapat disimpan." },
+      { status: 500 },
+    );
+  }
+}
+
+export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id: rawId } = await params;
+  const id = getNoteId(rawId);
+  if (!id) return Response.json({ error: "Catatan handover tidak ditemukan." }, { status: 404 });
+
+  try {
+    const [note] = await getDb()
+      .delete(handoverNotes)
+      .where(eq(handoverNotes.id, id))
+      .returning();
+
+    if (!note) return Response.json({ error: "Catatan handover tidak ditemukan." }, { status: 404 });
+    return Response.json({ note });
+  } catch {
+    return Response.json(
+      { error: "Catatan handover belum dapat dihapus. Coba lagi beberapa saat lagi." },
       { status: 500 },
     );
   }
