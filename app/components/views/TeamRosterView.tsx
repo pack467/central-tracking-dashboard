@@ -1,6 +1,6 @@
 "use client";
 
-import { lazy, startTransition, Suspense, useMemo, useState } from "react";
+import { lazy, startTransition, Suspense, useCallback, useMemo, useState } from "react";
 import { UserPlus, ArrowRightLeft, Table, Calendar, Search, X } from "lucide-react";
 import { RosterStatCards } from "@/app/components/team/RosterStatCards";
 import { RosterShiftCoverage } from "@/app/components/team/RosterShiftCoverage";
@@ -38,6 +38,32 @@ export function TeamRosterView() {
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [swapModalOpen, setSwapModalOpen] = useState(false);
   const [swapPreselectedMember, setSwapPreselectedMember] = useState<RosterMember | null>(null);
+  const [loadedOverlays, setLoadedOverlays] = useState({
+    memberDetail: false,
+    swap: false,
+    create: false,
+  });
+
+  const markOverlayLoaded = useCallback((overlay: keyof typeof loadedOverlays) => {
+    setLoadedOverlays((previous) => (previous[overlay] ? previous : { ...previous, [overlay]: true }));
+  }, []);
+
+  const openMemberDetail = useCallback((member: RosterMember) => {
+    markOverlayLoaded("memberDetail");
+    setSelectedMember(member);
+  }, [markOverlayLoaded]);
+
+  const openSwap = useCallback((member: RosterMember | null = null) => {
+    markOverlayLoaded("swap");
+    setSwapPreselectedMember(member);
+    setSwapModalOpen(true);
+  }, [markOverlayLoaded]);
+
+  const openMemberCreate = useCallback((member: RosterMember | null = null) => {
+    markOverlayLoaded("create");
+    setEditingMember(member);
+    setCreateModalOpen(true);
+  }, [markOverlayLoaded]);
 
   // Filtered members calculation
   const filteredMembers = useMemo(() => {
@@ -75,8 +101,7 @@ export function TeamRosterView() {
   };
 
   const handleOpenSwapForMember = (member: RosterMember) => {
-    setSwapPreselectedMember(member);
-    setSwapModalOpen(true);
+    openSwap(member);
   };
 
   return (
@@ -94,19 +119,13 @@ export function TeamRosterView() {
         <div className="page-actions">
           <button
             className="button button-secondary"
-            onClick={() => {
-              setSwapPreselectedMember(null);
-              setSwapModalOpen(true);
-            }}
+            onClick={() => openSwap()}
           >
             <ArrowRightLeft size={14} /> Shift Swaps ({swapRequests.filter((r) => r.status === "Pending").length})
           </button>
           <button
             className="button button-primary"
-            onClick={() => {
-              setEditingMember(null);
-              setCreateModalOpen(true);
-            }}
+            onClick={() => openMemberCreate()}
           >
             <UserPlus size={14} /> Add Team Member
           </button>
@@ -117,10 +136,7 @@ export function TeamRosterView() {
       <RosterStatCards
         members={members}
         swapRequests={swapRequests}
-        onOpenSwaps={() => {
-          setSwapPreselectedMember(null);
-          setSwapModalOpen(true);
-        }}
+        onOpenSwaps={() => openSwap()}
       />
 
       {/* 3. Main Roster Content (2 columns: Table/Calendar & Shift Coverage Widget) */}
@@ -213,15 +229,12 @@ export function TeamRosterView() {
                 {viewMode === "table" ? (
                   <RosterTable
                     members={filteredMembers}
-                    onSelectMember={setSelectedMember}
-                    onEditMember={(m) => {
-                      setEditingMember(m);
-                      setCreateModalOpen(true);
-                    }}
+                    onSelectMember={openMemberDetail}
+                    onEditMember={openMemberCreate}
                     onRequestSwap={handleOpenSwapForMember}
                   />
                 ) : (
-                  <RosterCalendarView members={filteredMembers} onSelectMember={setSelectedMember} />
+                  <RosterCalendarView members={filteredMembers} onSelectMember={openMemberDetail} />
                 )}
               </Suspense>
             </div>
@@ -232,14 +245,14 @@ export function TeamRosterView() {
         <div className="side-column">
           <RosterShiftCoverage
             members={members}
-            onSelectMember={setSelectedMember}
+            onSelectMember={openMemberDetail}
           />
         </div>
       </div>
 
       {/* Drawers & modals load only when an operator opens them. */}
       <Suspense fallback={null}>
-        {selectedMember && (
+        {loadedOverlays.memberDetail && (
           <MemberDetailDrawer
             member={selectedMember}
             onClose={() => setSelectedMember(null)}
@@ -248,7 +261,7 @@ export function TeamRosterView() {
           />
         )}
 
-        {swapModalOpen && (
+        {loadedOverlays.swap && (
           <ShiftSwapModal
             open={swapModalOpen}
             onClose={() => setSwapModalOpen(false)}
@@ -259,7 +272,7 @@ export function TeamRosterView() {
           />
         )}
 
-        {createModalOpen && (
+        {loadedOverlays.create && (
           <MemberCreateModal
             open={createModalOpen}
             onClose={() => setCreateModalOpen(false)}

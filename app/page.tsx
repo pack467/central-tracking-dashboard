@@ -62,6 +62,12 @@ function Dashboard() {
   const [recordsLoading, setRecordsLoading] = useState(true);
   const [activeRecordId, setActiveRecordId] = useState<number | null>(null);
   const [activeRecord, setActiveRecord] = useState(initialHandoverRecord);
+  const [loadedOverlays, setLoadedOverlays] = useState({
+    ticketCreate: false,
+    ticketDetail: false,
+    handover: false,
+    wizard: false,
+  });
 
   const selectedTicket = useMemo(
     () => tickets.find((ticket) => ticket.id === selectedTicketId) ?? null,
@@ -106,9 +112,24 @@ function Dashboard() {
     setAcknowledged((previous) => previous.filter((item) => item !== title));
   }, [setAcknowledged]);
 
-  const selectTicket = useCallback((ticket: Ticket) => {
-    setSelectedTicketId(ticket.id);
+  const markOverlayLoaded = useCallback((overlay: keyof typeof loadedOverlays) => {
+    setLoadedOverlays((previous) => (previous[overlay] ? previous : { ...previous, [overlay]: true }));
   }, []);
+
+  const selectTicket = useCallback((ticket: Ticket) => {
+    markOverlayLoaded("ticketDetail");
+    setSelectedTicketId(ticket.id);
+  }, [markOverlayLoaded]);
+
+  const openTicketCreate = useCallback(() => {
+    markOverlayLoaded("ticketCreate");
+    setTicketModalOpen(true);
+  }, [markOverlayLoaded]);
+
+  const openHandover = useCallback(() => {
+    markOverlayLoaded("handover");
+    setHandoverOpen(true);
+  }, [markOverlayLoaded]);
 
   const handleToggleTheme = useCallback(() => {
     const now = Date.now();
@@ -183,17 +204,18 @@ function Dashboard() {
     try {
       setActiveRecord(JSON.parse(stored.content));
       setActiveRecordId(stored.id);
-      setHandoverOpen(true);
+      openHandover();
     } catch {
       notify.critical("Catatan handover ini tidak dapat dibuka.", { id: "handover-open-error" });
     }
-  }, [notify]);
+  }, [notify, openHandover]);
 
   const openNewWizard = useCallback(() => {
     setWizardDraft(createHandoverDraft({ ...initialHandoverRecord, tasks: initialHandoverTasks }, toDateInputValue()));
     setWizardDirty(false);
+    markOverlayLoaded("wizard");
     setWizardOpen(true);
-  }, []);
+  }, [markOverlayLoaded]);
 
   const toggleHandoverTask = async (taskId: number) => {
     const next = {
@@ -257,7 +279,7 @@ function Dashboard() {
       setActiveRecordId(payload.note.id);
       setActiveRecord(record);
       setWizardOpen(false);
-      setHandoverOpen(true);
+      openHandover();
       notify.success("Catatan handover baru berhasil disimpan dan siap dikonfirmasi.", {
         id: "handover-wizard-status",
       });
@@ -282,7 +304,7 @@ function Dashboard() {
       <Sidebar
         activeNav={activeNav}
         onNavigate={handleNavigate}
-        onOpenHandover={() => setHandoverOpen(true)}
+        onOpenHandover={openHandover}
         openTicketCount={openTicketCount}
         handoverRecord={activeRecord}
       />
@@ -321,18 +343,18 @@ function Dashboard() {
                 onGoToTickets={() => handleNavigate("Tickets")}
                 onGoToMonitoring={() => handleNavigate("Monitoring")}
                 onSelectTicket={selectTicket}
-                onNewTicket={() => setTicketModalOpen(true)}
+                onNewTicket={openTicketCreate}
                 onExportReport={() => {
                   handleNavigate("Reports");
                   notify.info("Buka tab Laporan untuk mengekspor ringkasan operasional.", { id: "report-tab-hint" });
                 }}
-                onOpenHandover={() => setHandoverOpen(true)}
+                onOpenHandover={openHandover}
                 onCreateHandover={openNewWizard}
               />
             )}
 
             {(activeNav === "Tickets" || activeNav === "Ticket") && (
-              <TicketsView tickets={tickets} onSelectTicket={selectTicket} onNewTicket={() => setTicketModalOpen(true)} />
+              <TicketsView tickets={tickets} onSelectTicket={selectTicket} onNewTicket={openTicketCreate} />
             )}
 
             {activeNav === "Monitoring" && (
@@ -373,7 +395,7 @@ function Dashboard() {
           />
         )}
 
-        {ticketModalOpen && (
+        {loadedOverlays.ticketCreate && (
           <TicketCreateModal
             open={ticketModalOpen}
             onClose={() => setTicketModalOpen(false)}
@@ -384,7 +406,7 @@ function Dashboard() {
           />
         )}
 
-        {selectedTicket && (
+        {loadedOverlays.ticketDetail && (
           <TicketDetailDrawer
             ticket={selectedTicket}
             onClose={() => setSelectedTicketId(null)}
@@ -394,7 +416,7 @@ function Dashboard() {
           />
         )}
 
-        {handoverOpen && (
+        {loadedOverlays.handover && (
           <HandoverModal
             open={handoverOpen}
             onClose={() => setHandoverOpen(false)}
@@ -411,7 +433,7 @@ function Dashboard() {
           />
         )}
 
-        {wizardOpen && (
+        {loadedOverlays.wizard && (
           <HandoverWizard
             open={wizardOpen}
             draft={wizardDraft}
