@@ -1,0 +1,402 @@
+/* ═══════════════════════════════════════════════
+   LAYPERSON-FRIENDLY HANDOVER LOG UI STYLES
+═══════════════════════════════════════════════ */
+.handover-guide-banner {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  background: var(--accent-blue-soft);
+  border: 1px solid var(--accent-blue-border);
+  border-radius: 8px;
+}
+
+.handover-guide-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--accent-blue);
+  font-size: 11.5px;
+  font-weight: 700;
+}
+
+.handover-guide-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.handover-step-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  background: var(--panel-bg);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-size: 11px;
+  color: var(--ink-primary);
+  font-weight: 600;
+}
+
+.handover-step-num {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 99px;
+  background: var(--accent-blue);
+  color: #ffffff;
+  font-size: 9.5px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.handover-task {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  transition: all 0.15s ease;
+}
+
+/* ═══════════════════════════════════════════════
+   NEW HANDOVER TABBED INTERFACE STYLES
+═══════════════════════════════════════════════ */
+.handover-summary-card {
+  margin-bottom: 16px;
+  padding: 14px 16px;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+}
+
+.handover-flow-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.handover-flow-party {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.handover-flow-party span {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--ink-muted);
+  font-family: var(--font-mono);
+  letter-spacing: 0.5px;
+}
+
+.handover-flow-party strong {
+  font-size: 13px;
+  color: var(--ink-primary);
+  font-weight: 700;
+}
+
+.handover-flow-arrow {
+  color: var(--accent-blue);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.handover-progress-strip {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+
+.handover-progress-text {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11.5px;
+  color: var(--ink-secondary);
+}
+
+.handover-progress-text strong {
+  color: var(--ink-primary);
+  font-family: var(--font-mono);
+}
+
+.handover-progress-bar-bg {
+  height: 6px;
+  background: var(--line);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.handover-progress-bar-fill {
+  height: 100%;
+  background: var(--accent-blue);
+  border-radius: 99px;
+  transition: width 0.3s ease;
+}
+
+/* Nav Tabs */
+.handover-nav-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 8px;
+}
+
+.handover-nav-tabs button {
+  padding: 7px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-muted);
+  background: transparent;
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+}
+
+.handover-nav-tabs button:hover {
+  color: var(--ink-primary);
+  background: var(--panel-bg-hover);
+}
+
+.handover-nav-tabs button.active {
+  color: var(--accent-blue);
+  background: var(--accent-blue-soft);
+  border-color: var(--accent-blue-border);
+  font-weight: 700;
+}
+
+.handover-tab-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Task Card */
+.handover-task-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  transition: all 0.15s ease;
+}
+
+.handover-task-card:hover {
+  border-color: var(--accent-blue-border);
+  background: var(--panel-bg-hover);
+}
+
+.handover-task-card.confirmed {
+  background: var(--green-soft);
+  border-color: var(--green-border);
+}
+
+.handover-checkbox {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+  border-radius: 5px;
+  border: 1.5px solid var(--ink-muted);
+  background: var(--bg);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.handover-checkbox:hover {
+  border-color: var(--accent-blue);
+  background: var(--accent-blue-soft);
+  color: var(--accent-blue);
+}
+
+.handover-task-card.confirmed .handover-checkbox {
+  background: var(--green);
+  border-color: var(--green);
+  color: #ffffff;
+}
+
+.handover-task-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.handover-task-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+
+.handover-task-head strong {
+  font-size: 12.5px;
+  color: var(--ink-primary);
+  font-weight: 700;
+}
+
+.handover-task-body p {
+  margin: 3px 0 0;
+  font-size: 11.5px;
+  color: var(--ink-secondary);
+  line-height: 1.4;
+}
+
+/* Finding Cards */
+.handover-finding-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.handover-finding-card {
+  padding: 12px 14px;
+  background: var(--orange-soft);
+  border: 1px solid var(--orange-border);
+  border-radius: 8px;
+}
+
+.handover-finding-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Monitoring Summary */
+.handover-monitoring-summary-box {
+  padding: 14px 16px;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+}
+
+.handover-project-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.handover-project-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink-primary);
+}
+
+.handover-validation-box {
+  padding: 10px 12px;
+  background: var(--green-soft);
+  border: 1px solid var(--green-border);
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--green);
+}
+
+/* ═══════════════════════════════════════════════
+   NEW HANDOVER FORM WIZARD STYLES
+═══════════════════════════════════════════════ */
+.handover-wizard-nav {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  padding: 8px 16px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+}
+
+.handover-wizard-nav button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 6px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink-muted);
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.handover-wizard-nav button span {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 99px;
+  background: var(--line);
+  color: var(--ink-secondary);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.handover-wizard-nav button:hover {
+  background: var(--panel-bg);
+  color: var(--ink-primary);
+}
+
+.handover-wizard-nav button.active {
+  color: var(--accent-blue);
+  background: var(--accent-blue-soft);
+  border-color: var(--accent-blue-border);
+  font-weight: 700;
+}
+
+.handover-wizard-nav button.active span {
+  background: var(--accent-blue);
+  color: #ffffff;
+}
+
+.handover-form-step {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.handover-step-title {
+  margin: 0 0 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-primary);
+}
+
+.handover-step-header-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+@media (max-width: 660px) {
+  .handover-wizard-nav {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+

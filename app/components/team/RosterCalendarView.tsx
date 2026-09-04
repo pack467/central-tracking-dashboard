@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -19,9 +19,9 @@ interface RosterCalendarViewProps {
 
 /* ── helpers ─────────────────────────────────────────── */
 const SHIFT_LEGEND: { type: DayScheduleType; label: string; bg: string; border: string; color: string }[] = [
-  { type: "Pagi", label: "Pagi (07:00–15:59)", bg: "var(--accent-blue-soft)", border: "var(--accent-blue-border)", color: "var(--accent-blue)" },
-  { type: "Sore", label: "Sore (13:00–22:59)", bg: "var(--green-soft)", border: "var(--green-border)", color: "var(--green)" },
-  { type: "Malam", label: "Malam (23:00–06:59)", bg: "var(--purple-soft)", border: "var(--purple-border)", color: "var(--purple)" },
+  { type: "Subuh", label: "Subuh (00:00–08:30)", bg: "rgba(148, 163, 184, 0.16)", border: "rgba(148, 163, 184, 0.35)", color: "#94a3b8" },
+  { type: "Pagi", label: "Pagi (08:00–16:30)", bg: "var(--orange-soft)", border: "var(--orange-border)", color: "var(--orange)" },
+  { type: "Malam", label: "Malam (16:00–00:30)", bg: "var(--purple-soft)", border: "var(--purple-border)", color: "var(--purple)" },
   { type: "Off", label: "Off Duty", bg: "var(--bg)", border: "var(--line)", color: "var(--ink-muted)" },
   { type: "Leave", label: "Cuti / Leave", bg: "var(--red-soft)", border: "var(--red-border)", color: "var(--red)" },
 ];
@@ -107,6 +107,51 @@ export function RosterCalendarView({ members, onSelectMember }: RosterCalendarVi
   const nextMonth = () => setMonthDate((d) => new Date(d.getFullYear(), d.getMonth() + 1, 1));
   const goToday = () => { setMonthDate(new Date(todayYear, todayMonth, 1)); setSelectedDay(todayDate); };
 
+  // Weekly members pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState<number | "all">(10);
+
+  // Automatically reset to page 1 when the member dataset changes (due to search/filters)
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [members]);
+
+  const totalCount = members.length;
+  const effectivePageSize = pageSize === "all" ? Math.max(1, totalCount) : pageSize;
+  const totalPages = pageSize === "all" ? 1 : Math.max(1, Math.ceil(totalCount / effectivePageSize));
+  const safeCurrentPage = Math.min(Math.max(1, currentPage), totalPages);
+
+  const startIdx = (safeCurrentPage - 1) * (pageSize === "all" ? totalCount : pageSize);
+  const paginatedMembers = useMemo(() => {
+    if (pageSize === "all") return members;
+    return members.slice(startIdx, startIdx + pageSize);
+  }, [members, startIdx, pageSize]);
+
+  const endIdx = totalCount === 0 ? 0 : Math.min(startIdx + paginatedMembers.length, totalCount);
+
+  const pageNumbers = useMemo(() => {
+    if (totalPages <= 5) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+    const pages: (number | string)[] = [];
+    pages.push(1);
+    if (safeCurrentPage > 3) {
+      pages.push("...");
+    }
+    const start = Math.max(2, safeCurrentPage - 1);
+    const end = Math.min(totalPages - 1, safeCurrentPage + 1);
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    if (safeCurrentPage < totalPages - 2) {
+      pages.push("...");
+    }
+    if (totalPages > 1) {
+      pages.push(totalPages);
+    }
+    return pages;
+  }, [totalPages, safeCurrentPage]);
+
   return (
     <div className="roster-calendar-wrapper">
       {/* ── Top Bar ── */}
@@ -178,7 +223,8 @@ export function RosterCalendarView({ members, onSelectMember }: RosterCalendarVi
 
       {/* ══ WEEKLY VIEW ══════════════════════════════════ */}
       {calMode === "weekly" && (
-        <div className="roster-calendar-grid-container">
+        <>
+          <div className="roster-calendar-grid-container">
           <div className="roster-calendar-grid">
             {/* Header */}
             <div className="roster-cal-header-row">
@@ -193,7 +239,7 @@ export function RosterCalendarView({ members, onSelectMember }: RosterCalendarVi
             </div>
 
             {/* Member rows */}
-            {members.map((member) => (
+            {paginatedMembers.map((member) => (
               <div className="roster-cal-row" key={member.id}>
                 <div
                   className="roster-cal-member-cell"
@@ -236,13 +282,80 @@ export function RosterCalendarView({ members, onSelectMember }: RosterCalendarVi
               </div>
             ))}
 
-            {members.length === 0 && (
+            {totalCount === 0 && (
               <div className="roster-empty-state" style={{ gridColumn: "1/-1" }}>
                 No team members match the current filter.
               </div>
             )}
           </div>
         </div>
+
+        {/* Pagination Footer for Weekly Calendar */}
+        <div className="roster-pagination-bar">
+          <div className="roster-pagination-left">
+            <div className="roster-rows-per-page">
+              <span className="roster-pagination-label">Rows per page:</span>
+              <select
+                className="roster-filter-select roster-page-size-select"
+                value={pageSize === "all" ? "all" : String(pageSize)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setPageSize(val === "all" ? "all" : Number(val));
+                  setCurrentPage(1);
+                }}
+                aria-label="Jumlah baris per halaman"
+              >
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="all">All</option>
+              </select>
+            </div>
+
+            <span className="roster-pagination-info">
+              Showing <strong>{totalCount === 0 ? 0 : startIdx + 1}–{endIdx}</strong> of <strong>{totalCount}</strong> members
+            </span>
+          </div>
+
+          <div className="roster-pagination-actions">
+            <button
+              className="roster-page-btn roster-page-nav"
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={safeCurrentPage <= 1}
+              aria-label="Halaman sebelumnya"
+            >
+              Prev
+            </button>
+
+            <div className="roster-page-numbers">
+              {pageNumbers.map((p, idx) =>
+                p === "..." ? (
+                  <span key={`ellipsis-${idx}`} className="roster-page-ellipsis">…</span>
+                ) : (
+                  <button
+                    key={p}
+                    className={`roster-page-btn roster-page-num ${p === safeCurrentPage ? "active" : ""}`}
+                    onClick={() => setCurrentPage(Number(p))}
+                    aria-label={`Halaman ${p}`}
+                    aria-current={p === safeCurrentPage ? "page" : undefined}
+                  >
+                    {p}
+                  </button>
+                )
+              )}
+            </div>
+
+            <button
+              className="roster-page-btn roster-page-nav"
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={safeCurrentPage >= totalPages || totalPages <= 1}
+              aria-label="Halaman berikutnya"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      </>
       )}
 
       {/* ══ MONTHLY VIEW ═════════════════════════════════ */}

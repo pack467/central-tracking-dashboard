@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { UserPlus, UserCheck } from "lucide-react";
+import { UserPlus, UserCheck, X } from "lucide-react";
 import { Modal } from "@/app/components/ui/Modal";
 import { useToast } from "@/app/components/ui/Toast";
 import type { RosterMember, RosterRole, RosterMemberStatus } from "@/app/lib/types";
@@ -26,7 +26,7 @@ export function MemberCreateModal({
   const [employeeId, setEmployeeId] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [currentShift, setCurrentShift] = useState("Shift Sore (13:00–22:59 WIB)");
+  const [currentShift, setCurrentShift] = useState("Shift Malam (16:00–00:30 WIB)");
   const [status, setStatus] = useState<RosterMemberStatus>("Active");
 
   useEffect(() => {
@@ -44,7 +44,7 @@ export function MemberCreateModal({
       setEmployeeId(`EMP-${Math.floor(1000 + Math.random() * 9000)}`);
       setEmail("");
       setPhone("+62 8");
-      setCurrentShift("Shift Sore (13:00–22:59 WIB)");
+      setCurrentShift("Shift Malam (16:00–00:30 WIB)");
       setStatus("Active");
     }
   }, [editingMember, open]);
@@ -68,11 +68,11 @@ export function MemberCreateModal({
       joinDate: editingMember?.joinDate ?? "28 Aug 2026",
       avatarBg: editingMember?.avatarBg ?? randomBg,
       weeklySchedule: editingMember?.weeklySchedule ?? [
-        { day: "Sen", date: "24 Aug", shift: "Sore", hours: "13:00–22:59" },
-        { day: "Sel", date: "25 Aug", shift: "Sore", hours: "13:00–22:59" },
-        { day: "Rab", date: "26 Aug", shift: "Sore", hours: "13:00–22:59" },
-        { day: "Kam", date: "27 Aug", shift: "Sore", hours: "13:00–22:59" },
-        { day: "Jum", date: "28 Aug", shift: "Sore", hours: "13:00–22:59" },
+        { day: "Sen", date: "24 Aug", shift: "Malam", hours: "16:00–00:30" },
+        { day: "Sel", date: "25 Aug", shift: "Malam", hours: "16:00–00:30" },
+        { day: "Rab", date: "26 Aug", shift: "Malam", hours: "16:00–00:30" },
+        { day: "Kam", date: "27 Aug", shift: "Malam", hours: "16:00–00:30" },
+        { day: "Jum", date: "28 Aug", shift: "Malam", hours: "16:00–00:30" },
         { day: "Sab", date: "29 Aug", shift: "Off", hours: "Libur" },
         { day: "Min", date: "30 Aug", shift: "Off", hours: "Libur" },
       ],
@@ -116,7 +116,7 @@ export function MemberCreateModal({
           <small>Lengkapi data identitas, peran NOC, dan penugasan shift dinas</small>
         </div>
         <button onClick={onClose} aria-label="Tutup">
-          ×
+          <X size={15} />
         </button>
       </div>
 
@@ -159,9 +159,9 @@ export function MemberCreateModal({
           <label>
             <span>Penugasan Shift</span>
             <select value={currentShift} onChange={(e) => setCurrentShift(e.target.value)}>
-              <option value="Shift Pagi (07:00–15:59 WIB)">Shift Pagi (07:00–15:59 WIB)</option>
-              <option value="Shift Sore (13:00–22:59 WIB)">Shift Sore (13:00–22:59 WIB)</option>
-              <option value="Shift Malam (23:00–06:59 WIB)">Shift Malam (23:00–06:59 WIB)</option>
+              <option value="Shift Subuh (00:00–08:30 WIB)">Shift Subuh (00:00–08:30 WIB)</option>
+              <option value="Shift Pagi (08:00–16:30 WIB)">Shift Pagi (08:00–16:30 WIB)</option>
+              <option value="Shift Malam (16:00–00:30 WIB)">Shift Malam (16:00–00:30 WIB)</option>
               <option value="Cuti Tahunan (On Leave)">Cuti Tahunan (On Leave)</option>
             </select>
           </label>

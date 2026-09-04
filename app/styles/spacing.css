@@ -1,0 +1,246 @@
+/* ═══════════════════════════════════════════════
+   SHARED SPACING & ROW SEPARATION
+   Keep every operational surface on the same 4px rhythm so tables, cards,
+   and scrollable lists retain clear edges without changing their content.
+═══════════════════════════════════════════════ */
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --sticky-content-offset: 76px;
+}
+
+/* Scroll targets stop below the sticky application bar instead of under it. */
+.page-content > .health-strip,
+.page-content > .metrics-grid,
+.page-content > .ticket-stats,
+.page-content > .system-strip,
+.page-content > .dashboard-grid,
+.page-content > .schedule-panel,
+.page-content > .tickets-panel,
+.page-content > .view-panel,
+.page-content > .roster-metrics-grid {
+  scroll-margin-top: var(--sticky-content-offset);
+}
+
+.page-content > .schedule-panel {
+  margin-bottom: var(--space-5);
+}
+
+.schedule-panel,
+.tickets-panel,
+.view-panel {
+  scroll-margin-top: var(--sticky-content-offset);
+}
+
+/* Shared panel and compact-card breathing room. */
+.panel-heading {
+  padding: var(--space-4) var(--space-5);
+}
+
+.health-strip {
+  gap: var(--space-5);
+  padding: var(--space-4) var(--space-5);
+}
+
+.metric-card {
+  padding: var(--space-5);
+}
+
+.stat-chip {
+  padding: var(--space-3) var(--space-4);
+}
+
+.system-chip {
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+}
+
+/* Monitoring schedule: inset both edges, padded rows, and distinct dividers. */
+.schedule-table {
+  padding: var(--space-3) var(--space-3) var(--space-4);
+  scroll-padding-block: var(--space-2);
+}
+
+.schedule-header {
+  height: 40px;
+  margin-bottom: var(--space-1);
+  padding: 0 var(--space-3);
+}
+
+.schedule-row,
+.schedule-row.current-hour {
+  min-height: 60px;
+  margin: var(--space-1) 0;
+  padding: var(--space-2) var(--space-3);
+}
+
+.schedule-row {
+  border: 1px solid transparent;
+  border-top-color: var(--line);
+}
+
+.schedule-table > .schedule-row:last-child {
+  margin-bottom: var(--space-2);
+}
+
+.schedule-check,
+.schedule-owner {
+  gap: var(--space-3);
+}
+
+.schedule-assessment-cell {
+  padding-block: var(--space-1);
+}
+
+.assessment-actions {
+  gap: var(--space-2);
+}
+
+/* Ticket and roster tables receive the same edge insets and row rhythm. */
+.ticket-table {
+  padding: var(--space-2) var(--space-5) var(--space-4);
+  scroll-padding-block: var(--space-2);
+}
+
+.ticket-header {
+  height: 40px;
+  padding: 0 var(--space-3);
+}
+
+.ticket-row {
+  min-height: 60px;
+  margin: var(--space-1) 0;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid transparent;
+  border-top-color: var(--line);
+  border-radius: var(--space-2);
+}
+
+.ticket-table > .ticket-row:last-child {
+  margin-bottom: var(--space-2);
+}
+
+.ticket-row > span:nth-child(2),
+.ticket-owner {
+  gap: var(--space-2);
+}
+
+.roster-table-wrapper,
+.roster-calendar-grid-container {
+  scroll-padding-block: var(--space-2);
+}
+
+.roster-table-body {
+  padding-block: var(--space-2);
+}
+
+.roster-table-row {
+  min-height: 68px;
+  padding: var(--space-2) var(--space-5);
+}
+
+.roster-member-cell,
+.roster-cal-member-cell {
+  gap: var(--space-3);
+}
+
+.roster-calendar-grid-container {
+  padding-block: var(--space-2);
+}
+
+.roster-cal-member-cell {
+  padding: var(--space-3) var(--space-4);
+}
+
+.roster-cal-shift-cell {
+  padding: var(--space-2);
+}
+
+/* List surfaces retain top and bottom breathing room inside their panels. */
+.attention-list {
+  padding: var(--space-2) var(--space-5);
+}
+
+.attention-row {
+  padding: var(--space-3) 0;
+}
+
+.coverage-team {
+  padding: var(--space-4) var(--space-5) var(--space-3);
+}
+
+.coverage-team button {
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+}
+
+.coverage-team button + button {
+  border-top: 1px solid var(--line);
+}
+
+.handover-panel {
+  padding: var(--space-5);
+}
+
+.notification-list {
+  padding-block: var(--space-2);
+  scroll-padding-block: var(--space-2);
+}
+
+.notification-item {
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5);
+}
+
+.assessment-history {
+  gap: var(--space-3);
+  padding: var(--space-5);
+}
+
+.assessment-history-row {
+  gap: var(--space-3);
+  padding: var(--space-3);
+}
+
+.shift-timeline {
+  padding: var(--space-5) var(--space-5) var(--space-6) 36px;
+}
+
+.timeline-item {
+  margin-bottom: var(--space-4);
+}
+
+.timeline-card {
+  padding: var(--space-4);
+}
+
+.report-bars,
+.report-narrative {
+  gap: var(--space-3);
+  padding: var(--space-5);
+}
+
+.report-row {
+  gap: var(--space-4);
+  padding-block: var(--space-1);
+}
+
+.monthly-day-member-row {
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+}
+
+/* Fixed sidebar blocks retain separation from the navigation and each other. */
+.shift-card {
+  margin-bottom: var(--space-4);
+  padding: var(--space-4);
+}
+
+.profile {
+  padding: var(--space-3);
+}
+

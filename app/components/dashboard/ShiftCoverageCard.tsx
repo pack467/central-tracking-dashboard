@@ -1,31 +1,51 @@
 "use client";
 
 import { useToast } from "@/app/components/ui/Toast";
-import { teamMembers } from "@/app/lib/data";
+import { initials, seedRosterMembers } from "@/app/lib/data";
+import { useActiveShift } from "@/app/hooks/useLiveClock";
+import { getDerivedMemberStatus } from "@/app/lib/shifts";
+import { useMemo } from "react";
 
-export function ShiftCoverageCard() {
+interface ShiftCoverageCardProps {
+  members?: { name: string; role: string }[];
+}
+
+export function ShiftCoverageCard({ members }: ShiftCoverageCardProps) {
   const notify = useToast();
+  const activeShift = useActiveShift();
+
+  const activeRosterMembers = useMemo(() => {
+    if (members) return members;
+    return seedRosterMembers
+      .filter((m) => {
+        const status = getDerivedMemberStatus(m, activeShift);
+        return status === "Active" || status === "On Break";
+      })
+      .map((m) => ({ name: m.name, role: m.role }));
+  }, [members, activeShift]);
+
+  const activeCount = activeRosterMembers.length;
 
   return (
     <article className="panel coverage-panel">
       <div className="panel-title">Shift Coverage</div>
-      <p className="coverage-subtitle">Shift sore · 13:00 – 22:59 WIB</p>
+      <p className="coverage-subtitle">{activeShift.label} · {activeShift.period}</p>
       <div className="coverage-ring">
         <div>
-          <strong>5</strong>
+          <strong>{activeCount}</strong>
           <span>ACTIVE</span>
         </div>
       </div>
       <div className="coverage-stats">
         <span>
-          <i className="status-dot success" /> 5 aktif
+          <i className="status-dot success" /> {activeCount} aktif
         </span>
         <span>
-          <i className="status-dot neutral" /> 1 istirahat
+          <i className="status-dot neutral" /> 0 istirahat
         </span>
       </div>
       <div className="coverage-team">
-        {teamMembers.map((member, index) => (
+        {activeRosterMembers.map((member, index) => (
           <button
             key={member.name}
             onClick={() =>
@@ -34,8 +54,8 @@ export function ShiftCoverageCard() {
               })
             }
           >
-            <span className={`avatar avatar-${index}`}>
-              {member.name.split(" ").map((w) => w[0]).join("").slice(0, 2)}
+            <span className={`avatar avatar-${index % 5}`}>
+              {initials(member.name)}
             </span>
             <span>
               {member.name}

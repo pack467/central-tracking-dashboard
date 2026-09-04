@@ -31,7 +31,7 @@ export function ShiftSwapModal({
   const [requesterId, setRequesterId] = useState(preselectedMember?.id ?? members[0]?.id ?? "");
   const [targetId, setTargetId] = useState(members[1]?.id ?? "");
   const [targetDate, setTargetDate] = useState("29 Aug 2026");
-  const [targetShift, setTargetShift] = useState("Shift Pagi (07:00–15:59)");
+  const [targetShift, setTargetShift] = useState("Shift Pagi (08:00–16:30)");
   const [reason, setReason] = useState("");
 
   const handleStatusChange = (requestId: string, newStatus: "Approved" | "Rejected") => {
@@ -109,7 +109,7 @@ export function ShiftSwapModal({
           <small>Kelola dan setujui pertukaran jadwal shift antar operator</small>
         </div>
         <button onClick={onClose} aria-label="Tutup">
-          ×
+          <X size={15} />
         </button>
       </div>
 
@@ -191,9 +191,9 @@ export function ShiftSwapModal({
                   value={targetShift}
                   onChange={(e) => setTargetShift(e.target.value)}
                 >
-                  <option value="Shift Pagi (07:00–15:59)">Shift Pagi (07:00–15:59)</option>
-                  <option value="Shift Sore (13:00–22:59)">Shift Sore (13:00–22:59)</option>
-                  <option value="Shift Malam (23:00–06:59)">Shift Malam (23:00–06:59)</option>
+                  <option value="Shift Subuh (00:00–08:30)">Shift Subuh (00:00–08:30)</option>
+                  <option value="Shift Pagi (08:00–16:30)">Shift Pagi (08:00–16:30)</option>
+                  <option value="Shift Malam (16:00–00:30)">Shift Malam (16:00–00:30)</option>
                 </select>
               </label>
             </div>

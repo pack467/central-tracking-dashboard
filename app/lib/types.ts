@@ -20,11 +20,31 @@ export interface CheckpointAssessment {
   note: string;
 }
 
+export interface HistoricalAssessmentEntry {
+  id: string;
+  date: string; // YYYY-MM-DD
+  time: string;
+  project: string;
+  task: string;
+  owner: string;
+  verdict: "ok" | "nok";
+  note: string;
+}
+
 export interface TicketHistoryEntry {
   time: string;
   action: string;
   author: string;
 }
+
+export type TicketType =
+  | "Incident"
+  | "Ad-hoc Request"
+  | "Maintenance"
+  | "Change Request"
+  | "Escalation"
+  | "Monitoring Alert"
+  | "Other";
 
 export interface Ticket {
   id: string;
@@ -32,6 +52,8 @@ export interface Ticket {
   project: string;
   severity: string;
   category?: string;
+  type?: TicketType | string;
+  date?: string; // YYYY-MM-DD
   requestTime?: string;
   responseTime?: string;
   completionTime?: string;
@@ -40,6 +62,15 @@ export interface Ticket {
   status: string;
   created: string;
   description?: string;
+  escalationLevel?: string;
+  escalatedTo?: string;
+  escalatedAt?: string;
+  agingHours?: number;
+  responseMinutes?: number;
+  resolutionMinutes?: number;
+  rootCauseCategory?: string;
+  slaTargetMinutes?: number;
+  shift?: "Subuh" | "Pagi" | "Malam";
   history?: TicketHistoryEntry[];
 }
 
@@ -116,7 +147,7 @@ export interface ProjectHealthEntry {
 
 export type RosterMemberStatus = "Active" | "On Break" | "Off Duty" | "On Leave";
 export type RosterRole = "Operator NOC" | "Shift Lead" | "Incident Coordinator" | "L2 Specialist" | "Infrastructure Engineer";
-export type DayScheduleType = "Pagi" | "Sore" | "Malam" | "Off" | "Leave";
+export type DayScheduleType = "Subuh" | "Pagi" | "Malam" | "Off" | "Leave";
 
 export interface DayScheduleEntry {
   day: string; // "Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"

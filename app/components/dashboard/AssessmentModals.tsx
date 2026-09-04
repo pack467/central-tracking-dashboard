@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { X } from "lucide-react";
 import { Modal } from "@/app/components/ui/Modal";
 
 export function NotAdequateModal({
@@ -27,7 +28,9 @@ export function NotAdequateModal({
           <strong style={{ color: "var(--red)" }}>Tandai Checkpoint sebagai NOK</strong>
           <small>Masukkan penjelasan atau observasi anomali untuk log handover shift</small>
         </div>
-        <button onClick={onClose}>×</button>
+        <button onClick={onClose} aria-label="Tutup">
+          <X size={15} />
+        </button>
       </div>
 
       <div
@@ -79,7 +82,9 @@ export function AdequacyGuideModal({ open, onClose }: { open: boolean; onClose: 
           <strong>Panduan Penilaian Checkpoint (OK / NOK)</strong>
           <small>SOP dan kriteria evaluasi kesehatan monitoring layanan NOC</small>
         </div>
-        <button onClick={onClose}>×</button>
+        <button onClick={onClose} aria-label="Tutup">
+          <X size={15} />
+        </button>
       </div>
 
       <div style={{ display: "grid", gap: "14px", fontSize: "12.5px", color: "var(--ink-primary)", lineHeight: 1.5 }}>

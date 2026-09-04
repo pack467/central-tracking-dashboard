@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { Users } from "lucide-react";
 import { BrandLogo } from "@/app/components/ui/BrandLogo";
 import { navItems } from "./Sidebar";
+import { useActiveShift } from "@/app/hooks/useLiveClock";
 import type { HandoverRecordData } from "@/app/lib/types";
 
 interface MobileNavProps {
@@ -15,6 +16,8 @@ interface MobileNavProps {
 }
 
 export function MobileNav({ open, onClose, activeNav, onNavigate, handoverRecord }: MobileNavProps) {
+  const activeShift = useActiveShift();
+
   useEffect(() => {
     if (!open) return;
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -87,12 +90,12 @@ export function MobileNav({ open, onClose, activeNav, onNavigate, handoverRecord
           </button>
         </div>
 
-        <section className="shift-card">
+        <section className={`shift-card shift-card-${activeShift.id}`}>
           <div className="shift-card-top">
             <span className="live-dot live-dot-pulse" /> ACTIVE SHIFT
           </div>
-          <strong>Shift sore</strong>
-          <p>13:00 – 22:59 WIB · {handoverRecord.sourceShift} → {handoverRecord.targetShift}</p>
+          <strong>{activeShift.label}</strong>
+          <p>{activeShift.period} · {handoverRecord.sourceShift} → {handoverRecord.targetShift}</p>
           <button
             onClick={() => {
               onNavigate("Overview");

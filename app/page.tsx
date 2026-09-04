@@ -11,10 +11,13 @@ import {
   createHandoverDraft,
   initialHandoverRecord,
   initialHandoverTasks,
+  isOpenTicket,
   seedTickets,
   toDateInputValue,
 } from "@/app/lib/data";
 import type { CheckpointAssessment, StoredHandoverRecord, Ticket } from "@/app/lib/types";
+import { AuthProvider } from "@/app/lib/auth";
+import { DashboardViewSkeleton } from "@/app/components/ui/LoadingSkeleton";
 
 const MobileNav = lazy(() => import("@/app/components/layout/MobileNav").then((module) => ({ default: module.MobileNav })));
 const CommandPalette = lazy(() => import("@/app/components/search/CommandPalette").then((module) => ({ default: module.CommandPalette })));
@@ -32,9 +35,11 @@ const TeamRosterView = lazy(() => import("@/app/components/views/TeamRosterView"
 
 export default function Home() {
   return (
-    <ToastProvider>
-      <Dashboard />
-    </ToastProvider>
+    <AuthProvider>
+      <ToastProvider>
+        <Dashboard />
+      </ToastProvider>
+    </AuthProvider>
   );
 }
 
@@ -80,7 +85,7 @@ function Dashboard() {
   const currentHour = useCurrentHour();
 
   const openTicketCount = useMemo(
-    () => tickets.filter((ticket) => ticket.status === "Aktivitas" || ticket.status === "Activity" || ticket.status === "Open").length,
+    () => tickets.filter(isOpenTicket).length,
     [tickets],
   );
 
@@ -293,10 +298,14 @@ function Dashboard() {
   };
 
   const deleteHandoverRecord = async (id: number) => {
-    const response = await fetch(`/api/handovers/${id}`, { method: "DELETE" });
-    if (!response.ok) throw new Error();
-    setRecords((previous) => previous.filter((record) => record.id !== id));
-    if (activeRecordId === id) setActiveRecordId(null);
+    try {
+      const response = await fetch(`/api/handovers/${id}`, { method: "DELETE" });
+      if (!response.ok) throw new Error();
+      setRecords((previous) => previous.filter((record) => record.id !== id));
+      if (activeRecordId === id) setActiveRecordId(null);
+    } catch {
+      notify.critical("Catatan handover belum dapat dihapus. Coba lagi.", { id: "handover-delete-error" });
+    }
   };
 
   return (
@@ -324,7 +333,7 @@ function Dashboard() {
         />
 
         <div className="page-content">
-          <Suspense fallback={null}>
+          <Suspense fallback={<DashboardViewSkeleton />}>
             {(activeNav === "Overview" || activeNav === "Utama") && (
               <OverviewView
                 tickets={tickets}

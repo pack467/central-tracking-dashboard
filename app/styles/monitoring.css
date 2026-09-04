@@ -1,0 +1,200 @@
+/* ═══════════════════════════════════════════════
+   CHECKPOINT ASSESSMENT & NOTES STYLES
+═══════════════════════════════════════════════ */
+.guide-trigger-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 14px;
+  color: var(--accent-blue);
+  background: var(--accent-blue-soft);
+  border: 1px solid var(--accent-blue-border);
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.guide-trigger-btn:hover {
+  background: var(--accent-blue-soft);
+  border-color: var(--accent-blue);
+  color: var(--accent-blue);
+}
+
+.schedule-assessment-cell {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
+.assessment-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  width: 100%;
+  min-width: 0;
+  gap: 6px;
+}
+
+.assess-btn {
+  width: 100%;
+  min-width: 0;
+  min-height: 32px;
+  padding: 4px 6px;
+  border-radius: 5px;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.assess-ok {
+  color: var(--green);
+  background: var(--green-soft);
+  border: 1px solid var(--green-border);
+}
+
+.assess-ok:hover {
+  background: var(--green);
+  color: #ffffff;
+}
+
+.assess-ok.active-verdict {
+  color: #ffffff;
+  background: var(--green);
+  border-color: var(--green);
+  box-shadow: 0 0 0 1px var(--green);
+}
+
+.assess-ok.active-verdict:hover {
+  opacity: 0.88;
+  background: var(--green);
+}
+
+.assess-fail {
+  color: var(--red);
+  background: var(--red-soft);
+  border: 1px solid var(--red-border);
+}
+
+.assess-fail:hover {
+  background: var(--red);
+  color: #ffffff;
+}
+
+.assess-fail.active-verdict {
+  color: #ffffff;
+  background: var(--red);
+  border-color: var(--red);
+  box-shadow: 0 0 0 1px var(--red);
+}
+
+.assess-fail.active-verdict:hover {
+  opacity: 0.88;
+  background: var(--red);
+}
+
+.assessment-verdict {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 5px;
+  font-size: 10.5px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+}
+
+.assessment-adequate,
+.assessment-ok {
+  color: var(--green);
+  background: var(--green-soft);
+  border: 1px solid var(--green-border);
+}
+
+.assessment-not-adequate,
+.assessment-nok {
+  color: var(--red);
+  background: var(--red-soft);
+  border: 1px solid var(--red-border);
+}
+
+.checkpoint-note {
+  display: block;
+  margin-top: 3px;
+  color: var(--red);
+  font-size: 10px;
+  font-family: var(--font-mono);
+  word-break: break-word;
+}
+
+/* ── Assessed verdict display row ─────────────── */
+.assessed-verdict-display {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+
+/* Solid verdict pill (de-emphasised, read-only look) */
+.verdict-pill-solid {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 5px;
+  font-size: 10px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+}
+
+.verdict-pill-ok {
+  color: var(--green);
+  background: var(--green-soft);
+  border: 1px solid var(--green-border);
+}
+
+.verdict-pill-nok {
+  color: var(--red);
+  background: var(--red-soft);
+  border: 1px solid var(--red-border);
+}
+
+/* "Ubah" ghost button – intentional, clearly clickable, not confused with verdict */
+.ubah-btn {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 9px;
+  border-radius: 5px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink-secondary);
+  font-size: 10px;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  flex-shrink: 0;
+}
+
+.ubah-btn:hover {
+  background: var(--accent-blue-soft);
+  border-color: var(--accent-blue-border);
+  color: var(--accent-blue);
+}
+
+.ubah-btn:focus-visible {
+  outline: 2px solid var(--accent-blue);
+  outline-offset: 2px;
+}

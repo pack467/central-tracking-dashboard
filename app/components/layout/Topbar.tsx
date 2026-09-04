@@ -46,54 +46,7 @@ export function Topbar({
     }, 750);
   };
 
-  // Shift icon & style helper
-  const renderShiftBadge = () => {
-    switch (activeShift.type) {
-      case "morning":
-        return (
-          <div
-            className="topbar-shift-badge topbar-shift-morning"
-            title={`Shift Aktif: ${activeShift.name} (${activeShift.period})`}
-            aria-label={`Shift aktif ${activeShift.name}`}
-          >
-            <Sun size={13} className="shift-badge-icon" />
-            <span className="shift-badge-label">
-              <strong>Shift Pagi</strong>
-              <small>Morning (07:00–14:59)</small>
-            </span>
-          </div>
-        );
-      case "evening":
-        return (
-          <div
-            className="topbar-shift-badge topbar-shift-evening"
-            title={`Shift Aktif: ${activeShift.name} (${activeShift.period})`}
-            aria-label={`Shift aktif ${activeShift.name}`}
-          >
-            <Sunset size={13} className="shift-badge-icon" />
-            <span className="shift-badge-label">
-              <strong>Shift Sore</strong>
-              <small>Evening (15:00–22:59)</small>
-            </span>
-          </div>
-        );
-      case "dawn":
-      default:
-        return (
-          <div
-            className="topbar-shift-badge topbar-shift-dawn"
-            title={`Shift Aktif: ${activeShift.name} (${activeShift.period})`}
-            aria-label={`Shift aktif ${activeShift.name}`}
-          >
-            <Moon size={13} className="shift-badge-icon" />
-            <span className="shift-badge-label">
-              <strong>Shift Malam / Subuh</strong>
-              <small>Dawn (23:00–06:59)</small>
-            </span>
-          </div>
-        );
-    }
-  };
+  const ShiftIcon = activeShift.id === "subuh" ? Moon : activeShift.id === "pagi" ? Sun : Sunset;
 
   return (
     <header className="topbar">
@@ -107,8 +60,17 @@ export function Topbar({
       </div>
 
       <div className="topbar-actions">
-        {/* Clear Shift Indicator Badge (Morning / Evening / Dawn) */}
-        {renderShiftBadge()}
+        <div
+          className={`topbar-shift-badge ${activeShift.badgeClass}`}
+          title={`Shift Aktif: ${activeShift.name}`}
+          aria-label={`Shift aktif ${activeShift.name}`}
+        >
+          <ShiftIcon size={13} className="shift-badge-icon" />
+          <span className="shift-badge-label">
+            <strong>{activeShift.label}</strong>
+            <small>{activeShift.period}</small>
+          </span>
+        </div>
 
         {/* Live Clock Badge */}
         {currentTime && (

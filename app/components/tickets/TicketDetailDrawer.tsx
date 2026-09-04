@@ -1,5 +1,6 @@
 "use client";
 
+import { X } from "lucide-react";
 import { Badge } from "@/app/components/ui/Badge";
 import { ConfirmDialog } from "@/app/components/ui/ConfirmDialog";
 import { ProjectMark } from "@/app/components/ui/ProjectMark";
@@ -7,6 +8,7 @@ import { useToast } from "@/app/components/ui/Toast";
 import { statusTone } from "@/app/components/tickets/TicketTable";
 import { useState } from "react";
 import { nowClockLabel } from "@/app/lib/data";
+import { useAuth } from "@/app/lib/auth";
 import type { Ticket } from "@/app/lib/types";
 
 interface TicketDetailDrawerProps {
@@ -17,6 +19,8 @@ interface TicketDetailDrawerProps {
 
 export function TicketDetailDrawer({ ticket, onClose, onUpdate }: TicketDetailDrawerProps) {
   const notify = useToast();
+  const { user } = useAuth();
+  const operatorName = user?.name || "Operator NOC";
   const [confirmClose, setConfirmClose] = useState(false);
 
   if (!ticket) return null;
@@ -26,7 +30,7 @@ export function TicketDetailDrawer({ ticket, onClose, onUpdate }: TicketDetailDr
       ...ticket,
       history: [
         ...(ticket.history ?? []),
-        { time: nowClockLabel(), action: "Dieskalasikan ke Lead Operator", author: "Galih Khairi" },
+        { time: nowClockLabel(), action: "Dieskalasikan ke Lead Operator", author: operatorName },
       ],
     });
     notify.info(`Ticket #${ticket.id} dieskalasikan ke Lead Operator.`, { id: `ticket-${ticket.id}` });
@@ -40,7 +44,7 @@ export function TicketDetailDrawer({ ticket, onClose, onUpdate }: TicketDetailDr
       status: "Closed",
       history: [
         ...(ticket.history ?? []),
-        { time: nowClockLabel(), action: "Ticket ditandai selesai dan ditutup", author: "Galih Khairi" },
+        { time: nowClockLabel(), action: "Ticket ditandai selesai dan ditutup", author: operatorName },
       ],
     });
     notify.success(`Ticket #${ticket.id} ditandai selesai.`, { id: `ticket-${ticket.id}` });
@@ -82,17 +86,11 @@ export function TicketDetailDrawer({ ticket, onClose, onUpdate }: TicketDetailDr
               </span>
             </div>
             <button
+              className="drawer-close-btn"
               onClick={onClose}
-              style={{
-                width: "30px",
-                height: "30px",
-                borderRadius: "6px",
-                background: "rgba(127, 127, 127, 0.08)",
-                color: "var(--ink-muted)",
-                fontSize: "18px",
-              }}
+              aria-label="Tutup panel"
             >
-              ×
+              <X size={15} />
             </button>
           </div>
 

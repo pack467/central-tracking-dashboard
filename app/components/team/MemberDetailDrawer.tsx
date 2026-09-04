@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Mail, Phone, Clock, CalendarDays } from "lucide-react";
+import { Mail, Phone, Clock, CalendarDays, X } from "lucide-react";
 import { Badge } from "@/app/components/ui/Badge";
 import { useToast } from "@/app/components/ui/Toast";
 import { initials } from "@/app/lib/data";
@@ -121,7 +121,7 @@ function HistorySection({ member }: { member: RosterMember }) {
           </div>
 
           <div className="member-heatmap-legend">
-            {(["Pagi", "Sore", "Malam", "Leave", "Off"] as const).map((shift) => {
+            {(["Subuh", "Pagi", "Malam", "Leave", "Off"] as const).map((shift) => {
               const sc = shiftColor(shift);
               return (
                 <span key={shift} className="legend-item">
@@ -206,11 +206,11 @@ export function MemberDetailDrawer({
             </div>
           </div>
           <button
+            className="drawer-close-btn"
             onClick={onClose}
-            aria-label="Close panel"
-            style={{ width: "30px", height: "30px", borderRadius: "6px", background: "rgba(127,127,127,0.08)", color: "var(--ink-muted)", fontSize: "18px" }}
+            aria-label="Tutup panel"
           >
-            ×
+            <X size={15} />
           </button>
         </div>
 

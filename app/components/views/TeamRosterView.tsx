@@ -1,11 +1,13 @@
 "use client";
 
-import { lazy, startTransition, Suspense, useCallback, useMemo, useState } from "react";
+import { lazy, startTransition, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { UserPlus, ArrowRightLeft, Table, Calendar, Search, X } from "lucide-react";
 import { RosterStatCards } from "@/app/components/team/RosterStatCards";
 import { RosterShiftCoverage } from "@/app/components/team/RosterShiftCoverage";
 import { RosterTable } from "@/app/components/team/RosterTable";
 import { seedRosterMembers, seedSwapRequests } from "@/app/lib/data";
+import { useActiveShift } from "@/app/hooks/useLiveClock";
+import { getDerivedMemberStatus } from "@/app/lib/shifts";
 import type { RosterMember, ShiftSwapRequest } from "@/app/lib/types";
 
 const RosterCalendarView = lazy(() =>
@@ -22,8 +24,17 @@ const MemberCreateModal = lazy(() =>
 );
 
 export function TeamRosterView() {
+  const activeShift = useActiveShift();
   const [members, setMembers] = useState<RosterMember[]>(seedRosterMembers);
   const [swapRequests, setSwapRequests] = useState<ShiftSwapRequest[]>(seedSwapRequests);
+
+  // Derive real-time member status based on current active shift
+  const derivedMembers = useMemo(() => {
+    return members.map((m) => ({
+      ...m,
+      status: getDerivedMemberStatus(m, activeShift),
+    }));
+  }, [members, activeShift]);
 
   // Filter & Search states
   const [search, setSearch] = useState("");
@@ -43,6 +54,31 @@ export function TeamRosterView() {
     swap: false,
     create: false,
   });
+
+  const primaryPanelRef = useRef<HTMLElement>(null);
+  const [panelHeight, setPanelHeight] = useState<number | undefined>(undefined);
+
+  useEffect(() => {
+    const el = primaryPanelRef.current;
+    if (!el) return;
+
+    const updateHeight = () => {
+      const h = Math.round(el.getBoundingClientRect().height);
+      if (h > 0) {
+        setPanelHeight(h);
+      }
+    };
+
+    updateHeight();
+
+    if (typeof ResizeObserver !== "undefined") {
+      const observer = new ResizeObserver(() => {
+        updateHeight();
+      });
+      observer.observe(el);
+      return () => observer.disconnect();
+    }
+  }, []);
 
   const markOverlayLoaded = useCallback((overlay: keyof typeof loadedOverlays) => {
     setLoadedOverlays((previous) => (previous[overlay] ? previous : { ...previous, [overlay]: true }));
@@ -65,11 +101,11 @@ export function TeamRosterView() {
     setCreateModalOpen(true);
   }, [markOverlayLoaded]);
 
-  // Filtered members calculation
+  // Filtered members calculation using derived status
   const filteredMembers = useMemo(() => {
     const needle = search.trim().toLowerCase();
 
-    return members.filter((m) => {
+    return derivedMembers.filter((m) => {
       const matchSearch =
         !needle ||
         m.name.toLowerCase().includes(needle) ||
@@ -81,14 +117,14 @@ export function TeamRosterView() {
       const matchStatus = statusFilter === "All" || m.status === statusFilter;
       const matchShift =
         shiftFilter === "All" ||
+        (shiftFilter === "Subuh" && m.currentShift.includes("Subuh")) ||
         (shiftFilter === "Pagi" && m.currentShift.includes("Pagi")) ||
-        (shiftFilter === "Sore" && m.currentShift.includes("Sore")) ||
         (shiftFilter === "Malam" && m.currentShift.includes("Malam")) ||
-        (shiftFilter === "Leave" && m.currentShift.includes("Leave"));
+        (shiftFilter === "Leave" && (m.currentShift.includes("Leave") || m.currentShift.includes("Cuti")));
 
       return matchSearch && matchRole && matchStatus && matchShift;
     });
-  }, [members, search, roleFilter, statusFilter, shiftFilter]);
+  }, [derivedMembers, search, roleFilter, statusFilter, shiftFilter]);
 
   const handleSaveMember = (savedMember: RosterMember) => {
     setMembers((prev) => {
@@ -98,11 +134,19 @@ export function TeamRosterView() {
       }
       return [savedMember, ...prev];
     });
+    setSelectedMember((prev) => (prev?.id === savedMember.id ? savedMember : prev));
   };
 
   const handleOpenSwapForMember = (member: RosterMember) => {
     openSwap(member);
   };
+
+  const handleAddNewMember = () => openMemberCreate(null);
+
+  const activeSelectedMember = useMemo(() => {
+    if (!selectedMember) return null;
+    return derivedMembers.find((m) => m.id === selectedMember.id) ?? selectedMember;
+  }, [selectedMember, derivedMembers]);
 
   return (
     <>
@@ -110,7 +154,7 @@ export function TeamRosterView() {
       <section className="page-heading">
         <div>
           <div className="eyebrow">
-            <span className="live-dot live-dot-pulse" /> OPERATIONS · NOC PERSONNEL ROSTER
+            <span className="live-dot live-dot-pulse" /> TEAM ROSTER &amp; SHIFT SCHEDULE
           </div>
           <h1>Team Roster</h1>
           <p>Manage shift assignments, team availability, coverage quorum, and shift swap requests.</p>
@@ -118,51 +162,48 @@ export function TeamRosterView() {
 
         <div className="page-actions">
           <button
-            className="button button-secondary"
-            onClick={() => openSwap()}
+            className="button button-secondary button-swap-badge"
+            onClick={() => setSwapModalOpen(true)}
+            aria-label="Shift swap requests"
           >
             <ArrowRightLeft size={14} /> Shift Swaps ({swapRequests.filter((r) => r.status === "Pending").length})
           </button>
-          <button
-            className="button button-primary"
-            onClick={() => openMemberCreate()}
-          >
-            <UserPlus size={14} /> Add Team Member
+          <button className="button button-primary" onClick={handleAddNewMember}>
+            <span>＋</span> Tambah Anggota
           </button>
         </div>
       </section>
 
       {/* 2. Top Summary Stat Cards */}
       <RosterStatCards
-        members={members}
+        members={derivedMembers}
         swapRequests={swapRequests}
         onOpenSwaps={() => openSwap()}
       />
 
       {/* 3. Main Roster Content (2 columns: Table/Calendar & Shift Coverage Widget) */}
-      <div className="dashboard-grid" style={{ marginTop: "20px" }}>
-        <div className="main-column">
-          <article className="panel roster-main-panel">
+      <div className="roster-main-layout" style={{ marginTop: "20px" }}>
+        <div className="roster-primary-column">
+          <article ref={primaryPanelRef} className="panel roster-toolbar-panel">
             {/* Toolbar: Search, Filters & View Toggle */}
-            <div className="panel-heading roster-toolbar-heading">
-              <div style={{ display: "flex", gap: "10px", alignItems: "center", flex: 1, flexWrap: "wrap" }}>
-                {/* Search input */}
-                <div className="search-field roster-search-field">
-                  <Search size={14} style={{ color: "var(--accent-blue)" }} />
-                  <input
-                    type="text"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    placeholder="Search member name, ID, or role…"
-                    aria-label="Cari anggota tim"
-                  />
-                  {search && (
-                    <button className="search-clear" onClick={() => setSearch("")} aria-label="Hapus pencarian">
-                      <X size={12} />
-                    </button>
-                  )}
-                </div>
+            <div className="roster-toolbar-row">
+              <div className="roster-search-field">
+                <Search size={14} className="search-icon" />
+                <input
+                  type="text"
+                  placeholder="Cari nama, role, employee ID..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  aria-label="Cari anggota tim"
+                />
+                {search && (
+                  <button className="search-clear" onClick={() => setSearch("")} aria-label="Hapus pencarian">
+                    <X size={12} />
+                  </button>
+                )}
+              </div>
 
+              <div className="roster-filters-group">
                 {/* Role Filter */}
                 <select
                   className="roster-filter-select"
@@ -170,7 +211,7 @@ export function TeamRosterView() {
                   onChange={(e) => setRoleFilter(e.target.value)}
                   aria-label="Filter role"
                 >
-                  <option value="All">All Roles ({members.length})</option>
+                  <option value="All">All Roles ({derivedMembers.length})</option>
                   <option value="Operator NOC">Operator NOC</option>
                   <option value="Shift Lead">Shift Lead</option>
                   <option value="Incident Coordinator">Incident Coordinator</option>
@@ -186,8 +227,8 @@ export function TeamRosterView() {
                   aria-label="Filter shift"
                 >
                   <option value="All">All Shifts</option>
+                  <option value="Subuh">Shift Subuh</option>
                   <option value="Pagi">Shift Pagi</option>
-                  <option value="Sore">Shift Sore</option>
                   <option value="Malam">Shift Malam</option>
                 </select>
 
@@ -212,13 +253,13 @@ export function TeamRosterView() {
                   className={viewMode === "table" ? "selected" : ""}
                   onClick={() => startTransition(() => setViewMode("table"))}
                 >
-                  <Table size={13} style={{ display: "inline", verticalAlign: "middle", marginRight: "4px" }} /> Table
+                  <Table size={13} /> Table
                 </button>
                 <button
                   className={viewMode === "calendar" ? "selected" : ""}
                   onClick={() => startTransition(() => setViewMode("calendar"))}
                 >
-                  <Calendar size={13} style={{ display: "inline", verticalAlign: "middle", marginRight: "4px" }} /> Weekly Calendar
+                  <Calendar size={13} /> Weekly Calendar
                 </button>
               </div>
             </div>
@@ -244,8 +285,9 @@ export function TeamRosterView() {
         {/* Side Column: Current Shift Coverage Panel */}
         <div className="side-column">
           <RosterShiftCoverage
-            members={members}
+            members={derivedMembers}
             onSelectMember={openMemberDetail}
+            matchedHeight={panelHeight}
           />
         </div>
       </div>
@@ -254,7 +296,7 @@ export function TeamRosterView() {
       <Suspense fallback={null}>
         {loadedOverlays.memberDetail && (
           <MemberDetailDrawer
-            member={selectedMember}
+            member={activeSelectedMember}
             onClose={() => setSelectedMember(null)}
             onUpdateMember={handleSaveMember}
             onRequestSwap={handleOpenSwapForMember}

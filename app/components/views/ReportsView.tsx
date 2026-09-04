@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { EmptyState } from "@/app/components/ui/EmptyState";
 import { useToast } from "@/app/components/ui/Toast";
-import { projectHealthWeekly } from "@/app/lib/data";
+import { isOpenTicket, projectHealthWeekly } from "@/app/lib/data";
 import type { CheckpointAssessment, Ticket } from "@/app/lib/types";
 
 interface ReportsViewProps {
@@ -13,6 +13,7 @@ interface ReportsViewProps {
 }
 
 function average(values: number[]) {
+  if (!values.length) return 0;
   return Math.round(values.reduce((sum, value) => sum + value, 0) / values.length);
 }
 
@@ -30,7 +31,7 @@ export function ReportsView({ tickets, assessments, handoverCount }: ReportsView
   );
 
   const overallAverage = useMemo(
-    () => Math.round(weekly.reduce((sum, row) => sum + row.average, 0) / weekly.length),
+    () => Math.round(weekly.reduce((sum, row) => sum + row.average, 0) / (weekly.length || 1)),
     [weekly],
   );
 
@@ -94,7 +95,7 @@ export function ReportsView({ tickets, assessments, handoverCount }: ReportsView
           <span>Checkpoint NOK</span>
         </article>
         <article className="stat-chip stat-warning">
-          <strong>{tickets.filter((t) => t.status === "Aktivitas" || t.status === "Activity" || t.status === "Open").length}</strong>
+          <strong>{tickets.filter(isOpenTicket).length}</strong>
           <span>Open Tickets</span>
         </article>
         <article className="stat-chip">
@@ -133,15 +134,20 @@ export function ReportsView({ tickets, assessments, handoverCount }: ReportsView
         <div className="report-narrative">
           <p>
             Selama tujuh hari terakhir rata-rata kesehatan seluruh proyek berada pada{" "}
-            <strong>{overallAverage}%</strong>. Proyek dengan performa tertinggi adalah{" "}
-            <strong>{[...weekly].sort((a, b) => b.average - a.average)[0].project}</strong>, sementara{" "}
-            <strong>{[...weekly].sort((a, b) => a.average - b.average)[0].project}</strong> memerlukan perhatian
-            lebih pada checkpoint berikutnya.
+            <strong>{overallAverage}%</strong>.
+            {weekly.length > 0 && (
+              <>
+                {" "}Proyek dengan performa tertinggi adalah{" "}
+                <strong>{[...weekly].sort((a, b) => b.average - a.average)[0].project}</strong>, sementara{" "}
+                <strong>{[...weekly].sort((a, b) => a.average - b.average)[0].project}</strong> memerlukan perhatian
+                lebih pada checkpoint berikutnya.
+              </>
+            )}
           </p>
           <p>
             Dari {Object.keys(assessments).length} checkpoint yang dinilai hari ini, {adequateCount} dinyatakan
             memadai{notAdequateCount ? ` dan ${notAdequateCount} tidak memadai dengan catatan tindak lanjut.` : "."}{" "}
-            Terdapat {tickets.length} ticket tercatat ({tickets.filter((t) => t.status === "Aktivitas").length} aktif)
+            Terdapat {tickets.length} ticket tercatat ({tickets.filter(isOpenTicket).length} aktif)
             serta {handoverCount} catatan handover tersimpan di database.
           </p>
         </div>

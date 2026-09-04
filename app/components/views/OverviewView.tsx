@@ -9,6 +9,7 @@ import { ShiftCoverageCard } from "@/app/components/dashboard/ShiftCoverageCard"
 import { TicketTable } from "@/app/components/tickets/TicketTable";
 import type { CheckpointAssessment, HandoverRecordData, Ticket } from "@/app/lib/types";
 import { attentionItems, monitoringSchedule } from "@/app/lib/data";
+import { useActiveShift } from "@/app/hooks/useLiveClock";
 
 interface OverviewViewProps {
   tickets: Ticket[];
@@ -34,6 +35,7 @@ interface OverviewViewProps {
 }
 
 export function OverviewView(props: OverviewViewProps) {
+  const activeShift = useActiveShift();
   const overviewEntries = monitoringSchedule.filter((entry) => entry.overview);
   const pendingTasks = props.handoverRecord.tasks.filter((task) => !task.completed);
 
@@ -42,7 +44,7 @@ export function OverviewView(props: OverviewViewProps) {
       <section className="page-heading">
         <div>
           <div className="eyebrow">
-            <span className="live-dot live-dot-pulse" /> ALL SYSTEMS NOMINAL · SHIFT SORE
+            <span className="live-dot live-dot-pulse" /> ALL SYSTEMS NOMINAL · {activeShift.name.toUpperCase()}
           </div>
           <h1>Operation Dashboard</h1>
           <p>Status sistem, monitoring layanan, queue ticket, dan ringkasan handover shift.</p>
@@ -73,23 +75,23 @@ export function OverviewView(props: OverviewViewProps) {
             onUnacknowledge={props.onUnacknowledge}
           />
 
-          <article className="panel schedule-panel">
-            <MonitoringSchedule
-              entries={overviewEntries}
-              assessments={props.assessments}
-              onAssess={props.onAssess}
-              onRequestNote={props.onRequestNote}
-              currentHour={props.currentHour}
-            />
-            <div className="schedule-panel-footer">
-              <button className="guide-trigger-btn" onClick={props.onOpenGuide}>
-                Panduan Penilaian (Guide)
-              </button>
-              <button className="full-width-button schedule-more-button" onClick={props.onGoToMonitoring}>
-                Buka jadwal monitoring lengkap <span>→</span>
-              </button>
-            </div>
-          </article>
+          <MonitoringSchedule
+            entries={overviewEntries}
+            assessments={props.assessments}
+            onAssess={props.onAssess}
+            onRequestNote={props.onRequestNote}
+            currentHour={props.currentHour}
+            footer={
+              <div className="schedule-panel-footer">
+                <button className="guide-trigger-btn" onClick={props.onOpenGuide}>
+                  Panduan Penilaian (Guide)
+                </button>
+                <button className="schedule-more-button" onClick={props.onGoToMonitoring}>
+                  Buka jadwal monitoring lengkap <span>→</span>
+                </button>
+              </div>
+            }
+          />
         </div>
 
         <aside className="side-column">

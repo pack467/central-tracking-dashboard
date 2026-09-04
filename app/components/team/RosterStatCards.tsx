@@ -1,7 +1,8 @@
 "use client";
 
 import { Users, Activity, Coffee, ArrowRightLeft } from "lucide-react";
-import { StatCard } from "@/app/components/ui/StatCard";
+import { StatCard, type StatAccentColor } from "@/app/components/ui/StatCard";
+import { useActiveShift } from "@/app/hooks/useLiveClock";
 import type { RosterMember, ShiftSwapRequest } from "@/app/lib/types";
 
 interface RosterStatCardsProps {
@@ -11,6 +12,8 @@ interface RosterStatCardsProps {
 }
 
 export function RosterStatCards({ members, swapRequests, onOpenSwaps }: RosterStatCardsProps) {
+  const activeShift = useActiveShift();
+  const shiftAccent: StatAccentColor = activeShift.id === "subuh" ? "gray" : activeShift.id === "pagi" ? "amber" : "purple";
   const total         = members.length;
   const activeNow     = members.filter((m) => m.status === "Active" || m.status === "On Break").length;
   const onLeaveCount  = members.filter((m) => m.status === "On Leave").length;
@@ -61,12 +64,12 @@ export function RosterStatCards({ members, swapRequests, onOpenSwaps }: RosterSt
       <StatCard
         label="ACTIVE ON SHIFT"
         value={activeNow}
-        accentColor="green"
+        accentColor={shiftAccent}
         icon={<Activity size={15} strokeWidth={2} />}
-        subtitle="Shift Sore · 13:00–22:59 WIB"
-        progress={{ value: quorumPct, color: "#4ade80" }}
+        subtitle={`${activeShift.label} · ${activeShift.period}`}
+        progress={{ value: quorumPct, color: activeShift.color }}
         badgeText={quorumPct >= 100 ? "100% Minimum Quorum" : `${quorumPct}% Quorum`}
-        badgeTone="green"
+        badgeTone={shiftAccent}
       />
 
       {/* 3. OFF / ON LEAVE TODAY */}

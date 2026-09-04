@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-export type StatAccentColor = "blue" | "green" | "amber" | "rose" | "purple";
+export type StatAccentColor = "blue" | "green" | "amber" | "rose" | "purple" | "gray";
 
 export interface ProgressSegment {
   label?: string;
@@ -34,7 +34,7 @@ export interface StatCardProps {
   };
   /** Single status/action pill rendered at the bottom */
   badgeText?: string;
-  badgeTone?: "blue" | "green" | "amber" | "rose" | "neutral";
+  badgeTone?: "blue" | "green" | "amber" | "rose" | "neutral" | "purple" | "gray";
   /** Make the entire card a clickable button */
   isClickable?: boolean;
   onClick?: () => void;
@@ -49,6 +49,7 @@ const ACCENT_HEX: Record<StatAccentColor, string> = {
   amber:  "#fbbf24",
   rose:   "#f87171",
   purple: "#c084fc",
+  gray:   "#94a3b8",
 };
 
 export function StatCard({

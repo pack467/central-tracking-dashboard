@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { X } from "lucide-react";
 import { Modal } from "@/app/components/ui/Modal";
 import { Badge } from "@/app/components/ui/Badge";
 import { makeTicketId, nowClockLabel } from "@/app/lib/data";
 import { statusTone } from "@/app/components/tickets/TicketTable";
+import { useAuth } from "@/app/lib/auth";
 import type { Ticket } from "@/app/lib/types";
 
 interface TicketCreateModalProps {
@@ -27,6 +29,8 @@ const CATEGORY_OPTIONS = [
 ];
 
 export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModalProps) {
+  const { user } = useAuth();
+  const operatorName = user?.name || "Operator NOC";
   const [ticketCode, setTicketCode] = useState(() => makeTicketId());
   const [subject, setSubject] = useState("");
   const [project, setProject] = useState("SM");
@@ -117,7 +121,7 @@ export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModal
       responseTime: isAdhoc ? responseTime : undefined,
       completionTime: isAdhoc ? (isStillOpen ? undefined : completionTime) : undefined,
       isStillOpen: isAdhoc ? isStillOpen : undefined,
-      owner: "Galih Khairi",
+      owner: operatorName,
       status,
       created,
       description:
@@ -129,7 +133,7 @@ export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModal
         {
           time: created,
           action: `Ticket #${cleanCode} dibuat oleh operator (Kategori: ${category}, Status: ${status})`,
-          author: "Galih Khairi",
+          author: operatorName,
         },
       ],
     });
@@ -147,7 +151,9 @@ export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModal
           <strong>Buat Ticket NOC Baru</strong>
           <small>Catat tugas operasional, permintaan ad-hoc, atau penanganan insiden.</small>
         </div>
-        <button onClick={onClose} aria-label="Tutup modal">×</button>
+        <button onClick={onClose} aria-label="Tutup modal">
+          <X size={15} />
+        </button>
       </div>
 
       <div className="ticket-form-grid">

@@ -1,0 +1,309 @@
+/* ═══════════════════════════════════════════════
+   ANCHORED NOTIFICATION DROPDOWN PANEL
+═══════════════════════════════════════════════ */
+.notification-panel {
+  position: fixed;
+  z-index: 55;
+  border: 1px solid var(--panel-border);
+  border-radius: 14px;
+  background: var(--modal-bg);
+  box-shadow: var(--shadow-elevated);
+  color: var(--ink-primary);
+  display: flex;
+  flex-direction: column;
+  overflow: visible;
+}
+
+/* Arrow / Caret pointing to the bell icon */
+.notification-caret {
+  position: absolute;
+  top: -6px;
+  width: 12px;
+  height: 12px;
+  background: var(--panel-bg);
+  border-left: 1px solid var(--panel-border);
+  border-top: 1px solid var(--panel-border);
+  transform: rotate(45deg);
+  pointer-events: none;
+  z-index: 4;
+}
+
+/* Header */
+.notification-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 18px;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel-bg);
+  border-radius: 14px 14px 0 0;
+  position: relative;
+  z-index: 3;
+}
+
+.notification-header-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.notification-header-title strong {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ink-primary);
+}
+
+.notification-unread-pill {
+  padding: 2px 7px;
+  border-radius: 99px;
+  background: var(--accent-blue-soft);
+  color: var(--accent-blue);
+  border: 1px solid var(--accent-blue-border);
+  font-size: 10px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  line-height: 1;
+}
+
+.notification-allread-pill {
+  padding: 2px 7px;
+  border-radius: 99px;
+  background: var(--green-soft);
+  color: var(--green);
+  border: 1px solid var(--green-border);
+  font-size: 9.5px;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  line-height: 1;
+}
+
+.notification-header-action {
+  color: var(--accent-blue);
+  font-size: 11px;
+  font-weight: 600;
+  background: transparent;
+  padding: 3px 6px;
+  border-radius: 5px;
+  transition: all 0.15s ease;
+}
+
+.notification-header-action:hover {
+  background: var(--accent-blue-soft);
+  text-decoration: underline;
+}
+
+/* Notification List with Max-Height Scrolling */
+.notification-list {
+  max-height: 380px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 4px 0;
+  overscroll-behavior: contain;
+}
+
+.notification-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--line);
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s ease;
+}
+
+.notification-item:last-child {
+  border-bottom: 0;
+}
+
+.notification-item:hover {
+  background: var(--panel-bg-hover);
+}
+
+.notification-item.unread {
+  background: color-mix(in srgb, var(--accent-blue-soft) 45%, transparent);
+}
+
+.notification-item.unread:hover {
+  background: color-mix(in srgb, var(--accent-blue-soft) 70%, transparent);
+}
+
+.notification-status-col {
+  padding-top: 5px;
+  flex-shrink: 0;
+}
+
+.notification-read-dot {
+  display: block;
+  width: 7px;
+  height: 7px;
+  border-radius: 99px;
+}
+
+.notification-read-dot.unread-dot {
+  background: var(--accent-blue);
+  box-shadow: 0 0 0 2.5px var(--accent-blue-border);
+}
+
+.notification-read-dot.read-dot {
+  background: var(--ink-muted);
+  opacity: 0.35;
+}
+
+.notification-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.notification-top-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.notification-title {
+  display: block;
+  overflow: hidden;
+  color: var(--ink-primary);
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.notification-time {
+  flex-shrink: 0;
+  color: var(--ink-muted);
+  font-size: 10px;
+  font-family: var(--font-mono);
+}
+
+.notification-message {
+  margin: 2px 0 0;
+  color: var(--ink-secondary);
+  font-size: 11.5px;
+  line-height: 1.45;
+}
+
+.notification-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.notification-unread-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--accent-blue);
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+}
+
+/* Empty State inside Notification Panel */
+.notification-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 34px 20px;
+  text-align: center;
+}
+
+.notification-empty-icon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 99px;
+  background: var(--green-soft);
+  border: 1px solid var(--green-border);
+  color: var(--green);
+  font-size: 16px;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.notification-empty strong {
+  font-size: 13px;
+  color: var(--ink-primary);
+}
+
+.notification-empty p {
+  margin: 0;
+  font-size: 11.5px;
+  color: var(--ink-muted);
+  max-width: 260px;
+  line-height: 1.4;
+}
+
+/* Footer Action Toolbar */
+.notification-footer {
+  padding: 10px 16px;
+  border-top: 1px solid var(--line);
+  background: var(--bg);
+  border-radius: 0 0 14px 14px;
+  display: flex;
+  justify-content: center;
+}
+
+.notification-clear-button {
+  width: 100%;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--ink-secondary);
+  border: 1px solid var(--panel-border);
+  border-radius: 7px;
+  background: var(--panel-bg);
+  transition: all 0.15s ease;
+}
+
+.notification-clear-button:hover {
+  color: var(--red);
+  border-color: var(--red-border);
+  background: var(--red-soft);
+}
+
+.theme-toggle-button {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  color: var(--orange);
+  border: 1px solid var(--orange-border);
+  border-radius: 7px;
+  background: var(--orange-soft);
+  transition: all 0.15s ease;
+}
+
+.theme-toggle-button:hover {
+  background: var(--orange-border);
+}
+
+html[data-theme="dark"] .theme-toggle-button {
+  color: var(--accent-blue);
+  border-color: var(--accent-blue-border);
+  background: var(--accent-blue-soft);
+}
+
+html[data-theme="dark"] .theme-toggle-button:hover {
+  background: var(--accent-blue-border);
+}
+
+.notification-modal-icon {
+  display: grid;
+  place-items: center;
+  color: var(--accent-blue);
+}

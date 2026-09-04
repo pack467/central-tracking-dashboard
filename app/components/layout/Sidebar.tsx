@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { BrandLogo } from "@/app/components/ui/BrandLogo";
 import { useToast } from "@/app/components/ui/Toast";
+import { useActiveShift } from "@/app/hooks/useLiveClock";
 import type { HandoverRecordData } from "@/app/lib/types";
 
 export interface NavItemConfig {
@@ -39,6 +40,7 @@ interface SidebarProps {
 
 export function Sidebar({ activeNav, onNavigate, onOpenHandover, openTicketCount, handoverRecord }: SidebarProps) {
   const notify = useToast();
+  const activeShift = useActiveShift();
   const lastActionTimeRef = useRef<Record<string, number>>({});
 
   const throttleAction = (key: string, fn: () => void, limitMs = 300) => {
@@ -122,12 +124,12 @@ export function Sidebar({ activeNav, onNavigate, onOpenHandover, openTicketCount
         </button>
       </nav>
 
-      <section className="shift-card">
+      <section className={`shift-card shift-card-${activeShift.id}`}>
         <div className="shift-card-top">
           <span className="live-dot live-dot-pulse" /> ACTIVE SHIFT
         </div>
-        <strong>Shift sore</strong>
-        <p>13:00 – 22:59 WIB</p>
+        <strong>{activeShift.label}</strong>
+        <p>{activeShift.period}</p>
         <div className="shift-people">
           <span>GK</span>
           <span>KM</span>

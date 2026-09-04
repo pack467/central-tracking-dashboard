@@ -24,7 +24,7 @@ export interface ToastNotifier {
   dismiss: (id: string | number) => void;
 }
 
-const ToastContext = createContext<ToastNotifier>(() => "");
+const ToastContext = createContext<ToastNotifier>(null as unknown as ToastNotifier);
 
 export function useToast(): ToastNotifier {
   return useContext(ToastContext);

@@ -126,7 +126,7 @@ export function HandoverWizard({ open, draft, dirty, onDraftChange, onClose, onS
                   <input
                     value={draft.targetShift}
                     onChange={(event) => onDraftChange((prev) => ({ ...prev, targetShift: event.target.value }))}
-                    placeholder="e.g. Pagi / Sore"
+                    placeholder="e.g. Pagi / Malam"
                     required
                   />
                 </label>

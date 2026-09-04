@@ -1,5 +1,4 @@
-"use client";
-
+import { X } from "lucide-react";
 import { Modal } from "./Modal";
 
 interface ConfirmDialogProps {
@@ -31,7 +30,7 @@ export function ConfirmDialog({
           <small>{message}</small>
         </div>
         <button onClick={onCancel} aria-label="Tutup">
-          ×
+          <X size={15} />
         </button>
       </div>
       <div className={`confirm-hint ${danger ? "confirm-hint-danger" : ""}`}>
