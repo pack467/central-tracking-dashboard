@@ -188,12 +188,19 @@
 }
 
 .system-health-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
   font-size: 9.5px;
   font-weight: 700;
   font-family: var(--font-mono);
   border-radius: 4px;
   padding: 1px 5px;
   line-height: 1.2;
+}
+
+.health-tag-icon {
+  flex-shrink: 0;
 }
 
 .system-health-tag.tag-ok {
@@ -355,7 +362,18 @@
 }
 
 .warn-indicator-dot {
-  font-size: 11px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--orange);
+  line-height: 1;
+  vertical-align: middle;
+}
+
+.warn-indicator-icon {
+  display: block;
+  stroke-width: 2.3px;
+  flex-shrink: 0;
 }
 
 .checked-by-placeholder.placeholder-overdue {

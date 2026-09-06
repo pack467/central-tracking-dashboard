@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { X } from "lucide-react";
+import { X, Zap, Check } from "lucide-react";
 import { Modal } from "@/app/components/ui/Modal";
 import { Badge } from "@/app/components/ui/Badge";
 import { makeTicketId, nowClockLabel } from "@/app/lib/data";
@@ -132,7 +132,8 @@ export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModal
       history: [
         {
           time: created,
-          action: `Ticket #${cleanCode} dibuat oleh operator (Kategori: ${category}, Status: ${status})`,
+          type: "created",
+          action: `Ticket #${cleanCode} dibuat oleh ${operatorName} (Kategori: ${category}, Status: ${status})`,
           author: operatorName,
         },
       ],
@@ -255,7 +256,10 @@ export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModal
         {isAdhoc && (
           <div className="adhoc-fields-container anim-fade">
             <div className="adhoc-fields-header">
-              <span className="adhoc-fields-badge">⚡ Ad-hoc Request Timeline</span>
+              <span className="adhoc-fields-badge">
+                <Zap size={11} style={{ display: "inline-block", verticalAlign: "middle", marginRight: "4px" }} />
+                Ad-hoc Request Timeline
+              </span>
               <small>Catat waktu masuk, respon, dan estimasi selesai permintaan.</small>
             </div>
 
@@ -346,7 +350,7 @@ export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModal
           Batal
         </button>
         <button className="button button-primary" onClick={submit} type="button">
-          ✓ Buat Ticket
+          <Check size={14} style={{ display: "inline-block", verticalAlign: "middle", marginRight: "4px" }} /> Buat Ticket
         </button>
       </div>
     </Modal>

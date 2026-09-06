@@ -1,6 +1,6 @@
 "use client";
 
-import { lazy, startTransition, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { lazy, startTransition, Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { Sidebar } from "@/app/components/layout/Sidebar";
 import { Topbar } from "@/app/components/layout/Topbar";
 import { OverviewView } from "@/app/components/views/OverviewView";
@@ -8,15 +8,13 @@ import { ToastProvider, useToast } from "@/app/components/ui/Toast";
 import { useCurrentHour } from "@/app/hooks/useLiveClock";
 import { useLocalStorage } from "@/app/hooks/useLocalStorage";
 import {
-  createHandoverDraft,
-  initialHandoverRecord,
-  initialHandoverTasks,
   isOpenTicket,
   seedTickets,
-  toDateInputValue,
+  seedRosterMembers,
 } from "@/app/lib/data";
-import type { CheckpointAssessment, StoredHandoverRecord, Ticket } from "@/app/lib/types";
+import type { CheckpointAssessment, RosterMember, Ticket } from "@/app/lib/types";
 import { AuthProvider } from "@/app/lib/auth";
+import { useHandoverWorkflow } from "@/app/hooks/useHandoverWorkflow";
 import { DashboardViewSkeleton } from "@/app/components/ui/LoadingSkeleton";
 
 const MobileNav = lazy(() => import("@/app/components/layout/MobileNav").then((module) => ({ default: module.MobileNav })));
@@ -46,7 +44,7 @@ export default function Home() {
 function Dashboard() {
   const notify = useToast();
   const [activeNav, setActiveNav] = useState("Overview");
-  const [theme, setTheme] = useLocalStorage<"dark" | "light">("ctd.theme", "light");
+
   const [tickets, setTickets] = useLocalStorage<Ticket[]>("ctd.tickets", seedTickets);
   const [assessments, setAssessments] = useLocalStorage<Record<string, CheckpointAssessment>>("ctd.checkpoints", {});
   const [acknowledged, setAcknowledged] = useLocalStorage<string[]>("ctd.acknowledged", []);
@@ -58,20 +56,11 @@ function Dashboard() {
   const [guideOpen, setGuideOpen] = useState(false);
   const [pendingNoteKey, setPendingNoteKey] = useState<string | null>(null);
 
-  const [handoverOpen, setHandoverOpen] = useState(false);
-  const [wizardOpen, setWizardOpen] = useState(false);
-  const [wizardDraft, setWizardDraft] = useState(() => createHandoverDraft());
-  const [wizardDirty, setWizardDirty] = useState(false);
-  const [wizardSaving, setWizardSaving] = useState(false);
-  const [records, setRecords] = useState<StoredHandoverRecord[]>([]);
-  const [recordsLoading, setRecordsLoading] = useState(true);
-  const [activeRecordId, setActiveRecordId] = useState<number | null>(null);
-  const [activeRecord, setActiveRecord] = useState(initialHandoverRecord);
+  const [members, setMembers] = useState<RosterMember[]>(seedRosterMembers);
+  const handover = useHandoverWorkflow({ tickets, assessments, members });
   const [loadedOverlays, setLoadedOverlays] = useState({
     ticketCreate: false,
     ticketDetail: false,
-    handover: false,
-    wizard: false,
   });
 
   const selectedTicket = useMemo(
@@ -89,7 +78,7 @@ function Dashboard() {
     [tickets],
   );
 
-  const lastThemeToggleRef = useRef<number>(0);
+
 
   const handleNavigate = useCallback((nextNav: string) => {
     // Preserve the current view until its on-demand chunk is ready, avoiding a
@@ -131,50 +120,34 @@ function Dashboard() {
     setTicketModalOpen(true);
   }, [markOverlayLoaded]);
 
-  const openHandover = useCallback(() => {
-    markOverlayLoaded("handover");
-    setHandoverOpen(true);
-  }, [markOverlayLoaded]);
-
-  const handleToggleTheme = useCallback(() => {
-    const now = Date.now();
-    // 300ms debounce/throttle safeguard against rapid repeated clicks
-    if (now - lastThemeToggleRef.current < 300) {
-      return;
-    }
-    lastThemeToggleRef.current = now;
-
-    setTheme((prevTheme) => {
-      const nextTheme = prevTheme === "dark" ? "light" : "dark";
-      notify.success(`Mode tema diubah menjadi ${nextTheme === "dark" ? "gelap" : "terang"}.`, {
-        id: "theme-toggle",
-      });
-      return nextTheme;
-    });
-  }, [notify, setTheme]);
-
   useEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme);
-  }, [theme]);
-
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const response = await fetch("/api/handovers");
-        if (!response.ok) throw new Error();
-        const payload = (await response.json()) as { notes: StoredHandoverRecord[] };
-        setRecords(payload.notes);
-      } catch {
-        notify.warning("Catatan handover belum dapat dimuat. Anda tetap dapat membuat catatan baru.", {
-          id: "handover-load-error",
-        });
-      } finally {
-        setRecordsLoading(false);
+    // Migrate or sync seed tickets if older localStorage data still has legacy 2-item history
+    setTickets((previous) => {
+      const target = previous.find((t) => t.id === "86d4054rh");
+      if (
+        target &&
+        target.history &&
+        target.history.length <= 2 &&
+        target.history.some((h) => h.action.includes("Status diperbarui menjadi Active"))
+      ) {
+        const seedTarget = seedTickets.find((t) => t.id === "86d4054rh");
+        if (seedTarget && seedTarget.history) {
+          return previous.map((t) =>
+            t.id === "86d4054rh"
+              ? {
+                  ...t,
+                  history: seedTarget.history,
+                  status: seedTarget.status,
+                  resolutionMinutes: seedTarget.resolutionMinutes,
+                }
+              : t,
+          );
+        }
       }
-    };
-    void load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+      return previous;
+    });
+  }, [setTickets]);
+
 
   useEffect(() => {
     const listener = (event: KeyboardEvent) => {
@@ -195,141 +168,26 @@ function Dashboard() {
     return () => window.removeEventListener("keydown", listener);
   }, []);
 
-  const handoverTasks = activeRecord.tasks;
-  const handoverProgressPercent = useMemo(
-    () =>
-      handoverTasks.length
-        ? Math.round((handoverTasks.filter((task) => task.completed).length / handoverTasks.length) * 100)
-        : 0,
-    [handoverTasks],
-  );
-  const handoverPendingCount = useMemo(() => handoverTasks.filter((task) => !task.completed).length, [handoverTasks]);
-
-  const activateStoredHandover = useCallback((stored: StoredHandoverRecord) => {
-    try {
-      setActiveRecord(JSON.parse(stored.content));
-      setActiveRecordId(stored.id);
-      openHandover();
-    } catch {
-      notify.critical("Catatan handover ini tidak dapat dibuka.", { id: "handover-open-error" });
-    }
-  }, [notify, openHandover]);
-
-  const openNewWizard = useCallback(() => {
-    setWizardDraft(createHandoverDraft({ ...initialHandoverRecord, tasks: initialHandoverTasks }, toDateInputValue()));
-    setWizardDirty(false);
-    markOverlayLoaded("wizard");
-    setWizardOpen(true);
-  }, [markOverlayLoaded]);
-
-  const toggleHandoverTask = async (taskId: number) => {
-    const next = {
-      ...activeRecord,
-      tasks: activeRecord.tasks.map((task) => (task.id === taskId ? { ...task, completed: !task.completed } : task)),
-    };
-    setActiveRecord(next);
-    if (!activeRecordId) return;
-    try {
-      const response = await fetch(`/api/handovers/${activeRecordId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: `Handover Shift ${next.sourceShift} → ${next.targetShift}`,
-          handoverDate: toDateInputValue(),
-          content: JSON.stringify(next),
-        }),
-      });
-      const payload = (await response.json()) as { note?: StoredHandoverRecord };
-      if (!response.ok || !payload.note) throw new Error();
-      setRecords((previous) => previous.map((note) => (note.id === payload.note!.id ? payload.note! : note)));
-    } catch {
-      notify.critical("Perubahan konfirmasi belum tersimpan. Coba lagi.", { id: "handover-save-error" });
-    }
-  };
-
-  const saveWizardDraft = async () => {
-    const tasks = wizardDraft.tasks.filter((task) => task.title.trim());
-    if (!wizardDraft.date || !wizardDraft.sourcePic.trim() || !wizardDraft.targetPic.trim() || !tasks.length) {
-      notify.warning("Isi tanggal, PIC pengirim, PIC penerima, dan minimal satu tugas handover.", {
-        id: "handover-wizard-validation",
-      });
-      return;
-    }
-    const record = {
-      sourceShift: wizardDraft.sourceShift.trim() || "Shift sebelumnya",
-      targetShift: wizardDraft.targetShift.trim() || "Shift berikutnya",
-      sourcePic: wizardDraft.sourcePic.trim(),
-      targetPic: wizardDraft.targetPic.trim(),
-      monitoringSummary: wizardDraft.monitoringSummary.trim() || "Monitoring belum dicatat.",
-      monitoringOwner: wizardDraft.monitoringOwner.trim() || wizardDraft.sourcePic.trim(),
-      monitoredProjects: wizardDraft.monitoredProjects.split(",").map((p) => p.trim()).filter(Boolean),
-      validationNote: wizardDraft.validationNote.trim() || "Menunggu validasi shift penerima.",
-      findings: wizardDraft.findings.filter((finding) => finding.title.trim() || finding.detail.trim()),
-      tasks,
-    };
-    setWizardSaving(true);
-    try {
-      const response = await fetch("/api/handovers", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: `Handover Shift ${record.sourceShift} → ${record.targetShift}`,
-          handoverDate: wizardDraft.date,
-          content: JSON.stringify(record),
-        }),
-      });
-      const payload = (await response.json()) as { note?: StoredHandoverRecord; error?: string };
-      if (!response.ok || !payload.note) throw new Error(payload.error);
-      setRecords((previous) => [payload.note!, ...previous]);
-      setActiveRecordId(payload.note.id);
-      setActiveRecord(record);
-      setWizardOpen(false);
-      openHandover();
-      notify.success("Catatan handover baru berhasil disimpan dan siap dikonfirmasi.", {
-        id: "handover-wizard-status",
-      });
-    } catch {
-      notify.critical("Catatan handover belum dapat disimpan. Periksa koneksi lalu coba lagi.", {
-        id: "handover-wizard-status",
-      });
-    } finally {
-      setWizardSaving(false);
-    }
-  };
-
-  const deleteHandoverRecord = async (id: number) => {
-    try {
-      const response = await fetch(`/api/handovers/${id}`, { method: "DELETE" });
-      if (!response.ok) throw new Error();
-      setRecords((previous) => previous.filter((record) => record.id !== id));
-      if (activeRecordId === id) setActiveRecordId(null);
-    } catch {
-      notify.critical("Catatan handover belum dapat dihapus. Coba lagi.", { id: "handover-delete-error" });
-    }
-  };
+  const handoverPendingCount = handover.record.tasks.filter((task) => !task.completed).length;
+  const handoverProgressPercent = handover.record.tasks.length
+    ? Math.round(((handover.record.tasks.length - handoverPendingCount) / handover.record.tasks.length) * 100)
+    : 0;
 
   return (
     <main className={`app-shell ${mobileNavOpen ? "nav-locked" : ""}`}>
       <Sidebar
         activeNav={activeNav}
         onNavigate={handleNavigate}
-        onOpenHandover={openHandover}
+        onPrepareHandover={() => handover.openActive()}
         openTicketCount={openTicketCount}
-        handoverRecord={activeRecord}
       />
 
       <section className="workspace">
         <Topbar
           activeNav={activeNav}
-          theme={theme}
-          onToggleTheme={handleToggleTheme}
           onOpenSearch={() => setSearchOpen(true)}
           onOpenMobileNav={() => setMobileNavOpen(true)}
-          onRefresh={() => {
-            // Re-sync active handover data and storage
-            setRecordsLoading(true);
-            setTimeout(() => setRecordsLoading(false), 300);
-          }}
+          onRefresh={() => void handover.refresh()}
         />
 
         <div className="page-content">
@@ -342,10 +200,10 @@ function Dashboard() {
                 onAcknowledge={acknowledgeAttention}
                 onUnacknowledge={unacknowledgeAttention}
                 currentHour={currentHour}
-                handoverRecord={activeRecord}
+                handoverRecord={handover.record}
                 handoverPendingCount={handoverPendingCount}
                 handoverProgressPercent={handoverProgressPercent}
-                handoverSavedLabel={activeRecordId ? `${activeRecord.sourceShift} → ${activeRecord.targetShift}` : null}
+                handoverSavedLabel={handover.active ? `${handover.record.sourceShift} → ${handover.record.targetShift}` : null}
                 onAssess={handleAssess}
                 onRequestNote={setPendingNoteKey}
                 onOpenGuide={() => setGuideOpen(true)}
@@ -357,8 +215,8 @@ function Dashboard() {
                   handleNavigate("Reports");
                   notify.info("Buka tab Laporan untuk mengekspor ringkasan operasional.", { id: "report-tab-hint" });
                 }}
-                onOpenHandover={openHandover}
-                onCreateHandover={openNewWizard}
+                onOpenHandover={() => handover.openReader()}
+                onCreateHandover={() => handover.openWizard("create")}
               />
             )}
 
@@ -377,21 +235,21 @@ function Dashboard() {
             )}
 
             {(activeNav === "Shift Log" || activeNav === "Log shift") && (
-              <ShiftLogView records={records} loading={recordsLoading} onOpenRecord={activateStoredHandover} onDeleteRecord={deleteHandoverRecord} />
+              <ShiftLogView workflow={handover} />
             )}
 
             {(activeNav === "Reports" || activeNav === "Laporan") && (
-              <ReportsView tickets={tickets} assessments={assessments} handoverCount={records.length} />
+              <ReportsView tickets={tickets} assessments={assessments} handoverCount={handover.allTotal} />
             )}
 
-            {(activeNav === "Team Roster" || activeNav === "Team" || activeNav === "Roster") && <TeamRosterView />}
+            {(activeNav === "Team Roster" || activeNav === "Team" || activeNav === "Roster") && <TeamRosterView members={members} onMembersChange={setMembers} />}
           </Suspense>
         </div>
       </section>
 
       <Suspense fallback={null}>
         {mobileNavOpen && (
-          <MobileNav open={mobileNavOpen} onClose={() => setMobileNavOpen(false)} activeNav={activeNav} onNavigate={handleNavigate} handoverRecord={activeRecord} />
+          <MobileNav open={mobileNavOpen} onClose={() => setMobileNavOpen(false)} activeNav={activeNav} onNavigate={handleNavigate} handoverRecord={handover.record} />
         )}
 
         {searchOpen && (
@@ -425,35 +283,30 @@ function Dashboard() {
           />
         )}
 
-        {loadedOverlays.handover && (
+        {handover.open && (
           <HandoverModal
-            open={handoverOpen}
-            onClose={() => setHandoverOpen(false)}
-            record={activeRecord}
-            records={records}
-            loading={recordsLoading}
-            activeRecordId={activeRecordId}
-            onOpenStored={activateStoredHandover}
-            onToggleTask={(id) => void toggleHandoverTask(id)}
-            onCreateNew={() => {
-              setHandoverOpen(false);
-              openNewWizard();
-            }}
+            workflow={handover}
+            tickets={tickets}
+            onSelectTicket={selectTicket}
           />
         )}
 
-        {loadedOverlays.wizard && (
+        {handover.session?.open && (
           <HandoverWizard
-            open={wizardOpen}
-            draft={wizardDraft}
-            dirty={wizardDirty}
-            onDraftChange={(updater) => {
-              setWizardDirty(true);
-              setWizardDraft((previous) => updater(previous));
-            }}
-            onClose={() => setWizardOpen(false)}
-            onSave={() => void saveWizardDraft()}
-            saving={wizardSaving}
+            key={handover.session.requestId}
+            open
+            mode={handover.session.mode}
+            draft={handover.session.draft}
+            dirty
+            draftSaved={handover.draftSaved}
+            initialStep={handover.session.step}
+            onStepChange={handover.changeStep}
+            onDraftChange={handover.changeDraft}
+            onClose={handover.closeWizard}
+            onDiscard={handover.discardDraft}
+            onSave={() => void handover.save()}
+            saving={handover.busy}
+            actor={handover.actor}
           />
         )}
 

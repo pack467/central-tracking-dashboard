@@ -31,8 +31,15 @@ export interface HistoricalAssessmentEntry {
   note: string;
 }
 
+export type TicketActivityType =
+  | "created"
+  | "user_request"
+  | "response"
+  | "status_change";
+
 export interface TicketHistoryEntry {
   time: string;
+  type?: TicketActivityType | string;
   action: string;
   author: string;
 }
@@ -83,6 +90,17 @@ export interface HandoverTask {
   detail: string;
   state: HandoverState;
   completed: boolean;
+  sourceRef?: string;
+  confirmedBy?: string;
+  confirmedAt?: string;
+}
+
+export interface HandoverCheckpoint {
+  time: string;
+  project: string;
+  task: string;
+  verdict: "ok" | "nok";
+  note?: string;
 }
 
 export interface HandoverFinding {
@@ -90,6 +108,26 @@ export interface HandoverFinding {
   title: string;
   detail: string;
   state: "waiting" | "in-progress";
+  sourceRef?: string;
+}
+
+export interface HandoverActor {
+  id: string;
+  name: string;
+  email: string;
+  local?: boolean;
+}
+
+export interface MonitoringException {
+  project: string;
+  reason: string;
+}
+
+export interface HandoverAuditEntry {
+  action: "created" | "edited" | "task-confirmed" | "task-unconfirmed" | "accepted" | "reopened";
+  actor: HandoverActor;
+  at: string;
+  taskId?: number;
 }
 
 export interface HandoverRecordData {
@@ -101,8 +139,16 @@ export interface HandoverRecordData {
   monitoringOwner: string;
   monitoredProjects: string[];
   validationNote: string;
+  notes?: string;
+  openTickets?: Ticket[];
   findings: HandoverFinding[];
   tasks: HandoverTask[];
+  receiverEmail?: string;
+  monitoringExceptions?: MonitoringException[];
+  monitoringCheckpoints?: HandoverCheckpoint[];
+  createdBy?: HandoverActor;
+  acceptance?: { actor: HandoverActor; at: string } | null;
+  auditTrail?: HandoverAuditEntry[];
 }
 
 export interface StoredHandoverRecord {
@@ -112,6 +158,7 @@ export interface StoredHandoverRecord {
   content: string;
   createdAt: string;
   updatedAt: string;
+  revision?: number;
 }
 
 export type HandoverDraft = {
@@ -124,8 +171,11 @@ export type HandoverDraft = {
   monitoredProjects: string;
   monitoringSummary: string;
   validationNote: string;
+  notes?: string;
   findings: HandoverFinding[];
   tasks: HandoverTask[];
+  receiverEmail?: string;
+  monitoringExceptions?: MonitoringException[];
 };
 
 export interface MonitoringEntry {

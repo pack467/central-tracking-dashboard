@@ -6,12 +6,15 @@
     "node": ">=22.13.0"
   },
   "scripts": {
+    "predev": "npm run db:migrate:local",
     "dev": "vinext dev",
     "build": "vinext build",
     "start": "vinext start",
     "test": "npm run build && node --test tests/rendered-html.test.mjs",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
-    "db:generate": "drizzle-kit generate"
+    "db:generate": "drizzle-kit generate",
+    "db:migrate:local": "wrangler d1 migrations apply site-creator-d1 --local --config wrangler.local.json",
+    "test:handover": "node --import ./tests/typescript-loader.mjs --test tests/handover.test.mjs"
   },
   "dependencies": {
     "@tanstack/react-virtual": "^3.14.10",

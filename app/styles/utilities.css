@@ -180,6 +180,11 @@
 .confirm-hint-danger {
   border-color: var(--red-border);
   background: var(--red-soft);
+  color: #fca5a5;
+}
+
+.confirm-hint-danger strong {
+  color: #f87171;
 }
 
 .button-danger {

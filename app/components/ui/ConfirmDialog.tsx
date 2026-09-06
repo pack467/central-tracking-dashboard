@@ -37,10 +37,11 @@ export function ConfirmDialog({
         <strong>This action requires confirmation</strong> to prevent unintended changes.
       </div>
       <div className="modal-actions">
-        <button className="button button-secondary" onClick={onCancel}>
+        <button type="button" className="button button-secondary" onClick={onCancel}>
           {cancelLabel}
         </button>
         <button
+          type="button"
           className={danger ? "button button-danger" : "button button-primary"}
           onClick={onConfirm}
         >

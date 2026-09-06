@@ -15,7 +15,6 @@ import {
 import { BrandLogo } from "@/app/components/ui/BrandLogo";
 import { useToast } from "@/app/components/ui/Toast";
 import { useActiveShift } from "@/app/hooks/useLiveClock";
-import type { HandoverRecordData } from "@/app/lib/types";
 
 export interface NavItemConfig {
   icon: LucideIcon;
@@ -33,12 +32,11 @@ export const navItems: readonly NavItemConfig[] = [
 interface SidebarProps {
   activeNav: string;
   onNavigate: (label: string) => void;
-  onOpenHandover: () => void;
+  onPrepareHandover: () => void;
   openTicketCount: number;
-  handoverRecord: HandoverRecordData;
 }
 
-export function Sidebar({ activeNav, onNavigate, onOpenHandover, openTicketCount, handoverRecord }: SidebarProps) {
+export function Sidebar({ activeNav, onNavigate, onPrepareHandover, openTicketCount }: SidebarProps) {
   const notify = useToast();
   const activeShift = useActiveShift();
   const lastActionTimeRef = useRef<Record<string, number>>({});
@@ -139,9 +137,9 @@ export function Sidebar({ activeNav, onNavigate, onOpenHandover, openTicketCount
         <button
           onClick={() =>
             throttleAction("prepare-handover", () => {
-              onOpenHandover();
-              notify(`Handover ${handoverRecord.sourceShift} → ${handoverRecord.targetShift} dibuka.`, "info", {
-                id: "handover-open",
+              onPrepareHandover();
+              notify(`Persiapan handover ${activeShift.label} dibuka.`, "info", {
+                id: "handover-prepare",
               });
             })
           }

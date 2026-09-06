@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { AlertCircle, Clock, Check, X, Filter, ChevronDown } from "lucide-react";
+import { AlertCircle, AlertTriangle, FileText, Clock, Check, X, Filter, ChevronDown } from "lucide-react";
 import { Badge } from "@/app/components/ui/Badge";
 import { ProjectMark } from "@/app/components/ui/ProjectMark";
 import { useToast } from "@/app/components/ui/Toast";
@@ -214,13 +214,16 @@ export function MonitoringSchedule({
                     <span className="schedule-check-heading">
                       <strong>{item.project}</strong>
                       {item.tone === "warning" && (
-                        <span className="warn-indicator-dot" title="Perlu perhatian khusus">⚠️</span>
+                        <span className="warn-indicator-dot" title="Perlu perhatian khusus">
+                          <AlertTriangle size={13} className="warn-indicator-icon" />
+                        </span>
                       )}
                     </span>
                     <small className="schedule-task-desc">{item.task}</small>
                     {assessment && isNok && assessment.note && (
                       <small className="checkpoint-note">
-                        📝 {assessment.note}
+                        <FileText size={11} className="checkpoint-note-icon" />
+                        <span>{assessment.note}</span>
                       </small>
                     )}
                   </span>
@@ -307,7 +310,7 @@ export function MonitoringSchedule({
                               });
                             }}
                           >
-                            ✓ OK
+                            <Check size={12} style={{ display: "inline-block", verticalAlign: "middle", marginRight: "3px" }} /> OK
                           </button>
                           <button
                             type="button"
@@ -317,7 +320,7 @@ export function MonitoringSchedule({
                               onRequestNote(key);
                             }}
                           >
-                            ✗ NOK
+                            <X size={12} style={{ display: "inline-block", verticalAlign: "middle", marginRight: "3px" }} /> NOK
                           </button>
                         </span>
                       )}

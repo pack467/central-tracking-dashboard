@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X } from "lucide-react";
+import { X, Check, FileText } from "lucide-react";
 import { Modal } from "@/app/components/ui/Modal";
 
 export function NotAdequateModal({
@@ -89,7 +89,9 @@ export function AdequacyGuideModal({ open, onClose }: { open: boolean; onClose: 
 
       <div style={{ display: "grid", gap: "14px", fontSize: "12.5px", color: "var(--ink-primary)", lineHeight: 1.5 }}>
         <div style={{ padding: "12px", background: "var(--green-soft)", border: "1px solid var(--green-border)", borderRadius: "8px" }}>
-          <strong style={{ color: "var(--green)", fontSize: "13px" }}>✓ Kriteria OK (Passed / Normal)</strong>
+          <strong style={{ color: "var(--green)", fontSize: "13px", display: "inline-flex", alignItems: "center", gap: "6px" }}>
+            <Check size={14} /> Kriteria OK (Passed / Normal)
+          </strong>
           <ul style={{ margin: "6px 0 0", paddingLeft: "18px", color: "var(--ink-secondary)" }}>
             <li><strong>Metrik sesuai SLA:</strong> Utilisasi CPU di bawah 85%, memori stabil, dan latensi respons dalam baseline normal.</li>
             <li><strong>Aliran pesan aktif:</strong> Topik Kafka aktif mengonsumsi dan menghasilkan pesan tanpa lag tak terduga.</li>
@@ -99,7 +101,9 @@ export function AdequacyGuideModal({ open, onClose }: { open: boolean; onClose: 
         </div>
 
         <div style={{ padding: "12px", background: "var(--red-soft)", border: "1px solid var(--red-border)", borderRadius: "8px" }}>
-          <strong style={{ color: "var(--red)", fontSize: "13px" }}>✗ Kriteria NOK (Failed / Action Required)</strong>
+          <strong style={{ color: "var(--red)", fontSize: "13px", display: "inline-flex", alignItems: "center", gap: "6px" }}>
+            <X size={14} /> Kriteria NOK (Failed / Action Required)
+          </strong>
           <ul style={{ margin: "6px 0 0", paddingLeft: "18px", color: "var(--ink-secondary)" }}>
             <li><strong>Penumpukan queue:</strong> Penumpukan pesan pending atau deadlock terdeteksi pada queue layanan.</li>
             <li><strong>Traffic hilang:</strong> Tidak ada produksi pesan pada topik Kafka aktif atau stream socket terputus.</li>
@@ -109,7 +113,9 @@ export function AdequacyGuideModal({ open, onClose }: { open: boolean; onClose: 
         </div>
 
         <div style={{ padding: "12px", background: "var(--bg)", border: "1px solid var(--line)", borderRadius: "8px" }}>
-          <strong style={{ fontSize: "12.5px" }}>📝 Prosedur pencatatan saat status NOK:</strong>
+          <strong style={{ fontSize: "12.5px", display: "inline-flex", alignItems: "center", gap: "6px" }}>
+            <FileText size={13} style={{ color: "var(--accent-blue)" }} /> Prosedur pencatatan saat status NOK:
+          </strong>
           <ol style={{ margin: "6px 0 0", paddingLeft: "18px", color: "var(--ink-secondary)" }}>
             <li>Klik tombol <strong>&quot;NOK&quot;</strong> pada baris checkpoint di jadwal monitoring.</li>
             <li>

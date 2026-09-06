@@ -5,7 +5,7 @@ import { UserPlus, ArrowRightLeft, Table, Calendar, Search, X } from "lucide-rea
 import { RosterStatCards } from "@/app/components/team/RosterStatCards";
 import { RosterShiftCoverage } from "@/app/components/team/RosterShiftCoverage";
 import { RosterTable } from "@/app/components/team/RosterTable";
-import { seedRosterMembers, seedSwapRequests } from "@/app/lib/data";
+import { seedSwapRequests } from "@/app/lib/data";
 import { useActiveShift } from "@/app/hooks/useLiveClock";
 import { getDerivedMemberStatus } from "@/app/lib/shifts";
 import type { RosterMember, ShiftSwapRequest } from "@/app/lib/types";
@@ -23,9 +23,11 @@ const MemberCreateModal = lazy(() =>
   import("@/app/components/team/MemberCreateModal").then((module) => ({ default: module.MemberCreateModal })),
 );
 
-export function TeamRosterView() {
+export function TeamRosterView({ members, onMembersChange: setMembers }: {
+  members: RosterMember[];
+  onMembersChange: React.Dispatch<React.SetStateAction<RosterMember[]>>;
+}) {
   const activeShift = useActiveShift();
-  const [members, setMembers] = useState<RosterMember[]>(seedRosterMembers);
   const [swapRequests, setSwapRequests] = useState<ShiftSwapRequest[]>(seedSwapRequests);
 
   // Derive real-time member status based on current active shift

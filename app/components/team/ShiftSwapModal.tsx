@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowRightLeft, Check, X, Clock, AlertCircle } from "lucide-react";
+import { ArrowRightLeft, Check, X, Clock, AlertCircle, Calendar, RefreshCw } from "lucide-react";
 import { Modal } from "@/app/components/ui/Modal";
 import { Badge } from "@/app/components/ui/Badge";
 import { useToast } from "@/app/components/ui/Toast";
@@ -260,10 +260,16 @@ export function ShiftSwapModal({
                         {req.status}
                       </Badge>
                     </div>
-                    <div style={{ fontSize: "11.5px", color: "var(--ink-secondary)", display: "flex", gap: "10px", flexWrap: "wrap" }}>
-                      <span>📅 <strong>{req.requestedDate}</strong></span>
-                      <span>🔄 Target: <strong>{req.targetShift}</strong></span>
-                      <span style={{ color: "var(--ink-muted)" }}><Clock size={12} style={{ display: "inline", verticalAlign: "middle" }} /> {req.createdAt}</span>
+                    <div style={{ fontSize: "11.5px", color: "var(--ink-secondary)", display: "flex", gap: "12px", flexWrap: "wrap", alignItems: "center" }}>
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
+                        <Calendar size={12} style={{ color: "var(--accent-blue)" }} /> <strong>{req.requestedDate}</strong>
+                      </span>
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
+                        <RefreshCw size={11} style={{ color: "var(--orange)" }} /> Target: <strong>{req.targetShift}</strong>
+                      </span>
+                      <span style={{ color: "var(--ink-muted)", display: "inline-flex", alignItems: "center", gap: "4px" }}>
+                        <Clock size={12} /> {req.createdAt}
+                      </span>
                     </div>
                   </div>
 

@@ -11,3 +11,8 @@ export function getDb() {
 
   return drizzle(env.DB, { schema });
 }
+
+export function getHandoverDb(): D1Database {
+  if (!env.DB) throw new Error("Binding database handover tidak tersedia.");
+  return env.DB;
+}

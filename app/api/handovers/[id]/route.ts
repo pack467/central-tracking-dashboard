@@ -1,87 +1,55 @@
-﻿import { eq } from "drizzle-orm";
-import { getDb } from "@/db";
-import { handoverNotes } from "@/db/schema";
+import { getHandoverDb } from "@/db";
+import { canEditHandover, HandoverError, parseHandoverContent, updateHandoverRecord } from "@/app/lib/handover";
+import { assertSameOrigin, findHandover, handoverActor, handoverFailure, handoverResponse, noteColumns, noteId, readHandoverBody, validatedDraft } from "@/app/lib/handover-server";
+import type { HandoverRecordData, StoredHandoverRecord } from "@/app/lib/types";
 
-type HandoverPayload = {
-  title?: unknown;
-  handoverDate?: unknown;
-  content?: unknown;
-};
+type Context = { params: Promise<{ id: string }> };
 
-function getNoteId(value: string) {
-  const id = Number(value);
-  return Number.isInteger(id) && id > 0 ? id : null;
+export async function GET(request: Request, { params }: Context) {
+  try {
+    handoverActor(request);
+    return handoverResponse({ note: await findHandover(noteId((await params).id)) });
+  } catch (error) { return handoverFailure(error); }
 }
 
-function validatePayload(payload: HandoverPayload) {
-  const title = typeof payload.title === "string" ? payload.title.trim() : "";
-  const handoverDate = typeof payload.handoverDate === "string" ? payload.handoverDate.trim() : "";
-  const content = typeof payload.content === "string" ? payload.content.trim() : "";
-
-  if (!title || !handoverDate || !content) {
-    return { error: "Data catatan handover tidak lengkap." };
-  }
-
-  if (title.length > 160 || handoverDate.length > 20 || content.length > 50000) {
-    return { error: "Catatan handover melebihi batas data yang dapat disimpan." };
-  }
-
+export async function PUT(request: Request, { params }: Context) {
   try {
-    JSON.parse(content);
-  } catch {
-    return { error: "Isi catatan handover tidak valid." };
-  }
-
-  return { title, handoverDate, content };
+    assertSameOrigin(request);
+    const actor = handoverActor(request);
+    const body = await readHandoverBody(request);
+    const current = await findHandover(noteId((await params).id));
+    if (body.revision !== current.revision) throw new HandoverError("Catatan telah berubah di sesi lain. Muat ulang catatan sebelum mencoba lagi; draf Anda tetap disimpan.", 409);
+    const record = parseHandoverContent(current.content);
+    const now = new Date().toISOString();
+    let next: HandoverRecordData;
+    let date = current.handoverDate;
+    if (body.action === "edit") {
+      if (!canEditHandover(record, actor)) throw new HandoverError("Hanya pembuat catatan yang dapat merevisi handover.", 403);
+      const validated = validatedDraft(body.draft);
+      date = validated.date;
+      next = { ...validated.record, createdBy: record.createdBy ?? actor, acceptance: null, tasks: validated.record.tasks.map((task) => ({ ...task, completed: false })), auditTrail: [...(record.auditTrail ?? []), { action: record.acceptance ? "reopened" : "edited", actor, at: now }] };
+    } else {
+      next = updateHandoverRecord(record, actor, String(body.action), body, now);
+    }
+    const content = JSON.stringify(next);
+    if (content.length > 100000) throw new HandoverError("Riwayat catatan terlalu panjang. Buat handover lanjutan.", 413);
+    const note = ((await getHandoverDb().prepare(`UPDATE handover_notes SET title = ?, handover_date = ?, content = ?, updated_at = ?, revision = revision + 1 WHERE id = ? AND revision = ? RETURNING ${noteColumns}`)
+      .bind(`Handover Shift ${next.sourceShift} → ${next.targetShift}`, date, content, now, current.id, current.revision!).first()) as StoredHandoverRecord | null);
+    if (!note) throw new HandoverError("Catatan baru saja berubah. Muat ulang sebelum mencoba lagi.", 409);
+    return handoverResponse({ note });
+  } catch (error) { return handoverFailure(error); }
 }
 
-export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { id: rawId } = await params;
-  const id = getNoteId(rawId);
-  if (!id) return Response.json({ error: "Catatan handover tidak ditemukan." }, { status: 404 });
-
+export async function DELETE(request: Request, { params }: Context) {
   try {
-    const validation = validatePayload((await request.json()) as HandoverPayload);
-    if ("error" in validation) return Response.json(validation, { status: 400 });
-
-    const [note] = await getDb()
-      .update(handoverNotes)
-      .set({
-        title: validation.title,
-        handoverDate: validation.handoverDate,
-        content: validation.content,
-        updatedAt: new Date().toISOString(),
-      })
-      .where(eq(handoverNotes.id, id))
-      .returning();
-
-    if (!note) return Response.json({ error: "Catatan handover tidak ditemukan." }, { status: 404 });
-    return Response.json({ note });
-  } catch {
-    return Response.json(
-      { error: "Perubahan status handover belum dapat disimpan." },
-      { status: 500 },
-    );
-  }
-}
-
-export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { id: rawId } = await params;
-  const id = getNoteId(rawId);
-  if (!id) return Response.json({ error: "Catatan handover tidak ditemukan." }, { status: 404 });
-
-  try {
-    const [note] = await getDb()
-      .delete(handoverNotes)
-      .where(eq(handoverNotes.id, id))
-      .returning();
-
-    if (!note) return Response.json({ error: "Catatan handover tidak ditemukan." }, { status: 404 });
-    return Response.json({ note });
-  } catch {
-    return Response.json(
-      { error: "Catatan handover belum dapat dihapus. Coba lagi beberapa saat lagi." },
-      { status: 500 },
-    );
-  }
+    assertSameOrigin(request);
+    const actor = handoverActor(request);
+    const current = await findHandover(noteId((await params).id));
+    if (!canEditHandover(parseHandoverContent(current.content), actor)) throw new HandoverError("Hanya pembuat catatan yang dapat menghapusnya.", 403);
+    const revision = Number(new URL(request.url).searchParams.get("revision"));
+    if (revision !== current.revision) throw new HandoverError("Catatan telah berubah. Muat ulang sebelum menghapus.", 409);
+    const note = await getHandoverDb().prepare("DELETE FROM handover_notes WHERE id = ? AND revision = ? RETURNING id").bind(current.id, revision).first();
+    if (!note) throw new HandoverError("Catatan telah berubah. Muat ulang sebelum menghapus.", 409);
+    return handoverResponse({ id: current.id });
+  } catch (error) { return handoverFailure(error); }
 }

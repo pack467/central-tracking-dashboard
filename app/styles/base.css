@@ -47,11 +47,8 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 99px;
-}
-html[data-theme="dark"] ::-webkit-scrollbar-thumb {
   background: #475569;
+  border-radius: 99px;
 }
 
 /* App Shell */

@@ -2,15 +2,13 @@
 
 import { useState } from "react";
 import { RefreshCw, Sun, Sunset, Moon, Clock } from "lucide-react";
-import { IconMenu, IconMoon, IconSun } from "@/app/components/ui/Icons";
+import { IconMenu } from "@/app/components/ui/Icons";
 import { NotificationDropdown } from "@/app/components/layout/NotificationDropdown";
 import { useLiveClock, useActiveShift } from "@/app/hooks/useLiveClock";
 import { useToast } from "@/app/components/ui/Toast";
 
 interface TopbarProps {
   activeNav: string;
-  theme: "dark" | "light";
-  onToggleTheme: () => void;
   onOpenSearch?: () => void;
   onOpenMobileNav: () => void;
   onRefresh?: () => void;
@@ -18,8 +16,6 @@ interface TopbarProps {
 
 export function Topbar({
   activeNav,
-  theme,
-  onToggleTheme,
   onOpenMobileNav,
   onRefresh,
 }: TopbarProps) {
@@ -84,15 +80,7 @@ export function Topbar({
         {/* Dedicated anchored notification dropdown */}
         <NotificationDropdown />
 
-        {/* Light / Dark Mode Toggle */}
-        <button
-          className="theme-toggle-button"
-          onClick={onToggleTheme}
-          title={`Ubah ke mode ${theme === "dark" ? "terang" : "gelap"}`}
-          aria-label={`Ubah ke mode ${theme === "dark" ? "terang" : "gelap"}`}
-        >
-          {theme === "dark" ? <IconSun /> : <IconMoon />}
-        </button>
+
 
         {/* Website Refresh Button (Placed to the right of theme button, icon-only) */}
         <button

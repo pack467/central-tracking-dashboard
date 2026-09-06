@@ -239,20 +239,14 @@
   font-family: var(--font-mono);
 }
 
-.project-sm { color: #d97706; background: #fffbeb; border: 1px solid #fde68a; }
-.project-bb, .project-b2b { color: #7c3aed; background: #f5f3ff; border: 1px solid #ddd6fe; }
-.project-usiem { color: #16a34a; background: #f0fdf4; border: 1px solid #bbf7d0; }
-.project-mb { color: #2563eb; background: #eff6ff; border: 1px solid #bfdbfe; }
-.project-epc, .project-epctools, .project-epccore { color: #d97706; background: #fffbeb; border: 1px solid #fde68a; }
-.project-dm { color: #0284c7; background: #f0f9ff; border: 1px solid #bae6fd; }
-.project-unem { color: #475569; background: #f8fafc; border: 1px solid #e2e8f0; }
+.project-sm { color: #fbbf24; background: rgba(251, 191, 36, 0.12); border: 1px solid rgba(251, 191, 36, 0.3); }
+.project-bb, .project-b2b { color: #c084fc; background: rgba(192, 132, 252, 0.12); border: 1px solid rgba(192, 132, 252, 0.3); }
+.project-usiem { color: #4ade80; background: rgba(74, 222, 128, 0.12); border: 1px solid rgba(74, 222, 128, 0.3); }
+.project-mb { color: #38bdf8; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); }
+.project-epc, .project-epctools, .project-epccore { color: #fbbf24; background: rgba(251, 191, 36, 0.12); border: 1px solid rgba(251, 191, 36, 0.3); }
+.project-dm { color: #38bdf8; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); }
+.project-unem { color: #94a3b8; background: rgba(148, 163, 184, 0.12); border: 1px solid rgba(148, 163, 184, 0.3); }
 
-html[data-theme="dark"] .project-sm { color: #fbbf24; background: rgba(251, 191, 36, 0.12); border-color: rgba(251, 191, 36, 0.3); }
-html[data-theme="dark"] .project-bb, html[data-theme="dark"] .project-b2b { color: #c084fc; background: rgba(192, 132, 252, 0.12); border-color: rgba(192, 132, 252, 0.3); }
-html[data-theme="dark"] .project-usiem { color: #4ade80; background: rgba(74, 222, 128, 0.12); border-color: rgba(74, 222, 128, 0.3); }
-html[data-theme="dark"] .project-mb { color: #38bdf8; background: rgba(56, 189, 248, 0.12); border-color: rgba(56, 189, 248, 0.3); }
-html[data-theme="dark"] .project-epc, html[data-theme="dark"] .project-epctools, html[data-theme="dark"] .project-epccore { color: #fbbf24; background: rgba(251, 191, 36, 0.12); border-color: rgba(251, 191, 36, 0.3); }
-html[data-theme="dark"] .project-dm { color: #38bdf8; background: rgba(56, 189, 248, 0.12); border-color: rgba(56, 189, 248, 0.3); }
 
 /* ═══════════════════════════════════════════════
    METRICS GRID
@@ -391,15 +385,10 @@ html[data-theme="dark"] .project-dm { color: #38bdf8; background: rgba(56, 189, 
   flex-direction: column;
   gap: 8px;
   padding: 16px 18px;
-  background: var(--panel-bg);
-  border: 1px solid var(--panel-border);
+  background: #141e30;
+  border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: 11px;
   transition: border-color 0.15s ease, background-color 0.15s ease;
-}
-
-html[data-theme="dark"] .sc {
-  background: #141e30;
-  border-color: rgba(255, 255, 255, 0.07);
 }
 
 /* Subtle left border accents per card tone */

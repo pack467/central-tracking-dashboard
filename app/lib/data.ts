@@ -9,6 +9,7 @@ import type {
   ShiftSwapRequest,
   Ticket,
 } from "./types";
+import { getNextShiftChange, getShiftInfo } from "./shifts";
 
 export const projects: ProjectHealthEntry[] = [
   { name: "SM", status: "Needs Attention", detail: "1 pengecualian", tone: "warning" },
@@ -249,17 +250,40 @@ export const seedTickets: Ticket[] = [
     type: "Change Request",
     category: "Change Request",
     owner: "Pangondion Kurniawan",
-    status: "Active",
+    status: "Closed",
     created: "21:00",
     date: "2026-08-31",
     shift: "Malam",
     agingHours: 1.5,
     responseMinutes: 12,
+    resolutionMinutes: 30,
     slaTargetMinutes: 120,
     description: "Permintaan konfigurasi parameter ambang FMC tambahan untuk mesin validasi EPC.",
     history: [
-      { time: "21:00", action: "Ticket dibuat oleh operator", author: "Pangondion Kurniawan" },
-      { time: "21:15", action: "Status diperbarui menjadi Active", author: "Pangondion Kurniawan" },
+      {
+        time: "21:00",
+        type: "created",
+        action: "Ticket dibuat untuk penambahan konfigurasi parameter ambang FMC pada mesin validasi EPC.",
+        author: "Pangondion Kurniawan",
+      },
+      {
+        time: "21:05",
+        type: "user_request",
+        action: "Requester follow up: Mohon update apakah threshold toleransi FMC dapat diset ke 85% untuk persiapan batch testing malam.",
+        author: "Tim EPC (Budi Santoso)",
+      },
+      {
+        time: "21:15",
+        type: "response",
+        action: "Tim merespon: Sedang memverifikasi ambang parameter FMC bersama tim EPC Tools dan mempersiapkan script validasi.",
+        author: "Pangondion Kurniawan",
+      },
+      {
+        time: "21:30",
+        type: "status_change",
+        action: "Tiket ditutup oleh Pangondion Kurniawan: Konfigurasi parameter ambang FMC 85% telah aktif dan pengujian validasi batch dinyatakan lulus.",
+        author: "Pangondion Kurniawan",
+      },
     ],
   },
   {
@@ -283,8 +307,24 @@ export const seedTickets: Ticket[] = [
     rootCauseCategory: "Kafka Broker Sync",
     description: "Penumpukan lag consumer Kafka melebihi threshold 50.000 messages/sec, diekskalasikan ke tim infrastruktur L2.",
     history: [
-      { time: "19:15", action: "Alert trigger terdeteksi", author: "Mhd. Galih Khairi" },
-      { time: "20:00", action: "Dieskalasikan ke Reza Rahardian (L2)", author: "Mhd. Galih Khairi" },
+      {
+        time: "19:15",
+        type: "created",
+        action: "Ticket dibuat: Alert trigger lonjakan latency pada pipeline consumer Kafka SIEM terdeteksi melebihi threshold 50.000 msg/s.",
+        author: "Mhd. Galih Khairi",
+      },
+      {
+        time: "19:30",
+        type: "user_request",
+        action: "SOC Team request: Mohon percepat investigasi karena lag pipeline berpotensi menunda pengiriman event audit kepatuhan.",
+        author: "SOC Team (Andi)",
+      },
+      {
+        time: "20:00",
+        type: "response",
+        action: "Tim merespon: Ticket dieskalasikan ke Reza Rahardian (L2 Specialist) untuk re-sinkronisasi partisi broker Kafka cluster.",
+        author: "Mhd. Galih Khairi",
+      },
     ],
   },
   {
@@ -304,8 +344,30 @@ export const seedTickets: Ticket[] = [
     slaTargetMinutes: 60,
     description: "Validasi selesai untuk seluruh endpoint approval entities.",
     history: [
-      { time: "20:08", action: "Ticket dibuat", author: "Pangondion Kurniawan" },
-      { time: "20:45", action: "Masalah diselesaikan dan ditutup", author: "Pangondion Kurniawan" },
+      {
+        time: "20:08",
+        type: "created",
+        action: "Ticket dibuat untuk validasi kelengkapan seluruh endpoint approval entities pada portal EPC.",
+        author: "Pangondion Kurniawan",
+      },
+      {
+        time: "20:15",
+        type: "user_request",
+        action: "Requester follow up: Mohon konfirmasi apakah endpoint batch approval entities sudah dapat diakses tanpa connection timeout.",
+        author: "Tim EPC (Teresa)",
+      },
+      {
+        time: "20:25",
+        type: "response",
+        action: "Tim merespon: Sedang melakukan verifikasi koneksi pool service dan reset cache routing approval.",
+        author: "Pangondion Kurniawan",
+      },
+      {
+        time: "20:45",
+        type: "status_change",
+        action: "Tiket ditutup oleh Pangondion Kurniawan: Validasi selesai untuk seluruh endpoint approval entities dan verifikasi berjalan normal.",
+        author: "Pangondion Kurniawan",
+      },
     ],
   },
   {
@@ -325,8 +387,30 @@ export const seedTickets: Ticket[] = [
     slaTargetMinutes: 120,
     description: "File buffer log LTE ditransfer ke node arsip sekunder.",
     history: [
-      { time: "18:20", action: "Ticket dibuat", author: "Mhd. Galih Khairi" },
-      { time: "19:00", action: "Transfer selesai dan checksum tervalidasi", author: "Mhd. Galih Khairi" },
+      {
+        time: "18:20",
+        type: "created",
+        action: "Ticket dibuat untuk transfer file buffer log LTE ke node arsip sekunder.",
+        author: "Mhd. Galih Khairi",
+      },
+      {
+        time: "18:35",
+        type: "user_request",
+        action: "Requester request: Mohon pastikan integritas checksum MD5 tervalidasi sebelum file buffer di server utama dihapus.",
+        author: "Tim Data Warehouse",
+      },
+      {
+        time: "18:45",
+        type: "response",
+        action: "Tim merespon: Proses pemindahan file buffer ke node arsip sekunder sedang berjalan dan checksum dalam antrean.",
+        author: "Mhd. Galih Khairi",
+      },
+      {
+        time: "19:00",
+        type: "status_change",
+        action: "Tiket ditutup oleh Mhd. Galih Khairi: Transfer file buffer selesai dan checksum tervalidasi 100%.",
+        author: "Mhd. Galih Khairi",
+      },
     ],
   },
   {
@@ -381,7 +465,26 @@ export const seedTickets: Ticket[] = [
     responseMinutes: 6,
     slaTargetMinutes: 60,
     description: "Kapasitas partisi /apps meningkat pesat saat pembersihan log malam.",
-    history: [{ time: "03:40", action: "Pembersihan partisi sementara dimulai", author: "M. Ihsanul Arifin" }],
+    history: [
+      {
+        time: "03:40",
+        type: "created",
+        action: "Ticket dibuat dari alert pemantauan: kapasitas partisi /apps mencapai 92% saat pembersihan log malam.",
+        author: "M. Ihsanul Arifin",
+      },
+      {
+        time: "03:50",
+        type: "user_request",
+        action: "Infra Alert request: Mohon segera eksekusi pembersihan direktori temp sebelum partisi mencapai batas 95%.",
+        author: "Infra Monitoring Alert",
+      },
+      {
+        time: "04:05",
+        type: "response",
+        action: "Tim merespon: Pembersihan berkas dump sementara dan kompresi arsip log sedang dieksekusi.",
+        author: "M. Ihsanul Arifin",
+      },
+    ],
   },
   {
     id: "86d40dm01",
@@ -399,7 +502,32 @@ export const seedTickets: Ticket[] = [
     resolutionMinutes: 28,
     slaTargetMinutes: 60,
     description: "Normalisasi packet loss SNMP pada router edge Balikpapan.",
-    history: [{ time: "10:15", action: "Route flapping distabilkan", author: "Kristina Marbun" }],
+    history: [
+      {
+        time: "10:15",
+        type: "created",
+        action: "Ticket dibuat: Alert latensi polling SNMP router edge Balikpapan melebihi ambang batas toleransi.",
+        author: "Kristina Marbun",
+      },
+      {
+        time: "10:20",
+        type: "user_request",
+        action: "NOC Regional request: Mohon lakukan pengecekan flapping link peering transit Balikpapan.",
+        author: "NOC Regional Kalimantan",
+      },
+      {
+        time: "10:28",
+        type: "response",
+        action: "Tim merespon: Route flapping distabilkan dan peering transit sekunder diaktifkan.",
+        author: "Kristina Marbun",
+      },
+      {
+        time: "10:43",
+        type: "status_change",
+        action: "Tiket ditutup oleh Kristina Marbun: Polling SNMP kembali stabil dan baseline performa tervalidasi normal.",
+        author: "Kristina Marbun",
+      },
+    ],
   },
   {
     id: "86d40un01",
@@ -855,6 +983,20 @@ export const initialHandoverTasks: HandoverTask[] = [
   { id: 10, title: "Report SM MonthlyHealth-SMMB", project: "SM", detail: "Pengerjaan materi Presentation MonthlyHealth-SMMB masih berlangsung.", state: "in-progress", completed: false },
 ];
 
+export const STANDARD_MONITORED_PROJECTS = [
+  "B2B",
+  "DM",
+  "EPC",
+  "APH",
+  "SM",
+  "ActiveMQ",
+  "USIEM",
+  "MB",
+  "UNEM",
+  "L2",
+  "SM/ActiveMQ",
+];
+
 export const initialHandoverRecord: HandoverRecordData = {
   sourceShift: "Subuh",
   targetShift: "Pagi",
@@ -862,8 +1004,9 @@ export const initialHandoverRecord: HandoverRecordData = {
   targetPic: "Galih, Natanael, Pangondion",
   monitoringSummary: "Pengecekan dan monitoring telah dilakukan serta dilaporkan di grup Telegram sesuai checkpoint yang ditentukan.",
   monitoringOwner: "Agnes",
-  monitoredProjects: ["B2B", "DM", "EPC", "APH", "SM/ActiveMQ", "USIEM", "MB", "UNEM"],
+  monitoredProjects: [...STANDARD_MONITORED_PROJECTS],
   validationNote: "Galih, Natanael, dan Pangondion telah memeriksa hasil monitoring pada sesi handover.",
+  notes: "Semua checkpoint monitoring subuh telah dilaporkan ke Telegram. Perhatikan penanganan tiket incident USIEM yang masih dalam investigasi oleh tim DevOps.",
   findings: [
     {
       project: "USIEM",
@@ -877,6 +1020,13 @@ export const initialHandoverRecord: HandoverRecordData = {
       detail: "Input siem-fw-diameter-event, siem-fw-ss7-event, dan siem-fw-gtp-event tidak menerima data; sedang ditindaklanjuti di grup USIEM DevOps.",
       state: "in-progress",
     },
+  ],
+  monitoringCheckpoints: [
+    { time: "07:00", project: "B2B", task: "Health check gateway B2B & failover", verdict: "ok", note: "Response time normal < 180ms" },
+    { time: "07:15", project: "SM", task: "Queue distributor check", verdict: "ok", note: "Trafik antrian stabil" },
+    { time: "07:30", project: "USIEM", task: "Log collector audit", verdict: "nok", note: "Log direct MSS sempat tertumpuk" },
+    { time: "07:45", project: "DM", task: "Database sync check", verdict: "ok", note: "Replika in sync" },
+    { time: "08:00", project: "ActiveMQ", task: "Broker heap & consumer count", verdict: "ok", note: "Heap 42%, normal" },
   ],
   tasks: initialHandoverTasks,
 };
@@ -932,8 +1082,31 @@ export function createHandoverDraft(
     monitoredProjects: record.monitoredProjects.join(", "),
     monitoringSummary: record.monitoringSummary,
     validationNote: record.validationNote,
+    notes: record.notes ?? "",
     findings: record.findings.map((finding) => ({ ...finding })),
     tasks: record.tasks.map((task) => ({ ...task })),
+    receiverEmail: record.receiverEmail ?? "",
+    monitoringExceptions: (record.monitoringExceptions ?? []).map((item) => ({ ...item })),
+  };
+}
+
+export function createShiftHandoverDraft(date = new Date()): HandoverDraft {
+  const draft = createHandoverDraft(initialHandoverRecord, toDateInputValue(date));
+
+  // Reuse task instructions, not another shift's PICs or acceptance state.
+  return {
+    ...draft,
+    sourceShift: getShiftInfo(date).shortLabel,
+    targetShift: getShiftInfo(getNextShiftChange(date)).shortLabel,
+    sourcePic: "",
+    targetPic: "",
+    monitoringOwner: "",
+    monitoredProjects: STANDARD_MONITORED_PROJECTS.join(", "),
+    monitoringSummary: "",
+    validationNote: "",
+    notes: "",
+    findings: [],
+    tasks: draft.tasks.map((task) => ({ ...task, completed: false })),
   };
 }
 

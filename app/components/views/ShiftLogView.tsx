@@ -1,55 +1,28 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { EmptyState } from "@/app/components/ui/EmptyState";
 import { ConfirmDialog } from "@/app/components/ui/ConfirmDialog";
 import { useToast } from "@/app/components/ui/Toast";
 import { formatHandoverDate } from "@/app/lib/data";
 import type { HandoverRecordData, StoredHandoverRecord } from "@/app/lib/types";
-
-interface ShiftLogViewProps {
-  records: StoredHandoverRecord[];
-  loading: boolean;
-  onOpenRecord: (record: StoredHandoverRecord) => void;
-  onDeleteRecord: (id: number) => Promise<void>;
-}
+import { canEditHandover, parseHandoverContent } from "@/app/lib/handover";
+import { HandoverHistoryControls, HandoverHistoryMore, type HandoverWorkflow } from "@/app/components/handover/HandoverHistoryControls";
 
 function parseContent(record: StoredHandoverRecord): HandoverRecordData | null {
   try {
-    return JSON.parse(record.content) as HandoverRecordData;
+    return parseHandoverContent(record.content);
   } catch {
     return null;
   }
 }
 
-export function ShiftLogView({ records, loading, onOpenRecord, onDeleteRecord }: ShiftLogViewProps) {
+export function ShiftLogView({ workflow }: { workflow: HandoverWorkflow }) {
+  const { records, loading, openStored: onOpenRecord, remove: onDeleteRecord } = workflow;
+  const visibleRecords = records;
   const notify = useToast();
-  const [dateFilter, setDateFilter] = useState("");
-  const [picFilter, setPicFilter] = useState("Semua");
   const [pendingDelete, setPendingDelete] = useState<StoredHandoverRecord | null>(null);
   const [deleting, setDeleting] = useState(false);
-
-  const picOptions = useMemo(() => {
-    const pics = new Set<string>();
-    for (const record of records) {
-      const content = parseContent(record);
-      if (content?.sourcePic) pics.add(content.sourcePic);
-    }
-    return ["Semua", ...Array.from(pics)];
-  }, [records]);
-
-  const visibleRecords = useMemo(
-    () =>
-      records.filter((record) => {
-        if (dateFilter && record.handoverDate !== dateFilter) return false;
-        if (picFilter !== "Semua") {
-          const content = parseContent(record);
-          if (content?.sourcePic !== picFilter) return false;
-        }
-        return true;
-      }),
-    [records, dateFilter, picFilter],
-  );
 
   const confirmDelete = async () => {
     if (!pendingDelete) return;
@@ -78,31 +51,7 @@ export function ShiftLogView({ records, loading, onOpenRecord, onDeleteRecord }:
       </section>
 
       <article className="panel view-panel">
-        <div className="view-toolbar">
-          <label className="toolbar-label">
-            Tanggal
-            <input type="date" value={dateFilter} onChange={(event) => setDateFilter(event.target.value)} />
-          </label>
-          <label className="toolbar-label">
-            PIC pengirim
-            <select value={picFilter} onChange={(event) => setPicFilter(event.target.value)}>
-              {picOptions.map((option) => (
-                <option key={option}>{option}</option>
-              ))}
-            </select>
-          </label>
-          {(dateFilter || picFilter !== "Semua") && (
-            <button
-              className="button button-secondary"
-              onClick={() => {
-                setDateFilter("");
-                setPicFilter("Semua");
-              }}
-            >
-              Reset filter
-            </button>
-          )}
-        </div>
+        <HandoverHistoryControls workflow={workflow} />
 
         {loading ? (
           <div className="log-loading">Memuat riwayat handover…</div>
@@ -123,10 +72,10 @@ export function ShiftLogView({ records, loading, onOpenRecord, onDeleteRecord }:
                         <small>{formatHandoverDate(record.handoverDate)}</small>
                       </div>
                       <div className="timeline-actions">
-                        <button className="text-button" onClick={() => onOpenRecord(record)}>
+                        <button className="text-button" disabled={workflow.busy} onClick={() => void onOpenRecord(record)}>
                           Buka detail →
                         </button>
-                        <button className="text-button text-danger" onClick={() => setPendingDelete(record)}>
+                        <button className="text-button text-danger" disabled={workflow.busy || !content || !canEditHandover(content, workflow.actor)} onClick={() => setPendingDelete(record)}>
                           Hapus
                         </button>
                       </div>
@@ -145,7 +94,7 @@ export function ShiftLogView({ records, loading, onOpenRecord, onDeleteRecord }:
                           <i>
                             <b style={{ width: `${percent}%` }} />
                           </i>
-                          <span>{percent}% dikonfirmasi</span>
+                          <span>{percent}% checklist · {content.acceptance ? "Handover diterima" : "Menunggu penerimaan"}</span>
                         </div>
                       </>
                     ) : (
@@ -159,18 +108,12 @@ export function ShiftLogView({ records, loading, onOpenRecord, onDeleteRecord }:
         ) : (
           <EmptyState
             icon="≡"
-            title="Belum ada catatan handover"
+            title={workflow.error ? "Catatan belum dapat dimuat" : workflow.filters.date || workflow.filters.pic ? "Tidak ada catatan yang cocok" : "Belum ada catatan handover"}
             message="Buat catatan handover pertama dari dashboard untuk mulai mengisi riwayat serah-terima shift."
           />
         )}
 
-        {!loading && visibleRecords.length === 0 && records.length > 0 && (
-          <EmptyState
-            icon="⌕"
-            title="Tidak ada catatan yang cocok"
-            message="Ubah filter tanggal atau PIC untuk melihat catatan lain."
-          />
-        )}
+        <HandoverHistoryMore workflow={workflow} />
       </article>
 
       <ConfirmDialog

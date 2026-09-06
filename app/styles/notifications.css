@@ -276,31 +276,6 @@
   background: var(--red-soft);
 }
 
-.theme-toggle-button {
-  width: 34px;
-  height: 34px;
-  display: grid;
-  place-items: center;
-  color: var(--orange);
-  border: 1px solid var(--orange-border);
-  border-radius: 7px;
-  background: var(--orange-soft);
-  transition: all 0.15s ease;
-}
-
-.theme-toggle-button:hover {
-  background: var(--orange-border);
-}
-
-html[data-theme="dark"] .theme-toggle-button {
-  color: var(--accent-blue);
-  border-color: var(--accent-blue-border);
-  background: var(--accent-blue-soft);
-}
-
-html[data-theme="dark"] .theme-toggle-button:hover {
-  background: var(--accent-blue-border);
-}
 
 .notification-modal-icon {
   display: grid;

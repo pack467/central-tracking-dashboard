@@ -257,7 +257,17 @@ export function MonitoringView({
 
                 <div className="system-card-footer">
                   <span className={`system-health-tag ${hasNok ? "tag-nok" : "tag-ok"}`}>
-                    {hasNok ? `⚠️ ${nokCount} NOK` : `✓ ${okCount || total} OK`}
+                    {hasNok ? (
+                      <>
+                        <AlertTriangle size={11} className="health-tag-icon" />
+                        <span>{nokCount} NOK</span>
+                      </>
+                    ) : (
+                      <>
+                        <Check size={11} className="health-tag-icon" />
+                        <span>{okCount || total} OK</span>
+                      </>
+                    )}
                   </span>
                   <span className="system-card-sub">
                     {hasNok ? "Perlu mitigasi" : "All Normal"}

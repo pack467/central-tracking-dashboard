@@ -126,12 +126,18 @@
 }
 
 .checkpoint-note {
-  display: block;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   margin-top: 3px;
   color: var(--red);
   font-size: 10px;
   font-family: var(--font-mono);
   word-break: break-word;
+}
+
+.checkpoint-note-icon {
+  flex-shrink: 0;
 }
 
 /* ── Assessed verdict display row ─────────────── */

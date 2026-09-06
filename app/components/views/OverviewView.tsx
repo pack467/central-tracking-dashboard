@@ -99,6 +99,7 @@ export function OverviewView(props: OverviewViewProps) {
           <HandoverQuickCard
             pendingCount={pendingTasks.length}
             progressPercent={props.handoverProgressPercent}
+            accepted={Boolean(props.handoverRecord.acceptance)}
             savedLabel={
               props.handoverSavedLabel
                 ? `${props.handoverRecord.sourceShift} ke ${props.handoverRecord.targetShift}`
