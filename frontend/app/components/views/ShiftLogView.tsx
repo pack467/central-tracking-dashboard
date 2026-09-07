@@ -170,219 +170,221 @@ export function ShiftLogView({ workflow }: { workflow: HandoverWorkflow }) {
         </div>
       </section>
 
-      <article className="panel view-panel">
+      <article className="panel view-panel shift-log-panel">
         <HandoverHistoryControls workflow={workflow} />
 
-        {loading ? (
-          <div className="log-loading">Memuat riwayat handover…</div>
-        ) : visibleRecords.length ? (
-          <ol className="shift-timeline">
-            {visibleRecords.map((record) => {
-              const content = parseContent(record);
-              const done = content?.tasks.filter((task) => task.completed).length ?? 0;
-              const total = content?.tasks.length ?? 0;
-              const percent = total ? Math.round((done / total) * 100) : 0;
-              const isAccepted = Boolean(content?.acceptance);
-              const isEditable = Boolean(content && canEditHandover(content, workflow.actor));
+        <div className="shift-log-body">
+          {loading ? (
+            <div className="log-loading">Memuat riwayat handover…</div>
+          ) : visibleRecords.length ? (
+            <ol className="shift-timeline">
+              {visibleRecords.map((record) => {
+                const content = parseContent(record);
+                const done = content?.tasks.filter((task) => task.completed).length ?? 0;
+                const total = content?.tasks.length ?? 0;
+                const percent = total ? Math.round((done / total) * 100) : 0;
+                const isAccepted = Boolean(content?.acceptance);
+                const isEditable = Boolean(content && canEditHandover(content, workflow.actor));
 
-              return (
-                <li className="timeline-item" key={record.id}>
-                  {/* Polished timeline marker node */}
-                  <span
-                    className={`timeline-marker ${isAccepted ? "marker-accepted" : "marker-pending"}`}
-                    title={isAccepted ? "Handover Selesai Diterima" : "Menunggu Penerimaan"}
-                  >
-                    {isAccepted ? <CheckCircle2 size={15} /> : <Clock size={15} />}
-                  </span>
+                return (
+                  <li className="timeline-item" key={record.id}>
+                    {/* Polished timeline marker node */}
+                    <span
+                      className={`timeline-marker ${isAccepted ? "marker-accepted" : "marker-pending"}`}
+                      title={isAccepted ? "Handover Selesai Diterima" : "Menunggu Penerimaan"}
+                    >
+                      {isAccepted ? <CheckCircle2 size={15} /> : <Clock size={15} />}
+                    </span>
 
-                  <article className="timeline-card">
-                    <header className="timeline-head">
-                      <div className="timeline-head-left">
-                        <div className="timeline-status-row">
-                          <span className={`timeline-status-pill ${isAccepted ? "status-accepted" : "status-pending"}`}>
-                            {isAccepted ? (
-                              <>
-                                <CheckCircle2 size={12} />
-                                Selesai Diterima
-                              </>
-                            ) : (
-                              <>
-                                <Clock size={12} />
-                                Menunggu Penerimaan
-                              </>
-                            )}
-                          </span>
-                          <span className="timeline-date-chip">
-                            <Calendar size={12} />
-                            {formatHandoverDate(record.handoverDate)}
-                          </span>
-                        </div>
-                        <h3 className="timeline-title">{record.title}</h3>
-                      </div>
-
-                      <div className="timeline-actions">
-                        <button
-                          type="button"
-                          className="timeline-action-btn timeline-btn-open"
-                          disabled={workflow.busy}
-                          onClick={() => void onOpenRecord(record)}
-                        >
-                          <Eye size={13} />
-                          Buka detail
-                        </button>
-                        <button
-                          type="button"
-                          className="timeline-action-btn timeline-btn-delete"
-                          disabled={workflow.busy || !isEditable}
-                          title={
-                            !isEditable
-                              ? "Hanya pembuat atau personil terkait yang dapat menghapus"
-                              : "Hapus catatan handover"
-                          }
-                          onClick={() => setPendingDelete(record)}
-                        >
-                          <Trash2 size={13} />
-                          Hapus
-                        </button>
-                      </div>
-                    </header>
-
-                    {content ? (
-                      <>
-                        {/* Sender → Receiver Flow with Avatars */}
-                        <div className="timeline-flow-container">
-                          <div className="shift-flow-card">
-                            <div className="shift-flow-role">
-                              <span className="shift-role-badge">DARI</span>
-                              <span className="shift-name-tag">{content.sourceShift}</span>
-                            </div>
-                            <div className="shift-flow-people">
-                              {parsePicNames(content.sourcePic).map((person) => {
-                                const palette = getAvatarPalette(person);
-                                return (
-                                  <span className="shift-person-pill" key={person} title={person}>
-                                    <span
-                                      className="shift-person-avatar"
-                                      style={{
-                                        background: palette.bg,
-                                        color: palette.text,
-                                        borderColor: palette.border,
-                                      }}
-                                    >
-                                      {initials(person)}
-                                    </span>
-                                    <span className="shift-person-name">{person}</span>
-                                  </span>
-                                );
-                              })}
-                            </div>
-                          </div>
-
-                          <div className="timeline-flow-arrow" title="Diserahkan kepada">
-                            <ArrowRight size={14} />
-                          </div>
-
-                          <div className="shift-flow-card">
-                            <div className="shift-flow-role">
-                              <span className="shift-role-badge">KEPADA</span>
-                              <span className="shift-name-tag">{content.targetShift}</span>
-                            </div>
-                            <div className="shift-flow-people">
-                              {parsePicNames(content.targetPic).map((person) => {
-                                const palette = getAvatarPalette(person);
-                                return (
-                                  <span className="shift-person-pill" key={person} title={person}>
-                                    <span
-                                      className="shift-person-avatar"
-                                      style={{
-                                        background: palette.bg,
-                                        color: palette.text,
-                                        borderColor: palette.border,
-                                      }}
-                                    >
-                                      {initials(person)}
-                                    </span>
-                                    <span className="shift-person-name">{person}</span>
-                                  </span>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Bottom Progress & Stat Badges */}
-                        <div className="timeline-bottom-row">
-                          <div className="timeline-progress-section">
-                            <div className="timeline-progress-labels">
-                              <span className="timeline-progress-title">
-                                Checklist: <strong>{percent}%</strong>
-                              </span>
-                              <span className="timeline-progress-counts">
-                                ({done}/{total} tugas selesai)
-                              </span>
-                            </div>
-                            <div className="timeline-progress-bar-wrap">
-                              <div
-                                className={`timeline-progress-bar-fill ${isAccepted ? "is-accepted" : ""}`}
-                                style={{ width: `${percent}%` }}
-                              />
-                            </div>
-                            {content.acceptance && (
-                              <span className="timeline-accepted-note">
-                                ✓ Diterima oleh {content.acceptance.actor.name}
-                              </span>
-                            )}
-                          </div>
-
-                          <div className="timeline-badges-section">
-                            <span
-                              className={`timeline-stat-badge ${
-                                content.findings.length > 0 ? "badge-warning" : "badge-neutral"
-                              }`}
-                            >
-                              <AlertTriangle size={12} />
-                              {content.findings.length} Temuan
+                    <article className="timeline-card">
+                      <header className="timeline-head">
+                        <div className="timeline-head-left">
+                          <div className="timeline-status-row">
+                            <span className={`timeline-status-pill ${isAccepted ? "status-accepted" : "status-pending"}`}>
+                              {isAccepted ? (
+                                <>
+                                  <CheckCircle2 size={12} />
+                                  Selesai Diterima
+                                </>
+                              ) : (
+                                <>
+                                  <Clock size={12} />
+                                  Menunggu Penerimaan
+                                </>
+                              )}
                             </span>
-
-                            <span className="timeline-stat-badge badge-tasks">
-                              <CheckSquare size={12} />
-                              {total} Tugas
+                            <span className="timeline-date-chip">
+                              <Calendar size={12} />
+                              {formatHandoverDate(record.handoverDate)}
                             </span>
-
-                            {Boolean(content.openTickets && content.openTickets.length > 0) && (
-                              <span className="timeline-stat-badge badge-tickets">
-                                <TicketIcon size={12} />
-                                {content.openTickets!.length} Tiket Open
-                              </span>
-                            )}
                           </div>
+                          <h3 className="timeline-title">{record.title}</h3>
                         </div>
-                      </>
-                    ) : (
-                      <p className="timeline-meta" style={{ margin: "8px 0 0", color: "var(--red)" }}>
-                        Konten catatan tidak dapat dibaca atau rusak.
-                      </p>
-                    )}
-                  </article>
-                </li>
-              );
-            })}
-          </ol>
-        ) : (
-          <EmptyState
-            icon="≡"
-            title={
-              workflow.error
-                ? "Catatan belum dapat dimuat"
-                : workflow.filters.date || workflow.filters.pic
-                ? "Tidak ada catatan yang cocok"
-                : "Belum ada catatan handover"
-            }
-            message="Buat catatan handover pertama dari dashboard untuk mulai mengisi riwayat serah-terima shift."
-          />
-        )}
 
-        <HandoverHistoryMore workflow={workflow} />
+                        <div className="timeline-actions">
+                          <button
+                            type="button"
+                            className="timeline-action-btn timeline-btn-open"
+                            disabled={workflow.busy}
+                            onClick={() => void onOpenRecord(record)}
+                          >
+                            <Eye size={13} />
+                            Buka detail
+                          </button>
+                          <button
+                            type="button"
+                            className="timeline-action-btn timeline-btn-delete"
+                            disabled={workflow.busy || !isEditable}
+                            title={
+                              !isEditable
+                                ? "Hanya pembuat atau personil terkait yang dapat menghapus"
+                                : "Hapus catatan handover"
+                            }
+                            onClick={() => setPendingDelete(record)}
+                          >
+                            <Trash2 size={13} />
+                            Hapus
+                          </button>
+                        </div>
+                      </header>
+
+                      {content ? (
+                        <>
+                          {/* Sender → Receiver Flow with Avatars */}
+                          <div className="timeline-flow-container">
+                            <div className="shift-flow-card shift-flow-source">
+                              <div className="shift-flow-role">
+                                <span className="shift-role-badge">DARI</span>
+                                <span className="shift-name-tag">{content.sourceShift}</span>
+                              </div>
+                              <div className="shift-flow-people">
+                                {parsePicNames(content.sourcePic).map((person) => {
+                                  const palette = getAvatarPalette(person);
+                                  return (
+                                    <span className="shift-person-pill" key={person} title={person}>
+                                      <span
+                                        className="shift-person-avatar"
+                                        style={{
+                                          background: palette.bg,
+                                          color: palette.text,
+                                          borderColor: palette.border,
+                                        }}
+                                      >
+                                        {initials(person)}
+                                      </span>
+                                      <span className="shift-person-name">{person}</span>
+                                    </span>
+                                  );
+                                })}
+                              </div>
+                            </div>
+
+                            <div className="timeline-flow-arrow" title="Diserahkan kepada">
+                              <ArrowRight size={13} />
+                            </div>
+
+                            <div className="shift-flow-card shift-flow-target">
+                              <div className="shift-flow-role">
+                                <span className="shift-role-badge">KEPADA</span>
+                                <span className="shift-name-tag">{content.targetShift}</span>
+                              </div>
+                              <div className="shift-flow-people">
+                                {parsePicNames(content.targetPic).map((person) => {
+                                  const palette = getAvatarPalette(person);
+                                  return (
+                                    <span className="shift-person-pill" key={person} title={person}>
+                                      <span
+                                        className="shift-person-avatar"
+                                        style={{
+                                          background: palette.bg,
+                                          color: palette.text,
+                                          borderColor: palette.border,
+                                        }}
+                                      >
+                                        {initials(person)}
+                                      </span>
+                                      <span className="shift-person-name">{person}</span>
+                                    </span>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Bottom Progress & Stat Badges */}
+                          <div className="timeline-bottom-row">
+                            <div className="timeline-progress-section">
+                              <div className="timeline-progress-labels">
+                                <span className="timeline-progress-title">
+                                  Checklist: <strong>{percent}%</strong>
+                                </span>
+                                <span className="timeline-progress-counts">
+                                  ({done}/{total} tugas selesai)
+                                </span>
+                              </div>
+                              <div className="timeline-progress-bar-wrap">
+                                <div
+                                  className={`timeline-progress-bar-fill ${isAccepted ? "is-accepted" : ""}`}
+                                  style={{ width: `${percent}%` }}
+                                />
+                              </div>
+                              {content.acceptance && (
+                                <span className="timeline-accepted-note">
+                                  ✓ Diterima oleh {content.acceptance.actor.name}
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="timeline-badges-section">
+                              <span
+                                className={`timeline-stat-badge ${
+                                  content.findings.length > 0 ? "badge-warning" : "badge-neutral"
+                                }`}
+                              >
+                                <AlertTriangle size={12} />
+                                {content.findings.length} Temuan
+                              </span>
+
+                              <span className="timeline-stat-badge badge-tasks">
+                                <CheckSquare size={12} />
+                                {total} Tugas
+                              </span>
+
+                              {Boolean(content.openTickets && content.openTickets.length > 0) && (
+                                <span className="timeline-stat-badge badge-tickets">
+                                  <TicketIcon size={12} />
+                                  {content.openTickets!.length} Tiket Open
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <p className="timeline-meta" style={{ margin: "8px 0 0", color: "var(--red)" }}>
+                          Konten catatan tidak dapat dibaca atau rusak.
+                        </p>
+                      )}
+                    </article>
+                  </li>
+                );
+              })}
+            </ol>
+          ) : (
+            <EmptyState
+              icon="≡"
+              title={
+                workflow.error
+                  ? "Catatan belum dapat dimuat"
+                  : workflow.filters.date || workflow.filters.pic
+                  ? "Tidak ada catatan yang cocok"
+                  : "Belum ada catatan handover"
+              }
+              message="Buat catatan handover pertama dari dashboard untuk mulai mengisi riwayat serah-terima shift."
+            />
+          )}
+
+          <HandoverHistoryMore workflow={workflow} />
+        </div>
       </article>
 
       <ConfirmDialog

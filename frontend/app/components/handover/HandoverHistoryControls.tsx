@@ -12,8 +12,8 @@ export function HandoverHistoryControls({ workflow }: { workflow: HandoverWorkfl
     <div className="handover-history-controls">
       <div className="history-control-item history-date-item">
         <label className="history-control-label">
-          Tanggal
-          <div style={{ minWidth: "150px", width: "100%" }}>
+          <span className="history-control-label-text">Tanggal</span>
+          <div className="history-date-picker-wrap">
             <DatePicker
               value={workflow.filters.date}
               onChange={(date) => workflow.setFilters((prev) => ({ ...prev, date }))}
@@ -25,7 +25,7 @@ export function HandoverHistoryControls({ workflow }: { workflow: HandoverWorkfl
 
       <div className="history-control-item history-search-item">
         <label className="history-control-label">
-          PIC pengirim
+          <span className="history-control-label-text">PIC pengirim</span>
           <div className="history-search-input-wrap">
             <Search size={14} className="history-search-icon" />
             <input
