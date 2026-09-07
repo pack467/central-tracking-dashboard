@@ -1,8 +1,6 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
-/node_modules
-/.pnp
+# Dependencies
+node_modules/
+.pnp
 .pnp.*
 .yarn/*
 !.yarn/patches
@@ -10,33 +8,58 @@
 !.yarn/releases
 !.yarn/versions
 
-# testing
-/coverage
+# Testing & Coverage
+coverage/
+.nyc_output/
+.pytest_cache/
 
-# next.js
-/.next/
-/.vinext/
-/out/
+# Build & Output (scoped)
+.next/
+.vinext/
+out/
+dist/
+.wrangler/
+outputs/
+work/
+.run/
+*-site.tgz
+*.tsbuildinfo
 
-# misc
+# Environment variables
+.env
+.env*.local
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Operating System & Editors
 .DS_Store
+Thumbs.db
+desktop.ini
 *.pem
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
 
-# debug
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.venv/
+venv/
+ENV/
+env/
+env.bak/
+venv.bak/
+
+# Logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
-
-# env files (can opt-in for committing if needed)
-.env*
-
-# vercel
-.vercel
-
-/dist/
-/.wrangler/
-/outputs/
-/work/
-/.run/
-/*-site.tgz
+*.log
