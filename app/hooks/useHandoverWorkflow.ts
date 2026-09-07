@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useToast } from "@/app/components/ui/Toast";
 import { createHandoverDraft, initialHandoverRecord } from "@/app/lib/data";
-import { buildDashboardHandoverDraft, emptyHandoverRecord, HandoverError, parseHandoverContent, validateDraft } from "@/app/lib/handover";
+import { buildDashboardHandoverDraft, HandoverError, parseHandoverContent, validateDraft } from "@/app/lib/handover";
 import type { CheckpointAssessment, HandoverActor, HandoverDraft, RosterMember, StoredHandoverRecord, Ticket } from "@/app/lib/types";
 
 type DraftSession = {
@@ -126,7 +126,8 @@ export function useHandoverWorkflow(inputs: Inputs) {
       const saved = localStorage.getItem(storageKey.current);
       if (!saved) return;
       const restored = JSON.parse(saved) as DraftSession;
-      if (!["prepare", "create", "edit"].includes(restored.mode) || ![1, 2, 3, 4].includes(restored.step) || typeof restored.requestId !== "string" || typeof restored.draft.date !== "string" || typeof restored.draft.monitoredProjects !== "string") throw new Error();
+      if (!["prepare", "create", "edit"].includes(restored.mode) || typeof restored.requestId !== "string" || typeof restored.draft?.date !== "string" || typeof restored.draft?.monitoredProjects !== "string") throw new Error();
+      restored.step = Math.min(Math.max(Number(restored.step) || 1, 1), 4) as 1 | 2 | 3 | 4;
       parseHandoverContent(JSON.stringify({ ...restored.draft, monitoredProjects: restored.draft.monitoredProjects.split(",").filter(Boolean) }));
       sessionRef.current = restored;
       setSession(restored);
@@ -192,7 +193,7 @@ export function useHandoverWorkflow(inputs: Inputs) {
     } finally { busyRef.current = false; setBusy(false); }
   };
 
-  const mutate = async (action: "task" | "confirm", changes: Record<string, unknown>) => {
+  const mutate = async (action: "task" | "confirm" | "delete-task", changes: Record<string, unknown>) => {
     const current = activeRef.current;
     if (!current || busyRef.current) return;
     busyRef.current = true;
@@ -203,6 +204,7 @@ export function useHandoverWorkflow(inputs: Inputs) {
       select(payload.note);
       setRecords((previous) => previous.map((note) => note.id === payload.note.id ? payload.note : note));
       if (action === "confirm") notify.success("Penerimaan handover berhasil dicatat beserta identitas dan waktunya.");
+      if (action === "delete-task") notify.success("Tugas berhasil dihapus dari checklist handover.");
     } catch (cause) {
       notify.critical(cause instanceof Error ? cause.message : "Perubahan belum tersimpan; status tidak diubah.");
     } finally { busyRef.current = false; setBusy(false); }
@@ -294,6 +296,7 @@ export function useHandoverWorkflow(inputs: Inputs) {
     changeDraft: (updater: (draft: HandoverDraft) => HandoverDraft) => { if (sessionRef.current && !busyRef.current) persistSession({ ...sessionRef.current, draft: updater(sessionRef.current.draft) }); },
     changeStep: (step: 1 | 2 | 3 | 4) => { if (sessionRef.current) persistSession({ ...sessionRef.current, step }); },
     toggleTask: (id: number) => { const task = record.tasks.find((item) => item.id === id); if (task) void mutate("task", { taskId: id, completed: !task.completed }); },
+    deleteTask: (id: number) => { const task = record.tasks.find((item) => item.id === id); if (task) void mutate("delete-task", { taskId: id }); },
     confirm: (note: string) => void mutate("confirm", { note }),
   };
 }

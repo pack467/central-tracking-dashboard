@@ -1,16 +1,20 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ArrowRight, Check, CheckCircle2, FileText, Info, Lock, Ticket as TicketIcon, UserCheck, X } from "lucide-react";
+import { ArrowRight, Check, CheckCircle2, FileText, Info, Lock, Ticket as TicketIcon, Trash2, UserCheck } from "lucide-react";
 import { Badge } from "@/app/components/ui/Badge";
 import { ProjectMark } from "@/app/components/ui/ProjectMark";
 import { Modal } from "@/app/components/ui/Modal";
+import { ModalCloseButton } from "@/app/components/ui/ModalCloseButton";
+import { ConfirmDialog } from "@/app/components/ui/ConfirmDialog";
 import { IconFindings, IconMonitoring, IconTasks } from "@/app/components/ui/Icons";
 import { formatHandoverDate, initials, isOpenTicket } from "@/app/lib/data";
 import { canEditHandover, canReceiveHandover } from "@/app/lib/handover";
 import { severityTone, statusTone } from "@/app/components/tickets/TicketTable";
+import { TaskStatusBadge } from "./TaskStatusBadge";
+import { TaskPriorityBadge } from "./TaskPriorityBadge";
 import type { useHandoverWorkflow } from "@/app/hooks/useHandoverWorkflow";
-import type { Ticket } from "@/app/lib/types";
+import type { HandoverTask, Ticket } from "@/app/lib/types";
 
 export type HandoverWorkflow = ReturnType<typeof useHandoverWorkflow>;
 
@@ -45,6 +49,7 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
   const [activeTab, setActiveTab] = useState<"tasks" | "findings" | "monitoring" | "notes" | "tickets">("tasks");
   const [filter, setFilter] = useState<"all" | "repeat" | "waiting" | "in-progress">("all");
   const [acceptanceNote, setAcceptanceNote] = useState("");
+  const [taskToDelete, setTaskToDelete] = useState<HandoverTask | null>(null);
   const isReceiver = canReceiveHandover(record, actor);
 
   const noteContent = record.notes?.trim() || "";
@@ -158,9 +163,7 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
               ＋ Buat Baru
             </button>
           )}
-          <button className="handover-modal-close" onClick={onClose} aria-label="Tutup">
-            ×
-          </button>
+          <ModalCloseButton onClose={onClose} />
         </div>
       </header>
 
@@ -287,7 +290,7 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
                 <div className="handover-task-intro" role="note">
                   <Info size={14} style={{ color: "#60a5fa", flexShrink: 0 }} aria-hidden="true" />
                   <p className="handover-task-subtitle">
-                    Ceklis menunjukkan tugas yang tetap berlaku dan perlu dilanjutkan shift berikutnya, bukan status selesai/tidak.
+                    Tandai &quot;Done&quot; untuk tugas yang sudah ditinjau dan tetap berlaku, atau &quot;Delete&quot; untuk tugas yang sudah tidak diperlukan.
                   </p>
                 </div>
 
@@ -311,41 +314,9 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
                 <div className="handover-task-list">
                   {visibleTasks.map((task) => (
                     <article
-                      className={`handover-task-card ${task.completed ? "confirmed" : ""} ${isReadOnly ? "handover-task-card-readonly" : ""}`}
+                      className={`handover-task-card ${isReadOnly ? "handover-task-card-readonly" : ""}`}
                       key={task.id}
                     >
-                      {/* Active Mode: Clickable Checkbox */}
-                      {!isReadOnly ? (
-                        <button
-                          className="handover-checkbox"
-                          onClick={() => onToggleTask(task.id)}
-                          title={task.completed ? "Batal tandai (tugas tidak dilanjutkan)" : "Tandai tugas yang masih perlu dilanjutkan ke shift berikutnya"}
-                          aria-label={task.completed ? "Tugas ditandai untuk dilanjutkan" : "Tandai tugas yang masih perlu dilanjutkan ke shift berikutnya"}
-                          aria-pressed={task.completed}
-                          disabled={busy || !isReceiver || Boolean(record.acceptance)}
-                        >
-                          {task.completed ? <Check size={12} strokeWidth={3} /> : ""}
-                        </button>
-                      ) : (
-                        /* Read-Only Mode: Static, Non-Clickable Status Badge */
-                        <div
-                          className={`handover-task-static-status ${task.completed ? "is-completed" : "is-incomplete"}`}
-                          title={task.completed ? "Tugas tetap berlaku dan dilanjutkan ke shift berikutnya" : "Tugas dihentikan / tidak dilanjutkan"}
-                        >
-                          {task.completed ? (
-                            <>
-                              <ArrowRight size={11} strokeWidth={2.5} />
-                              <span>Lanjutkan</span>
-                            </>
-                          ) : (
-                            <>
-                              <X size={11} strokeWidth={2.5} />
-                              <span>Dihentikan</span>
-                            </>
-                          )}
-                        </div>
-                      )}
-
                       <div className="handover-task-body">
                         <div className="handover-task-head">
                           <ProjectMark name={task.project} />
@@ -371,9 +342,46 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
                         )}
                       </div>
 
-                      <span className={`handover-status handover-status-${task.state}`}>
-                        {task.state === "repeat" ? "Routine" : task.state === "waiting" ? "Pending" : "In Progress"}
-                      </span>
+                      <div className="handover-task-right">
+                        <div className="handover-task-badges">
+                          <TaskStatusBadge state={task.state} />
+                          <TaskPriorityBadge priority={task.priority} />
+                        </div>
+
+                        {!isReadOnly ? (
+                          <div className="handover-task-actions">
+                            <button
+                              type="button"
+                              className={`handover-task-action-btn handover-done-btn ${task.completed ? "is-done" : ""}`}
+                              onClick={() => onToggleTask(task.id)}
+                              disabled={busy || !isReceiver || Boolean(record.acceptance)}
+                              title={task.completed ? "Batal tandai Done" : "Tandai tugas ini Done (tetap berlaku dan dilanjutkan)"}
+                              aria-label={task.completed ? "Tugas ditandai Done" : "Tandai Done"}
+                              aria-pressed={task.completed}
+                            >
+                              <Check size={13} strokeWidth={2.5} />
+                              <span>Done</span>
+                            </button>
+                            <button
+                              type="button"
+                              className="handover-task-action-btn handover-delete-btn"
+                              onClick={() => setTaskToDelete(task)}
+                              disabled={busy || !isReceiver || Boolean(record.acceptance)}
+                              title="Hapus tugas dari handover"
+                              aria-label="Hapus tugas"
+                            >
+                              <Trash2 size={13} />
+                              <span>Delete</span>
+                            </button>
+                          </div>
+                        ) : (
+                          task.completed && (
+                            <span className="handover-static-done-badge">
+                              <Check size={12} strokeWidth={2.5} /> Done
+                            </span>
+                          )
+                        )}
+                      </div>
                     </article>
                   ))}
 
@@ -597,7 +605,7 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
                 {openTicketsList.length ? (
                   <div className="handover-ticket-list">
                     {openTicketsList.map((ticket) => (
-                      <article
+                      <div
                         key={ticket.id}
                         className="handover-ticket-card"
                         onClick={() => onSelectTicket?.(ticket)}
@@ -639,7 +647,7 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
                             Lihat detail ticket <span>→</span>
                           </span>
                         </div>
-                      </article>
+                      </div>
                     ))}
                   </div>
                 ) : (
@@ -657,9 +665,14 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
 
       {/* FOOTER */}
       {!isReadOnly ? (
-        /* Active Confirmation Mode Footer: Shows pending tasks count + Secondary Tutup + Primary Blue "Konfirmasi Handover" */
+        /* Active Confirmation Mode Footer: Shows Done tasks count vs remaining + Secondary Tutup + Primary Blue "Konfirmasi Handover" */
         <footer className="handover-modal-footer">
-          <span>{tasks.filter((task) => !task.completed).length} tugas belum ditinjau</span>
+          <span>
+            {tasks.filter((task) => task.completed).length} dari {tasks.length} tugas ditandai Done
+            {tasks.filter((task) => !task.completed).length > 0
+              ? ` (${tasks.filter((task) => !task.completed).length} belum ditinjau)`
+              : " — Siap dikonfirmasi"}
+          </span>
           <div className="handover-footer-actions">
             <button className="button button-secondary" onClick={onClose} disabled={busy}>
               Tutup
@@ -688,6 +701,23 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
           </div>
         </footer>
       )}
+
+      {/* Task Deletion Confirmation Dialog */}
+      <ConfirmDialog
+        open={Boolean(taskToDelete)}
+        danger
+        title={`Hapus tugas "${taskToDelete?.title || ""}"?`}
+        message="Tugas ini akan dihapus dari checklist handover dan tidak akan dilanjutkan ke shift berikutnya."
+        confirmLabel="Hapus tugas"
+        cancelLabel="Batal"
+        onCancel={() => setTaskToDelete(null)}
+        onConfirm={() => {
+          if (taskToDelete) {
+            workflow.deleteTask(taskToDelete.id);
+            setTaskToDelete(null);
+          }
+        }}
+      />
     </Modal>
   );
 }

@@ -24,6 +24,7 @@ import { TicketTable } from "@/app/components/tickets/TicketTable";
 import { TicketReportView } from "@/app/components/tickets/TicketReportView";
 import { StatCard } from "@/app/components/ui/StatCard";
 import { EmptyState } from "@/app/components/ui/EmptyState";
+import { DatePicker } from "@/app/components/ui/DatePicker";
 import type { Ticket } from "@/app/lib/types";
 import {
   getTodayWIB,
@@ -453,22 +454,22 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
 
             {/* Custom Date Pickers */}
             {timeRange === "custom" && (
-              <div className="custom-date-inputs">
-                <input
-                  type="date"
-                  value={customStart}
-                  onChange={(e) => setCustomStart(e.target.value)}
-                  aria-label="Tanggal mulai"
-                  className="date-input"
-                />
-                <span className="date-sep">to</span>
-                <input
-                  type="date"
-                  value={customEnd}
-                  onChange={(e) => setCustomEnd(e.target.value)}
-                  aria-label="Tanggal selesai"
-                  className="date-input"
-                />
+              <div className="custom-date-inputs" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <div style={{ width: "145px" }}>
+                  <DatePicker
+                    value={customStart}
+                    onChange={(val) => setCustomStart(val)}
+                    placeholder="Mulai..."
+                  />
+                </div>
+                <span className="date-sep" style={{ color: "var(--ink-muted)", fontSize: "12px" }}>ke</span>
+                <div style={{ width: "145px" }}>
+                  <DatePicker
+                    value={customEnd}
+                    onChange={(val) => setCustomEnd(val)}
+                    placeholder="Selesai..."
+                  />
+                </div>
               </div>
             )}
 

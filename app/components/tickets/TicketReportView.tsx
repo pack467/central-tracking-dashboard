@@ -30,6 +30,7 @@ import {
   Eye,
 } from "lucide-react";
 import { useToast } from "@/app/components/ui/Toast";
+import { ModalCloseButton } from "@/app/components/ui/ModalCloseButton";
 import { useActiveShift } from "@/app/hooks/useLiveClock";
 import type { Ticket } from "@/app/lib/types";
 
@@ -1851,14 +1852,10 @@ export function TicketReportView({ tickets, dateRangeLabel }: TicketReportViewPr
                     <p className="user-modal-sub">{selectedUserDetail.role}</p>
                   </div>
                 </div>
-                <button
-                  type="button"
-                  className="user-modal-close"
-                  onClick={() => setSelectedUserDetail(null)}
-                  title="Tutup Detail (Esc)"
-                >
-                  <X size={16} />
-                </button>
+                <ModalCloseButton
+                  onClose={() => setSelectedUserDetail(null)}
+                  label="Tutup Detail (Esc)"
+                />
               </div>
 
               <div className="user-modal-body">

@@ -228,13 +228,13 @@
 }
 
 .handover-task-card:hover {
-  border-color: var(--accent-blue-border);
+  border-color: rgba(255, 255, 255, 0.16);
   background: var(--panel-bg-hover);
 }
 
 .handover-task-card.confirmed {
-  background: var(--green-soft);
-  border-color: var(--green-border);
+  background: var(--panel-bg);
+  border-color: var(--panel-border);
 }
 
 .handover-checkbox {
@@ -260,6 +260,7 @@
   color: var(--accent-blue);
 }
 
+.handover-checkbox.is-checked,
 .handover-task-card.confirmed .handover-checkbox {
   background: var(--green);
   border-color: var(--green);
@@ -289,6 +290,132 @@
   font-size: 11.5px;
   color: var(--ink-secondary);
   line-height: 1.4;
+}
+
+/* Redesigned Type / Status Badge for Handover Tasks */
+.handover-task-state-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5.5px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  line-height: 1;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-top: 1px;
+  border: 1px solid transparent;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+  transition: all 0.15s ease;
+}
+
+.handover-task-state-badge svg {
+  flex-shrink: 0;
+}
+
+/* Routine: Steady standing task — Slate / Sky Blue */
+.handover-task-state-badge.status-routine {
+  background: rgba(56, 189, 248, 0.12);
+  color: #38bdf8;
+  border-color: rgba(56, 189, 248, 0.32);
+}
+
+/* Pending: Awaiting action / attention — Warm Amber / Yellow */
+.handover-task-state-badge.status-pending {
+  background: rgba(251, 191, 36, 0.12);
+  color: #fbbf24;
+  border-color: rgba(251, 191, 36, 0.32);
+}
+
+/* In Progress: Actively being worked on — Purple */
+.handover-task-state-badge.status-in-progress {
+  background: rgba(192, 132, 252, 0.12);
+  color: #c084fc;
+  border-color: rgba(192, 132, 252, 0.32);
+}
+
+/* Activity: Active operational check — Teal */
+.handover-task-state-badge.status-activity {
+  background: rgba(45, 212, 191, 0.12);
+  color: #2dd4bf;
+  border-color: rgba(45, 212, 191, 0.32);
+}
+
+/* Escalated: Needs higher level attention — Soft Red */
+.handover-task-state-badge.status-escalated {
+  background: rgba(248, 113, 113, 0.12);
+  color: #f87171;
+  border-color: rgba(248, 113, 113, 0.32);
+}
+
+/* Blocked: Blocked operational task — Red */
+.handover-task-state-badge.status-blocked {
+  background: rgba(239, 68, 68, 0.14);
+  color: #f87171;
+  border-color: rgba(248, 113, 113, 0.35);
+}
+
+/* Selesai / Done: Completed operational task — Emerald Green */
+.handover-task-state-badge.status-done {
+  background: rgba(34, 197, 94, 0.12);
+  color: #4ade80;
+  border-color: rgba(34, 197, 94, 0.32);
+}
+
+/* Waiting Vendor: Waiting on 3rd party or vendor — Orange */
+.handover-task-state-badge.status-waiting-vendor {
+  background: rgba(249, 115, 22, 0.12);
+  color: #fb923c;
+  border-color: rgba(249, 115, 22, 0.32);
+}
+
+/* Task Priority Badges */
+.handover-task-priority-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.25px;
+  line-height: 1;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-top: 1px;
+  border: 1px solid transparent;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+  transition: all 0.15s ease;
+}
+
+.handover-task-priority-badge svg {
+  flex-shrink: 0;
+}
+
+.handover-task-priority-badge.priority-critical {
+  background: rgba(239, 68, 68, 0.14);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.35);
+}
+
+.handover-task-priority-badge.priority-high {
+  background: rgba(249, 115, 22, 0.14);
+  color: #fb923c;
+  border-color: rgba(249, 115, 22, 0.35);
+}
+
+.handover-task-priority-badge.priority-medium {
+  background: rgba(234, 179, 8, 0.14);
+  color: #facc15;
+  border-color: rgba(234, 179, 8, 0.35);
+}
+
+.handover-task-priority-badge.priority-low {
+  background: rgba(148, 163, 184, 0.12);
+  color: #94a3b8;
+  border-color: rgba(148, 163, 184, 0.28);
 }
 
 /* Finding Cards */
@@ -571,7 +698,7 @@
   line-height: 1.4;
 }
 
-/* 4-Step Visual Progress Stepper */
+/* 3-Step Visual Progress Stepper */
 .wizard-stepper-container {
   padding: 12px 20px;
   background: var(--bg);
@@ -1468,11 +1595,6 @@
   border-color: var(--panel-border);
 }
 
-.handover-task-card-readonly.confirmed:hover {
-  background: var(--green-soft);
-  border-color: var(--green-border);
-}
-
 /* Read-Only Confirmer and Timestamp metadata */
 .handover-task-audit-line {
   display: flex;
@@ -1587,5 +1709,474 @@
   color: var(--green);
   font-weight: 500;
 }
+
+/* ═══════════════════════════════════════════════
+   ENHANCED ACTION BUTTONS (+ Tambah Temuan & + Tambah Tugas)
+═══════════════════════════════════════════════ */
+.handover-inline-add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 6px 13px;
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  border-radius: 7px;
+  background: rgba(56, 189, 248, 0.12);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.handover-inline-add:hover {
+  color: #ffffff;
+  background: rgba(56, 189, 248, 0.25);
+  border-color: #38bdf8;
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transform: translateY(-1px);
+}
+
+.handover-inline-add:active {
+  transform: translateY(0);
+  background: rgba(56, 189, 248, 0.32);
+}
+
+/* ═══════════════════════════════════════════════
+   PROJECT SELECT COMPONENT
+═══════════════════════════════════════════════ */
+.project-select-container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.project-select-dropdown {
+  width: 100%;
+  border-radius: 7px;
+  padding: 8px 11px;
+  font-size: 12px;
+  background: var(--input-bg);
+  border: 1px solid var(--panel-border);
+  color: var(--ink-primary);
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.project-select-dropdown:focus {
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px var(--accent-blue-soft);
+}
+
+.project-select-custom-input {
+  width: 100%;
+  border-radius: 6px;
+  padding: 7px 10px;
+  font-size: 11.5px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px dashed var(--accent-blue-border);
+  color: var(--ink-primary);
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.project-select-custom-input:focus {
+  border-color: var(--accent-blue);
+  border-style: solid;
+  box-shadow: 0 0 0 2px var(--accent-blue-soft);
+}
+
+/* ═══════════════════════════════════════════════
+   TASK FORM GRID WITH PRIORITY
+═══════════════════════════════════════════════ */
+.handover-form-grid-task {
+  display: grid;
+  grid-template-columns: 140px 1fr 140px 130px;
+  gap: 12px;
+  align-items: start;
+}
+
+@media (max-width: 720px) {
+  .handover-form-grid-task {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   CUSTOM DARK-THEME DATE PICKER
+═══════════════════════════════════════════════ */
+.custom-datepicker-container {
+  position: relative;
+  width: 100%;
+}
+
+.custom-datepicker-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 38px;
+  padding: 8px 12px;
+  background: var(--input-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 7px;
+  color: var(--ink-primary);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  user-select: none;
+}
+
+.custom-datepicker-trigger:hover {
+  border-color: var(--accent-blue-border);
+  background: rgba(15, 23, 42, 0.9);
+}
+
+.custom-datepicker-trigger.is-open,
+.custom-datepicker-trigger:focus-visible {
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px var(--accent-blue-soft);
+  outline: none;
+}
+
+.custom-datepicker-trigger.is-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.custom-datepicker-value {
+  color: var(--ink-primary);
+}
+
+.custom-datepicker-value.is-placeholder {
+  color: var(--ink-muted);
+}
+
+.custom-datepicker-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.custom-datepicker-cal-icon {
+  display: inline-flex;
+  align-items: center;
+  color: var(--accent-blue);
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.custom-datepicker-trigger:hover .custom-datepicker-cal-icon {
+  color: #7dd3fc;
+  transform: scale(1.08);
+}
+
+.custom-datepicker-clear-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  background: transparent;
+  border: none;
+  color: var(--ink-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.custom-datepicker-clear-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #f87171;
+}
+
+/* Floating Dark Calendar Popover */
+.custom-datepicker-popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 9999;
+  width: 280px;
+  background: #131b2e;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), 0 4px 12px rgba(0, 0, 0, 0.4);
+  padding: 14px;
+  animation: datepicker-fade-in 0.15s ease-out;
+}
+
+@keyframes datepicker-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.custom-datepicker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.custom-datepicker-month-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-primary);
+  letter-spacing: 0.2px;
+}
+
+.custom-datepicker-nav-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--ink-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.custom-datepicker-nav-btn:hover {
+  background: var(--panel-bg-hover);
+  color: var(--accent-blue);
+  border-color: var(--accent-blue-border);
+}
+
+.custom-datepicker-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  margin-bottom: 6px;
+  text-align: center;
+}
+
+.custom-datepicker-weekday {
+  font-size: 10px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: var(--ink-muted);
+  text-transform: uppercase;
+  padding: 3px 0;
+}
+
+.custom-datepicker-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+}
+
+.custom-datepicker-day {
+  display: inline-grid;
+  place-items: center;
+  height: 32px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #cbd5e1;
+  font-size: 11.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.custom-datepicker-day:hover:not(:disabled) {
+  background: rgba(56, 189, 248, 0.15);
+  color: #ffffff;
+  border-color: rgba(56, 189, 248, 0.3);
+}
+
+.custom-datepicker-day.is-today {
+  border-color: var(--accent-blue-border);
+  color: var(--accent-blue);
+  font-weight: 700;
+}
+
+.custom-datepicker-day.is-selected {
+  background: var(--accent-blue) !important;
+  color: #ffffff !important;
+  font-weight: 700;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+}
+
+.custom-datepicker-day.is-other-month {
+  color: #475569;
+}
+
+.custom-datepicker-day:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+
+.custom-datepicker-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+
+.custom-datepicker-footer-btn {
+  background: transparent;
+  border: none;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 5px;
+  transition: all 0.15s ease;
+}
+
+.custom-datepicker-footer-today {
+  color: var(--accent-blue);
+}
+
+.custom-datepicker-footer-today:hover {
+  background: var(--accent-blue-soft);
+  color: #7dd3fc;
+}
+
+.custom-datepicker-footer-clear {
+  color: var(--ink-muted);
+}
+
+.custom-datepicker-footer-clear:hover {
+  background: rgba(239, 68, 68, 0.12);
+  color: #f87171;
+}
+
+/* Native input[type="date"] global enhancements */
+input[type="date"] {
+  color-scheme: dark;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  filter: invert(0.8) sepia(100%) saturate(300%) hue-rotate(170deg) brightness(1.1);
+  opacity: 0.85;
+  transition: opacity 0.15s ease, filter 0.15s ease;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+  filter: invert(0.9) sepia(100%) saturate(600%) hue-rotate(185deg) brightness(1.3);
+}
+
+/* ═══════════════════════════════════════════════
+   TASK ACTIONS: DONE & DELETE BUTTONS
+═══════════════════════════════════════════════ */
+.handover-task-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.handover-task-badges {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.handover-task-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.handover-task-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 28px;
+  padding: 4px 11px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+  box-sizing: border-box;
+}
+
+/* Done Button: Positive Green Action */
+.handover-done-btn {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #34d399;
+}
+
+.handover-done-btn:hover:not(:disabled) {
+  background: rgba(16, 185, 129, 0.25);
+  border-color: #10b981;
+  color: #ffffff;
+}
+
+.handover-done-btn.is-done {
+  background: #10b981 !important;
+  border-color: #10b981 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.45);
+}
+
+.handover-done-btn.is-done:hover:not(:disabled) {
+  background: #059669 !important;
+  border-color: #059669 !important;
+}
+
+/* Delete Button: Red Action */
+.handover-delete-btn {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
+}
+
+.handover-delete-btn:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.25);
+  border-color: #ef4444;
+  color: #ffffff;
+}
+
+.handover-task-action-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Read-Only Mode: Static Done Indicator Badge */
+.handover-static-done-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 700;
+  background: rgba(16, 185, 129, 0.16);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #4ade80;
+  cursor: default;
+  user-select: none;
+}
+
+
 
 

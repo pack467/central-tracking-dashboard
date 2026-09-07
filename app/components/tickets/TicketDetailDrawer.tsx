@@ -3,6 +3,7 @@
 import { X, PlusCircle, MessageSquare, Headphones, CheckCircle2, Edit3 } from "lucide-react";
 import { Badge } from "@/app/components/ui/Badge";
 import { ConfirmDialog } from "@/app/components/ui/ConfirmDialog";
+import { ModalCloseButton } from "@/app/components/ui/ModalCloseButton";
 import { TicketEditModal } from "@/app/components/tickets/TicketEditModal";
 import { ProjectMark } from "@/app/components/ui/ProjectMark";
 import { useToast } from "@/app/components/ui/Toast";
@@ -215,13 +216,7 @@ export function TicketDetailDrawer({ ticket, onClose, onUpdate }: TicketDetailDr
                 ID Ticket: #{ticket.id} · Dibuat pukul {ticket.created}
               </span>
             </div>
-            <button
-              className="drawer-close-btn"
-              onClick={onClose}
-              aria-label="Tutup panel"
-            >
-              <X size={15} />
-            </button>
+            <ModalCloseButton onClose={onClose} label="Tutup panel" />
           </div>
 
           <div className="drawer-content-inner">

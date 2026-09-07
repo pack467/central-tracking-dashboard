@@ -345,40 +345,52 @@
   font-size: 11.5px;
 }
 
+.modal-close-btn,
 .modal-title button,
-.drawer-close-btn {
+.drawer-close-btn,
+.user-modal-close {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
-  min-width: 28px;
-  min-height: 28px;
+  width: 30px;
+  height: 30px;
+  min-width: 30px;
+  min-height: 30px;
+  max-width: 30px;
+  max-height: 30px;
   padding: 0;
   margin: 0;
   color: var(--ink-muted);
-  border-radius: 6px;
+  border-radius: 7px;
   border: 1px solid var(--panel-border);
   background: var(--input-bg);
   cursor: pointer;
   line-height: 1;
   flex-shrink: 0;
-  transition: border-color 0.15s ease, color 0.15s ease, background-color 0.15s ease;
+  transition: all 0.15s ease;
+  box-sizing: border-box;
 }
 
+.modal-close-btn svg,
 .modal-title button svg,
-.drawer-close-btn svg {
+.drawer-close-btn svg,
+.user-modal-close svg {
   display: block;
-  width: 14px;
-  height: 14px;
+  width: 15px;
+  height: 15px;
+  margin: auto;
   flex-shrink: 0;
+  pointer-events: none;
 }
 
+.modal-close-btn:hover,
 .modal-title button:hover,
-.drawer-close-btn:hover {
+.drawer-close-btn:hover,
+.user-modal-close:hover {
   border-color: var(--accent-blue-border);
-  color: var(--accent-blue);
-  background: var(--accent-blue-soft);
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.25);
 }
 
 .ticket-modal {
@@ -750,22 +762,40 @@
 }
 
 .handover-modal-close {
-  display: grid;
-  place-items: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   flex: none;
   width: 30px;
   height: 30px;
+  min-width: 30px;
+  min-height: 30px;
+  padding: 0;
+  margin: 0;
   color: var(--ink-muted);
   border: 1px solid var(--panel-border);
   border-radius: 7px;
   background: var(--panel-bg);
-  font-size: 19px;
   line-height: 1;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-sizing: border-box;
+}
+
+.handover-modal-close svg {
+  display: block;
+  width: 15px;
+  height: 15px;
+  margin: auto;
+  flex-shrink: 0;
+  pointer-events: none;
 }
 
 .handover-modal-close:hover {
-  color: var(--ink-primary);
-  background: var(--panel-bg-hover);
+  border-color: var(--accent-blue-border);
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.25);
 }
 
 .handover-header-actions {

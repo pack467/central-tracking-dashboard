@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ArrowRightLeft, Check, X, Clock, AlertCircle, Calendar, RefreshCw } from "lucide-react";
 import { Modal } from "@/app/components/ui/Modal";
+import { ModalCloseButton } from "@/app/components/ui/ModalCloseButton";
 import { Badge } from "@/app/components/ui/Badge";
 import { useToast } from "@/app/components/ui/Toast";
 import type { RosterMember, ShiftSwapRequest } from "@/app/lib/types";
@@ -108,9 +109,7 @@ export function ShiftSwapModal({
           </strong>
           <small>Kelola dan setujui pertukaran jadwal shift antar operator</small>
         </div>
-        <button onClick={onClose} aria-label="Tutup">
-          <X size={15} />
-        </button>
+        <ModalCloseButton onClose={onClose} />
       </div>
 
       <div className="swap-modal-body" style={{ maxHeight: "70vh", overflowY: "auto", padding: "10px 0" }}>

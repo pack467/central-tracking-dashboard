@@ -77,7 +77,7 @@ export function validateDraft(draft: HandoverDraft): HandoverRecordData {
   const record = parseHandoverContent(JSON.stringify({ ...draft, monitoredProjects: draft.monitoredProjects.split(",").map((p) => p.trim()).filter(Boolean) }));
   if (!["Subuh>Pagi", "Pagi>Malam", "Malam>Subuh"].includes(`${record.sourceShift}>${record.targetShift}`)) throw new HandoverError("Pilih rotasi Subuh → Pagi, Pagi → Malam, atau Malam → Subuh.");
   if (!record.sourcePic || !record.targetPic) throw new HandoverError("Isi PIC pengirim dan penerima.");
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(record.receiverEmail ?? "")) throw new HandoverError("Isi email akun penerima yang akan mengonfirmasi handover.");
+  if (record.receiverEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(record.receiverEmail)) throw new HandoverError("Format email akun penerima tidak valid.");
   if (!record.tasks.length || record.tasks.some((task) => !task.title || !task.project)) throw new HandoverError("Isi judul dan proyek setiap tugas; minimal satu tugas diperlukan.");
   if (record.findings.some((finding) => !finding.project || !finding.title || !finding.detail)) throw new HandoverError("Lengkapi proyek, judul, dan rincian setiap temuan atau hapus temuan kosong.");
   const coverage = [...record.monitoredProjects, ...(record.monitoringExceptions ?? []).map((item) => item.project)].map((p) => p.toLowerCase());
@@ -94,7 +94,11 @@ export function canEditHandover(record: HandoverRecordData, actor: HandoverActor
   return Boolean(actor && (!record.createdBy || record.createdBy.id === actor.id));
 }
 export function canReceiveHandover(record: HandoverRecordData, actor: HandoverActor | null) {
-  return Boolean(actor && record.receiverEmail?.toLowerCase() === actor.email.toLowerCase());
+  if (!actor) return false;
+  if (record.receiverEmail) {
+    return record.receiverEmail.toLowerCase() === actor.email.toLowerCase();
+  }
+  return true;
 }
 
 export function updateHandoverRecord(record: HandoverRecordData, actor: HandoverActor, action: string, payload: Record<string, unknown>, now = new Date().toISOString()) {
@@ -114,6 +118,13 @@ export function updateHandoverRecord(record: HandoverRecordData, actor: Handover
       task.confirmedAt = undefined;
     }
     auditAction = task.completed ? "task-confirmed" : "task-unconfirmed";
+  } else if (action === "delete-task") {
+    if (!canReceiveHandover(record, actor)) throw new HandoverError("Checklist hanya dapat diubah oleh akun penerima yang dituju.", 403);
+    if (record.acceptance) throw new HandoverError("Handover sudah diterima. Pengirim harus merevisi catatan sebelum checklist dapat diubah.", 409);
+    const taskIndex = next.tasks.findIndex((item) => item.id === payload.taskId);
+    if (taskIndex === -1) throw new HandoverError("Tugas tidak ditemukan.");
+    next.tasks.splice(taskIndex, 1);
+    auditAction = "task-deleted";
   } else if (action === "confirm") {
     if (!canReceiveHandover(record, actor)) throw new HandoverError("Hanya akun dengan email penerima yang dapat menerima handover.", 403);
     if (record.acceptance) return record;
@@ -129,7 +140,7 @@ export function updateHandoverRecord(record: HandoverRecordData, actor: Handover
   } else {
     throw new HandoverError("Aksi handover tidak dikenal.");
   }
-  next.auditTrail = [...(record.auditTrail ?? []), { action: auditAction, actor, at: now, ...(action === "task" ? { taskId: payload.taskId as number } : {}) }];
+  next.auditTrail = [...(record.auditTrail ?? []), { action: auditAction, actor, at: now, ...(action === "task" || action === "delete-task" ? { taskId: payload.taskId as number } : {}) }];
   return next;
 }
 

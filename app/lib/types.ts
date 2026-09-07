@@ -58,6 +58,7 @@ export interface Ticket {
   subject: string;
   project: string;
   severity: string;
+  priority?: string;
   category?: string;
   type?: TicketType | string;
   date?: string; // YYYY-MM-DD
@@ -81,7 +82,16 @@ export interface Ticket {
   history?: TicketHistoryEntry[];
 }
 
-export type HandoverState = "repeat" | "waiting" | "in-progress";
+export type HandoverState =
+  | "repeat"
+  | "waiting"
+  | "in-progress"
+  | "activity"
+  | "escalated"
+  | "blocked"
+  | "waiting-vendor"
+  | "done"
+  | string;
 
 export interface HandoverTask {
   id: number;
@@ -89,6 +99,7 @@ export interface HandoverTask {
   project: string;
   detail: string;
   state: HandoverState;
+  priority?: "Critical" | "High" | "Medium" | "Low" | string;
   completed: boolean;
   sourceRef?: string;
   confirmedBy?: string;
@@ -124,7 +135,7 @@ export interface MonitoringException {
 }
 
 export interface HandoverAuditEntry {
-  action: "created" | "edited" | "task-confirmed" | "task-unconfirmed" | "accepted" | "reopened";
+  action: "created" | "edited" | "task-confirmed" | "task-unconfirmed" | "task-deleted" | "accepted" | "reopened";
   actor: HandoverActor;
   at: string;
   taskId?: number;

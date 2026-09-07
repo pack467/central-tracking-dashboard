@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { UserPlus, UserCheck, X } from "lucide-react";
 import { Modal } from "@/app/components/ui/Modal";
+import { ModalCloseButton } from "@/app/components/ui/ModalCloseButton";
 import { useToast } from "@/app/components/ui/Toast";
 import type { RosterMember, RosterRole, RosterMemberStatus } from "@/app/lib/types";
 
@@ -115,9 +116,7 @@ export function MemberCreateModal({
           </strong>
           <small>Lengkapi data identitas, peran NOC, dan penugasan shift dinas</small>
         </div>
-        <button onClick={onClose} aria-label="Tutup">
-          <X size={15} />
-        </button>
+        <ModalCloseButton onClose={onClose} />
       </div>
 
       <form onSubmit={handleSubmit} style={{ padding: "8px 0" }}>

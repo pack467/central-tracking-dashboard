@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Mail, Phone, Clock, CalendarDays, X } from "lucide-react";
 import { Badge } from "@/app/components/ui/Badge";
+import { ModalCloseButton } from "@/app/components/ui/ModalCloseButton";
 import { useToast } from "@/app/components/ui/Toast";
 import { initials } from "@/app/lib/data";
 import { statusTone, shiftColor } from "@/app/components/team/RosterTable";
@@ -205,13 +206,7 @@ export function MemberDetailDrawer({
               </span>
             </div>
           </div>
-          <button
-            className="drawer-close-btn"
-            onClick={onClose}
-            aria-label="Tutup panel"
-          >
-            <X size={15} />
-          </button>
+          <ModalCloseButton onClose={onClose} label="Tutup panel" />
         </div>
 
         {/* Scrollable content */}

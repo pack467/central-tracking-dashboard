@@ -1,5 +1,5 @@
-import { X } from "lucide-react";
 import { Modal } from "./Modal";
+import { ModalCloseButton } from "./ModalCloseButton";
 
 interface ConfirmDialogProps {
   open: boolean;
@@ -29,9 +29,7 @@ export function ConfirmDialog({
           <strong style={danger ? { color: "var(--red)" } : undefined}>{title}</strong>
           <small>{message}</small>
         </div>
-        <button onClick={onCancel} aria-label="Tutup">
-          <X size={15} />
-        </button>
+        <ModalCloseButton onClose={onCancel} />
       </div>
       <div className={`confirm-hint ${danger ? "confirm-hint-danger" : ""}`}>
         <strong>This action requires confirmation</strong> to prevent unintended changes.

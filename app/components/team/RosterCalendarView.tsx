@@ -9,6 +9,7 @@ import {
   Clock,
 } from "lucide-react";
 import { initials } from "@/app/lib/data";
+import { ModalCloseButton } from "@/app/components/ui/ModalCloseButton";
 import { shiftColor } from "@/app/components/team/RosterTable";
 import type { DayScheduleType, RosterMember } from "@/app/lib/types";
 
@@ -430,7 +431,7 @@ export function RosterCalendarView({ members, onSelectMember }: RosterCalendarVi
                   <CalendarIcon size={14} style={{ display: "inline", marginRight: "6px", verticalAlign: "middle", color: "var(--accent-blue)" }} />
                   {selectedDay} {MONTH_NAMES[monthDate.getMonth()]} {monthDate.getFullYear()} — {membersOnDay.length} Scheduled
                 </strong>
-                <button onClick={() => setSelectedDay(null)} aria-label="Close day detail">×</button>
+                <ModalCloseButton onClose={() => setSelectedDay(null)} label="Close day detail" />
               </div>
               <div className="monthly-day-detail-list">
                 {membersOnDay.map(({ member, shift }) => {
@@ -472,7 +473,7 @@ export function RosterCalendarView({ members, onSelectMember }: RosterCalendarVi
             <div className="monthly-day-detail anim-fade">
               <div className="monthly-day-detail-header">
                 <strong>{selectedDay} {MONTH_NAMES[monthDate.getMonth()]} — No one scheduled</strong>
-                <button onClick={() => setSelectedDay(null)}>×</button>
+                <ModalCloseButton onClose={() => setSelectedDay(null)} label="Close day detail" />
               </div>
               <p style={{ padding: "12px 16px", color: "var(--ink-muted)", fontSize: "12px", margin: 0 }}>
                 All team members are off or on leave this day.
