@@ -54,10 +54,25 @@
   to { width: 0%; }
 }
 
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .anim-fade { animation: fadeIn 0.18s ease-out; }
 .modal-pop { animation: modalPop 0.24s cubic-bezier(0.16, 1, 0.3, 1); }
 .anim-slide-left { animation: slideInRight 0.26s cubic-bezier(0.16, 1, 0.3, 1); }
 .anim-slide-right { animation: slideInLeft 0.26s cubic-bezier(0.16, 1, 0.3, 1); }
+.anim-spin,
+.spin {
+  animation: spin 0.8s linear infinite;
+  transform-origin: center;
+  display: inline-block;
+}
 
 .live-dot-pulse {
   animation: livePulse 2s ease-out infinite;
@@ -81,7 +96,8 @@
 @media (prefers-reduced-motion: reduce) {
   .anim-fade, .modal-pop, .anim-slide-left, .anim-slide-right,
   .page-content > section, .page-content > article,
-  .live-dot-pulse, .sparkline-line, .toast-item, .toast-progress {
+  .live-dot-pulse, .sparkline-line, .toast-item, .toast-progress,
+  .anim-spin, .spin {
     animation: none !important;
   }
   .sparkline-line { stroke-dashoffset: 0; }

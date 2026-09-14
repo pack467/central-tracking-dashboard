@@ -68,7 +68,7 @@ const PRIORITY_COLORS = {
   Critical: "#ef4444",
   High: "#f97316",
   Medium: "#f59e0b",
-  Low: "#38bdf8",
+  Low: "#2dd4bf",
 };
 
 // Helper for generating clean Y-axis ticks
@@ -1776,7 +1776,7 @@ export function TicketReportView({ tickets, dateRangeLabel }: TicketReportViewPr
                   {shiftHeatmapData.shifts.map((shift) => {
                     const isSubuh = shift.includes("Subuh");
                     const isPagi = shift.includes("Pagi");
-                    const shiftColor = isSubuh ? "#94a3b8" : isPagi ? "#fbbf24" : "#a855f7";
+                    const shiftColor = isSubuh ? "#38bdf8" : isPagi ? "#fbbf24" : "#a855f7";
 
                     return (
                       <tr key={shift}>
@@ -1942,12 +1942,22 @@ export function TicketReportView({ tickets, dateRangeLabel }: TicketReportViewPr
                     <div className="user-modal-tickets-list">
                       {selectedUserDetail.recentTickets.map((t) => {
                         const pColor = PROJECT_COLORS[t.project] || "#94a3b8";
+                        const sLower = t.severity.toLowerCase();
+                        const pClass =
+                          sLower === "critical" || sLower === "kritis"
+                            ? "priority-pill-crit"
+                            : sLower === "high" || sLower === "tinggi"
+                            ? "priority-pill-high"
+                            : sLower === "low" || sLower === "rendah"
+                            ? "priority-pill-low"
+                            : "priority-pill-med";
+
                         return (
                           <div className="user-modal-ticket-row" key={t.id}>
                             <span className="user-modal-ticket-id">#{t.id}</span>
                             <span className="user-modal-ticket-proj" style={{ color: pColor }}>● {t.project}</span>
                             <span className="user-modal-ticket-sub" title={t.subject}>{t.subject}</span>
-                            <span className="user-modal-ticket-sev">{t.severity}</span>
+                            <span className={`priority-pill ${pClass}`}>{t.severity}</span>
                             <span className="user-modal-ticket-st">{t.status}</span>
                           </div>
                         );

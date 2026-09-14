@@ -20,7 +20,7 @@ interface RosterCalendarViewProps {
 
 /* ── helpers ─────────────────────────────────────────── */
 const SHIFT_LEGEND: { type: DayScheduleType; label: string; bg: string; border: string; color: string }[] = [
-  { type: "Subuh", label: "Subuh (00:00–08:30)", bg: "rgba(148, 163, 184, 0.16)", border: "rgba(148, 163, 184, 0.35)", color: "#94a3b8" },
+  { type: "Subuh", label: "Subuh (00:00–08:30)", bg: "var(--accent-blue-soft)", border: "var(--accent-blue-border)", color: "var(--accent-blue)" },
   { type: "Pagi", label: "Pagi (08:00–16:30)", bg: "var(--orange-soft)", border: "var(--orange-border)", color: "var(--orange)" },
   { type: "Malam", label: "Malam (16:00–00:30)", bg: "var(--purple-soft)", border: "var(--purple-border)", color: "var(--purple)" },
   { type: "Off", label: "Off Duty", bg: "var(--bg)", border: "var(--line)", color: "var(--ink-muted)" },

@@ -1,67 +1,39 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useMemo } from "react";
+import { ArrowRight } from "lucide-react";
 import { IconBell } from "@/app/components/ui/Icons";
 import { Badge } from "@/app/components/ui/Badge";
-import { useToast } from "@/app/components/ui/Toast";
-
-export interface NotificationItem {
-  id: string;
-  title: string;
-  message: string;
-  time: string;
-  category: string;
-  severity: "warning" | "critical" | "success" | "info";
-  unread: boolean;
-}
-
-const initialNotifications: NotificationItem[] = [
-  {
-    id: "notif-1",
-    title: "Penumpukan Queue ActiveMQ 228",
-    message: "Dilaporkan pada checkpoint 18:00 WIB. Memerlukan validasi penanggung jawab.",
-    time: "10 menit lalu",
-    category: "Queue",
-    severity: "warning",
-    unread: true,
-  },
-  {
-    id: "notif-2",
-    title: "Peringatan Aliran Pesan B2B",
-    message: "Tidak ada pesan yang terdeteksi pada topik b2b-f... Periksa kesehatan producer.",
-    time: "25 menit lalu",
-    category: "Kafka",
-    severity: "warning",
-    unread: true,
-  },
-  {
-    id: "notif-3",
-    title: "Pemulihan Otomatis Gateway SIEM",
-    message: "Uji kesehatan gateway log USIEM berhasil dipulihkan secara otomatis.",
-    time: "1 jam lalu",
-    category: "USIEM",
-    severity: "success",
-    unread: false,
-  },
-];
+import { useNotifications } from "@/app/context/NotificationContext";
+import { useClient } from "@/app/context/ClientContext";
 
 interface NotificationDropdownProps {
   buttonRef?: React.RefObject<HTMLButtonElement | null>;
+  onNavigate?: (label: string) => void;
 }
 
-export function NotificationDropdown() {
-  const notify = useToast();
+export function NotificationDropdown({ onNavigate }: NotificationDropdownProps = {}) {
+  const { activeClient, activeClientId } = useClient();
+  const { getClientNotifications, getClientUnreadCount, markAsRead, markAllAsRead, clearAll } = useNotifications();
+  
+  const notifications = useMemo(
+    () => getClientNotifications(activeClientId),
+    [getClientNotifications, activeClientId]
+  );
+
+  const unreadCount = useMemo(
+    () => getClientUnreadCount(activeClientId),
+    [getClientUnreadCount, activeClientId]
+  );
+
   const [isOpen, setIsOpen] = useState(false);
-  const [notifications, setNotifications] = useState<NotificationItem[]>(initialNotifications);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [positionStyle, setPositionStyle] = useState<React.CSSProperties>({});
   const [caretOffset, setCaretOffset] = useState<number>(0);
 
-  const unreadCount = notifications.filter((n) => n.unread).length;
-
   // Collision detection and dynamic anchoring
-  const updatePosition = () => {
+  const updatePosition = useCallback(() => {
     if (!buttonRef.current || !isOpen) return;
 
     const buttonRect = buttonRef.current.getBoundingClientRect();
@@ -71,7 +43,6 @@ export function NotificationDropdown() {
 
     // Ideal right alignment with button's right edge
     let right = viewportWidth - buttonRect.right;
-    let left: number | undefined;
 
     // Check right edge overflow
     if (right < safeMargin) {
@@ -99,7 +70,7 @@ export function NotificationDropdown() {
       right: `${right}px`,
       width: `${dropdownWidth}px`,
     });
-  };
+  }, [isOpen]);
 
   useEffect(() => {
     if (isOpen) {
@@ -115,7 +86,7 @@ export function NotificationDropdown() {
         window.removeEventListener("scroll", handleScroll);
       };
     }
-  }, [isOpen]);
+  }, [isOpen, updatePosition]);
 
   // Click outside & Escape key listeners
   useEffect(() => {
@@ -153,21 +124,11 @@ export function NotificationDropdown() {
     setIsOpen((prev) => !prev);
   };
 
-  const markAsRead = (id: string) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, unread: false } : n))
-    );
-  };
-
-  const markAllAsRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })));
-    notify.success("Semua notifikasi ditandai sudah dibaca.", { id: "notif-mark-all-read" });
-  };
-
-  const clearAll = () => {
-    setNotifications([]);
+  const handleViewAll = () => {
     setIsOpen(false);
-    notify.info("Semua notifikasi telah dibersihkan.", { id: "notif-clear-all" });
+    if (onNavigate) {
+      onNavigate("Notifikasi");
+    }
   };
 
   return (
@@ -215,7 +176,7 @@ export function NotificationDropdown() {
             {unreadCount > 0 && (
               <button
                 className="notification-header-action"
-                onClick={markAllAsRead}
+                onClick={() => markAllAsRead(activeClientId)}
                 type="button"
               >
                 Tandai dibaca
@@ -231,7 +192,7 @@ export function NotificationDropdown() {
                   key={item.id}
                   className={`notification-item ${item.unread ? "unread" : "read"}`}
                   onClick={() => markAsRead(item.id)}
-                  role="listitem"
+                  role="button"
                   tabIndex={0}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
@@ -273,18 +234,26 @@ export function NotificationDropdown() {
             )}
           </div>
 
-          {/* Footer Action */}
-          {notifications.length > 0 && (
-            <div className="notification-footer">
+          {/* Footer Actions */}
+          <div className="notification-footer">
+            <button
+              className="notification-view-all-button"
+              onClick={handleViewAll}
+              type="button"
+            >
+              <span>Lihat Semua Notifikasi</span>
+              <ArrowRight size={13} />
+            </button>
+            {notifications.length > 0 && (
               <button
                 className="notification-clear-button"
-                onClick={clearAll}
+                onClick={() => clearAll(activeClientId)}
                 type="button"
               >
                 Bersihkan semua notifikasi
               </button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       )}
     </div>

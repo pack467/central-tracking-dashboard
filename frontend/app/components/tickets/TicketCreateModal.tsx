@@ -1,21 +1,39 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { X, Zap, Check } from "lucide-react";
+import { useEffect, useState, useMemo } from "react";
+import {
+  X,
+  Zap,
+  Check,
+  Ticket,
+  FileText,
+  Layers,
+  AlertTriangle,
+  Activity,
+  Tag,
+  AlignLeft,
+  RefreshCw,
+  Clock,
+  CheckCircle2,
+  Users,
+} from "lucide-react";
 import { Modal } from "@/app/components/ui/Modal";
 import { Badge } from "@/app/components/ui/Badge";
+import { TimePicker } from "@/app/components/ui/TimePicker";
+import { OwnerTagInput } from "@/app/components/tickets/OwnerTagInput";
 import { makeTicketId, nowClockLabel } from "@/app/lib/data";
-import { statusTone } from "@/app/components/tickets/TicketTable";
+import { severityTone, statusTone } from "@/app/components/tickets/TicketTable";
 import { useAuth } from "@/app/lib/auth";
-import type { Ticket } from "@/app/lib/types";
+import type { Ticket as TicketType } from "@/app/lib/types";
+import { useClient } from "@/app/context/ClientContext";
+import { getClientSystems } from "@/app/lib/clientData";
 
 interface TicketCreateModalProps {
   open: boolean;
   onClose: () => void;
-  onCreate: (ticket: Ticket) => void;
+  onCreate: (ticket: TicketType) => void;
 }
 
-const PROJECT_OPTIONS = ["SM", "B2B", "USIEM", "MB", "EPC Tools", "DM", "UNEM", "APH", "L2"];
 const PRIORITY_OPTIONS = ["Low", "Medium", "High", "Critical"];
 const STATUS_OPTIONS = ["Open", "Closed", "Active", "Meeting", "Re-Open", "Pending"] as const;
 
@@ -30,10 +48,14 @@ const CATEGORY_OPTIONS = [
 
 export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModalProps) {
   const { user } = useAuth();
-  const operatorName = user?.name || "Operator NOC";
+  const { activeClient, activeClientId } = useClient();
+  const clientSystems = useMemo(() => getClientSystems(activeClientId), [activeClientId]);
+
+  const operatorName = user?.name || "Galih Khairi";
   const [ticketCode, setTicketCode] = useState(() => makeTicketId());
   const [subject, setSubject] = useState("");
-  const [project, setProject] = useState("SM");
+  const [owners, setOwners] = useState<string[]>(() => [operatorName]);
+  const [project, setProject] = useState(() => clientSystems[0] || "SM");
   const [severity, setSeverity] = useState("Low");
   const [status, setStatus] = useState<string>("Open");
   const [category, setCategory] = useState<string>("");
@@ -57,12 +79,15 @@ export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModal
       setCompletionTime("");
       setIsStillOpen(false);
       setError("");
+      setProject(clientSystems[0] || "SM");
+      setOwners([operatorName]);
     }
-  }, [open]);
+  }, [open, clientSystems, operatorName]);
 
   const reset = () => {
     setTicketCode(makeTicketId());
     setSubject("");
+    setOwners([operatorName]);
     setProject("SM");
     setSeverity("Low");
     setStatus("Open");
@@ -76,9 +101,17 @@ export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModal
   };
 
   const submit = () => {
+    const cleanCode = ticketCode.trim().replace(/^#/, "");
     const trimmedSubject = subject.trim();
-    const cleanCode = ticketCode.trim().replace(/^#/, "") || makeTicketId();
 
+    if (!cleanCode) {
+      setError("Kode tiket wajib diisi. Masukkan kode manual atau klik tombol generate.");
+      return;
+    }
+    if (!/^[a-zA-Z0-9_\-]+$/.test(cleanCode) || cleanCode.length < 3) {
+      setError("Format kode tiket tidak valid (gunakan minimal 3 karakter alfanumerik atau tanda hubung).");
+      return;
+    }
     if (!trimmedSubject) {
       setError("Subjek ticket wajib diisi agar tim operasional memahami konteks.");
       return;
@@ -110,18 +143,20 @@ export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModal
 
     const created = nowClockLabel();
     const isAdhoc = category === "Ad-hoc Request";
+    const primaryOwner = owners.length > 0 ? owners.join(", ") : "Unassigned";
 
     onCreate({
       id: cleanCode,
       subject: trimmedSubject,
       project,
       severity,
-      category,
       requestTime: isAdhoc ? requestTime : undefined,
       responseTime: isAdhoc ? responseTime : undefined,
       completionTime: isAdhoc ? (isStillOpen ? undefined : completionTime) : undefined,
       isStillOpen: isAdhoc ? isStillOpen : undefined,
-      owner: operatorName,
+      owner: primaryOwner,
+      owners,
+      category: category || "Incident & Issue Handling",
       status,
       created,
       description:
@@ -129,11 +164,12 @@ export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModal
         (isAdhoc
           ? `Permintaan Ad-hoc (Req: ${requestTime}, Resp: ${responseTime}${isStillOpen ? ", Status: Still Open" : `, Selesai: ${completionTime}`}).`
           : `Item aktivitas operasional kategori ${category}.`),
+      clientId: activeClientId,
       history: [
         {
           time: created,
           type: "created",
-          action: `Ticket #${cleanCode} dibuat oleh ${operatorName} (Kategori: ${category}, Status: ${status})`,
+          action: `Ticket #${cleanCode} dibuat oleh ${operatorName} (PIC: ${primaryOwner}, Kategori: ${category}, Status: ${status})`,
           author: operatorName,
         },
       ],
@@ -149,8 +185,8 @@ export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModal
     <Modal open={open} onClose={onClose} label="Buat ticket baru" width={640}>
       <div className="modal-title">
         <div>
-          <strong>Buat Ticket NOC Baru</strong>
-          <small>Catat tugas operasional, permintaan ad-hoc, atau penanganan insiden.</small>
+          <strong>Buat Ticket NOC Baru — {activeClient.shortName}</strong>
+          <small>Catat tugas operasional, permintaan ad-hoc, atau penanganan insiden untuk {activeClient.name}.</small>
         </div>
         <button onClick={onClose} aria-label="Tutup modal">
           <X size={15} />
@@ -158,180 +194,278 @@ export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModal
       </div>
 
       <div className="ticket-form-grid">
-        {/* Row 1: Ticket Code (Editable) + Subject */}
-        <div className="ticket-code-subject-row">
-          <label className="ticket-field-code">
-            <span>TICKET CODE</span>
-            <div className="ticket-input-wrapper">
-              <span className="ticket-hash-prefix">#</span>
-              <input
-                type="text"
-                value={ticketCode}
-                onChange={(e) => setTicketCode(e.target.value.replace(/^#/, ""))}
-                placeholder="Kode tiket"
-                className="ticket-editable-code-input"
-                title="Kode tiket dapat diedit manual atau menggunakan kode yang di-generate sistem"
-              />
-            </div>
-          </label>
+        {/* ── Section 1: Ticket Identity ── */}
+        <div className="ticket-form-section">
+          <div className="ticket-section-header">
+            <span className="ticket-section-title">Identitas Ticket</span>
+          </div>
 
-          <label className="ticket-field-subject">
-            <span>SUBJECT</span>
-            <input
-              value={subject}
-              onChange={(event) => {
-                setSubject(event.target.value);
-                if (error) setError("");
-              }}
-              placeholder="Judul singkat pekerjaan atau observasi"
-              autoFocus
+          <div className="ticket-code-subject-row">
+            <label className="ticket-field-code">
+              <div className="ticket-field-label-wrapper">
+                <span className="ticket-field-label">
+                  <Ticket size={12} className="ticket-field-icon" />
+                  TICKET CODE
+                </span>
+              </div>
+              <div className="ticket-input-wrapper">
+                <span className="ticket-hash-prefix">#</span>
+                <input
+                  type="text"
+                  value={ticketCode}
+                  onChange={(event) => {
+                    setTicketCode(event.target.value.replace(/^#/, ""));
+                    if (error) setError("");
+                  }}
+                  placeholder="Kode tiket"
+                  className="ticket-editable-code-input"
+                  title="Kode tiket (dapat diketik manual atau digenerate otomatis)"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTicketCode(makeTicketId());
+                    if (error) setError("");
+                  }}
+                  className="ticket-generate-code-btn"
+                  title="Generate Otomatis Kode Baru"
+                  aria-label="Generate Otomatis Kode Baru"
+                >
+                  <RefreshCw size={12} />
+                </button>
+              </div>
+            </label>
+
+            <label className="ticket-field-subject">
+              <div className="ticket-field-label-wrapper">
+                <span className="ticket-field-label">
+                  <FileText size={12} className="ticket-field-icon" />
+                  SUBJECT <span className="ticket-required-star" title="Wajib diisi">*</span>
+                </span>
+              </div>
+              <input
+                value={subject}
+                onChange={(event) => {
+                  setSubject(event.target.value);
+                  if (error) setError("");
+                }}
+                placeholder="Judul singkat pekerjaan atau observasi"
+                autoFocus
+              />
+            </label>
+          </div>
+
+          {/* Row: Pemilik Tiket / PIC (Multi-chip Tag Input) */}
+          <div className="ticket-field-owners">
+            <div className="ticket-field-label-wrapper">
+              <span className="ticket-field-label">
+                <Users size={12} className="ticket-field-icon" />
+                PEMILIK TIKET / PIC
+              </span>
+              <span className="ticket-field-hint">Dapat menambahkan lebih dari satu PIC</span>
+            </div>
+            <OwnerTagInput
+              owners={owners}
+              onChange={setOwners}
+              placeholder="Ketik nama operator atau pilih dari daftar..."
             />
-          </label>
+          </div>
         </div>
 
-        {/* Row 2: Project + Priority Level + Status (3-Column Grid) */}
-        <div className="three-inputs">
-          <label>
-            <span>PROJECT</span>
-            <select value={project} onChange={(event) => setProject(event.target.value)}>
-              {PROJECT_OPTIONS.map((option) => (
-                <option key={option} value={option}>{option}</option>
+        <div className="ticket-form-divider" />
+
+        {/* ── Section 2: Classification ── */}
+        <div className="ticket-form-section">
+          <div className="ticket-section-header">
+            <span className="ticket-section-title">Klasifikasi Layanan</span>
+          </div>
+
+          {/* Row: Project + Priority Level + Status (3-Column Grid) */}
+          <div className="three-inputs">
+            <label>
+              <div className="ticket-field-label-wrapper">
+                <span className="ticket-field-label">
+                  <Layers size={12} className="ticket-field-icon" />
+                  PROJECT / SISTEM
+                </span>
+              </div>
+              <select value={project} onChange={(event) => setProject(event.target.value)}>
+                {clientSystems.map((option) => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+              </select>
+            </label>
+
+            <label>
+              <div className="ticket-field-label-wrapper">
+                <span className="ticket-field-label">
+                  <AlertTriangle size={12} className="ticket-field-icon" />
+                  PRIORITY LEVEL
+                </span>
+                <Badge tone={severityTone(severity)}>{severity}</Badge>
+              </div>
+              <select value={severity} onChange={(event) => setSeverity(event.target.value)}>
+                {PRIORITY_OPTIONS.map((option) => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+              </select>
+            </label>
+
+            <label>
+              <div className="ticket-field-label-wrapper">
+                <span className="ticket-field-label">
+                  <Activity size={12} className="ticket-field-icon" />
+                  STATUS
+                </span>
+                <Badge tone={statusTone(status)}>{status}</Badge>
+              </div>
+              <select
+                value={status}
+                onChange={(event) => {
+                  setStatus(event.target.value);
+                  if (error) setError("");
+                }}
+                className="ticket-status-select"
+              >
+                {STATUS_OPTIONS.map((option) => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          {/* Category (Full Width) */}
+          <label className="ticket-field-category">
+            <div className="ticket-field-label-wrapper">
+              <span className="ticket-field-label">
+                <Tag size={12} className="ticket-field-icon" />
+                CATEGORY <span className="ticket-required-star" title="Wajib diisi">*</span>
+              </span>
+              <span className="ticket-required-hint">Wajib</span>
+            </div>
+            <select
+              value={category}
+              onChange={(event) => {
+                setCategory(event.target.value);
+                if (error) setError("");
+              }}
+              className={category && category !== "--" ? "selected-category" : ""}
+            >
+              <option value="">-- Pilih Kategori Tiket --</option>
+              {CATEGORY_OPTIONS.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
               ))}
             </select>
           </label>
 
-          <label>
-            <span>PRIORITY LEVEL</span>
-            <select value={severity} onChange={(event) => setSeverity(event.target.value)}>
-              {PRIORITY_OPTIONS.map((option) => (
-                <option key={option} value={option}>{option}</option>
-              ))}
-            </select>
-          </label>
+          {/* Conditional Fields for "Ad-hoc Request" */}
+          {isAdhoc && (
+            <div className="adhoc-fields-container">
+              <div className="adhoc-fields-header">
+                <span className="adhoc-fields-badge">
+                  <Zap size={11} style={{ display: "inline-block", verticalAlign: "middle", marginRight: "4px" }} />
+                  Timeline Permintaan Ad-hoc
+                </span>
+                <small>Waktu masuk, respon, dan estimasi selesai pekerjaan.</small>
+              </div>
+
+              <div className="three-inputs adhoc-inputs-row">
+                <label>
+                  <div className="ticket-field-label-wrapper">
+                    <span className="ticket-field-label">
+                      <Clock size={12} className="ticket-field-icon" />
+                      REQUEST TIME <span className="ticket-required-star">*</span>
+                    </span>
+                  </div>
+                  <TimePicker
+                    value={requestTime}
+                    onChange={(val) => {
+                      setRequestTime(val);
+                      if (error) setError("");
+                    }}
+                    placeholder="00:00"
+                    title="Waktu masuk permintaan ad-hoc"
+                  />
+                </label>
+
+                <label>
+                  <div className="ticket-field-label-wrapper">
+                    <span className="ticket-field-label">
+                      <Clock size={12} className="ticket-field-icon" />
+                      RESPONSE TIME <span className="ticket-required-star">*</span>
+                    </span>
+                  </div>
+                  <TimePicker
+                    value={responseTime}
+                    onChange={(val) => {
+                      setResponseTime(val);
+                      if (error) setError("");
+                    }}
+                    placeholder="00:00"
+                    title="Waktu respon pertama penanganan"
+                  />
+                </label>
+
+                <label>
+                  <div className="ticket-field-label-wrapper">
+                    <span className="ticket-field-label">
+                      <CheckCircle2 size={12} className="ticket-field-icon" />
+                      COMPLETION TIME
+                    </span>
+                    <label className="still-open-toggle-label" title="Centang jika permintaan belum selesai">
+                      <input
+                        type="checkbox"
+                        checked={isStillOpen}
+                        onChange={(e) => {
+                          setIsStillOpen(e.target.checked);
+                          if (error) setError("");
+                        }}
+                        className="still-open-checkbox"
+                      />
+                      <span>Still Open</span>
+                    </label>
+                  </div>
+                  <TimePicker
+                    value={isStillOpen ? "" : completionTime}
+                    onChange={(val) => {
+                      setCompletionTime(val);
+                      if (error) setError("");
+                    }}
+                    disabled={isStillOpen}
+                    placeholder={isStillOpen ? "Masih berlangsung" : "--:--"}
+                    title={isStillOpen ? "Permintaan masih berlangsung" : "Waktu penyelesaian permintaan"}
+                  />
+                </label>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="ticket-form-divider" />
+
+        {/* ── Section 3: Details & Operational Notes ── */}
+        <div className="ticket-form-section">
+          <div className="ticket-section-header">
+            <span className="ticket-section-title">Rincian & Catatan Operasional</span>
+          </div>
 
           <label>
             <div className="ticket-field-label-wrapper">
-              <span>STATUS</span>
-              <Badge tone={statusTone(status)}>{status}</Badge>
+              <span className="ticket-field-label">
+                <AlignLeft size={12} className="ticket-field-icon" />
+                OPERATIONAL NOTES
+              </span>
             </div>
-            <select
-              value={status}
-              onChange={(event) => {
-                setStatus(event.target.value);
-                if (error) setError("");
-              }}
-              className="ticket-status-select"
-            >
-              {STATUS_OPTIONS.map((option) => (
-                <option key={option} value={option}>{option}</option>
-              ))}
-            </select>
+            <textarea
+              rows={3}
+              value={description}
+              onChange={(event) => setDescription(event.target.value)}
+              placeholder="Masukkan observasi rinci, langkah penanganan, kode error, atau instruksi terkait..."
+            />
           </label>
         </div>
-
-        {/* Row 3: Category (Full Width) */}
-        <label className="ticket-field-category">
-          <div className="ticket-field-label-wrapper">
-            <span>CATEGORY</span>
-            <span className="ticket-required-star">* Wajib</span>
-          </div>
-          <select
-            value={category}
-            onChange={(event) => {
-              setCategory(event.target.value);
-              if (error) setError("");
-            }}
-            className={category && category !== "--" ? "selected-category" : ""}
-          >
-            <option value="">-- Select Category --</option>
-            {CATEGORY_OPTIONS.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        {/* Conditional Fields for "Ad-hoc Request" (Smooth Expandable Container) */}
-        {isAdhoc && (
-          <div className="adhoc-fields-container anim-fade">
-            <div className="adhoc-fields-header">
-              <span className="adhoc-fields-badge">
-                <Zap size={11} style={{ display: "inline-block", verticalAlign: "middle", marginRight: "4px" }} />
-                Ad-hoc Request Timeline
-              </span>
-              <small>Catat waktu masuk, respon, dan estimasi selesai permintaan.</small>
-            </div>
-
-            <div className="three-inputs adhoc-inputs-row">
-              <label>
-                <span>REQUEST TIME *</span>
-                <input
-                  type="time"
-                  value={requestTime}
-                  onChange={(e) => {
-                    setRequestTime(e.target.value);
-                    if (error) setError("");
-                  }}
-                  className="ticket-time-input"
-                />
-              </label>
-
-              <label>
-                <span>RESPONSE TIME *</span>
-                <input
-                  type="time"
-                  value={responseTime}
-                  onChange={(e) => {
-                    setResponseTime(e.target.value);
-                    if (error) setError("");
-                  }}
-                  className="ticket-time-input"
-                />
-              </label>
-
-              <label>
-                <div className="ticket-field-label-wrapper">
-                  <span>COMPLETION TIME</span>
-                  <label className="still-open-toggle-label" title="Centang jika permintaan belum selesai">
-                    <input
-                      type="checkbox"
-                      checked={isStillOpen}
-                      onChange={(e) => {
-                        setIsStillOpen(e.target.checked);
-                        if (error) setError("");
-                      }}
-                      className="still-open-checkbox"
-                    />
-                    <span>Still Open</span>
-                  </label>
-                </div>
-                <input
-                  type="time"
-                  value={completionTime}
-                  onChange={(e) => {
-                    setCompletionTime(e.target.value);
-                    if (error) setError("");
-                  }}
-                  disabled={isStillOpen}
-                  className={`ticket-time-input ${isStillOpen ? "time-input-disabled" : ""}`}
-                  placeholder={isStillOpen ? "Masih berlangsung" : ""}
-                />
-              </label>
-            </div>
-          </div>
-        )}
-
-        {/* Row 4: Operational Notes */}
-        <label>
-          <span>OPERATIONAL NOTES</span>
-          <textarea
-            rows={3}
-            value={description}
-            onChange={(event) => setDescription(event.target.value)}
-            placeholder="Masukkan observasi rinci, langkah penanganan, kode error, atau instruksi terkait..."
-          />
-        </label>
       </div>
 
       {error && (

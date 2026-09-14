@@ -4,7 +4,7 @@ import { Badge } from "@/app/components/ui/Badge";
 import { EmptyState } from "@/app/components/ui/EmptyState";
 import { ProjectMark } from "@/app/components/ui/ProjectMark";
 import { initials } from "@/app/lib/data";
-import type { Ticket } from "@/app/lib/types";
+import type { Ticket, Tone } from "@/app/lib/types";
 
 interface TicketTableProps {
   tickets: Ticket[];
@@ -13,13 +13,13 @@ interface TicketTableProps {
   showEscalationDetails?: boolean;
 }
 
-export function severityTone(severity: string) {
+export function severityTone(severity: string): Tone {
   const s = severity.toLowerCase();
-  return s === "critical" || s === "kritis" || s === "high" || s === "tinggi"
-    ? "critical"
-    : s === "medium" || s === "sedang"
-      ? "warning"
-      : "neutral";
+  if (s === "critical" || s === "kritis") return "critical";
+  if (s === "high" || s === "tinggi") return "high";
+  if (s === "medium" || s === "sedang") return "warning";
+  if (s === "low" || s === "rendah") return "low";
+  return "neutral";
 }
 
 export function statusTone(status: string) {

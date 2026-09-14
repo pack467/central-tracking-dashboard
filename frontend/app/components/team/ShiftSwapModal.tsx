@@ -282,7 +282,8 @@ export function ShiftSwapModal({
                           onClick={() => handleStatusChange(req.id, "Approved")}
                           title="Setujui pertukaran shift ini"
                         >
-                          <Check size={13} style={{ display: "inline", verticalAlign: "middle" }} /> Approve
+                          <Check size={13} strokeWidth={2.5} className="assess-btn-icon" />
+                          <span className="assess-btn-text">Approve</span>
                         </button>
                         <button
                           className="assess-btn assess-fail"
@@ -290,7 +291,8 @@ export function ShiftSwapModal({
                           onClick={() => handleStatusChange(req.id, "Rejected")}
                           title="Tolak pertukaran shift ini"
                         >
-                          <X size={13} style={{ display: "inline", verticalAlign: "middle" }} /> Reject
+                          <X size={13} strokeWidth={2.5} className="assess-btn-icon" />
+                          <span className="assess-btn-text">Reject</span>
                         </button>
                       </>
                     ) : (

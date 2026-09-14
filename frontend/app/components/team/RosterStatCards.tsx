@@ -13,7 +13,7 @@ interface RosterStatCardsProps {
 
 export function RosterStatCards({ members, swapRequests, onOpenSwaps }: RosterStatCardsProps) {
   const activeShift = useActiveShift();
-  const shiftAccent: StatAccentColor = activeShift.id === "subuh" ? "gray" : activeShift.id === "pagi" ? "amber" : "purple";
+  const shiftAccent: StatAccentColor = activeShift.id === "subuh" ? "blue" : activeShift.id === "pagi" ? "amber" : "purple";
   const total         = members.length;
   const activeNow     = members.filter((m) => m.status === "Active" || m.status === "On Break").length;
   const onLeaveCount  = members.filter((m) => m.status === "On Leave").length;

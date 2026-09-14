@@ -1,23 +1,186 @@
-"use client";
-
-import { useMemo, useState } from "react";
-import { AlertCircle, AlertTriangle, FileText, Clock, Check, X, Filter, ChevronDown } from "lucide-react";
+import { useMemo, useState, useRef, useEffect } from "react";
+import {
+  AlertCircle,
+  AlertTriangle,
+  FileText,
+  Clock,
+  Check,
+  X,
+  Filter,
+  ChevronDown,
+  Layers,
+  Server,
+} from "lucide-react";
 import { Badge } from "@/app/components/ui/Badge";
 import { ProjectMark } from "@/app/components/ui/ProjectMark";
 import { useToast } from "@/app/components/ui/Toast";
-import { getOwnerRole, initials, monitoringSystems } from "@/app/lib/data";
+import { getOwnerRole, initials } from "@/app/lib/data";
 import type { CheckpointAssessment, MonitoringEntry } from "@/app/lib/types";
+import { useClient } from "@/app/context/ClientContext";
+import { CLIENT_PROJECTS } from "@/app/lib/clientData";
+
+export function matchesProject(entryProject: string, targetProject: string): boolean {
+  if (!entryProject || !targetProject) return false;
+  const ep = entryProject.toLowerCase().trim();
+  const tp = targetProject.toLowerCase().trim();
+  if (ep === tp) return true;
+  if (ep.startsWith(tp + "/") || ep.startsWith(tp + " ")) return true;
+  if (tp === "epc" && ep.startsWith("epc")) return true;
+  return false;
+}
 
 export function matchesSystem(text: string, system: string) {
   const aliases: Record<string, string[]> = {
-    ActiveMQ: ["activemq", "queue"],
-    Kafka: ["kafka", "topik", "topic"],
-    Grafana: ["grafana", "cpu"],
-    Graylog: ["graylog", "siem"],
-    "Disk Usage": ["disk", "/apps"],
+    ActiveMQ: ["activemq", "queue", "antrian", "settlement", "backlog"],
+    Kafka: ["kafka", "topik", "topic", "stream", "throttle", "cdr"],
+    Grafana: ["grafana", "cpu", "throughput", "latensi", "latency", "response", "peak", "utilisasi", "thread"],
+    Graylog: ["graylog", "siem", "auth", "log", "audit", "anomali", "score", "charging", "diameter"],
+    "Disk Usage": ["disk", "/apps", "database", "node", "storage", "bin-range", "ledger", "balancing", "replikasi", "subscriber", "hss"],
+    "Network / Switch": ["network", "switch", "link", "atm", "leased-line", "jaringan"],
+    "Network / 5G": ["network", "edge", "upf", "gnodeb", "5g", "link", "jaringan"],
   };
   const haystack = text.toLowerCase();
   return (aliases[system] ?? [system.toLowerCase()]).some((alias) => haystack.includes(alias));
+}
+
+export const CLIENT_MONITORING_SYSTEMS: Record<string, string[]> = {
+  tritronik: ["ActiveMQ", "Kafka", "Grafana", "Graylog", "Disk Usage"],
+  bni: ["ActiveMQ", "Kafka", "Grafana", "Graylog", "Disk Usage", "Network / Switch"],
+  telkomsel: ["ActiveMQ", "Kafka", "Grafana", "Graylog", "Disk Usage", "Network / 5G"],
+};
+
+interface ScheduleFilterDropdownProps {
+  id: string;
+  icon: React.ReactNode;
+  label: string;
+  allLabel: string;
+  totalCount: number;
+  selectedValue: string | null;
+  options: { name: string; count: number }[];
+  onSelect: (val: string | null) => void;
+}
+
+function ScheduleFilterDropdown({
+  id,
+  icon,
+  label,
+  allLabel,
+  totalCount,
+  selectedValue,
+  options,
+  onSelect,
+}: ScheduleFilterDropdownProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Close when clicking outside
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen]);
+
+  // Close on Escape key
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape" && isOpen) {
+        setIsOpen(false);
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen]);
+
+  const activeOption = options.find((opt) => opt.name.toLowerCase() === selectedValue?.toLowerCase());
+  const displayLabel = selectedValue
+    ? `${selectedValue} (${activeOption?.count ?? 0})`
+    : `${allLabel} (${totalCount})`;
+
+  return (
+    <div className="schedule-filter-dropdown-wrap" ref={containerRef} id={id}>
+      <button
+        type="button"
+        className={`schedule-filter-dropdown-btn ${isOpen ? "open" : ""} ${selectedValue ? "has-value" : ""}`}
+        onClick={() => setIsOpen((prev) => !prev)}
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+        aria-label={`Filter ${label}: ${displayLabel}`}
+        title={`Filter ${label}: ${displayLabel}`}
+      >
+        <span className="sched-dropdown-icon">{icon}</span>
+        <span className="sched-dropdown-label">{displayLabel}</span>
+        <ChevronDown size={12} className={`sched-dropdown-chevron ${isOpen ? "rotate-180" : ""}`} />
+      </button>
+
+      {isOpen && (
+        <div
+          className="schedule-filter-popover"
+          role="listbox"
+          aria-label={`Pilihan filter ${label}`}
+        >
+          <div className="sched-popover-header">
+            <span className="sched-popover-title">PILIH {label.toUpperCase()}</span>
+          </div>
+
+          <div className="sched-popover-list">
+            {/* "Semua" Option */}
+            <button
+              type="button"
+              role="option"
+              aria-selected={!selectedValue}
+              className={`sched-popover-item ${!selectedValue ? "selected" : ""}`}
+              onClick={() => {
+                onSelect(null);
+                setIsOpen(false);
+              }}
+            >
+              <div className="sched-item-main">
+                <span className="sched-item-name">{allLabel}</span>
+              </div>
+              <span className="sched-item-count">{totalCount}</span>
+              {!selectedValue && <Check size={13} className="sched-item-check" />}
+            </button>
+
+            <div className="sched-popover-divider" />
+
+            {/* Individual Options */}
+            {options.map((opt) => {
+              const isSelected = selectedValue?.toLowerCase() === opt.name.toLowerCase();
+              return (
+                <button
+                  key={opt.name}
+                  type="button"
+                  role="option"
+                  aria-selected={isSelected}
+                  className={`sched-popover-item ${isSelected ? "selected" : ""} ${opt.count === 0 ? "is-zero" : ""}`}
+                  onClick={() => {
+                    onSelect(opt.name);
+                    setIsOpen(false);
+                  }}
+                >
+                  <div className="sched-item-main">
+                    <span className="sched-item-name">{opt.name}</span>
+                  </div>
+                  <span className={`sched-item-count ${opt.count === 0 ? "count-zero" : ""}`}>
+                    {opt.count}
+                  </span>
+                  {isSelected && <Check size={13} className="sched-item-check" />}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
 interface MonitoringScheduleProps {
@@ -29,6 +192,8 @@ interface MonitoringScheduleProps {
   showFilter?: boolean;
   selectedSystem?: string | null;
   onSelectSystem?: (system: string | null) => void;
+  selectedProject?: string | null;
+  onSelectProject?: (project: string | null) => void;
   footer?: React.ReactNode;
 }
 
@@ -45,34 +210,100 @@ export function MonitoringSchedule({
   onRequestNote,
   currentHour = null,
   showFilter = true,
-  selectedSystem = null,
+  selectedSystem = undefined,
   onSelectSystem,
+  selectedProject = undefined,
+  onSelectProject,
   footer,
 }: MonitoringScheduleProps) {
   const notify = useToast();
+  const { activeClientId } = useClient();
+
   const [filter, setFilter] = useState<(typeof FILTERS)[number]>("Semua");
-  const [activeSystemFilter, setActiveSystemFilter] = useState<string | null>(selectedSystem);
+  const [internalProjectFilter, setInternalProjectFilter] = useState<string | null>(null);
+  const [internalSystemFilter, setInternalSystemFilter] = useState<string | null>(null);
 
-  // Sync external selectedSystem if controlled
-  const effectiveSystemFilter = selectedSystem !== undefined ? selectedSystem : activeSystemFilter;
-  const setSystemFilter = onSelectSystem ?? setActiveSystemFilter;
+  // Sync external props if controlled, otherwise use internal state
+  const isProjectControlled = onSelectProject !== undefined || selectedProject !== undefined;
+  const effectiveProjectFilter = isProjectControlled ? (selectedProject ?? null) : internalProjectFilter;
+  const setProjectFilter = (val: string | null) => {
+    setInternalProjectFilter(val);
+    onSelectProject?.(val);
+  };
 
-  // Counts for tabs
+  const isSystemControlled = onSelectSystem !== undefined || selectedSystem !== undefined;
+  const effectiveSystemFilter = isSystemControlled ? (selectedSystem ?? null) : internalSystemFilter;
+  const setSystemFilter = (val: string | null) => {
+    setInternalSystemFilter(val);
+    onSelectSystem?.(val);
+  };
+
+  // Auto-reset project filter if no longer exists in current client entries
+  useEffect(() => {
+    if (effectiveProjectFilter && !entries.some((e) => matchesProject(e.project, effectiveProjectFilter))) {
+      setProjectFilter(null);
+    }
+  }, [entries, effectiveProjectFilter]);
+
+  // Dynamic project options from active client's projects + any unmapped entries
+  const projectOptions = useMemo(() => {
+    const definedProjects = (CLIENT_PROJECTS[activeClientId] || CLIENT_PROJECTS.tritronik).map((p) => p.name);
+    const list: { name: string; count: number }[] = [];
+    const seen = new Set<string>();
+
+    definedProjects.forEach((name) => {
+      const count = entries.filter((e) => matchesProject(e.project, name)).length;
+      list.push({ name, count });
+      seen.add(name.toLowerCase());
+    });
+
+    // Add any remaining unmapped project names from entries (e.g. "Handover")
+    entries.forEach((e) => {
+      if (e.project && !seen.has(e.project.toLowerCase())) {
+        const matchesAnyDefined = definedProjects.some((dp) => matchesProject(e.project, dp));
+        if (!matchesAnyDefined) {
+          seen.add(e.project.toLowerCase());
+          const count = entries.filter((item) => matchesProject(item.project, e.project)).length;
+          list.push({ name: e.project, count });
+        }
+      }
+    });
+
+    return list;
+  }, [entries, activeClientId]);
+
+  // Dynamic system options from active client's monitoring tools
+  const systemOptions = useMemo(() => {
+    const systems = CLIENT_MONITORING_SYSTEMS[activeClientId] || CLIENT_MONITORING_SYSTEMS.tritronik;
+    return systems.map((sys) => {
+      const count = entries.filter((item) => matchesSystem(`${item.task} ${item.project}`, sys)).length;
+      return { name: sys, count };
+    });
+  }, [entries, activeClientId]);
+
+  // Counts for tabs (scoped to active project/system if selected)
   const counts = useMemo(() => {
-    const total = entries.length;
-    const needsAttention = entries.filter((item) => {
+    let scoped = entries;
+    if (effectiveProjectFilter) {
+      scoped = scoped.filter((item) => matchesProject(item.project, effectiveProjectFilter));
+    }
+    if (effectiveSystemFilter) {
+      scoped = scoped.filter((item) => matchesSystem(`${item.task} ${item.project}`, effectiveSystemFilter));
+    }
+    const total = scoped.length;
+    const needsAttention = scoped.filter((item) => {
       const key = rowKey(item);
       const isNok = assessments[key]?.verdict === "nok" || assessments[key]?.verdict === "not-adequate";
       return item.tone === "warning" || isNok;
     }).length;
-    const upcoming = entries.filter((item) => item.state === "Upcoming" || item.state === "Mendatang").length;
+    const upcoming = scoped.filter((item) => item.state === "Upcoming" || item.state === "Mendatang").length;
     return { total, needsAttention, upcoming };
-  }, [entries, assessments]);
+  }, [entries, effectiveProjectFilter, effectiveSystemFilter, assessments]);
 
   const visibleEntries = useMemo(() => {
     let result = entries;
 
-    // Filter by tab
+    // 1. Filter by tab
     if (filter === "Needs Attention") {
       result = result.filter((item) => {
         const key = rowKey(item);
@@ -83,61 +314,86 @@ export function MonitoringSchedule({
       result = result.filter((item) => item.state === "Upcoming" || item.state === "Mendatang");
     }
 
-    // Filter by system (Quick filter)
+    // 2. Filter by project (business service)
+    if (effectiveProjectFilter) {
+      result = result.filter((item) => matchesProject(item.project, effectiveProjectFilter));
+    }
+
+    // 3. Filter by system (monitoring tool)
     if (effectiveSystemFilter) {
       result = result.filter((item) => matchesSystem(`${item.task} ${item.project}`, effectiveSystemFilter));
     }
 
     return result;
-  }, [entries, filter, effectiveSystemFilter, assessments]);
-
+  }, [entries, filter, effectiveProjectFilter, effectiveSystemFilter, assessments]);
 
   return (
     <article className="panel schedule-panel">
       <div className="panel-heading schedule-heading">
         <div className="schedule-title-wrap">
           <div className="panel-title">Monitoring Schedule</div>
-          {effectiveSystemFilter && (
-            <span className="system-active-filter-badge">
-              Filter: <strong>{effectiveSystemFilter}</strong>
-              <button
-                type="button"
-                className="clear-system-filter-btn"
-                onClick={() => setSystemFilter(null)}
-                title="Hapus filter sistem"
-                aria-label="Hapus filter sistem"
-              >
-                ×
-              </button>
-            </span>
+          {(effectiveProjectFilter || effectiveSystemFilter) && (
+            <div className="schedule-active-filters-cluster">
+              {effectiveProjectFilter && (
+                <span className="system-active-filter-badge">
+                  Proyek: <strong>{effectiveProjectFilter}</strong>
+                  <button
+                    type="button"
+                    className="clear-system-filter-btn"
+                    onClick={() => setProjectFilter(null)}
+                    title="Hapus filter proyek"
+                    aria-label="Hapus filter proyek"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
+              {effectiveSystemFilter && (
+                <span className="system-active-filter-badge">
+                  Sistem: <strong>{effectiveSystemFilter}</strong>
+                  <button
+                    type="button"
+                    className="clear-system-filter-btn"
+                    onClick={() => setSystemFilter(null)}
+                    title="Hapus filter sistem"
+                    aria-label="Hapus filter sistem"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
+            </div>
           )}
         </div>
 
         {showFilter && (
           <div className="schedule-controls-row">
-            {/* System Quick-Filter Dropdown (Requirement 5c) */}
-            <div className="schedule-system-select-wrap">
-              <label htmlFor="schedule-system-filter" className="sr-only">Filter Sistem</label>
-              <select
-                id="schedule-system-filter"
-                className="schedule-system-select"
-                value={effectiveSystemFilter || ""}
-                onChange={(e) => setSystemFilter(e.target.value ? e.target.value : null)}
-              >
-                <option value="">Semua Sistem ({entries.length})</option>
-                {monitoringSystems.map((sys) => {
-                  const count = entries.filter((item) => matchesSystem(`${item.task} ${item.project}`, sys)).length;
-                  return (
-                    <option key={sys} value={sys}>
-                      {sys} ({count})
-                    </option>
-                  );
-                })}
-              </select>
-            </div>
+            {/* 1. Project / Service Filter Dropdown */}
+            <ScheduleFilterDropdown
+              id="schedule-project-filter"
+              icon={<Layers size={13} className="sched-select-icon" />}
+              label="Proyek"
+              allLabel="Semua Proyek"
+              totalCount={entries.length}
+              selectedValue={effectiveProjectFilter}
+              options={projectOptions}
+              onSelect={setProjectFilter}
+            />
 
-            {/* Standard Pill Segmented Tabs with item counts */}
-            <div className="filter-tabs" aria-label="Filter monitoring">
+            {/* 2. Technical System / Tool Filter Dropdown */}
+            <ScheduleFilterDropdown
+              id="schedule-system-filter"
+              icon={<Server size={13} className="sched-select-icon" />}
+              label="Sistem"
+              allLabel="Semua Sistem"
+              totalCount={entries.length}
+              selectedValue={effectiveSystemFilter}
+              options={systemOptions}
+              onSelect={setSystemFilter}
+            />
+
+            {/* 3. Status Tabs (Semua / Needs Attention / Upcoming) */}
+            <div className="filter-tabs" aria-label="Filter status monitoring">
               <button
                 className={filter === "Semua" ? "selected" : ""}
                 onClick={() => setFilter("Semua")}
@@ -310,7 +566,8 @@ export function MonitoringSchedule({
                               });
                             }}
                           >
-                            <Check size={12} style={{ display: "inline-block", verticalAlign: "middle", marginRight: "3px" }} /> OK
+                            <Check size={12} strokeWidth={2.5} className="assess-btn-icon" />
+                            <span className="assess-btn-text">OK</span>
                           </button>
                           <button
                             type="button"
@@ -320,7 +577,8 @@ export function MonitoringSchedule({
                               onRequestNote(key);
                             }}
                           >
-                            <X size={12} style={{ display: "inline-block", verticalAlign: "middle", marginRight: "3px" }} /> NOK
+                            <X size={12} strokeWidth={2.5} className="assess-btn-icon" />
+                            <span className="assess-btn-text">NOK</span>
                           </button>
                         </span>
                       )}

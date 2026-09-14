@@ -1321,7 +1321,7 @@
 .priority-spec-box.priority-crit { border-left: 3px solid #ef4444; }
 .priority-spec-box.priority-high { border-left: 3px solid #f97316; }
 .priority-spec-box.priority-med { border-left: 3px solid #f59e0b; }
-.priority-spec-box.priority-low { border-left: 3px solid #38bdf8; }
+.priority-spec-box.priority-low { border-left: 3px solid #2dd4bf; }
 
 .spec-top {
   display: flex;
@@ -1334,7 +1334,7 @@
 .crit-dot { width: 7px; height: 7px; border-radius: 50%; background: #ef4444; }
 .high-dot { width: 7px; height: 7px; border-radius: 50%; background: #f97316; }
 .med-dot { width: 7px; height: 7px; border-radius: 50%; background: #f59e0b; }
-.low-dot { width: 7px; height: 7px; border-radius: 50%; background: #38bdf8; }
+.low-dot { width: 7px; height: 7px; border-radius: 50%; background: #2dd4bf; }
 
 .spec-count {
   font-size: 18px;
@@ -1664,11 +1664,11 @@
 }
 
 .ops-shift-subuh {
-  background: rgba(148, 163, 184, 0.12);
-  border-color: rgba(148, 163, 184, 0.28);
+  background: var(--accent-blue-soft);
+  border-color: var(--accent-blue-border);
 }
 .ops-shift-subuh strong {
-  color: #94a3b8;
+  color: var(--accent-blue);
 }
 
 .ops-shift-pagi {
@@ -1863,9 +1863,9 @@
 }
 
 .priority-pill-low {
-  background: rgba(56, 189, 248, 0.15);
-  color: #38bdf8;
-  border: 1px solid rgba(56, 189, 248, 0.3);
+  background: rgba(45, 212, 191, 0.15);
+  color: #2dd4bf;
+  border: 1px solid rgba(45, 212, 191, 0.3);
 }
 
 /* ── Neutral Status Pills ── */

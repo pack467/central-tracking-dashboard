@@ -5,6 +5,8 @@ import { EmptyState } from "@/app/components/ui/EmptyState";
 import { useToast } from "@/app/components/ui/Toast";
 import { isOpenTicket, projectHealthWeekly } from "@/app/lib/data";
 import type { CheckpointAssessment, Ticket } from "@/app/lib/types";
+import { useClient } from "@/app/context/ClientContext";
+import { getClientSystems } from "@/app/lib/clientData";
 
 interface ReportsViewProps {
   tickets: Ticket[];
@@ -18,17 +20,36 @@ function average(values: number[]) {
 }
 
 export function ReportsView({ tickets, assessments, handoverCount }: ReportsViewProps) {
+  const { activeClient, activeClientId } = useClient();
+  const clientSystems = useMemo(() => getClientSystems(activeClientId), [activeClientId]);
   const notify = useToast();
 
-  const weekly = useMemo(
-    () =>
-      projectHealthWeekly.map((row) => ({
+  const weekly = useMemo(() => {
+    if (activeClientId === "tritronik") {
+      return projectHealthWeekly.map((row) => ({
         project: row.project,
         days: row.days,
         average: average(row.days),
-      })),
-    [],
-  );
+      }));
+    }
+    const sampleDays = [
+      [99, 100, 99, 98, 100, 100, 99],
+      [100, 99, 100, 100, 99, 100, 100],
+      [98, 97, 99, 99, 98, 99, 98],
+      [100, 100, 100, 99, 100, 100, 100],
+      [99, 99, 98, 100, 99, 100, 99],
+      [100, 99, 100, 99, 99, 100, 100],
+      [99, 98, 99, 99, 100, 99, 99],
+    ];
+    return clientSystems.map((sys, idx) => {
+      const days = sampleDays[idx % sampleDays.length];
+      return {
+        project: sys,
+        days,
+        average: average(days),
+      };
+    });
+  }, [activeClientId, clientSystems]);
 
   const overallAverage = useMemo(
     () => Math.round(weekly.reduce((sum, row) => sum + row.average, 0) / (weekly.length || 1)),
@@ -50,14 +71,14 @@ export function ReportsView({ tickets, assessments, handoverCount }: ReportsView
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
     anchor.href = url;
-    anchor.download = `laporan-operasional-${new Date().toISOString().slice(0, 10)}.csv`;
+    anchor.download = `laporan-operasional-${activeClient.code.toLowerCase()}-${new Date().toISOString().slice(0, 10)}.csv`;
     anchor.click();
     URL.revokeObjectURL(url);
-    notify.success("Laporan operasional diekspor sebagai file CSV.", { id: "report-export-csv" });
+    notify.success(`Laporan operasional ${activeClient.shortName} diekspor sebagai file CSV.`, { id: "report-export-csv" });
   };
 
   const printReport = () => {
-    notify.info("Dialog cetak dibuka — simpan sebagai PDF bila diperlukan.", { id: "report-print-pdf" });
+    notify.info(`Dialog cetak laporan ${activeClient.shortName} dibuka — simpan sebagai PDF bila diperlukan.`, { id: "report-print-pdf" });
     window.setTimeout(() => window.print(), 250);
   };
 
@@ -66,10 +87,10 @@ export function ReportsView({ tickets, assessments, handoverCount }: ReportsView
       <section className="page-heading">
         <div>
           <div className="eyebrow">
-            <span className="live-dot live-dot-pulse" /> ANALITIK OPERASIONAL
+            <span className="live-dot live-dot-pulse" /> ANALITIK OPERASIONAL · {activeClient.code}
           </div>
-          <h1>Laporan</h1>
-          <p>Rekap kesehatan sistem mingguan, asesmen checkpoint, dan ringkasan tiket.</p>
+          <h1>Laporan — {activeClient.name}</h1>
+          <p>Rekap kesehatan sistem mingguan, asesmen checkpoint, dan ringkasan tiket untuk klien {activeClient.name}.</p>
         </div>
         <div className="page-actions">
           <button className="button button-secondary" onClick={printReport}>

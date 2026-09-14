@@ -1,4 +1,13 @@
-export type Tone = "critical" | "warning" | "success" | "neutral" | "info";
+export type Tone =
+  | "critical"
+  | "warning"
+  | "success"
+  | "neutral"
+  | "info"
+  | "high"
+  | "low"
+  | "orange"
+  | "teal";
 
 export type ToastTone = Tone;
 
@@ -29,6 +38,7 @@ export interface HistoricalAssessmentEntry {
   owner: string;
   verdict: "ok" | "nok";
   note: string;
+  clientId?: string;
 }
 
 export type TicketActivityType =
@@ -67,6 +77,7 @@ export interface Ticket {
   completionTime?: string;
   isStillOpen?: boolean;
   owner: string;
+  owners?: string[];
   status: string;
   created: string;
   description?: string;
@@ -80,6 +91,7 @@ export interface Ticket {
   slaTargetMinutes?: number;
   shift?: "Subuh" | "Pagi" | "Malam";
   history?: TicketHistoryEntry[];
+  clientId?: string;
 }
 
 export type HandoverState =
@@ -95,6 +107,8 @@ export type HandoverState =
 
 export interface HandoverTask {
   id: number;
+  taskTemplateId?: string | number;
+  isNewlyAdded?: boolean;
   title: string;
   project: string;
   detail: string;
@@ -152,6 +166,7 @@ export interface HandoverRecordData {
   validationNote: string;
   notes?: string;
   openTickets?: Ticket[];
+  closedTickets?: Ticket[];
   findings: HandoverFinding[];
   tasks: HandoverTask[];
   receiverEmail?: string;
@@ -185,6 +200,8 @@ export type HandoverDraft = {
   notes?: string;
   findings: HandoverFinding[];
   tasks: HandoverTask[];
+  openTickets?: Ticket[];
+  closedTickets?: Ticket[];
   receiverEmail?: string;
   monitoringExceptions?: MonitoringException[];
 };
@@ -197,6 +214,7 @@ export interface MonitoringEntry {
   state: string;
   tone: Tone;
   overview?: boolean;
+  clientId?: string;
 }
 
 export interface ProjectHealthEntry {
@@ -204,6 +222,7 @@ export interface ProjectHealthEntry {
   status: string;
   detail: string;
   tone: Tone;
+  clientId?: string;
 }
 
 export type RosterMemberStatus = "Active" | "On Break" | "Off Duty" | "On Leave";

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { X, Check, Edit3 } from "lucide-react";
 import { Modal } from "@/app/components/ui/Modal";
 import { Badge } from "@/app/components/ui/Badge";
-import { statusTone } from "@/app/components/tickets/TicketTable";
+import { severityTone, statusTone } from "@/app/components/tickets/TicketTable";
 import { nowClockLabel, seedRosterMembers } from "@/app/lib/data";
 import { useAuth } from "@/app/lib/auth";
 import { useToast } from "@/app/components/ui/Toast";
@@ -76,6 +76,7 @@ export function TicketEditModal({ open, ticket, onClose, onSave }: TicketEditMod
       status,
       category: category || undefined,
       owner: owner.trim() || ticket.owner,
+      owners: owner.trim() ? owner.trim().split(",").map((s) => s.trim()).filter(Boolean) : ticket.owners,
       description: description.trim(),
       history: [
         ...(ticket.history ?? []),
@@ -139,7 +140,10 @@ export function TicketEditModal({ open, ticket, onClose, onSave }: TicketEditMod
           </label>
 
           <label>
-            <span>PRIORITAS</span>
+            <div className="ticket-field-label-wrapper">
+              <span>PRIORITAS</span>
+              <Badge tone={severityTone(severity)}>{severity}</Badge>
+            </div>
             <select value={severity} onChange={(event) => setSeverity(event.target.value)}>
               {PRIORITY_OPTIONS.map((opt) => (
                 <option key={opt} value={opt}>

@@ -30,24 +30,41 @@ const MonitoringView = lazy(() => import("@/app/components/views/MonitoringView"
 const ShiftLogView = lazy(() => import("@/app/components/views/ShiftLogView").then((module) => ({ default: module.ShiftLogView })));
 const ReportsView = lazy(() => import("@/app/components/views/ReportsView").then((module) => ({ default: module.ReportsView })));
 const TeamRosterView = lazy(() => import("@/app/components/views/TeamRosterView").then((module) => ({ default: module.TeamRosterView })));
+const NotificationsView = lazy(() => import("@/app/components/views/NotificationsView").then((module) => ({ default: module.NotificationsView })));
+import {
+  NotificationProvider,
+  useNotifications,
+  evaluateTicketSlaStatus,
+} from "@/app/context/NotificationContext";
+import { ClientProvider, useClient } from "@/app/context/ClientContext";
+import { ALL_COMBINED_SEED_TICKETS, getClientTickets } from "@/app/lib/clientData";
 
 export default function Home() {
   return (
     <AuthProvider>
       <ToastProvider>
-        <Dashboard />
+        <ClientProvider>
+          <NotificationProvider>
+            <Dashboard />
+          </NotificationProvider>
+        </ClientProvider>
       </ToastProvider>
     </AuthProvider>
   );
 }
 
+const EMPTY_ASSESSMENTS: Record<string, CheckpointAssessment> = {};
+const EMPTY_ACKNOWLEDGED: string[] = [];
+
 function Dashboard() {
   const notify = useToast();
+  const { addNotification } = useNotifications();
+  const { activeClient, activeClientId } = useClient();
   const [activeNav, setActiveNav] = useState("Overview");
 
-  const [tickets, setTickets] = useLocalStorage<Ticket[]>("ctd.tickets", seedTickets);
-  const [assessments, setAssessments] = useLocalStorage<Record<string, CheckpointAssessment>>("ctd.checkpoints", {});
-  const [acknowledged, setAcknowledged] = useLocalStorage<string[]>("ctd.acknowledged", []);
+  const [tickets, setTickets] = useLocalStorage<Ticket[]>("ctd.tickets.v2", ALL_COMBINED_SEED_TICKETS);
+  const [assessments, setAssessments] = useLocalStorage<Record<string, CheckpointAssessment>>("ctd.checkpoints", EMPTY_ASSESSMENTS);
+  const [acknowledged, setAcknowledged] = useLocalStorage<string[]>("ctd.acknowledged", EMPTY_ACKNOWLEDGED);
 
   const [searchOpen, setSearchOpen] = useState(false);
   const [ticketModalOpen, setTicketModalOpen] = useState(false);
@@ -57,7 +74,13 @@ function Dashboard() {
   const [pendingNoteKey, setPendingNoteKey] = useState<string | null>(null);
 
   const [members, setMembers] = useState<RosterMember[]>(seedRosterMembers);
-  const handover = useHandoverWorkflow({ tickets, assessments, members });
+  
+  const clientTickets = useMemo(
+    () => getClientTickets(tickets, activeClientId),
+    [tickets, activeClientId],
+  );
+
+  const handover = useHandoverWorkflow({ tickets: clientTickets, assessments, members });
   const [loadedOverlays, setLoadedOverlays] = useState({
     ticketCreate: false,
     ticketDetail: false,
@@ -74,16 +97,12 @@ function Dashboard() {
   const currentHour = useCurrentHour();
 
   const openTicketCount = useMemo(
-    () => tickets.filter(isOpenTicket).length,
-    [tickets],
+    () => clientTickets.filter(isOpenTicket).length,
+    [clientTickets],
   );
 
-
-
   const handleNavigate = useCallback((nextNav: string) => {
-    // Preserve the current view until its on-demand chunk is ready, avoiding a
-    // blank content flash while keeping route code out of the initial bundle.
-    startTransition(() => setActiveNav(nextNav));
+    setActiveNav(nextNav);
   }, []);
 
   const handleAssess = useCallback((key: string, verdict: "ok" | "nok" | "adequate" | "not-adequate" | null) => {
@@ -121,28 +140,14 @@ function Dashboard() {
   }, [markOverlayLoaded]);
 
   useEffect(() => {
-    // Migrate or sync seed tickets if older localStorage data still has legacy 2-item history
+    // Ensure all clients' seed tickets are present
     setTickets((previous) => {
-      const target = previous.find((t) => t.id === "86d4054rh");
-      if (
-        target &&
-        target.history &&
-        target.history.length <= 2 &&
-        target.history.some((h) => h.action.includes("Status diperbarui menjadi Active"))
-      ) {
-        const seedTarget = seedTickets.find((t) => t.id === "86d4054rh");
-        if (seedTarget && seedTarget.history) {
-          return previous.map((t) =>
-            t.id === "86d4054rh"
-              ? {
-                  ...t,
-                  history: seedTarget.history,
-                  status: seedTarget.status,
-                  resolutionMinutes: seedTarget.resolutionMinutes,
-                }
-              : t,
-          );
-        }
+      const hasBni = previous.some((t) => t.clientId === "bni");
+      const hasTelkomsel = previous.some((t) => t.clientId === "telkomsel");
+      if (!hasBni || !hasTelkomsel) {
+        const existingIds = new Set(previous.map((t) => t.id));
+        const missing = ALL_COMBINED_SEED_TICKETS.filter((t) => !existingIds.has(t.id));
+        return [...previous, ...missing];
       }
       return previous;
     });
@@ -187,14 +192,16 @@ function Dashboard() {
           activeNav={activeNav}
           onOpenSearch={() => setSearchOpen(true)}
           onOpenMobileNav={() => setMobileNavOpen(true)}
-          onRefresh={() => void handover.refresh()}
+          onRefresh={() => handover.refresh()}
+          onNavigate={handleNavigate}
         />
 
         <div className="page-content">
           <Suspense fallback={<DashboardViewSkeleton />}>
             {(activeNav === "Overview" || activeNav === "Utama") && (
               <OverviewView
-                tickets={tickets}
+                tickets={clientTickets}
+                allTickets={tickets}
                 assessments={assessments}
                 acknowledged={acknowledged}
                 onAcknowledge={acknowledgeAttention}
@@ -209,6 +216,7 @@ function Dashboard() {
                 onOpenGuide={() => setGuideOpen(true)}
                 onGoToTickets={() => handleNavigate("Tickets")}
                 onGoToMonitoring={() => handleNavigate("Monitoring")}
+                onGoToNotifications={() => handleNavigate("Notifikasi")}
                 onSelectTicket={selectTicket}
                 onNewTicket={openTicketCreate}
                 onExportReport={() => {
@@ -221,7 +229,7 @@ function Dashboard() {
             )}
 
             {(activeNav === "Tickets" || activeNav === "Ticket") && (
-              <TicketsView tickets={tickets} onSelectTicket={selectTicket} onNewTicket={openTicketCreate} />
+              <TicketsView tickets={clientTickets} onSelectTicket={selectTicket} onNewTicket={openTicketCreate} />
             )}
 
             {activeNav === "Monitoring" && (
@@ -239,24 +247,35 @@ function Dashboard() {
             )}
 
             {(activeNav === "Reports" || activeNav === "Laporan") && (
-              <ReportsView tickets={tickets} assessments={assessments} handoverCount={handover.allTotal} />
+              <ReportsView tickets={clientTickets} assessments={assessments} handoverCount={handover.allTotal} />
             )}
 
             {(activeNav === "Team Roster" || activeNav === "Team" || activeNav === "Roster") && <TeamRosterView members={members} onMembersChange={setMembers} />}
+
+            {(activeNav === "Notifikasi" || activeNav === "Notifications") && (
+              <NotificationsView />
+            )}
           </Suspense>
         </div>
       </section>
 
       <Suspense fallback={null}>
         {mobileNavOpen && (
-          <MobileNav open={mobileNavOpen} onClose={() => setMobileNavOpen(false)} activeNav={activeNav} onNavigate={handleNavigate} handoverRecord={handover.record} />
+          <MobileNav
+            open={mobileNavOpen}
+            onClose={() => setMobileNavOpen(false)}
+            activeNav={activeNav}
+            onNavigate={handleNavigate}
+            handoverRecord={handover.record}
+            openTicketCount={openTicketCount}
+          />
         )}
 
         {searchOpen && (
           <CommandPalette
             open={searchOpen}
             onClose={() => setSearchOpen(false)}
-            tickets={tickets}
+            tickets={clientTickets}
             onSelectTicket={selectTicket}
             onNavigate={handleNavigate}
           />
@@ -267,8 +286,34 @@ function Dashboard() {
             open={ticketModalOpen}
             onClose={() => setTicketModalOpen(false)}
             onCreate={(ticket) => {
-              setTickets((previous) => [ticket, ...previous]);
-              notify.success(`Ticket #${ticket.id} berhasil dibuat dan dicatat.`, { id: `ticket-${ticket.id}` });
+              const ticketWithClient: Ticket = {
+                ...ticket,
+                clientId: activeClientId,
+              };
+              setTickets((previous) => [ticketWithClient, ...previous]);
+              notify.success(`Ticket #${ticket.id} berhasil dibuat dan dicatat untuk ${activeClient.shortName}.`, { id: `ticket-${ticket.id}` });
+              const slaEval = evaluateTicketSlaStatus(ticketWithClient);
+              if (slaEval.status === "breached") {
+                addNotification({
+                  title: `SLA Breach: Tiket #${ticket.id} terlampaui`,
+                  message: `Waktu penanganan (${slaEval.actualMinutes}m) melampaui SLA ${slaEval.targetMinutes}m pada tiket "${ticket.subject}".`,
+                  category: "SLA",
+                  project: ticket.project,
+                  severity: "critical",
+                  unread: true,
+                  clientId: activeClientId,
+                });
+              } else if (slaEval.status === "approaching") {
+                addNotification({
+                  title: `Peringatan SLA: Tiket #${ticket.id} mendekati batas waktu`,
+                  message: `Sisa waktu ${slaEval.remainingMinutes}m sebelum batas toleransi SLA ${slaEval.targetMinutes}m terlampaui.`,
+                  category: "SLA",
+                  project: ticket.project,
+                  severity: "warning",
+                  unread: true,
+                  clientId: activeClientId,
+                });
+              }
             }}
           />
         )}
@@ -277,16 +322,38 @@ function Dashboard() {
           <TicketDetailDrawer
             ticket={selectedTicket}
             onClose={() => setSelectedTicketId(null)}
-            onUpdate={(updated) =>
-              setTickets((previous) => previous.map((ticket) => (ticket.id === updated.id ? updated : ticket)))
-            }
+            onUpdate={(updated) => {
+              setTickets((previous) => previous.map((ticket) => (ticket.id === updated.id ? updated : ticket)));
+              const slaEval = evaluateTicketSlaStatus(updated);
+              if (slaEval.status === "breached") {
+                addNotification({
+                  title: `SLA Breach: Tiket #${updated.id} terlampaui`,
+                  message: `Waktu penanganan (${slaEval.actualMinutes}m) melampaui SLA ${slaEval.targetMinutes}m pada tiket "${updated.subject}".`,
+                  category: "SLA",
+                  project: updated.project,
+                  severity: "critical",
+                  unread: true,
+                  clientId: activeClientId,
+                });
+              } else if (slaEval.status === "approaching") {
+                addNotification({
+                  title: `Peringatan SLA: Tiket #${updated.id} mendekati batas waktu`,
+                  message: `Sisa waktu ${slaEval.remainingMinutes}m sebelum batas toleransi SLA ${slaEval.targetMinutes}m terlampaui.`,
+                  category: "SLA",
+                  project: updated.project,
+                  severity: "warning",
+                  unread: true,
+                  clientId: activeClientId,
+                });
+              }
+            }}
           />
         )}
 
         {handover.open && (
           <HandoverModal
             workflow={handover}
-            tickets={tickets}
+            tickets={clientTickets}
             onSelectTicket={selectTicket}
           />
         )}

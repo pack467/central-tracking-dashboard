@@ -108,9 +108,29 @@
 }
 
 .badge-critical {
-  color: var(--red);
-  background: var(--red-soft);
-  border: 1px solid var(--red-border);
+  color: var(--priority-critical, var(--red));
+  background: var(--priority-critical-soft, var(--red-soft));
+  border: 1px solid var(--priority-critical-border, var(--red-border));
+}
+
+.badge-high,
+.badge-orange {
+  color: var(--priority-high, #fb923c);
+  background: var(--priority-high-soft, rgba(249, 115, 22, 0.14));
+  border: 1px solid var(--priority-high-border, rgba(249, 115, 22, 0.35));
+}
+
+.badge-warning {
+  color: var(--priority-medium, var(--orange));
+  background: var(--priority-medium-soft, var(--orange-soft));
+  border: 1px solid var(--priority-medium-border, var(--orange-border));
+}
+
+.badge-low,
+.badge-teal {
+  color: var(--priority-low, #2dd4bf);
+  background: var(--priority-low-soft, rgba(45, 212, 191, 0.14));
+  border: 1px solid var(--priority-low-border, rgba(45, 212, 191, 0.35));
 }
 
 .badge-info {
@@ -126,84 +146,1452 @@
 }
 
 /* ═══════════════════════════════════════════════
-   HEALTH STRIP
+   HEALTH STRIP (Two-Row Stacked Layout)
 ═══════════════════════════════════════════════ */
-.health-strip {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  padding: 12px 18px;
+.health-strip,
+.health-strip.health-strip-roomy,
+.health-strip.health-strip-two-rows,
+.health-strip.health-strip-single-row {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px;
+  padding: 14px 18px; /* Generous vertical & horizontal padding */
   margin-bottom: 20px;
   background: var(--panel-bg);
   border: 1px solid var(--panel-border);
   border-radius: 10px;
   box-shadow: var(--shadow-panel);
-  overflow: hidden;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.health-intro {
-  min-width: 170px;
-  padding-right: 18px;
-  border-right: 1px solid var(--line);
+/* ── Row 1: Title, Badge, Filter Tabs, and Pagination Controls ── */
+.health-strip-row-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  flex-wrap: nowrap !important;
+  white-space: nowrap;
 }
 
-.health-title {
-  display: block;
-  margin-bottom: 6px;
+.health-top-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+  flex-wrap: nowrap !important;
+  white-space: nowrap;
+}
+
+.health-top-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  margin-left: auto;
+  flex-wrap: nowrap !important;
+  white-space: nowrap;
+}
+
+/* Title & Simulation Badge Group */
+.health-group-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.health-group-title .health-title {
+  display: inline-block;
   color: var(--ink-muted);
-  font-size: 10px;
+  font-size: 11px; /* Matches .client-status-title */
   font-weight: 700;
   letter-spacing: 0.8px;
   font-family: var(--font-mono);
   text-transform: uppercase;
+  white-space: nowrap;
+  line-height: 1;
 }
 
-.health-intro .badge {
-  margin-right: 4px;
+.health-sim-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4.5px;
+  padding: 2.5px 7.5px;
+  border-radius: 5px;
+  font-size: 10.5px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--ink-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  line-height: 1.2;
 }
 
-.project-pills {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(105px, 1fr));
+.health-sim-pill:hover,
+.health-sim-pill.active {
+  background: rgba(56, 189, 248, 0.16);
+  border-color: rgba(56, 189, 248, 0.4);
+  color: var(--accent-blue);
+}
+
+.health-group-divider {
+  width: 1px;
+  height: 20px;
+  background: var(--line);
+  margin: 0 2px;
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+
+.health-group-filters {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* ── Row 2: Only Service Chips Carousel Track ── */
+.health-strip-row-chips {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  padding-top: 2px;
+}
+
+.health-carousel-viewport {
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.health-carousel-track {
+  display: flex;
+  width: 100%;
+  will-change: transform;
+}
+
+.health-carousel-page {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
   gap: 10px;
+  width: 100%;
+  min-width: 100%;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  flex-wrap: nowrap !important;
+}
+
+/* Service Chips: Fills available row width when populated, capped at natural max-width for low counts */
+.health-carousel-page .service-health-chip {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 260px;
+  box-sizing: border-box;
+}
+
+.health-carousel-page .service-health-chip .service-chip-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: none;
+}
+
+.health-carousel-page .service-health-chip .service-chip-dot {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.service-track-empty {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  color: var(--ink-muted);
+  padding: 4px 8px;
+}
+
+/* Modal for All Services ("Lihat Semua") */
+.service-all-modal-card {
+  width: 100%;
+  max-width: 680px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.8), 0 0 1px 1px rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  animation: slideUp 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.service-all-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg);
+}
+
+.service-all-modal-body {
+  padding: 16px 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.service-all-controls-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.service-all-modal-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 5px 10px;
+  min-width: 220px;
+}
+
+.service-all-modal-search input {
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 11.5px;
+  color: var(--ink-primary);
+  width: 100%;
+}
+
+.service-all-chips-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+  align-items: center;
+  padding-top: 4px;
+}
+
+/* Service Health Grid (Flex Wrap Layout) */
+.service-health-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+  align-items: center;
   flex: 1;
   min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.project-pill {
+/* Compact Status Chip / Pill - Roomy & Comfortable */
+.service-health-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  max-width: 220px;
+  min-width: 0;
+  padding: 4px 12px 4px 6px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--ink-secondary);
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
   position: relative;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  user-select: none;
+  box-sizing: border-box;
+  flex: 0 1 auto;
+  white-space: nowrap;
+}
+
+.service-health-chip:hover {
+  /* No floating, no lift, no shadow, no scale transform */
+  border-color: rgba(255, 255, 255, 0.24);
+  background: rgba(255, 255, 255, 0.06);
+  z-index: 10;
+}
+
+.service-health-chip:focus-visible {
+  outline: none;
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.35);
+  z-index: 10;
+}
+
+/* Service Short Code / Avatar Icon */
+.service-chip-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  font-size: 9.5px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--ink-primary);
+  flex-shrink: 0;
+  letter-spacing: -0.2px;
+}
+
+.service-chip-mark .project-mark {
+  width: 22px;
+  height: 22px;
+  font-size: 9.5px;
+  border-radius: 4px;
+  display: inline-grid;
+  place-items: center;
+}
+
+/* Service Name (Auto-sized, max-width with ellipsis truncation) */
+.service-chip-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 140px;
+  line-height: 1.2;
+}
+
+/* Colored Status Dot */
+.service-chip-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 99px;
+  flex-shrink: 0;
+}
+
+/* Style Differentiation by Status */
+/* 1. Healthy (Green dot): default/neutral border & subtle bg */
+.service-health-chip.chip-success {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--ink-secondary);
+}
+.service-health-chip.chip-success:hover,
+.service-health-chip.chip-success.active {
+  border-color: rgba(255, 255, 255, 0.24);
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--ink-primary);
+}
+.service-health-chip.chip-success .service-chip-dot {
+  background: #22c55e;
+  box-shadow: 0 0 6px rgba(34, 197, 94, 0.55);
+}
+
+/* 2. Warning (Yellow/amber dot): amber-tinted border/background */
+.service-health-chip.chip-warning {
+  border-color: rgba(245, 158, 11, 0.4);
+  background: rgba(245, 158, 11, 0.08);
+  color: #fbbf24;
+}
+.service-health-chip.chip-warning:hover,
+.service-health-chip.chip-warning.active {
+  border-color: rgba(245, 158, 11, 0.65);
+  background: rgba(245, 158, 11, 0.16);
+  color: #fef08a;
+}
+.service-health-chip.chip-warning .service-chip-mark {
+  background: rgba(245, 158, 11, 0.22);
+  color: #fef08a;
+}
+.service-health-chip.chip-warning .service-chip-dot {
+  background: #f59e0b;
+  box-shadow: 0 0 7px rgba(245, 158, 11, 0.75);
+}
+
+/* 3. Critical (Red dot): red-tinted border/background */
+.service-health-chip.chip-critical {
+  border-color: rgba(239, 68, 68, 0.45);
+  background: rgba(239, 68, 68, 0.1);
+  color: #f87171;
+}
+.service-health-chip.chip-critical:hover,
+.service-health-chip.chip-critical.active {
+  border-color: rgba(239, 68, 68, 0.7);
+  background: rgba(239, 68, 68, 0.18);
+  color: #fecaca;
+}
+.service-health-chip.chip-critical .service-chip-mark {
+  background: rgba(239, 68, 68, 0.24);
+  color: #fecaca;
+}
+.service-health-chip.chip-critical .service-chip-dot {
+  background: #ef4444;
+  box-shadow: 0 0 7px rgba(239, 68, 68, 0.85);
+}
+
+/* Rich Hover Tooltip */
+.service-chip-tooltip {
+  position: absolute;
+  bottom: calc(100% + 9px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  min-width: 220px;
+  max-width: 290px;
+  padding: 8px 11px;
+  border-radius: 7px;
+  background: #090d16;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 10px 24px -4px rgba(0, 0, 0, 0.8), 0 0 1px 1px rgba(255, 255, 255, 0.08);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  z-index: 999;
+  transition: opacity 0.16s ease, transform 0.16s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.16s ease;
+  white-space: normal;
+  text-align: left;
+  line-height: 1.35;
+}
+
+.service-health-chip:hover .service-chip-tooltip,
+.service-health-chip:focus-visible .service-chip-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+.service-chip-tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 5px;
+  border-style: solid;
+  border-color: #090d16 transparent transparent transparent;
+}
+
+.service-chip-tooltip-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.service-chip-tooltip-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.service-chip-tooltip-status {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1.5px 5px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  font-family: var(--font-mono);
+}
+
+.service-chip-tooltip-status.status-success {
+  background: rgba(34, 197, 94, 0.18);
+  color: #4ade80;
+  border: 1px solid rgba(34, 197, 94, 0.35);
+}
+
+.service-chip-tooltip-status.status-warning {
+  background: rgba(245, 158, 11, 0.18);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+}
+
+.service-chip-tooltip-status.status-critical,
+.service-chip-tooltip-status.status-danger {
+  background: rgba(239, 68, 68, 0.18);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+}
+
+.service-chip-tooltip-desc {
+  display: block;
+  font-size: 10px;
+  color: #cbd5e1;
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.service-chip-tooltip-hint {
+  display: block;
+  margin-top: 5px;
+  padding-top: 4px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 9px;
+  color: #94a3b8;
+  font-family: var(--font-mono);
+}
+
+/* Service Detail Modal */
+.service-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  display: grid;
+  place-items: center;
+  z-index: 1000;
+  padding: 16px;
+  animation: fadeIn 0.15s ease;
+}
+
+.service-modal-card {
+  width: 100%;
+  max-width: 620px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.7), 0 0 1px 1px rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  animation: slideUp 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.service-modal-body {
+  overflow-y: auto;
+  max-height: calc(90vh - 120px);
+  padding: 16px 0 8px;
+}
+
+/* Sub-panel Containers (Problem Location, Tasks, Tickets) */
+.service-subpanel {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin: 0 18px 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-sizing: border-box;
+}
+
+.service-subpanel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.subpanel-title-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-family: var(--font-mono);
+}
+
+.subpanel-title-group .icon-warn {
+  color: #fbbf24;
+}
+.subpanel-title-group .icon-ok {
+  color: #4ade80;
+}
+
+.subpanel-counter {
+  font-size: 10px;
+  color: var(--ink-muted);
+  font-weight: 600;
+}
+
+.service-panel-header-link {
+  background: transparent;
+  border: none;
+  padding: 0;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--accent-blue);
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+.service-panel-header-link:hover {
+  color: #60a5fa;
+  text-decoration: underline;
+}
+
+/* 1. Problem Location / Root Cause Styles */
+.problem-location-panel.panel-warning {
+  border-color: rgba(245, 158, 11, 0.35);
+  background: color-mix(in srgb, rgba(245, 158, 11, 0.05) 100%, var(--bg));
+}
+
+.problem-location-panel.panel-critical {
+  border-color: rgba(239, 68, 68, 0.4);
+  background: color-mix(in srgb, rgba(239, 68, 68, 0.06) 100%, var(--bg));
+}
+
+.problem-location-panel.panel-success {
+  border-color: rgba(34, 197, 94, 0.25);
+  background: color-mix(in srgb, rgba(34, 197, 94, 0.03) 100%, var(--bg));
+}
+
+.problem-severity-badge {
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 1.5px 6px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+}
+
+.problem-severity-badge.sev-warning {
+  background: rgba(245, 158, 11, 0.16);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+}
+
+.problem-severity-badge.sev-critical {
+  background: rgba(239, 68, 68, 0.16);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+}
+
+.problem-severity-badge.sev-success {
+  background: rgba(34, 197, 94, 0.16);
+  color: #4ade80;
+  border: 1px solid rgba(34, 197, 94, 0.35);
+}
+
+.problem-location-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.problem-component-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.problem-component-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-primary);
+  font-family: var(--font-mono);
+}
+
+.problem-dep-tag {
+  font-size: 9.5px;
+  font-weight: 600;
+  color: var(--ink-muted);
+  background: rgba(255, 255, 255, 0.06);
+  padding: 1.5px 6px;
+  border-radius: 4px;
+}
+
+.problem-desc {
+  margin: 0;
+  font-size: 11.5px;
+  color: var(--ink-secondary);
+  line-height: 1.45;
+  word-break: break-word;
+}
+
+.problem-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10.5px;
+  padding-top: 5px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.08);
+}
+
+.problem-meta-row .meta-label {
+  color: var(--ink-muted);
+  font-weight: 600;
+}
+
+.problem-meta-row .meta-value {
+  color: #fca5a5;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 2. Related Tasks Styles */
+.service-tasks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.service-task-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 7px 10px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  box-sizing: border-box;
+  transition: all 0.15s ease;
+}
+
+.service-task-row:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.12);
+  transform: none;
+  box-shadow: none;
+}
+
+.service-task-left {
   display: flex;
   align-items: center;
   gap: 8px;
   min-width: 0;
-  padding: 6px 8px;
+  flex: 1;
+}
+
+.task-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 99px;
+  flex-shrink: 0;
+}
+.task-status-dot.dot-done {
+  background: #4ade80;
+  box-shadow: 0 0 5px rgba(74, 222, 128, 0.5);
+}
+.task-status-dot.dot-in-progress {
+  background: #38bdf8;
+  box-shadow: 0 0 5px rgba(56, 189, 248, 0.5);
+}
+.task-status-dot.dot-pending {
+  background: #fbbf24;
+  box-shadow: 0 0 5px rgba(251, 191, 36, 0.5);
+}
+
+.service-task-title {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--ink-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.service-task-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.service-task-assignee {
+  display: inline-flex;
+  align-items: center;
+  gap: 3.5px;
+  font-size: 10px;
+  color: var(--ink-muted);
+}
+
+.service-task-badge {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1.5px 5.5px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+}
+.service-task-badge.badge-done {
+  background: rgba(34, 197, 94, 0.14);
+  color: #4ade80;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+.service-task-badge.badge-in-progress {
+  background: rgba(56, 189, 248, 0.14);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+.service-task-badge.badge-pending {
+  background: rgba(245, 158, 11, 0.14);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+/* 3. Open Tickets Styles */
+.service-tickets-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.service-ticket-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 7px 10px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  cursor: pointer;
   text-align: left;
-  background: var(--bg);
-  border: 1px solid var(--line);
-  border-radius: 7px;
+  width: 100%;
+  box-sizing: border-box;
   transition: all 0.15s ease;
 }
 
-.project-pill:hover {
+.service-ticket-row:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.12);
+  transform: none;
+  box-shadow: none;
+}
+
+.service-ticket-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+}
+
+.service-ticket-id {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  padding: 1.5px 5.5px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.service-ticket-title {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--ink-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.service-ticket-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.ticket-sev-badge {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1.5px 5px;
+  border-radius: 3.5px;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+}
+.ticket-sev-badge.sev-critical {
+  background: rgba(239, 68, 68, 0.16);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+}
+.ticket-sev-badge.sev-high {
+  background: rgba(249, 115, 22, 0.16);
+  color: #fb923c;
+  border: 1px solid rgba(249, 115, 22, 0.35);
+}
+.ticket-sev-badge.sev-medium {
+  background: rgba(245, 158, 11, 0.16);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+}
+.ticket-sev-badge.sev-low {
+  background: rgba(148, 163, 184, 0.16);
+  color: #cbd5e1;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+}
+
+.ticket-status-pill {
+  font-size: 9px;
+  font-weight: 600;
+  padding: 1.5px 5px;
+  border-radius: 3.5px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--ink-muted);
+}
+.ticket-status-pill.st-open {
+  background: rgba(56, 189, 248, 0.12);
+  color: #7dd3fc;
+}
+.ticket-status-pill.st-escalated {
+  background: rgba(168, 85, 247, 0.14);
+  color: #d8b4fe;
+}
+.ticket-status-pill.st-in-progress {
+  background: rgba(245, 158, 11, 0.14);
+  color: #fde047;
+}
+
+.row-chevron {
+  color: var(--ink-muted);
+  opacity: 0.6;
+  transition: color 0.15s ease;
+}
+.service-task-row:hover .row-chevron,
+.service-ticket-row:hover .row-chevron {
+  opacity: 1;
+  color: var(--ink-primary);
+  transform: none;
+}
+
+/* Empty State */
+.service-panel-empty {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: rgba(34, 197, 94, 0.05);
+  border: 1px solid rgba(34, 197, 94, 0.18);
+  color: #4ade80;
+}
+
+.service-panel-empty .empty-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5px;
+  font-size: 11px;
+}
+
+.service-panel-empty .empty-text span {
+  font-weight: 600;
+  color: #86efac;
+}
+
+.service-panel-empty .empty-text small {
+  color: var(--ink-muted);
+  font-size: 9.5px;
+}
+
+.service-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg);
+}
+
+.service-modal-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.service-modal-mark .project-mark {
+  width: 32px;
+  height: 32px;
+  font-size: 13px;
+  border-radius: 6px;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+}
+
+.service-modal-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink-primary);
+}
+
+.service-modal-subtitle {
+  font-size: 11px;
+  color: var(--ink-muted);
+}
+
+.service-modal-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.service-modal-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.service-modal-badge.badge-success {
+  background: rgba(34, 197, 94, 0.15);
+  color: #4ade80;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.service-modal-badge.badge-warning {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+}
+
+.service-modal-badge.badge-critical,
+.service-modal-badge.badge-danger {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+}
+
+.service-modal-close {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.service-modal-close:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--ink-primary);
+}
+/* ── Service Modal Banner (Keterangan Status Operasional) ── */
+.service-modal-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 0 18px 12px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+.service-modal-banner.banner-success {
+  background: rgba(34, 197, 94, 0.08);
+  border: 1px solid rgba(34, 197, 94, 0.25);
+  color: #86efac;
+}
+
+.service-modal-banner.banner-warning {
+  background: rgba(245, 158, 11, 0.09);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  color: #fde047;
+}
+
+.service-modal-banner.banner-critical,
+.service-modal-banner.banner-danger {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #fca5a5;
+}
+
+.service-modal-banner-icon {
+  margin-top: 1px;
+}
+
+.service-modal-banner-text strong {
+  display: block;
+  font-size: 11.5px;
+  margin-bottom: 2px;
+  color: inherit;
+}
+
+.service-modal-banner-text p {
+  margin: 0;
+  font-size: 12px;
+  color: var(--ink-primary);
+  line-height: 1.4;
+}
+/* ── Service Alert Strip (For Degraded State) ── */
+.service-alert-strip {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 18px 14px;
+  padding: 10px 14px;
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.28);
+  border-radius: 8px;
+  font-size: 11.5px;
+  color: #fbbf24;
+  line-height: 1.45;
+  box-sizing: border-box;
+}
+
+.service-alert-strip strong {
+  color: #fef08a;
+  font-weight: 700;
+}
+
+/* ── Monitoring Checkpoint List Rows in Service Modal ── */
+.service-checkpoint-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 7px 10px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-size: 11.5px;
+  transition: all 0.15s ease;
+}
+
+.service-checkpoint-row:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.15);
+  transform: none;
+  box-shadow: none;
+}
+
+.checkpoint-time-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10.5px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--accent-blue);
+  background: rgba(56, 189, 248, 0.1);
+  border: 1px solid rgba(56, 189, 248, 0.22);
+  padding: 2px 6px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.checkpoint-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.checkpoint-task-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.checkpoint-pic {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  color: var(--ink-muted);
+}
+
+.checkpoint-pic strong {
+  color: var(--ink-secondary);
+}
+
+/* ── Checkpoint Anomalies from Previous Shift ── */
+.service-anomaly-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.service-anomaly-card {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 9px 12px;
+  background: rgba(239, 68, 68, 0.04);
+  border: 1px solid rgba(239, 68, 68, 0.28);
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+
+.service-anomaly-card:hover {
+  background: rgba(239, 68, 68, 0.07);
+  border-color: rgba(239, 68, 68, 0.38);
+  transform: none;
+  box-shadow: none;
+}
+
+/* Zero-elevation guarantee: No lift/floating/translate/shadow effect on hover in service detail modal */
+.service-modal-card .service-anomaly-card,
+.service-modal-card .service-task-row,
+.service-modal-card .service-ticket-row,
+.service-modal-card .service-checkpoint-row,
+.service-modal-card .service-alert-strip,
+.service-modal-card .service-subpanel {
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.service-modal-card .service-anomaly-card:hover,
+.service-modal-card .service-task-row:hover,
+.service-modal-card .service-ticket-row:hover,
+.service-modal-card .service-checkpoint-row:hover,
+.service-modal-card .service-alert-strip:hover,
+.service-modal-card .service-subpanel:hover {
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.anomaly-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.anomaly-time-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: #f87171;
+  background: rgba(239, 68, 68, 0.12);
+  padding: 1.5px 6px;
+  border-radius: 4px;
+}
+
+.anomaly-sev-badge {
+  font-size: 9px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  padding: 1.5px 6px;
+  border-radius: 4px;
+  background: rgba(239, 68, 68, 0.18);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  text-transform: uppercase;
+}
+
+.anomaly-task-name {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--ink-primary);
+}
+
+.anomaly-detail-note {
+  font-size: 11px;
+  color: #fca5a5;
+  line-height: 1.4;
+}
+
+.anomaly-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--ink-muted);
+  padding-top: 4px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.08);
+}
+
+.anomaly-pic {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.anomaly-pic strong {
+  color: var(--ink-secondary);
+}
+
+/* ── Modal Footer with Quick Actions ── */
+.service-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 18px;
+  border-top: 1px solid var(--line);
+  background: var(--bg);
+  flex-wrap: wrap;
+}
+
+.service-footer-tools {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.service-footer-tool-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 4.5px 8px;
+  border-radius: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--ink-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-decoration: none;
+}
+
+.service-footer-tool-btn:hover {
+  background: rgba(56, 189, 248, 0.12);
+  border-color: rgba(56, 189, 248, 0.35);
+  color: var(--accent-blue);
+}
+
+.service-footer-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.service-modal-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.service-modal-action-btn.btn-secondary {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--line);
+  color: var(--ink-primary);
+}
+.service-modal-action-btn.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.service-modal-action-btn.btn-primary {
+  background: var(--accent-blue);
+  color: #fff;
+}
+.service-modal-action-btn.btn-primary:hover {
+  filter: brightness(1.1);
+}
+
+.service-modal-action-btn.btn-outline {
+  background: transparent;
+  border-color: var(--line);
+  color: var(--ink-secondary);
+}
+.service-modal-action-btn.btn-outline:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--ink-primary);
+}
+
+/* Fallback / legacy support */
+.project-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.project-pill,
+.service-health-card {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 4px 10px;
+  text-align: left;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  overflow: hidden;
+  transition: all 0.15s ease;
+}
+
+.project-pill:hover,
+.service-health-card:hover {
   border-color: var(--accent-blue-border);
   background: var(--panel-bg-hover);
 }
 
-.project-pill strong {
-  display: block;
-  color: var(--ink-primary);
-  font-size: 12px;
-  font-weight: 600;
+.project-pill-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
 }
 
-.project-pill small {
+.project-pill strong,
+.project-pill-name {
+  display: block;
+  color: var(--ink-primary);
+  font-size: 11.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.25;
+}
+
+.project-pill small,
+.project-pill-detail,
+.service-health-desc {
   display: block;
   overflow: hidden;
-  margin-top: 1px;
+  margin-top: 1.5px;
   color: var(--ink-muted);
   font-size: 9.5px;
   text-overflow: ellipsis;
   white-space: nowrap;
+  line-height: 1.3;
 }
 
 .status-dot {
@@ -219,12 +1607,15 @@
 .status-dot.critical { background: var(--red); }
 .status-dot.neutral { background: var(--ink-muted); }
 
-.project-pill > .status-dot {
+.project-pill > .status-dot,
+.service-health-card > .status-dot {
   position: absolute;
-  right: 7px;
-  top: 7px;
-  width: 6px;
-  height: 6px;
+  right: 9px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 7px;
+  height: 7px;
+  flex-shrink: 0;
 }
 
 .project-mark {

@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect } from "react";
-import { Users } from "lucide-react";
 import { BrandLogo } from "@/app/components/ui/BrandLogo";
-import { navItems } from "./Sidebar";
+import { operationalNavItems, managementNavItems } from "./Sidebar";
 import { useActiveShift } from "@/app/hooks/useLiveClock";
+import { useNotifications } from "@/app/context/NotificationContext";
 import type { HandoverRecordData } from "@/app/lib/types";
 
 interface MobileNavProps {
@@ -13,10 +13,19 @@ interface MobileNavProps {
   activeNav: string;
   onNavigate: (label: string) => void;
   handoverRecord: HandoverRecordData;
+  openTicketCount?: number;
 }
 
-export function MobileNav({ open, onClose, activeNav, onNavigate, handoverRecord }: MobileNavProps) {
+export function MobileNav({
+  open,
+  onClose,
+  activeNav,
+  onNavigate,
+  handoverRecord,
+  openTicketCount = 0,
+}: MobileNavProps) {
   const activeShift = useActiveShift();
+  const { unreadCount: unreadNotifCount } = useNotifications();
 
   useEffect(() => {
     if (!open) return;
@@ -28,6 +37,17 @@ export function MobileNav({ open, onClose, activeNav, onNavigate, handoverRecord
   }, [open, onClose]);
 
   if (!open) return null;
+
+  const isItemActive = (label: string) => {
+    if (activeNav === label) return true;
+    if ((activeNav === "Utama" || activeNav === "Overview") && label === "Overview") return true;
+    if ((activeNav === "Ticket" || activeNav === "Tickets") && label === "Tickets") return true;
+    if ((activeNav === "Log shift" || activeNav === "Shift Log") && label === "Shift Log") return true;
+    if ((activeNav === "Laporan" || activeNav === "Reports") && label === "Reports") return true;
+    if ((activeNav === "Notifications" || activeNav === "Notifikasi") && label === "Notifikasi") return true;
+    if (activeNav === "Team Roster" && label === "Team Roster") return true;
+    return false;
+  };
 
   return (
     <div
@@ -45,16 +65,45 @@ export function MobileNav({ open, onClose, activeNav, onNavigate, handoverRecord
           </button>
         </div>
 
-        <div className="sidebar-label">WORKSPACE</div>
+        {/* ── Section 1: Operasional ── */}
+        <div className="sidebar-label">OPERASIONAL</div>
         <div className="nav-list">
-          {navItems.map((item) => {
+          {operationalNavItems.map((item) => {
             const Icon = item.icon;
-            const isActive =
-              activeNav === item.label ||
-              (activeNav === "Utama" && item.label === "Overview") ||
-              (activeNav === "Ticket" && item.label === "Tickets") ||
-              (activeNav === "Log shift" && item.label === "Shift Log") ||
-              (activeNav === "Laporan" && item.label === "Reports");
+            const isActive = isItemActive(item.label);
+
+            return (
+              <button
+                key={item.label}
+                className={`nav-item ${isActive ? "active" : ""}`}
+                onClick={() => {
+                  onNavigate(item.label);
+                  onClose();
+                }}
+              >
+                <span className="nav-icon" aria-hidden="true">
+                  <Icon size={18} strokeWidth={1.8} aria-hidden="true" />
+                </span>
+                <span>{item.label}</span>
+                {item.label === "Tickets" && openTicketCount > 0 && (
+                  <span className="nav-count" suppressHydrationWarning>{openTicketCount}</span>
+                )}
+                {item.label === "Notifikasi" && unreadNotifCount > 0 && (
+                  <span className="nav-count" suppressHydrationWarning>{unreadNotifCount}</span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* ── Section 2: Manajemen ── */}
+        <div className="sidebar-label sidebar-label-lower" style={{ paddingTop: "14px" }}>
+          MANAJEMEN
+        </div>
+        <div className="nav-list">
+          {managementNavItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = isItemActive(item.label);
 
             return (
               <button
@@ -74,22 +123,7 @@ export function MobileNav({ open, onClose, activeNav, onNavigate, handoverRecord
           })}
         </div>
 
-        <div className="sidebar-label sidebar-label-lower" style={{ paddingTop: "14px" }}>OPERATIONS</div>
-        <div className="nav-list">
-          <button
-            className={`nav-item ${activeNav === "Team Roster" ? "active" : ""}`}
-            onClick={() => {
-              onNavigate("Team Roster");
-              onClose();
-            }}
-          >
-            <span className="nav-icon" aria-hidden="true">
-              <Users size={18} strokeWidth={1.8} aria-hidden="true" />
-            </span>
-            <span>Team Roster</span>
-          </button>
-        </div>
-
+        {/* ── Bottom Active Shift Card ── */}
         <section className={`shift-card shift-card-${activeShift.id}`}>
           <div className="shift-card-top">
             <span className="live-dot live-dot-pulse" /> ACTIVE SHIFT

@@ -105,6 +105,8 @@ export function HandoverWizard({
         ...previous.tasks,
         {
           id: newId,
+          taskTemplateId: `custom-${newId}`,
+          isNewlyAdded: true,
           title: "",
           project: "NOC",
           detail: "",
@@ -286,6 +288,7 @@ export function HandoverWizard({
                     <DatePicker
                       value={draft.date}
                       onChange={(date) => onDraftChange((prev) => ({ ...prev, date }))}
+                      mode="single"
                       required
                     />
                   </label>

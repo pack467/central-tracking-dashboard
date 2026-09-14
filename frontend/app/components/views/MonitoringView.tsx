@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import {
   CheckCircle2,
   AlertTriangle,
@@ -15,12 +15,13 @@ import {
   Check,
   X,
 } from "lucide-react";
-import { MonitoringSchedule, rowKey, matchesSystem } from "@/app/components/dashboard/MonitoringSchedule";
+import { MonitoringSchedule, rowKey, matchesProject } from "@/app/components/dashboard/MonitoringSchedule";
 import { MonitoringHistorySection } from "@/app/components/monitoring/MonitoringHistorySection";
 import { StatCard, type StatAccentColor } from "@/app/components/ui/StatCard";
-import { monitoringSchedule, monitoringSystems } from "@/app/lib/data";
 import { useActiveShift } from "@/app/hooks/useLiveClock";
 import type { CheckpointAssessment } from "@/app/lib/types";
+import { useClient } from "@/app/context/ClientContext";
+import { getClientMonitoringSchedule, getClientProjects } from "@/app/lib/clientData";
 
 interface MonitoringViewProps {
   assessments: Record<string, CheckpointAssessment>;
@@ -37,9 +38,18 @@ export function MonitoringView({
   onOpenGuide,
   currentHour,
 }: MonitoringViewProps) {
+  const { activeClient, activeClientId } = useClient();
+  const schedule = useMemo(() => getClientMonitoringSchedule(activeClientId), [activeClientId]);
+  const projects = useMemo(() => getClientProjects(activeClientId), [activeClientId]);
+
   const activeShift = useActiveShift();
-  const shiftAccent: StatAccentColor = activeShift.id === "subuh" ? "gray" : activeShift.id === "pagi" ? "amber" : "purple";
-  const [selectedSystem, setSelectedSystem] = useState<string | null>(null);
+  const shiftAccent: StatAccentColor = activeShift.id === "subuh" ? "blue" : activeShift.id === "pagi" ? "amber" : "purple";
+  const [selectedProject, setSelectedProject] = useState<string | null>(null);
+
+  // Auto-reset project filter when active client changes
+  useEffect(() => {
+    setSelectedProject(null);
+  }, [activeClientId]);
 
   // Assessed entries list
   const assessedEntries = useMemo(
@@ -48,18 +58,18 @@ export function MonitoringView({
         .map(([key, assessment]) => ({
           key,
           assessment,
-          entry: monitoringSchedule.find((item) => rowKey(item) === key),
+          entry: schedule.find((item) => rowKey(item) === key),
         }))
         .filter(
-          (item): item is { key: string; assessment: CheckpointAssessment; entry: (typeof monitoringSchedule)[number] } =>
+          (item): item is { key: string; assessment: CheckpointAssessment; entry: (typeof schedule)[number] } =>
             Boolean(item.entry),
         )
         .reverse(),
-    [assessments],
+    [assessments, schedule],
   );
 
   // Summary Metrics
-  const totalCheckpoints = monitoringSchedule.length;
+  const totalCheckpoints = schedule.length;
   const adequateCount = assessedEntries.filter(
     (item) => item.assessment.verdict === "ok" || item.assessment.verdict === "adequate",
   ).length;
@@ -73,12 +83,13 @@ export function MonitoringView({
   const nokRate = totalAssessed > 0 ? Math.round((notAdequateCount / totalAssessed) * 100) : 0;
   const completedPct = Math.round((totalAssessed / totalCheckpoints) * 100);
 
-  const hours = useMemo(() => Array.from(new Set(monitoringSchedule.map((item) => item.time))), []);
+  const hours = useMemo(() => Array.from(new Set(schedule.map((item) => item.time))), [schedule]);
 
-  // System breakdown stats with health and OK/NOK breakdown
-  const systemStats = useMemo(() => {
-    return monitoringSystems.map((system) => {
-      const items = monitoringSchedule.filter((item) => matchesSystem(`${item.task} ${item.project}`, system));
+  // Project breakdown stats with health and OK/NOK breakdown
+  const projectStats = useMemo(() => {
+    return projects.map((projEntry) => {
+      const projectName = projEntry.name;
+      const items = schedule.filter((item) => matchesProject(item.project, projectName));
       const total = items.length;
 
       let okCount = 0;
@@ -99,27 +110,38 @@ export function MonitoringView({
       const hasNok = nokCount > 0;
 
       return {
-        system,
+        project: projectName,
+        detail: projEntry.detail,
         total,
         okCount,
         nokCount,
         hasNok,
       };
     });
-  }, [assessments]);
+  }, [projects, schedule, assessments]);
 
-  // System icon helper
-  const getSystemIcon = (sys: string) => {
-    switch (sys) {
-      case "ActiveMQ":
+  // Project icon helper
+  const getProjectIcon = (name: string) => {
+    switch (name) {
+      case "Core Banking":
+      case "OCS Billing":
+      case "SM":
         return <Server size={14} />;
-      case "Kafka":
+      case "Switching ATM":
+      case "SMSC Core":
+      case "B2B":
         return <Radio size={14} />;
-      case "Grafana":
+      case "BNI Mobile":
+      case "MyTelkomsel":
+      case "MB":
         return <Activity size={14} />;
-      case "Graylog":
+      case "Fraud Shield":
+      case "5G Edge":
+      case "USIEM":
         return <Cpu size={14} />;
-      case "Disk Usage":
+      case "Card Mgmt":
+      case "HLR/HSS":
+      case "DM":
         return <HardDrive size={14} />;
       default:
         return <Layers size={14} />;
@@ -132,10 +154,10 @@ export function MonitoringView({
       <section className="page-heading">
         <div>
           <div className="eyebrow">
-            <span className="live-dot live-dot-pulse" /> CHECKPOINT &amp; PEMERIKSAAN · {activeShift.label.toUpperCase()}
+            <span className="live-dot live-dot-pulse" /> CHECKPOINT &amp; PEMERIKSAAN · {activeClient.name.toUpperCase()} · {activeShift.label.toUpperCase()}
           </div>
-          <h1>Monitoring</h1>
-          <p>Matriks pemeriksaan per jam, evaluasi status OK / NOK, dan pencatatan riwayat anomali.</p>
+          <h1>Monitoring — {activeClient.shortName}</h1>
+          <p>Matriks pemeriksaan per jam, evaluasi status OK / NOK, dan riwayat anomali untuk sistem {activeClient.name}.</p>
         </div>
         <div className="page-actions">
           <button className="button button-secondary" onClick={onOpenGuide}>
@@ -215,38 +237,40 @@ export function MonitoringView({
         />
       </section>
 
-      {/* ── 2. System Breakdown Row (ActiveMQ, Kafka, Grafana, Graylog, Disk Usage) ── */}
-      <section className="system-breakdown-section" aria-label="Cakupan sistem monitoring">
+      {/* ── 2. Project / Service Breakdown Row ── */}
+      <section className="system-breakdown-section" aria-label="Cakupan proyek dan layanan monitoring">
         <div className="system-breakdown-header">
           <span className="system-breakdown-title">
-            Status Berdasarkan Sistem ({monitoringSystems.length} Terpantau)
+            Status Berdasarkan Proyek/Layanan ({projects.length} Terpantau)
           </span>
           <span className="system-breakdown-hint">
-            {selectedSystem ? `Memfilter jadwal: ${selectedSystem} (Klik lagi untuk reset)` : "Klik sistem untuk memfilter tabel jadwal di bawah"}
+            {selectedProject
+              ? `Memfilter jadwal: ${selectedProject} (Klik lagi untuk reset)`
+              : "Klik proyek untuk memfilter tabel jadwal di bawah"}
           </span>
         </div>
 
         <div className="system-cards-grid">
-          {systemStats.map(({ system, total, okCount, nokCount, hasNok }) => {
-            const isSelected = selectedSystem === system;
+          {projectStats.map(({ project, total, okCount, nokCount, hasNok }) => {
+            const isSelected = selectedProject?.toLowerCase() === project.toLowerCase();
 
             return (
               <button
                 type="button"
-                key={system}
+                key={project}
                 className={[
                   "system-compact-card",
                   hasNok ? "system-has-nok" : "system-all-ok",
                   isSelected ? "system-card-selected" : "",
                 ].filter(Boolean).join(" ")}
-                onClick={() => setSelectedSystem(isSelected ? null : system)}
+                onClick={() => setSelectedProject(isSelected ? null : project)}
                 aria-pressed={isSelected}
-                title={`Klik untuk memfilter checkpoint ${system}`}
+                title={`Klik untuk memfilter checkpoint proyek ${project}`}
               >
                 <div className="system-card-top">
                   <span className={`system-status-dot ${hasNok ? "dot-nok" : "dot-ok"}`} aria-hidden="true" />
-                  <span className="system-card-icon">{getSystemIcon(system)}</span>
-                  <span className="system-card-name">{system}</span>
+                  <span className="system-card-icon">{getProjectIcon(project)}</span>
+                  <span className="system-card-name">{project}</span>
                   {isSelected && <span className="system-card-active-pill">Active</span>}
                 </div>
 
@@ -281,18 +305,18 @@ export function MonitoringView({
 
       {/* ── 3. Monitoring Schedule Table ── */}
       <MonitoringSchedule
-        entries={monitoringSchedule}
+        entries={schedule}
         assessments={assessments}
         onAssess={onAssess}
         onRequestNote={onRequestNote}
         currentHour={currentHour}
-        selectedSystem={selectedSystem}
-        onSelectSystem={setSelectedSystem}
+        selectedProject={selectedProject}
+        onSelectProject={setSelectedProject}
       />
 
       {/* ── 4. Riwayat Asesmen Checkpoint (History Section) ── */}
       <MonitoringHistorySection
-        todayEntries={monitoringSchedule}
+        todayEntries={schedule}
         todayAssessments={assessments}
       />
     </>

@@ -19,7 +19,7 @@ export const shiftDefinitions: Record<ShiftId, ShiftInfo> = {
     shortLabel: "Subuh",
     period: "00:00 – 08:30 WIB",
     tag: "SUBUH",
-    color: "#94a3b8",
+    color: "var(--accent-blue)",
     badgeClass: "topbar-shift-subuh",
   },
   pagi: {

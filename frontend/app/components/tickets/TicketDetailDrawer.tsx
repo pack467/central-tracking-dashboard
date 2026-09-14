@@ -1,15 +1,15 @@
 "use client";
 
-import { X, PlusCircle, MessageSquare, Headphones, CheckCircle2, Edit3 } from "lucide-react";
+import { X, PlusCircle, MessageSquare, Headphones, CheckCircle2, Edit3, Clock, Tag, Zap } from "lucide-react";
 import { Badge } from "@/app/components/ui/Badge";
 import { ConfirmDialog } from "@/app/components/ui/ConfirmDialog";
 import { ModalCloseButton } from "@/app/components/ui/ModalCloseButton";
 import { TicketEditModal } from "@/app/components/tickets/TicketEditModal";
 import { ProjectMark } from "@/app/components/ui/ProjectMark";
 import { useToast } from "@/app/components/ui/Toast";
-import { statusTone } from "@/app/components/tickets/TicketTable";
+import { severityTone, statusTone } from "@/app/components/tickets/TicketTable";
 import { useState } from "react";
-import { nowClockLabel } from "@/app/lib/data";
+import { nowClockLabel, initials } from "@/app/lib/data";
 import { useAuth } from "@/app/lib/auth";
 import type { Ticket } from "@/app/lib/types";
 
@@ -182,7 +182,28 @@ export function TicketDetailDrawer({ ticket, onClose, onUpdate }: TicketDetailDr
     onClose();
   };
 
-  const severityTone = ticket.severity === "Kritis" || ticket.severity === "Tinggi" ? "critical" : ticket.severity === "Sedang" ? "warning" : "info";
+  const sevTone = severityTone(ticket.severity);
+
+  const ownersList: string[] =
+    ticket.owners && ticket.owners.length > 0
+      ? ticket.owners
+      : ticket.owner
+      ? ticket.owner
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean)
+      : ["Unassigned"];
+
+  const categoryDisplay =
+    ticket.category && ticket.category !== "--"
+      ? ticket.category
+      : ticket.type && ticket.type !== "--"
+      ? ticket.type
+      : null;
+
+  const hasAdhocTimeline = Boolean(
+    ticket.requestTime || ticket.responseTime || ticket.completionTime || ticket.isStillOpen
+  );
 
   return (
     <>
@@ -197,10 +218,13 @@ export function TicketDetailDrawer({ ticket, onClose, onUpdate }: TicketDetailDr
           <div className="drawer-header">
             <div>
               <div style={{ display: "flex", gap: "8px", alignItems: "center", marginBottom: "8px", flexWrap: "wrap" }}>
-                <Badge tone={severityTone}>Prioritas {ticket.severity}</Badge>
+                <Badge tone={sevTone}>Prioritas {ticket.severity}</Badge>
                 <Badge tone={statusTone(ticket.status)}>{ticket.status}</Badge>
-                {ticket.category && ticket.category !== "--" && (
-                  <Badge tone="neutral">{ticket.category}</Badge>
+                {categoryDisplay && (
+                  <Badge tone="neutral">
+                    <Tag size={10} style={{ marginRight: "4px", verticalAlign: "middle" }} />
+                    {categoryDisplay}
+                  </Badge>
                 )}
               </div>
               <h2 style={{ fontSize: "18px", fontWeight: "700", margin: "0", color: "var(--ink-primary)" }}>
@@ -220,42 +244,149 @@ export function TicketDetailDrawer({ ticket, onClose, onUpdate }: TicketDetailDr
           </div>
 
           <div className="drawer-content-inner">
-            <div style={{ marginBottom: "20px" }}>
-              <span
-                style={{
-                  fontSize: "11px",
-                  fontWeight: "700",
-                  color: "var(--ink-muted)",
-                  fontFamily: "var(--font-mono)",
-                  textTransform: "uppercase",
-                }}
-              >
-                Proyek &amp; penanggung jawab
+            {/* Proyek, Kategori & Penanggung Jawab */}
+            <div className="drawer-meta-section" style={{ marginBottom: "20px" }}>
+              <span className="drawer-section-title">
+                Proyek &amp; Penanggung Jawab
               </span>
-              <div style={{ display: "flex", alignItems: "center", gap: "12px", marginTop: "8px" }}>
-                <ProjectMark name={ticket.project} />
-                <div>
-                  <strong style={{ display: "block", fontSize: "13px", color: "var(--ink-primary)" }}>
-                    {ticket.project}
-                  </strong>
-                  <span style={{ fontSize: "11px", color: "var(--ink-secondary)" }}>
-                    Ditugaskan kepada {ticket.owner}
+
+              <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: "10px" }}>
+                {/* Project & Category Row */}
+                <div style={{ display: "flex", alignItems: "center", gap: "16px", flexWrap: "wrap" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    <ProjectMark name={ticket.project} />
+                    <div>
+                      <strong style={{ display: "block", fontSize: "13px", color: "var(--ink-primary)" }}>
+                        {ticket.project}
+                      </strong>
+                      <span style={{ fontSize: "11px", color: "var(--ink-muted)" }}>
+                        Proyek / Sistem
+                      </span>
+                    </div>
+                  </div>
+
+                  {categoryDisplay && (
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                        paddingLeft: "16px",
+                        borderLeft: "1px solid var(--line, rgba(255, 255, 255, 0.08))",
+                      }}
+                    >
+                      <div>
+                        <strong
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "5px",
+                            fontSize: "13px",
+                            color: "var(--ink-primary)",
+                          }}
+                        >
+                          <Tag size={12} style={{ color: "var(--accent-blue)" }} />
+                          {categoryDisplay}
+                        </strong>
+                        <span style={{ fontSize: "11px", color: "var(--ink-muted)" }}>
+                          Kategori Tiket
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Assignees (All Owners / PIC) */}
+                <div style={{ marginTop: "2px" }}>
+                  <span
+                    style={{
+                      fontSize: "11px",
+                      color: "var(--ink-muted)",
+                      display: "block",
+                      marginBottom: "6px",
+                      fontWeight: "500",
+                    }}
+                  >
+                    Ditugaskan kepada ({ownersList.length} PIC):
                   </span>
+                  <div className="drawer-owners-list">
+                    {ownersList.map((ownerName, idx) => (
+                      <div key={idx} className="drawer-owner-entry">
+                        <span className="mini-avatar" aria-hidden="true">
+                          {initials(ownerName)}
+                        </span>
+                        <span className="drawer-owner-name">{ownerName}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
 
+            {/* Timeline Permintaan Ad-hoc (Explicit Time Fields captured at creation) */}
+            {hasAdhocTimeline && (
+              <div className="drawer-adhoc-timeline" style={{ marginBottom: "22px" }}>
+                <div className="drawer-adhoc-header">
+                  <span className="drawer-adhoc-badge">
+                    <Zap size={11} style={{ display: "inline-block", verticalAlign: "middle", marginRight: "4px" }} />
+                    TIMELINE PERMINTAAN AD-HOC
+                  </span>
+                  <small style={{ color: "var(--ink-muted)", fontSize: "11px" }}>
+                    Waktu masuk, respon, dan penyelesaian operasional
+                  </small>
+                </div>
+
+                <div className="drawer-adhoc-grid">
+                  <div className="drawer-adhoc-cell">
+                    <div className="drawer-adhoc-label">
+                      <Clock size={11} className="drawer-adhoc-icon" />
+                      <span>REQUEST TIME</span>
+                    </div>
+                    <div className="drawer-adhoc-value">
+                      {ticket.requestTime || "—"}
+                    </div>
+                  </div>
+
+                  <div className="drawer-adhoc-cell">
+                    <div className="drawer-adhoc-label">
+                      <Clock size={11} className="drawer-adhoc-icon" />
+                      <span>RESPONSE TIME</span>
+                    </div>
+                    <div className="drawer-adhoc-value">
+                      {ticket.responseTime || "—"}
+                    </div>
+                  </div>
+
+                  <div className="drawer-adhoc-cell">
+                    <div className="drawer-adhoc-label">
+                      <CheckCircle2 size={11} className="drawer-adhoc-icon" />
+                      <span>COMPLETION TIME</span>
+                    </div>
+                    <div className="drawer-adhoc-value">
+                      {ticket.isStillOpen ? (
+                        <span className="drawer-adhoc-still-open">
+                          <span className="drawer-adhoc-pulse-dot" />
+                          Masih berlangsung
+                        </span>
+                      ) : ticket.completionTime ? (
+                        ticket.completionTime
+                      ) : ticket.status === "Closed" ? (
+                        "Selesai"
+                      ) : (
+                        <span className="drawer-adhoc-still-open">
+                          <span className="drawer-adhoc-pulse-dot" />
+                          Masih berlangsung
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div style={{ marginBottom: "24px" }}>
-              <span
-                style={{
-                  fontSize: "11px",
-                  fontWeight: "700",
-                  color: "var(--ink-muted)",
-                  fontFamily: "var(--font-mono)",
-                  textTransform: "uppercase",
-                }}
-              >
-                Deskripsi
+              <span className="drawer-section-title">
+                Deskripsi / Catatan Operasional
               </span>
               <p style={{ margin: "8px 0 0", color: "var(--ink-secondary)", fontSize: "13px", lineHeight: 1.5 }}>
                 {ticket.description || "Item aktivitas operasional yang memerlukan pemeriksaan dan konfirmasi rutin."}

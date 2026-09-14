@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Ticket as TicketIcon,
   Activity,
@@ -8,17 +8,15 @@ import {
   AlertTriangle,
   Search,
   X,
-  Calendar,
   Layers,
   SlidersHorizontal,
   Tag,
   BarChart2,
   FolderOpen,
+  Clock,
   ArrowUpDown,
   FileText,
   ShieldAlert,
-  ListFilter,
-  Check,
 } from "lucide-react";
 import { TicketTable } from "@/app/components/tickets/TicketTable";
 import { TicketReportView } from "@/app/components/tickets/TicketReportView";
@@ -26,14 +24,9 @@ import { StatCard } from "@/app/components/ui/StatCard";
 import { EmptyState } from "@/app/components/ui/EmptyState";
 import { DatePicker } from "@/app/components/ui/DatePicker";
 import type { Ticket } from "@/app/lib/types";
-import {
-  getTodayWIB,
-  getYesterdayWIB,
-  getStartOfWeekWIB,
-  getStartOfLastWeekWIB,
-  getEndOfLastWeekWIB,
-  getLastMonthPrefixWIB,
-} from "@/app/lib/data";
+import { getTodayWIB } from "@/app/lib/data";
+import { useClient } from "@/app/context/ClientContext";
+import { getTicketShift } from "@/app/components/views/OverviewView";
 
 interface TicketsViewProps {
   tickets: Ticket[];
@@ -45,30 +38,20 @@ type MainViewTab = "queue" | "escalations" | "report";
 
 const STATUS_OPTIONS = ["All", "Active", "Closed", "Pending", "Escalated"] as const;
 
-const TIME_RANGE_OPTIONS = [
-  { value: "all", label: "All Time" },
-  { value: "today", label: "Today" },
-  { value: "shift_subuh", label: "Shift Subuh (00:00–08:30)" },
-  { value: "yesterday", label: "Yesterday" },
-  { value: "this_week", label: "This Week" },
-  { value: "last_week", label: "Last Week" },
-  { value: "this_month", label: "This Month" },
-  { value: "last_month", label: "Last Month" },
-  { value: "custom", label: "Custom Range" },
-] as const;
-
 const TICKET_TYPES = [
   "All Types",
   "Incident",
   "Ad-hoc Request",
-  "Maintenance",
   "Change Request",
-  "Escalation",
+  "Maintenance",
   "Monitoring Alert",
+  "Escalation",
   "Other",
 ] as const;
 
 const PRIORITY_OPTIONS = ["All Priorities", "Critical", "High", "Medium", "Low"] as const;
+
+const SHIFT_OPTIONS = ["Semua Shift", "Shift Subuh", "Shift Pagi", "Shift Malam"] as const;
 
 const SORT_OPTIONS = [
   { value: "newest", label: "Newest First" },
@@ -96,73 +79,31 @@ const normalizeStatus = (status: string) => {
 
 const normalizePriority = (p: string) => {
   const s = p.toLowerCase();
-  if (s === "critical" || s === "kritis") return "critical";
-  if (s === "high" || s === "tinggi") return "high";
-  if (s === "medium" || s === "sedang") return "medium";
-  if (s === "low" || s === "rendah") return "low";
+  if (s === "critical" || s === "kritis") return 0;
+  if (s === "high" || s === "tinggi") return 1;
+  if (s === "medium" || s === "sedang") return 2;
+  if (s === "low" || s === "rendah") return 3;
   return s;
 };
 
-// Date range matching helper
-function matchesTimeRange(
-  ticket: Ticket,
-  range: string,
-  customStart: string,
-  customEnd: string,
-): boolean {
-  if (range === "all") return true;
-
-  const ticketDate = ticket.date || getTodayWIB();
-
-  const today = getTodayWIB();
-  const yesterday = getYesterdayWIB();
-
-  switch (range) {
-    case "today":
-      return ticketDate === today;
-
-    case "shift_subuh":
-      return ticket.shift === "Subuh";
-
-    case "yesterday":
-      return ticketDate === yesterday;
-
-    case "this_week":
-      return ticketDate >= getStartOfWeekWIB() && ticketDate <= today;
-
-    case "last_week":
-      return ticketDate >= getStartOfLastWeekWIB() && ticketDate <= getEndOfLastWeekWIB();
-
-    case "this_month":
-      return ticketDate.startsWith(today.slice(0, 7));
-
-    case "last_month":
-      return ticketDate.startsWith(getLastMonthPrefixWIB());
-
-    case "custom":
-      if (customStart && ticketDate < customStart) return false;
-      if (customEnd && ticketDate > customEnd) return false;
-      return true;
-
-    default:
-      return true;
-  }
-}
-
 export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsViewProps) {
+  const { activeClient } = useClient();
   // Main view tab (queue, escalations, report)
   const [activeTab, setActiveTab] = useState<MainViewTab>("queue");
 
   // Search & Filters
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("All");
-  const [timeRange, setTimeRange] = useState<string>("all");
-  const [customStart, setCustomStart] = useState("");
-  const [customEnd, setCustomEnd] = useState("");
+  const [dateFilter, setDateFilter] = useState<string>("");
   const [typeFilter, setTypeFilter] = useState<string>("All Types");
   const [priorityFilter, setPriorityFilter] = useState<string>("All Priorities");
   const [projectFilter, setProjectFilter] = useState<string>("All Projects");
+  const [shiftFilter, setShiftFilter] = useState<string>("Semua Shift");
   const [sort, setSort] = useState<string>("newest");
+
+  // Pagination state (default: 10 rows per page)
+  const [pageSize, setPageSize] = useState<number>(10);
+  const [currentPage, setCurrentPage] = useState<number>(1);
 
   // Mobile filter panel open/closed
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
@@ -172,6 +113,11 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
     () => ["All Projects", ...Array.from(new Set(tickets.map((ticket) => ticket.project)))],
     [tickets],
   );
+
+  // Reset pagination to page 1 whenever any filter, search, sort, or tab changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, statusFilter, dateFilter, typeFilter, priorityFilter, projectFilter, shiftFilter, sort, activeTab]);
 
   // Filtered tickets
   const filteredTickets = useMemo(() => {
@@ -192,9 +138,16 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
         if (normalizeStatus(ticket.status) !== normalizeStatus(statusFilter)) return false;
       }
 
-      // 3. Time Range
-      if (!matchesTimeRange(ticket, timeRange, customStart, customEnd)) {
-        return false;
+      // 3. Date Filter (Single date or Range)
+      if (dateFilter) {
+        const ticketDate = ticket.date || getTodayWIB();
+        if (dateFilter.includes("..")) {
+          const [start, end] = dateFilter.split("..");
+          if (start && ticketDate < start) return false;
+          if (end && ticketDate > end) return false;
+        } else {
+          if (ticketDate !== dateFilter) return false;
+        }
       }
 
       // 4. Ticket Type / Category
@@ -213,7 +166,14 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
         return false;
       }
 
-      // 7. Search keyword
+      // 7. Shift Filter
+      if (shiftFilter !== "Semua Shift" && shiftFilter !== "All Shifts") {
+        const ticketShift = getTicketShift(ticket);
+        const targetShift = shiftFilter.replace(/^Shift\s+/, "");
+        if (ticketShift !== targetShift) return false;
+      }
+
+      // 8. Search keyword
       if (!needle) return true;
       return Object.values(ticket).some(
         (value) => typeof value === "string" && value.toLowerCase().includes(needle),
@@ -232,14 +192,37 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
     activeTab,
     search,
     statusFilter,
-    timeRange,
-    customStart,
-    customEnd,
+    dateFilter,
     typeFilter,
     priorityFilter,
     projectFilter,
+    shiftFilter,
     sort,
   ]);
+
+  // Pagination calculations (applied to filtered result set)
+  const totalFilteredCount = filteredTickets.length;
+  const totalPages = Math.max(1, Math.ceil(totalFilteredCount / pageSize));
+  const safeCurrentPage = Math.min(Math.max(1, currentPage), totalPages);
+  const startIdx = (safeCurrentPage - 1) * pageSize;
+  const endIdx = Math.min(startIdx + pageSize, totalFilteredCount);
+  const paginatedTickets = filteredTickets.slice(startIdx, endIdx);
+
+  const pageNumbers = useMemo(() => {
+    const pages: (number | "...")[] = [];
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      pages.push(1);
+      if (safeCurrentPage > 3) pages.push("...");
+      const start = Math.max(2, safeCurrentPage - 1);
+      const end = Math.min(totalPages - 1, safeCurrentPage + 1);
+      for (let i = start; i <= end; i++) pages.push(i);
+      if (safeCurrentPage < totalPages - 2) pages.push("...");
+      pages.push(totalPages);
+    }
+    return pages;
+  }, [totalPages, safeCurrentPage]);
 
   // Overall metric counts (unfiltered context for stat cards)
   const totalCount = tickets.length;
@@ -247,8 +230,8 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
   const closedCount = tickets.filter((t) => normalizeStatus(t.status) === "closed").length;
   const pendingCount = tickets.filter((t) => normalizeStatus(t.status) === "pending").length;
   const highPriorityCount = tickets.filter((t) => {
-    const p = normalizePriority(t.severity);
-    return p === "critical" || p === "high";
+    const s = t.severity.toLowerCase();
+    return s === "critical" || s === "kritis" || s === "high" || s === "tinggi";
   }).length;
   const escalatedCount = tickets.filter(
     (t) =>
@@ -264,24 +247,108 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
   const hasActiveFilters =
     search.trim() !== "" ||
     statusFilter !== "All" ||
-    timeRange !== "all" ||
+    dateFilter !== "" ||
     typeFilter !== "All Types" ||
     priorityFilter !== "All Priorities" ||
-    projectFilter !== "All Projects";
+    projectFilter !== "All Projects" ||
+    shiftFilter !== "Semua Shift";
 
   const clearAllFilters = () => {
     setSearch("");
     setStatusFilter("All");
-    setTimeRange("all");
-    setCustomStart("");
-    setCustomEnd("");
+    setDateFilter("");
     setTypeFilter("All Types");
     setPriorityFilter("All Priorities");
     setProjectFilter("All Projects");
+    setShiftFilter("Semua Shift");
+    setCurrentPage(1);
   };
 
-  const selectedRangeLabel =
-    TIME_RANGE_OPTIONS.find((r) => r.value === timeRange)?.label || "Selected Period";
+  const selectedRangeLabel = useMemo(() => {
+    if (!dateFilter) return "All Time";
+    if (dateFilter.includes("..")) {
+      const [start, end] = dateFilter.split("..");
+      if (start && end) return `${start} – ${end}`;
+    }
+    return dateFilter;
+  }, [dateFilter]);
+
+  // Shared Pagination Bar component
+  const renderPagination = () => {
+    if (totalFilteredCount === 0) return null;
+
+    return (
+      <div className="roster-pagination-bar ticket-pagination-bar">
+        <div className="roster-pagination-left">
+          <div className="roster-rows-per-page">
+            <span className="roster-pagination-label">Rows per page:</span>
+            <select
+              className="roster-filter-select roster-page-size-select"
+              value={pageSize}
+              onChange={(e) => {
+                setPageSize(Number(e.target.value));
+                setCurrentPage(1);
+              }}
+              aria-label="Jumlah tiket per halaman"
+            >
+              <option value="10">10</option>
+              <option value="30">30</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+          </div>
+
+          <span className="roster-pagination-info">
+            Menampilkan <strong>{totalFilteredCount === 0 ? 0 : startIdx + 1}–{endIdx}</strong> dari{" "}
+            <strong>{totalFilteredCount}</strong> tiket
+          </span>
+        </div>
+
+        <div className="roster-pagination-actions">
+          <button
+            type="button"
+            className="roster-page-btn roster-page-nav"
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={safeCurrentPage <= 1}
+            aria-label="Halaman sebelumnya"
+          >
+            Prev
+          </button>
+
+          <div className="roster-page-numbers">
+            {pageNumbers.map((p, idx) =>
+              p === "..." ? (
+                <span key={`ellipsis-${idx}`} className="roster-page-ellipsis">
+                  …
+                </span>
+              ) : (
+                <button
+                  key={p}
+                  type="button"
+                  className={`roster-page-btn roster-page-num ${p === safeCurrentPage ? "active" : ""}`}
+                  onClick={() => setCurrentPage(Number(p))}
+                  aria-label={`Halaman ${p}`}
+                  aria-current={p === safeCurrentPage ? "page" : undefined}
+                >
+                  {p}
+                </button>
+              ),
+            )}
+          </div>
+
+          <button
+            type="button"
+            className="roster-page-btn roster-page-nav"
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={safeCurrentPage >= totalPages || totalPages <= 1}
+            aria-label="Halaman berikutnya"
+          >
+            Next
+          </button>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="tickets-page-container anim-fade">
@@ -289,10 +356,10 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
       <section className="page-heading">
         <div>
           <div className="eyebrow">
-            <span className="live-dot live-dot-pulse" /> QUEUE TICKET &amp; OPERATIONS
+            <span className="live-dot live-dot-pulse" /> QUEUE TICKET · {activeClient.name.toUpperCase()}
           </div>
-          <h1>Queue Ticket</h1>
-          <p>Kelola antrean tiket, eskalasi insiden, dan analisis performa operasional.</p>
+          <h1>Queue Ticket — {activeClient.shortName}</h1>
+          <p>Kelola antrean tiket, eskalasi insiden, dan analisis performa operasional untuk klien {activeClient.name}.</p>
         </div>
         <div className="page-actions">
           <button className="button button-primary" onClick={onNewTicket}>
@@ -310,7 +377,7 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
           accentColor="blue"
           icon={<TicketIcon size={15} strokeWidth={2} />}
           subtitle={`${activeCount} Active · ${pendingCount} Pending · ${closedCount} Closed`}
-          badgeText="All Queue Items"
+          badgeText="Semua Tiket"
           badgeTone="blue"
         />
 
@@ -352,7 +419,7 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
         />
       </section>
 
-      {/* ── 2. Sub-Navigation Switcher (Queue / Escalations / Ticket Report) ── */}
+      {/* ── 2. Sub-Navigation Switcher (Daftar Tiket / Escalations / Ticket Report) ── */}
       <div className="ticket-view-switcher" role="tablist" aria-label="Navigasi view tiket">
         <button
           type="button"
@@ -362,7 +429,7 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
           onClick={() => setActiveTab("queue")}
         >
           <Layers size={14} />
-          <span>Queue Table</span>
+          <span>Daftar Tiket</span>
           <span className="tab-badge">{tickets.length}</span>
         </button>
 
@@ -428,50 +495,28 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
             Filters
             {hasActiveFilters && (
               <span className="mobile-filter-badge">
-                {[timeRange !== "all", typeFilter !== "All Types", priorityFilter !== "All Priorities", projectFilter !== "All Projects"].filter(Boolean).length}
+                {[
+                  dateFilter !== "",
+                  typeFilter !== "All Types",
+                  priorityFilter !== "All Priorities",
+                  projectFilter !== "All Projects",
+                  shiftFilter !== "Semua Shift",
+                ].filter(Boolean).length}
               </span>
             )}
           </button>
 
           {/* Filter Controls (hidden on mobile unless open) */}
           <div className={`ticket-filter-controls${mobileFiltersOpen ? " filters-open" : ""}`}>
-            {/* Time Range Filter */}
-            <div className="filter-select-wrap">
-              <Calendar size={13} className="select-icon" />
-              <select
-                value={timeRange}
-                onChange={(e) => setTimeRange(e.target.value)}
-                aria-label="Filter rentang waktu"
-                data-active={timeRange !== "all" ? "true" : undefined}
-              >
-                {TIME_RANGE_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
+            {/* Date Range Picker (replaces All Time dropdown) */}
+            <div className="ticket-date-filter-wrap">
+              <DatePicker
+                value={dateFilter}
+                onChange={setDateFilter}
+                placeholder="Semua Waktu"
+                aria-label="Filter rentang waktu tiket"
+              />
             </div>
-
-            {/* Custom Date Pickers */}
-            {timeRange === "custom" && (
-              <div className="custom-date-inputs" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <div style={{ width: "145px" }}>
-                  <DatePicker
-                    value={customStart}
-                    onChange={(val) => setCustomStart(val)}
-                    placeholder="Mulai..."
-                  />
-                </div>
-                <span className="date-sep" style={{ color: "var(--ink-muted)", fontSize: "12px" }}>ke</span>
-                <div style={{ width: "145px" }}>
-                  <DatePicker
-                    value={customEnd}
-                    onChange={(val) => setCustomEnd(val)}
-                    placeholder="Selesai..."
-                  />
-                </div>
-              </div>
-            )}
 
             {/* Ticket Type / Category Filter */}
             <div className="filter-select-wrap">
@@ -524,6 +569,23 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
               </select>
             </div>
 
+            {/* Shift Filter */}
+            <div className="filter-select-wrap">
+              <Clock size={13} className="select-icon" />
+              <select
+                value={shiftFilter}
+                onChange={(e) => setShiftFilter(e.target.value)}
+                aria-label="Filter shift tiket"
+                data-active={shiftFilter !== "Semua Shift" ? "true" : undefined}
+              >
+                {SHIFT_OPTIONS.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             {/* Sort Divider + Sort Control */}
             <div className="filter-sort-divider" aria-hidden="true" />
 
@@ -563,7 +625,16 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
               ))}
             </div>
             <div className="filter-count" aria-live="polite">
-              <strong>{filteredTickets.length}</strong> / {tickets.length} tickets
+              {totalFilteredCount > 0 ? (
+                <>
+                  Menampilkan <strong>{startIdx + 1}–{endIdx}</strong> dari{" "}
+                  <strong>{totalFilteredCount}</strong> tiket
+                </>
+              ) : (
+                <>
+                  Menampilkan <strong>0</strong> dari <strong>0</strong> tiket
+                </>
+              )}
             </div>
           </div>
         )}
@@ -598,13 +669,13 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
                 </button>
               </span>
             )}
-            {timeRange !== "all" && (
+            {dateFilter !== "" && (
               <span className="filter-chip">
                 {selectedRangeLabel}
                 <button
                   type="button"
                   className="filter-chip-remove"
-                  onClick={() => setTimeRange("all")}
+                  onClick={() => setDateFilter("")}
                   aria-label="Remove time filter"
                 >
                   ×
@@ -650,6 +721,19 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
                 </button>
               </span>
             )}
+            {shiftFilter !== "Semua Shift" && (
+              <span className="filter-chip">
+                {shiftFilter}
+                <button
+                  type="button"
+                  className="filter-chip-remove"
+                  onClick={() => setShiftFilter("Semua Shift")}
+                  aria-label="Remove shift filter"
+                >
+                  ×
+                </button>
+              </span>
+            )}
             <button
               type="button"
               className="clear-all-filters-btn"
@@ -665,7 +749,10 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
         {activeTab === "queue" && (
           <div className="ticket-view-content anim-tab-fade" key="queue-tab">
             {filteredTickets.length > 0 ? (
-              <TicketTable tickets={filteredTickets} onSelect={onSelectTicket} />
+              <>
+                <TicketTable tickets={paginatedTickets} onSelect={onSelectTicket} />
+                {renderPagination()}
+              </>
             ) : (
               <div className="tickets-empty-container">
                 <EmptyState
@@ -689,11 +776,14 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
               </span>
             </div>
             {filteredTickets.length > 0 ? (
-              <TicketTable
-                tickets={filteredTickets}
-                onSelect={onSelectTicket}
-                showEscalationDetails
-              />
+              <>
+                <TicketTable
+                  tickets={paginatedTickets}
+                  onSelect={onSelectTicket}
+                  showEscalationDetails
+                />
+                {renderPagination()}
+              </>
             ) : (
               <div className="escalations-empty-wrap">
                 <EmptyState
@@ -701,7 +791,7 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
                   tone="success"
                   title="Tidak ada tiket eskalasi aktif"
                   message="Semua eskalasi tiket telah tertangani dengan baik atau tidak ada antrean eskalasi pada filter ini."
-                  actionLabel="Kembali ke antrean utama"
+                  actionLabel="Kembali ke daftar tiket"
                   onAction={() => {
                     clearAllFilters();
                     setActiveTab("queue");

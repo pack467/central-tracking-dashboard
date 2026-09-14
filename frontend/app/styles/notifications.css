@@ -93,14 +93,34 @@
   text-decoration: underline;
 }
 
-/* Notification List with Max-Height Scrolling */
+/* Notification List with Max-Height Scrolling capped at ~3 items */
 .notification-list {
-  max-height: 380px;
+  max-height: 290px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   padding: 4px 0;
   overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(56, 189, 248, 0.25) transparent;
+}
+
+.notification-list::-webkit-scrollbar {
+  width: 5px;
+}
+
+.notification-list::-webkit-scrollbar-track {
+  background: rgba(148, 163, 184, 0.05);
+  border-radius: 4px;
+}
+
+.notification-list::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, 0.25);
+  border-radius: 4px;
+}
+
+.notification-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(56, 189, 248, 0.45);
 }
 
 .notification-item {
@@ -246,27 +266,52 @@
 
 /* Footer Action Toolbar */
 .notification-footer {
-  padding: 10px 16px;
+  padding: 10px 14px;
   border-top: 1px solid var(--line);
   background: var(--bg);
   border-radius: 0 0 14px 14px;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  gap: 6px;
 }
 
-.notification-clear-button {
+.notification-view-all-button {
   width: 100%;
   height: 32px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 6px;
   padding: 0 12px;
   font-size: 11.5px;
   font-weight: 600;
-  color: var(--ink-secondary);
-  border: 1px solid var(--panel-border);
+  color: var(--accent-blue);
+  border: 1px solid var(--accent-blue-border);
   border-radius: 7px;
-  background: var(--panel-bg);
+  background: var(--accent-blue-soft);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.notification-view-all-button:hover {
+  background: color-mix(in srgb, var(--accent-blue-soft) 120%, var(--accent-blue) 25%);
+  border-color: var(--accent-blue);
+}
+
+.notification-clear-button {
+  width: 100%;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ink-secondary);
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
   transition: all 0.15s ease;
 }
 
@@ -276,9 +321,791 @@
   background: var(--red-soft);
 }
 
-
 .notification-modal-icon {
   display: grid;
   place-items: center;
   color: var(--accent-blue);
 }
+
+/* ═══════════════════════════════════════════════
+   FULL NOTIFICATIONS PAGE VIEW
+═══════════════════════════════════════════════ */
+.notifications-page-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.notifications-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 7px 0 6px;
+}
+
+.notifications-title-row h1 {
+  margin: 0;
+  color: var(--ink-primary);
+  font-size: 24px;
+  line-height: 1.2;
+  letter-spacing: -0.4px;
+  font-weight: 700;
+}
+
+.notifications-title-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: var(--accent-blue-soft);
+  border: 1px solid var(--accent-blue-border);
+  color: var(--accent-blue);
+  flex-shrink: 0;
+}
+
+.notifications-header-desc {
+  margin: 0;
+  color: var(--ink-secondary);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.notifications-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  overflow: hidden;
+  border-radius: 12px;
+  border: 1px solid var(--panel-border);
+  background: var(--panel-bg);
+}
+
+.notifications-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel-bg);
+}
+
+.notifications-search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 10px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid var(--panel-border);
+  background: var(--input-bg, #0f172a);
+  width: 270px;
+  max-width: 320px;
+  min-width: 180px;
+  flex: 0 1 270px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  box-sizing: border-box;
+}
+
+.notifications-search-box:focus-within {
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.12);
+}
+
+.notifications-search-box input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--ink-primary);
+  font-size: 11.5px;
+}
+
+/* Right-aligned Filter Controls Cluster */
+.notifications-filters-right {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-left: auto;
+}
+
+@media (max-width: 1140px) {
+  .notifications-toolbar {
+    gap: 10px;
+  }
+  .notifications-search-box {
+    width: 220px;
+    flex: 0 1 220px;
+  }
+  .notifications-date-filter-wrap {
+    width: 175px;
+  }
+}
+
+@media (max-width: 900px) {
+  .notifications-toolbar {
+    gap: 12px;
+  }
+  .notifications-search-box {
+    width: 100%;
+    max-width: 100%;
+    flex: 1 1 100%;
+  }
+  .notifications-filters-right {
+    width: 100%;
+    justify-content: flex-start;
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .notifications-filters-right {
+    gap: 8px;
+  }
+  .notifications-date-filter-wrap {
+    width: 100%;
+  }
+  .notifications-tab-group {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .notifications-tab-btn {
+    flex: 1;
+    justify-content: center;
+  }
+  .notifications-toolbar .filter-select-wrap {
+    flex: 1 1 calc(50% - 4px);
+  }
+  .notifications-toolbar .notifications-select {
+    width: 100%;
+  }
+  .notif-reset-filters-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Date range picker wrapper on notifications page */
+.notifications-date-filter-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 195px;
+  min-width: 165px;
+  flex-shrink: 0;
+}
+
+.notifications-date-filter-wrap .custom-datepicker-trigger {
+  height: 34px;
+  border-radius: 8px;
+  font-size: 11.5px;
+  border: 1px solid var(--panel-border);
+  background: var(--input-bg, #0f172a);
+  box-sizing: border-box;
+}
+
+.notifications-date-filter-wrap .custom-datepicker-trigger:hover {
+  border-color: rgba(148, 163, 184, 0.35);
+}
+
+.notifications-date-filter-wrap .custom-datepicker-trigger:focus,
+.notifications-date-filter-wrap .custom-datepicker-trigger[aria-expanded="true"] {
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.12);
+}
+
+/* Status tabs */
+.notifications-tab-group {
+  display: inline-flex;
+  align-items: center;
+  height: 34px;
+  padding: 3px;
+  border-radius: 8px;
+  background: var(--input-bg, #0f172a);
+  border: 1px solid var(--panel-border);
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.notifications-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 9px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink-secondary);
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.notifications-tab-btn:hover {
+  color: var(--ink-primary);
+}
+
+.notifications-tab-btn.active {
+  background: var(--panel-bg);
+  color: var(--accent-blue);
+  box-shadow: var(--shadow-sm);
+}
+
+.notifications-tab-badge {
+  padding: 1px 5px;
+  border-radius: 99px;
+  font-size: 9px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  background: var(--accent-blue-soft);
+  color: var(--accent-blue);
+}
+
+/* Polished Select with custom chevron and icon */
+.notifications-toolbar .filter-select-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.notifications-toolbar .filter-select-wrap .select-icon {
+  position: absolute;
+  left: 10px;
+  color: var(--ink-muted);
+  pointer-events: none;
+  z-index: 1;
+  transition: color 0.15s ease;
+}
+
+.notifications-select {
+  height: 34px;
+  padding: 0 28px 0 30px;
+  border-radius: 8px;
+  border: 1px solid var(--panel-border);
+  background: var(--input-bg, #0f172a);
+  color: var(--ink-primary);
+  font-size: 11.5px;
+  font-weight: 500;
+  outline: none;
+  cursor: pointer;
+  box-sizing: border-box;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 9px center;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, color 0.15s ease;
+}
+
+.notifications-select:hover {
+  border-color: rgba(148, 163, 184, 0.35);
+}
+
+.notifications-select:focus {
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.12);
+}
+
+.notifications-select[data-active="true"] {
+  border-color: rgba(56, 189, 248, 0.4);
+  color: #38bdf8;
+}
+
+.notifications-toolbar .filter-select-wrap:has(select[data-active="true"]) .select-icon {
+  color: #38bdf8;
+}
+
+.notif-reset-filters-btn {
+  height: 34px;
+  border-radius: 8px;
+  padding: 0 10px;
+  font-size: 11.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ── Top Summary Stat Cards Grid ── */
+.notifications-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  width: 100%;
+}
+
+@media (max-width: 960px) {
+  .notifications-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 540px) {
+  .notifications-stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.notif-stat-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.15s ease, background 0.15s ease;
+  transform: none;
+}
+
+.notif-stat-card:hover {
+  border-color: var(--line);
+  background: var(--panel-bg-hover);
+  box-shadow: var(--shadow-sm);
+  transform: none;
+}
+
+.notif-stat-icon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 9px;
+  flex-shrink: 0;
+}
+
+.notif-stat-icon.is-total {
+  background: var(--accent-blue-soft);
+  color: var(--accent-blue);
+  border: 1px solid var(--accent-blue-border);
+}
+
+.notif-stat-icon.is-unread {
+  background: var(--orange-soft);
+  color: var(--orange);
+  border: 1px solid var(--orange-border);
+}
+
+.notif-stat-icon.is-alert {
+  background: var(--red-soft);
+  color: var(--red);
+  border: 1px solid var(--red-border);
+}
+
+.notif-stat-icon.is-resolved {
+  background: var(--green-soft);
+  color: var(--green);
+  border: 1px solid var(--green-border);
+}
+
+.notif-stat-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.notif-stat-val {
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--ink-primary);
+  font-family: var(--font-mono);
+  line-height: 1.2;
+}
+
+.notif-stat-lbl {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ink-muted);
+  white-space: nowrap;
+}
+
+/* ── Notification Cards Container (Full Page) ── */
+.notifications-cards-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 18px;
+  background: var(--bg);
+  min-height: 260px;
+}
+
+/* Individual Notification Card - flat static hover without lift or shadow growth */
+.notification-card {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 18px;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s ease, background 0.15s ease;
+  transform: none;
+}
+
+.notification-card:hover {
+  background: var(--panel-bg-hover);
+  border-color: var(--line);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transform: none;
+}
+
+/* Unread Card: subtle elevated accent tint, distinct left border */
+.notification-card.is-unread {
+  background: color-mix(in srgb, var(--accent-blue-soft) 35%, var(--panel-bg));
+  border-color: color-mix(in srgb, var(--accent-blue-border) 70%, var(--panel-border));
+  border-left: 3.5px solid var(--accent-blue);
+}
+
+.notification-card.is-unread:hover {
+  background: color-mix(in srgb, var(--accent-blue-soft) 55%, var(--panel-bg));
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transform: none;
+}
+
+/* Read Card: calm, clean scanning */
+.notification-card.is-read {
+  opacity: 0.92;
+}
+
+.notification-card.is-read:hover {
+  opacity: 1;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transform: none;
+}
+
+/* Circular Category/Severity Icon Bubble */
+.notif-icon-bubble {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transform: none;
+}
+
+.notification-card:hover .notif-icon-bubble {
+  transform: none;
+}
+
+.notif-icon-bubble.bubble-success {
+  background: var(--green-soft);
+  color: var(--green);
+  border: 1px solid var(--green-border);
+}
+
+.notif-icon-bubble.bubble-warning {
+  background: var(--orange-soft);
+  color: var(--orange);
+  border: 1px solid var(--orange-border);
+}
+
+.notif-icon-bubble.bubble-critical {
+  background: var(--red-soft);
+  color: var(--red);
+  border: 1px solid var(--red-border);
+}
+
+.notif-icon-bubble.bubble-info {
+  background: var(--accent-blue-soft);
+  color: var(--accent-blue);
+  border: 1px solid var(--accent-blue-border);
+}
+
+/* Card Body */
+.notif-card-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.notif-card-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.notif-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.notif-card-title {
+  color: var(--ink-primary);
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.35;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.notification-card.is-unread .notif-card-title {
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.notif-badge-new {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 99px;
+  background: var(--accent-blue);
+  color: #090d16;
+  font-size: 9.5px;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  letter-spacing: 0.4px;
+  flex-shrink: 0;
+}
+
+.notif-new-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #090d16;
+}
+
+.notif-card-time {
+  flex-shrink: 0;
+  color: var(--ink-muted);
+  font-size: 11px;
+  font-family: var(--font-mono);
+}
+
+.notif-card-message {
+  margin: 2px 0 6px;
+  color: var(--ink-secondary);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.notif-card-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+  flex-wrap: wrap;
+}
+
+/* Category Badges with distinctive colors */
+.notif-category-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 5px;
+  font-size: 10.5px;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  letter-spacing: 0.3px;
+  border: 1px solid var(--line);
+  background: rgba(148, 163, 184, 0.1);
+  color: var(--ink-secondary);
+}
+
+/* Purpose-based Category Badges with distinctive colors */
+.notif-category-tag.cat-ticket,
+.notif-category-tag.cat-tickets {
+  background: rgba(56, 189, 248, 0.12);
+  color: #38bdf8;
+  border-color: rgba(56, 189, 248, 0.3);
+}
+
+.notif-category-tag.cat-monitoring,
+.notif-category-tag.cat-queue,
+.notif-category-tag.cat-kafka,
+.notif-category-tag.cat-usiem,
+.notif-category-tag.cat-api,
+.notif-category-tag.cat-cache,
+.notif-category-tag.cat-sistem,
+.notif-category-tag.cat-system,
+.notif-category-tag.cat-database,
+.notif-category-tag.cat-network {
+  background: rgba(245, 158, 11, 0.12);
+  color: #fbbf24;
+  border-color: rgba(245, 158, 11, 0.32);
+}
+
+.notif-category-tag.cat-serahterima,
+.notif-category-tag.cat-shift,
+.notif-category-tag.cat-handover {
+  background: rgba(168, 85, 247, 0.12);
+  color: #a855f7;
+  border-color: rgba(168, 85, 247, 0.3);
+}
+
+.notif-category-tag.cat-temuan,
+.notif-category-tag.cat-finding,
+.notif-category-tag.cat-issue {
+  background: rgba(239, 68, 68, 0.12);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.32);
+}
+
+/* Urgent-leaning SLA Category Badge (Vivid Red-Orange / Vermilion) */
+.notif-category-tag.cat-sla {
+  background: rgba(255, 107, 74, 0.14);
+  color: #ff6b4a;
+  border-color: rgba(255, 107, 74, 0.38);
+  font-weight: 700;
+  letter-spacing: 0.4px;
+}
+
+/* Actions inside Card */
+.notif-card-actions {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.notif-read-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--ink-muted);
+  background: rgba(148, 163, 184, 0.08);
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.notif-btn-markread {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent-blue);
+  background: var(--accent-blue-soft);
+  border: 1px solid var(--accent-blue-border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.notif-btn-markread:hover {
+  background: color-mix(in srgb, var(--accent-blue-soft) 120%, var(--accent-blue) 25%);
+  border-color: var(--accent-blue);
+}
+
+/* Polished Delete Button with clearer destructive affordance - static hover without scale */
+.notif-delete-btn {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--ink-muted);
+  cursor: pointer;
+  transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+  transform: none;
+}
+
+.notif-delete-btn:hover {
+  color: var(--red);
+  background: var(--red-soft);
+  border-color: var(--red-border);
+  transform: none;
+}
+
+/* Friendly Centered Empty State */
+.notif-empty-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 48px 24px;
+  gap: 12px;
+}
+
+.notif-empty-icon {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  margin-bottom: 4px;
+}
+
+.notif-empty-icon.is-nominal {
+  background: var(--green-soft);
+  color: var(--green);
+  border: 1px solid var(--green-border);
+}
+
+.notif-empty-icon.is-filter {
+  background: var(--accent-blue-soft);
+  color: var(--accent-blue);
+  border: 1px solid var(--accent-blue-border);
+}
+
+.notif-empty-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink-primary);
+}
+
+.notif-empty-msg {
+  margin: 0;
+  font-size: 12px;
+  color: var(--ink-secondary);
+  max-width: 380px;
+  line-height: 1.5;
+}
+
+/* ═══════════════════════════════════════════════
+   NO FLOATING / LIFT HOVER CONSOLIDATION
+   Prevents positional displacement & elevation growth across Notifikasi page
+═══════════════════════════════════════════════ */
+.notifications-page-container .button,
+.notifications-page-container .button:hover,
+.notifications-page-container .notif-stat-card,
+.notifications-page-container .notif-stat-card:hover,
+.notifications-page-container .notification-card,
+.notifications-page-container .notification-card:hover,
+.notifications-page-container .notifications-search-box,
+.notifications-page-container .notifications-search-box:hover,
+.notifications-page-container .custom-datepicker-trigger,
+.notifications-page-container .custom-datepicker-trigger:hover,
+.notifications-page-container .notifications-select,
+.notifications-page-container .notifications-select:hover,
+.notifications-page-container .notifications-tab-btn,
+.notifications-page-container .notifications-tab-btn:hover,
+.notifications-page-container .notif-reset-filters-btn,
+.notifications-page-container .notif-reset-filters-btn:hover,
+.notifications-page-container .notif-btn-markread,
+.notifications-page-container .notif-btn-markread:hover,
+.notifications-page-container .notif-delete-btn,
+.notifications-page-container .notif-delete-btn:hover {
+  transform: none !important;
+}
+

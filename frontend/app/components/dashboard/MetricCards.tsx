@@ -8,6 +8,7 @@ import type { Ticket } from "@/app/lib/types";
 interface MetricCardsProps {
   tickets: Ticket[];
   onGoToTickets: () => void;
+  onGoToNotifications?: () => void;
   attentionCount: number;
   checkpointPassed?: number;
   checkpointTotal?: number;
@@ -18,6 +19,7 @@ interface MetricCardsProps {
 export function MetricCards({
   tickets,
   onGoToTickets,
+  onGoToNotifications,
   attentionCount,
   checkpointPassed = 128,
   checkpointTotal = 136,
@@ -64,14 +66,16 @@ export function MetricCards({
       <article className="metric-card">
         <div className="metric-top">
           <span>NEEDS ATTENTION</span>
-          <Badge tone={attentionCount > 0 ? "warning" : "success"}>
-            {attentionCount > 0 ? "Action Required" : "Nominal"}
-          </Badge>
+          {onGoToNotifications && (
+            <button onClick={onGoToNotifications}>Lihat notifikasi →</button>
+          )}
         </div>
         <div className="metric-number">{attentionCount}</div>
         <p>{attentionCount} anomali atau tugas ad-hoc yang memerlukan tindak lanjut.</p>
         <div className="metric-foot">
-          <span className={`status-dot ${attentionCount > 0 ? "warning" : "success"}`} />
+          <Badge tone={attentionCount > 0 ? "warning" : "success"}>
+            {attentionCount > 0 ? "Action Required" : "Nominal"}
+          </Badge>
           <span>{attentionCount} anomali monitoring</span>
         </div>
         <Sparkline color="#fbbf24" points="0,20 20,12 40,28 60,15 80,22 100,10 120,18 140,12 160,8" />
@@ -82,7 +86,8 @@ export function MetricCards({
           <span>NEXT CHECKPOINT</span>
         </div>
         <div className="metric-time">
-          {nextCheckpointTime} <small>WIB</small>
+          <span className="metric-time-digits">{nextCheckpointTime}</span>
+          <span className="timezone-pill-badge">WIB</span>
         </div>
         <p>{nextCheckpointDesc}</p>
         <div className="metric-foot">

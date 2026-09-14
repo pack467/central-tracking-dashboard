@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   History,
   Calendar,
@@ -11,18 +11,18 @@ import {
   Clock,
   AlertTriangle,
   CheckSquare,
-  FileText,
+  TicketCheck,
+  ClipboardList,
   Ticket as TicketIcon,
 } from "lucide-react";
 import { EmptyState } from "@/app/components/ui/EmptyState";
 import { ConfirmDialog } from "@/app/components/ui/ConfirmDialog";
 import { useToast } from "@/app/components/ui/Toast";
-import { formatHandoverDate, initials } from "@/app/lib/data";
+import { formatHandoverDate, initials, isOpenTicket } from "@/app/lib/data";
 import type { HandoverRecordData, StoredHandoverRecord } from "@/app/lib/types";
-import { canEditHandover, parseHandoverContent } from "@/app/lib/handover";
+import { canEditHandover, getTaskIdentity, isNewlyAddedTask, parseHandoverContent } from "@/app/lib/handover";
 import {
   HandoverHistoryControls,
-  HandoverHistoryMore,
   type HandoverWorkflow,
 } from "@/app/components/handover/HandoverHistoryControls";
 
@@ -32,6 +32,53 @@ function parseContent(record: StoredHandoverRecord): HandoverRecordData | null {
   } catch {
     return null;
   }
+}
+
+/**
+ * Builds a lookup map linking each shift record to the previous shift's total task count
+ * along its rotation/lineage chain.
+ */
+function buildShiftLineageMap(records: StoredHandoverRecord[]): Map<number, number> {
+  const map = new Map<number, number>();
+  const chronological = [...records].sort((a, b) => {
+    const dateComp = a.handoverDate.localeCompare(b.handoverDate);
+    if (dateComp !== 0) return dateComp;
+    return a.id - b.id;
+  });
+
+  for (let i = 0; i < chronological.length; i++) {
+    const current = chronological[i];
+    const currentContent = parseContent(current);
+    const currentTasks = currentContent?.tasks.length ?? 0;
+    const currentNewTasks = currentContent?.tasks.filter(isNewlyAddedTask).length ?? 0;
+
+    // Look back for preceding shift transition (candidate.targetShift === current.sourceShift)
+    let prevRecord: StoredHandoverRecord | null = null;
+    for (let j = i - 1; j >= 0; j--) {
+      const candidate = chronological[j];
+      const candContent = parseContent(candidate);
+      if (candContent && candContent.targetShift === currentContent?.sourceShift) {
+        prevRecord = candidate;
+        break;
+      }
+    }
+
+    // Fallback to chronologically preceding record if no exact rotation match
+    if (!prevRecord && i > 0) {
+      prevRecord = chronological[i - 1];
+    }
+
+    if (prevRecord) {
+      const prevContent = parseContent(prevRecord);
+      map.set(current.id, prevContent?.tasks.length ?? Math.max(0, currentTasks - currentNewTasks));
+    } else {
+      // Starting baseline for the very first record in history
+      const baseline = Math.max(0, currentTasks - currentNewTasks);
+      map.set(current.id, baseline);
+    }
+  }
+
+  return map;
 }
 
 const AVATAR_PALETTES = [
@@ -69,30 +116,99 @@ export function ShiftLogView({ workflow }: { workflow: HandoverWorkflow }) {
   const [pendingDelete, setPendingDelete] = useState<StoredHandoverRecord | null>(null);
   const [deleting, setDeleting] = useState(false);
 
+  // Pagination state (default: 10 rows per page)
+  const [pageSize, setPageSize] = useState<number>(10);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+
+  // Reset pagination to page 1 whenever filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [workflow.filters.date, workflow.filters.pic]);
+
+  const lineageMap = useMemo(() => buildShiftLineageMap(visibleRecords), [visibleRecords]);
+
+  const totalCount = visibleRecords.length;
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+  const safeCurrentPage = Math.min(Math.max(1, currentPage), totalPages);
+  const startIdx = (safeCurrentPage - 1) * pageSize;
+  const endIdx = Math.min(startIdx + pageSize, totalCount);
+  const paginatedRecords = visibleRecords.slice(startIdx, endIdx);
+
+  const pageNumbers = useMemo(() => {
+    const pages: (number | "...")[] = [];
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      pages.push(1);
+      if (safeCurrentPage > 3) pages.push("...");
+      const start = Math.max(2, safeCurrentPage - 1);
+      const end = Math.min(totalPages - 1, safeCurrentPage + 1);
+      for (let i = start; i <= end; i++) pages.push(i);
+      if (safeCurrentPage < totalPages - 2) pages.push("...");
+      pages.push(totalPages);
+    }
+    return pages;
+  }, [totalPages, safeCurrentPage]);
+
   const stats = useMemo(() => {
-    let pendingCount = 0;
-    let acceptedCount = 0;
-    let totalFindings = 0;
-    let totalTasks = 0;
+    let completedShiftsCount = 0; // "Total Shift Selesai"
+    let totalFindings = 0;        // "Jumlah Temuan"
+    let closedTicketsCount = 0;   // "Total Tiket Selesai"
+    const uniqueTaskSet = new Set<string>(); // "Total Tugas Dikerjakan" (deduplicated)
 
     for (const record of visibleRecords) {
       const content = parseContent(record);
       if (!content) continue;
+
+      // a. "Total Shift Selesai": count of handover records where status = fully completed/received
       if (content.acceptance) {
-        acceptedCount++;
-      } else {
-        pendingCount++;
+        completedShiftsCount++;
       }
+
+      // b. "Jumlah Temuan": sum of findings across all logged handovers
       totalFindings += content.findings?.length ?? 0;
-      totalTasks += content.tasks?.length ?? 0;
+
+      // c. "Total Tiket Selesai": total count of tickets closed/resolved during logged shifts,
+      // explicitly EXCLUDING any tickets still marked "Open".
+      const shiftClosedTicketIds = new Set<string>();
+      if (content.closedTickets && Array.isArray(content.closedTickets)) {
+        for (const ticket of content.closedTickets) {
+          if (!isOpenTicket(ticket) || ["closed", "selesai", "resolved"].includes(ticket.status?.toLowerCase())) {
+            shiftClosedTicketIds.add(ticket.id);
+          }
+        }
+      }
+      if (content.openTickets && Array.isArray(content.openTickets)) {
+        for (const ticket of content.openTickets) {
+          if (!isOpenTicket(ticket) || ["closed", "selesai", "resolved"].includes(ticket.status?.toLowerCase())) {
+            shiftClosedTicketIds.add(ticket.id);
+          }
+        }
+      }
+      if (content.tasks && Array.isArray(content.tasks)) {
+        for (const task of content.tasks) {
+          if (task.completed && task.sourceRef?.startsWith("ticket:")) {
+            shiftClosedTicketIds.add(task.sourceRef.replace("ticket:", ""));
+          }
+        }
+      }
+      closedTicketsCount += shiftClosedTicketIds.size;
+
+      // d. "Total Tugas Dikerjakan": count of DISTINCT/UNIQUE tasks worked on across all shifts
+      if (content.tasks && Array.isArray(content.tasks)) {
+        for (const task of content.tasks) {
+          const taskKey = getTaskIdentity(task);
+          uniqueTaskSet.add(taskKey);
+        }
+      }
     }
 
     return {
       totalRecords: workflow.total || visibleRecords.length,
-      acceptedCount,
-      pendingCount,
+      completedShiftsCount,
       totalFindings,
-      totalTasks,
+      closedTicketsCount,
+      totalUniqueTasks: uniqueTaskSet.size,
     };
   }, [visibleRecords, workflow.total]);
 
@@ -112,7 +228,7 @@ export function ShiftLogView({ workflow }: { workflow: HandoverWorkflow }) {
 
   return (
     <>
-      <section className="page-heading shift-log-heading">
+      <section className="page-heading">
         <div>
           <div className="eyebrow">
             <span className="live-dot live-dot-pulse" /> RIWAYAT SERAH TERIMA
@@ -125,47 +241,51 @@ export function ShiftLogView({ workflow }: { workflow: HandoverWorkflow }) {
           </div>
           <p style={{ margin: 0 }}>Timeline catatan handover historis yang tersimpan pada database Cloudflare D1.</p>
         </div>
+      </section>
 
-        {/* Top summary stat cards */}
-        <div className="shift-log-stats-row">
-          <div className="shift-log-stat-card">
-            <span className="shift-log-stat-icon is-total">
-              <FileText size={17} />
-            </span>
-            <div className="shift-log-stat-meta">
-              <span className="shift-log-stat-val">{stats.totalRecords}</span>
-              <span className="shift-log-stat-lbl">Handover Tercatat</span>
-            </div>
+      {/* Top summary stat cards */}
+      <section className="shift-log-stats-row" aria-label="Ringkasan statistik log shift">
+        {/* Card a: Total Shift Selesai */}
+        <div className="shift-log-stat-card">
+          <span className="shift-log-stat-icon is-completed">
+            <CheckCircle2 size={17} />
+          </span>
+          <div className="shift-log-stat-meta">
+            <span className="shift-log-stat-val">{stats.completedShiftsCount}</span>
+            <span className="shift-log-stat-lbl">Total Shift Selesai</span>
           </div>
+        </div>
 
-          <div className="shift-log-stat-card">
-            <span className="shift-log-stat-icon is-completed">
-              <CheckCircle2 size={17} />
-            </span>
-            <div className="shift-log-stat-meta">
-              <span className="shift-log-stat-val">{stats.acceptedCount}</span>
-              <span className="shift-log-stat-lbl">Selesai Diterima</span>
-            </div>
+        {/* Card b: Jumlah Temuan */}
+        <div className="shift-log-stat-card">
+          <span className="shift-log-stat-icon is-findings">
+            <AlertTriangle size={17} />
+          </span>
+          <div className="shift-log-stat-meta">
+            <span className="shift-log-stat-val">{stats.totalFindings}</span>
+            <span className="shift-log-stat-lbl">Jumlah Temuan</span>
           </div>
+        </div>
 
-          <div className="shift-log-stat-card">
-            <span className="shift-log-stat-icon is-pending">
-              <Clock size={17} />
-            </span>
-            <div className="shift-log-stat-meta">
-              <span className="shift-log-stat-val">{stats.pendingCount}</span>
-              <span className="shift-log-stat-lbl">Menunggu Penerimaan</span>
-            </div>
+        {/* Card c: Total Tiket Selesai */}
+        <div className="shift-log-stat-card">
+          <span className="shift-log-stat-icon is-tickets-closed">
+            <TicketCheck size={17} />
+          </span>
+          <div className="shift-log-stat-meta">
+            <span className="shift-log-stat-val">{stats.closedTicketsCount}</span>
+            <span className="shift-log-stat-lbl">Total Tiket Selesai</span>
           </div>
+        </div>
 
-          <div className="shift-log-stat-card">
-            <span className="shift-log-stat-icon is-findings">
-              <AlertTriangle size={17} />
-            </span>
-            <div className="shift-log-stat-meta">
-              <span className="shift-log-stat-val">{stats.totalFindings}</span>
-              <span className="shift-log-stat-lbl">Temuan Dicatat</span>
-            </div>
+        {/* Card d: Total Tugas Dikerjakan */}
+        <div className="shift-log-stat-card">
+          <span className="shift-log-stat-icon is-tasks-unique">
+            <ClipboardList size={17} />
+          </span>
+          <div className="shift-log-stat-meta">
+            <span className="shift-log-stat-val">{stats.totalUniqueTasks}</span>
+            <span className="shift-log-stat-lbl">Total Tugas Dikerjakan</span>
           </div>
         </div>
       </section>
@@ -178,11 +298,13 @@ export function ShiftLogView({ workflow }: { workflow: HandoverWorkflow }) {
             <div className="log-loading">Memuat riwayat handover…</div>
           ) : visibleRecords.length ? (
             <ol className="shift-timeline">
-              {visibleRecords.map((record) => {
+              {paginatedRecords.map((record) => {
                 const content = parseContent(record);
-                const done = content?.tasks.filter((task) => task.completed).length ?? 0;
                 const total = content?.tasks.length ?? 0;
-                const percent = total ? Math.round((done / total) * 100) : 0;
+                const done = content?.tasks.filter((task) => task.completed).length ?? 0;
+                const newCount = content?.tasks.filter((task) => isNewlyAddedTask(task)).length ?? 0;
+                const prevTasks = lineageMap.get(record.id) ?? Math.max(0, total - newCount);
+                const currTasks = total;
                 const isAccepted = Boolean(content?.acceptance);
                 const isEditable = Boolean(content && canEditHandover(content, workflow.actor));
 
@@ -314,19 +436,20 @@ export function ShiftLogView({ workflow }: { workflow: HandoverWorkflow }) {
                           {/* Bottom Progress & Stat Badges */}
                           <div className="timeline-bottom-row">
                             <div className="timeline-progress-section">
-                              <div className="timeline-progress-labels">
-                                <span className="timeline-progress-title">
-                                  Checklist: <strong>{percent}%</strong>
+                              <div className="timeline-task-breakdown">
+                                <span className="breakdown-item breakdown-done" title="Tugas selesai pada shift ini">
+                                  <strong className="breakdown-num">{done}</strong> Selesai
                                 </span>
-                                <span className="timeline-progress-counts">
-                                  ({done}/{total} tugas selesai)
+                                <span className="breakdown-dot">·</span>
+                                <span className="breakdown-item breakdown-new" title="Tugas baru ditambahkan pada shift ini">
+                                  <strong className="breakdown-num">{newCount}</strong> Baru Ditambahkan
                                 </span>
-                              </div>
-                              <div className="timeline-progress-bar-wrap">
-                                <div
-                                  className={`timeline-progress-bar-fill ${isAccepted ? "is-accepted" : ""}`}
-                                  style={{ width: `${percent}%` }}
-                                />
+                                <span className="breakdown-dot">·</span>
+                                <span className="breakdown-item breakdown-transition" title="Transisi jumlah tugas dari shift sebelumnya ke shift ini">
+                                  <strong className="breakdown-num">{prevTasks}</strong> Tugas Sebelumnya
+                                  <span className="breakdown-arrow">→</span>
+                                  <strong className="breakdown-num">{currTasks}</strong> Tugas Selanjutnya
+                                </span>
                               </div>
                               {content.acceptance && (
                                 <span className="timeline-accepted-note">
@@ -383,7 +506,75 @@ export function ShiftLogView({ workflow }: { workflow: HandoverWorkflow }) {
             />
           )}
 
-          <HandoverHistoryMore workflow={workflow} />
+          {/* Pagination Bar */}
+          {visibleRecords.length > 0 && (
+            <div className="roster-pagination-bar shift-log-pagination-bar">
+              <div className="roster-pagination-left">
+                <div className="roster-rows-per-page">
+                  <span className="roster-pagination-label">Rows per page:</span>
+                  <select
+                    className="roster-filter-select roster-page-size-select"
+                    value={pageSize}
+                    onChange={(e) => {
+                      setPageSize(Number(e.target.value));
+                      setCurrentPage(1);
+                    }}
+                    aria-label="Jumlah catatan per halaman"
+                  >
+                    <option value="10">10</option>
+                    <option value="30">30</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                  </select>
+                </div>
+
+                <span className="roster-pagination-info">
+                  Menampilkan <strong>{totalCount === 0 ? 0 : startIdx + 1}–{endIdx}</strong> dari <strong>{totalCount}</strong> catatan
+                </span>
+              </div>
+
+              <div className="roster-pagination-actions">
+                <button
+                  type="button"
+                  className="roster-page-btn roster-page-nav"
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={safeCurrentPage <= 1}
+                  aria-label="Halaman sebelumnya"
+                >
+                  Prev
+                </button>
+
+                <div className="roster-page-numbers">
+                  {pageNumbers.map((p, idx) =>
+                    p === "..." ? (
+                      <span key={`ellipsis-${idx}`} className="roster-page-ellipsis">…</span>
+                    ) : (
+                      <button
+                        key={p}
+                        type="button"
+                        className={`roster-page-btn roster-page-num ${p === safeCurrentPage ? "active" : ""}`}
+                        onClick={() => setCurrentPage(Number(p))}
+                        aria-label={`Halaman ${p}`}
+                        aria-current={p === safeCurrentPage ? "page" : undefined}
+                      >
+                        {p}
+                      </button>
+                    )
+                  )}
+                </div>
+
+                <button
+                  type="button"
+                  className="roster-page-btn roster-page-nav"
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={safeCurrentPage >= totalPages || totalPages <= 1}
+                  aria-label="Halaman berikutnya"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </article>
 

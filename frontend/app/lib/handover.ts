@@ -1,4 +1,4 @@
-import type { CheckpointAssessment, HandoverActor, HandoverDraft, HandoverRecordData, RosterMember, Ticket } from "./types";
+import type { CheckpointAssessment, HandoverActor, HandoverDraft, HandoverRecordData, HandoverTask, RosterMember, Ticket } from "./types";
 import { createShiftHandoverDraft, initialHandoverTasks, isOpenTicket, monitoringSchedule, STANDARD_MONITORED_PROJECTS } from "./data";
 import { getNextShiftChange, getShiftInfo, isShiftActiveForMember } from "./shifts";
 
@@ -44,7 +44,17 @@ export function parseHandoverContent(content: string): HandoverRecordData {
   const tasks = arrayValue(raw.tasks).map((value) => {
     const task = objectValue(value);
     if (!Number.isSafeInteger(task.id) || !["repeat", "waiting", "in-progress"].includes(String(task.state))) throw new HandoverError("Data tugas tidak valid.");
-    return { id: task.id as number, title: textValue(task.title, 300), project: textValue(task.project, 120), detail: textValue(task.detail), state: task.state as "repeat" | "waiting" | "in-progress", completed: task.completed === true, ...(task.sourceRef ? { sourceRef: textValue(task.sourceRef, 200) } : {}) };
+    return {
+      id: task.id as number,
+      ...(task.taskTemplateId !== undefined ? { taskTemplateId: task.taskTemplateId as string | number } : {}),
+      ...(typeof task.isNewlyAdded === "boolean" ? { isNewlyAdded: task.isNewlyAdded } : {}),
+      title: textValue(task.title, 300),
+      project: textValue(task.project, 120),
+      detail: textValue(task.detail),
+      state: task.state as "repeat" | "waiting" | "in-progress",
+      completed: task.completed === true,
+      ...(task.sourceRef ? { sourceRef: textValue(task.sourceRef, 200) } : {}),
+    };
   });
   if (new Set(tasks.map((task) => task.id)).size !== tasks.length) throw new HandoverError("ID tugas harus unik.");
   const findings = arrayValue(raw.findings).map((value) => {
@@ -61,6 +71,7 @@ export function parseHandoverContent(content: string): HandoverRecordData {
     validationNote: textValue(raw.validationNote),
     notes: optionalText(raw.notes, 5000),
     openTickets: Array.isArray(raw.openTickets) ? (raw.openTickets as Ticket[]) : undefined,
+    closedTickets: Array.isArray(raw.closedTickets) ? (raw.closedTickets as Ticket[]) : undefined,
     tasks, findings,
     monitoringExceptions: arrayValue(raw.monitoringExceptions ?? []).map((value) => {
       const exception = objectValue(value);
@@ -165,8 +176,63 @@ export function buildDashboardHandoverDraft(input: { tickets: Ticket[]; assessme
     monitoringSummary: `Snapshot dashboard: ${assessed.length} checkpoint telah dinilai; ${openTickets.length} tiket masih terbuka. Tinjau tanggal dan cakupan data sebelum serah terima.`,
     findings: assessed.filter(({ assessment }) => ["nok", "not-adequate"].includes(assessment.verdict)).map(({ entry, assessment }) => ({ project: entry.project, title: `${entry.time} — ${entry.task}`, detail: assessment.note || "Checkpoint NOK memerlukan tindak lanjut.", state: "waiting", sourceRef: `checkpoint:${entry.time}-${entry.project}-${entry.task}` })),
     tasks: [
-      ...initialHandoverTasks.filter((task) => task.state === "repeat").map((task) => ({ ...task, completed: false })),
-      ...openTickets.map((ticket, index) => ({ id: 1000 + index, title: `Tindak lanjut #${ticket.id}: ${ticket.subject}`, project: ticket.project, detail: `${ticket.description || ticket.subject}\nStatus: ${ticket.status}. PIC: ${ticket.owner}.`, state: "in-progress" as const, completed: false, sourceRef: `ticket:${ticket.id}` })),
+      ...initialHandoverTasks.filter((task) => task.state === "repeat").map((task) => ({
+        ...task,
+        taskTemplateId: task.taskTemplateId || `standard-${task.id}`,
+        isNewlyAdded: false,
+        completed: false,
+      })),
+      ...openTickets.map((ticket, index) => ({
+        id: 1000 + index,
+        taskTemplateId: `ticket-${ticket.id}`,
+        isNewlyAdded: true,
+        title: `Tindak lanjut #${ticket.id}: ${ticket.subject}`,
+        project: ticket.project,
+        detail: `${ticket.description || ticket.subject}\nStatus: ${ticket.status}. PIC: ${ticket.owner}.`,
+        state: "in-progress" as const,
+        completed: false,
+        sourceRef: `ticket:${ticket.id}`,
+      })),
     ],
   };
 }
+
+/**
+ * Returns a stable unique identifier for a task across shifts.
+ * Used for accurate task deduplication across handover logs.
+ */
+export function getTaskIdentity(task: HandoverTask): string {
+  if (task.taskTemplateId) {
+    return String(task.taskTemplateId);
+  }
+  if (task.sourceRef) {
+    return task.sourceRef;
+  }
+  if (task.id >= 1 && task.id <= 10) {
+    return `standard-task-${task.id}`;
+  }
+  if (task.title) {
+    return `task:${(task.project || "").trim().toLowerCase()}:${task.title.trim().toLowerCase()}`;
+  }
+  return `task-${task.id}`;
+}
+
+/**
+ * Determines whether a task was newly created during this shift
+ * (as opposed to being routine SOP or carried forward from a prior shift).
+ */
+export function isNewlyAddedTask(task: HandoverTask): boolean {
+  if (typeof task.isNewlyAdded === "boolean") {
+    return task.isNewlyAdded;
+  }
+  if (task.sourceRef?.startsWith("ticket:")) {
+    return true;
+  }
+  // Standard repeating SOP checklist items are routine carry-overs
+  if (task.state === "repeat" || (task.id >= 1 && task.id <= 8)) {
+    return false;
+  }
+  // Ad-hoc tasks or tasks created with timestamp IDs / custom items
+  return true;
+}
+

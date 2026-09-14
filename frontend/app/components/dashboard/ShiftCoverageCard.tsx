@@ -29,7 +29,9 @@ export function ShiftCoverageCard({ members }: ShiftCoverageCardProps) {
   return (
     <article className="panel coverage-panel">
       <div className="panel-title">Shift Coverage</div>
-      <p className="coverage-subtitle">{activeShift.label} · {activeShift.period}</p>
+      <p className="coverage-subtitle">
+        {activeShift.label} · {activeShift.period.replace(/\s*WIB$/, "")} <span className="timezone-pill-badge">WIB</span>
+      </p>
       <div className="coverage-ring">
         <div>
           <strong>{activeCount}</strong>

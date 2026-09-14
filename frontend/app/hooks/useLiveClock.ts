@@ -7,23 +7,68 @@ export type ShiftType = ShiftId;
 export type { ShiftInfo } from "@/app/lib/shifts";
 export { getShiftInfo } from "@/app/lib/shifts";
 
-export function useLiveClock() {
-  const [time, setTime] = useState("");
+export interface LiveClockState {
+  time: string; // "22:35:42"
+  timeWithZone: string; // "22:35:42 WIB"
+  dateShort: string; // "12 Sep 2026"
+  dateLong: string; // "12 September 2026"
+  dateFull: string; // "Sabtu, 12 September 2026"
+  dayName: string; // "Sabtu"
+  dayNum: string; // "12"
+  monthName: string; // "September"
+  year: number; // 2026
+}
+
+const MONTHS_ID = [
+  "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+  "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+];
+
+const MONTHS_SHORT_ID = [
+  "Jan", "Feb", "Mar", "Apr", "Mei", "Jun",
+  "Jul", "Agu", "Sep", "Okt", "Nov", "Des"
+];
+
+const DAYS_ID = [
+  "Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"
+];
+
+function getClockState(date: Date = new Date()): LiveClockState {
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const seconds = String(date.getSeconds()).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = MONTHS_ID[date.getMonth()];
+  const monthShort = MONTHS_SHORT_ID[date.getMonth()];
+  const year = date.getFullYear();
+  const dayName = DAYS_ID[date.getDay()];
+
+  return {
+    time: `${hours}:${minutes}:${seconds}`,
+    timeWithZone: `${hours}:${minutes}:${seconds} WIB`,
+    dateShort: `${day} ${monthShort} ${year}`,
+    dateLong: `${day} ${month} ${year}`,
+    dateFull: `${dayName}, ${day} ${month} ${year}`,
+    dayName,
+    dayNum: day,
+    monthName: month,
+    year,
+  };
+}
+
+export function useLiveClock(): LiveClockState | null {
+  const [clock, setClock] = useState<LiveClockState | null>(null);
 
   useEffect(() => {
     const update = () => {
-      const now = new Date();
-      const hours = String(now.getHours()).padStart(2, "0");
-      const minutes = String(now.getMinutes()).padStart(2, "0");
-      const seconds = String(now.getSeconds()).padStart(2, "0");
-      setTime(`${hours}:${minutes}:${seconds} WIB`);
+      setClock(getClockState(new Date()));
     };
     update();
     const interval = setInterval(update, 1000);
     return () => clearInterval(interval);
   }, []);
 
-  return time;
+  return clock;
 }
 
 function getCurrentHour(date: Date = new Date()) {

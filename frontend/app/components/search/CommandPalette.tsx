@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Users } from "lucide-react";
 import { Badge } from "@/app/components/ui/Badge";
 import { ProjectMark } from "@/app/components/ui/ProjectMark";
 import { EmptyState } from "@/app/components/ui/EmptyState";
@@ -66,12 +65,14 @@ function PaletteOverlay({
 
   const results = useMemo<PaletteResult[]>(() => {
     const needle = search.trim().toLowerCase();
-    const allNav = [
-      ...navItems,
-      { icon: Users, label: "Team Roster" },
-    ];
+    const allNav = navItems;
     const navMatches = allNav
-      .filter((item) => item.label.toLowerCase().includes(needle) || (item.label === "Team Roster" && "tim jadwal shift operator".includes(needle)))
+      .filter(
+        (item) =>
+          item.label.toLowerCase().includes(needle) ||
+          (item.label === "Team Roster" && "tim jadwal shift operator".includes(needle)) ||
+          (item.label === "Notifikasi" && "notifikasi alert pemberitahuan pesan".includes(needle))
+      )
       .map((item) => ({
         key: `nav-${item.label}`,
         kind: "nav" as const,

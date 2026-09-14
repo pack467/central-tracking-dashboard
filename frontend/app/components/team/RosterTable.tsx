@@ -24,7 +24,7 @@ export function statusTone(status: RosterMember["status"]): Tone {
 
 export function shiftColor(shift: DayScheduleType): { bg: string; color: string; border: string } {
   switch (shift) {
-    case "Subuh": return { bg: "rgba(148, 163, 184, 0.16)", color: "#94a3b8", border: "rgba(148, 163, 184, 0.35)" };
+    case "Subuh": return { bg: "var(--accent-blue-soft)", color: "var(--accent-blue)", border: "var(--accent-blue-border)" };
     case "Pagi":  return { bg: "rgba(245, 158, 11, 0.16)", color: "#fbbf24", border: "rgba(245, 158, 11, 0.35)" };
     case "Malam": return { bg: "var(--purple-soft)", color: "var(--purple)", border: "var(--purple-border)" };
     case "Leave": return { bg: "rgba(239, 68, 68, 0.16)", color: "#f87171", border: "rgba(239, 68, 68, 0.35)" };

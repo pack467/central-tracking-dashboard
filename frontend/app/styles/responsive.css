@@ -1,20 +1,18 @@
 /* ═══════════════════════════════════════════════
    RESPONSIVE BREAKPOINTS
 ═══════════════════════════════════════════════ */
-@media (max-width: 1240px) {
-  .sidebar { width: 216px; }
-  .workspace { width: calc(100% - 216px); margin-left: 216px; }
-  .project-pills { grid-template-columns: repeat(4, 1fr); }
-  .metrics-grid { grid-template-columns: repeat(2, 1fr); }
-  .dashboard-grid { grid-template-columns: minmax(0, 1fr) 285px; }
-  .page-content { padding-left: 22px; padding-right: 22px; }
-}
-
 /* Keep the monitoring table readable before its action controls become cramped. */
 @media (max-width: 1380px) {
   .dashboard-grid { grid-template-columns: minmax(0, 1fr); }
   .side-column { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .project-pills { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+@media (max-width: 1240px) {
+  .sidebar { width: 216px; }
+  .workspace { width: calc(100% - 216px); margin-left: 216px; }
+  .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+  .dashboard-grid { grid-template-columns: minmax(0, 1fr) 285px; }
+  .page-content { padding-left: 22px; padding-right: 22px; }
 }
 
 @media (max-width: 940px) {
@@ -38,7 +36,6 @@
   .command-button em, .command-button kbd { display: none; }
   .dashboard-grid { grid-template-columns: 1fr; }
   .side-column { grid-template-columns: 1fr 1fr; }
-  .project-pills { grid-template-columns: repeat(3, 1fr); }
   .ticket-header, .ticket-row { grid-template-columns: minmax(190px, 2fr) minmax(90px, 0.9fr) minmax(120px, 1fr) 60px 70px; }
   .created-time, .ticket-header > span:last-child { display: none; }
 }
@@ -46,17 +43,13 @@
 @media (max-width: 660px) {
   .page-heading { flex-direction: column; align-items: flex-start; gap: 12px; }
   .health-strip { flex-direction: column; align-items: flex-start; }
-  .health-intro { padding-right: 0; border-right: 0; border-bottom: 1px solid var(--line); padding-bottom: 10px; width: 100%; }
-  .project-pills { grid-template-columns: repeat(2, 1fr); width: 100%; }
-  .metrics-grid { grid-template-columns: 1fr; }
+  .service-health-grid { display: flex; flex-wrap: wrap; gap: 8px 10px; width: 100%; }
+  .project-pills { grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); width: 100%; }
   .side-column { grid-template-columns: 1fr; }
   .ticket-header, .ticket-row { grid-template-columns: 1fr 85px 70px; }
   .ticket-owner, .ticket-header > span:nth-child(3) { display: none; }
   .page-content { padding: 18px 16px 36px; }
-  .live-clock-badge { display: none; }
-  .health-intro { display: flex; flex-wrap: wrap; gap: 4px; }
-  .health-title { flex-basis: 100%; }
-  .health-intro .badge { margin: 0; }
+  .health-intro { display: flex; flex-wrap: wrap; gap: 4px; padding-right: 0; border-right: 0; border-bottom: 1px solid var(--line); padding-bottom: 10px; width: 100%; }
 }
 
 @media (max-width: 760px) {

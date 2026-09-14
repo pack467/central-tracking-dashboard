@@ -65,7 +65,7 @@ export function useHandoverWorkflow(inputs: Inputs) {
     setLoading(true);
     setError("");
     try {
-      const query = new URLSearchParams({ ...filters, page: String(nextPage) });
+      const query = new URLSearchParams({ ...filters, page: String(nextPage), limit: "200" });
       const payload = await request<ListResponse>(`/api/handovers?${query}`);
       if (sequence !== listRequest.current) return;
       setActor(payload.actor);

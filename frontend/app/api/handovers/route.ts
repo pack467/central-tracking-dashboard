@@ -77,6 +77,22 @@ async function seedHandoverNotes(db: D1Database) {
         agingHours: 1.8,
       },
     ],
+    closedTickets: [
+      {
+        id: "86d40prev2",
+        subject: "[SM] Patch Keamanan ActiveMQ Cluster",
+        project: "SM",
+        severity: "High",
+        priority: "P1 - Critical",
+        status: "Closed",
+        owner: "M. Ihsanul Arifin",
+        source: "Incident",
+        createdAt: "06 Sep 2026, 01:00 WIB",
+        updatedAt: "06 Sep 2026, 02:00 WIB",
+        description: "Security patch rollover pada broker cluster selesai diaplikasikan.",
+        resolutionMinutes: 50,
+      },
+    ],
     monitoringCheckpoints: [
       { time: "06:00", project: "B2B", task: "Health check gateway B2B", verdict: "ok", note: "Semua respon stabil" },
       { time: "06:15", project: "SM", task: "Queue distributor check", verdict: "ok", note: "Antrian 0" },
@@ -164,6 +180,80 @@ async function seedHandoverNotes(db: D1Database) {
     )
     .bind(title, date, content, "seed-initial-handover", now, now)
     .run();
+
+  // 4. Seed simulated historical dataset (~45 records) to test pagination and rows-per-page (10, 30, 50, 100)
+  const operatorList = [
+    { name: "Mhd. Galih Khairi", email: "galih.khairi@company.internal" },
+    { name: "Kristina Marbun", email: "kristina.marbun@company.internal" },
+    { name: "M. Ihsanul Arifin", email: "ihsanul.arifin@company.internal" },
+    { name: "Agnes", email: "agnes@company.internal" },
+    { name: "Dedi Prasetyo", email: "dedi.prasetyo@company.internal" },
+    { name: "Pangondion Kurniawan", email: "pangondion.k@company.internal" },
+    { name: "Natanael", email: "natanael@company.internal" },
+  ];
+  const shiftsCycle = [
+    { from: "Malam", to: "Subuh" },
+    { from: "Subuh", to: "Pagi" },
+    { from: "Pagi", to: "Malam" },
+  ];
+
+  for (let dayOffset = 2; dayOffset <= 16; dayOffset++) {
+    const recDate = new Date(Date.now() - dayOffset * 24 * 3600 * 1000).toISOString().slice(0, 10);
+    for (let shiftIdx = 0; shiftIdx < shiftsCycle.length; shiftIdx++) {
+      const { from: sFrom, to: sTo } = shiftsCycle[shiftIdx];
+      const sender = operatorList[(dayOffset * 3 + shiftIdx) % operatorList.length];
+      const receiver = operatorList[(dayOffset * 3 + shiftIdx + 1) % operatorList.length];
+      const reqId = `seed-scale-shift-${dayOffset}-${shiftIdx}`;
+      const recCreatedAt = new Date(Date.now() - (dayOffset * 24 + (3 - shiftIdx) * 8) * 3600 * 1000).toISOString();
+      const recAcceptedAt = new Date(Date.now() - (dayOffset * 24 + (3 - shiftIdx) * 8 - 0.5) * 3600 * 1000).toISOString();
+
+      const numTasks = 8 + ((dayOffset + shiftIdx) % 3); // 8, 9, or 10 tasks
+      const recTasks = initialHandoverRecord.tasks.slice(0, numTasks).map((t) => ({
+        ...t,
+        completed: true,
+        confirmedBy: receiver.name,
+        confirmedAt: recAcceptedAt,
+      }));
+
+      const simContent = JSON.stringify({
+        sourceShift: sFrom,
+        targetShift: sTo,
+        sourcePic: sender.name,
+        targetPic: receiver.name,
+        notes: `Pengecekan shift ${sFrom} berjalan lancar. Seluruh parameter monitoring dalam toleransi aman.`,
+        monitoringSummary: `Semua checkpoint monitoring shift ${sFrom} telah dievaluasi dan dilaporkan.`,
+        monitoringOwner: sender.name,
+        monitoredProjects: [...initialHandoverRecord.monitoredProjects],
+        validationNote: `Diterima oleh ${receiver.name}.`,
+        receiverEmail: receiver.email,
+        createdBy: { id: `user-${sender.name.replace(/\s+/g, "").toLowerCase()}`, name: sender.name, email: sender.email, local: true },
+        acceptance: { actor: { id: `user-${receiver.name.replace(/\s+/g, "").toLowerCase()}`, name: receiver.name, email: receiver.email, local: true }, at: recAcceptedAt },
+        findings: (dayOffset % 4 === 0) ? [{ project: "B2B", title: "Fluktuasi koneksi gateway B2B", detail: "Failover otomatis sekunder aktif stabil.", state: "waiting" as const }] : [],
+        openTickets: [],
+        closedTickets: (shiftIdx === 0 && dayOffset % 2 === 0) ? [{
+          id: `86d4sim${dayOffset}`,
+          subject: `Resolusi antrean pesan broker cluster #${dayOffset}`,
+          project: "ActiveMQ",
+          severity: "Medium",
+          status: "Closed",
+          owner: sender.name,
+          resolutionMinutes: 40,
+        }] : [],
+        tasks: recTasks,
+        auditTrail: [
+          { action: "created", actor: { id: `user-${sender.name.replace(/\s+/g, "").toLowerCase()}`, name: sender.name, email: sender.email }, at: recCreatedAt },
+          { action: "accepted", actor: { id: `user-${receiver.name.replace(/\s+/g, "").toLowerCase()}`, name: receiver.name, email: receiver.email }, at: recAcceptedAt },
+        ],
+      });
+
+      await db
+        .prepare(
+          `INSERT INTO handover_notes (title, handover_date, content, create_request_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT(create_request_id) DO NOTHING`
+        )
+        .bind(`Handover Shift ${sFrom} → ${sTo}`, recDate, simContent, reqId, recCreatedAt, recAcceptedAt)
+        .run();
+    }
+  }
 }
 
 export async function GET(request: Request) {
@@ -171,17 +261,27 @@ export async function GET(request: Request) {
     const actor = handoverActor(request);
     const url = new URL(request.url);
     const page = Math.max(1, Math.min(100000, Math.floor(Number(url.searchParams.get("page")) || 1)));
-    const limit = 20;
-    const date = (url.searchParams.get("date") ?? "").slice(0, 10);
+    const limit = Math.max(1, Math.min(500, Math.floor(Number(url.searchParams.get("limit")) || 200)));
+    const rawDate = (url.searchParams.get("date") ?? "").slice(0, 30).trim();
+    let startDate = "";
+    let endDate = "";
+    if (rawDate.includes("..")) {
+      const parts = rawDate.split("..");
+      startDate = (parts[0] ?? "").slice(0, 10);
+      endDate = (parts[1] ?? "").slice(0, 10);
+    } else if (rawDate) {
+      startDate = rawDate.slice(0, 10);
+      endDate = startDate;
+    }
     const pic = (url.searchParams.get("pic") ?? "").slice(0, 200);
-    const where = "WHERE (? = '' OR handover_date = ?) AND (? = '' OR instr(lower(json_extract(content, '$.sourcePic')), lower(?)) > 0)";
+    const where = "WHERE (? = '' OR (handover_date >= ? AND handover_date <= ?)) AND (? = '' OR instr(lower(json_extract(content, '$.sourcePic')), lower(?)) > 0)";
     const db = getHandoverDb();
 
     await seedHandoverNotes(db);
 
     const [rows, count] = await Promise.all([
-      db.prepare(`SELECT ${noteColumns} FROM handover_notes ${where} ORDER BY handover_date DESC, id DESC LIMIT ? OFFSET ?`).bind(date, date, pic, pic, limit, (page - 1) * limit).all(),
-      db.prepare(`SELECT count(*) AS total FROM handover_notes ${where}`).bind(date, date, pic, pic).first(),
+      db.prepare(`SELECT ${noteColumns} FROM handover_notes ${where} ORDER BY handover_date DESC, id DESC LIMIT ? OFFSET ?`).bind(startDate, startDate, endDate, pic, pic, limit, (page - 1) * limit).all(),
+      db.prepare(`SELECT count(*) AS total FROM handover_notes ${where}`).bind(startDate, startDate, endDate, pic, pic).first(),
     ]);
     const notes = ((rows as any)?.results ?? []) as StoredHandoverRecord[];
     const total = Number((count as any)?.total ?? 0);
