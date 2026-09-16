@@ -620,14 +620,8 @@
   flex-direction: column;
   height: 100%;
   box-sizing: border-box;
-  padding: 16px 0 0;
+  padding: 0;
   overflow: hidden;
-}
-
-.roster-coverage-panel > .panel-title,
-.roster-coverage-panel > .coverage-subtitle {
-  padding: 0 16px;
-  flex-shrink: 0;
 }
 
 .roster-coverage-panel .coverage-ring {
@@ -697,13 +691,15 @@
   font-size: 11.5px;
 }
 
-.roster-coverage-team-list {
-  padding: 8px 14px 10px;
-  flex: 1 1 0px;
-  min-height: 0;
-  overflow-y: auto;
+.roster-coverage-panel.shift-coverage-card .coverage-team.shift-coverage-team-list,
+.roster-coverage-panel .roster-coverage-team-list {
+  padding: 8px 16px 16px;
+  flex: 1 1 0px !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow-y: auto !important;
   scrollbar-width: thin;
-  scrollbar-color: var(--panel-border) transparent;
+  scrollbar-color: rgba(56, 189, 248, 0.25) transparent;
 }
 
 .roster-coverage-team-list::-webkit-scrollbar {

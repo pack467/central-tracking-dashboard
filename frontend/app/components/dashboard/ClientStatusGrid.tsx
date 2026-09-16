@@ -25,6 +25,7 @@ import {
 } from "@/app/lib/clientData";
 import { rowKey } from "@/app/components/dashboard/MonitoringSchedule";
 import { useToast } from "@/app/components/ui/Toast";
+import { NoImagePlaceholder } from "@/app/components/ui/NoImagePlaceholder";
 import type { CheckpointAssessment, HandoverTask, Ticket } from "@/app/lib/types";
 
 interface ClientStatusGridProps {
@@ -530,20 +531,10 @@ export function ClientStatusGrid({
                     {/* Top: Identity & Status */}
                     <div className="client-card-top">
                       <div className="client-card-identity">
-                        <span
-                          className="client-avatar-pill"
-                          style={{
-                            backgroundColor: client.avatarBg,
-                            color: client.avatarColor,
-                            borderColor: client.borderColor,
-                          }}
-                        >
-                          {client.code}
-                        </span>
+                        <NoImagePlaceholder />
                         <div className="client-meta-names">
                           <div className="client-meta-title-row">
                             <strong className="client-card-name">{client.shortName}</strong>
-                            <span className="client-tier-pill">{client.tier}</span>
                           </div>
                           <span className="client-card-fullname">{client.name}</span>
                         </div>

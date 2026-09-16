@@ -1,139 +1,389 @@
 "use client";
 
-import { memo, useCallback } from "react";
-import { initials } from "@/app/lib/data";
+import { useMemo, useState, useCallback, memo } from "react";
 import { Avatar } from "@/app/components/ui/Avatar";
 import { StatusIndicator } from "@/app/components/ui/StatusIndicator";
-import { Clock } from "lucide-react";
+import { Moon, Sun, Sunset } from "lucide-react";
 import { useActiveShift } from "@/app/hooks/useLiveClock";
 import { useUserStatus, getStatusRingStyle } from "@/app/hooks/useUserStatus";
 import type { RosterMember } from "@/app/lib/types";
 
-interface RosterShiftCoverageProps {
+export type CoverageFilterTab = "Semua" | "On Duty" | "Online" | "Offline";
+
+export interface RosterShiftCoverageProps {
   members: RosterMember[];
   onSelectMember: (member: RosterMember) => void;
   matchedHeight?: number;
 }
 
-/* ─── Memoized individual member row in the coverage list ──────────────── */
+/**
+ * Resolves a roster member's status into 3 canonical coverage states:
+ * - "On Duty": Actively on duty during the current shift
+ * - "Online": Standby, online, or on break
+ * - "Offline": Off duty or on leave
+ */
+export function resolveCoverageStatus(
+  member: RosterMember,
+  isCurrentUser: boolean,
+  userStatus?: string
+): "On Duty" | "Online" | "Offline" {
+  if (isCurrentUser && userStatus) {
+    if (userStatus === "Online" || userStatus === "Busy") return "On Duty";
+    if (userStatus === "On Break") return "Online";
+    return "Offline";
+  }
 
-interface CoverageMemberRowProps {
-  member: RosterMember;
-  onSelect: (m: RosterMember) => void;
+  const s = (member.status || "").toLowerCase().trim();
+  if (s === "active" || s === "on duty" || s === "bertugas" || s === "present") {
+    return "On Duty";
+  }
+  if (s === "on break" || s === "break" || s === "standby" || s === "online") {
+    return "Online";
+  }
+  return "Offline";
 }
 
-const CoverageMemberRow = memo(function CoverageMemberRow({ member, onSelect }: CoverageMemberRowProps) {
-  const { userStatus } = useUserStatus();
-  const isCurrentUser = member.name.toLowerCase().includes("galih");
-  const ringStyle = getStatusRingStyle(member.status, isCurrentUser, userStatus);
-  const ringColor = (ringStyle as any)["--status-ring-color"] || "#22c55e";
-
-  const isLive = isCurrentUser ? userStatus === "Online" : member.status === "Active";
-  const isOnBreak = isCurrentUser ? userStatus === "On Break" : member.status === "On Break";
-  const isBusy = isCurrentUser && userStatus === "Busy";
-  const displayStatus = isCurrentUser ? userStatus : member.status;
-  const indicatorStatus = isLive ? "bertugas" : isBusy ? "critical" : isOnBreak ? "online" : "offline";
-  const indicatorLabel = isCurrentUser ? userStatus : isLive ? "Bertugas" : isOnBreak ? "Online" : "Offline";
-
-  const handleClick = useCallback(() => onSelect(member), [member, onSelect]);
-
-  return (
-    <button
-      className="roster-coverage-member-btn"
-      onClick={handleClick}
-      title={`Buka detail profil ${member.name}`}
-    >
-      <div
-        className="coverage-avatar-ring-wrapper"
-        style={ringStyle as React.CSSProperties}
-        title={`${member.name} (${displayStatus})`}
-      >
-        <Avatar
-          size="md"
-          name={member.name}
-          className="coverage-member-avatar"
-        />
-        <span
-          className="coverage-avatar-status-badge"
-          style={{ backgroundColor: ringColor }}
-        />
-      </div>
-      <span className="coverage-member-info">
-        <strong className="coverage-member-name">{member.name}</strong>
-        <small className="coverage-member-role">{member.role} · {displayStatus}</small>
-      </span>
-      <StatusIndicator
-        status={indicatorStatus}
-        label={indicatorLabel}
-      />
-    </button>
-  );
-},
-(prev, next) => prev.member === next.member && prev.onSelect === next.onSelect);
-
-/* ─── Main RosterShiftCoverage component ──────────────────────────────── */
-
-export function RosterShiftCoverage({ members, onSelectMember, matchedHeight }: RosterShiftCoverageProps) {
+export function RosterShiftCoverage({
+  members,
+  onSelectMember,
+  matchedHeight,
+}: RosterShiftCoverageProps) {
   const activeShift = useActiveShift();
-  const activeMembers = members.filter((m) => m.status === "Active" || m.status === "On Break");
-  const percentage = Math.round((activeMembers.length / (members.length || 1)) * 100);
+  const { userStatus } = useUserStatus();
+  const [activeTab, setActiveTab] = useState<CoverageFilterTab>("Semua");
 
-  const leadMember = members.find((m) => (m.status === "Active" || m.status === "On Break") && (m.role === "Shift Lead" || m.role === "Incident Coordinator")) ||
-    members.find((m) => (m.status === "Active" || m.status === "On Break")) ||
-    members.find((m) => m.role === "Shift Lead");
-  const leadName = leadMember
-    ? leadMember.name.split(" ").length > 1
-      ? `${leadMember.name.split(" ")[0]} ${leadMember.name.split(" ")[1][0]}.`
-      : leadMember.name
-    : "Pangondion K.";
+  const ShiftIcon =
+    activeShift.id === "subuh" ? Moon : activeShift.id === "pagi" ? Sun : Sunset;
 
-  // Stable callback ref so CoverageMemberRow.memo comparison passes
-  const handleSelect = useCallback((m: RosterMember) => onSelectMember(m), [onSelectMember]);
+  // 1. Tally counts for On Duty, Online, Offline
+  const counts = useMemo(() => {
+    let onDuty = 0;
+    let online = 0;
+    let offline = 0;
+
+    for (const m of members) {
+      const isCurrent = m.name.toLowerCase().includes("galih");
+      const status = resolveCoverageStatus(m, isCurrent, userStatus);
+      if (status === "On Duty") onDuty++;
+      else if (status === "Online") online++;
+      else offline++;
+    }
+
+    return {
+      total: members.length,
+      onDuty,
+      online,
+      offline,
+    };
+  }, [members, userStatus]);
+
+  // 2. Data for SVG Donut Chart (identical to Overview)
+  const chartData = useMemo(
+    () => [
+      {
+        label: "On Duty",
+        count: counts.onDuty,
+        color: "#22c55e",
+        gradientId: "coverage-donut-grad-onduty",
+      },
+      {
+        label: "Online",
+        count: counts.online,
+        color: "#38bdf8",
+        gradientId: "coverage-donut-grad-online",
+      },
+      {
+        label: "Offline",
+        count: counts.offline,
+        color: "#64748b",
+        gradientId: "coverage-donut-grad-offline",
+      },
+    ],
+    [counts]
+  );
+
+  const radius = 45;
+  const strokeWidth = 11.5;
+  const cx = 60;
+  const cy = 60;
+
+  const renderDonutSlices = () => {
+    const totalVal = chartData.reduce((acc, curr) => acc + curr.count, 0);
+    if (totalVal === 0) return null;
+
+    const circumference = 2 * Math.PI * radius;
+    const activeSlices = chartData.filter((item) => item.count > 0);
+
+    if (activeSlices.length === 1) {
+      const item = activeSlices[0];
+      return (
+        <circle
+          cx={cx}
+          cy={cy}
+          r={radius}
+          fill="none"
+          stroke={`url(#${item.gradientId})`}
+          strokeWidth={strokeWidth}
+          strokeDasharray={`${circumference} ${circumference}`}
+          strokeDashoffset={0}
+          strokeLinecap="butt"
+          className="donut-segment"
+          transform={`rotate(-90 ${cx} ${cy})`}
+        />
+      );
+    }
+
+    const totalGap = strokeWidth + 4;
+    let accumulatedAngle = 0;
+
+    return activeSlices.map((item, idx) => {
+      const slicePct = item.count / totalVal;
+      const rawLength = slicePct * circumference;
+      const visibleLength = Math.max(0.1, rawLength - totalGap);
+      const strokeDasharray = `${visibleLength} ${circumference - visibleLength}`;
+      const strokeDashoffset = -(
+        accumulatedAngle * circumference +
+        totalGap / 2
+      );
+      accumulatedAngle += slicePct;
+
+      return (
+        <circle
+          key={`${item.label}-${idx}`}
+          cx={cx}
+          cy={cy}
+          r={radius}
+          fill="none"
+          stroke={`url(#${item.gradientId})`}
+          strokeWidth={strokeWidth}
+          strokeDasharray={strokeDasharray}
+          strokeDashoffset={strokeDashoffset}
+          strokeLinecap="round"
+          className="donut-segment"
+          transform={`rotate(-90 ${cx} ${cy})`}
+        />
+      );
+    });
+  };
+
+  // 3. Filter members based on active tab
+  const filteredMembers = useMemo(() => {
+    if (activeTab === "Semua") return members;
+
+    return members.filter((m) => {
+      const isCurrent = m.name.toLowerCase().includes("galih");
+      const status = resolveCoverageStatus(m, isCurrent, userStatus);
+      return status === activeTab;
+    });
+  }, [members, activeTab, userStatus]);
+
+  const handleSelectMember = useCallback(
+    (member: RosterMember) => {
+      onSelectMember(member);
+    },
+    [onSelectMember]
+  );
 
   return (
     <article
-      className="panel coverage-panel roster-coverage-panel"
+      className="panel shift-coverage-card roster-coverage-panel"
       style={matchedHeight ? { height: `${matchedHeight}px` } : undefined}
     >
-      <div className="panel-title">Current Shift Coverage</div>
-      <div className="coverage-subtitle">
-        <Clock size={11} style={{ display: "inline", verticalAlign: "middle", marginRight: "4px", color: activeShift.color }} />
-        {activeShift.label} {activeShift.period} · Lead: {leadName}
-      </div>
-
-      <div
-        className="coverage-ring"
-        style={{
-          background: `conic-gradient(var(--green) 0 ${percentage}%, var(--line) ${percentage}% 100%)`,
-        }}
-      >
-        <div>
-          <strong>{percentage}%</strong>
-          <span>ON SHIFT</span>
+      {/* ── Header: Title, Subtitle, Shift Badge ── */}
+      <div className="shift-coverage-header">
+        <h2 className="panel-title shift-coverage-title">Status Kehadiran Anggota</h2>
+        <span className="shift-coverage-subtitle">Ketersediaan Pegawai</span>
+        <div className="shift-coverage-badge-row">
+          <div
+            className={`topbar-shift-badge ${activeShift.badgeClass}`}
+            title={`Shift Aktif: ${activeShift.name}`}
+            aria-label={`Shift aktif ${activeShift.name}`}
+          >
+            <ShiftIcon size={12} className="shift-badge-icon" />
+            <span className="shift-badge-label">
+              <strong>{activeShift.label}</strong>
+            </span>
+          </div>
         </div>
       </div>
 
-      <div className="coverage-stats roster-coverage-stats">
-        <span className="roster-coverage-pill roster-coverage-pill-active" title="Jumlah anggota aktif on duty / on break">
-          <span className="coverage-pill-dot dot-active" aria-hidden="true" />
-          <span className="coverage-pill-label">Active</span>
-          <strong className="coverage-pill-count">{activeMembers.length}</strong>
+      {/* ── Donut Chart (Overview shape & styling) ── */}
+      <div className="shift-coverage-donut-section">
+        <div className="donut-chart-wrap shift-coverage-donut-wrap">
+          <svg
+            className="donut-svg"
+            viewBox="0 0 120 120"
+            aria-label={`Distribusi status roster: ${counts.onDuty} On Duty, ${counts.online} Online, ${counts.offline} Offline`}
+          >
+            <defs>
+              <linearGradient id="coverage-donut-grad-onduty" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#4ade80" />
+                <stop offset="100%" stopColor="#16a34a" />
+              </linearGradient>
+              <linearGradient id="coverage-donut-grad-online" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#38bdf8" />
+                <stop offset="100%" stopColor="#0284c7" />
+              </linearGradient>
+              <linearGradient id="coverage-donut-grad-offline" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#64748b" />
+                <stop offset="100%" stopColor="#334155" />
+              </linearGradient>
+            </defs>
+
+            {/* Dotted calibration ring */}
+            <circle
+              cx={cx}
+              cy={cy}
+              r={radius + strokeWidth / 2 + 2.5}
+              fill="none"
+              stroke="rgba(255, 255, 255, 0.05)"
+              strokeWidth={1}
+              strokeDasharray="2 3"
+            />
+
+            {/* Background track groove */}
+            <circle
+              cx={cx}
+              cy={cy}
+              r={radius}
+              fill="none"
+              stroke="rgba(255, 255, 255, 0.06)"
+              strokeWidth={strokeWidth}
+            />
+
+            {/* Inner dial plate */}
+            <circle
+              cx={cx}
+              cy={cy}
+              r={radius - strokeWidth / 2 - 1.5}
+              fill="rgba(15, 23, 42, 0.55)"
+              stroke="rgba(255, 255, 255, 0.04)"
+              strokeWidth={1}
+            />
+
+            {renderDonutSlices()}
+          </svg>
+          <div className="donut-center-content">
+            <span className="donut-total-num">{counts.total}</span>
+            <span className="donut-total-label">TOTAL</span>
+          </div>
+        </div>
+      </div>
+
+      {/* ── 3-State Stats Summary Row (On Duty · Online · Offline) ── */}
+      <div className="shift-coverage-stats-row" aria-label="Ringkasan status roster">
+        <span
+          className="coverage-stat-pill coverage-stat-on-duty"
+          title="Jumlah anggota On Duty"
+        >
+          <span className="coverage-stat-dot dot-bertugas" aria-hidden="true" />
+          <span className="coverage-stat-text">{counts.onDuty} On Duty</span>
         </span>
-        <span className="roster-coverage-pill roster-coverage-pill-standby" title="Jumlah anggota standby, off duty, atau cuti">
-          <span className="coverage-pill-dot dot-standby" aria-hidden="true" />
-          <span className="coverage-pill-label">Standby/Off</span>
-          <strong className="coverage-pill-count">{members.length - activeMembers.length}</strong>
+        <span
+          className="coverage-stat-pill coverage-stat-online"
+          title="Jumlah anggota Online"
+        >
+          <span className="coverage-stat-dot dot-standby" aria-hidden="true" />
+          <span className="coverage-stat-text">{counts.online} Online</span>
+        </span>
+        <span
+          className="coverage-stat-pill coverage-stat-offline"
+          title="Jumlah anggota Offline"
+        >
+          <span className="coverage-stat-dot dot-offline" aria-hidden="true" />
+          <span className="coverage-stat-text">{counts.offline} Offline</span>
         </span>
       </div>
 
-      <div className="coverage-team roster-coverage-team-list">
-        {members.map((member) => (
-          <CoverageMemberRow
-            key={member.id}
-            member={member}
-            onSelect={handleSelect}
-          />
-        ))}
+      {/* ── Status Filter Tabs: On Duty, Online, Offline ── */}
+      <div className="roster-filter-tabs-wrapper">
+        <div
+          className="filter-tabs roster-filter-tabs"
+          role="tablist"
+          aria-label="Filter status anggota roster"
+        >
+          {[
+            { id: "Semua" as const, label: "Semua", count: counts.total },
+            { id: "On Duty" as const, label: "On Duty", count: counts.onDuty },
+            { id: "Online" as const, label: "Online", count: counts.online },
+            { id: "Offline" as const, label: "Offline", count: counts.offline },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              role="tab"
+              aria-selected={activeTab === tab.id}
+              className={activeTab === tab.id ? "selected" : ""}
+              onClick={() => setActiveTab(tab.id)}
+            >
+              <span className="tab-label">{tab.label}</span>
+              <span className="tab-count-badge">{tab.count}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Scrollable Member List ── */}
+      <div className="coverage-team shift-coverage-team-list roster-coverage-team-list">
+        {filteredMembers.length === 0 ? (
+          <div className="roster-empty-container">
+            <div className="roster-empty-state">
+              <p>Tidak ada anggota {activeTab.toLowerCase()} saat ini.</p>
+            </div>
+          </div>
+        ) : (
+          filteredMembers.map((member) => {
+            const isCurrentUser = member.name.toLowerCase().includes("galih");
+            const canonical = resolveCoverageStatus(member, isCurrentUser, userStatus);
+            const ringStyle = getStatusRingStyle(
+              canonical === "On Duty" ? "On Duty" : canonical === "Online" ? "Standby" : "Offline",
+              isCurrentUser,
+              userStatus
+            );
+            const ringColor = (ringStyle as any)["--status-ring-color"] || "#22c55e";
+
+            const indicatorStatus =
+              canonical === "On Duty" ? "bertugas" : canonical === "Online" ? "online" : "offline";
+            const indicatorLabel = canonical;
+
+            return (
+              <button
+                key={member.id}
+                type="button"
+                className="roster-member-row"
+                onClick={() => handleSelectMember(member)}
+                title={`Buka detail profil ${member.name}`}
+              >
+                <div className="roster-member-left">
+                  <div
+                    className="coverage-avatar-ring-wrapper"
+                    style={ringStyle as React.CSSProperties}
+                    title={`${member.name} (${indicatorLabel})`}
+                  >
+                    <Avatar size="sm" name={member.name} className="shift-coverage-avatar" />
+                    <span
+                      className="roster-avatar-status-badge"
+                      style={{ backgroundColor: ringColor }}
+                    />
+                  </div>
+                  <div className="roster-member-info">
+                    <span className="roster-member-name" title={member.name}>
+                      {member.name}
+                    </span>
+                    <small className="roster-member-role">{member.role}</small>
+                  </div>
+                </div>
+                <div className="roster-member-right">
+                  <StatusIndicator
+                    status={indicatorStatus}
+                    label={indicatorLabel}
+                    size="sm"
+                  />
+                </div>
+              </button>
+            );
+          })
+        )}
       </div>
     </article>
   );

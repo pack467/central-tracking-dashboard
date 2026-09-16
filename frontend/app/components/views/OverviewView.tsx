@@ -2,7 +2,6 @@
 
 import { useMemo, useState, useRef, useEffect } from "react";
 import { Layers, Clock, ChevronDown, Check } from "lucide-react";
-import { AttentionPanel } from "@/app/components/dashboard/AttentionPanel";
 import { ClientStatusGrid } from "@/app/components/dashboard/ClientStatusGrid";
 import { HandoverQuickCard } from "@/app/components/dashboard/HandoverQuickCard";
 import { HealthStrip } from "@/app/components/dashboard/HealthStrip";
@@ -370,13 +369,6 @@ export function OverviewView(props: OverviewViewProps) {
 
       <section className="dashboard-grid">
         <div className="main-column">
-          <AttentionPanel
-            onGoToNotifications={props.onGoToNotifications}
-            acknowledged={props.acknowledged}
-            onAcknowledge={props.onAcknowledge}
-            onUnacknowledge={props.onUnacknowledge}
-          />
-
           <MonitoringSchedule
             entries={overviewEntries}
             assessments={props.assessments}

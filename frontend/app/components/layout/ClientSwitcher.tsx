@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { Building2, ChevronDown, Check, ShieldCheck } from "lucide-react";
+import { Building2, ChevronDown, Check } from "lucide-react";
 import { useClient, ClientOrganization, ClientId } from "@/app/context/ClientContext";
 import { useToast } from "@/app/components/ui/Toast";
+import { NoImagePlaceholder } from "@/app/components/ui/NoImagePlaceholder";
 
 export function ClientSwitcher() {
   const { activeClient, clients, setActiveClientId } = useClient();
@@ -58,29 +59,16 @@ export function ClientSwitcher() {
         aria-haspopup="listbox"
         aria-expanded={isOpen}
         aria-label={`Klien aktif: ${activeClient.name}. Klik untuk beralih organisasi`}
-        title={`Organisasi/Klien: ${activeClient.name} (${activeClient.tier})`}
+        title={`Organisasi/Klien: ${activeClient.name}`}
       >
         <span className="client-icon-badge">
           <Building2 size={14} className="client-building-icon" />
-        </span>
-
-        <span
-          className="client-avatar-badge"
-          style={{
-            backgroundColor: activeClient.avatarBg,
-            color: activeClient.avatarColor,
-            borderColor: activeClient.borderColor,
-          }}
-        >
-          {activeClient.code}
         </span>
 
         <span className="client-name-group">
           <span className="client-label">KLIEN / TENANT</span>
           <span className="client-name">{activeClient.shortName}</span>
         </span>
-
-        <span className="client-badge-tier">{activeClient.tier.split(" ")[0]}</span>
 
         <ChevronDown
           size={14}
@@ -113,24 +101,11 @@ export function ClientSwitcher() {
                   className={`client-dropdown-item ${isSelected ? "selected" : ""}`}
                   onClick={() => handleSelect(client)}
                 >
-                  <div
-                    className="client-item-avatar"
-                    style={{
-                      backgroundColor: client.avatarBg,
-                      color: client.avatarColor,
-                      borderColor: client.borderColor,
-                    }}
-                  >
-                    {client.code}
-                  </div>
+                  <NoImagePlaceholder />
 
                   <div className="client-item-info">
                     <div className="client-item-title-row">
                       <span className="client-item-name">{client.name}</span>
-                      <span className="client-item-tier">
-                        <ShieldCheck size={11} style={{ marginRight: 3 }} />
-                        {client.tier}
-                      </span>
                     </div>
                     <div className="client-item-tagline">{client.tagline}</div>
                     <div className="client-item-meta">
