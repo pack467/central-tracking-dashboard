@@ -14,10 +14,14 @@ import {
   TicketCheck,
   ClipboardList,
   Ticket as TicketIcon,
+  Sun,
+  Sunset,
+  Moon,
 } from "lucide-react";
 import { EmptyState } from "@/app/components/ui/EmptyState";
 import { ConfirmDialog } from "@/app/components/ui/ConfirmDialog";
 import { useToast } from "@/app/components/ui/Toast";
+import { Avatar } from "@/app/components/ui/Avatar";
 import { formatHandoverDate, initials, isOpenTicket } from "@/app/lib/data";
 import type { HandoverRecordData, StoredHandoverRecord } from "@/app/lib/types";
 import { canEditHandover, getTaskIdentity, isNewlyAddedTask, parseHandoverContent } from "@/app/lib/handover";
@@ -25,6 +29,22 @@ import {
   HandoverHistoryControls,
   type HandoverWorkflow,
 } from "@/app/components/handover/HandoverHistoryControls";
+
+import { getShiftType } from "@/app/lib/shifts";
+
+export function getShiftTagMeta(shiftName: string) {
+  const type = getShiftType(shiftName);
+  let icon = null;
+  if (type === "pagi") icon = Sun;
+  else if (type === "malam") icon = Sunset;
+  else if (type === "subuh") icon = Moon;
+
+  return {
+    key: type,
+    className: `shift-tag-${type}`,
+    icon,
+  };
+}
 
 function parseContent(record: StoredHandoverRecord): HandoverRecordData | null {
   try {
@@ -81,26 +101,6 @@ function buildShiftLineageMap(records: StoredHandoverRecord[]): Map<number, numb
   return map;
 }
 
-const AVATAR_PALETTES = [
-  { bg: "rgba(56, 189, 248, 0.18)", text: "#38bdf8", border: "rgba(56, 189, 248, 0.4)" },
-  { bg: "rgba(168, 85, 247, 0.18)", text: "#c084fc", border: "rgba(168, 85, 247, 0.4)" },
-  { bg: "rgba(16, 185, 129, 0.18)", text: "#34d399", border: "rgba(16, 185, 129, 0.4)" },
-  { bg: "rgba(245, 158, 11, 0.18)", text: "#fbbf24", border: "rgba(245, 158, 11, 0.4)" },
-  { bg: "rgba(244, 63, 94, 0.18)", text: "#fb7185", border: "rgba(244, 63, 94, 0.4)" },
-  { bg: "rgba(99, 102, 241, 0.18)", text: "#818cf8", border: "rgba(99, 102, 241, 0.4)" },
-  { bg: "rgba(20, 184, 166, 0.18)", text: "#2dd4bf", border: "rgba(20, 184, 166, 0.4)" },
-];
-
-function getAvatarPalette(name: string) {
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) {
-    hash = (hash << 5) - hash + name.charCodeAt(i);
-    hash |= 0;
-  }
-  const index = Math.abs(hash) % AVATAR_PALETTES.length;
-  return AVATAR_PALETTES[index];
-}
-
 function parsePicNames(picString: string): string[] {
   if (!picString) return [];
   return picString
@@ -123,7 +123,7 @@ export function ShiftLogView({ workflow }: { workflow: HandoverWorkflow }) {
   // Reset pagination to page 1 whenever filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [workflow.filters.date, workflow.filters.pic]);
+  }, [workflow.filters.date, workflow.filters.shift, workflow.filters.pic]);
 
   const lineageMap = useMemo(() => buildShiftLineageMap(visibleRecords), [visibleRecords]);
 
@@ -372,66 +372,69 @@ export function ShiftLogView({ workflow }: { workflow: HandoverWorkflow }) {
 
                       {content ? (
                         <>
-                          {/* Sender → Receiver Flow with Avatars */}
-                          <div className="timeline-flow-container">
-                            <div className="shift-flow-card shift-flow-source">
-                              <div className="shift-flow-role">
-                                <span className="shift-role-badge">DARI</span>
-                                <span className="shift-name-tag">{content.sourceShift}</span>
-                              </div>
-                              <div className="shift-flow-people">
-                                {parsePicNames(content.sourcePic).map((person) => {
-                                  const palette = getAvatarPalette(person);
-                                  return (
-                                    <span className="shift-person-pill" key={person} title={person}>
-                                      <span
-                                        className="shift-person-avatar"
-                                        style={{
-                                          background: palette.bg,
-                                          color: palette.text,
-                                          borderColor: palette.border,
-                                        }}
-                                      >
-                                        {initials(person)}
-                                      </span>
-                                      <span className="shift-person-name">{person}</span>
-                                    </span>
-                                  );
-                                })}
-                              </div>
-                            </div>
+                          {/* Sender → Receiver Flow with Avatars & Color-Coded Shift Badges */}
+                          {(() => {
+                            const sourceShiftMeta = getShiftTagMeta(content.sourceShift);
+                            const SourceShiftIcon = sourceShiftMeta.icon;
+                            const targetShiftMeta = getShiftTagMeta(content.targetShift);
+                            const TargetShiftIcon = targetShiftMeta.icon;
 
-                            <div className="timeline-flow-arrow" title="Diserahkan kepada">
-                              <ArrowRight size={13} />
-                            </div>
-
-                            <div className="shift-flow-card shift-flow-target">
-                              <div className="shift-flow-role">
-                                <span className="shift-role-badge">KEPADA</span>
-                                <span className="shift-name-tag">{content.targetShift}</span>
-                              </div>
-                              <div className="shift-flow-people">
-                                {parsePicNames(content.targetPic).map((person) => {
-                                  const palette = getAvatarPalette(person);
-                                  return (
-                                    <span className="shift-person-pill" key={person} title={person}>
-                                      <span
-                                        className="shift-person-avatar"
-                                        style={{
-                                          background: palette.bg,
-                                          color: palette.text,
-                                          borderColor: palette.border,
-                                        }}
-                                      >
-                                        {initials(person)}
-                                      </span>
-                                      <span className="shift-person-name">{person}</span>
+                            return (
+                              <div className="timeline-flow-container">
+                                <div className="shift-flow-card shift-flow-source">
+                                  <div className="shift-flow-role">
+                                    <span className="shift-role-badge">DARI</span>
+                                    <span
+                                      className={`shift-name-tag ${sourceShiftMeta.className}`}
+                                      data-shift={sourceShiftMeta.key}
+                                      title={`Shift asal: ${content.sourceShift}`}
+                                    >
+                                      {SourceShiftIcon && (
+                                        <SourceShiftIcon size={12} className="shift-tag-icon" aria-hidden="true" />
+                                      )}
+                                      <span className="shift-tag-label">{content.sourceShift}</span>
                                     </span>
-                                  );
-                                })}
+                                  </div>
+                                  <div className="shift-flow-people">
+                                    {parsePicNames(content.sourcePic).map((person) => (
+                                      <span className="shift-person-pill" key={person} title={person}>
+                                        <Avatar size="sm" name={person} className="shift-person-avatar" />
+                                        <span className="shift-person-name">{person}</span>
+                                      </span>
+                                    ))}
+                                  </div>
+                                </div>
+
+                                <div className="timeline-flow-arrow" title="Diserahkan kepada">
+                                  <ArrowRight size={13} />
+                                </div>
+
+                                <div className="shift-flow-card shift-flow-target">
+                                  <div className="shift-flow-role">
+                                    <span className="shift-role-badge">KEPADA</span>
+                                    <span
+                                      className={`shift-name-tag ${targetShiftMeta.className}`}
+                                      data-shift={targetShiftMeta.key}
+                                      title={`Shift penerima: ${content.targetShift}`}
+                                    >
+                                      {TargetShiftIcon && (
+                                        <TargetShiftIcon size={12} className="shift-tag-icon" aria-hidden="true" />
+                                      )}
+                                      <span className="shift-tag-label">{content.targetShift}</span>
+                                    </span>
+                                  </div>
+                                  <div className="shift-flow-people">
+                                    {parsePicNames(content.targetPic).map((person) => (
+                                      <span className="shift-person-pill" key={person} title={person}>
+                                        <Avatar size="sm" name={person} className="shift-person-avatar" />
+                                        <span className="shift-person-name">{person}</span>
+                                      </span>
+                                    ))}
+                                  </div>
+                                </div>
                               </div>
-                            </div>
-                          </div>
+                            );
+                          })()}
 
                           {/* Bottom Progress & Stat Badges */}
                           <div className="timeline-bottom-row">
@@ -498,7 +501,7 @@ export function ShiftLogView({ workflow }: { workflow: HandoverWorkflow }) {
               title={
                 workflow.error
                   ? "Catatan belum dapat dimuat"
-                  : workflow.filters.date || workflow.filters.pic
+                  : workflow.filters.date || workflow.filters.shift || workflow.filters.pic
                   ? "Tidak ada catatan yang cocok"
                   : "Belum ada catatan handover"
               }

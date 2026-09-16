@@ -24,6 +24,9 @@
   --modal-bg: #1e293b;
   --drawer-bg: #1e293b;
   --overlay-bg: rgba(0, 0, 0, 0.65);
+  --avatar-bg: #3a3a3e;
+  --avatar-text: #f8fafc;
+  --avatar-border: rgba(148, 163, 184, 0.22);
 
   --ink-primary: #f8fafc;
   --ink-secondary: #cbd5e1;

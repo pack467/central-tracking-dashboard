@@ -57,6 +57,19 @@ export function getShiftInfoForMinutes(totalMinutes: number): ShiftInfo {
   return shiftDefinitions.subuh;
 }
 
+export function getShiftType(shiftName: string): "subuh" | "pagi" | "malam" | "default" {
+  const s = (shiftName || "").toLowerCase().trim();
+  if (s.includes("subuh") || s.includes("dawn")) return "subuh";
+  if (s.includes("pagi") || s.includes("morning")) return "pagi";
+  if (s.includes("malam") || s.includes("night") || s.includes("sore")) return "malam";
+  return "default";
+}
+
+export function getShiftTagClass(shiftName: string): string {
+  const type = getShiftType(shiftName);
+  return `shift-tag-${type}`;
+}
+
 export function getShiftInfo(date: Date = new Date()): ShiftInfo {
   return getShiftInfoForMinutes(date.getHours() * 60 + date.getMinutes());
 }

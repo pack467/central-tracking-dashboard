@@ -114,6 +114,22 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
     [tickets],
   );
 
+  const handleTabChange = (tab: MainViewTab) => {
+    if (tab === "report") {
+      setDateFilter(getTodayWIB());
+    } else if (activeTab === "report" && dateFilter === getTodayWIB()) {
+      setDateFilter("");
+    }
+    setActiveTab(tab);
+  };
+
+  // When report tab is active, automatically select today's date if not already filtered
+  useEffect(() => {
+    if (activeTab === "report" && !dateFilter) {
+      setDateFilter(getTodayWIB());
+    }
+  }, [activeTab]);
+
   // Reset pagination to page 1 whenever any filter, search, sort, or tab changes
   useEffect(() => {
     setCurrentPage(1);
@@ -140,11 +156,16 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
 
       // 3. Date Filter (Single date or Range)
       if (dateFilter) {
-        const ticketDate = ticket.date || getTodayWIB();
+        const todayStr = getTodayWIB();
+        const ticketDate = ticket.date || todayStr;
         if (dateFilter.includes("..")) {
           const [start, end] = dateFilter.split("..");
           if (start && ticketDate < start) return false;
           if (end && ticketDate > end) return false;
+        } else if (dateFilter === todayStr || dateFilter === "today") {
+          // In queue view, show active tickets or tickets created today
+          const isToday = ticketDate === todayStr || normalizeStatus(ticket.status) === "active" || normalizeStatus(ticket.status) === "escalated" || normalizeStatus(ticket.status) === "pending";
+          if (!isToday) return false;
         } else {
           if (ticketDate !== dateFilter) return false;
         }
@@ -199,6 +220,50 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
     shiftFilter,
     sort,
   ]);
+
+  // For Ticket Report & Analytics: includes all tickets matching search, project, priority, type, shift,
+  // while preserving the multi-day timeline for daily volume traffic and trajectory analytics.
+  // If user selected a custom date range (containing ".."), it scopes to that range.
+  const reportTickets = useMemo(() => {
+    const needle = search.trim().toLowerCase();
+    return tickets.filter((ticket) => {
+      // 1. Status
+      if (statusFilter !== "All" && statusFilter !== "Semua") {
+        if (normalizeStatus(ticket.status) !== normalizeStatus(statusFilter)) return false;
+      }
+      // 2. Type
+      if (typeFilter !== "All Types") {
+        const tType = ticket.type || ticket.category || "Incident";
+        if (tType !== typeFilter) return false;
+      }
+      // 3. Priority
+      if (priorityFilter !== "All Priorities" && priorityFilter !== "Semua") {
+        if (normalizePriority(ticket.severity) !== normalizePriority(priorityFilter)) return false;
+      }
+      // 4. Project
+      if (projectFilter !== "All Projects" && projectFilter !== "Semua" && ticket.project !== projectFilter) {
+        return false;
+      }
+      // 5. Shift
+      if (shiftFilter !== "Semua Shift" && shiftFilter !== "All Shifts") {
+        const ticketShift = getTicketShift(ticket);
+        const targetShift = shiftFilter.replace(/^Shift\s+/, "");
+        if (ticketShift !== targetShift) return false;
+      }
+      // 6. Search
+      if (needle && !Object.values(ticket).some((v) => typeof v === "string" && v.toLowerCase().includes(needle))) {
+        return false;
+      }
+      // 7. Date Range: if user selected a custom date range with "..", respect the range
+      if (dateFilter && dateFilter.includes("..")) {
+        const [start, end] = dateFilter.split("..");
+        const ticketDate = ticket.date || getTodayWIB();
+        if (start && ticketDate < start) return false;
+        if (end && ticketDate > end) return false;
+      }
+      return true;
+    });
+  }, [tickets, search, statusFilter, typeFilter, priorityFilter, projectFilter, shiftFilter, dateFilter]);
 
   // Pagination calculations (applied to filtered result set)
   const totalFilteredCount = filteredTickets.length;
@@ -265,13 +330,14 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
   };
 
   const selectedRangeLabel = useMemo(() => {
-    if (!dateFilter) return "All Time";
+    if (!dateFilter) return activeTab === "report" ? "Hari Ini" : "Semua Waktu";
+    if (dateFilter === getTodayWIB() || dateFilter === "today") return "Hari Ini";
     if (dateFilter.includes("..")) {
       const [start, end] = dateFilter.split("..");
       if (start && end) return `${start} – ${end}`;
     }
     return dateFilter;
-  }, [dateFilter]);
+  }, [dateFilter, activeTab]);
 
   // Shared Pagination Bar component
   const renderPagination = () => {
@@ -426,7 +492,7 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
           role="tab"
           aria-selected={activeTab === "queue"}
           className={`view-switcher-tab ${activeTab === "queue" ? "active" : ""}`}
-          onClick={() => setActiveTab("queue")}
+          onClick={() => handleTabChange("queue")}
         >
           <Layers size={14} />
           <span>Daftar Tiket</span>
@@ -438,7 +504,7 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
           role="tab"
           aria-selected={activeTab === "escalations"}
           className={`view-switcher-tab ${activeTab === "escalations" ? "active" : ""}`}
-          onClick={() => setActiveTab("escalations")}
+          onClick={() => handleTabChange("escalations")}
         >
           <ShieldAlert size={14} />
           <span>Escalations</span>
@@ -452,7 +518,7 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
           role="tab"
           aria-selected={activeTab === "report"}
           className={`view-switcher-tab ${activeTab === "report" ? "active" : ""}`}
-          onClick={() => setActiveTab("report")}
+          onClick={() => handleTabChange("report")}
         >
           <FileText size={14} />
           <span>Ticket Report &amp; Analytics</span>
@@ -508,13 +574,14 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
 
           {/* Filter Controls (hidden on mobile unless open) */}
           <div className={`ticket-filter-controls${mobileFiltersOpen ? " filters-open" : ""}`}>
-            {/* Date Range Picker (replaces All Time dropdown) */}
+            {/* Date Range Picker: "Semua Waktu" is present on Queue & Escalations, but excluded only in Ticket Report & Analytics */}
             <div className="ticket-date-filter-wrap">
               <DatePicker
                 value={dateFilter}
                 onChange={setDateFilter}
-                placeholder="Semua Waktu"
-                aria-label="Filter rentang waktu tiket"
+                placeholder={activeTab === "report" ? "Pilih Tanggal" : "Semua Waktu"}
+                showAllTimePreset={activeTab !== "report"}
+                aria-label="Filter rentang tanggal tiket"
               />
             </div>
 
@@ -676,7 +743,7 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
                   type="button"
                   className="filter-chip-remove"
                   onClick={() => setDateFilter("")}
-                  aria-label="Remove time filter"
+                  aria-label="Hapus filter tanggal"
                 >
                   ×
                 </button>
@@ -805,7 +872,7 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
         {activeTab === "report" && (
           <div className="ticket-view-content anim-tab-fade" key="report-tab">
             <TicketReportView
-              tickets={filteredTickets}
+              tickets={reportTickets}
               dateRangeLabel={selectedRangeLabel}
             />
           </div>

@@ -31,6 +31,7 @@ const ShiftLogView = lazy(() => import("@/app/components/views/ShiftLogView").th
 const ReportsView = lazy(() => import("@/app/components/views/ReportsView").then((module) => ({ default: module.ReportsView })));
 const TeamRosterView = lazy(() => import("@/app/components/views/TeamRosterView").then((module) => ({ default: module.TeamRosterView })));
 const NotificationsView = lazy(() => import("@/app/components/views/NotificationsView").then((module) => ({ default: module.NotificationsView })));
+const ProfileView = lazy(() => import("@/app/components/views/ProfileView").then((module) => ({ default: module.ProfileView })));
 import {
   NotificationProvider,
   useNotifications,
@@ -56,11 +57,26 @@ export default function Home() {
 const EMPTY_ASSESSMENTS: Record<string, CheckpointAssessment> = {};
 const EMPTY_ACKNOWLEDGED: string[] = [];
 
-function Dashboard() {
+export function Dashboard({ initialNav = "Overview" }: { initialNav?: string }) {
   const notify = useToast();
   const { addNotification } = useNotifications();
   const { activeClient, activeClientId } = useClient();
-  const [activeNav, setActiveNav] = useState("Overview");
+  const [activeNav, setActiveNav] = useState(initialNav);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const hash = window.location.hash.toLowerCase();
+      const search = new URLSearchParams(window.location.search);
+      if (
+        hash === "#profile" ||
+        hash === "#profil" ||
+        search.get("nav")?.toLowerCase() === "profile" ||
+        search.get("tab")?.toLowerCase() === "profile"
+      ) {
+        setActiveNav("Profile");
+      }
+    }
+  }, []);
 
   const [tickets, setTickets] = useLocalStorage<Ticket[]>("ctd.tickets.v2", ALL_COMBINED_SEED_TICKETS);
   const [assessments, setAssessments] = useLocalStorage<Record<string, CheckpointAssessment>>("ctd.checkpoints", EMPTY_ASSESSMENTS);
@@ -103,6 +119,13 @@ function Dashboard() {
 
   const handleNavigate = useCallback((nextNav: string) => {
     setActiveNav(nextNav);
+    if (typeof window !== "undefined") {
+      if (nextNav === "Profile" || nextNav === "Profil") {
+        window.history.replaceState(null, "", "#profile");
+      } else if (window.location.hash === "#profile" || window.location.hash === "#profil") {
+        window.history.replaceState(null, "", window.location.pathname);
+      }
+    }
   }, []);
 
   const handleAssess = useCallback((key: string, verdict: "ok" | "nok" | "adequate" | "not-adequate" | null) => {
@@ -254,6 +277,14 @@ function Dashboard() {
 
             {(activeNav === "Notifikasi" || activeNav === "Notifications") && (
               <NotificationsView />
+            )}
+
+            {(activeNav === "Profile" || activeNav === "Profil" || activeNav === "Profil Pengguna") && (
+              <ProfileView
+                onNavigateToShiftSwap={() => handleNavigate("Team Roster")}
+                onNavigateToHandover={() => handleNavigate("Shift Log")}
+                onNavigateToTickets={() => handleNavigate("Tickets")}
+              />
             )}
           </Suspense>
         </div>

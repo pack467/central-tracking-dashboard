@@ -204,33 +204,50 @@
 }
 
 .health-group-title .health-title {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  box-sizing: border-box;
   color: var(--ink-muted);
-  font-size: 11px; /* Matches .client-status-title */
+  font-size: 11.5px;
   font-weight: 700;
-  letter-spacing: 0.8px;
-  font-family: var(--font-mono);
+  letter-spacing: 0.04em;
+  font-family: var(--font-sans);
   text-transform: uppercase;
   white-space: nowrap;
   line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .health-sim-pill {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 4.5px;
-  padding: 2.5px 7.5px;
+  height: 24px;
+  box-sizing: border-box;
+  padding: 0 8px;
   border-radius: 5px;
-  font-size: 10.5px;
-  font-family: var(--font-mono);
+  font-size: 11px;
+  font-family: var(--font-sans);
   font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.12);
   color: var(--ink-secondary);
   cursor: pointer;
   transition: all 0.15s ease;
   white-space: nowrap;
-  line-height: 1.2;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.health-sim-pill svg {
+  display: block;
+  flex-shrink: 0;
 }
 
 .health-sim-pill:hover,
@@ -425,17 +442,20 @@
 }
 
 .service-health-chip:hover {
-  /* No floating, no lift, no shadow, no scale transform */
-  border-color: rgba(255, 255, 255, 0.24);
-  background: rgba(255, 255, 255, 0.06);
-  z-index: 10;
+  /* Clean high-contrast highlight: NO shadow, NO lifting card */
+  transform: none !important;
+  box-shadow: none !important;
+  border-color: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  z-index: 2;
 }
 
 .service-health-chip:focus-visible {
   outline: none;
   border-color: var(--accent-blue);
-  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.35);
-  z-index: 10;
+  box-shadow: none;
+  z-index: 2;
 }
 
 /* Service Short Code / Avatar Icon */
@@ -453,6 +473,7 @@
   color: var(--ink-primary);
   flex-shrink: 0;
   letter-spacing: -0.2px;
+  transition: background 0.18s ease, color 0.18s ease;
 }
 
 .service-chip-mark .project-mark {
@@ -486,7 +507,7 @@
 }
 
 /* Style Differentiation by Status */
-/* 1. Healthy (Green dot): default/neutral border & subtle bg */
+/* 1. Healthy (Green dot): subtle emerald border & highlight on hover */
 .service-health-chip.chip-success {
   border-color: rgba(255, 255, 255, 0.12);
   background: rgba(255, 255, 255, 0.03);
@@ -494,13 +515,14 @@
 }
 .service-health-chip.chip-success:hover,
 .service-health-chip.chip-success.active {
-  border-color: rgba(255, 255, 255, 0.24);
-  background: rgba(255, 255, 255, 0.07);
-  color: var(--ink-primary);
+  border-color: rgba(34, 197, 94, 0.7);
+  background: rgba(34, 197, 94, 0.1);
+  color: #ffffff;
+  transform: none !important;
+  box-shadow: none !important;
 }
 .service-health-chip.chip-success .service-chip-dot {
   background: #22c55e;
-  box-shadow: 0 0 6px rgba(34, 197, 94, 0.55);
 }
 
 /* 2. Warning (Yellow/amber dot): amber-tinted border/background */
@@ -511,17 +533,23 @@
 }
 .service-health-chip.chip-warning:hover,
 .service-health-chip.chip-warning.active {
-  border-color: rgba(245, 158, 11, 0.65);
-  background: rgba(245, 158, 11, 0.16);
-  color: #fef08a;
+  border-color: #f59e0b;
+  background: rgba(245, 158, 11, 0.18);
+  color: #ffffff;
+  transform: none !important;
+  box-shadow: none !important;
 }
 .service-health-chip.chip-warning .service-chip-mark {
   background: rgba(245, 158, 11, 0.22);
   color: #fef08a;
+  transition: background 0.18s ease, color 0.18s ease;
+}
+.service-health-chip.chip-warning:hover .service-chip-mark {
+  background: rgba(245, 158, 11, 0.35);
+  color: #ffffff;
 }
 .service-health-chip.chip-warning .service-chip-dot {
   background: #f59e0b;
-  box-shadow: 0 0 7px rgba(245, 158, 11, 0.75);
 }
 
 /* 3. Critical (Red dot): red-tinted border/background */
@@ -532,119 +560,28 @@
 }
 .service-health-chip.chip-critical:hover,
 .service-health-chip.chip-critical.active {
-  border-color: rgba(239, 68, 68, 0.7);
-  background: rgba(239, 68, 68, 0.18);
-  color: #fecaca;
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.2);
+  color: #ffffff;
+  transform: none !important;
+  box-shadow: none !important;
 }
 .service-health-chip.chip-critical .service-chip-mark {
   background: rgba(239, 68, 68, 0.24);
   color: #fecaca;
+  transition: background 0.18s ease, color 0.18s ease;
+}
+.service-health-chip.chip-critical:hover .service-chip-mark {
+  background: rgba(239, 68, 68, 0.38);
+  color: #ffffff;
 }
 .service-health-chip.chip-critical .service-chip-dot {
   background: #ef4444;
-  box-shadow: 0 0 7px rgba(239, 68, 68, 0.85);
 }
 
-/* Rich Hover Tooltip */
+/* Rich Hover Tooltip - Disabled / Hidden to prevent floating card popup */
 .service-chip-tooltip {
-  position: absolute;
-  bottom: calc(100% + 9px);
-  left: 50%;
-  transform: translateX(-50%) translateY(4px);
-  min-width: 220px;
-  max-width: 290px;
-  padding: 8px 11px;
-  border-radius: 7px;
-  background: #090d16;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  box-shadow: 0 10px 24px -4px rgba(0, 0, 0, 0.8), 0 0 1px 1px rgba(255, 255, 255, 0.08);
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  z-index: 999;
-  transition: opacity 0.16s ease, transform 0.16s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.16s ease;
-  white-space: normal;
-  text-align: left;
-  line-height: 1.35;
-}
-
-.service-health-chip:hover .service-chip-tooltip,
-.service-health-chip:focus-visible .service-chip-tooltip {
-  opacity: 1;
-  visibility: visible;
-  transform: translateX(-50%) translateY(0);
-}
-
-.service-chip-tooltip::after {
-  content: "";
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border-width: 5px;
-  border-style: solid;
-  border-color: #090d16 transparent transparent transparent;
-}
-
-.service-chip-tooltip-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 4px;
-}
-
-.service-chip-tooltip-title {
-  font-size: 11px;
-  font-weight: 700;
-  color: #f8fafc;
-}
-
-.service-chip-tooltip-status {
-  font-size: 9px;
-  font-weight: 700;
-  padding: 1.5px 5px;
-  border-radius: 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-  font-family: var(--font-mono);
-}
-
-.service-chip-tooltip-status.status-success {
-  background: rgba(34, 197, 94, 0.18);
-  color: #4ade80;
-  border: 1px solid rgba(34, 197, 94, 0.35);
-}
-
-.service-chip-tooltip-status.status-warning {
-  background: rgba(245, 158, 11, 0.18);
-  color: #fbbf24;
-  border: 1px solid rgba(245, 158, 11, 0.35);
-}
-
-.service-chip-tooltip-status.status-critical,
-.service-chip-tooltip-status.status-danger {
-  background: rgba(239, 68, 68, 0.18);
-  color: #f87171;
-  border: 1px solid rgba(239, 68, 68, 0.35);
-}
-
-.service-chip-tooltip-desc {
-  display: block;
-  font-size: 10px;
-  color: #cbd5e1;
-  line-height: 1.35;
-  word-break: break-word;
-}
-
-.service-chip-tooltip-hint {
-  display: block;
-  margin-top: 5px;
-  padding-top: 4px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  font-size: 9px;
-  color: #94a3b8;
-  font-family: var(--font-mono);
+  display: none !important;
 }
 
 /* Service Detail Modal */

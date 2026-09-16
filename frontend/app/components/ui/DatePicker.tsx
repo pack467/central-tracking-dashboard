@@ -11,6 +11,8 @@ export interface DatePickerProps {
   referenceDate?: string; // Optional reference "today" YYYY-MM-DD for demo/historical datasets
   required?: boolean;
   disabled?: boolean;
+  clearable?: boolean;
+  showAllTimePreset?: boolean;
   className?: string;
   id?: string;
   name?: string;
@@ -121,6 +123,8 @@ export function DatePicker({
   referenceDate,
   required,
   disabled,
+  clearable = false,
+  showAllTimePreset = true,
   className = "",
   id,
   name,
@@ -327,13 +331,13 @@ export function DatePicker({
     return [
       { label: "Hari Ini", value: today },
       { label: "Kemarin", value: yesterday },
-      { label: "Semua Waktu", value: "" },
+      ...(showAllTimePreset ? [{ label: "Semua Waktu", value: "" }] : []),
       { label: "Minggu Ini", value: thisWeek },
       { label: "Minggu Lalu", value: lastWeek },
       { label: "Bulan Ini", value: thisMonth },
       { label: "Bulan Lalu", value: lastMonth },
     ];
-  }, [baseToday]);
+  }, [baseToday, showAllTimePreset]);
 
   const handleApplyPreset = (presetValue: string) => {
     setRangeStart(null);
@@ -453,7 +457,7 @@ export function DatePicker({
         </span>
 
         <div className="custom-datepicker-actions">
-          {value && !disabled && (
+          {clearable && value && !disabled && (
             <button
               type="button"
               className="custom-datepicker-clear-btn"
@@ -483,8 +487,13 @@ export function DatePicker({
           role="dialog"
           aria-label="Pilih rentang tanggal"
         >
-          {/* Quick Presets Bar (5 buttons reflowed into clean balanced grid) */}
-          <div className="custom-datepicker-presets" role="toolbar" aria-label="Preset rentang tanggal">
+          {/* Quick Presets Bar */}
+          <div
+            className="custom-datepicker-presets"
+            data-count={presets.length}
+            role="toolbar"
+            aria-label="Preset rentang tanggal"
+          >
             {presets.map((preset) => {
               const isActive = preset.value === "" ? !value : value === preset.value;
               return (

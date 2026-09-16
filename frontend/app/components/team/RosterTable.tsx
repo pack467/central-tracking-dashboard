@@ -3,8 +3,10 @@
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { Mail, Phone, MoreVertical, Calendar, ArrowRightLeft, UserCheck, Edit3, Clock, Briefcase } from "lucide-react";
 import { Badge } from "@/app/components/ui/Badge";
+import { Avatar } from "@/app/components/ui/Avatar";
 import { useToast } from "@/app/components/ui/Toast";
 import { initials } from "@/app/lib/data";
+import { useUserStatus, getStatusRingStyle } from "@/app/hooks/useUserStatus";
 import type { DayScheduleType, RosterMember, Tone } from "@/app/lib/types";
 
 /* ─── Constants ──────────────────────────────────────────────────────────── */
@@ -33,7 +35,7 @@ export function shiftColor(shift: DayScheduleType): { bg: string; color: string;
 }
 
 /** Pre-compute the schedule strip colors once per member data object. */
-function computeScheduleColors(schedule: RosterMember["weeklySchedule"]) {
+export function computeScheduleColors(schedule: RosterMember["weeklySchedule"]) {
   return schedule.map((d) => ({ ...d, style: shiftColor(d.shift) }));
 }
 
@@ -145,9 +147,11 @@ const RosterRow = memo(function RosterRow({
   // Pre-compute schedule colors once per this member's data object.
   const scheduleDays = useMemo(() => computeScheduleColors(member.weeklySchedule), [member.weeklySchedule]);
 
-  const ringClass = member.status === "Active" ? "active"
-    : member.status === "On Break" ? "break"
-    : "off";
+  const { userStatus } = useUserStatus();
+  const isCurrentUser = member.name.toLowerCase().includes("galih");
+  const memberRingStyle = getStatusRingStyle(member.status, isCurrentUser, userStatus);
+  const ringColor = (memberRingStyle as any)["--status-ring-color"] || "#22c55e";
+  const displayStatus = isCurrentUser ? userStatus : member.status;
 
   return (
     <div
@@ -176,13 +180,21 @@ const RosterRow = memo(function RosterRow({
         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onSelectMember(member); } }}
         title="Klik untuk melihat profil lengkap"
       >
-        <span
-          className={`avatar roster-avatar avatar-status-ring avatar-ring-${ringClass}`}
-          style={{ background: member.avatarBg ?? "var(--accent-blue)" }}
-          aria-hidden="true"
+        <div
+          className="roster-table-avatar-ring-wrapper"
+          style={memberRingStyle as React.CSSProperties}
+          title={`${member.name} (${displayStatus})`}
         >
-          {initials(member.name)}
-        </span>
+          <Avatar
+            size="md"
+            name={member.name}
+            className="roster-avatar"
+          />
+          <span
+            className="roster-table-status-badge"
+            style={{ backgroundColor: ringColor }}
+          />
+        </div>
         <div className="roster-member-info">
           <strong>{member.name}</strong>
           <div className="roster-role-row">
@@ -206,10 +218,17 @@ const RosterRow = memo(function RosterRow({
 
       {/* 3. Status Badge */}
       <div className="roster-status-cell">
-        <Badge tone={statusTone(member.status)}>
-          {member.status === "Active" && <span className="live-dot live-dot-pulse" style={{ marginRight: "4px" }} />}
-          {member.status}
-        </Badge>
+        {isCurrentUser ? (
+          <Badge tone={userStatus === "Online" ? "success" : userStatus === "Busy" ? "critical" : userStatus === "On Break" ? "warning" : "info"}>
+            <span className="live-dot live-dot-pulse" style={{ marginRight: "4px", backgroundColor: ringColor }} />
+            {userStatus}
+          </Badge>
+        ) : (
+          <Badge tone={statusTone(member.status)}>
+            {member.status === "Active" && <span className="live-dot live-dot-pulse" style={{ marginRight: "4px" }} />}
+            {member.status}
+          </Badge>
+        )}
       </div>
 
       {/* 4. Contact Buttons */}

@@ -12,6 +12,23 @@
   display: flex;
   flex-direction: column;
   z-index: 20;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+}
+
+.sidebar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 .brand-lockup {
@@ -181,14 +198,38 @@
 
 .nav-count {
   margin-left: auto;
-  min-width: 19px;
-  padding: 2px 6px;
-  color: #ffffff;
-  background: var(--orange);
-  border-radius: 99px;
-  font-size: 10px;
-  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  color: #090d16 !important; /* Bold high-contrast text on amber/yellow (13:1 ratio) */
+  background: #f59e0b; /* Vibrant amber */
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 800;
   font-family: var(--font-mono);
+  line-height: 1;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  box-sizing: border-box;
+}
+
+.nav-item.active .nav-count {
+  color: #090d16 !important;
+  background: #fbbf24;
+  box-shadow: 0 0 8px rgba(251, 191, 36, 0.45);
+}
+
+.nav-count-notif {
+  color: #090d16 !important;
+  background: #f59e0b;
+}
+
+.nav-item.active .nav-count-notif {
+  color: #090d16 !important;
+  background: #fbbf24;
 }
 
 .shift-card {
@@ -247,15 +288,19 @@
   color: #ffffff;
   border: 2px solid var(--sidebar-bg);
   border-radius: 99px;
-  background: #2563eb;
+  background: var(--avatar-bg, #3a3a3e);
   font-size: 9px;
   font-weight: 700;
   font-family: var(--font-mono);
+  filter: grayscale(100%);
 }
 
-.shift-people span:nth-child(2) { background: #d97706; }
-.shift-people span:nth-child(3) { background: #16a34a; }
-.shift-people .more { background: #334155; color: #cbd5e1; }
+.shift-people span:nth-child(2),
+.shift-people span:nth-child(3),
+.shift-people .more {
+  background: var(--avatar-bg, #3a3a3e);
+  color: #f8fafc;
+}
 
 .shift-card button {
   display: flex;
@@ -319,49 +364,488 @@
   border-color: var(--purple-border);
 }
 
+/* ── Sidebar User Profile Card & Floating Menu ── */
+.profile-container {
+  position: relative;
+  width: 100%;
+  margin-top: 0;
+  box-sizing: border-box;
+}
+
+.profile-card,
 .profile {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 8px 10px;
+  padding: 10px 12px;
+  min-height: 56px;
   color: #ffffff;
   text-align: left;
   background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  box-sizing: border-box;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.profile-card:hover,
+.profile:hover {
+  background: rgba(255, 255, 255, 0.065);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+.profile-card.active,
+.profile.active {
+  background: rgba(56, 189, 248, 0.08);
+  border-color: rgba(56, 189, 248, 0.35);
+}
+
+.profile-main-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+  font-family: inherit;
+}
+
+/* ── Universal Concentric Avatar Status Ring Wrappers across pages ── */
+.profile-avatar-ring-wrapper,
+.roster-avatar-ring-wrapper,
+.roster-table-avatar-ring-wrapper,
+.coverage-avatar-ring-wrapper,
+.drawer-avatar-ring-wrapper,
+.shift-people-ring-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  background: transparent;
+  /* Perfect concentric status ring via multi-stop box-shadow:
+     - 1.5px dark gap separating avatar edge from ring
+     - 3.5px total radius (2px solid status ring color)
+     - 8px soft ambient glow
+  */
+  box-shadow:
+    0 0 0 1.5px #090d16,
+    0 0 0 3.5px var(--status-ring-color, #22c55e),
+    0 0 8px var(--status-ring-glow, rgba(34, 197, 94, 0.45));
+  transition: box-shadow 0.25s ease;
+}
+
+/* Ensure child avatar perfectly fills the circular wrapper with no offset or distortion */
+.profile-avatar-ring-wrapper > .ui-avatar,
+.roster-avatar-ring-wrapper > .ui-avatar,
+.roster-table-avatar-ring-wrapper > .ui-avatar,
+.coverage-avatar-ring-wrapper > .ui-avatar,
+.drawer-avatar-ring-wrapper > .ui-avatar,
+.shift-people-ring-wrapper > .ui-avatar,
+.profile-avatar-ring-wrapper > .profile-avatar {
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 100% !important;
+  min-height: 100% !important;
+  border-radius: 50% !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Specific sizing: Sidebar bottom user profile avatar (32px avatar) */
+.profile-avatar-ring-wrapper {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  min-height: 32px;
+  cursor: pointer;
 }
 
 .profile-avatar {
   display: grid;
   place-items: center;
-  width: 30px;
-  height: 30px;
-  border-radius: 7px;
-  background: #2563eb;
-  color: #ffffff;
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 50%;
+  background: var(--avatar-bg, #3a3a3e);
+  color: var(--avatar-text, #f8fafc);
   font-weight: 700;
   font-size: 11px;
   font-family: var(--font-mono);
+  box-shadow: none !important;
+  border: 1px solid rgba(148, 163, 184, 0.22) !important;
+  filter: grayscale(100%);
+  flex-shrink: 0;
+  box-sizing: border-box;
 }
 
+/* Specific sizing: Roster Table in Team Roster (32px avatar) */
+.roster-table-avatar-ring-wrapper {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  min-height: 32px;
+}
+
+/* Specific sizing: Current Shift Coverage Row in Side Panel (28px avatar) */
+.coverage-avatar-ring-wrapper {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  min-height: 28px;
+}
+
+/* Specific sizing: Roster Tim in Overview (26px avatar) */
+.roster-avatar-ring-wrapper {
+  width: 26px;
+  height: 26px;
+  min-width: 26px;
+  min-height: 26px;
+}
+
+/* Specific sizing: Member Detail Drawer & Ticket Report View (42px avatar) */
+.drawer-avatar-ring-wrapper {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  min-height: 42px;
+  box-shadow:
+    0 0 0 2px #090d16,
+    0 0 0 4.5px var(--status-ring-color, #22c55e),
+    0 0 10px var(--status-ring-glow, rgba(34, 197, 94, 0.45));
+}
+
+/* Specific sizing: Sidebar Active Shift GK avatar (25px avatar) */
+.shift-people-ring-wrapper {
+  width: 25px;
+  height: 25px;
+  min-width: 25px;
+  min-height: 25px;
+  margin-right: -6px;
+  z-index: 2;
+  box-shadow:
+    0 0 0 1px #090d16,
+    0 0 0 3px var(--status-ring-color, #22c55e),
+    0 0 7px var(--status-ring-glow, rgba(34, 197, 94, 0.5));
+}
+
+/* Status dot badge for avatar ring wrappers */
+.profile-status-badge,
+.roster-avatar-status-badge,
+.roster-table-status-badge,
+.coverage-avatar-status-badge {
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1.5px solid #090d16;
+  background-color: var(--status-ring-color, #22c55e);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  transition: background-color 0.25s ease;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.drawer-avatar-status-badge {
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+  width: 10.5px;
+  height: 10.5px;
+  border-radius: 50%;
+  border: 2px solid #090d16;
+  background-color: var(--status-ring-color, #22c55e);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  transition: background-color 0.25s ease;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.profile-info strong,
 .profile strong {
   display: block;
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 600;
   color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.25;
 }
 
+.profile-info small,
 .profile small {
   display: block;
-  margin-top: 1px;
+  margin-top: 2px;
   color: #94a3b8;
-  font-size: 10px;
+  font-size: 10.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
 }
 
-.profile-more {
-  margin-left: auto;
+.profile-status-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10.5px;
+  margin-top: 2px;
+}
+
+.profile-status-indicator-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: background-color 0.25s ease;
+}
+
+.profile-status-sep {
   color: #64748b;
+  opacity: 0.7;
+}
+
+.profile-more-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  min-height: 28px;
+  padding: 0;
+  margin: 0 0 0 auto;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.profile-more-btn:hover,
+.profile-more-btn.active {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.profile-dropdown-menu {
+  padding: 6px;
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  background: var(--modal-bg);
+  box-shadow: var(--shadow-elevated), 0 10px 30px rgba(0, 0, 0, 0.55);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  box-sizing: border-box;
+  animation: profileDropdownUp 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: bottom center;
+}
+
+@keyframes profileDropdownUp {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.profile-dropdown-header {
+  padding: 6px 8px 8px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 4px;
+}
+
+.profile-dropdown-operator-label {
+  display: block;
+  font-size: 9.5px;
+  color: var(--ink-muted);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  letter-spacing: 0.6px;
+}
+
+.profile-dropdown-operator-name {
+  display: block;
+  font-size: 13px;
+  color: var(--ink-primary);
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.profile-dropdown-operator-emp {
+  display: block;
+  font-size: 11px;
+  color: var(--accent-blue);
+  font-family: var(--font-mono);
+  margin-top: 1px;
+}
+
+/* ── Status Presence Picker inside Profile Dropdown ── */
+.profile-status-picker-section {
+  padding: 6px 6px 8px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.profile-status-picker-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 9.5px;
+  color: var(--ink-muted);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 0 4px;
+}
+
+.profile-status-pill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4.5px;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 9999px;
+  border: 1px solid;
+  line-height: 1.2;
+  transition: all 0.2s ease;
+}
+
+.profile-status-pill-dot {
+  width: 5.5px;
+  height: 5.5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.profile-status-options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.profile-status-option-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--ink-secondary);
+  font-size: 11.5px;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+  box-sizing: border-box;
+}
+
+.profile-status-option-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--ink-primary);
+}
+
+.profile-status-option-btn.selected {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.12);
+  font-weight: 600;
+}
+
+.profile-status-option-bullet {
+  width: 7.5px;
+  height: 7.5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: box-shadow 0.2s ease;
+}
+
+.profile-status-option-label {
+  flex: 1;
+  min-width: 0;
+}
+
+.profile-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 7px 9px;
+  border-radius: 6px;
+  background: transparent;
+  border: none;
+  color: var(--ink-primary);
   font-size: 12px;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.12s ease, color 0.12s ease;
+  box-sizing: border-box;
+}
+
+.profile-dropdown-item:hover {
+  background: var(--accent-blue-soft);
+  color: var(--accent-blue);
+}
+
+.profile-dropdown-item svg {
+  flex-shrink: 0;
+  color: var(--ink-muted);
+  transition: color 0.12s ease;
+}
+
+.profile-dropdown-item:hover svg {
+  color: var(--accent-blue);
+}
+
+.profile-dropdown-item.danger:hover {
+  background: var(--red-soft);
+  color: var(--red);
+}
+
+.profile-dropdown-item.danger:hover svg {
+  color: var(--red);
+}
+
+.profile-dropdown-divider {
+  height: 1px;
+  background: var(--line);
+  margin: 4px 0;
 }
 
 /* ═══════════════════════════════════════════════

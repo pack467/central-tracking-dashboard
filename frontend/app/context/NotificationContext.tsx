@@ -160,8 +160,8 @@ export const INITIAL_NOTIFICATIONS: NotificationItem[] = [
   },
   {
     id: "notif-8",
-    title: "Catatan Serah Terima Shift Siang Tersimpan",
-    message: "Ringkasan handover shift siang telah diverifikasi oleh SPV. Siap untuk rotasi shift malam.",
+    title: "Catatan Serah Terima Shift Pagi Tersimpan",
+    message: "Ringkasan handover shift pagi telah diverifikasi oleh SPV. Siap untuk rotasi shift malam.",
     time: "5 jam lalu",
     category: "Serah Terima",
     project: "NOC",

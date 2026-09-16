@@ -14,7 +14,8 @@ import {
 import { Badge } from "@/app/components/ui/Badge";
 import { ProjectMark } from "@/app/components/ui/ProjectMark";
 import { useToast } from "@/app/components/ui/Toast";
-import { getOwnerRole, initials } from "@/app/lib/data";
+import { Avatar } from "@/app/components/ui/Avatar";
+import { getOwnerRole } from "@/app/lib/data";
 import type { CheckpointAssessment, MonitoringEntry } from "@/app/lib/types";
 import { useClient } from "@/app/context/ClientContext";
 import { CLIENT_PROJECTS } from "@/app/lib/clientData";
@@ -198,6 +199,20 @@ interface MonitoringScheduleProps {
 }
 
 const FILTERS = ["Semua", "Needs Attention", "Upcoming"] as const;
+
+export function PendingUserSilhouette() {
+  return (
+    <svg
+      viewBox="0 0 100 100"
+      className="pending-user-silhouette"
+      aria-hidden="true"
+      fill="currentColor"
+    >
+      <circle cx="50" cy="34" r="18" />
+      <path d="M 0 100 L 0 78 C 0 62, 26 58, 50 58 C 74 58, 100 62, 100 78 L 100 100 Z" />
+    </svg>
+  );
+}
 
 export function rowKey(entry: MonitoringEntry) {
   return `${entry.time}-${entry.project}-${entry.task}`;
@@ -488,15 +503,18 @@ export function MonitoringSchedule({
                 {/* 3. Checked By column: Name with role tooltip */}
                 <span className="schedule-owner">
                   <div className="avatar-tooltip-container">
-                    <span
-                      className={`mini-avatar ${hasVerdict ? "avatar-verified" : "avatar-pending"}`}
-                      aria-hidden="true"
+                    <Avatar
+                      size="sm"
+                      name={hasVerdict ? item.owner : undefined}
+                      statusRing={hasVerdict ? "verified" : "pending"}
+                      className="mini-avatar"
+                      title={hasVerdict ? `${item.owner} (${ownerRole})` : "Pending verification"}
                     >
-                      {initials(item.owner)}
-                    </span>
+                      {!hasVerdict && <PendingUserSilhouette />}
+                    </Avatar>
                     <div className="avatar-tooltip-card" role="tooltip">
-                      <strong>{item.owner}</strong>
-                      <span>{ownerRole}</span>
+                      <strong>{hasVerdict ? item.owner : "Pending Verification"}</strong>
+                      <span>{hasVerdict ? ownerRole : "Menunggu verifikasi penilaian"}</span>
                     </div>
                   </div>
 

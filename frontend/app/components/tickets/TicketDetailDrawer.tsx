@@ -2,6 +2,7 @@
 
 import { X, PlusCircle, MessageSquare, Headphones, CheckCircle2, Edit3, Clock, Tag, Zap } from "lucide-react";
 import { Badge } from "@/app/components/ui/Badge";
+import { Avatar } from "@/app/components/ui/Avatar";
 import { ConfirmDialog } from "@/app/components/ui/ConfirmDialog";
 import { ModalCloseButton } from "@/app/components/ui/ModalCloseButton";
 import { TicketEditModal } from "@/app/components/tickets/TicketEditModal";
@@ -13,7 +14,7 @@ import { nowClockLabel, initials } from "@/app/lib/data";
 import { useAuth } from "@/app/lib/auth";
 import type { Ticket } from "@/app/lib/types";
 
-export type ActivityTypeLabel = "Tiket Dibuat" | "User Request" | "Kita Merespon" | "Tiket Closed / Open";
+export type ActivityTypeLabel = "Tiket Dibuat" | "User Request" | "Kita Merespon" | "Tiket Closed" | "Tiket Open";
 
 export interface ActivityTypeConfig {
   label: ActivityTypeLabel;
@@ -23,9 +24,29 @@ export interface ActivityTypeConfig {
   borderColor: string;
 }
 
-export function getActivityConfig(type?: string, action?: string): ActivityTypeConfig {
+export function getActivityConfig(type?: string, action?: string, ticketStatus?: string): ActivityTypeConfig {
   const normType = (type || "").toLowerCase().trim();
   const text = (action || "").toLowerCase();
+  const normStatus = (ticketStatus || "").toLowerCase();
+
+  // Helper: determine if activity or ticket context represents a Closed resolution
+  const isClosingAction =
+    text.includes("tutup") ||
+    text.includes("closed") ||
+    text.includes("selesai") ||
+    text.includes("ditutup") ||
+    text.includes("resolved") ||
+    normType === "closed" ||
+    normType === "tiket closed";
+
+  const isOpeningAction =
+    text.includes("dibuka kembali") ||
+    text.includes("re-open") ||
+    text.includes("reopened") ||
+    text.includes("masih open") ||
+    normType === "open" ||
+    normType === "tiket open" ||
+    normType === "re-open";
 
   // 1. Explicit type match
   if (normType === "created" || normType === "tiket dibuat" || normType === "ticket dibuat") {
@@ -66,9 +87,18 @@ export function getActivityConfig(type?: string, action?: string): ActivityTypeC
     normType === "tiket open" ||
     normType === "tiket closed / open"
   ) {
+    if (isClosingAction || (!isOpeningAction && normStatus === "closed")) {
+      return {
+        label: "Tiket Closed",
+        icon: CheckCircle2,
+        color: "var(--purple)",
+        bgColor: "var(--purple-soft)",
+        borderColor: "var(--purple-border)",
+      };
+    }
     return {
-      label: "Tiket Closed / Open",
-      icon: CheckCircle2,
+      label: "Tiket Open",
+      icon: Clock,
       color: "var(--red)",
       bgColor: "var(--red-soft)",
       borderColor: "var(--red-border)",
@@ -103,17 +133,20 @@ export function getActivityConfig(type?: string, action?: string): ActivityTypeC
     };
   }
 
-  if (
-    text.includes("tutup") ||
-    text.includes("closed") ||
-    text.includes("selesai") ||
-    text.includes("ditutup") ||
-    text.includes("dibuka kembali") ||
-    text.includes("re-open")
-  ) {
+  if (isClosingAction || normStatus === "closed") {
     return {
-      label: "Tiket Closed / Open",
+      label: "Tiket Closed",
       icon: CheckCircle2,
+      color: "var(--purple)",
+      bgColor: "var(--purple-soft)",
+      borderColor: "var(--purple-border)",
+    };
+  }
+
+  if (isOpeningAction) {
+    return {
+      label: "Tiket Open",
+      icon: Clock,
       color: "var(--red)",
       bgColor: "var(--red-soft)",
       borderColor: "var(--red-border)",
@@ -307,14 +340,12 @@ export function TicketDetailDrawer({ ticket, onClose, onUpdate }: TicketDetailDr
                       fontWeight: "500",
                     }}
                   >
-                    Ditugaskan kepada ({ownersList.length} PIC):
+                    Pemilik Tiket ({ownersList.length > 1 ? `${ownersList.length} PIC` : "PIC"}):
                   </span>
                   <div className="drawer-owners-list">
                     {ownersList.map((ownerName, idx) => (
                       <div key={idx} className="drawer-owner-entry">
-                        <span className="mini-avatar" aria-hidden="true">
-                          {initials(ownerName)}
-                        </span>
+                        <Avatar size="sm" name={ownerName} className="mini-avatar" />
                         <span className="drawer-owner-name">{ownerName}</span>
                       </div>
                     ))}
@@ -409,7 +440,7 @@ export function TicketDetailDrawer({ ticket, onClose, onUpdate }: TicketDetailDr
               <div style={{ marginTop: "12px", display: "flex", flexDirection: "column", gap: "8px" }}>
                 {ticket.history?.length ? (
                   ticket.history.map((entry, index) => {
-                    const config = getActivityConfig(entry.type, entry.action);
+                    const config = getActivityConfig(entry.type, entry.action, ticket.status);
                     const IconComponent = config.icon;
 
                     return (

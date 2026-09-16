@@ -8,8 +8,10 @@ import { Modal } from "@/app/components/ui/Modal";
 import { ModalCloseButton } from "@/app/components/ui/ModalCloseButton";
 import { ConfirmDialog } from "@/app/components/ui/ConfirmDialog";
 import { IconFindings, IconMonitoring, IconTasks } from "@/app/components/ui/Icons";
-import { formatHandoverDate, initials, isOpenTicket } from "@/app/lib/data";
+import { Avatar } from "@/app/components/ui/Avatar";
+import { formatHandoverDate, isOpenTicket } from "@/app/lib/data";
 import { canEditHandover, canReceiveHandover } from "@/app/lib/handover";
+import { getShiftTagClass } from "@/app/lib/shifts";
 import { severityTone, statusTone } from "@/app/components/tickets/TicketTable";
 import { TaskStatusBadge } from "./TaskStatusBadge";
 import { TaskPriorityBadge } from "./TaskPriorityBadge";
@@ -189,14 +191,24 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
             <div className="handover-summary-card">
               <div className="handover-flow-info">
                 <div className="handover-flow-party">
-                  <span>SENDER ({record.sourceShift.toUpperCase()})</span>
+                  <span>
+                    SENDER{" "}
+                    <span className={`shift-name-tag ${getShiftTagClass(record.sourceShift)}`}>
+                      {record.sourceShift}
+                    </span>
+                  </span>
                   <strong>{record.sourcePic}</strong>
                 </div>
                 <div className="handover-flow-arrow" aria-hidden="true">
                   <ArrowRight size={16} />
                 </div>
                 <div className="handover-flow-party">
-                  <span>RECEIVER ({record.targetShift.toUpperCase()})</span>
+                  <span>
+                    RECEIVER{" "}
+                    <span className={`shift-name-tag ${getShiftTagClass(record.targetShift)}`}>
+                      {record.targetShift}
+                    </span>
+                  </span>
                   <strong>{record.targetPic}</strong>
                 </div>
               </div>
@@ -400,9 +412,12 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
                   <div className="handover-shift-note-card">
                     <div className="handover-shift-note-header">
                       <div className="handover-shift-note-author">
-                        <div className="handover-shift-note-avatar">
-                          {initials(senderName)}
-                        </div>
+                        <Avatar
+                          size="md"
+                          name={senderName}
+                          shape="rounded"
+                          className="handover-shift-note-avatar"
+                        />
                         <div>
                           <strong className="handover-shift-note-name">{noteAttribution}</strong>
                           <span className="handover-shift-note-kicker">Pesan dari shift pengirim</span>

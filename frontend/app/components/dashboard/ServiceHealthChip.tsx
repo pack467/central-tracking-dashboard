@@ -72,6 +72,7 @@ export function ServiceHealthChip({
       onClick={() => onClick?.(project)}
       aria-label={`Layanan ${project.name}: ${project.status} (${project.detail}) - ${clientTitle}`}
       aria-pressed={isActive}
+      title={`Layanan ${project.name}: ${project.status} (${project.detail}) · Klik untuk rincian`}
     >
       <span className="service-chip-mark-wrap">
         <ProjectMark name={project.name} />
@@ -80,17 +81,6 @@ export function ServiceHealthChip({
       <span className="service-chip-name">{project.name}</span>
 
       <span className={`service-chip-dot dot-${project.tone}`} />
-
-      {/* Floating Rich Tooltip */}
-      <span className="service-chip-tooltip" role="tooltip">
-        <strong className="tooltip-service-name">{project.name}</strong>
-        <span className="tooltip-client-name">Klien: {clientTitle}</span>
-        <span className="tooltip-status-text">
-          Status: <span className={`tooltip-tone-${project.tone}`}>{project.status}</span>
-        </span>
-        <span className="tooltip-detail-text">{project.detail}</span>
-        <span className="tooltip-cta-hint">Klik untuk melihat detail & dependensi</span>
-      </span>
     </button>
   );
 }

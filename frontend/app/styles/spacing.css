@@ -240,7 +240,9 @@
   padding: var(--space-4);
 }
 
-.profile {
-  padding: var(--space-3);
+.profile,
+.profile-card {
+  padding: 10px 12px;
+  min-height: 56px;
 }
 

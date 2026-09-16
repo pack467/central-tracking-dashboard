@@ -94,7 +94,7 @@ function PaletteOverlay({
         key: `ticket-${ticket.id}`,
         kind: "ticket" as const,
         label: ticket.subject,
-        hint: `#${ticket.id} · Ditugaskan kepada ${ticket.owner}`,
+        hint: `#${ticket.id} · Pemilik: ${ticket.owner}`,
         ticket,
       }));
     return [...navMatches, ...ticketMatches];

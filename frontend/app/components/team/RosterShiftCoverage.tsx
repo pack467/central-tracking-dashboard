@@ -2,8 +2,11 @@
 
 import { memo, useCallback } from "react";
 import { initials } from "@/app/lib/data";
+import { Avatar } from "@/app/components/ui/Avatar";
+import { StatusIndicator } from "@/app/components/ui/StatusIndicator";
 import { Clock } from "lucide-react";
 import { useActiveShift } from "@/app/hooks/useLiveClock";
+import { useUserStatus, getStatusRingStyle } from "@/app/hooks/useUserStatus";
 import type { RosterMember } from "@/app/lib/types";
 
 interface RosterShiftCoverageProps {
@@ -20,11 +23,17 @@ interface CoverageMemberRowProps {
 }
 
 const CoverageMemberRow = memo(function CoverageMemberRow({ member, onSelect }: CoverageMemberRowProps) {
-  const isLive = member.status === "Active";
-  const isOnBreak = member.status === "On Break";
-  const ringClass = isLive ? "active" : isOnBreak ? "break" : "off";
-  const statusLabel = isLive ? "ON DUTY" : isOnBreak ? "BREAK" : "OFF";
-  const statusClass = isLive ? "coverage-status-live" : isOnBreak ? "coverage-status-break" : "coverage-status-off";
+  const { userStatus } = useUserStatus();
+  const isCurrentUser = member.name.toLowerCase().includes("galih");
+  const ringStyle = getStatusRingStyle(member.status, isCurrentUser, userStatus);
+  const ringColor = (ringStyle as any)["--status-ring-color"] || "#22c55e";
+
+  const isLive = isCurrentUser ? userStatus === "Online" : member.status === "Active";
+  const isOnBreak = isCurrentUser ? userStatus === "On Break" : member.status === "On Break";
+  const isBusy = isCurrentUser && userStatus === "Busy";
+  const displayStatus = isCurrentUser ? userStatus : member.status;
+  const indicatorStatus = isLive ? "bertugas" : isBusy ? "critical" : isOnBreak ? "online" : "offline";
+  const indicatorLabel = isCurrentUser ? userStatus : isLive ? "Bertugas" : isOnBreak ? "Online" : "Offline";
 
   const handleClick = useCallback(() => onSelect(member), [member, onSelect]);
 
@@ -34,20 +43,29 @@ const CoverageMemberRow = memo(function CoverageMemberRow({ member, onSelect }: 
       onClick={handleClick}
       title={`Buka detail profil ${member.name}`}
     >
-      <span
-        className={`avatar avatar-status-ring avatar-ring-${ringClass} coverage-member-avatar`}
-        style={{ background: member.avatarBg ?? "var(--accent-blue)" }}
-        aria-hidden="true"
+      <div
+        className="coverage-avatar-ring-wrapper"
+        style={ringStyle as React.CSSProperties}
+        title={`${member.name} (${displayStatus})`}
       >
-        {initials(member.name)}
-      </span>
+        <Avatar
+          size="md"
+          name={member.name}
+          className="coverage-member-avatar"
+        />
+        <span
+          className="coverage-avatar-status-badge"
+          style={{ backgroundColor: ringColor }}
+        />
+      </div>
       <span className="coverage-member-info">
         <strong className="coverage-member-name">{member.name}</strong>
-        <small className="coverage-member-role">{member.role} · {member.status}</small>
+        <small className="coverage-member-role">{member.role} · {displayStatus}</small>
       </span>
-      <span className={`coverage-member-status ${statusClass}`}>
-        {statusLabel}
-      </span>
+      <StatusIndicator
+        status={indicatorStatus}
+        label={indicatorLabel}
+      />
     </button>
   );
 },

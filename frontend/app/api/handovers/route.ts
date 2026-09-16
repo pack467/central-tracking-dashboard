@@ -118,7 +118,7 @@ async function seedHandoverNotes(db: D1Database) {
     .bind("Handover Shift Malam → Subuh", date, completedContent, "seed-completed-handover", prevCreatedAt, prevAcceptedAt)
     .run();
 
-  // 2. Seed Historical Handover WITHOUT Note (Shift Siang → Malam) - To test empty state
+  // 2. Seed Historical Handover WITHOUT Note (Shift Pagi → Malam) - To test empty state
   const yesterday = new Date(Date.now() - 24 * 3600 * 1000).toISOString().slice(0, 10);
   const yesterdayCreatedAt = new Date(Date.now() - 24 * 3600 * 1000).toISOString();
   const yesterdayAcceptedAt = new Date(Date.now() - 23.5 * 3600 * 1000).toISOString();
@@ -129,12 +129,12 @@ async function seedHandoverNotes(db: D1Database) {
     local: true,
   };
   const emptyNoteContent = JSON.stringify({
-    sourceShift: "Siang",
+    sourceShift: "Pagi",
     targetShift: "Malam",
     sourcePic: "Kristina Marbun",
     targetPic: "Dedi Prasetyo",
     notes: "",
-    monitoringSummary: "Semua checkpoint shift siang terpantau normal.",
+    monitoringSummary: "Semua checkpoint shift pagi terpantau normal.",
     monitoringOwner: "Kristina Marbun",
     monitoredProjects: [...initialHandoverRecord.monitoredProjects],
     validationNote: "Diterima oleh Dedi Prasetyo.",
@@ -155,7 +155,7 @@ async function seedHandoverNotes(db: D1Database) {
     .prepare(
       `INSERT INTO handover_notes (title, handover_date, content, create_request_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT(create_request_id) DO UPDATE SET content = excluded.content`
     )
-    .bind("Handover Shift Siang → Malam", yesterday, emptyNoteContent, "seed-empty-note-handover", yesterdayCreatedAt, yesterdayAcceptedAt)
+    .bind("Handover Shift Pagi → Malam", yesterday, emptyNoteContent, "seed-empty-note-handover", yesterdayCreatedAt, yesterdayAcceptedAt)
     .run();
 
   // 3. Seed Pending Active Handover (Shift Subuh → Pagi) - Active Confirmation Record
@@ -273,15 +273,27 @@ export async function GET(request: Request) {
       startDate = rawDate.slice(0, 10);
       endDate = startDate;
     }
-    const pic = (url.searchParams.get("pic") ?? "").slice(0, 200);
-    const where = "WHERE (? = '' OR (handover_date >= ? AND handover_date <= ?)) AND (? = '' OR instr(lower(json_extract(content, '$.sourcePic')), lower(?)) > 0)";
+    const shift = (url.searchParams.get("shift") ?? "").slice(0, 50).trim().toLowerCase();
+    const pic = (url.searchParams.get("pic") ?? "").slice(0, 200).trim();
+    const where = `WHERE (? = '' OR (handover_date >= ? AND handover_date <= ?))
+      AND (? = '' OR instr(lower(title), ?) > 0 OR instr(lower(json_extract(content, '$.sourceShift')), ?) > 0 OR instr(lower(json_extract(content, '$.targetShift')), ?) > 0)
+      AND (? = '' OR instr(lower(json_extract(content, '$.sourcePic')), lower(?)) > 0 OR instr(lower(json_extract(content, '$.targetPic')), lower(?)) > 0)`;
     const db = getHandoverDb();
 
     await seedHandoverNotes(db);
 
     const [rows, count] = await Promise.all([
-      db.prepare(`SELECT ${noteColumns} FROM handover_notes ${where} ORDER BY handover_date DESC, id DESC LIMIT ? OFFSET ?`).bind(startDate, startDate, endDate, pic, pic, limit, (page - 1) * limit).all(),
-      db.prepare(`SELECT count(*) AS total FROM handover_notes ${where}`).bind(startDate, startDate, endDate, pic, pic).first(),
+      db.prepare(`SELECT ${noteColumns} FROM handover_notes ${where} ORDER BY handover_date DESC, id DESC LIMIT ? OFFSET ?`).bind(
+        startDate, startDate, endDate,
+        shift, shift, shift, shift,
+        pic, pic, pic,
+        limit, (page - 1) * limit
+      ).all(),
+      db.prepare(`SELECT count(*) AS total FROM handover_notes ${where}`).bind(
+        startDate, startDate, endDate,
+        shift, shift, shift, shift,
+        pic, pic, pic
+      ).first(),
     ]);
     const notes = ((rows as any)?.results ?? []) as StoredHandoverRecord[];
     const total = Number((count as any)?.total ?? 0);

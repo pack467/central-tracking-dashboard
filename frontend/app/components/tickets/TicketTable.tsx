@@ -3,6 +3,7 @@
 import { Badge } from "@/app/components/ui/Badge";
 import { EmptyState } from "@/app/components/ui/EmptyState";
 import { ProjectMark } from "@/app/components/ui/ProjectMark";
+import { Avatar } from "@/app/components/ui/Avatar";
 import { initials } from "@/app/lib/data";
 import type { Ticket, Tone } from "@/app/lib/types";
 
@@ -95,7 +96,7 @@ export function TicketTable({
                   <span className="ticket-code">#{ticket.id}</span>
                   <span className="ticket-type-tag">{typeLabel}</span>
                 </div>
-                <strong className="ticket-subject-text">{ticket.subject}</strong>
+                <strong className="ticket-subject-text" title={ticket.subject}>{ticket.subject}</strong>
               </div>
 
               {/* Project */}
@@ -108,19 +109,20 @@ export function TicketTable({
               </div>
 
               {/* Assignee */}
-              <div className="ticket-cell ticket-cell-owner">
+              <div className="ticket-cell ticket-cell-owner" title={ticket.owner ? `Assignee: ${ticket.owner}` : "Unassigned"}>
                 <span className="ticket-cell-label">Assignee:</span>
                 <span className="ticket-owner-wrap">
-                  <span className="mini-avatar" aria-hidden="true">
-                    {initials(ticket.owner || "Unassigned")}
-                  </span>
+                  <Avatar size="sm" name={ticket.owner || "Unassigned"} className="mini-avatar" />
                   <span className="owner-name">{ticket.owner || "Unassigned"}</span>
                 </span>
               </div>
 
               {/* Escalation Level & Escalated To (Conditional) */}
               {showEscalationDetails && (
-                <div className="ticket-cell ticket-cell-escalation">
+                <div
+                  className="ticket-cell ticket-cell-escalation"
+                  title={ticket.escalatedTo ? `Eskalasi ke: ${ticket.escalatedTo} (${ticket.escalationLevel || "Level 2"})` : undefined}
+                >
                   <span className="ticket-cell-label">Escalated To:</span>
                   <div className="escalation-target-wrap">
                     <strong className="escalated-person">{ticket.escalatedTo || "L2 Support"}</strong>

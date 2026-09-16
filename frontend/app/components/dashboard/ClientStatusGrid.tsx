@@ -303,18 +303,18 @@ export function ClientStatusGrid({
               {dangerCount > 0 && (
                 <span className="client-triage-pill triage-danger" title={`${dangerCount} klien memiliki tiket kritis atau checkpoint gagal`}>
                   <Flame size={11} strokeWidth={2.5} />
-                  {dangerCount} Perlu Mitigasi
+                  <span>{dangerCount} Perlu Mitigasi</span>
                 </span>
               )}
               {warningCount > 0 && (
                 <span className="client-triage-pill triage-warning" title={`${warningCount} klien memiliki tiket aktif atau potensi anomali`}>
                   <AlertTriangle size={11} strokeWidth={2.5} />
-                  {warningCount} Perlu Perhatian
+                  <span>{warningCount} Perlu Perhatian</span>
                 </span>
               )}
               <span className="client-triage-pill triage-success" title={`${healthyCount} klien dalam kondisi normal tanpa isu aktif`}>
                 <Check size={11} strokeWidth={2.5} />
-                {healthyCount} Normal
+                <span>{healthyCount} Normal</span>
               </span>
             </div>
 

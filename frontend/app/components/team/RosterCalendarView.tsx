@@ -9,6 +9,7 @@ import {
   Clock,
 } from "lucide-react";
 import { initials } from "@/app/lib/data";
+import { Avatar } from "@/app/components/ui/Avatar";
 import { ModalCloseButton } from "@/app/components/ui/ModalCloseButton";
 import { shiftColor } from "@/app/components/team/RosterTable";
 import type { DayScheduleType, RosterMember } from "@/app/lib/types";
@@ -249,12 +250,12 @@ export function RosterCalendarView({ members, onSelectMember }: RosterCalendarVi
                   tabIndex={0}
                   title={`View ${member.name}'s profile`}
                 >
-                  <span
-                    className={`avatar roster-avatar avatar-status-ring avatar-ring-${member.status === "Active" ? "active" : member.status === "On Break" ? "break" : "off"}`}
-                    style={{ background: member.avatarBg ?? "var(--accent-blue)" }}
-                  >
-                    {initials(member.name)}
-                  </span>
+                  <Avatar
+                    size="md"
+                    name={member.name}
+                    statusRing={member.status === "Active" ? "active" : member.status === "On Break" ? "break" : "off"}
+                    className="roster-avatar"
+                  />
                   <div className="roster-member-info">
                     <strong>{member.name}</strong>
                     <small>{member.role}</small>
@@ -399,14 +400,14 @@ export function RosterCalendarView({ members, onSelectMember }: RosterCalendarVi
                         const shift = memberShiftForDow(m, dow);
                         const sc = shiftColor(shift);
                         return (
-                          <span
+                          <Avatar
                             key={m.id}
+                            size="xs"
+                            initials={initials(m.name)[0]}
+                            name={m.name}
                             className="monthly-avatar-dot"
-                            style={{ background: m.avatarBg ?? sc.color, borderColor: sc.border }}
                             title={`${m.name} — ${shift}`}
-                          >
-                            {initials(m.name)[0]}
-                          </span>
+                          />
                         );
                       })}
                       {scheduledMembers.length > 4 && (
@@ -445,12 +446,12 @@ export function RosterCalendarView({ members, onSelectMember }: RosterCalendarVi
                       tabIndex={0}
                       title={`Open ${member.name}'s profile`}
                     >
-                      <span
-                        className={`avatar roster-avatar avatar-status-ring avatar-ring-${member.status === "Active" ? "active" : member.status === "On Break" ? "break" : "off"}`}
-                        style={{ background: member.avatarBg ?? "var(--accent-blue)" }}
-                      >
-                        {initials(member.name)}
-                      </span>
+                      <Avatar
+                        size="md"
+                        name={member.name}
+                        statusRing={member.status === "Active" ? "active" : member.status === "On Break" ? "break" : "off"}
+                        className="roster-avatar"
+                      />
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <strong style={{ display: "block", fontSize: "12.5px", color: "var(--ink-primary)" }}>{member.name}</strong>
                         <small style={{ fontSize: "11px", color: "var(--ink-muted)" }}>{member.role}</small>

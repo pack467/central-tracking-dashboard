@@ -3,10 +3,12 @@
 import { useState } from "react";
 import { Mail, Phone, Clock, CalendarDays, X } from "lucide-react";
 import { Badge } from "@/app/components/ui/Badge";
+import { Avatar } from "@/app/components/ui/Avatar";
 import { ModalCloseButton } from "@/app/components/ui/ModalCloseButton";
 import { useToast } from "@/app/components/ui/Toast";
 import { initials } from "@/app/lib/data";
 import { statusTone, shiftColor } from "@/app/components/team/RosterTable";
+import { useUserStatus, getStatusRingStyle } from "@/app/hooks/useUserStatus";
 import type { RosterMember, RosterMemberStatus } from "@/app/lib/types";
 
 /* ─────────────────────────────────────────────────────────────
@@ -156,7 +158,13 @@ export function MemberDetailDrawer({
 }: MemberDetailDrawerProps) {
   const notify = useToast();
 
+  const { userStatus } = useUserStatus();
   if (!member) return null;
+
+  const isCurrentUser = member.name.toLowerCase().includes("galih");
+  const ringStyle = getStatusRingStyle(member.status, isCurrentUser, userStatus);
+  const ringColor = (ringStyle as any)["--status-ring-color"] || "#22c55e";
+  const displayStatus = isCurrentUser ? userStatus : member.status;
 
   const handleStatusChange = (newStatus: RosterMemberStatus) => {
     const updated: RosterMember = { ...member, status: newStatus };
@@ -188,18 +196,29 @@ export function MemberDetailDrawer({
         {/* Header */}
         <div className="drawer-header">
           <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
-            <span
-              className="avatar"
-              style={{ width: "42px", height: "42px", fontSize: "14px", background: member.avatarBg ?? "var(--accent-blue)" }}
+            <div
+              className="drawer-avatar-ring-wrapper"
+              style={ringStyle as React.CSSProperties}
+              title={`${member.name} (${displayStatus})`}
             >
-              {initials(member.name)}
-            </span>
+              <Avatar size="lg" name={member.name} />
+              <span
+                className="drawer-avatar-status-badge"
+                style={{ backgroundColor: ringColor }}
+              />
+            </div>
             <div>
               <div style={{ display: "flex", gap: "8px", alignItems: "center", marginBottom: "4px" }}>
                 <h2 style={{ fontSize: "17px", fontWeight: "700", margin: 0, color: "var(--ink-primary)" }}>
                   {member.name}
                 </h2>
-                <Badge tone={statusTone(member.status)}>{member.status}</Badge>
+                {isCurrentUser ? (
+                  <Badge tone={userStatus === "Online" ? "success" : userStatus === "Busy" ? "critical" : userStatus === "On Break" ? "warning" : "info"}>
+                    {userStatus}
+                  </Badge>
+                ) : (
+                  <Badge tone={statusTone(member.status)}>{member.status}</Badge>
+                )}
               </div>
               <span style={{ fontSize: "11.5px", color: "var(--ink-muted)", fontFamily: "var(--font-mono)" }}>
                 {member.role} · ID: {member.employeeId}

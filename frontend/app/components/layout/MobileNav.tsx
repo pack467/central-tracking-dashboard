@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { BrandLogo } from "@/app/components/ui/BrandLogo";
-import { operationalNavItems, managementNavItems } from "./Sidebar";
+import { Avatar } from "@/app/components/ui/Avatar";
+import { operationalNavItems, managementNavItems, USER_STATUS_CONFIG, type UserPresenceStatus } from "./Sidebar";
 import { useActiveShift } from "@/app/hooks/useLiveClock";
 import { useNotifications } from "@/app/context/NotificationContext";
 import type { HandoverRecordData } from "@/app/lib/types";
@@ -26,6 +27,20 @@ export function MobileNav({
 }: MobileNavProps) {
   const activeShift = useActiveShift();
   const { unreadCount: unreadNotifCount } = useNotifications();
+  const [userStatus, setUserStatus] = useState<UserPresenceStatus>("Online");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("ctd.user.status") as string | null;
+      if (saved === "On Leave") {
+        setUserStatus("AFK");
+      } else if (saved && USER_STATUS_CONFIG[saved as UserPresenceStatus]) {
+        setUserStatus(saved as UserPresenceStatus);
+      }
+    }
+  }, [open]);
+
+  const currentStatusConfig = USER_STATUS_CONFIG[userStatus] || USER_STATUS_CONFIG["Online"];
 
   useEffect(() => {
     if (!open) return;
@@ -86,10 +101,10 @@ export function MobileNav({
                 </span>
                 <span>{item.label}</span>
                 {item.label === "Tickets" && openTicketCount > 0 && (
-                  <span className="nav-count" suppressHydrationWarning>{openTicketCount}</span>
+                  <span className="nav-count nav-count-tickets" suppressHydrationWarning>{openTicketCount}</span>
                 )}
                 {item.label === "Notifikasi" && unreadNotifCount > 0 && (
-                  <span className="nav-count" suppressHydrationWarning>{unreadNotifCount}</span>
+                  <span className="nav-count nav-count-notif" suppressHydrationWarning>{unreadNotifCount}</span>
                 )}
               </button>
             );
@@ -140,11 +155,39 @@ export function MobileNav({
           </button>
         </section>
 
-        <button className="profile" onClick={onClose}>
-          <span className="profile-avatar">GK</span>
+        <button
+          type="button"
+          className="profile"
+          onClick={() => {
+            onNavigate("Profile");
+            onClose();
+          }}
+          title="Buka Profil Pengguna"
+        >
+          <div
+            className="profile-avatar-ring-wrapper"
+            style={{
+              "--status-ring-color": currentStatusConfig.color,
+              "--status-ring-glow": currentStatusConfig.glow,
+            } as React.CSSProperties}
+          >
+            <Avatar size="md" initials="GK" shape="circle" className="profile-avatar" />
+            <span
+              className="profile-status-badge"
+              style={{ backgroundColor: currentStatusConfig.color }}
+            />
+          </div>
           <span>
             <strong>Galih Khairi</strong>
-            <small>Operator NOC</small>
+            <small className="profile-status-row">
+              <span
+                className="profile-status-indicator-dot"
+                style={{ backgroundColor: currentStatusConfig.color }}
+              />
+              <span style={{ color: currentStatusConfig.color, fontWeight: 600 }}>{userStatus}</span>
+              <span className="profile-status-sep">·</span>
+              <span>Operator NOC</span>
+            </small>
           </span>
         </button>
       </div>

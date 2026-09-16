@@ -37,7 +37,7 @@ export function useHandoverWorkflow(inputs: Inputs) {
   const [allTotal, setAllTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
-  const [filters, setFilters] = useState({ date: "", pic: "" });
+  const [filters, setFilters] = useState({ date: "", shift: "", pic: "" });
   const listRequest = useRef(0);
   const [open, setOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"active" | "history">("history");
@@ -71,10 +71,10 @@ export function useHandoverWorkflow(inputs: Inputs) {
       setActor(payload.actor);
       setRecords((previous) => nextPage === 1 ? payload.notes : [...previous, ...payload.notes.filter((note) => !previous.some((old) => old.id === note.id))]);
       setTotal(payload.total);
-      if (!filters.date && !filters.pic) setAllTotal(payload.total);
+      if (!filters.date && !filters.shift && !filters.pic) setAllTotal(payload.total);
       setHasMore(payload.hasMore);
       setPage(payload.page);
-      if (!activeRef.current && !filters.date && !filters.pic) {
+      if (!activeRef.current && !filters.date && !filters.shift && !filters.pic) {
         // Select the newest real record, never the sample handover.
         select(payload.notes[0] ?? null);
       }
@@ -186,7 +186,7 @@ export function useHandoverWorkflow(inputs: Inputs) {
       select(payload.note);
       persistSession(null);
       setOpen(true);
-      setFilters({ date: "", pic: "" });
+      setFilters({ date: "", shift: "", pic: "" });
       notify.success(draftSession.editId ? "Revisi disimpan. Penerima perlu memeriksa ulang checklist." : "Handover disimpan dan menunggu penerimaan.");
     } catch (cause) {
       notify.critical(cause instanceof Error ? cause.message : "Catatan belum tersimpan. Draf tetap tersedia.");
