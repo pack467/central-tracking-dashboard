@@ -1,6 +1,5 @@
 "use client";
 
-import { Sparkline } from "@/app/components/ui/Sparkline";
 import { Badge } from "@/app/components/ui/Badge";
 import { isOpenTicket } from "@/app/lib/data";
 import type { Ticket } from "@/app/lib/types";
@@ -12,8 +11,10 @@ interface MetricCardsProps {
   attentionCount: number;
   checkpointPassed?: number;
   checkpointTotal?: number;
-  nextCheckpointTime?: string;
-  nextCheckpointDesc?: string;
+  pendingTasksCount?: number;
+  totalTasksCount?: number;
+  currentTaskTitle?: string;
+  onGoToTasks?: () => void;
 }
 
 export function MetricCards({
@@ -23,12 +24,16 @@ export function MetricCards({
   attentionCount,
   checkpointPassed = 128,
   checkpointTotal = 136,
-  nextCheckpointTime = "23:00",
-  nextCheckpointDesc = "Tinjauan kesiapan shift malam dan handover log final terjadwal.",
+  pendingTasksCount = 0,
+  totalTasksCount = 9,
+  currentTaskTitle,
+  onGoToTasks,
 }: MetricCardsProps) {
   const open = tickets.filter(isOpenTicket).length;
   const closedToday = tickets.filter((ticket) => ticket.status === "Ditutup" || ticket.status === "Closed").length;
   const successRate = checkpointTotal > 0 ? Math.round((checkpointPassed / checkpointTotal) * 100) : 100;
+  const pendingCount = pendingTasksCount ?? 0;
+  const totalCount = totalTasksCount ?? 0;
 
   return (
     <section className="metrics-grid" aria-label="Metrik operasional">
@@ -44,7 +49,6 @@ export function MetricCards({
         <div className="progress-line">
           <i style={{ width: `${Math.min(100, Math.max(0, successRate))}%` }} />
         </div>
-        <Sparkline color="#22d3a0" points="0,28 20,22 40,25 60,18 80,20 100,12 120,15 140,8 160,5" />
       </article>
 
       <article className="metric-card">
@@ -60,7 +64,6 @@ export function MetricCards({
           <Badge tone={open > 0 ? "warning" : "success"}>{open} Active</Badge>
           <span>{closedToday} Closed today</span>
         </div>
-        <Sparkline color="#38bdf8" points="0,15 20,25 40,10 60,20 80,12 100,18 120,8 140,14 160,10" />
       </article>
 
       <article className="metric-card">
@@ -78,23 +81,48 @@ export function MetricCards({
           </Badge>
           <span>{attentionCount} anomali monitoring</span>
         </div>
-        <Sparkline color="#fbbf24" points="0,20 20,12 40,28 60,15 80,22 100,10 120,18 140,12 160,8" />
       </article>
 
       <article className="metric-card">
         <div className="metric-top">
-          <span>NEXT CHECKPOINT</span>
+          <span>TUGAS SAAT INI</span>
+          {onGoToTasks && (
+            <button onClick={onGoToTasks}>Lihat tugas →</button>
+          )}
         </div>
-        <div className="metric-time">
-          <span className="metric-time-digits">{nextCheckpointTime}</span>
-          <span className="timezone-pill-badge">WIB</span>
+        <div className="metric-number">
+          {pendingCount}
+          {totalCount > 0 && (
+            <span style={{ fontSize: "15px", color: "var(--ink-muted)", fontWeight: 500, marginLeft: "5px" }}>
+              / {totalCount}
+            </span>
+          )}
         </div>
-        <p>{nextCheckpointDesc}</p>
+        <p>
+          {pendingCount > 0
+            ? `${pendingCount} tugas operasional shift saat ini perlu dikerjakan & diselesaikan.`
+            : `Seluruh ${totalCount > 0 ? `${totalCount} ` : ""}tugas operasional shift saat ini telah selesai dikerjakan.`}
+        </p>
         <div className="metric-foot">
-          <span className="status-dot success" />
-          <span>{nextCheckpointDesc.slice(0, 40)}...</span>
+          <Badge tone={pendingCount > 0 ? "warning" : "success"}>
+            {pendingCount > 0 ? `${pendingCount} Perlu Dikerjakan` : "Semua Selesai"}
+          </Badge>
+          <span
+            title={
+              pendingCount > 0 && currentTaskTitle
+                ? `Tugas: ${currentTaskTitle}`
+                : pendingCount > 0
+                ? `${pendingCount} tugas operasional aktif`
+                : "Semua tugas shift tuntas & terpantau"
+            }
+          >
+            {pendingCount > 0 && currentTaskTitle
+              ? currentTaskTitle
+              : pendingCount > 0
+              ? `${pendingCount} tugas operasional aktif`
+              : "Semua tugas shift tuntas & terpantau"}
+          </span>
         </div>
-        <Sparkline color="#a78bfa" points="0,10 20,15 40,12 60,22 80,18 100,25 120,20 140,28 160,30" />
       </article>
     </section>
   );

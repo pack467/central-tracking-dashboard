@@ -223,6 +223,8 @@
 .schedule-table {
   padding: 4px 12px 12px;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .dashboard-grid .schedule-panel {
@@ -235,12 +237,63 @@
   flex: 1 1 auto;
   display: flex;
   flex-direction: column;
+  min-height: 0;
+}
+
+/* Scrollable Schedule Body with smooth scrollbar */
+.schedule-body {
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: calc(100vh - 240px);
+  min-height: 0;
+  padding-right: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(56, 189, 248, 0.3) rgba(255, 255, 255, 0.03);
+}
+
+.dashboard-grid .schedule-body {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  max-height: 680px;
+}
+
+.dashboard-grid .schedule-row-wrapper {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  max-height: 84px;
 }
 
 .dashboard-grid .schedule-row {
-  flex: 1 1 0px;
-  min-height: 56px;
+  flex: 1 1 auto;
+  min-height: 54px;
   max-height: 84px;
+}
+
+.schedule-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.schedule-body::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 99px;
+  margin: 4px 0;
+}
+
+.schedule-body::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, 0.28);
+  border-radius: 99px;
+  transition: background-color 0.15s ease;
+}
+
+.schedule-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(56, 189, 248, 0.55);
+}
+
+.schedule-body::-webkit-scrollbar-thumb:active {
+  background: var(--accent-blue);
 }
 
 .dashboard-grid .schedule-panel-footer {
@@ -260,12 +313,13 @@
 
 .schedule-header {
   height: 36px;
-  padding: 0 10px;
+  padding: 0 16px 0 10px;
   color: var(--ink-muted);
   font-size: 9.5px;
   font-weight: 700;
   letter-spacing: 0.8px;
   font-family: var(--font-mono);
+  flex-shrink: 0;
 }
 
 .schedule-row {

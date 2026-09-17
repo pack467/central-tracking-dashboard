@@ -365,6 +365,10 @@ export function OverviewView(props: OverviewViewProps) {
         attentionCount={attentionCount}
         onGoToTickets={props.onGoToTickets}
         onGoToNotifications={props.onGoToNotifications}
+        pendingTasksCount={props.handoverPendingCount ?? pendingTasks.length}
+        totalTasksCount={props.handoverRecord.tasks.length}
+        currentTaskTitle={pendingTasks[0]?.title}
+        onGoToTasks={props.onOpenHandover || props.onGoToMonitoring}
       />
 
       <section className="dashboard-grid">

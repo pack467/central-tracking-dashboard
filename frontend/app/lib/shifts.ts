@@ -74,6 +74,132 @@ export function getShiftInfo(date: Date = new Date()): ShiftInfo {
   return getShiftInfoForMinutes(date.getHours() * 60 + date.getMinutes());
 }
 
+export interface ShiftTransitionState {
+  isActive: boolean;
+  isUpcoming: boolean;
+  fromShift: ShiftInfo;
+  toShift: ShiftInfo;
+  label: string;
+  windowStart: string;
+  windowEnd: string;
+  windowPeriod: string;
+  minutesRemaining: number;
+  minutesUntilStart: number;
+  progressPercent: number;
+}
+
+export function getShiftTransitionStateForMinutes(totalMinutes: number): ShiftTransitionState {
+  const minuteOfDay = ((totalMinutes % 1_440) + 1_440) % 1_440;
+
+  // Window 1: Malam -> Subuh (00:00 - 00:30)
+  if (minuteOfDay < 30) {
+    return {
+      isActive: true,
+      isUpcoming: false,
+      fromShift: shiftDefinitions.malam,
+      toShift: shiftDefinitions.subuh,
+      label: "Malam → Subuh",
+      windowStart: "00:00",
+      windowEnd: "00:30",
+      windowPeriod: "00:00 – 00:30 WIB",
+      minutesRemaining: Math.max(1, 30 - minuteOfDay),
+      minutesUntilStart: 0,
+      progressPercent: Math.min(100, Math.round((minuteOfDay / 30) * 100)),
+    };
+  }
+
+  // Window 2: Subuh -> Pagi (08:00 - 08:30)
+  if (minuteOfDay >= 8 * 60 && minuteOfDay < 8 * 60 + 30) {
+    const elapsed = minuteOfDay - 8 * 60;
+    return {
+      isActive: true,
+      isUpcoming: false,
+      fromShift: shiftDefinitions.subuh,
+      toShift: shiftDefinitions.pagi,
+      label: "Subuh → Pagi",
+      windowStart: "08:00",
+      windowEnd: "08:30",
+      windowPeriod: "08:00 – 08:30 WIB",
+      minutesRemaining: Math.max(1, 30 - elapsed),
+      minutesUntilStart: 0,
+      progressPercent: Math.min(100, Math.round((elapsed / 30) * 100)),
+    };
+  }
+
+  // Window 3: Pagi -> Malam (16:00 - 16:30)
+  if (minuteOfDay >= 16 * 60 && minuteOfDay < 16 * 60 + 30) {
+    const elapsed = minuteOfDay - 16 * 60;
+    return {
+      isActive: true,
+      isUpcoming: false,
+      fromShift: shiftDefinitions.pagi,
+      toShift: shiftDefinitions.malam,
+      label: "Pagi → Malam",
+      windowStart: "16:00",
+      windowEnd: "16:30",
+      windowPeriod: "16:00 – 16:30 WIB",
+      minutesRemaining: Math.max(1, 30 - elapsed),
+      minutesUntilStart: 0,
+      progressPercent: Math.min(100, Math.round((elapsed / 30) * 100)),
+    };
+  }
+
+  // Outside active window: Determine next upcoming handover window
+  if (minuteOfDay < 8 * 60) {
+    const minutesUntil = 8 * 60 - minuteOfDay;
+    return {
+      isActive: false,
+      isUpcoming: minutesUntil <= 30,
+      fromShift: shiftDefinitions.subuh,
+      toShift: shiftDefinitions.pagi,
+      label: "Subuh → Pagi",
+      windowStart: "08:00",
+      windowEnd: "08:30",
+      windowPeriod: "08:00 – 08:30 WIB",
+      minutesRemaining: 0,
+      minutesUntilStart: minutesUntil,
+      progressPercent: 0,
+    };
+  }
+
+  if (minuteOfDay < 16 * 60) {
+    const minutesUntil = 16 * 60 - minuteOfDay;
+    return {
+      isActive: false,
+      isUpcoming: minutesUntil <= 30,
+      fromShift: shiftDefinitions.pagi,
+      toShift: shiftDefinitions.malam,
+      label: "Pagi → Malam",
+      windowStart: "16:00",
+      windowEnd: "16:30",
+      windowPeriod: "16:00 – 16:30 WIB",
+      minutesRemaining: 0,
+      minutesUntilStart: minutesUntil,
+      progressPercent: 0,
+    };
+  }
+
+  // minuteOfDay >= 16:30
+  const minutesUntil = 24 * 60 - minuteOfDay;
+  return {
+    isActive: false,
+    isUpcoming: minutesUntil <= 30,
+    fromShift: shiftDefinitions.malam,
+    toShift: shiftDefinitions.subuh,
+    label: "Malam → Subuh",
+    windowStart: "00:00",
+    windowEnd: "00:30",
+    windowPeriod: "00:00 – 00:30 WIB",
+    minutesRemaining: 0,
+    minutesUntilStart: minutesUntil,
+    progressPercent: 0,
+  };
+}
+
+export function getShiftTransitionState(date: Date = new Date()): ShiftTransitionState {
+  return getShiftTransitionStateForMinutes(date.getHours() * 60 + date.getMinutes());
+}
+
 export function getNextShiftChange(date: Date = new Date()): Date {
   const next = new Date(date);
   const totalMinutes = date.getHours() * 60 + date.getMinutes();

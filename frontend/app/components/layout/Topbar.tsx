@@ -5,6 +5,7 @@ import { RefreshCw, Sun, Sunset, Moon, Clock } from "lucide-react";
 import { IconMenu } from "@/app/components/ui/Icons";
 import { NotificationDropdown } from "@/app/components/layout/NotificationDropdown";
 import { ClientSwitcher } from "@/app/components/layout/ClientSwitcher";
+import { ShiftTransitionBadge } from "@/app/components/layout/ShiftTransitionBadge";
 import { useLiveClock, useActiveShift } from "@/app/hooks/useLiveClock";
 import { useToast } from "@/app/components/ui/Toast";
 
@@ -14,6 +15,7 @@ interface TopbarProps {
   onOpenMobileNav: () => void;
   onRefresh?: () => void | Promise<void>;
   onNavigate?: (label: string) => void;
+  onOpenHandover?: () => void;
 }
 
 export function Topbar({
@@ -21,6 +23,7 @@ export function Topbar({
   onOpenMobileNav,
   onRefresh,
   onNavigate,
+  onOpenHandover,
 }: TopbarProps) {
   const currentTime = useLiveClock();
   const activeShift = useActiveShift();
@@ -82,6 +85,9 @@ export function Topbar({
       <div className="topbar-actions">
         {/* Multi-tenant Client / Company Switcher */}
         <ClientSwitcher />
+
+        {/* Handover Window / Pergantian Shift Indicator (Active during shift overlaps, e.g. 16:00 - 16:30) */}
+        <ShiftTransitionBadge onOpenHandover={onOpenHandover} onNavigate={onNavigate} />
 
         <div
           className={`topbar-shift-badge ${activeShift.badgeClass}`}

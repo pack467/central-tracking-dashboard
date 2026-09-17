@@ -440,7 +440,8 @@ export function MonitoringSchedule({
           <span>STATUS / VERDICT</span>
         </div>
 
-        {visibleEntries.map((item) => {
+        <div className="schedule-body">
+          {visibleEntries.map((item) => {
           const key = rowKey(item);
           const assessment = assessments[key];
           const canAssess = item.state !== "Upcoming" && item.state !== "Mendatang";
@@ -615,6 +616,7 @@ export function MonitoringSchedule({
         {visibleEntries.length === 0 && (
           <div className="schedule-empty">Tidak ada checkpoint yang cocok dengan filter ini.</div>
         )}
+        </div>
       </div>
 
       {footer}

@@ -217,6 +217,7 @@ export function Dashboard({ initialNav = "Overview" }: { initialNav?: string }) 
           onOpenMobileNav={() => setMobileNavOpen(true)}
           onRefresh={() => handover.refresh()}
           onNavigate={handleNavigate}
+          onOpenHandover={() => handover.openActive()}
         />
 
         <div className="page-content">

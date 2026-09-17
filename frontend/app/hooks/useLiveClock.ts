@@ -1,11 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getNextShiftChange, getShiftInfo, type ShiftId, type ShiftInfo } from "@/app/lib/shifts";
+import {
+  getNextShiftChange,
+  getShiftInfo,
+  getShiftTransitionState,
+  type ShiftId,
+  type ShiftInfo,
+  type ShiftTransitionState,
+} from "@/app/lib/shifts";
 
 export type ShiftType = ShiftId;
-export type { ShiftInfo } from "@/app/lib/shifts";
-export { getShiftInfo } from "@/app/lib/shifts";
+export type { ShiftInfo, ShiftTransitionState } from "@/app/lib/shifts";
+export { getShiftInfo, getShiftTransitionState } from "@/app/lib/shifts";
 
 export interface LiveClockState {
   time: string; // "22:35:42"
@@ -121,4 +128,19 @@ export function useActiveShift() {
   }, []);
 
   return shift;
+}
+
+export function useShiftTransition(): ShiftTransitionState {
+  const [transition, setTransition] = useState<ShiftTransitionState>(() => getShiftTransitionState(new Date()));
+
+  useEffect(() => {
+    const update = () => {
+      setTransition(getShiftTransitionState(new Date()));
+    };
+    update();
+    const interval = setInterval(update, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return transition;
 }

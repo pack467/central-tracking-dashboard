@@ -1673,6 +1673,12 @@
   font-size: 11px;
 }
 
+.metric-foot span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .metric-time {
   margin-top: 10px;
   color: var(--ink-primary);
