@@ -22,11 +22,21 @@
 .page-content > .schedule-panel,
 .page-content > .tickets-panel,
 .page-content > .view-panel,
-.page-content > .roster-metrics-grid {
+.page-content > .roster-metrics-grid,
+.page-view-enter > .health-strip,
+.page-view-enter > .metrics-grid,
+.page-view-enter > .ticket-stats,
+.page-view-enter > .system-strip,
+.page-view-enter > .dashboard-grid,
+.page-view-enter > .schedule-panel,
+.page-view-enter > .tickets-panel,
+.page-view-enter > .view-panel,
+.page-view-enter > .roster-metrics-grid {
   scroll-margin-top: var(--sticky-content-offset);
 }
 
-.page-content > .schedule-panel {
+.page-content > .schedule-panel,
+.page-view-enter > .schedule-panel {
   margin-bottom: var(--space-5);
 }
 

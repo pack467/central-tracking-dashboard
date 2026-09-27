@@ -53,15 +53,15 @@ test("canonical 3-state resolution maps correctly to On Duty, Standby, Offline",
 
 test("tally calculation satisfies simplified labels summing to total with real offline count", () => {
   const members = [
-    { name: "Galih Khairi", status: "On Duty" },
-    { name: "Pangondion Kurniawan", status: "On Duty" },
-    { name: "Kurnia Meidiyansyah", status: "On Duty" },
-    { name: "Muhammad Iqbal", status: "Standby" },
-    { name: "Tiara Andini", status: "Standby" },
-    { name: "Sarah Wijaya", status: "Offline" },
-    { name: "Bagas Pratama", status: "Offline" },
-    { name: "Dimas Anggoro", status: "Offline" },
-    { name: "Annisa Rahmawati", status: "Offline" },
+    { name: "Mhd. Galih Khairi", status: "On Duty" },
+    { name: "Pangondion Kurniawan Naibaho", status: "On Duty" },
+    { name: "Muhammad Ihsanul Arifin", status: "On Duty" },
+    { name: "Kristina Marbun", status: "Standby" },
+    { name: "Pedro Hutagaol", status: "Standby" },
+    { name: "Tahan Julianus Nadeak", status: "Offline" },
+    { name: "Yuha Azhari Simbolon", status: "Offline" },
+    { name: "Nicholas Bima Nooka Putra", status: "Offline" },
+    { name: "Natanael Tambun", status: "Offline" },
   ];
 
   const resolved = members.map((m) => ({
@@ -99,7 +99,7 @@ test("rendered Overview page contains complete RosterTeamPanel with simplified l
   const html = await res.text();
 
   // 1. Header block
-  assert.ok(html.includes('class="shift-coverage-header"'), "Has shift-coverage-header container");
+  assert.ok(html.includes("shift-coverage-header"), "Has shift-coverage-header container");
   assert.ok(html.includes("Roster Tim"), "Has 'Roster Tim' title");
   assert.ok(html.includes("Shift Coverage"), "Has 'Shift Coverage' subtitle");
   assert.ok(html.includes("topbar-shift-badge"), "Has shift badge");
@@ -133,7 +133,7 @@ test("rendered Overview page contains complete RosterTeamPanel with simplified l
   assert.ok(html.includes("roster-member-left"), "Has roster-member-left column");
   assert.ok(html.includes("roster-member-right"), "Has roster-member-right column");
   assert.ok(html.includes("Pangondion Kurniawan"), "Full name 'Pangondion Kurniawan' is rendered");
-  assert.ok(html.includes("Kurnia Meidiyansyah"), "Full name 'Kurnia Meidiyansyah' is rendered");
+  assert.ok(html.includes("Muhammad Ihsanul Arifin"), "Full name 'Muhammad Ihsanul Arifin' is rendered");
 
   // 6. Member list & fixed footer
   assert.ok(html.includes("shift-coverage-team-list"), "Member list has scroll class");

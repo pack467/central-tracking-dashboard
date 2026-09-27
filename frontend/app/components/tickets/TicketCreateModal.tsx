@@ -51,7 +51,7 @@ export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModal
   const { activeClient, activeClientId } = useClient();
   const clientSystems = useMemo(() => getClientSystems(activeClientId), [activeClientId]);
 
-  const operatorName = user?.name || "Galih Khairi";
+  const operatorName = user?.name || "Mhd. Galih Khairi";
   const [ticketCode, setTicketCode] = useState(() => makeTicketId());
   const [subject, setSubject] = useState("");
   const [owners, setOwners] = useState<string[]>(() => [operatorName]);
@@ -300,7 +300,7 @@ export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModal
               <div className="ticket-field-label-wrapper">
                 <span className="ticket-field-label">
                   <AlertTriangle size={12} className="ticket-field-icon" />
-                  PRIORITY LEVEL
+                  SEVERITY LEVEL
                 </span>
                 <Badge tone={severityTone(severity)}>{severity}</Badge>
               </div>

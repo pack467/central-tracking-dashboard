@@ -259,7 +259,6 @@ export function MonitoringHistorySection({ todayEntries, todayAssessments }: Mon
       <div className="panel-heading history-heading">
         <div>
           <div className="panel-title">Riwayat Asesmen Checkpoint</div>
-          <span className="panel-subtitle">Log riwayat penilaian status OK / NOK per shift dan tanggal</span>
         </div>
 
         <div className="history-head-actions">

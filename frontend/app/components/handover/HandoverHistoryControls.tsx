@@ -65,13 +65,20 @@ export function HandoverHistoryControls({ workflow }: { workflow: HandoverWorkfl
               onChange={(event) => workflow.setFilters((prev) => ({ ...prev, pic: event.target.value }))}
             />
             <datalist id="shifter-suggestions">
+              <option value="Tahan Julianus Nadeak" />
+              <option value="Yuha Azhari Simbolon" />
+              <option value="Nicholas Bima Nooka Putra" />
+              <option value="Pangondion Kurniawan Naibaho" />
+              <option value="Natanael Tambun" />
+              <option value="Agnes Siahaan" />
+              <option value="Ade Yuri F. Damanik" />
+              <option value="Muhammad Ihsanul Arifin" />
               <option value="Mhd. Galih Khairi" />
-              <option value="M. Ihsanul Arifin" />
-              <option value="Pangondian Kurniawan" />
-              <option value="Dedi Prasetyo" />
-              <option value="Agnes" />
+              <option value="Pedro Hutagaol" />
               <option value="Kristina Marbun" />
-              <option value="Natanael" />
+              <option value="Andri Agung Exaudi Sigiro" />
+              <option value="Dimas Yudistira" />
+              <option value="Tennov Pakpahan" />
             </datalist>
             {workflow.filters.pic && (
               <button

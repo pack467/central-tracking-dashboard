@@ -6,7 +6,6 @@ import {
   LayoutDashboard,
   Ticket,
   Activity,
-  Bell,
   History,
   BarChart2,
   BookOpen,
@@ -17,13 +16,18 @@ import {
   SlidersHorizontal,
   LogOut,
   Check,
+  ChevronLeft,
+  ChevronRight,
+  PanelLeft,
+  Sun,
+  Sunset,
+  Moon,
   type LucideIcon,
 } from "lucide-react";
 import { BrandLogo } from "@/app/components/ui/BrandLogo";
 import { Avatar } from "@/app/components/ui/Avatar";
 import { useToast } from "@/app/components/ui/Toast";
 import { useActiveShift } from "@/app/hooks/useLiveClock";
-import { useNotifications } from "@/app/context/NotificationContext";
 import { useUserStatus } from "@/app/hooks/useUserStatus";
 
 export interface NavItemConfig {
@@ -32,10 +36,9 @@ export interface NavItemConfig {
 }
 
 export const operationalNavItems: readonly NavItemConfig[] = [
-  { icon: LayoutDashboard, label: "Overview" },
+  { icon: LayoutDashboard, label: "Dashboard" },
   { icon: Ticket, label: "Tickets" },
   { icon: Activity, label: "Monitoring" },
-  { icon: Bell, label: "Notifikasi" },
   { icon: History, label: "Shift Log" },
 ] as const;
 
@@ -107,12 +110,13 @@ interface SidebarProps {
   onNavigate: (label: string) => void;
   onPrepareHandover: () => void;
   openTicketCount: number;
+  collapsed?: boolean;
+  onToggleCollapse?: () => void;
 }
 
-export function Sidebar({ activeNav, onNavigate, onPrepareHandover, openTicketCount }: SidebarProps) {
+export function Sidebar({ activeNav, onNavigate, onPrepareHandover, openTicketCount, collapsed = false, onToggleCollapse }: SidebarProps) {
   const notify = useToast();
   const activeShift = useActiveShift();
-  const { unreadCount: unreadNotifCount } = useNotifications();
   const lastActionTimeRef = useRef<Record<string, number>>({});
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -189,23 +193,24 @@ export function Sidebar({ activeNav, onNavigate, onPrepareHandover, openTicketCo
 
   const isItemActive = (label: string) => {
     if (activeNav === label) return true;
-    if ((activeNav === "Utama" || activeNav === "Overview") && label === "Overview") return true;
+    if ((activeNav === "Utama" || activeNav === "Overview" || activeNav === "Dashboard") && (label === "Dashboard" || label === "Overview")) return true;
     if ((activeNav === "Ticket" || activeNav === "Tickets") && label === "Tickets") return true;
     if ((activeNav === "Log shift" || activeNav === "Shift Log") && label === "Shift Log") return true;
     if ((activeNav === "Laporan" || activeNav === "Reports") && label === "Reports") return true;
-    if ((activeNav === "Notifications" || activeNav === "Notifikasi") && label === "Notifikasi") return true;
     if (activeNav === "Team Roster" && label === "Team Roster") return true;
     return false;
   };
 
   return (
-    <aside className="sidebar" aria-label="Primary navigation">
-      <BrandLogo size={28} />
+    <>
+      <aside className={`sidebar ${collapsed ? "sidebar-collapsed" : ""}`} aria-label="Primary navigation">
+      <div className="sidebar-top-row">
+        <BrandLogo size={28} />
+      </div>
 
-      {/* ── Section 1: Operasional (Day-to-day shift operations) ── */}
-      <div className="sidebar-label">OPERASIONAL</div>
-      <nav className="nav-list" aria-label="Navigasi Operasional">
-        {operationalNavItems.map((item) => {
+      {/* ── Main Navigation List (Continuous without section dividers) ── */}
+      <nav className="nav-list" aria-label="Navigasi Utama">
+        {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = isItemActive(item.label);
 
@@ -214,39 +219,15 @@ export function Sidebar({ activeNav, onNavigate, onPrepareHandover, openTicketCo
               className={`nav-item ${isActive ? "active" : ""}`}
               key={item.label}
               onClick={() => onNavigate(item.label)}
+              title={item.label}
             >
               <span className="nav-icon" aria-hidden="true">
                 <Icon size={18} strokeWidth={1.8} aria-hidden="true" />
               </span>
-              <span>{item.label}</span>
+              <span className="nav-label">{item.label}</span>
               {item.label === "Tickets" && openTicketCount > 0 && (
                 <span className="nav-count nav-count-tickets" suppressHydrationWarning>{openTicketCount}</span>
               )}
-              {item.label === "Notifikasi" && unreadNotifCount > 0 && (
-                <span className="nav-count nav-count-notif" suppressHydrationWarning>{unreadNotifCount}</span>
-              )}
-            </button>
-          );
-        })}
-      </nav>
-
-      {/* ── Section 2: Manajemen (Oversight, reporting, & team administration) ── */}
-      <div className="sidebar-label sidebar-label-lower">MANAJEMEN</div>
-      <nav className="nav-list" aria-label="Navigasi Manajemen">
-        {managementNavItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = isItemActive(item.label);
-
-          return (
-            <button
-              className={`nav-item ${isActive ? "active" : ""}`}
-              key={item.label}
-              onClick={() => onNavigate(item.label)}
-            >
-              <span className="nav-icon" aria-hidden="true">
-                <Icon size={18} strokeWidth={1.8} aria-hidden="true" />
-              </span>
-              <span>{item.label}</span>
             </button>
           );
         })}
@@ -258,48 +239,74 @@ export function Sidebar({ activeNav, onNavigate, onPrepareHandover, openTicketCo
               notify("Runbooks & SOP dimuat.", "info", { id: "sidebar-runbooks" }),
             )
           }
+          title="Runbooks"
         >
           <span className="nav-icon" aria-hidden="true">
             <BookOpen size={18} strokeWidth={1.8} aria-hidden="true" />
           </span>
-          <span>Runbooks</span>
+          <span className="nav-label">Runbooks</span>
         </button>
       </nav>
 
-      {/* ── Bottom Anchored Cards: Active Shift & Profile ── */}
-      <section className={`shift-card shift-card-${activeShift.id}`}>
+      <section
+        className={`shift-card shift-card-${activeShift.id}`}
+        title={collapsed ? `${activeShift.label} (${activeShift.period}) · Klik untuk Siapkan Handover` : undefined}
+        onClick={
+          collapsed
+            ? () =>
+                throttleAction("prepare-handover", () => {
+                  onPrepareHandover();
+                  notify(`Persiapan handover ${activeShift.label} dibuka.`, "info", {
+                    id: "handover-prepare",
+                  });
+                })
+            : undefined
+        }
+      >
+        {/* Collapsed Tile View */}
+        <div className="shift-card-collapsed-view" aria-hidden={!collapsed}>
+          {(() => {
+            const ShiftIcon = activeShift.id === "subuh" ? Moon : activeShift.id === "pagi" ? Sun : Sunset;
+            return <ShiftIcon size={19} className="shift-card-collapsed-icon" aria-hidden="true" />;
+          })()}
+          <span className="shift-card-collapsed-dot live-dot live-dot-pulse" aria-hidden="true" />
+        </div>
+
         <div className="shift-card-top">
-          <span className="live-dot live-dot-pulse" /> ACTIVE SHIFT
+          <span className="live-dot live-dot-pulse" />
+          <span className="shift-card-title-text">ACTIVE SHIFT</span>
         </div>
-        <strong>{activeShift.label}</strong>
-        <p>{activeShift.period}</p>
-        <div className="shift-people">
-          <div
-            className="shift-people-ring-wrapper"
-            style={{
-              "--status-ring-color": currentStatusConfig.color,
-              "--status-ring-glow": currentStatusConfig.glow,
-            } as React.CSSProperties}
-            title={`Galih Khairi (${userStatus})`}
-          >
-            <Avatar size={25} initials="GK" ariaLabel={`Operator GK (${userStatus})`} />
+        <div className="shift-card-body">
+          <strong>{activeShift.label}</strong>
+          <p>{activeShift.period}</p>
+          <div className="shift-people">
+            <div
+              className="shift-people-ring-wrapper"
+              style={{
+                "--status-ring-color": currentStatusConfig.color,
+                "--status-ring-glow": currentStatusConfig.glow,
+              } as React.CSSProperties}
+              title={`Galih Khairi (${userStatus})`}
+            >
+              <Avatar size={25} initials="GK" ariaLabel={`Operator GK (${userStatus})`} />
+            </div>
+            <Avatar size={25} initials="KM" ariaLabel="Operator KM" />
+            <Avatar size={25} initials="MI" ariaLabel="Operator MI" />
+            <Avatar size={25} initials="+2" className="more" ariaLabel="2 operator lainnya" />
           </div>
-          <Avatar size={25} initials="KM" ariaLabel="Operator KM" />
-          <Avatar size={25} initials="MI" ariaLabel="Operator MI" />
-          <Avatar size={25} initials="+2" className="more" ariaLabel="2 operator lainnya" />
+          <button
+            onClick={() =>
+              throttleAction("prepare-handover", () => {
+                onPrepareHandover();
+                notify(`Persiapan handover ${activeShift.label} dibuka.`, "info", {
+                  id: "handover-prepare",
+                });
+              })
+            }
+          >
+            Siapkan Handover <span>→</span>
+          </button>
         </div>
-        <button
-          onClick={() =>
-            throttleAction("prepare-handover", () => {
-              onPrepareHandover();
-              notify(`Persiapan handover ${activeShift.label} dibuka.`, "info", {
-                id: "handover-prepare",
-              });
-            })
-          }
-        >
-          Siapkan Handover <span>→</span>
-        </button>
       </section>
 
       <div className="profile-container">
@@ -517,6 +524,28 @@ export function Sidebar({ activeNav, onNavigate, onPrepareHandover, openTicketCo
           document.body
         )}
       </div>
-    </aside>
+      </aside>
+
+      {/* ── Sidebar Toggle Tab Handle (matching right shift-panel-toggle-tab) ── */}
+      {onToggleCollapse && (
+        <button
+          type="button"
+          className={`sidebar-toggle-tab ${collapsed ? "sidebar-toggle-tab-collapsed" : ""}`}
+          onClick={onToggleCollapse}
+          aria-label={collapsed ? "Lebarkan sidebar" : "Ciutkan sidebar"}
+          title={collapsed ? "Lebarkan sidebar" : "Ciutkan sidebar"}
+        >
+          <PanelLeft size={16} strokeWidth={2} />
+          {openTicketCount !== undefined && openTicketCount > 0 && (
+            <span className="sidebar-toggle-badge">{openTicketCount}</span>
+          )}
+          {collapsed ? (
+            <ChevronRight size={12} className="sidebar-toggle-chevron" />
+          ) : (
+            <ChevronLeft size={12} className="sidebar-toggle-chevron" />
+          )}
+        </button>
+      )}
+    </>
   );
 }

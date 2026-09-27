@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { RefreshCw, Sun, Sunset, Moon, Clock } from "lucide-react";
 import { IconMenu } from "@/app/components/ui/Icons";
-import { NotificationDropdown } from "@/app/components/layout/NotificationDropdown";
 import { ClientSwitcher } from "@/app/components/layout/ClientSwitcher";
 import { ShiftTransitionBadge } from "@/app/components/layout/ShiftTransitionBadge";
 import { useLiveClock, useActiveShift } from "@/app/hooks/useLiveClock";
@@ -77,9 +76,6 @@ export function Topbar({
         <button className="hamburger-button" onClick={onOpenMobileNav} aria-label="Buka menu navigasi">
           <IconMenu />
         </button>
-        <span>Operations</span>
-        <b>/</b>
-        <strong>{activeNav === "Utama" || activeNav === "Overview" ? "Command Center" : activeNav}</strong>
       </div>
 
       <div className="topbar-actions">
@@ -126,8 +122,6 @@ export function Topbar({
           </div>
         )}
 
-        {/* Dedicated anchored notification dropdown */}
-        <NotificationDropdown onNavigate={onNavigate} />
 
         {/* Website Refresh Button (Placed to the right of theme button, icon-only) */}
         <button

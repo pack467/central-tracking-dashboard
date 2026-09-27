@@ -66,7 +66,6 @@ export function ClientSwitcher() {
         </span>
 
         <span className="client-name-group">
-          <span className="client-label">KLIEN / TENANT</span>
           <span className="client-name">{activeClient.shortName}</span>
         </span>
 
@@ -84,9 +83,6 @@ export function ClientSwitcher() {
         >
           <div className="client-dropdown-header">
             <span className="client-dropdown-title">PILIH KLIEN OPERASIONAL</span>
-            <span className="client-dropdown-subtitle">
-              Sistem, tiket, & alert terisolasi per tenant
-            </span>
           </div>
 
           <div className="client-dropdown-list">
@@ -107,7 +103,6 @@ export function ClientSwitcher() {
                     <div className="client-item-title-row">
                       <span className="client-item-name">{client.name}</span>
                     </div>
-                    <div className="client-item-tagline">{client.tagline}</div>
                     <div className="client-item-meta">
                       <span className="client-item-systems">
                         {client.systemsCount} Monitored Systems
@@ -123,10 +118,6 @@ export function ClientSwitcher() {
                 </button>
               );
             })}
-          </div>
-
-          <div className="client-dropdown-footer">
-            <span>Shift NOC Roster bersifat global & mencakup seluruh klien.</span>
           </div>
         </div>
       )}

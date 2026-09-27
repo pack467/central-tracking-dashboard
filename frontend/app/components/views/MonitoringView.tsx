@@ -49,6 +49,7 @@ export function MonitoringView({
 
   const activeShift = useActiveShift();
   const shiftAccent: StatAccentColor = activeShift.id === "subuh" ? "blue" : activeShift.id === "pagi" ? "amber" : "purple";
+  const [activeTab, setActiveTab] = useState<"live" | "history">("live");
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
 
   // Status filter for project cards: "all" | "urgent" | "healthy"
@@ -236,10 +237,9 @@ export function MonitoringView({
       <section className="page-heading">
         <div>
           <div className="eyebrow">
-            <span className="live-dot live-dot-pulse" /> CHECKPOINT &amp; PEMERIKSAAN · {activeClient.name.toUpperCase()} · {activeShift.label.toUpperCase()}
+            <span className="live-dot live-dot-pulse" /> MONITORING · {activeClient.code}
           </div>
-          <h1>Monitoring — {activeClient.shortName}</h1>
-          <p>Matriks pemeriksaan per jam, evaluasi status OK / NOK, dan riwayat anomali untuk sistem {activeClient.name}.</p>
+          <h1>Monitoring</h1>
         </div>
         <div className="page-actions">
           <button className="button button-secondary" onClick={onOpenGuide}>
@@ -248,8 +248,41 @@ export function MonitoringView({
         </div>
       </section>
 
-      {/* ── 1. Top Stat Cards (OK / NOK / Checkpoint Hari Ini / Jam Pemeriksaan) ── */}
-      <section className="monitoring-stat-cards-grid" aria-label="Statistik pemeriksaan monitoring">
+      {/* ── Sub-Navigation Switcher (Monitoring Sekarang / Log Monitoring) ── */}
+      <div className="ticket-view-switcher" role="tablist" aria-label="Navigasi view monitoring">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === "live"}
+          className={`view-switcher-tab ${activeTab === "live" ? "active" : ""}`}
+          onClick={() => setActiveTab("live")}
+        >
+          <Activity size={14} />
+          <span>Monitoring Sekarang</span>
+          <span className="tab-badge">{totalCheckpoints}</span>
+        </button>
+
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === "history"}
+          className={`view-switcher-tab ${activeTab === "history" ? "active" : ""}`}
+          onClick={() => setActiveTab("history")}
+        >
+          <Clock size={14} />
+          <span>Log Monitoring</span>
+          {notAdequateCount > 0 ? (
+            <span className="tab-badge tab-badge-rose">{notAdequateCount} NOK</span>
+          ) : (
+            <span className="tab-badge">{totalAssessed > 0 ? `${totalAssessed} Selesai` : "Log Riwayat"}</span>
+          )}
+        </button>
+      </div>
+
+      {activeTab === "live" && (
+        <div className="anim-tab-fade">
+          {/* ── 1. Top Stat Cards (OK / NOK / Checkpoint Hari Ini / Jam Pemeriksaan) ── */}
+          <section className="monitoring-stat-cards-grid" aria-label="Statistik pemeriksaan monitoring">
         {/* Card 1: STATUS OK */}
         <StatCard
           label="STATUS OK"
@@ -351,11 +384,11 @@ export function MonitoringView({
               )}
             </div>
 
-            <p className="client-status-subtitle">
-              {selectedProject
-                ? `Memfilter jadwal: ${selectedProject} (Klik lagi kartu untuk reset)`
-                : "Ringkasan kesehatan per proyek/layanan. Klik proyek untuk memfilter tabel jadwal di bawah."}
-            </p>
+            {selectedProject && (
+              <p className="client-status-subtitle">
+                Memfilter jadwal: {selectedProject} (Klik lagi kartu untuk reset)
+              </p>
+            )}
           </div>
 
           {/* Action Strip: Filter Chips + Carousel Nav & View Toggle Buttons */}
@@ -539,12 +572,18 @@ export function MonitoringView({
         selectedProject={selectedProject}
         onSelectProject={setSelectedProject}
       />
+        </div>
+      )}
 
       {/* ── 4. Riwayat Asesmen Checkpoint (History Section) ── */}
-      <MonitoringHistorySection
-        todayEntries={schedule}
-        todayAssessments={assessments}
-      />
+      {activeTab === "history" && (
+        <div className="anim-tab-fade">
+          <MonitoringHistorySection
+            todayEntries={schedule}
+            todayAssessments={assessments}
+          />
+        </div>
+      )}
     </>
   );
 }

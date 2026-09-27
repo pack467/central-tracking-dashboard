@@ -1,9 +1,8 @@
 "use client";
 
-import { lazy, startTransition, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { lazy, startTransition, Suspense, useCallback, useMemo, useState } from "react";
 import { UserPlus, ArrowRightLeft, Table, Calendar, Search, X } from "lucide-react";
 import { RosterStatCards } from "@/app/components/team/RosterStatCards";
-import { RosterShiftCoverage } from "@/app/components/team/RosterShiftCoverage";
 import { RosterTable } from "@/app/components/team/RosterTable";
 import { seedSwapRequests } from "@/app/lib/data";
 import { useActiveShift } from "@/app/hooks/useLiveClock";
@@ -56,31 +55,6 @@ export function TeamRosterView({ members, onMembersChange: setMembers }: {
     swap: false,
     create: false,
   });
-
-  const primaryPanelRef = useRef<HTMLElement>(null);
-  const [panelHeight, setPanelHeight] = useState<number | undefined>(undefined);
-
-  useEffect(() => {
-    const el = primaryPanelRef.current;
-    if (!el) return;
-
-    const updateHeight = () => {
-      const h = Math.round(el.getBoundingClientRect().height);
-      if (h > 0) {
-        setPanelHeight(h);
-      }
-    };
-
-    updateHeight();
-
-    if (typeof ResizeObserver !== "undefined") {
-      const observer = new ResizeObserver(() => {
-        updateHeight();
-      });
-      observer.observe(el);
-      return () => observer.disconnect();
-    }
-  }, []);
 
   const markOverlayLoaded = useCallback((overlay: keyof typeof loadedOverlays) => {
     setLoadedOverlays((previous) => (previous[overlay] ? previous : { ...previous, [overlay]: true }));
@@ -156,10 +130,9 @@ export function TeamRosterView({ members, onMembersChange: setMembers }: {
       <section className="page-heading">
         <div>
           <div className="eyebrow">
-            <span className="live-dot live-dot-pulse" /> TEAM ROSTER &amp; SHIFT SCHEDULE
+            <span className="live-dot live-dot-pulse" /> TEAM ROSTER
           </div>
           <h1>Team Roster</h1>
-          <p>Manage shift assignments, team availability, coverage quorum, and shift swap requests.</p>
         </div>
 
         <div className="page-actions">
@@ -186,7 +159,7 @@ export function TeamRosterView({ members, onMembersChange: setMembers }: {
       {/* 3. Main Roster Content (2 columns: Table/Calendar & Shift Coverage Widget) */}
       <div className="roster-main-layout" style={{ marginTop: "20px" }}>
         <div className="roster-primary-column">
-          <article ref={primaryPanelRef} className="panel roster-toolbar-panel">
+          <article className="panel roster-toolbar-panel">
             {/* Toolbar: Search, Filters & View Toggle */}
             <div className="roster-toolbar-row">
               <div className="roster-search-field">
@@ -282,15 +255,6 @@ export function TeamRosterView({ members, onMembersChange: setMembers }: {
               </Suspense>
             </div>
           </article>
-        </div>
-
-        {/* Side Column: Current Shift Coverage Panel */}
-        <div className="side-column">
-          <RosterShiftCoverage
-            members={derivedMembers}
-            onSelectMember={openMemberDetail}
-            matchedHeight={panelHeight}
-          />
         </div>
       </div>
 

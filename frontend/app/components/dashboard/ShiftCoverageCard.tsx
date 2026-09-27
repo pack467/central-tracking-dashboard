@@ -8,7 +8,7 @@ import { useActiveShift } from "@/app/hooks/useLiveClock";
 import { useUserStatus, getStatusRingStyle } from "@/app/hooks/useUserStatus";
 import { ShiftInfo } from "@/app/lib/shifts";
 import { useMemo, useState } from "react";
-import { Moon, Sun, Sunset } from "lucide-react";
+import { Moon, Sun, Sunset, Users, UserCheck, Clock, UserX } from "lucide-react";
 
 export type CanonicalStatus = "On Duty" | "Standby" | "Offline";
 
@@ -72,65 +72,65 @@ export function resolveCanonicalStatus(rawStatus?: string): CanonicalStatus {
 export const defaultRosterMembers: TeamMemberItem[] = [
   {
     id: "mem-1",
-    name: "Galih Khairi",
+    name: "Mhd. Galih Khairi",
     role: "Operator NOC",
     initials: "GK",
     status: "On Duty",
   },
   {
     id: "mem-2",
-    name: "Pangondion Kurniawan",
+    name: "Pangondion Kurniawan Naibaho",
     role: "Shift Lead",
     initials: "PK",
     status: "On Duty",
   },
   {
     id: "mem-3",
-    name: "Kurnia Meidiyansyah",
-    role: "Operator NOC",
-    initials: "KM",
+    name: "Muhammad Ihsanul Arifin",
+    role: "L2 Specialist",
+    initials: "MI",
     status: "On Duty",
   },
   {
     id: "mem-4",
-    name: "Muhammad Iqbal",
-    role: "L2 Specialist",
-    initials: "MI",
-    status: "Standby",
-  },
-  {
-    id: "mem-18",
-    name: "Tiara Andini",
+    name: "Kristina Marbun",
     role: "Operator NOC",
-    initials: "TA",
+    initials: "KM",
     status: "Standby",
   },
   {
     id: "mem-5",
-    name: "Sarah Wijaya",
+    name: "Pedro Hutagaol",
     role: "Incident Coordinator",
-    initials: "SW",
-    status: "Offline",
-  },
-  {
-    id: "mem-6",
-    name: "Bagas Pratama",
-    role: "Operator NOC",
-    initials: "BP",
-    status: "Offline",
+    initials: "PH",
+    status: "Standby",
   },
   {
     id: "mem-7",
-    name: "Dimas Anggoro",
-    role: "Infrastructure Engineer",
-    initials: "DA",
+    name: "Tahan Julianus Nadeak",
+    role: "Incident Coordinator",
+    initials: "TN",
     status: "Offline",
   },
   {
     id: "mem-8",
-    name: "Annisa Rahmawati",
+    name: "Yuha Azhari Simbolon",
     role: "Operator NOC",
-    initials: "AR",
+    initials: "YS",
+    status: "Offline",
+  },
+  {
+    id: "mem-9",
+    name: "Nicholas Bima Nooka Putra",
+    role: "Infrastructure Engineer",
+    initials: "NP",
+    status: "Offline",
+  },
+  {
+    id: "mem-11",
+    name: "Natanael Tambun",
+    role: "Shift Lead",
+    initials: "NT",
     status: "Offline",
   },
 ];
@@ -388,11 +388,36 @@ export function StatusFilterTabs({
   onSelectTab,
   counts,
 }: StatusFilterTabsProps) {
-  const tabs: { id: FilterTabOption; label: string; count: number }[] = [
-    { id: "Semua", label: "Semua", count: counts.total },
-    { id: "On Duty", label: "On Duty", count: counts.onDuty },
-    { id: "Standby", label: "Standby", count: counts.standby },
-    { id: "Offline", label: "Out of Reach", count: counts.offline },
+  const tabs: {
+    id: FilterTabOption;
+    label: string;
+    icon: React.ReactNode;
+    count: number;
+  }[] = [
+    {
+      id: "Semua",
+      label: "Semua",
+      icon: <Users size={14} className="tab-icon" aria-hidden="true" />,
+      count: counts.total,
+    },
+    {
+      id: "On Duty",
+      label: "On Duty",
+      icon: <UserCheck size={14} className="tab-icon tab-icon-onduty" aria-hidden="true" />,
+      count: counts.onDuty,
+    },
+    {
+      id: "Standby",
+      label: "Standby",
+      icon: <Clock size={14} className="tab-icon tab-icon-standby" aria-hidden="true" />,
+      count: counts.standby,
+    },
+    {
+      id: "Offline",
+      label: "Out of Reach",
+      icon: <UserX size={14} className="tab-icon tab-icon-offline" aria-hidden="true" />,
+      count: counts.offline,
+    },
   ];
 
   return (
@@ -410,8 +435,10 @@ export function StatusFilterTabs({
             aria-selected={activeTab === tab.id}
             className={activeTab === tab.id ? "selected" : ""}
             onClick={() => onSelectTab(tab.id)}
+            title={`${tab.label} (${tab.count})`}
+            aria-label={`${tab.label} (${tab.count})`}
           >
-            <span className="tab-label">{tab.label}</span>
+            {tab.icon}
             <span className="tab-count-badge">{tab.count}</span>
           </button>
         ))}

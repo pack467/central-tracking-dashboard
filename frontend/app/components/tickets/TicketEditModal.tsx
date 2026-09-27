@@ -17,7 +17,7 @@ interface TicketEditModalProps {
   onSave: (updated: Ticket) => void;
 }
 
-const PROJECT_OPTIONS = ["SM", "B2B", "USIEM", "MB", "EPC Tools", "DM", "UNEM", "APH", "L2"];
+const PROJECT_OPTIONS = ["SM", "B2B", "USIEM", "MB", "EPC Tools", "DM", "UNEM", "APH"];
 const PRIORITY_OPTIONS = ["Low", "Medium", "High", "Critical"];
 const STATUS_OPTIONS = ["Open", "Active", "Closed", "Pending", "Meeting", "Escalated"] as const;
 const CATEGORY_OPTIONS = [
@@ -102,7 +102,7 @@ export function TicketEditModal({ open, ticket, onClose, onSave }: TicketEditMod
             <Edit3 size={15} style={{ color: "var(--accent-blue)" }} />
             Edit Ticket #{ticket.id}
           </strong>
-          <small>Perbarui rincian subjek, proyek, prioritas, penanggung jawab, dan deskripsi ticket.</small>
+          <small>Perbarui rincian subjek, proyek, severity, penanggung jawab, dan deskripsi ticket.</small>
         </div>
         <button onClick={onClose} aria-label="Tutup modal" type="button">
           <X size={15} />
@@ -141,7 +141,7 @@ export function TicketEditModal({ open, ticket, onClose, onSave }: TicketEditMod
 
           <label>
             <div className="ticket-field-label-wrapper">
-              <span>PRIORITAS</span>
+              <span>SEVERITY</span>
               <Badge tone={severityTone(severity)}>{severity}</Badge>
             </div>
             <select value={severity} onChange={(event) => setSeverity(event.target.value)}>

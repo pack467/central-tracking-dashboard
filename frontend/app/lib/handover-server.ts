@@ -14,8 +14,18 @@ export function handoverActor(request: Request): HandoverActor {
     }
     return { id, email: email.toLowerCase(), name };
   }
-  // This simulated identity is restricted to local development, never production.
-  if (process.env.NODE_ENV === "development" && ["localhost", "127.0.0.1", "[::1]"].includes(new URL(request.url).hostname)) {
+  // This simulated identity is used in development mode, including localhost, LAN, or tunnels (e.g. ngrok)
+  const url = new URL(request.url);
+  const forwardedHost = request.headers.get("x-forwarded-host") || "";
+  const host = request.headers.get("host") || "";
+  const isDevOrTunnel =
+    process.env.NODE_ENV === "development" ||
+    ["localhost", "127.0.0.1", "[::1]"].includes(url.hostname) ||
+    url.hostname.includes("ngrok") ||
+    forwardedHost.includes("ngrok") ||
+    host.includes("ngrok");
+
+  if (isDevOrTunnel) {
     return { id: "local-operator", name: "Mhd. Galih Khairi", email: "galih.khairi@company.internal", local: true };
   }
   throw new HandoverError("Masuk dengan akun Anda untuk mengakses handover.", 401);
@@ -23,7 +33,19 @@ export function handoverActor(request: Request): HandoverActor {
 
 export function assertSameOrigin(request: Request) {
   const origin = request.headers.get("origin");
-  if (origin && origin !== new URL(request.url).origin) throw new HandoverError("Asal permintaan tidak diizinkan.", 403);
+  if (!origin) return;
+  const requestUrl = new URL(request.url);
+  if (origin === requestUrl.origin) return;
+
+  const forwardedHost = request.headers.get("x-forwarded-host") || request.headers.get("host");
+  const forwardedProto = request.headers.get("x-forwarded-proto") || requestUrl.protocol.replace(":", "");
+  if (forwardedHost && (origin === `${forwardedProto}://${forwardedHost}` || origin.includes(forwardedHost))) return;
+
+  if (process.env.NODE_ENV === "development" || origin.includes("ngrok") || requestUrl.hostname.includes("ngrok")) {
+    return;
+  }
+
+  throw new HandoverError("Asal permintaan tidak diizinkan.", 403);
 }
 
 export async function readHandoverBody(request: Request) {

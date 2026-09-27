@@ -280,22 +280,19 @@ export function NotificationsView() {
   const endIdx = Math.min(startIdx + pageSize, totalFiltered);
 
   return (
-    <div className="notifications-page-container anim-fade">
+    <div className="notifications-page-container">
       {/* ── Page Header ── */}
       <section className="page-heading">
         <div>
           <div className="eyebrow">
-            <span className="live-dot live-dot-pulse" /> PUSAT NOTIFIKASI SISTEM · {activeClient.name.toUpperCase()}
+            <span className="live-dot live-dot-pulse" /> NOTIFIKASI · {activeClient.code}
           </div>
           <div className="notifications-title-row">
             <span className="notifications-title-icon">
               <Bell size={18} />
             </span>
-            <h1>Notifikasi — {activeClient.shortName}</h1>
+            <h1>Notifikasi</h1>
           </div>
-          <p className="notifications-header-desc">
-            Daftar riwayat lengkap notifikasi, alert sistem, dan status pemantauan operasional untuk klien {activeClient.name}.
-          </p>
         </div>
 
         <div className="page-actions">

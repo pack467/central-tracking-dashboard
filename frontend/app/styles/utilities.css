@@ -88,14 +88,30 @@
   animation: checkPop 0.35s ease;
 }
 
-.page-content > section,
-.page-content > article {
-  animation: fadeUp 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+/* ═══════════════════════════════════════════════
+   UNIFIED PAGE TRANSITION ENTRANCE
+   Consistent, smooth page-switch transition for all views
+═══════════════════════════════════════════════ */
+.page-view-enter {
+  width: 100%;
+  animation: pageViewEnter 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: opacity, transform;
+}
+
+@keyframes pageViewEnter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .anim-fade, .modal-pop, .anim-slide-left, .anim-slide-right,
-  .page-content > section, .page-content > article,
+  .page-view-enter,
   .live-dot-pulse, .sparkline-line, .toast-item, .toast-progress,
   .anim-spin, .spin {
     animation: none !important;

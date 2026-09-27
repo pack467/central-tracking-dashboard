@@ -23,91 +23,91 @@ test("Shift determination across 24-hour cycle", () => {
 test("Staff shift status during Shift Pagi (e.g. 15:19 WIB)", () => {
   const activeShift = shiftDefinitions.pagi;
 
-  // Dimas Anggoro is on Shift Pagi -> must be Active
-  const dimas = seedRosterMembers.find((m) => m.name === "Dimas Anggoro");
-  assert.ok(dimas, "Dimas Anggoro exists in roster");
-  assert.equal(getDerivedMemberStatus(dimas, activeShift), "Active");
+  // Tahan Julianus Nadeak is on Shift Pagi -> must be Active
+  const tahan = seedRosterMembers.find((m) => m.name === "Tahan Julianus Nadeak");
+  assert.ok(tahan, "Tahan Julianus Nadeak exists in roster");
+  assert.equal(getDerivedMemberStatus(tahan, activeShift), "Active");
 
-  // Sarah Wijaya is on Shift Pagi -> must be Active
-  const sarah = seedRosterMembers.find((m) => m.name === "Sarah Wijaya");
-  assert.ok(sarah, "Sarah Wijaya exists in roster");
-  assert.equal(getDerivedMemberStatus(sarah, activeShift), "Active");
+  // Agnes Siahaan is on Shift Pagi -> must be Active
+  const agnes = seedRosterMembers.find((m) => m.name === "Agnes Siahaan");
+  assert.ok(agnes, "Agnes Siahaan exists in roster");
+  assert.equal(getDerivedMemberStatus(agnes, activeShift), "Active");
 
-  // Galih Khairi is on Shift Malam -> must be Off Duty
-  const galih = seedRosterMembers.find((m) => m.name === "Galih Khairi");
-  assert.ok(galih, "Galih Khairi exists in roster");
+  // Mhd. Galih Khairi is on Shift Malam -> must be Off Duty
+  const galih = seedRosterMembers.find((m) => m.name === "Mhd. Galih Khairi");
+  assert.ok(galih, "Mhd. Galih Khairi exists in roster");
   assert.equal(getDerivedMemberStatus(galih, activeShift), "Off Duty");
 
-  // Pangondion Kurniawan is on Shift Malam -> must be Off Duty
-  const pangondion = seedRosterMembers.find((m) => m.name === "Pangondion Kurniawan");
-  assert.ok(pangondion, "Pangondion Kurniawan exists in roster");
+  // Pangondion Kurniawan Naibaho is on Shift Malam -> must be Off Duty
+  const pangondion = seedRosterMembers.find((m) => m.name === "Pangondion Kurniawan Naibaho");
+  assert.ok(pangondion, "Pangondion Kurniawan Naibaho exists in roster");
   assert.equal(getDerivedMemberStatus(pangondion, activeShift), "Off Duty");
 
-  // Bagas Pratama is on Shift Subuh -> must be Off Duty
-  const bagas = seedRosterMembers.find((m) => m.name === "Bagas Pratama");
-  assert.ok(bagas, "Bagas Pratama exists in roster");
-  assert.equal(getDerivedMemberStatus(bagas, activeShift), "Off Duty");
+  // Natanael Tambun is on Shift Subuh -> must be Off Duty
+  const natanael = seedRosterMembers.find((m) => m.name === "Natanael Tambun");
+  assert.ok(natanael, "Natanael Tambun exists in roster");
+  assert.equal(getDerivedMemberStatus(natanael, activeShift), "Off Duty");
 
-  // Annisa Rahmawati is On Leave -> must remain On Leave
-  const annisa = seedRosterMembers.find((m) => m.name === "Annisa Rahmawati");
-  assert.ok(annisa, "Annisa Rahmawati exists in roster");
-  assert.equal(getDerivedMemberStatus(annisa, activeShift), "On Leave");
+  // Tennov Pakpahan is On Leave -> must remain On Leave
+  const tennov = seedRosterMembers.find((m) => m.name === "Tennov Pakpahan");
+  assert.ok(tennov, "Tennov Pakpahan exists in roster");
+  assert.equal(getDerivedMemberStatus(tennov, activeShift), "On Leave");
 });
 
 test("Staff shift status during Shift Malam (e.g. 18:00 WIB)", () => {
   const activeShift = shiftDefinitions.malam;
 
-  // Galih Khairi is on Shift Malam -> must be Active
-  const galih = seedRosterMembers.find((m) => m.name === "Galih Khairi");
+  // Mhd. Galih Khairi is on Shift Malam -> must be Active
+  const galih = seedRosterMembers.find((m) => m.name === "Mhd. Galih Khairi");
   assert.equal(getDerivedMemberStatus(galih, activeShift), "Active");
 
-  // Pangondion Kurniawan is on Shift Malam -> must be Active
-  const pangondion = seedRosterMembers.find((m) => m.name === "Pangondion Kurniawan");
+  // Pangondion Kurniawan Naibaho is on Shift Malam -> must be Active
+  const pangondion = seedRosterMembers.find((m) => m.name === "Pangondion Kurniawan Naibaho");
   assert.equal(getDerivedMemberStatus(pangondion, activeShift), "Active");
 
-  // Kurnia Meidiyansyah is on Shift Malam -> must be Active
-  const kurnia = seedRosterMembers.find((m) => m.name === "Kurnia Meidiyansyah");
-  assert.equal(getDerivedMemberStatus(kurnia, activeShift), "Active");
+  // Muhammad Ihsanul Arifin is on Shift Malam -> must be Active
+  const ihsanul = seedRosterMembers.find((m) => m.name === "Muhammad Ihsanul Arifin");
+  assert.equal(getDerivedMemberStatus(ihsanul, activeShift), "Active");
 
-  // Muhammad Iqbal is on Shift Malam with manual status On Break -> must remain On Break
-  const iqbal = seedRosterMembers.find((m) => m.name === "Muhammad Iqbal");
-  assert.equal(getDerivedMemberStatus(iqbal, activeShift), "On Break");
+  // Kristina Marbun is on Shift Malam with manual status On Break -> must remain On Break
+  const kristina = seedRosterMembers.find((m) => m.name === "Kristina Marbun");
+  assert.equal(getDerivedMemberStatus(kristina, activeShift), "On Break");
 
-  // Dimas Anggoro is on Shift Pagi -> must be Off Duty
-  const dimas = seedRosterMembers.find((m) => m.name === "Dimas Anggoro");
-  assert.equal(getDerivedMemberStatus(dimas, activeShift), "Off Duty");
+  // Tahan Julianus Nadeak is on Shift Pagi -> must be Off Duty
+  const tahan = seedRosterMembers.find((m) => m.name === "Tahan Julianus Nadeak");
+  assert.equal(getDerivedMemberStatus(tahan, activeShift), "Off Duty");
 
-  // Sarah Wijaya is on Shift Pagi -> must be Off Duty
-  const sarah = seedRosterMembers.find((m) => m.name === "Sarah Wijaya");
-  assert.equal(getDerivedMemberStatus(sarah, activeShift), "Off Duty");
+  // Agnes Siahaan is on Shift Pagi -> must be Off Duty
+  const agnes = seedRosterMembers.find((m) => m.name === "Agnes Siahaan");
+  assert.equal(getDerivedMemberStatus(agnes, activeShift), "Off Duty");
 
-  // Bagas Pratama is on Shift Subuh -> must be Off Duty
-  const bagas = seedRosterMembers.find((m) => m.name === "Bagas Pratama");
-  assert.equal(getDerivedMemberStatus(bagas, activeShift), "Off Duty");
+  // Natanael Tambun is on Shift Subuh -> must be Off Duty
+  const natanael = seedRosterMembers.find((m) => m.name === "Natanael Tambun");
+  assert.equal(getDerivedMemberStatus(natanael, activeShift), "Off Duty");
 
-  // Annisa Rahmawati is On Leave -> must remain On Leave
-  const annisa = seedRosterMembers.find((m) => m.name === "Annisa Rahmawati");
-  assert.equal(getDerivedMemberStatus(annisa, activeShift), "On Leave");
+  // Tennov Pakpahan is On Leave -> must remain On Leave
+  const tennov = seedRosterMembers.find((m) => m.name === "Tennov Pakpahan");
+  assert.equal(getDerivedMemberStatus(tennov, activeShift), "On Leave");
 });
 
 test("Staff shift status during Shift Subuh (e.g. 04:00 WIB)", () => {
   const activeShift = shiftDefinitions.subuh;
 
-  // Bagas Pratama is on Shift Subuh -> must be Active
-  const bagas = seedRosterMembers.find((m) => m.name === "Bagas Pratama");
-  assert.equal(getDerivedMemberStatus(bagas, activeShift), "Active");
+  // Natanael Tambun is on Shift Subuh -> must be Active
+  const natanael = seedRosterMembers.find((m) => m.name === "Natanael Tambun");
+  assert.equal(getDerivedMemberStatus(natanael, activeShift), "Active");
 
-  // Dimas Anggoro is on Shift Pagi -> must be Off Duty
-  const dimas = seedRosterMembers.find((m) => m.name === "Dimas Anggoro");
-  assert.equal(getDerivedMemberStatus(dimas, activeShift), "Off Duty");
+  // Tahan Julianus Nadeak is on Shift Pagi -> must be Off Duty
+  const tahan = seedRosterMembers.find((m) => m.name === "Tahan Julianus Nadeak");
+  assert.equal(getDerivedMemberStatus(tahan, activeShift), "Off Duty");
 
-  // Galih Khairi is on Shift Malam -> must be Off Duty
-  const galih = seedRosterMembers.find((m) => m.name === "Galih Khairi");
+  // Mhd. Galih Khairi is on Shift Malam -> must be Off Duty
+  const galih = seedRosterMembers.find((m) => m.name === "Mhd. Galih Khairi");
   assert.equal(getDerivedMemberStatus(galih, activeShift), "Off Duty");
 
-  // Annisa Rahmawati is On Leave -> must remain On Leave
-  const annisa = seedRosterMembers.find((m) => m.name === "Annisa Rahmawati");
-  assert.equal(getDerivedMemberStatus(annisa, activeShift), "On Leave");
+  // Tennov Pakpahan is On Leave -> must remain On Leave
+  const tennov = seedRosterMembers.find((m) => m.name === "Tennov Pakpahan");
+  assert.equal(getDerivedMemberStatus(tennov, activeShift), "On Leave");
 });
 
 test("Manual status overrides are respected", () => {

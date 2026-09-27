@@ -13,7 +13,6 @@ import {
   CheckCircle2,
   AlertTriangle,
   History,
-  Bell,
   Edit3,
   Copy,
   Check,
@@ -112,7 +111,7 @@ export function ProfileView({
   const [profileData, setProfileData] = useState({
     name: baseMember.name || "Mhd. Galih Khairi",
     role: baseMember.role || "Operator NOC",
-    employeeId: baseMember.employeeId || "EMP-1048",
+    employeeId: baseMember.employeeId || "EMP-1001",
     email: baseMember.email || "galih.khairi@company.id",
     phone: baseMember.phone || "+62 812-3456-7890",
     department: "Network Operations Center & Infrastructure",
@@ -123,15 +122,6 @@ export function ProfileView({
   // Edit Modal State
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editForm, setEditForm] = useState({ ...profileData });
-
-  // Notification Preferences State (Persisted in state)
-  const [preferences, setPreferences] = useState({
-    notifyTickets: true,
-    notifyMonitoring: true,
-    notifyHandover: true,
-    notifySla: true,
-    notifyAudit: false,
-  });
 
   // Schedule days pre-computed
   const scheduleDays = useMemo(
@@ -229,13 +219,8 @@ export function ProfileView({
     notify.success("Profil pengguna berhasil diperbarui.", { id: "profile-saved" });
   };
 
-  // Save preferences
-  const handleSavePreferences = () => {
-    notify.success("Preferensi notifikasi berhasil disimpan.", { id: "pref-saved" });
-  };
-
   return (
-    <div className="profile-page-container anim-fade">
+    <div className="profile-page-container">
       {/* ── 1. Page Header Block ── */}
       <section className="page-heading">
         <div>
@@ -657,132 +642,6 @@ export function ProfileView({
             </div>
           </section>
 
-          {/* Card: Preferensi & Notifikasi */}
-          <section className="profile-section-card" aria-label="Pengaturan preferensi akun">
-            <div className="profile-card-header">
-              <div className="profile-card-title-group">
-                <h3 className="profile-card-title">
-                  <Bell size={14} style={{ color: "var(--orange)" }} />
-                  Preferensi &amp; Notifikasi
-                </h3>
-              </div>
-              <span className="profile-card-subtitle">Konfigurasi lansiran operasional</span>
-            </div>
-
-            <div className="profile-pref-group">
-              {/* Notification Category 1: Tiket Baru & Eskalasi */}
-              <div className="profile-pref-row">
-                <div className="profile-pref-info">
-                  <span className="profile-pref-label">Tiket Baru &amp; Eskalasi</span>
-                  <span className="profile-pref-desc">
-                    Notifikasi saat tiket kritis atau eskalasi masuk
-                  </span>
-                </div>
-                <label className="profile-switch" aria-label="Toggle notifikasi tiket">
-                  <input
-                    type="checkbox"
-                    checked={preferences.notifyTickets}
-                    onChange={(e) =>
-                      setPreferences((prev) => ({ ...prev, notifyTickets: e.target.checked }))
-                    }
-                  />
-                  <span className="profile-slider" />
-                </label>
-              </div>
-
-              {/* Notification Category 2: Monitoring & Anomali Sistem */}
-              <div className="profile-pref-row">
-                <div className="profile-pref-info">
-                  <span className="profile-pref-label">Monitoring &amp; Anomali Sistem</span>
-                  <span className="profile-pref-desc">
-                    Peringatan real-time saat checkpoint NOK
-                  </span>
-                </div>
-                <label className="profile-switch" aria-label="Toggle notifikasi monitoring">
-                  <input
-                    type="checkbox"
-                    checked={preferences.notifyMonitoring}
-                    onChange={(e) =>
-                      setPreferences((prev) => ({ ...prev, notifyMonitoring: e.target.checked }))
-                    }
-                  />
-                  <span className="profile-slider" />
-                </label>
-              </div>
-
-              {/* Notification Category 3: Serah Terima Shift */}
-              <div className="profile-pref-row">
-                <div className="profile-pref-info">
-                  <span className="profile-pref-label">Serah Terima Shift (Handover)</span>
-                  <span className="profile-pref-desc">
-                    Pengingat persiapan dan konfirmasi serah terima
-                  </span>
-                </div>
-                <label className="profile-switch" aria-label="Toggle notifikasi handover">
-                  <input
-                    type="checkbox"
-                    checked={preferences.notifyHandover}
-                    onChange={(e) =>
-                      setPreferences((prev) => ({ ...prev, notifyHandover: e.target.checked }))
-                    }
-                  />
-                  <span className="profile-slider" />
-                </label>
-              </div>
-
-              {/* Notification Category 4: Peringatan Batas Waktu SLA */}
-              <div className="profile-pref-row">
-                <div className="profile-pref-info">
-                  <span className="profile-pref-label">Peringatan Batas SLA</span>
-                  <span className="profile-pref-desc">
-                    Peringatan tiket mendekati atau melewati ambang batas SLA
-                  </span>
-                </div>
-                <label className="profile-switch" aria-label="Toggle notifikasi SLA">
-                  <input
-                    type="checkbox"
-                    checked={preferences.notifySla}
-                    onChange={(e) =>
-                      setPreferences((prev) => ({ ...prev, notifySla: e.target.checked }))
-                    }
-                  />
-                  <span className="profile-slider" />
-                </label>
-              </div>
-
-              {/* Notification Category 5: Temuan & Audit */}
-              <div className="profile-pref-row">
-                <div className="profile-pref-info">
-                  <span className="profile-pref-label">Temuan &amp; Audit Shift</span>
-                  <span className="profile-pref-desc">
-                    Laporan catatan tindak lanjut shift sebelumnya
-                  </span>
-                </div>
-                <label className="profile-switch" aria-label="Toggle notifikasi audit">
-                  <input
-                    type="checkbox"
-                    checked={preferences.notifyAudit}
-                    onChange={(e) =>
-                      setPreferences((prev) => ({ ...prev, notifyAudit: e.target.checked }))
-                    }
-                  />
-                  <span className="profile-slider" />
-                </label>
-              </div>
-
-              <div style={{ paddingTop: "8px", borderTop: "1px solid var(--line)" }}>
-                <button
-                  type="button"
-                  className="button button-primary"
-                  style={{ width: "100%", justifyContent: "center" }}
-                  onClick={handleSavePreferences}
-                >
-                  <Check size={14} />
-                  <span>Simpan Preferensi</span>
-                </button>
-              </div>
-            </div>
-          </section>
         </div>
       </div>
 

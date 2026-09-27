@@ -15,11 +15,9 @@ import {
   FolderOpen,
   Clock,
   ArrowUpDown,
-  FileText,
   ShieldAlert,
 } from "lucide-react";
 import { TicketTable } from "@/app/components/tickets/TicketTable";
-import { TicketReportView } from "@/app/components/tickets/TicketReportView";
 import { StatCard } from "@/app/components/ui/StatCard";
 import { EmptyState } from "@/app/components/ui/EmptyState";
 import { DatePicker } from "@/app/components/ui/DatePicker";
@@ -34,7 +32,7 @@ interface TicketsViewProps {
   onNewTicket: () => void;
 }
 
-type MainViewTab = "queue" | "escalations" | "report";
+type MainViewTab = "queue" | "escalations";
 
 const STATUS_OPTIONS = ["All", "Active", "Closed", "Pending", "Escalated"] as const;
 
@@ -49,14 +47,14 @@ const TICKET_TYPES = [
   "Other",
 ] as const;
 
-const PRIORITY_OPTIONS = ["All Priorities", "Critical", "High", "Medium", "Low"] as const;
+const PRIORITY_OPTIONS = ["All Severities", "Critical", "High", "Medium", "Low"] as const;
 
 const SHIFT_OPTIONS = ["Semua Shift", "Shift Subuh", "Shift Pagi", "Shift Malam"] as const;
 
 const SORT_OPTIONS = [
   { value: "newest", label: "Newest First" },
   { value: "oldest", label: "Oldest First" },
-  { value: "priority", label: "Highest Priority" },
+  { value: "priority", label: "Highest Severity" },
   { value: "aging", label: "Longest Aging" },
 ] as const;
 
@@ -96,7 +94,7 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
   const [statusFilter, setStatusFilter] = useState<string>("All");
   const [dateFilter, setDateFilter] = useState<string>("");
   const [typeFilter, setTypeFilter] = useState<string>("All Types");
-  const [priorityFilter, setPriorityFilter] = useState<string>("All Priorities");
+  const [priorityFilter, setPriorityFilter] = useState<string>("All Severities");
   const [projectFilter, setProjectFilter] = useState<string>("All Projects");
   const [shiftFilter, setShiftFilter] = useState<string>("Semua Shift");
   const [sort, setSort] = useState<string>("newest");
@@ -110,25 +108,13 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
 
   // Dynamic project options
   const projectOptions = useMemo(
-    () => ["All Projects", ...Array.from(new Set(tickets.map((ticket) => ticket.project)))],
+    () => ["All Projects", ...Array.from(new Set(tickets.map((ticket) => ticket.project))).filter((p) => p && p !== "L2")],
     [tickets],
   );
 
   const handleTabChange = (tab: MainViewTab) => {
-    if (tab === "report") {
-      setDateFilter(getTodayWIB());
-    } else if (activeTab === "report" && dateFilter === getTodayWIB()) {
-      setDateFilter("");
-    }
     setActiveTab(tab);
   };
-
-  // When report tab is active, automatically select today's date if not already filtered
-  useEffect(() => {
-    if (activeTab === "report" && !dateFilter) {
-      setDateFilter(getTodayWIB());
-    }
-  }, [activeTab]);
 
   // Reset pagination to page 1 whenever any filter, search, sort, or tab changes
   useEffect(() => {
@@ -177,8 +163,12 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
         if (tType !== typeFilter) return false;
       }
 
-      // 5. Priority
-      if (priorityFilter !== "All Priorities" && priorityFilter !== "Semua") {
+      // 5. Severity
+      if (
+        priorityFilter !== "All Severities" &&
+        priorityFilter !== "All Priorities" &&
+        priorityFilter !== "Semua"
+      ) {
         if (normalizePriority(ticket.severity) !== normalizePriority(priorityFilter)) return false;
       }
 
@@ -221,49 +211,7 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
     sort,
   ]);
 
-  // For Ticket Report & Analytics: includes all tickets matching search, project, priority, type, shift,
-  // while preserving the multi-day timeline for daily volume traffic and trajectory analytics.
-  // If user selected a custom date range (containing ".."), it scopes to that range.
-  const reportTickets = useMemo(() => {
-    const needle = search.trim().toLowerCase();
-    return tickets.filter((ticket) => {
-      // 1. Status
-      if (statusFilter !== "All" && statusFilter !== "Semua") {
-        if (normalizeStatus(ticket.status) !== normalizeStatus(statusFilter)) return false;
-      }
-      // 2. Type
-      if (typeFilter !== "All Types") {
-        const tType = ticket.type || ticket.category || "Incident";
-        if (tType !== typeFilter) return false;
-      }
-      // 3. Priority
-      if (priorityFilter !== "All Priorities" && priorityFilter !== "Semua") {
-        if (normalizePriority(ticket.severity) !== normalizePriority(priorityFilter)) return false;
-      }
-      // 4. Project
-      if (projectFilter !== "All Projects" && projectFilter !== "Semua" && ticket.project !== projectFilter) {
-        return false;
-      }
-      // 5. Shift
-      if (shiftFilter !== "Semua Shift" && shiftFilter !== "All Shifts") {
-        const ticketShift = getTicketShift(ticket);
-        const targetShift = shiftFilter.replace(/^Shift\s+/, "");
-        if (ticketShift !== targetShift) return false;
-      }
-      // 6. Search
-      if (needle && !Object.values(ticket).some((v) => typeof v === "string" && v.toLowerCase().includes(needle))) {
-        return false;
-      }
-      // 7. Date Range: if user selected a custom date range with "..", respect the range
-      if (dateFilter && dateFilter.includes("..")) {
-        const [start, end] = dateFilter.split("..");
-        const ticketDate = ticket.date || getTodayWIB();
-        if (start && ticketDate < start) return false;
-        if (end && ticketDate > end) return false;
-      }
-      return true;
-    });
-  }, [tickets, search, statusFilter, typeFilter, priorityFilter, projectFilter, shiftFilter, dateFilter]);
+
 
   // Pagination calculations (applied to filtered result set)
   const totalFilteredCount = filteredTickets.length;
@@ -314,7 +262,7 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
     statusFilter !== "All" ||
     dateFilter !== "" ||
     typeFilter !== "All Types" ||
-    priorityFilter !== "All Priorities" ||
+    (priorityFilter !== "All Severities" && priorityFilter !== "All Priorities") ||
     projectFilter !== "All Projects" ||
     shiftFilter !== "Semua Shift";
 
@@ -323,21 +271,21 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
     setStatusFilter("All");
     setDateFilter("");
     setTypeFilter("All Types");
-    setPriorityFilter("All Priorities");
+    setPriorityFilter("All Severities");
     setProjectFilter("All Projects");
     setShiftFilter("Semua Shift");
     setCurrentPage(1);
   };
 
   const selectedRangeLabel = useMemo(() => {
-    if (!dateFilter) return activeTab === "report" ? "Hari Ini" : "Semua Waktu";
+    if (!dateFilter) return "Semua Waktu";
     if (dateFilter === getTodayWIB() || dateFilter === "today") return "Hari Ini";
     if (dateFilter.includes("..")) {
       const [start, end] = dateFilter.split("..");
       if (start && end) return `${start} – ${end}`;
     }
     return dateFilter;
-  }, [dateFilter, activeTab]);
+  }, [dateFilter]);
 
   // Shared Pagination Bar component
   const renderPagination = () => {
@@ -417,15 +365,14 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
   };
 
   return (
-    <div className="tickets-page-container anim-fade">
+    <div className="tickets-page-container">
       {/* ── Page Header ── */}
       <section className="page-heading">
         <div>
           <div className="eyebrow">
-            <span className="live-dot live-dot-pulse" /> QUEUE TICKET · {activeClient.name.toUpperCase()}
+            <span className="live-dot live-dot-pulse" /> TICKETS · {activeClient.code}
           </div>
-          <h1>Queue Ticket — {activeClient.shortName}</h1>
-          <p>Kelola antrean tiket, eskalasi insiden, dan analisis performa operasional untuk klien {activeClient.name}.</p>
+          <h1>Tickets</h1>
         </div>
         <div className="page-actions">
           <button className="button button-primary" onClick={onNewTicket}>
@@ -471,9 +418,9 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
           badgeTone="blue"
         />
 
-        {/* High Priority & Critical */}
+        {/* High Severity & Critical */}
         <StatCard
-          label="HIGH PRIORITY / ESCALATED"
+          label="HIGH SEVERITY / ESCALATED"
           value={highPriorityCount + escalatedCount}
           accentColor={highPriorityCount + escalatedCount > 0 ? "rose" : "gray"}
           icon={<AlertTriangle size={15} strokeWidth={2} />}
@@ -511,17 +458,6 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
           <span className={`tab-badge ${escalatedCount > 0 ? "tab-badge-rose" : "tab-badge-muted"}`}>
             {escalatedCount}
           </span>
-        </button>
-
-        <button
-          type="button"
-          role="tab"
-          aria-selected={activeTab === "report"}
-          className={`view-switcher-tab ${activeTab === "report" ? "active" : ""}`}
-          onClick={() => handleTabChange("report")}
-        >
-          <FileText size={14} />
-          <span>Ticket Report &amp; Analytics</span>
         </button>
       </div>
 
@@ -564,7 +500,7 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
                 {[
                   dateFilter !== "",
                   typeFilter !== "All Types",
-                  priorityFilter !== "All Priorities",
+                  priorityFilter !== "All Severities" && priorityFilter !== "All Priorities",
                   projectFilter !== "All Projects",
                   shiftFilter !== "Semua Shift",
                 ].filter(Boolean).length}
@@ -579,8 +515,8 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
               <DatePicker
                 value={dateFilter}
                 onChange={setDateFilter}
-                placeholder={activeTab === "report" ? "Pilih Tanggal" : "Semua Waktu"}
-                showAllTimePreset={activeTab !== "report"}
+                placeholder="Semua Waktu"
+                showAllTimePreset
                 aria-label="Filter rentang tanggal tiket"
               />
             </div>
@@ -602,14 +538,18 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
               </select>
             </div>
 
-            {/* Priority Filter */}
+            {/* Severity Filter */}
             <div className="filter-select-wrap">
               <BarChart2 size={13} className="select-icon" />
               <select
                 value={priorityFilter}
                 onChange={(e) => setPriorityFilter(e.target.value)}
-                aria-label="Filter prioritas"
-                data-active={priorityFilter !== "All Priorities" ? "true" : undefined}
+                aria-label="Filter severity"
+                data-active={
+                  priorityFilter !== "All Severities" && priorityFilter !== "All Priorities"
+                    ? "true"
+                    : undefined
+                }
               >
                 {PRIORITY_OPTIONS.map((p) => (
                   <option key={p} value={p}>
@@ -675,36 +615,34 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
         </div>
 
         {/* Status Tabs Bar */}
-        {activeTab !== "report" && (
-          <div className="view-filter-bar">
-            <div className="filter-tabs" aria-label="Filter status tiket" role="tablist">
-              {STATUS_OPTIONS.map((option) => (
-                <button
-                  key={option}
-                  type="button"
-                  role="tab"
-                  aria-selected={statusFilter === option}
-                  className={statusFilter === option ? "selected" : ""}
-                  onClick={() => setStatusFilter(option)}
-                >
-                  {option}
-                </button>
-              ))}
-            </div>
-            <div className="filter-count" aria-live="polite">
-              {totalFilteredCount > 0 ? (
-                <>
-                  Menampilkan <strong>{startIdx + 1}–{endIdx}</strong> dari{" "}
-                  <strong>{totalFilteredCount}</strong> tiket
-                </>
-              ) : (
-                <>
-                  Menampilkan <strong>0</strong> dari <strong>0</strong> tiket
-                </>
-              )}
-            </div>
+        <div className="view-filter-bar">
+          <div className="filter-tabs" aria-label="Filter status tiket" role="tablist">
+            {STATUS_OPTIONS.map((option) => (
+              <button
+                key={option}
+                type="button"
+                role="tab"
+                aria-selected={statusFilter === option}
+                className={statusFilter === option ? "selected" : ""}
+                onClick={() => setStatusFilter(option)}
+              >
+                {option}
+              </button>
+            ))}
           </div>
-        )}
+          <div className="filter-count" aria-live="polite">
+            {totalFilteredCount > 0 ? (
+              <>
+                Menampilkan <strong>{startIdx + 1}–{endIdx}</strong> dari{" "}
+                <strong>{totalFilteredCount}</strong> tiket
+              </>
+            ) : (
+              <>
+                Menampilkan <strong>0</strong> dari <strong>0</strong> tiket
+              </>
+            )}
+          </div>
+        </div>
 
         {/* ── Active Filter Chips Row — only renders when filters are active ── */}
         {hasActiveFilters && (
@@ -762,14 +700,14 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
                 </button>
               </span>
             )}
-            {priorityFilter !== "All Priorities" && (
+            {priorityFilter !== "All Severities" && priorityFilter !== "All Priorities" && (
               <span className="filter-chip">
                 {priorityFilter}
                 <button
                   type="button"
                   className="filter-chip-remove"
-                  onClick={() => setPriorityFilter("All Priorities")}
-                  aria-label="Remove priority filter"
+                  onClick={() => setPriorityFilter("All Severities")}
+                  aria-label="Remove severity filter"
                 >
                   ×
                 </button>
@@ -836,12 +774,6 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
 
         {activeTab === "escalations" && (
           <div className="ticket-view-content anim-tab-fade" key="escalations-tab">
-            <div className="escalation-info-banner">
-              <ShieldAlert size={15} className="text-rose-400 flex-shrink-0" />
-              <span>
-                Menampilkan antrean tiket eskalasi aktif yang memerlukan tindak lanjut tim Level-2 / Incident Coordinator.
-              </span>
-            </div>
             {filteredTickets.length > 0 ? (
               <>
                 <TicketTable
@@ -866,15 +798,6 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
                 />
               </div>
             )}
-          </div>
-        )}
-
-        {activeTab === "report" && (
-          <div className="ticket-view-content anim-tab-fade" key="report-tab">
-            <TicketReportView
-              tickets={reportTickets}
-              dateRangeLabel={selectedRangeLabel}
-            />
           </div>
         )}
       </article>

@@ -251,7 +251,7 @@ export function TicketDetailDrawer({ ticket, onClose, onUpdate }: TicketDetailDr
           <div className="drawer-header">
             <div>
               <div style={{ display: "flex", gap: "8px", alignItems: "center", marginBottom: "8px", flexWrap: "wrap" }}>
-                <Badge tone={sevTone}>Prioritas {ticket.severity}</Badge>
+                <Badge tone={sevTone}>Severity {ticket.severity}</Badge>
                 <Badge tone={statusTone(ticket.status)}>{ticket.status}</Badge>
                 {categoryDisplay && (
                   <Badge tone="neutral">

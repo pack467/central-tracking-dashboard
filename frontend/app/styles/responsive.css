@@ -9,7 +9,12 @@
 
 @media (max-width: 1240px) {
   .sidebar { width: 216px; }
-  .workspace { width: calc(100% - 216px); margin-left: 216px; }
+  .sidebar-collapsed { width: 68px; }
+  .sidebar-toggle-tab { left: 216px; }
+  .sidebar-is-collapsed .sidebar-toggle-tab,
+  .sidebar-toggle-tab.sidebar-toggle-tab-collapsed { left: 68px; }
+  .workspace { margin-left: 216px; }
+  .sidebar-is-collapsed .workspace { margin-left: 68px; }
   .metrics-grid { grid-template-columns: repeat(2, 1fr); }
   .dashboard-grid { grid-template-columns: minmax(0, 1fr) 285px; }
   .page-content { padding-left: 22px; padding-right: 22px; }
@@ -18,7 +23,8 @@
 @media (max-width: 940px) {
   .app-shell { flex-direction: column; }
 
-  .sidebar { display: none; }
+  .sidebar,
+  .sidebar-toggle-tab { display: none; }
   .workspace { width: 100%; margin: 0; }
   .topbar { padding: 0 14px; height: 56px; }
   .hamburger-button {

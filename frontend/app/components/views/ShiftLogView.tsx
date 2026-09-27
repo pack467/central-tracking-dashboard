@@ -231,15 +231,14 @@ export function ShiftLogView({ workflow }: { workflow: HandoverWorkflow }) {
       <section className="page-heading">
         <div>
           <div className="eyebrow">
-            <span className="live-dot live-dot-pulse" /> RIWAYAT SERAH TERIMA
+            <span className="live-dot live-dot-pulse" /> SHIFT LOG
           </div>
           <div className="shift-log-title-row">
             <span className="shift-log-title-icon">
               <History size={18} />
             </span>
-            <h1 style={{ margin: 0 }}>Log Shift</h1>
+            <h1 style={{ margin: 0 }}>Shift Log</h1>
           </div>
-          <p style={{ margin: 0 }}>Timeline catatan handover historis yang tersimpan pada database Cloudflare D1.</p>
         </div>
       </section>
 

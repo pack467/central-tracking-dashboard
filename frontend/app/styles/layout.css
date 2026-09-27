@@ -5,7 +5,7 @@
   position: fixed;
   inset: 0 auto 0 0;
   width: 250px;
-  padding: 22px 16px 20px;
+  padding: 20px 12px;
   color: var(--sidebar-text);
   background: var(--sidebar-bg);
   border-right: 1px solid rgba(255, 255, 255, 0.06);
@@ -16,7 +16,318 @@
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+  /* ── Ultra-Smooth: Apple/Linear Spring-Deceleration Easing ── */
+  will-change: width;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
+
+/* ── Sidebar Top Row (Logo) ── */
+.sidebar-top-row {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 4px;
+  margin-bottom: 14px;
+  position: relative;
+}
+
+/* ── Left Sidebar Toggle Tab Handle (matching right shift-panel-toggle-tab) ── */
+.sidebar-toggle-tab {
+  position: fixed;
+  left: 250px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 6px;
+  border: none;
+  border-radius: 0 10px 10px 0;
+  cursor: pointer;
+  background: var(--panel-bg, #1e293b);
+  border: 1px solid var(--line, rgba(255, 255, 255, 0.08));
+  border-left: none;
+  color: var(--ink-muted, #94a3b8);
+  font-family: var(--font-primary, 'Plus Jakarta Sans', sans-serif);
+  font-size: 10px;
+  font-weight: 600;
+  will-change: left;
+  transition: left 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              background 0.2s ease,
+              color 0.2s ease,
+              border-color 0.2s ease,
+              padding-left 0.2s ease;
+  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.15);
+}
+
+.sidebar-toggle-tab:hover {
+  background: var(--panel-bg-hover, #283548);
+  color: var(--ink-primary, #e2e8f0);
+  padding-left: 10px;
+}
+
+.sidebar-toggle-tab:focus-visible {
+  outline: 2px solid var(--accent, #6366f1);
+  outline-offset: 2px;
+}
+
+.sidebar-toggle-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: 0 2px 6px rgba(99, 102, 241, 0.3);
+}
+
+.sidebar-toggle-chevron {
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+
+.sidebar-toggle-tab:hover .sidebar-toggle-chevron {
+  opacity: 1;
+}
+
+/* ═══════════════════════════════════════════════
+   SIDEBAR COLLAPSED STATE
+═══════════════════════════════════════════════ */
+.sidebar-collapsed {
+  width: 68px;
+  padding: 20px 12px;
+}
+
+/* Center top row: Logo */
+.sidebar-collapsed .sidebar-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+  padding: 0;
+}
+
+.sidebar-collapsed .brand-lockup {
+  justify-content: center;
+  padding: 0;
+  gap: 0;
+}
+
+/* Shift toggle tab handle when sidebar is collapsed */
+.sidebar-is-collapsed .sidebar-toggle-tab,
+.sidebar-toggle-tab.sidebar-toggle-tab-collapsed {
+  left: 68px;
+  transition: left 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Hide text in collapsed sidebar */
+.sidebar-collapsed .nav-label,
+.sidebar-collapsed .nav-count,
+.sidebar-collapsed .brand-text,
+.sidebar-collapsed .sidebar-label {
+  display: none !important;
+}
+
+/* Center nav items */
+.sidebar-collapsed .nav-item {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  margin: 0 auto 2px;
+  justify-content: center;
+  align-items: center;
+  gap: 0;
+  border-radius: 10px;
+}
+
+.sidebar-collapsed .nav-icon {
+  margin: 0 auto;
+}
+
+.sidebar-collapsed .nav-item.active {
+  border-left: none;
+  background: var(--sidebar-active, rgba(56, 189, 248, 0.12));
+}
+
+/* Divider between sections in collapsed mode */
+.sidebar-collapsed-divider {
+  display: none;
+  width: 28px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 10px auto;
+}
+
+.sidebar-collapsed .sidebar-collapsed-divider {
+  display: block;
+}
+
+/* Shift Card in collapsed mode: sleek 44px status tile with shift icon */
+.shift-card-collapsed-view {
+  display: none;
+}
+
+.sidebar-collapsed .shift-card {
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0 !important;
+  margin: auto auto 12px auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-sizing: border-box;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.sidebar-collapsed .shift-card.shift-card-subuh {
+  background: rgba(56, 189, 248, 0.12);
+  border-color: rgba(56, 189, 248, 0.32);
+  color: #38bdf8;
+}
+
+.sidebar-collapsed .shift-card.shift-card-pagi {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.32);
+  color: #f59e0b;
+}
+
+.sidebar-collapsed .shift-card.shift-card-malam {
+  background: rgba(168, 85, 247, 0.12);
+  border-color: rgba(168, 85, 247, 0.32);
+  color: #a855f7;
+}
+
+.sidebar-collapsed .shift-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.sidebar-collapsed .shift-card.shift-card-subuh:hover {
+  background: rgba(56, 189, 248, 0.22);
+  border-color: rgba(56, 189, 248, 0.5);
+}
+
+.sidebar-collapsed .shift-card.shift-card-pagi:hover {
+  background: rgba(245, 158, 11, 0.22);
+  border-color: rgba(245, 158, 11, 0.5);
+}
+
+.sidebar-collapsed .shift-card.shift-card-malam:hover {
+  background: rgba(168, 85, 247, 0.22);
+  border-color: rgba(168, 85, 247, 0.5);
+}
+
+.sidebar-collapsed .shift-card-collapsed-view {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.sidebar-collapsed .shift-card-collapsed-icon {
+  display: block;
+}
+
+.sidebar-collapsed .shift-card-collapsed-dot {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  width: 6px;
+  height: 6px;
+}
+
+.sidebar-collapsed .shift-card-top,
+.sidebar-collapsed .shift-card-title-text,
+.sidebar-collapsed .shift-card-body,
+.sidebar-collapsed .shift-card strong,
+.sidebar-collapsed .shift-card p,
+.sidebar-collapsed .shift-card button,
+.sidebar-collapsed .shift-people {
+  display: none !important;
+}
+
+/* Profile Card in collapsed mode: perfectly centered 44px avatar tile */
+.sidebar-collapsed .profile-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.sidebar-collapsed .profile-card {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0 !important;
+  margin: 0 auto;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-sizing: border-box;
+}
+
+.sidebar-collapsed .profile-main-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  gap: 0;
+  flex: none;
+}
+
+.sidebar-collapsed .profile-avatar-ring-wrapper {
+  margin: 0 auto;
+}
+
+.sidebar-collapsed .profile-info,
+.sidebar-collapsed .profile-more-btn {
+  display: none !important;
+}
+
+/* ── Workspace width adjusts smoothly when sidebar is collapsed or shift panel is open ── */
+.workspace {
+  will-change: margin-left, margin-right;
+  transition: margin-left 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              margin-right 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sidebar-is-collapsed .workspace {
+  margin-left: 68px;
+}
+
+/* ── Workspace shrinks when shift panel is open (push, not overlay) ── */
+.shift-panel-is-open .workspace {
+  margin-right: 300px;
+}
+
+/* Sidebar collapsed + panel open */
+.sidebar-is-collapsed.shift-panel-is-open .workspace {
+  margin-left: 68px;
+  margin-right: 300px;
+}
+
 
 .sidebar::-webkit-scrollbar {
   width: 4px;
@@ -152,11 +463,13 @@
   padding: 9px 12px;
   color: var(--sidebar-muted);
   text-align: left;
-  border-radius: 7px;
+  border-radius: 8px;
   background: transparent;
   font-weight: 500;
   font-size: 13px;
   transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+  overflow: hidden;
+  position: relative;
 }
 
 .nav-item:hover {
@@ -183,8 +496,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   flex-shrink: 0;
   color: currentColor;
   transition: color 0.15s ease;
@@ -194,6 +507,12 @@
   display: block;
   width: 18px;
   height: 18px;
+}
+
+.nav-label {
+  white-space: nowrap;
+  font-size: 13px;
+  color: inherit;
 }
 
 .nav-count {
@@ -852,11 +1171,15 @@
    WORKSPACE & TOPBAR
 ═══════════════════════════════════════════════ */
 .workspace {
-  width: calc(100% - 250px);
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto;
   margin-left: 250px;
+  margin-right: 0;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow-x: clip;
 }
 
 .topbar {
@@ -1973,6 +2296,493 @@
   .shift-transition-popover {
     width: calc(100vw - 20px);
     right: -40px;
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   FLOATING ACTION BUTTON (FAB) — New Ticket
+═══════════════════════════════════════════════ */
+.fab-new-ticket {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 90;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  height: 48px;
+  min-width: 48px;
+  padding: 0 14px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 9999px;
+  cursor: pointer;
+  background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%);
+  color: #ffffff;
+  font-family: var(--font-primary, 'Plus Jakarta Sans', sans-serif);
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28), 0 1px 3px rgba(0, 0, 0, 0.15);
+  will-change: right, transform, padding, gap;
+  transition: right 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              padding 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              gap 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              background 0.2s ease,
+              box-shadow 0.2s ease;
+  overflow: hidden;
+  white-space: nowrap;
+  animation: fab-entrance 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both;
+}
+
+@keyframes fab-entrance {
+  from {
+    opacity: 0;
+    transform: scale(0.6) translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.fab-new-ticket:hover,
+.fab-new-ticket.fab-hovered {
+  gap: 8px;
+  padding: 0 18px 0 14px;
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, #6d70f5 0%, #8b5cf6 100%);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35), 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.fab-new-ticket:active {
+  transform: translateY(0) scale(0.97);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.fab-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.fab-new-ticket:hover .fab-icon-wrap,
+.fab-new-ticket.fab-hovered .fab-icon-wrap {
+  transform: rotate(90deg);
+}
+
+.fab-label {
+  display: inline-block;
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #ffffff;
+  line-height: 1;
+  transition: max-width 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.25s ease;
+}
+
+.fab-new-ticket:hover .fab-label,
+.fab-new-ticket.fab-hovered .fab-label,
+.fab-label.fab-label-visible {
+  max-width: 120px;
+  opacity: 1;
+}
+
+/* ═══════════════════════════════════════════════
+   SHIFT COVERAGE PANEL (Discord-style Right Panel)
+═══════════════════════════════════════════════ */
+
+/* ── Toggle Tab Handle ── */
+.shift-panel-toggle-tab {
+  position: fixed;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 6px;
+  border: none;
+  border-radius: 10px 0 0 10px;
+  cursor: pointer;
+  background: var(--panel-bg, #1e293b);
+  border: 1px solid var(--line, rgba(255, 255, 255, 0.08));
+  border-right: none;
+  color: var(--ink-muted, #94a3b8);
+  font-family: var(--font-primary, 'Plus Jakarta Sans', sans-serif);
+  font-size: 10px;
+  font-weight: 600;
+  will-change: right;
+  transition: right 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              background 0.2s ease,
+              color 0.2s ease,
+              border-color 0.2s ease;
+  box-shadow: -2px 0 12px rgba(0, 0, 0, 0.15);
+}
+
+.shift-panel-toggle-tab:hover {
+  background: var(--panel-bg-hover, #283548);
+  color: var(--ink-primary, #e2e8f0);
+  padding-right: 10px;
+}
+
+.shift-panel-toggle-tab.shift-panel-toggle-active {
+  background: var(--panel-bg, #1e293b);
+  color: var(--ink-muted, #94a3b8);
+  border-color: var(--line, rgba(255, 255, 255, 0.08));
+}
+
+.shift-panel-toggle-tab.shift-panel-toggle-active:hover {
+  background: var(--panel-bg-hover, #283548);
+  color: var(--ink-primary, #e2e8f0);
+}
+
+.shift-panel-toggle-tab:focus-visible {
+  outline: 2px solid var(--accent-blue, #38bdf8);
+  outline-offset: 2px;
+}
+
+.shift-panel-toggle-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: 0 2px 6px rgba(34, 197, 94, 0.3);
+}
+
+.shift-panel-toggle-chevron {
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+
+.shift-panel-toggle-tab:hover .shift-panel-toggle-chevron {
+  opacity: 1;
+}
+
+/* ── Panel Container ── */
+.shift-coverage-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 300px;
+  z-index: 75;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel-bg, #1e293b);
+  border-left: 1px solid var(--line, rgba(255, 255, 255, 0.08));
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.2);
+  transform: translateX(100%);
+  /* ── Perf: GPU layer + smooth transition ── */
+  will-change: transform;
+  backface-visibility: hidden;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+.shift-coverage-panel.shift-panel-open {
+  transform: translateX(0);
+}
+
+.shift-coverage-panel.shift-panel-closed {
+  transform: translateX(100%);
+  pointer-events: none;
+}
+
+/* When panel is open, shift the toggle tab */
+.shift-panel-is-open .shift-panel-toggle-tab {
+  right: 300px;
+  transition: right 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* When panel is open, shift the FAB */
+.shift-panel-is-open .fab-new-ticket {
+  right: 328px;
+  transition: right 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── Panel Header ── */
+.shift-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px 18px 14px;
+  border-bottom: 1px solid var(--line, rgba(255, 255, 255, 0.08));
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.shift-panel-header-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.shift-panel-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink-primary, #e2e8f0);
+  margin: 0;
+  letter-spacing: 0.01em;
+}
+
+.shift-panel-subtitle {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--ink-muted, #94a3b8);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* ── Panel Content ── */
+.shift-panel-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 12px 14px 8px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.08) transparent;
+}
+
+.shift-panel-content::-webkit-scrollbar {
+  width: 5px;
+}
+
+.shift-panel-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.shift-panel-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Scale donut a little in the panel */
+.shift-panel-content .shift-coverage-donut-section {
+  margin: 0 auto;
+  max-width: 180px;
+}
+
+.shift-panel-content .shift-coverage-donut-wrap {
+  width: 140px;
+  height: 140px;
+}
+
+.shift-panel-content .shift-coverage-stats-row {
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 6px 0 10px;
+}
+
+.shift-panel-content .roster-filter-tabs-wrapper {
+  margin-bottom: 10px;
+  padding: 0;
+  border-top: none;
+}
+
+.shift-panel-content .filter-tabs.roster-filter-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  padding: 3px;
+  border-radius: 8px;
+}
+
+.shift-panel-content .filter-tabs.roster-filter-tabs button {
+  font-size: 11px;
+  padding: 6px 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.shift-panel-content .coverage-team {
+  max-height: none;
+  padding: 0;
+}
+
+.shift-panel-content .roster-member-row {
+  padding: 7px 8px;
+  border-radius: 8px;
+}
+
+.shift-panel-content .roster-member-name {
+  font-size: 12.5px;
+}
+
+.shift-panel-content .roster-member-role {
+  font-size: 10.5px;
+}
+
+/* ── Panel Footer ── */
+.shift-panel-footer {
+  padding: 12px 14px 14px;
+  border-top: 1px solid var(--line, rgba(255, 255, 255, 0.08));
+  flex-shrink: 0;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.shift-panel-footer .full-width-button,
+.shift-coverage-panel .shift-panel-footer .full-width-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: auto;
+  min-height: 38px;
+  margin: 0;
+  padding: 10px 14px;
+  box-sizing: border-box;
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  border-radius: 10px;
+  cursor: pointer;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.22), rgba(139, 92, 246, 0.16));
+  color: #c7d2fe;
+  font-family: var(--font-primary, 'Plus Jakarta Sans', sans-serif);
+  font-size: 12.5px;
+  font-weight: 600;
+  text-align: center;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  box-shadow: none;
+  transform: none;
+}
+
+.shift-panel-footer .full-width-button:hover,
+.shift-coverage-panel .shift-panel-footer .full-width-button:hover {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.32), rgba(139, 92, 246, 0.25));
+  color: #ffffff;
+  border-color: rgba(99, 102, 241, 0.55);
+  box-shadow: none;
+  transform: none;
+}
+
+.shift-panel-footer .full-width-button:active,
+.shift-coverage-panel .shift-panel-footer .full-width-button:active {
+  background: rgba(99, 102, 241, 0.28);
+  box-shadow: none;
+  transform: none;
+}
+
+.shift-panel-btn-arrow {
+  font-size: 14px;
+  display: inline-block;
+  transform: none;
+}
+
+/* ── Mobile Backdrop ── */
+.shift-panel-backdrop {
+  display: none;
+}
+
+/* ═══════════════════════════════════════════════
+   RESPONSIVE: Shift Panel & FAB
+═══════════════════════════════════════════════ */
+@media (max-width: 940px) {
+  /* On mobile, panel is overlay with backdrop */
+  .shift-panel-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 74;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    animation: shift-backdrop-in 0.3s ease;
+  }
+
+  @keyframes shift-backdrop-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .shift-coverage-panel {
+    width: 280px;
+  }
+
+  .shift-panel-is-open .shift-panel-toggle-tab {
+    right: 280px;
+  }
+
+  .shift-panel-is-open .fab-new-ticket {
+    right: 28px;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* On mobile, panel overlays — workspace does NOT shrink */
+  .shift-panel-is-open .workspace {
+    margin-right: 0;
+  }
+  .sidebar-is-collapsed.shift-panel-is-open .workspace {
+    margin-right: 0;
+  }
+
+  /* FAB slightly smaller on mobile */
+  .fab-new-ticket {
+    height: 46px;
+    min-width: 46px;
+    padding: 0 14px;
+    bottom: 20px;
+    right: 20px;
+  }
+}
+
+@media (max-width: 660px) {
+  .fab-new-ticket {
+    height: 46px;
+    min-width: 46px;
+    padding: 0;
+    justify-content: center;
+    bottom: 16px;
+    right: 16px;
+    border-radius: 50%;
+    gap: 0;
+  }
+
+  .fab-label {
+    display: none;
+  }
+
+  .shift-panel-toggle-tab {
+    padding: 10px 5px;
+  }
+
+  .shift-panel-toggle-badge {
+    width: 18px;
+    height: 18px;
+    font-size: 9px;
+  }
+
+  .shift-coverage-panel {
+    width: 260px;
+  }
+
+  .shift-panel-is-open .shift-panel-toggle-tab {
+    right: 260px;
   }
 }
 

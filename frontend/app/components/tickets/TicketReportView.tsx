@@ -37,11 +37,13 @@ import { Avatar } from "@/app/components/ui/Avatar";
 import { ModalCloseButton } from "@/app/components/ui/ModalCloseButton";
 import { useActiveShift } from "@/app/hooks/useLiveClock";
 import { useUserStatus, getStatusRingStyle } from "@/app/hooks/useUserStatus";
+import { useClient } from "@/app/context/ClientContext";
 import type { Ticket } from "@/app/lib/types";
 
 interface TicketReportViewProps {
   tickets: Ticket[];
   dateRangeLabel: string;
+  onGoToTickets?: () => void;
 }
 
 // Standard project color map for consistent visual identity across dashboard
@@ -54,7 +56,6 @@ const PROJECT_COLORS: Record<string, string> = {
   "B2B": "#06b6d4",      // Cyan
   "APH": "#10b981",      // Emerald
   "DM": "#6366f1",       // Indigo
-  "L2": "#f43f5e",       // Rose
   "UNEM": "#84cc16",     // Lime
 };
 
@@ -122,7 +123,8 @@ function formatHeatmapDate(dateStr: string) {
   return { dayName: "", dateShort: dateStr.slice(5) };
 }
 
-export function TicketReportView({ tickets, dateRangeLabel }: TicketReportViewProps) {
+export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: TicketReportViewProps) {
+  const { activeClient } = useClient();
   const notify = useToast();
   const activeShift = useActiveShift();
   const { userStatus } = useUserStatus();
@@ -131,8 +133,41 @@ export function TicketReportView({ tickets, dateRangeLabel }: TicketReportViewPr
   const [hoveredDate, setHoveredDate] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedChartTab, setSelectedChartTab] = useState<"stacked-project" | "trajectory">("stacked-project");
-  const [agingAgeFilter, setAgingAgeFilter] = useState<string | null>(null);
-  const [agingPage, setAgingPage] = useState(1);
+  const [momSubView, setMomSubView] = useState<"trajectory" | "project">("trajectory");
+  const [selectedMomItem, setSelectedMomItem] = useState<{
+    type: "project" | "timeline";
+    id: string;
+    label: string;
+    currCount: number;
+    prevCount: number;
+    currResolved?: number;
+    prevResolved?: number;
+    currDate?: string;
+    prevDate?: string;
+    delta: number;
+    deltaPct?: number | string;
+  } | null>(null);
+  const [hoveredVelocityPoint, setHoveredVelocityPoint] = useState<{
+    x: number;
+    y: number;
+    date: string;
+    avgResolution: number;
+    closed: number;
+    percentX: number;
+    percentY: number;
+  } | null>(null);
+  const [hoveredShiftTrafficPoint, setHoveredShiftTrafficPoint] = useState<{
+    x: number;
+    y: number;
+    date: string;
+    subuh: number;
+    pagi: number;
+    malam: number;
+    total: number;
+    percentX: number;
+    percentY: number;
+  } | null>(null);
+  const [activeShiftLineFilter, setActiveShiftLineFilter] = useState<"all" | "Subuh" | "Pagi" | "Malam">("all");
 
   // 1. Overall Aggregates
   const total = tickets.length;
@@ -187,7 +222,11 @@ export function TicketReportView({ tickets, dateRangeLabel }: TicketReportViewPr
   // 2. Project List & Colors
   const allProjects = useMemo(() => {
     const set = new Set<string>();
-    for (const t of tickets) set.add(t.project);
+    for (const t of tickets) {
+      if (t.project && t.project !== "L2") {
+        set.add(t.project);
+      }
+    }
     return Array.from(set).sort();
   }, [tickets]);
 
@@ -205,6 +244,7 @@ export function TicketReportView({ tickets, dateRangeLabel }: TicketReportViewPr
     > = {};
 
     for (const t of tickets) {
+      if (t.project === "L2") continue;
       const d = t.date || "2026-08-31";
       if (!map[d]) {
         map[d] = {
@@ -245,6 +285,215 @@ export function TicketReportView({ tickets, dateRangeLabel }: TicketReportViewPr
     });
   }, [tickets, avgResolutionMins]);
 
+  // 3B. Month-over-Month (MoM) Comparison Analytics (Bulan Lalu vs Bulan Ini)
+  const momData = useMemo(() => {
+    const monthsSet = new Set<string>();
+    for (const t of tickets) {
+      if (t.project === "L2") continue;
+      const d = t.date || (t.created && t.created.length >= 10 ? t.created.slice(0, 10) : "");
+      if (d && d.length >= 7) {
+        monthsSet.add(d.slice(0, 7));
+      }
+    }
+    const sortedMonths = Array.from(monthsSet).sort();
+
+    let currMonthKey = "2026-09";
+    let prevMonthKey = "2026-08";
+
+    if (sortedMonths.length >= 2) {
+      currMonthKey = sortedMonths[sortedMonths.length - 1];
+      prevMonthKey = sortedMonths[sortedMonths.length - 2];
+    } else if (sortedMonths.length === 1) {
+      currMonthKey = sortedMonths[0];
+      const [yr, mo] = currMonthKey.split("-").map(Number);
+      const prevMo = mo === 1 ? 12 : mo - 1;
+      const prevYr = mo === 1 ? yr - 1 : yr;
+      prevMonthKey = `${prevYr}-${String(prevMo).padStart(2, "0")}`;
+    }
+
+    const formatMonthName = (key: string) => {
+      const [yr, mo] = key.split("-");
+      const names: Record<string, string> = {
+        "01": "Januari",
+        "02": "Februari",
+        "03": "Maret",
+        "04": "April",
+        "05": "Mei",
+        "06": "Juni",
+        "07": "Juli",
+        "08": "Agustus",
+        "09": "September",
+        "10": "Oktober",
+        "11": "November",
+        "12": "Desember",
+      };
+      return `${names[mo] || mo} ${yr}`;
+    };
+
+    const currMonthLabel = formatMonthName(currMonthKey);
+    const prevMonthLabel = formatMonthName(prevMonthKey);
+
+    const isClosed = (t: Ticket) => {
+      const s = (t.status || "").toLowerCase();
+      return s === "closed" || s === "ditutup";
+    };
+
+    const currTickets = tickets.filter((t) => {
+      if (t.project === "L2") return false;
+      const d = t.date || (t.created && t.created.length >= 10 ? t.created.slice(0, 10) : "");
+      return d.startsWith(currMonthKey);
+    });
+
+    const prevTickets = tickets.filter((t) => {
+      if (t.project === "L2") return false;
+      const d = t.date || (t.created && t.created.length >= 10 ? t.created.slice(0, 10) : "");
+      return d.startsWith(prevMonthKey);
+    });
+
+    const currTotal = currTickets.length;
+    const prevTotal = prevTickets.length;
+    const deltaTotal = currTotal - prevTotal;
+    const deltaTotalPct = prevTotal > 0 ? ((deltaTotal / prevTotal) * 100).toFixed(1) : "0";
+
+    const currResolved = currTickets.filter(isClosed).length;
+    const prevResolved = prevTickets.filter(isClosed).length;
+    const deltaResolved = currResolved - prevResolved;
+    const deltaResolvedPct = prevResolved > 0 ? ((deltaResolved / prevResolved) * 100).toFixed(1) : "0";
+
+    const getAvgRes = (list: Ticket[], fallback: number) => {
+      const times = list
+        .filter((t) => isClosed(t) && typeof t.resolutionMinutes === "number")
+        .map((t) => t.resolutionMinutes as number);
+      return times.length ? Math.round(times.reduce((a, b) => a + b, 0) / times.length) : fallback;
+    };
+
+    const currAvgRes = getAvgRes(currTickets, 41);
+    const prevAvgRes = getAvgRes(prevTickets, 46);
+    const deltaAvgRes = currAvgRes - prevAvgRes;
+
+    const getSlaRate = (list: Ticket[], fallback: number) => {
+      const evaluated = list.filter((t) => isClosed(t) && typeof t.resolutionMinutes === "number");
+      if (!evaluated.length) return fallback;
+      const compliant = evaluated.filter((t) => (t.resolutionMinutes as number) <= (t.slaTargetMinutes || 120));
+      return Math.round((compliant.length / evaluated.length) * 100);
+    };
+
+    const currSlaRate = getSlaRate(currTickets, 92);
+    const prevSlaRate = getSlaRate(prevTickets, 96);
+    const deltaSlaRate = currSlaRate - prevSlaRate;
+
+    // Daily trajectory points
+    const groupDaily = (list: Ticket[]) => {
+      const map: Record<string, { created: number; closed: number; projectCounts: Record<string, number> }> = {};
+      for (const t of list) {
+        const d = t.date || (t.created && t.created.length >= 10 ? t.created.slice(0, 10) : "");
+        if (!d) continue;
+        if (!map[d]) map[d] = { created: 0, closed: 0, projectCounts: {} };
+        map[d].created += 1;
+        if (isClosed(t)) map[d].closed += 1;
+        map[d].projectCounts[t.project] = (map[d].projectCounts[t.project] || 0) + 1;
+      }
+      return Object.entries(map).sort((a, b) => a[0].localeCompare(b[0]));
+    };
+
+    const currDaily = groupDaily(currTickets);
+    const prevDaily = groupDaily(prevTickets);
+
+    const maxDays = Math.max(currDaily.length, prevDaily.length, 7);
+    let runningCurrCum = 0;
+    let runningPrevCum = 0;
+
+    const trajectoryPoints = Array.from({ length: maxDays }, (_, i) => {
+      const currItem = currDaily[i];
+      const prevItem = prevDaily[i];
+
+      const cCount = currItem ? currItem[1].created : 0;
+      const pCount = prevItem ? prevItem[1].created : 0;
+      const cClosed = currItem ? currItem[1].closed : 0;
+      const pClosed = prevItem ? prevItem[1].closed : 0;
+
+      runningCurrCum += cCount;
+      runningPrevCum += pCount;
+
+      const formatShort = (dateStr?: string) => {
+        if (!dateStr) return "-";
+        const parts = dateStr.split("-");
+        return parts.length === 3 ? `${parts[2]}/${parts[1]}` : dateStr;
+      };
+
+      return {
+        index: i,
+        label: `Hari ${i + 1}`,
+        currDate: currItem ? currItem[0] : "",
+        currFormatted: currItem ? formatShort(currItem[0]) : "-",
+        currCount: cCount,
+        currResolved: cClosed,
+        currCumulative: runningCurrCum,
+        prevDate: prevItem ? prevItem[0] : "",
+        prevFormatted: prevItem ? formatShort(prevItem[0]) : "-",
+        prevCount: pCount,
+        prevResolved: pClosed,
+        prevCumulative: runningPrevCum,
+      };
+    });
+
+    // Project breakdown comparison
+    const allProjectsSet = new Set<string>();
+    for (const t of tickets) {
+      if (t.project && t.project !== "L2") allProjectsSet.add(t.project);
+    }
+    const projectsList = Array.from(allProjectsSet).sort();
+
+    const projectComparison = projectsList
+      .map((proj) => {
+        const cTickets = currTickets.filter((t) => t.project === proj);
+        const pTickets = prevTickets.filter((t) => t.project === proj);
+
+        const cCount = cTickets.length;
+        const pCount = pTickets.length;
+        const delta = cCount - pCount;
+        const deltaPct = pCount > 0 ? Math.round(((cCount - pCount) / pCount) * 100) : 0;
+
+        const cClosed = cTickets.filter(isClosed).length;
+        const pClosed = pTickets.filter(isClosed).length;
+
+        return {
+          project: proj,
+          color: PROJECT_COLORS[proj] || "#38bdf8",
+          currCount: cCount,
+          currResolved: cClosed,
+          prevCount: pCount,
+          prevResolved: pClosed,
+          delta,
+          deltaPct,
+        };
+      })
+      .sort((a, b) => b.currCount + b.prevCount - (a.currCount + a.prevCount));
+
+    return {
+      currMonthKey,
+      prevMonthKey,
+      currMonthLabel,
+      prevMonthLabel,
+      currTotal,
+      prevTotal,
+      deltaTotal,
+      deltaTotalPct,
+      currResolved,
+      prevResolved,
+      deltaResolved,
+      deltaResolvedPct,
+      currAvgRes,
+      prevAvgRes,
+      deltaAvgRes,
+      currSlaRate,
+      prevSlaRate,
+      deltaSlaRate,
+      trajectoryPoints,
+      projectComparison,
+    };
+  }, [tickets]);
+
   // 4. Breakdown by Category / Type
   const typeCounts = useMemo(() => {
     const counts: Record<string, number> = {};
@@ -273,24 +522,7 @@ export function TicketReportView({ tickets, dateRangeLabel }: TicketReportViewPr
     return counts;
   }, [tickets]);
 
-  // 6. Backlog Aging Spectrum
-  const agingBrackets = useMemo(() => {
-    const brackets = {
-      fresh: 0,    // < 6 hours
-      moderate: 0, // 6 - 24 hours
-      elevated: 0, // 24 - 48 hours
-      critical: 0, // > 48 hours
-    };
-
-    for (const t of activeTickets) {
-      const age = t.agingHours || 2;
-      if (age < 6) brackets.fresh += 1;
-      else if (age <= 24) brackets.moderate += 1;
-      else if (age <= 48) brackets.elevated += 1;
-      else brackets.critical += 1;
-    }
-    return brackets;
-  }, [activeTickets]);
+  // 5. Breakdown by Priority
 
   // 7. SLA Breach Root Cause Breakdown (Constructive, system/process factors only)
   const breachRootCauses = useMemo(() => {
@@ -321,8 +553,8 @@ export function TicketReportView({ tickets, dateRangeLabel }: TicketReportViewPr
       { id: "Pagi", name: "Shift Pagi", time: "08:00–16:30 WIB", color: "#fbbf24" },
       { id: "Malam", name: "Shift Malam", time: "16:00–00:30 WIB", color: "#a855f7" },
     ];
-    // Show up to the last 7 dates in volumeByDate for optimal layout
-    const dateList = volumeByDate.length > 7 ? volumeByDate.slice(-7).map((v) => v.date) : volumeByDate.map((v) => v.date);
+    // Show up to the last 14 dates for rich traffic trajectory
+    const dateList = volumeByDate.length > 14 ? volumeByDate.slice(-14).map((v) => v.date) : volumeByDate.map((v) => v.date);
     if (!dateList.length) dateList.push("2026-08-31");
 
     const dateSet = new Set(dateList);
@@ -537,16 +769,20 @@ export function TicketReportView({ tickets, dateRangeLabel }: TicketReportViewPr
 
   const userSummaries = useMemo<UserSummaryData[]>(() => {
     const STAFF_ROSTER = [
-      { name: "Agnes", role: "L2 Specialist (Shift Malam)", baseMonth: 38, baseYear: 245 },
-      { name: "Bagas Wicaksono", role: "Operator NOC (Shift Subuh)", baseMonth: 32, baseYear: 198 },
-      { name: "Dimas Prasetyo", role: "Infrastructure Engineer (Shift Pagi)", baseMonth: 29, baseYear: 184 },
-      { name: "Kristina Marbun", role: "Operator NOC (Shift Pagi)", baseMonth: 44, baseYear: 280 },
-      { name: "Kurnia Meidiyansyah", role: "Operator NOC (Shift Malam)", baseMonth: 36, baseYear: 210 },
-      { name: "M. Ihsanul Arifin", role: "Operator NOC (Shift Subuh)", baseMonth: 48, baseYear: 310 },
+      { name: "Tahan Julianus Nadeak", role: "Incident Coordinator (Shift Pagi)", baseMonth: 38, baseYear: 245 },
+      { name: "Yuha Azhari Simbolon", role: "Operator NOC (Shift Pagi)", baseMonth: 32, baseYear: 198 },
+      { name: "Nicholas Bima Nooka Putra", role: "Infrastructure Engineer (Shift Pagi)", baseMonth: 29, baseYear: 184 },
+      { name: "Pangondion Kurniawan Naibaho", role: "Shift Lead (Shift Malam)", baseMonth: 45, baseYear: 290 },
+      { name: "Natanael Tambun", role: "Shift Lead (Shift Subuh)", baseMonth: 40, baseYear: 255 },
+      { name: "Agnes Siahaan", role: "Shift Lead (Shift Pagi)", baseMonth: 42, baseYear: 270 },
+      { name: "Ade Yuri F. Damanik", role: "L2 Specialist (Shift Pagi)", baseMonth: 34, baseYear: 220 },
+      { name: "Muhammad Ihsanul Arifin", role: "L2 Specialist (Shift Malam)", baseMonth: 48, baseYear: 310 },
       { name: "Mhd. Galih Khairi", role: "Operator NOC (Shift Malam)", baseMonth: 52, baseYear: 325 },
-      { name: "Muhammad Iqbal", role: "L2 Specialist (Shift Pagi)", baseMonth: 34, baseYear: 220 },
-      { name: "Pangondion Kurniawan", role: "Shift Lead (Shift Malam)", baseMonth: 45, baseYear: 290 },
-      { name: "Sarah Azhari", role: "Incident Coordinator (Shift Pagi)", baseMonth: 26, baseYear: 165 },
+      { name: "Pedro Hutagaol", role: "Incident Coordinator (Shift Malam)", baseMonth: 36, baseYear: 230 },
+      { name: "Kristina Marbun", role: "Operator NOC (Shift Malam)", baseMonth: 44, baseYear: 280 },
+      { name: "Andri Agung Exaudi Sigiro", role: "Operator NOC (Shift Subuh)", baseMonth: 35, baseYear: 215 },
+      { name: "Dimas Yudistira", role: "Infrastructure Engineer (Shift Subuh)", baseMonth: 31, baseYear: 195 },
+      { name: "Tennov Pakpahan", role: "Operator NOC (On Leave)", baseMonth: 26, baseYear: 165 },
     ];
 
     const getInitials = (name: string) => {
@@ -625,7 +861,7 @@ export function TicketReportView({ tickets, dateRangeLabel }: TicketReportViewPr
       "Shift",
       "Project",
       "Category/Type",
-      "Priority",
+      "Severity",
       "Status",
       "Response Time (mins)",
       "Resolution Time (mins)",
@@ -730,51 +966,359 @@ export function TicketReportView({ tickets, dateRangeLabel }: TicketReportViewPr
 
   return (
     <div className="ticket-report-container">
-      {/* ── 1. Header with Defensible Transparency & Scope Controls ── */}
-      <div className="ticket-report-header">
-        <div className="report-header-titles">
-          <div className="report-badge-row">
-            <span className="report-status-badge">
-              <span className="live-dot live-dot-pulse" /> OPERATIONAL AUDIT VIEW
-            </span>
-            <span className="report-scope-badge">
-              <Calendar size={11} /> Periode: <strong>{dateRangeLabel}</strong>
-            </span>
-            <span className="report-transparency-badge">
-              <ShieldCheck size={11} className="text-emerald-400" /> 100% Data Auditable (Team &amp; Process Level)
-            </span>
+      {/* ── Page Header ── */}
+      <section className="page-heading">
+        <div>
+          <div className="eyebrow">
+            <span className="live-dot live-dot-pulse" /> DASHBOARD · {activeClient.code}
           </div>
-          <h2 className="report-title">NOC Ticket Analytics &amp; Performance</h2>
-          <p className="report-subtitle">
-            Tinjauan analitik volume, laju penyelesaian, kepatuhan SLA, dan kapasitas sistem operasional tanpa penalti individu.
-          </p>
+          <h1>Dashboard</h1>
         </div>
 
-        <div className="report-actions">
-          <button type="button" className="button button-secondary button-sm" onClick={printReport} title="Ekspor PDF atau cetak laporan">
-            <Printer size={13} /> Cetak / PDF
+        <div className="page-actions">
+          <button type="button" className="button button-secondary" onClick={printReport} title="Ekspor PDF atau cetak laporan">
+            <Printer size={14} /> Cetak / PDF
           </button>
-          <button type="button" className="button button-primary button-sm" onClick={exportCsv} title="Download data tabular lengkap">
-            <Download size={13} /> Export CSV
+          <button type="button" className="button button-primary" onClick={exportCsv} title="Download data tabular lengkap">
+            <Download size={14} /> Export CSV
           </button>
+          {onGoToTickets && (
+            <button type="button" className="button button-secondary" onClick={onGoToTickets} title="Buka antrean tiket">
+              <span>◫</span> Lihat Tiket
+            </button>
+          )}
+        </div>
+      </section>
+
+      {/* ── 1. OPERATIONAL FOCUS PANEL — Real-time Actionable View for NOC/Ops ── */}
+      <div className="ops-focus-section">
+        <div className="ops-focus-header">
+          <div className="ops-focus-header-left">
+            <span className="ops-live-badge"><span className="live-dot live-dot-pulse" /> LIVE OPS VIEW</span>
+            <div>
+              <div className="ops-section-title">Operational Focus — Pantauan Real-Time &amp; Koordinasi Shift</div>
+            </div>
+          </div>
+          <span className={`ops-shift-badge ops-shift-${shiftWorkload.currentShift.toLowerCase()}`}>
+            Shift Aktif: <strong>Shift {shiftWorkload.currentShift}</strong>
+          </span>
+        </div>
+
+        <div className="ops-focus-grid">
+          {/* Widget A — Today's Tickets Monitor (Tiket Hari Ini) */}
+          <article className="panel report-panel ops-today-panel">
+            <div className="panel-heading report-panel-heading">
+              <div className="chart-heading-left">
+                <div className="panel-title" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <ListChecks size={15} className="text-sky-400" />
+                  Tiket Hari Ini
+                </div>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                {selectedEngineerFilter && (
+                  <button
+                    type="button"
+                    className="ops-filter-reset-btn"
+                    onClick={() => {
+                      setSelectedEngineerFilter(null);
+                      setTodayPage(1);
+                    }}
+                    title="Hapus filter engineer"
+                  >
+                    <X size={11} /> Reset Filter ({selectedEngineerFilter})
+                  </button>
+                )}
+                <span className="ops-count-badge">{displayedTodayTickets.length} tiket</span>
+              </div>
+            </div>
+            <div className="report-panel-body" style={{ padding: "12px 16px" }}>
+              {paginatedTodayTickets.length > 0 ? (
+                <>
+                  <div className={`today-ticket-list ${todayPageSize > 10 || todayPageSize === 0 ? "has-scroll" : ""}`}>
+                    {paginatedTodayTickets.map((ticket) => {
+                      const projColor = PROJECT_COLORS[ticket.project] || "#94a3b8";
+                      const sev = ticket.severity.toLowerCase();
+                      const priorityClass =
+                        sev === "critical" || sev === "kritis"
+                          ? "priority-pill-crit"
+                          : sev === "high" || sev === "tinggi"
+                          ? "priority-pill-high"
+                          : sev === "medium" || sev === "sedang"
+                          ? "priority-pill-med"
+                          : "priority-pill-low";
+
+                      const st = ticket.status.toLowerCase();
+                      const statusClass =
+                        st === "active" || st === "open" || st === "aktivitas"
+                          ? "status-pill-active"
+                          : st === "in progress" || st === "in-progress"
+                          ? "status-pill-inprogress"
+                          : st === "pending"
+                          ? "status-pill-pending"
+                          : st === "escalated"
+                          ? "status-pill-escalated"
+                          : "status-pill-closed";
+
+                      const statusLabel =
+                        st === "active" || st === "aktivitas"
+                          ? "Active"
+                          : st === "open"
+                          ? "Open"
+                          : st === "in progress" || st === "in-progress"
+                          ? "In Progress"
+                          : st === "pending"
+                          ? "Pending"
+                          : st === "escalated"
+                          ? "Escalated"
+                          : "Closed";
+
+                      return (
+                        <div className="today-ticket-row" key={ticket.id}>
+                          <div className="today-ticket-id-col">
+                            <span className="today-ticket-id">#{ticket.id}</span>
+                            <span className="today-ticket-proj" style={{ color: projColor }}>
+                              ● {ticket.project}
+                            </span>
+                          </div>
+                          <div className="today-ticket-subject">
+                            <span className="today-ticket-title" title={ticket.subject}>{ticket.subject}</span>
+                            <div className="today-ticket-meta">
+                              <span className="today-ticket-type">{ticket.type || ticket.category || "Incident"}</span>
+                              {ticket.owner && (
+                                <span className="today-ticket-owner">
+                                  <User size={10} /> {ticket.owner}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="today-ticket-badges">
+                            <span className={`priority-pill ${priorityClass}`}>{ticket.severity}</span>
+                            <span className={`status-pill ${statusClass}`}>{statusLabel}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Pagination & Page Size Controls */}
+                  <div className="today-pagination">
+                    <div className="today-pagination-left">
+                      <span className="today-page-info">
+                        Halaman <strong>{currentTodayPage}</strong> dari <strong>{totalTodayPages}</strong>
+                        <span className="today-total-info"> ({displayedTodayTickets.length} tiket)</span>
+                      </span>
+
+                      <div className="today-page-size-selector">
+                        <span className="page-size-label">Tampilkan:</span>
+                        {[10, 15, 25].map((size) => (
+                          <button
+                            key={size}
+                            type="button"
+                            className={`page-size-btn ${todayPageSize === size ? "active" : ""}`}
+                            onClick={() => {
+                              setTodayPageSize(size);
+                              setTodayPage(1);
+                            }}
+                            title={`Tampilkan ${size} tiket per halaman`}
+                          >
+                            {size}
+                          </button>
+                        ))}
+                        <button
+                          type="button"
+                          className={`page-size-btn ${todayPageSize === 0 ? "active" : ""}`}
+                          onClick={() => {
+                            setTodayPageSize(0);
+                            setTodayPage(1);
+                          }}
+                          title="Tampilkan semua tiket hari ini"
+                        >
+                          Semua
+                        </button>
+                      </div>
+                    </div>
+
+                    {totalTodayPages > 1 && (
+                      <div className="today-pagination-actions">
+                        <button
+                          type="button"
+                          className="today-page-btn today-page-nav"
+                          onClick={() => setTodayPage((p) => Math.max(1, p - 1))}
+                          disabled={currentTodayPage <= 1}
+                          title="Halaman Sebelumnya"
+                        >
+                          <ChevronLeft size={13} />
+                          <span>Prev</span>
+                        </button>
+
+                        <div className="today-page-numbers">
+                          {Array.from({ length: totalTodayPages }, (_, i) => i + 1).map((pageNum) => (
+                            <button
+                              key={pageNum}
+                              type="button"
+                              className={`today-page-btn today-page-num ${pageNum === currentTodayPage ? "active" : ""}`}
+                              onClick={() => setTodayPage(pageNum)}
+                            >
+                              {pageNum}
+                            </button>
+                          ))}
+                        </div>
+
+                        <button
+                          type="button"
+                          className="today-page-btn today-page-nav"
+                          onClick={() => setTodayPage((p) => Math.min(totalTodayPages, p + 1))}
+                          disabled={currentTodayPage >= totalTodayPages}
+                          title="Halaman Berikutnya"
+                        >
+                          <span>Next</span>
+                          <ChevronRight size={13} />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <div className="chart-empty-hint ops-empty-hint">
+                  <CheckCircle2 size={20} className="text-emerald-400" />
+                  <span>
+                    {selectedEngineerFilter
+                      ? `Tidak ada tiket aktif yang ditugaskan ke ${selectedEngineerFilter}.`
+                      : "Tidak ada tiket yang terdaftar untuk hari ini."}
+                  </span>
+                </div>
+              )}
+            </div>
+          </article>
+
+          {/* Right Column: Shift Workload Snapshot & Tickets per NOC Engineer */}
+          <div className="ops-right-column">
+            {/* Widget B — Active Shift Workload Snapshot */}
+            <article className="panel report-panel ops-shift-panel">
+              <div className="panel-heading report-panel-heading">
+                <div className="chart-heading-left">
+                  <div className="panel-title" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <Users size={14} className="text-sky-400" />
+                    Kondisi Shift Aktif
+                  </div>
+                </div>
+              </div>
+              <div className="report-panel-body">
+                <div className="shift-snapshot-grid">
+                  <div className="shift-snap-card snap-inprogress">
+                    <span className="snap-num">{shiftWorkload.shiftTickets}</span>
+                    <span className="snap-label">Tiket Shift Ini</span>
+                  </div>
+                  <div className="shift-snap-card snap-pending">
+                    <span className="snap-num">{shiftWorkload.unclaimed}</span>
+                    <span className="snap-label">Belum Diklaim</span>
+                  </div>
+                  <div className="shift-snap-card snap-active">
+                    <span className="snap-num">{shiftWorkload.inProgress}</span>
+                    <span className="snap-label">Sedang Dikerjakan</span>
+                  </div>
+                  <div className="shift-snap-card snap-waiting">
+                    <span className="snap-num">{shiftWorkload.pending}</span>
+                    <span className="snap-label">Pending / Menunggu</span>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            {/* Widget C — Tickets per NOC Engineer (Beban Kerja per Engineer) */}
+            <article className="panel report-panel ops-engineer-panel">
+              <div className="panel-heading report-panel-heading">
+                <div className="chart-heading-left">
+                  <div className="panel-title" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <UserCheck size={14} className="text-emerald-400" />
+                    Tiket per NOC Engineer
+                  </div>
+                </div>
+                <span className="panel-sub-count">{engineerWorkloads.length} Staf</span>
+              </div>
+              <div className="report-panel-body" style={{ padding: "12px 14px", display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
+                <div className="engineer-workload-list">
+                  {engineerWorkloads.map((eng) => {
+                    const isSelected = selectedEngineerFilter === eng.name;
+                    return (
+                      <button
+                        type="button"
+                        key={eng.name}
+                        className={`engineer-workload-card ${isSelected ? "engineer-card-active" : ""}`}
+                        onClick={() => {
+                          setSelectedEngineerFilter(isSelected ? null : eng.name);
+                          setTodayPage(1);
+                        }}
+                        title={`Klik untuk memfilter tiket milik ${eng.name}`}
+                      >
+                        <div className="engineer-card-left">
+                          <Avatar size="sm" initials={eng.initials} name={eng.name} className="engineer-avatar" />
+                          <div className="engineer-info">
+                            <div className="engineer-name">{eng.name}</div>
+                            <div className="engineer-proj-breakdown">
+                              {Object.entries(eng.projectBreakdown).map(([proj, count]) => {
+                                const pColor = PROJECT_COLORS[proj] || "#94a3b8";
+                                return (
+                                  <span className="engineer-proj-pill" key={proj}>
+                                    <i className="legend-dot" style={{ background: pColor }} />
+                                    {proj} &times;{count}
+                                  </span>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="engineer-ticket-count-badge">
+                          {eng.totalTickets}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Footer summary bar to anchor the card and eliminate empty void */}
+                <div className="engineer-workload-footer">
+                  <div className="engineer-workload-stats">
+                    <span className="engineer-workload-stat-item">
+                      Total: <strong>{engineerWorkloads.reduce((acc, e) => acc + e.totalTickets, 0)} tiket</strong>
+                    </span>
+                    <span className="engineer-workload-stat-dot">•</span>
+                    <span className="engineer-workload-stat-item">
+                      Rata-rata: <strong>{engineerWorkloads.length > 0 ? (engineerWorkloads.reduce((acc, e) => acc + e.totalTickets, 0) / engineerWorkloads.length).toFixed(1) : 0}</strong> / staf
+                    </span>
+                  </div>
+                  {selectedEngineerFilter && (
+                    <button
+                      type="button"
+                      className="ops-filter-reset-mini-btn"
+                      onClick={() => {
+                        setSelectedEngineerFilter(null);
+                        setTodayPage(1);
+                      }}
+                      title="Reset filter engineer"
+                    >
+                      <X size={10} /> Reset
+                    </button>
+                  )}
+                </div>
+              </div>
+            </article>
+          </div>
         </div>
       </div>
 
 
-      {/* ── 3. Primary Charts Section: Enhanced Stacked Bar per Project & Trajectory + Rekap Tiket per User ── */}
+      {/* ── 2. Primary Charts Section: Enhanced Stacked Bar per Project & Trajectory + Rekap Tiket per User ── */}
       <div className="report-primary-chart-grid">
         {/* Left: Volume per Project / Trajectory Chart (Tabs) */}
         <article className="panel report-panel primary-chart-panel">
           <div className="panel-heading report-panel-heading">
             <div className="chart-heading-left">
               <div className="panel-title">
-                {selectedChartTab === "stacked-project" ? "Ticket Volume per Project (Stacked by System)" : "Throughput & Backlog Trajectory (Created vs Resolved vs Backlog)"}
-              </div>
-              <p className="chart-definition-sub">
                 {selectedChartTab === "stacked-project"
-                  ? "Kontribusi volume tiket harian yang masuk dikelompokkan berdasarkan sistem proyek."
-                  : "Laju pergerakan tiket masuk (Created), tiket tertangani (Resolved), dan dinamika antrean (Backlog)."}
-              </p>
+                  ? "Ticket Volume per Project (Stacked by System)"
+                  : "Perbandingan Tiket: Bulan Lalu vs Bulan Ini (MoM)"}
+              </div>
             </div>
 
             <div className="chart-tab-controls">
@@ -790,7 +1334,7 @@ export function TicketReportView({ tickets, dateRangeLabel }: TicketReportViewPr
                 className={`chart-tab-btn ${selectedChartTab === "trajectory" ? "active" : ""}`}
                 onClick={() => setSelectedChartTab("trajectory")}
               >
-                <TrendingUp size={12} /> Throughput Trajectory
+                <TrendingUp size={12} /> Bulan Lalu vs Bulan Ini
               </button>
             </div>
           </div>
@@ -1033,11 +1577,7 @@ export function TicketReportView({ tickets, dateRangeLabel }: TicketReportViewPr
                           </div>
                         );
                       })()
-                    ) : (
-                      <div className="chart-select-hint">
-                        <span>💡 Klik salah satu bar trafik untuk menampilkan rincian data tiket per sistem proyek.</span>
-                      </div>
-                    )}
+                    ) : null}
                   </>
                 ) : (
                   <div className="chart-empty-hint">Tidak ada data volume pada rentang filter ini.</div>
@@ -1045,651 +1585,675 @@ export function TicketReportView({ tickets, dateRangeLabel }: TicketReportViewPr
               </div>
             )}
 
-            {/* View B: Trajectory Line & Area Chart (Enhanced Sizing, Rich Visible Gradient, Thick Strokes & Markers) */}
+            {/* View B: Month-over-Month (MoM) Comparison Chart (Bulan Lalu vs Bulan Ini) */}
             {selectedChartTab === "trajectory" && (
-              <div className="trajectory-chart-container">
-                {volumeByDate.length > 0 ? (
-                  <>
-                    {(() => {
-                      const n = volumeByDate.length;
-                      const svgViewBoxWidth = Math.max(760, n * 48 + 80);
-                      const startX = 55;
-                      const endX = svgViewBoxWidth - 30;
-                      const totalSpan = endX - startX;
-                      const maxStep = 54;
-                      const minStep = 32;
-                      const stepX = n > 1 ? Math.min(maxStep, Math.max(minStep, totalSpan / (n - 1))) : 0;
-                      const usedWidth = n > 1 ? (n - 1) * stepX : 0;
-                      const actualStartX = n > 1 && (n - 1) * maxStep < totalSpan 
-                        ? Math.round(startX + (totalSpan - usedWidth) / 2) 
-                        : startX;
+              <div className="mom-chart-container">
+                {/* Sub-view Mode Switcher & Period Indicators */}
+                <div className="mom-subview-toggle-bar">
+                  <div className="mom-view-hint">
+                    Komparasi: <strong style={{ color: "#c084fc" }}>● {momData.prevMonthLabel} (Bulan Lalu)</strong> vs{" "}
+                    <strong style={{ color: "#38bdf8" }}>● {momData.currMonthLabel} (Bulan Ini)</strong>
+                  </div>
+                  <div className="mom-toggle-btns">
+                    <button
+                      type="button"
+                      className={`mom-toggle-btn ${momSubView === "trajectory" ? "active" : ""}`}
+                      onClick={() => {
+                        setMomSubView("trajectory");
+                        setSelectedMomItem(null);
+                      }}
+                    >
+                      <TrendingUp size={12} /> Tren Trajectory
+                    </button>
+                    <button
+                      type="button"
+                      className={`mom-toggle-btn ${momSubView === "project" ? "active" : ""}`}
+                      onClick={() => {
+                        setMomSubView("project");
+                        setSelectedMomItem(null);
+                      }}
+                    >
+                      <Layers size={12} /> Komparasi per Sistem
+                    </button>
+                  </div>
+                </div>
 
-                      const viewBoxHeight = 270;
-                      const baselineY = 225;
-                      const topY = 22;
-                      const chartHeight = baselineY - topY; // 203
+                {/* 3A. Subview: Tren Trajectory MoM (Line & Area Chart) */}
+                {momSubView === "trajectory" && (
+                  <div className="trajectory-chart-container">
+                    {momData.trajectoryPoints.length > 0 ? (
+                      <>
+                        {(() => {
+                          const points = momData.trajectoryPoints;
+                          const n = points.length;
+                          const svgViewBoxWidth = Math.max(760, n * 58 + 80);
+                          const startX = 60;
+                          const endX = svgViewBoxWidth - 40;
+                          const totalSpan = endX - startX;
+                          const stepX = n > 1 ? totalSpan / (n - 1) : 0;
 
-                      const pointsCreated = volumeByDate.map((item, idx) => {
-                        const x = n > 1 ? Math.round(actualStartX + idx * stepX) : Math.round(svgViewBoxWidth / 2);
-                        const y = baselineY - Math.round((item.created / trajectoryYTicks.yMax) * chartHeight);
-                        return `${x},${y}`;
-                      });
-                      const pointsResolved = volumeByDate.map((item, idx) => {
-                        const x = n > 1 ? Math.round(actualStartX + idx * stepX) : Math.round(svgViewBoxWidth / 2);
-                        const y = baselineY - Math.round((item.closed / trajectoryYTicks.yMax) * chartHeight);
-                        return `${x},${y}`;
-                      });
+                          const viewBoxHeight = 270;
+                          const baselineY = 225;
+                          const topY = 25;
+                          const chartHeight = baselineY - topY;
 
-                      const firstX = n > 1 ? actualStartX : Math.round(svgViewBoxWidth / 2);
-                      const lastX = n > 1 ? Math.round(actualStartX + (n - 1) * stepX) : Math.round(svgViewBoxWidth / 2);
+                          const maxCount = Math.max(
+                            ...points.map((p) => Math.max(p.currCount, p.prevCount)),
+                            4
+                          );
+                          const yTicks = computeYTicks(maxCount);
 
-                      const areaCreated = `M ${firstX},${baselineY} L ${pointsCreated.join(" L ")} L ${lastX},${baselineY} Z`;
-                      const areaResolved = `M ${firstX},${baselineY} L ${pointsResolved.join(" L ")} L ${lastX},${baselineY} Z`;
+                          const pointsCurr = points.map((item, idx) => {
+                            const x = n > 1 ? Math.round(startX + idx * stepX) : Math.round(svgViewBoxWidth / 2);
+                            const y = baselineY - Math.round((item.currCount / yTicks.yMax) * chartHeight);
+                            return { x, y, item };
+                          });
 
-                      return (
-                        <div className="svg-barchart-wrap">
-                          <svg
-                            className="report-bar-svg-lg"
-                            viewBox={`0 0 ${svgViewBoxWidth} ${viewBoxHeight}`}
-                            preserveAspectRatio="xMidYMax meet"
-                          >
-                            <defs>
-                              <linearGradient id="gradCreated" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.38" />
-                                <stop offset="100%" stopColor="#38bdf8" stopOpacity="0.02" />
-                              </linearGradient>
-                              <linearGradient id="gradResolved" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="0%" stopColor="#10b981" stopOpacity="0.35" />
-                                <stop offset="100%" stopColor="#10b981" stopOpacity="0.02" />
-                              </linearGradient>
-                            </defs>
+                          const pointsPrev = points.map((item, idx) => {
+                            const x = n > 1 ? Math.round(startX + idx * stepX) : Math.round(svgViewBoxWidth / 2);
+                            const y = baselineY - Math.round((item.prevCount / yTicks.yMax) * chartHeight);
+                            return { x, y, item };
+                          });
 
-                            {/* Subtle Horizontal Gridlines & Y-Axis Scale */}
-                            {trajectoryYTicks.ticks.map((tick) => {
-                              const yPos = baselineY - Math.round((tick / trajectoryYTicks.yMax) * chartHeight);
-                              return (
-                                <g key={`grid-traj-${tick}`}>
-                                  <line
-                                    x1="45"
-                                    y1={yPos}
-                                    x2={svgViewBoxWidth - 15}
-                                    y2={yPos}
-                                    stroke="rgba(255, 255, 255, 0.08)"
-                                    strokeWidth="1"
-                                    strokeDasharray={tick === 0 ? undefined : "4 4"}
-                                  />
-                                  <text
-                                    x="38"
-                                    y={yPos + 4}
-                                    textAnchor="end"
-                                    fill="var(--ink-muted)"
-                                    fontSize="10"
-                                    fontWeight="600"
-                                    fontFamily="var(--font-mono)"
-                                  >
-                                    {tick}
-                                  </text>
-                                </g>
-                              );
-                            })}
+                          const firstX = n > 1 ? startX : Math.round(svgViewBoxWidth / 2);
+                          const lastX = n > 1 ? Math.round(startX + (n - 1) * stepX) : Math.round(svgViewBoxWidth / 2);
 
-                            {/* Solid Floor Baseline */}
-                            <line x1="45" y1={baselineY} x2={svgViewBoxWidth - 15} y2={baselineY} stroke="var(--line)" strokeWidth="1.5" />
+                          const polyCurr = pointsCurr.map((p) => `${p.x},${p.y}`).join(" L ");
+                          const polyPrev = pointsPrev.map((p) => `${p.x},${p.y}`).join(" L ");
 
-                            {/* Area Paths */}
-                            <path d={areaCreated} fill="url(#gradCreated)" />
-                            <path d={areaResolved} fill="url(#gradResolved)" />
-                            <path d={`M ${pointsCreated.join(" L ")}`} fill="none" stroke="#38bdf8" strokeWidth="3" />
-                            <path d={`M ${pointsResolved.join(" L ")}`} fill="none" stroke="#10b981" strokeWidth="3" />
+                          const areaCurr = `M ${firstX},${baselineY} L ${polyCurr} L ${lastX},${baselineY} Z`;
+                          const areaPrev = `M ${firstX},${baselineY} L ${polyPrev} L ${lastX},${baselineY} Z`;
 
-                            {/* Data Points with Markers and Labels */}
-                            {volumeByDate.map((item, idx) => {
-                              const x = n > 1 ? Math.round(startX + idx * stepX) : Math.round(svgViewBoxWidth / 2);
-                              const yCreated = baselineY - Math.round((item.created / trajectoryYTicks.yMax) * chartHeight);
-                              const yResolved = baselineY - Math.round((item.closed / trajectoryYTicks.yMax) * chartHeight);
-                              const isSelected = selectedDate === item.date;
-                              const isHovered = hoveredDate === item.date;
-
-                              return (
-                                <g
-                                  key={item.date}
-                                  role="button"
-                                  tabIndex={0}
-                                  aria-label={`Rincian trajectory ${item.date}`}
-                                  onClick={() => setSelectedDate((prev) => (prev === item.date ? null : item.date))}
-                                  onKeyDown={(e) => {
-                                    if (e.key === "Enter" || e.key === " ") {
-                                      e.preventDefault();
-                                      setSelectedDate((prev) => (prev === item.date ? null : item.date));
-                                    }
-                                  }}
-                                  onMouseEnter={() => setHoveredDate(item.date)}
-                                  onMouseLeave={() => setHoveredDate(null)}
-                                  style={{ cursor: "pointer" }}
-                                >
-                                  <title>{`Klik untuk melihat rincian trajectory tanggal ${item.date}`}</title>
-                                  {/* Column guideline */}
-                                  {isSelected && (
-                                    <line
-                                      x1={x}
-                                      y1={topY}
-                                      x2={x}
-                                      y2={baselineY}
-                                      stroke="rgba(56, 189, 248, 0.7)"
-                                      strokeWidth="2"
-                                      strokeDasharray="4 3"
-                                    />
-                                  )}
-                                  {!isSelected && isHovered && (
-                                    <line
-                                      x1={x}
-                                      y1={topY}
-                                      x2={x}
-                                      y2={baselineY}
-                                      stroke="rgba(56, 189, 248, 0.3)"
-                                      strokeWidth="1.5"
-                                      strokeDasharray="3 3"
-                                    />
-                                  )}
-
-                                  {/* Created Point */}
-                                  <circle
-                                    cx={x}
-                                    cy={yCreated}
-                                    r={isSelected ? "8" : isHovered ? "7" : "5"}
-                                    fill="#38bdf8"
-                                    stroke={isSelected ? "#ffffff" : "var(--panel-bg)"}
-                                    strokeWidth={isSelected ? "2.5" : "2"}
-                                  />
-                                  <text x={x} y={yCreated - 10} textAnchor="middle" fill="#38bdf8" fontSize="10.5" fontWeight="800" fontFamily="var(--font-mono)">
-                                    {item.created}
-                                  </text>
-
-                                  {/* Resolved Point */}
-                                  <circle
-                                    cx={x}
-                                    cy={yResolved}
-                                    r={isSelected ? "8" : isHovered ? "7" : "5"}
-                                    fill="#10b981"
-                                    stroke={isSelected ? "#ffffff" : "var(--panel-bg)"}
-                                    strokeWidth={isSelected ? "2.5" : "2"}
-                                  />
-                                  <text x={x} y={yResolved - 10} textAnchor="middle" fill="#10b981" fontSize="10.5" fontWeight="800" fontFamily="var(--font-mono)">
-                                    {item.closed}
-                                  </text>
-
-                                  {/* Date label */}
-                                  <text
-                                    x={x}
-                                    y={baselineY + 22}
-                                    textAnchor="middle"
-                                    fill={isSelected ? "var(--accent-blue)" : isHovered ? "var(--accent-blue)" : "var(--ink-primary)"}
-                                    fontSize="10.5"
-                                    fontWeight={isSelected ? "800" : isHovered ? "700" : "600"}
-                                    fontFamily="var(--font-mono)"
-                                  >
-                                    {item.date.slice(5)}
-                                  </text>
-
-                                  {/* Selected indicator dot */}
-                                  {isSelected && (
-                                    <circle
-                                      cx={x}
-                                      cy={baselineY + 33}
-                                      r={2.5}
-                                      fill="var(--accent-blue)"
-                                    />
-                                  )}
-                                </g>
-                              );
-                            })}
-                          </svg>
-                        </div>
-                      );
-                    })()}
-
-                    <div className="chart-legend-center">
-                      <span className="legend-item"><i className="legend-dot" style={{ background: "#38bdf8", width: "12px", height: "4px", borderRadius: "2px" }} /> Tiket Masuk (Incoming)</span>
-                      <span className="legend-item"><i className="legend-dot" style={{ background: "#10b981", width: "12px", height: "4px", borderRadius: "2px" }} /> Tiket Selesai (Resolved)</span>
-                    </div>
-
-                    {/* Interactive Trajectory Popover Card (muncul saat titik grafik ditekan/diklik) */}
-                    {selectedDate ? (
-                      (() => {
-                        const selectedItem = volumeByDate.find((v) => v.date === selectedDate);
-                        if (!selectedItem) return null;
-                        return (
-                          <div className="chart-hover-popover anim-fade">
-                            <div className="popover-header">
-                              <div className="popover-title-left">
-                                <Calendar size={13} /> Tanggal: <strong>{selectedDate}</strong>
-                              </div>
-                              <button
-                                type="button"
-                                className="chart-popover-close-btn"
-                                onClick={() => setSelectedDate(null)}
-                                title="Tutup detail tanggal"
-                                aria-label="Tutup detail tanggal"
+                          return (
+                            <div className="svg-barchart-wrap">
+                              <svg
+                                className="report-bar-svg-lg"
+                                viewBox={`0 0 ${svgViewBoxWidth} ${viewBoxHeight}`}
+                                preserveAspectRatio="xMidYMax meet"
                               >
-                                <X size={13} />
-                              </button>
+                                <defs>
+                                  <linearGradient id="gradMomCurr" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.38" />
+                                    <stop offset="100%" stopColor="#38bdf8" stopOpacity="0.02" />
+                                  </linearGradient>
+                                  <linearGradient id="gradMomPrev" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stopColor="#a855f7" stopOpacity="0.30" />
+                                    <stop offset="100%" stopColor="#a855f7" stopOpacity="0.02" />
+                                  </linearGradient>
+                                </defs>
+
+                                {/* Y-Axis Gridlines & Ticks */}
+                                {yTicks.ticks.map((tick) => {
+                                  const yPos = baselineY - Math.round((tick / yTicks.yMax) * chartHeight);
+                                  return (
+                                    <g key={`grid-mom-${tick}`}>
+                                      <line
+                                        x1="45"
+                                        y1={yPos}
+                                        x2={svgViewBoxWidth - 15}
+                                        y2={yPos}
+                                        stroke="rgba(255, 255, 255, 0.08)"
+                                        strokeWidth="1"
+                                        strokeDasharray={tick === 0 ? undefined : "4 4"}
+                                      />
+                                      <text
+                                        x="38"
+                                        y={yPos + 4}
+                                        textAnchor="end"
+                                        fill="var(--ink-muted)"
+                                        fontSize="10"
+                                        fontWeight="600"
+                                        fontFamily="var(--font-mono)"
+                                      >
+                                        {tick}
+                                      </text>
+                                    </g>
+                                  );
+                                })}
+
+                                {/* Solid Baseline */}
+                                <line
+                                  x1="45"
+                                  y1={baselineY}
+                                  x2={svgViewBoxWidth - 15}
+                                  y2={baselineY}
+                                  stroke="var(--line)"
+                                  strokeWidth="1.5"
+                                />
+
+                                {/* Area Fills */}
+                                <path d={areaPrev} fill="url(#gradMomPrev)" />
+                                <path d={areaCurr} fill="url(#gradMomCurr)" />
+
+                                {/* Trend Lines */}
+                                <path
+                                  d={`M ${polyPrev}`}
+                                  fill="none"
+                                  stroke="#a855f7"
+                                  strokeWidth="2.5"
+                                  strokeDasharray="4 3"
+                                />
+                                <path
+                                  d={`M ${polyCurr}`}
+                                  fill="none"
+                                  stroke="#38bdf8"
+                                  strokeWidth="3"
+                                />
+
+                                {/* Interactive Markers & X Labels */}
+                                {points.map((item, idx) => {
+                                  const x = n > 1 ? Math.round(startX + idx * stepX) : Math.round(svgViewBoxWidth / 2);
+                                  const yCurr = baselineY - Math.round((item.currCount / yTicks.yMax) * chartHeight);
+                                  const yPrev = baselineY - Math.round((item.prevCount / yTicks.yMax) * chartHeight);
+                                  const isSelected = selectedMomItem?.id === `traj-${item.index}`;
+
+                                  return (
+                                    <g
+                                      key={`traj-pt-${item.index}`}
+                                      role="button"
+                                      tabIndex={0}
+                                      style={{ cursor: "pointer" }}
+                                      onClick={() => {
+                                        setSelectedMomItem((prev) =>
+                                          prev?.id === `traj-${item.index}`
+                                            ? null
+                                            : {
+                                                type: "timeline",
+                                                id: `traj-${item.index}`,
+                                                label: item.label,
+                                                currCount: item.currCount,
+                                                prevCount: item.prevCount,
+                                                currResolved: item.currResolved,
+                                                prevResolved: item.prevResolved,
+                                                currDate: item.currDate,
+                                                prevDate: item.prevDate,
+                                                delta: item.currCount - item.prevCount,
+                                              }
+                                        );
+                                      }}
+                                    >
+                                      {/* Vertical guideline on select */}
+                                      {isSelected && (
+                                        <line
+                                          x1={x}
+                                          y1={topY}
+                                          x2={x}
+                                          y2={baselineY}
+                                          stroke="rgba(56, 189, 248, 0.4)"
+                                          strokeWidth="1.5"
+                                          strokeDasharray="3 3"
+                                        />
+                                      )}
+
+                                      {/* Prev Month Marker (Purple) */}
+                                      <circle
+                                        cx={x}
+                                        cy={yPrev}
+                                        r={isSelected ? 6 : 4}
+                                        fill="#0f172a"
+                                        stroke="#a855f7"
+                                        strokeWidth={isSelected ? 3 : 2}
+                                      />
+
+                                      {/* Curr Month Marker (Sky Blue) */}
+                                      <circle
+                                        cx={x}
+                                        cy={yCurr}
+                                        r={isSelected ? 7 : 5}
+                                        fill="#38bdf8"
+                                        stroke="#ffffff"
+                                        strokeWidth={2}
+                                      />
+
+                                      {/* X-Axis Tick Label */}
+                                      <text
+                                        x={x}
+                                        y={baselineY + 16}
+                                        textAnchor="middle"
+                                        fill={isSelected ? "#38bdf8" : "var(--ink-primary)"}
+                                        fontSize="10"
+                                        fontWeight={isSelected ? "700" : "500"}
+                                      >
+                                        {item.label}
+                                      </text>
+                                      <text
+                                        x={x}
+                                        y={baselineY + 28}
+                                        textAnchor="middle"
+                                        fill="var(--ink-muted)"
+                                        fontSize="8.5"
+                                        fontFamily="var(--font-mono)"
+                                      >
+                                        {item.currFormatted !== "-" ? item.currFormatted : item.prevFormatted}
+                                      </text>
+                                    </g>
+                                  );
+                                })}
+                              </svg>
                             </div>
-                            <div className="popover-project-list">
-                              <span className="popover-item">
-                                <i className="legend-dot" style={{ background: "#38bdf8" }} />
-                                <strong>Masuk (Created):</strong> {selectedItem.created}
-                              </span>
-                              <span className="popover-item">
-                                <i className="legend-dot" style={{ background: "#10b981" }} />
-                                <strong>Selesai (Resolved):</strong> {selectedItem.closed}
-                              </span>
-                              <span className="popover-item">
-                                <i className="legend-dot" style={{ background: "#f59e0b" }} />
-                                <strong>Net Antrean (Backlog):</strong> {selectedItem.backlog}
-                              </span>
-                            </div>
-                          </div>
-                        );
-                      })()
+                          );
+                        })()}
+
+                        <div className="chart-legend-center">
+                          <span className="legend-item">
+                            <i className="legend-dot" style={{ background: "#38bdf8", width: "14px", height: "4px", borderRadius: "2px" }} />
+                            {momData.currMonthLabel} (Bulan Ini: {momData.currTotal} tiket)
+                          </span>
+                          <span className="legend-item">
+                            <i className="legend-dot" style={{ background: "#a855f7", width: "14px", height: "4px", borderRadius: "2px" }} />
+                            {momData.prevMonthLabel} (Bulan Lalu: {momData.prevTotal} tiket)
+                          </span>
+                        </div>
+                      </>
                     ) : (
-                      <div className="chart-select-hint">
-                        <span>💡 Klik salah satu titik grafik untuk menampilkan rincian laju tiket pada tanggal tersebut.</span>
-                      </div>
+                      <div className="chart-empty-hint">Tidak ada data trajectory perbandingan.</div>
                     )}
-                  </>
-                ) : (
-                  <div className="chart-empty-hint">Tidak ada data trajectory pada rentang ini.</div>
+                  </div>
                 )}
+
+                {/* 3B. Subview: Komparasi per Sistem (Grouped Bar Chart) */}
+                {momSubView === "project" && (
+                  <div className="trajectory-chart-container">
+                    {momData.projectComparison.length > 0 ? (
+                      <>
+                        {(() => {
+                          const projects = momData.projectComparison;
+                          const numProj = projects.length;
+                          const svgWidth = Math.max(760, numProj * 88 + 80);
+                          const startX = 65;
+                          const endX = svgWidth - 40;
+                          const span = endX - startX;
+                          const groupWidth = span / numProj;
+                          const barWidth = 16;
+                          const barGap = 4;
+
+                          const viewBoxHeight = 270;
+                          const baselineY = 225;
+                          const topY = 25;
+                          const chartHeight = baselineY - topY;
+
+                          const maxCount = Math.max(
+                            ...projects.map((p) => Math.max(p.currCount, p.prevCount)),
+                            4
+                          );
+                          const yTicks = computeYTicks(maxCount);
+
+                          return (
+                            <div className="svg-barchart-wrap">
+                              <svg
+                                className="report-bar-svg-lg"
+                                viewBox={`0 0 ${svgWidth} ${viewBoxHeight}`}
+                                preserveAspectRatio="xMidYMax meet"
+                              >
+                                {/* Y-Axis Gridlines & Ticks */}
+                                {yTicks.ticks.map((tick) => {
+                                  const yPos = baselineY - Math.round((tick / yTicks.yMax) * chartHeight);
+                                  return (
+                                    <g key={`grid-proj-${tick}`}>
+                                      <line
+                                        x1="45"
+                                        y1={yPos}
+                                        x2={svgWidth - 15}
+                                        y2={yPos}
+                                        stroke="rgba(255, 255, 255, 0.08)"
+                                        strokeWidth="1"
+                                        strokeDasharray={tick === 0 ? undefined : "4 4"}
+                                      />
+                                      <text
+                                        x="38"
+                                        y={yPos + 4}
+                                        textAnchor="end"
+                                        fill="var(--ink-muted)"
+                                        fontSize="10"
+                                        fontWeight="600"
+                                        fontFamily="var(--font-mono)"
+                                      >
+                                        {tick}
+                                      </text>
+                                    </g>
+                                  );
+                                })}
+
+                                {/* Solid Baseline */}
+                                <line
+                                  x1="45"
+                                  y1={baselineY}
+                                  x2={svgWidth - 15}
+                                  y2={baselineY}
+                                  stroke="var(--line)"
+                                  strokeWidth="1.5"
+                                />
+
+                                {/* Project Group Bars */}
+                                {projects.map((item, idx) => {
+                                  const groupCenter = startX + idx * groupWidth + groupWidth / 2;
+                                  const xPrev = groupCenter - barWidth - barGap / 2;
+                                  const xCurr = groupCenter + barGap / 2;
+
+                                  const hPrev = Math.round((item.prevCount / yTicks.yMax) * chartHeight);
+                                  const yPrev = baselineY - hPrev;
+
+                                  const hCurr = Math.round((item.currCount / yTicks.yMax) * chartHeight);
+                                  const yCurr = baselineY - hCurr;
+
+                                  const isSelected = selectedMomItem?.id === `proj-${item.project}`;
+                                  const deltaLabel = item.delta > 0 ? `+${item.delta}` : `${item.delta}`;
+
+                                  return (
+                                    <g
+                                      key={`mom-proj-${item.project}`}
+                                      role="button"
+                                      tabIndex={0}
+                                      style={{ cursor: "pointer" }}
+                                      onClick={() => {
+                                        setSelectedMomItem((prev) =>
+                                          prev?.id === `proj-${item.project}`
+                                            ? null
+                                            : {
+                                                type: "project",
+                                                id: `proj-${item.project}`,
+                                                label: item.project,
+                                                currCount: item.currCount,
+                                                prevCount: item.prevCount,
+                                                currResolved: item.currResolved,
+                                                prevResolved: item.prevResolved,
+                                                delta: item.delta,
+                                                deltaPct: item.deltaPct,
+                                              }
+                                        );
+                                      }}
+                                    >
+                                      {/* Background column highlight on select */}
+                                      {isSelected && (
+                                        <rect
+                                          x={groupCenter - groupWidth / 2 + 4}
+                                          y={topY}
+                                          width={groupWidth - 8}
+                                          height={chartHeight + 5}
+                                          fill="rgba(56, 189, 248, 0.08)"
+                                          rx="6"
+                                        />
+                                      )}
+
+                                      {/* Delta Badge above the bars */}
+                                      <g transform={`translate(${groupCenter}, ${Math.min(yPrev, yCurr) - 10})`}>
+                                        <rect
+                                          x="-14"
+                                          y="-10"
+                                          width="28"
+                                          height="13"
+                                          rx="3"
+                                          fill={
+                                            item.delta > 0
+                                              ? "rgba(248, 113, 113, 0.2)"
+                                              : item.delta < 0
+                                              ? "rgba(52, 211, 153, 0.2)"
+                                              : "rgba(255, 255, 255, 0.08)"
+                                          }
+                                        />
+                                        <text
+                                          x="0"
+                                          y="-1"
+                                          textAnchor="middle"
+                                          fontSize="8.5"
+                                          fontWeight="700"
+                                          fontFamily="var(--font-mono)"
+                                          fill={
+                                            item.delta > 0
+                                              ? "#f87171"
+                                              : item.delta < 0
+                                              ? "#34d399"
+                                              : "var(--ink-muted)"
+                                          }
+                                        >
+                                          {deltaLabel}
+                                        </text>
+                                      </g>
+
+                                      {/* Left Bar: Bulan Lalu (Purple) */}
+                                      <rect
+                                        x={xPrev}
+                                        y={yPrev}
+                                        width={barWidth}
+                                        height={Math.max(2, hPrev)}
+                                        fill="#a855f7"
+                                        opacity={0.88}
+                                        rx="3"
+                                      />
+                                      {item.prevCount > 0 && (
+                                        <text
+                                          x={xPrev + barWidth / 2}
+                                          y={yPrev - 3}
+                                          textAnchor="middle"
+                                          fill="#c084fc"
+                                          fontSize="9"
+                                          fontWeight="700"
+                                          fontFamily="var(--font-mono)"
+                                        >
+                                          {item.prevCount}
+                                        </text>
+                                      )}
+
+                                      {/* Right Bar: Bulan Ini (Sky Blue) */}
+                                      <rect
+                                        x={xCurr}
+                                        y={yCurr}
+                                        width={barWidth}
+                                        height={Math.max(2, hCurr)}
+                                        fill="#38bdf8"
+                                        rx="3"
+                                      />
+                                      {item.currCount > 0 && (
+                                        <text
+                                          x={xCurr + barWidth / 2}
+                                          y={yCurr - 3}
+                                          textAnchor="middle"
+                                          fill="#38bdf8"
+                                          fontSize="9"
+                                          fontWeight="700"
+                                          fontFamily="var(--font-mono)"
+                                        >
+                                          {item.currCount}
+                                        </text>
+                                      )}
+
+                                      {/* Bottom Project Label & Dot */}
+                                      <circle
+                                        cx={groupCenter - 18}
+                                        cy={baselineY + 16}
+                                        r="3.5"
+                                        fill={item.color}
+                                      />
+                                      <text
+                                        x={groupCenter - 10}
+                                        y={baselineY + 19}
+                                        textAnchor="start"
+                                        fill={isSelected ? "#38bdf8" : "var(--ink-primary)"}
+                                        fontSize="10"
+                                        fontWeight={isSelected ? "700" : "600"}
+                                      >
+                                        {item.project}
+                                      </text>
+                                    </g>
+                                  );
+                                })}
+                              </svg>
+                            </div>
+                          );
+                        })()}
+
+                        <div className="chart-legend-center">
+                          <span className="legend-item">
+                            <i className="legend-dot" style={{ background: "#38bdf8" }} />
+                            {momData.currMonthLabel} (Bulan Ini)
+                          </span>
+                          <span className="legend-item">
+                            <i className="legend-dot" style={{ background: "#a855f7" }} />
+                            {momData.prevMonthLabel} (Bulan Lalu)
+                          </span>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="chart-empty-hint">Tidak ada data sistem perbandingan.</div>
+                    )}
+                  </div>
+                )}
+
+                {/* 4. Interactive Detail Popover Card */}
+                {selectedMomItem ? (
+                  <div className="chart-hover-popover anim-fade" style={{ marginTop: "12px" }}>
+                    <div className="popover-header">
+                      <div className="popover-title-left">
+                        {selectedMomItem.type === "project" ? (
+                          <>
+                            <Layers size={13} className="text-sky-400" /> Komparasi Sistem:{" "}
+                            <strong>{selectedMomItem.label}</strong>
+                          </>
+                        ) : (
+                          <>
+                            <Calendar size={13} className="text-sky-400" /> Timeline:{" "}
+                            <strong>{selectedMomItem.label}</strong>
+                            <span style={{ fontSize: "11px", color: "var(--ink-muted)", marginLeft: "6px" }}>
+                              ({selectedMomItem.currDate || "-"} vs {selectedMomItem.prevDate || "-"})
+                            </span>
+                          </>
+                        )}
+                      </div>
+                      <button
+                        type="button"
+                        className="chart-popover-close-btn"
+                        onClick={() => setSelectedMomItem(null)}
+                        title="Tutup detail komparasi"
+                        aria-label="Tutup detail komparasi"
+                      >
+                        <X size={13} />
+                      </button>
+                    </div>
+                    <div className="popover-project-list">
+                      <span className="popover-item">
+                        <i className="legend-dot" style={{ background: "#38bdf8" }} />
+                        <strong>{momData.currMonthLabel} (Bulan Ini):</strong> {selectedMomItem.currCount} tiket
+                        {typeof selectedMomItem.currResolved === "number" && ` (${selectedMomItem.currResolved} diselesaikan)`}
+                      </span>
+                      <span className="popover-item">
+                        <i className="legend-dot" style={{ background: "#c084fc" }} />
+                        <strong>{momData.prevMonthLabel} (Bulan Lalu):</strong> {selectedMomItem.prevCount} tiket
+                        {typeof selectedMomItem.prevResolved === "number" && ` (${selectedMomItem.prevResolved} diselesaikan)`}
+                      </span>
+                      <span className="popover-item">
+                        <i
+                          className="legend-dot"
+                          style={{
+                            background:
+                              selectedMomItem.delta > 0
+                                ? "#f87171"
+                                : selectedMomItem.delta < 0
+                                ? "#34d399"
+                                : "#94a3b8",
+                          }}
+                        />
+                        <strong>Selisih (MoM):</strong>{" "}
+                        <span
+                          style={{
+                            color:
+                              selectedMomItem.delta > 0
+                                ? "#f87171"
+                                : selectedMomItem.delta < 0
+                                ? "#34d399"
+                                : "inherit",
+                            fontWeight: 700,
+                          }}
+                        >
+                          {selectedMomItem.delta > 0 ? `+${selectedMomItem.delta}` : selectedMomItem.delta} tiket
+                          {selectedMomItem.deltaPct !== undefined && ` (${selectedMomItem.deltaPct}%)`}
+                        </span>
+                      </span>
+                    </div>
+                  </div>
+                ) : null}
               </div>
             )}
           </div>
         </article>
 
         {/* Right: Rekap Tiket per User (Task 3) */}
-        <article className="panel report-panel user-summary-panel">
-          <div className="panel-heading report-panel-heading">
-            <div className="chart-heading-left">
-              <div className="panel-title" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <Users size={14} className="text-sky-400" />
-                Rekap Tiket per User
-              </div>
-              <p className="chart-definition-sub">Ringkasan penanganan tiket per staf (Hari Ini, Bulan Ini, Tahun Ini).</p>
-            </div>
-            <span className="panel-sub-count">{userSummaries.length} Staf</span>
-          </div>
-          <div className="report-panel-body user-summary-body">
-            <div className="user-summary-list">
-              {userSummaries.map((user) => (
-                <button
-                  type="button"
-                  key={user.name}
-                  className="user-summary-card"
-                  onClick={() => setSelectedUserDetail(user)}
-                  title={`Klik untuk melihat rincian sistem dan histori tiket ${user.name}`}
-                >
-                  <div className="user-summary-card-top">
-                    <div className="user-profile-left">
-                      <Avatar size="sm" initials={user.initials} name={user.name} className="user-avatar-sm" />
-                      <div className="user-name-role">
-                        <span className="user-summary-name">{user.name}</span>
-                        <span className="user-summary-role">{user.role}</span>
-                      </div>
-                    </div>
-                    <span className="user-detail-link">
-                      Detail <ChevronRight size={11} />
-                    </span>
-                  </div>
-
-                  {/* 3 Metric Pills */}
-                  <div className="user-metrics-row">
-                    <div className="user-metric-col metric-today">
-                      <span className="metric-lbl">HARI INI</span>
-                      <strong className="metric-val">{user.todayCount}</strong>
-                    </div>
-                    <div className="user-metric-col metric-month">
-                      <span className="metric-lbl">BULAN INI</span>
-                      <strong className="metric-val">{user.monthCount}</strong>
-                    </div>
-                    <div className="user-metric-col metric-year">
-                      <span className="metric-lbl">TAHUN INI</span>
-                      <strong className="metric-val">{user.yearCount}</strong>
-                    </div>
-                  </div>
-
-                  {/* Today's project tags */}
-                  <div className="user-today-projects">
-                    <span className="user-proj-label">Hari Ini:</span>
-                    {Object.keys(user.todayBreakdown).length > 0 ? (
-                      <div className="user-proj-pills-wrap">
-                        {Object.entries(user.todayBreakdown).map(([proj, count]) => {
-                          const pColor = PROJECT_COLORS[proj] || "#94a3b8";
-                          return (
-                            <span className="user-proj-badge" key={proj}>
-                              <i className="legend-dot" style={{ background: pColor }} />
-                              {proj} &times;{count}
-                            </span>
-                          );
-                        })}
-                      </div>
-                    ) : (
-                      <span className="user-proj-none">Tidak ada tiket baru hari ini</span>
-                    )}
-                  </div>
-                </button>
-              ))}
-            </div>
-
-            <div className="user-summary-footer-note">
-              <Info size={11} className="text-sky-400 flex-shrink-0 mt-0.5" />
-              <span>Rekap tiket per user untuk transparansi kerja tim — bukan indikator peringkat kinerja individu.</span>
-            </div>
-          </div>
-        </article>
-      </div>
-
-      {/* ── 4. OPERATIONAL FOCUS PANEL — Real-time Actionable View for NOC/Ops ── */}
-      <div className="ops-focus-section">
-        <div className="ops-focus-header">
-          <div className="ops-focus-header-left">
-            <span className="ops-live-badge"><span className="live-dot live-dot-pulse" /> LIVE OPS VIEW</span>
-            <div>
-              <div className="ops-section-title">Operational Focus — Pantauan Real-Time &amp; Koordinasi Shift</div>
-              <p className="ops-section-sub">Pantauan tiket hari ini dan distribusi kepemilikan tiket aktif untuk koordinasi tim.</p>
-            </div>
-          </div>
-          <span className={`ops-shift-badge ops-shift-${shiftWorkload.currentShift.toLowerCase()}`}>
-            Shift Aktif: <strong>Shift {shiftWorkload.currentShift}</strong>
-          </span>
-        </div>
-
-        <div className="ops-focus-grid">
-          {/* Widget A — Today's Tickets Monitor (Tiket Hari Ini) */}
-          <article className="panel report-panel ops-today-panel">
+        <div className="user-summary-wrapper">
+          <article className="panel report-panel user-summary-panel">
             <div className="panel-heading report-panel-heading">
               <div className="chart-heading-left">
                 <div className="panel-title" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                  <ListChecks size={15} className="text-sky-400" />
-                  Tiket Hari Ini
+                  <Users size={14} className="text-sky-400" />
+                  Rekap Tiket per User
                 </div>
-                <p className="chart-definition-sub">Pantauan tiket yang dibuat dan berjalan hari ini.</p>
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                {selectedEngineerFilter && (
+              <span className="panel-sub-count">{userSummaries.length} Staf</span>
+            </div>
+            <div className="report-panel-body user-summary-body">
+              <div className="user-summary-list">
+                {userSummaries.map((user) => (
                   <button
                     type="button"
-                    className="ops-filter-reset-btn"
-                    onClick={() => {
-                      setSelectedEngineerFilter(null);
-                      setTodayPage(1);
-                    }}
-                    title="Hapus filter engineer"
+                    key={user.name}
+                    className="user-summary-card"
+                    onClick={() => setSelectedUserDetail(user)}
+                    title={`Klik untuk melihat rincian sistem dan histori tiket ${user.name}`}
                   >
-                    <X size={11} /> Reset Filter ({selectedEngineerFilter})
-                  </button>
-                )}
-                <span className="ops-count-badge">{displayedTodayTickets.length} tiket</span>
-              </div>
-            </div>
-            <div className="report-panel-body" style={{ padding: "12px 16px" }}>
-              {paginatedTodayTickets.length > 0 ? (
-                <>
-                  <div className={`today-ticket-list ${todayPageSize > 10 || todayPageSize === 0 ? "has-scroll" : ""}`}>
-                    {paginatedTodayTickets.map((ticket) => {
-                      const projColor = PROJECT_COLORS[ticket.project] || "#94a3b8";
-                      const sev = ticket.severity.toLowerCase();
-                      const priorityClass =
-                        sev === "critical" || sev === "kritis"
-                          ? "priority-pill-crit"
-                          : sev === "high" || sev === "tinggi"
-                          ? "priority-pill-high"
-                          : sev === "medium" || sev === "sedang"
-                          ? "priority-pill-med"
-                          : "priority-pill-low";
-
-                      const st = ticket.status.toLowerCase();
-                      const statusClass =
-                        st === "active" || st === "open" || st === "aktivitas"
-                          ? "status-pill-active"
-                          : st === "in progress" || st === "in-progress"
-                          ? "status-pill-inprogress"
-                          : st === "pending"
-                          ? "status-pill-pending"
-                          : st === "escalated"
-                          ? "status-pill-escalated"
-                          : "status-pill-closed";
-
-                      const statusLabel =
-                        st === "active" || st === "aktivitas"
-                          ? "Active"
-                          : st === "open"
-                          ? "Open"
-                          : st === "in progress" || st === "in-progress"
-                          ? "In Progress"
-                          : st === "pending"
-                          ? "Pending"
-                          : st === "escalated"
-                          ? "Escalated"
-                          : "Closed";
-
-                      return (
-                        <div className="today-ticket-row" key={ticket.id}>
-                          <div className="today-ticket-id-col">
-                            <span className="today-ticket-id">#{ticket.id}</span>
-                            <span className="today-ticket-proj" style={{ color: projColor }}>
-                              ● {ticket.project}
-                            </span>
-                          </div>
-                          <div className="today-ticket-subject">
-                            <span className="today-ticket-title" title={ticket.subject}>{ticket.subject}</span>
-                            <div className="today-ticket-meta">
-                              <span className="today-ticket-type">{ticket.type || ticket.category || "Incident"}</span>
-                              {ticket.owner && (
-                                <span className="today-ticket-owner">
-                                  <User size={10} /> {ticket.owner}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                          <div className="today-ticket-badges">
-                            <span className={`priority-pill ${priorityClass}`}>{ticket.severity}</span>
-                            <span className={`status-pill ${statusClass}`}>{statusLabel}</span>
-                          </div>
+                    <div className="user-summary-card-top">
+                      <div className="user-profile-left">
+                        <Avatar size="sm" initials={user.initials} name={user.name} className="user-avatar-sm" />
+                        <div className="user-name-role">
+                          <span className="user-summary-name">{user.name}</span>
+                          <span className="user-summary-role">{user.role}</span>
                         </div>
-                      );
-                    })}
-                  </div>
-
-                  {/* Pagination & Page Size Controls */}
-                  <div className="today-pagination">
-                    <div className="today-pagination-left">
-                      <span className="today-page-info">
-                        Halaman <strong>{currentTodayPage}</strong> dari <strong>{totalTodayPages}</strong>
-                        <span className="today-total-info"> ({displayedTodayTickets.length} tiket)</span>
+                      </div>
+                      <span className="user-detail-link">
+                        Detail <ChevronRight size={11} />
                       </span>
+                    </div>
 
-                      <div className="today-page-size-selector">
-                        <span className="page-size-label">Tampilkan:</span>
-                        {[10, 15, 25].map((size) => (
-                          <button
-                            key={size}
-                            type="button"
-                            className={`page-size-btn ${todayPageSize === size ? "active" : ""}`}
-                            onClick={() => {
-                              setTodayPageSize(size);
-                              setTodayPage(1);
-                            }}
-                            title={`Tampilkan ${size} tiket per halaman`}
-                          >
-                            {size}
-                          </button>
-                        ))}
-                        <button
-                          type="button"
-                          className={`page-size-btn ${todayPageSize === 0 ? "active" : ""}`}
-                          onClick={() => {
-                            setTodayPageSize(0);
-                            setTodayPage(1);
-                          }}
-                          title="Tampilkan semua tiket hari ini"
-                        >
-                          Semua
-                        </button>
+                    {/* 3 Metric Pills */}
+                    <div className="user-metrics-row">
+                      <div className="user-metric-col metric-today">
+                        <span className="metric-lbl">HARI INI</span>
+                        <strong className="metric-val">{user.todayCount}</strong>
+                      </div>
+                      <div className="user-metric-col metric-month">
+                        <span className="metric-lbl">BULAN INI</span>
+                        <strong className="metric-val">{user.monthCount}</strong>
+                      </div>
+                      <div className="user-metric-col metric-year">
+                        <span className="metric-lbl">TAHUN INI</span>
+                        <strong className="metric-val">{user.yearCount}</strong>
                       </div>
                     </div>
 
-                    {totalTodayPages > 1 && (
-                      <div className="today-pagination-actions">
-                        <button
-                          type="button"
-                          className="today-page-btn today-page-nav"
-                          onClick={() => setTodayPage((p) => Math.max(1, p - 1))}
-                          disabled={currentTodayPage <= 1}
-                          title="Halaman Sebelumnya"
-                        >
-                          <ChevronLeft size={13} />
-                          <span>Prev</span>
-                        </button>
-
-                        <div className="today-page-numbers">
-                          {Array.from({ length: totalTodayPages }, (_, i) => i + 1).map((pageNum) => (
-                            <button
-                              key={pageNum}
-                              type="button"
-                              className={`today-page-btn today-page-num ${pageNum === currentTodayPage ? "active" : ""}`}
-                              onClick={() => setTodayPage(pageNum)}
-                            >
-                              {pageNum}
-                            </button>
-                          ))}
+                    {/* Today's project tags */}
+                    <div className="user-today-projects">
+                      <span className="user-proj-label">Hari Ini:</span>
+                      {Object.keys(user.todayBreakdown).length > 0 ? (
+                        <div className="user-proj-pills-wrap">
+                          {Object.entries(user.todayBreakdown).map(([proj, count]) => {
+                            const pColor = PROJECT_COLORS[proj] || "#94a3b8";
+                            return (
+                              <span className="user-proj-badge" key={proj}>
+                                <i className="legend-dot" style={{ background: pColor }} />
+                                {proj} &times;{count}
+                              </span>
+                            );
+                          })}
                         </div>
-
-                        <button
-                          type="button"
-                          className="today-page-btn today-page-nav"
-                          onClick={() => setTodayPage((p) => Math.min(totalTodayPages, p + 1))}
-                          disabled={currentTodayPage >= totalTodayPages}
-                          title="Halaman Berikutnya"
-                        >
-                          <span>Next</span>
-                          <ChevronRight size={13} />
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </>
-              ) : (
-                <div className="chart-empty-hint ops-empty-hint">
-                  <CheckCircle2 size={20} className="text-emerald-400" />
-                  <span>
-                    {selectedEngineerFilter
-                      ? `Tidak ada tiket aktif yang ditugaskan ke ${selectedEngineerFilter}.`
-                      : "Tidak ada tiket yang terdaftar untuk hari ini."}
-                  </span>
-                </div>
-              )}
+                      ) : (
+                        <span className="user-proj-none">Tidak ada tiket baru hari ini</span>
+                      )}
+                    </div>
+                  </button>
+                ))}
+              </div>
             </div>
           </article>
-
-          {/* Right Column: Shift Workload Snapshot & Tickets per NOC Engineer */}
-          <div className="ops-right-column">
-            {/* Widget B — Active Shift Workload Snapshot */}
-            <article className="panel report-panel ops-shift-panel">
-              <div className="panel-heading report-panel-heading">
-                <div className="chart-heading-left">
-                  <div className="panel-title" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    <Users size={14} className="text-sky-400" />
-                    Kondisi Shift Aktif
-                  </div>
-                  <p className="chart-definition-sub">Distribusi beban kerja tim — bukan individual.</p>
-                </div>
-              </div>
-              <div className="report-panel-body">
-                <div className="shift-snapshot-grid">
-                  <div className="shift-snap-card snap-inprogress">
-                    <span className="snap-num">{shiftWorkload.shiftTickets}</span>
-                    <span className="snap-label">Tiket Shift Ini</span>
-                  </div>
-                  <div className="shift-snap-card snap-pending">
-                    <span className="snap-num">{shiftWorkload.unclaimed}</span>
-                    <span className="snap-label">Belum Diklaim</span>
-                  </div>
-                  <div className="shift-snap-card snap-active">
-                    <span className="snap-num">{shiftWorkload.inProgress}</span>
-                    <span className="snap-label">Sedang Dikerjakan</span>
-                  </div>
-                  <div className="shift-snap-card snap-waiting">
-                    <span className="snap-num">{shiftWorkload.pending}</span>
-                    <span className="snap-label">Pending / Menunggu</span>
-                  </div>
-                </div>
-                <div className="shift-snap-note">
-                  <Info size={11} className="text-sky-400 flex-shrink-0" />
-                  Data agregat shift — tidak mencerminkan kinerja individu.
-                </div>
-              </div>
-            </article>
-
-            {/* Widget C — Tickets per NOC Engineer (Beban Kerja per Engineer) */}
-            <article className="panel report-panel ops-engineer-panel">
-              <div className="panel-heading report-panel-heading">
-                <div className="chart-heading-left">
-                  <div className="panel-title" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    <UserCheck size={14} className="text-emerald-400" />
-                    Tiket per NOC Engineer
-                  </div>
-                  <p className="chart-definition-sub">Kepemilikan tiket aktif untuk koordinasi.</p>
-                </div>
-                <span className="panel-sub-count">{engineerWorkloads.length} Staf</span>
-              </div>
-              <div className="report-panel-body" style={{ padding: "12px 14px" }}>
-                <div className="engineer-workload-list">
-                  {engineerWorkloads.map((eng) => {
-                    const isSelected = selectedEngineerFilter === eng.name;
-                    return (
-                      <button
-                        type="button"
-                        key={eng.name}
-                        className={`engineer-workload-card ${isSelected ? "engineer-card-active" : ""}`}
-                        onClick={() => {
-                          setSelectedEngineerFilter(isSelected ? null : eng.name);
-                          setTodayPage(1);
-                        }}
-                        title={`Klik untuk memfilter tiket milik ${eng.name}`}
-                      >
-                        <div className="engineer-card-left">
-                          <Avatar size="sm" initials={eng.initials} name={eng.name} className="engineer-avatar" />
-                          <div className="engineer-info">
-                            <div className="engineer-name">{eng.name}</div>
-                            <div className="engineer-proj-breakdown">
-                              {Object.entries(eng.projectBreakdown).map(([proj, count]) => {
-                                const pColor = PROJECT_COLORS[proj] || "#94a3b8";
-                                return (
-                                  <span className="engineer-proj-pill" key={proj}>
-                                    <i className="legend-dot" style={{ background: pColor }} />
-                                    {proj} &times;{count}
-                                  </span>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        </div>
-                        <div className="engineer-ticket-count-badge">
-                          {eng.totalTickets}
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-
-                <div className="engineer-safeguard-note">
-                  <Info size={11} className="text-sky-400 flex-shrink-0 mt-0.5" />
-                  <span>Data kepemilikan tiket untuk koordinasi tim — bukan indikator penilaian kinerja individu.</span>
-                </div>
-              </div>
-            </article>
-          </div>
         </div>
       </div>
+
 
       {/* ── 5. Distributions: Category Donut & Priority Donut ── */}
       <div className="report-charts-grid">
@@ -1747,10 +2311,10 @@ export function TicketReportView({ tickets, dateRangeLabel }: TicketReportViewPr
           </div>
         </article>
 
-        {/* Priority & Severity Distribution */}
+        {/* Severity Distribution */}
         <article className="panel report-panel">
           <div className="panel-heading report-panel-heading">
-            <div className="panel-title">Distribusi Berdasarkan Prioritas</div>
+            <div className="panel-title">Distribusi Berdasarkan Severity</div>
             <span className="panel-sub-count">Severity Ratios</span>
           </div>
           <div className="report-panel-body">
@@ -1820,318 +2384,27 @@ export function TicketReportView({ tickets, dateRangeLabel }: TicketReportViewPr
         </article>
       </div>
 
-      {/* ── 6. Operational Velocity & Aging Spectrum (Side-by-Side Paired Row) ── */}
-      <div className="report-charts-grid" style={{ alignItems: "stretch" }}>
-        {/* Left: Backlog Aging Spectrum */}
-        <article className="panel report-panel" style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-          <div className="panel-heading report-panel-heading">
-            <div>
-              <div className="panel-title">Spektrum Usia Antrean Tiket Aktif (Aging Spectrum)</div>
-              <p className="chart-definition-sub">Tiket aktif dikelompokkan berdasarkan rentang usia antrean.</p>
-            </div>
-            <span className="panel-sub-count">{activeTickets.length} Tiket Terbuka</span>
+      {/* ── 6. Operational Velocity Trajectory ── */}
+      <article className="panel report-panel mgmt-velocity-panel" style={{ display: "flex", flexDirection: "column", width: "100%" }}>
+        <div className="panel-heading report-panel-heading" style={{ flexWrap: "wrap", gap: "12px", alignItems: "center" }}>
+          <div>
+            <div className="panel-title">Tren Durasi Penyelesaian (Resolution Velocity)</div>
           </div>
-          <div className="report-panel-body" style={{ display: "flex", flexDirection: "column", flex: 1 }}>
-            {(() => {
-              const totalActive = activeTickets.length || 1;
-              const freshPct = Math.round((agingBrackets.fresh / totalActive) * 100);
-              const modPct = Math.round((agingBrackets.moderate / totalActive) * 100);
-              const elevPct = Math.round((agingBrackets.elevated / totalActive) * 100);
-              const critPct = Math.round((agingBrackets.critical / totalActive) * 100);
-
-              return (
-                <>
-                  {/* Proportional Health Distribution Bar */}
-                  <div className="aging-distribution-bar-wrap">
-                    <div className="aging-distribution-bar">
-                      {agingBrackets.fresh > 0 && (
-                        <div className="aging-bar-seg seg-fresh" style={{ width: `${freshPct}%` }} />
-                      )}
-                      {agingBrackets.moderate > 0 && (
-                        <div className="aging-bar-seg seg-mod" style={{ width: `${modPct}%` }} />
-                      )}
-                      {agingBrackets.elevated > 0 && (
-                        <div className="aging-bar-seg seg-elev" style={{ width: `${elevPct}%` }} />
-                      )}
-                      {agingBrackets.critical > 0 && (
-                        <div className="aging-bar-seg seg-crit" style={{ width: `${critPct}%` }} />
-                      )}
-                    </div>
-                    <div className="aging-bar-legend">
-                      <span className="aging-bar-legend-item text-emerald-400">
-                        <span className="dot dot-fresh" /> &lt; 6j: <strong>{agingBrackets.fresh}</strong> ({freshPct}%)
-                      </span>
-                      <span className="aging-bar-legend-item text-sky-400">
-                        <span className="dot dot-mod" /> 6–24j: <strong>{agingBrackets.moderate}</strong> ({modPct}%)
-                      </span>
-                      <span className="aging-bar-legend-item text-amber-400">
-                        <span className="dot dot-elev" /> 24–48j: <strong>{agingBrackets.elevated}</strong> ({elevPct}%)
-                      </span>
-                      <span className="aging-bar-legend-item text-rose-400">
-                        <span className="dot dot-crit" /> &gt; 48j: <strong>{agingBrackets.critical}</strong> ({critPct}%)
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* 4 Interactive KPI Status Cards */}
-                  <div className="aging-spectrum-grid">
-                    {/* < 6 Jam (Fresh) */}
-                    <button
-                      type="button"
-                      className={`aging-spec-card spec-fresh aging-spec-btn ${agingAgeFilter === "fresh" ? "aging-active" : ""}`}
-                      onClick={() => {
-                        setAgingAgeFilter(agingAgeFilter === "fresh" ? null : "fresh");
-                        setAgingPage(1);
-                      }}
-                    >
-                      <div className="aging-card-top">
-                        <span className="aging-status-badge badge-fresh">
-                          <CheckCircle2 size={11} /> Normal
-                        </span>
-                        <span className="aging-spec-tag">&lt; 6 Jam</span>
-                      </div>
-                      <div className="aging-card-main">
-                        <strong className="aging-spec-num">{agingBrackets.fresh}</strong>
-                        <span className="aging-spec-unit">tiket</span>
-                      </div>
-                      <div className="aging-card-meta">
-                        <span className="aging-spec-pct">{freshPct}% antrean</span>
-                        <span className="aging-spec-view">
-                          {agingAgeFilter === "fresh" ? "Dipilih ✓" : "Lihat →"}
-                        </span>
-                      </div>
-                    </button>
-
-                    {/* 6–24 Jam (Moderate) */}
-                    <button
-                      type="button"
-                      className={`aging-spec-card spec-mod aging-spec-btn ${agingAgeFilter === "moderate" ? "aging-active" : ""}`}
-                      onClick={() => {
-                        setAgingAgeFilter(agingAgeFilter === "moderate" ? null : "moderate");
-                        setAgingPage(1);
-                      }}
-                    >
-                      <div className="aging-card-top">
-                        <span className="aging-status-badge badge-mod">
-                          <Clock size={11} /> Standar
-                        </span>
-                        <span className="aging-spec-tag">6 – 24 Jam</span>
-                      </div>
-                      <div className="aging-card-main">
-                        <strong className="aging-spec-num">{agingBrackets.moderate}</strong>
-                        <span className="aging-spec-unit">tiket</span>
-                      </div>
-                      <div className="aging-card-meta">
-                        <span className="aging-spec-pct">{modPct}% antrean</span>
-                        <span className="aging-spec-view">
-                          {agingAgeFilter === "moderate" ? "Dipilih ✓" : "Lihat →"}
-                        </span>
-                      </div>
-                    </button>
-
-                    {/* 24–48 Jam (Elevated) */}
-                    <button
-                      type="button"
-                      className={`aging-spec-card spec-elev aging-spec-btn ${agingAgeFilter === "elevated" ? "aging-active" : ""}`}
-                      onClick={() => {
-                        setAgingAgeFilter(agingAgeFilter === "elevated" ? null : "elevated");
-                        setAgingPage(1);
-                      }}
-                    >
-                      <div className="aging-card-top">
-                        <span className="aging-status-badge badge-elev">
-                          <AlertTriangle size={11} /> Perhatian
-                        </span>
-                        <span className="aging-spec-tag">24 – 48 Jam</span>
-                      </div>
-                      <div className="aging-card-main">
-                        <strong className="aging-spec-num">{agingBrackets.elevated}</strong>
-                        <span className="aging-spec-unit">tiket</span>
-                      </div>
-                      <div className="aging-card-meta">
-                        <span className="aging-spec-pct">{elevPct}% antrean</span>
-                        <span className="aging-spec-view">
-                          {agingAgeFilter === "elevated" ? "Dipilih ✓" : "Lihat →"}
-                        </span>
-                      </div>
-                    </button>
-
-                    {/* > 48 Jam (Critical) */}
-                    <button
-                      type="button"
-                      className={`aging-spec-card spec-crit aging-spec-btn ${agingAgeFilter === "critical" ? "aging-active" : ""}`}
-                      onClick={() => {
-                        setAgingAgeFilter(agingAgeFilter === "critical" ? null : "critical");
-                        setAgingPage(1);
-                      }}
-                    >
-                      <div className="aging-card-top">
-                        <span className="aging-status-badge badge-crit">
-                          <ShieldAlert size={11} /> Prioritas
-                        </span>
-                        <span className="aging-spec-tag">&gt; 48 Jam</span>
-                      </div>
-                      <div className="aging-card-main">
-                        <strong className="aging-spec-num">{agingBrackets.critical}</strong>
-                        <span className="aging-spec-unit">tiket</span>
-                      </div>
-                      <div className="aging-card-meta">
-                        <span className="aging-spec-pct">{critPct}% antrean</span>
-                        <span className="aging-spec-view">
-                          {agingAgeFilter === "critical" ? "Dipilih ✓" : "Lihat →"}
-                        </span>
-                      </div>
-                    </button>
-                  </div>
-                </>
-              );
-            })()}
-
-            {/* Inline Ticket List — Paginated (4 tickets per page) instead of scrollbar */}
-            {(() => {
-              const filterKey = agingAgeFilter;
-              const filtered = activeTickets.filter((t) => {
-                const age = t.agingHours || 2;
-                if (filterKey === "fresh") return age < 6;
-                if (filterKey === "moderate") return age >= 6 && age <= 24;
-                if (filterKey === "elevated") return age > 24 && age <= 48;
-                if (filterKey === "critical") return age > 48;
-                // Default overview when no card is clicked: show tickets needing attention (>24h)
-                return age > 24;
-              });
-
-              const AGING_PAGE_SIZE = 4;
-              const totalAgingPages = Math.max(1, Math.ceil(filtered.length / AGING_PAGE_SIZE));
-              const currentAgingPage = Math.min(agingPage, totalAgingPages);
-              const paginatedTickets = filtered.slice(
-                (currentAgingPage - 1) * AGING_PAGE_SIZE,
-                currentAgingPage * AGING_PAGE_SIZE
-              );
-
-              const labelMap: Record<string, string> = {
-                fresh: "< 6 Jam",
-                moderate: "6 – 24 Jam",
-                elevated: "24 – 48 Jam",
-                critical: "> 48 Jam",
-              };
-
-              const titleText = filterKey
-                ? `Tiket aktif dalam rentang ${labelMap[filterKey]}`
-                : "Antrean Tiket Tertunda (> 24 Jam) · Butuh Perhatian";
-
-              return (
-                <div className="aging-filter-panel" style={{ marginTop: "6px" }}>
-                  <div className="aging-filter-header">
-                    <span>{titleText} (<strong>{filtered.length} tiket</strong>)</span>
-                    {filterKey && (
-                      <button
-                        type="button"
-                        className="aging-filter-close"
-                        onClick={() => {
-                          setAgingAgeFilter(null);
-                          setAgingPage(1);
-                        }}
-                      >
-                        ✕ Reset Filter
-                      </button>
-                    )}
-                  </div>
-                  {paginatedTickets.length > 0 ? (
-                    <>
-                      <div className="aging-filter-list">
-                        <div className="aging-table-cols">
-                          <span>ID Tiket</span>
-                          <span>Proyek</span>
-                          <span>Subjek Tiket</span>
-                          <span style={{ textAlign: "right" }}>Usia</span>
-                        </div>
-                        {paginatedTickets.map((t) => {
-                          const projColor = PROJECT_COLORS[t.project] || "#94a3b8";
-                          const cleanSubject = t.subject.replace(new RegExp(`^\\[${t.project}\\]\\s*`, "i"), "");
-                          return (
-                            <div className="aging-filter-row" key={t.id}>
-                              <span className="aging-filter-id" title={`#${t.id}`}>#{t.id}</span>
-                              <span
-                                className="aging-filter-proj-badge"
-                                style={{
-                                  color: projColor,
-                                  backgroundColor: `${projColor}18`,
-                                  borderColor: `${projColor}38`,
-                                }}
-                              >
-                                {t.project}
-                              </span>
-                              <span className="aging-filter-subject" title={cleanSubject}>
-                                {cleanSubject}
-                              </span>
-                              <span className="aging-filter-age">{t.agingHours?.toFixed(1) ?? "—"}j</span>
-                            </div>
-                          );
-                        })}
-                      </div>
-
-                      {/* Pagination Controls — Eliminates vertical scrollbar */}
-                      {totalAgingPages > 1 && (
-                        <div className="aging-filter-pagination">
-                          <span className="aging-pagination-info">
-                            Halaman <strong>{currentAgingPage}</strong> dari {totalAgingPages} ({filtered.length} tiket)
-                          </span>
-                          <div className="aging-pagination-btns">
-                            <button
-                              type="button"
-                              className="aging-page-btn"
-                              disabled={currentAgingPage <= 1}
-                              onClick={() => setAgingPage((p) => Math.max(1, p - 1))}
-                            >
-                              <ChevronLeft size={11} /> Prev
-                            </button>
-                            {Array.from({ length: totalAgingPages }, (_, i) => i + 1).map((p) => (
-                              <button
-                                key={p}
-                                type="button"
-                                className={`aging-page-num ${p === currentAgingPage ? "active" : ""}`}
-                                onClick={() => setAgingPage(p)}
-                              >
-                                {p}
-                              </button>
-                            ))}
-                            <button
-                              type="button"
-                              className="aging-page-btn"
-                              disabled={currentAgingPage >= totalAgingPages}
-                              onClick={() => setAgingPage((p) => Math.min(totalAgingPages, p + 1))}
-                            >
-                              Next <ChevronRight size={11} />
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </>
-                  ) : (
-                    <p className="aging-filter-empty">Tidak ada tiket dalam rentang ini.</p>
-                  )}
-                </div>
-              );
-            })()}
-
-            <div className="report-footer-summary" style={{ marginTop: "auto", paddingTop: "10px" }}>
-              <ShieldCheck size={14} className="text-emerald-400" />
-              <span>
-                Semua tiket berumur &gt;24 jam telah memiliki tag koordinasi vendor atau jadwal rilis resmi dalam sistem.
-              </span>
+          <div className="velocity-legend-strip">
+            <div className="velocity-legend-item">
+              <span className="velocity-legend-line velocity-legend-blue" />
+              <span>Rata-rata Resolusi</span>
+            </div>
+            <div className="velocity-legend-item">
+              <span className="velocity-legend-line velocity-legend-orange" />
+              <span>Target SLA (60m)</span>
+            </div>
+            <div className="velocity-legend-item">
+              <span className="velocity-legend-line velocity-legend-red" />
+              <span>Batas Kritis / Breach (90m)</span>
             </div>
           </div>
-        </article>
-
-        {/* Right: Resolution Velocity Trajectory */}
-        <article className="panel report-panel mgmt-velocity-panel" style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-          <div className="panel-heading report-panel-heading">
-            <div>
-              <div className="panel-title">Tren Durasi Penyelesaian (Resolution Velocity)</div>
-              <p className="chart-definition-sub">Rata-rata menit per hari vs ambang batas toleransi SLA (60 menit).</p>
-            </div>
-            <div className="kpi-mini-badge">Target &le; 60m</div>
-          </div>
+        </div>
           <div className="report-panel-body velocity-panel-body">
             {volumeByDate.length > 0 ? (
               <>
@@ -2168,33 +2441,36 @@ export function TicketReportView({ tickets, dateRangeLabel }: TicketReportViewPr
                   );
                 })()}
 
-                {/* Large, prominent line chart with dense granular parameter lines and SLA % scale */}
-                <div className="velocity-chart-container">
+                {/* Clean, Prominent Line Chart with Collision-Free Labels & Interactive Hover */}
+                <div
+                  className="velocity-chart-container"
+                  onMouseLeave={() => setHoveredVelocityPoint(null)}
+                >
                   {(() => {
                     const n = volumeByDate.length;
-                    const svgViewBoxWidth = Math.max(760, n * 44 + 70);
-                    const startX = 58;
-                    const endX = svgViewBoxWidth - 30;
+                    const svgViewBoxWidth = Math.max(860, n * 48 + 90);
+                    const viewBoxHeight = 280;
+                    const startX = 64;
+                    const endX = svgViewBoxWidth - 90; // room for threshold tags on the right
                     const totalSpan = endX - startX;
                     const stepX = n > 1 ? totalSpan / (n - 1) : totalSpan / 2;
 
-                    const viewBoxHeight = 280;
-                    const baselineY = 240;
-                    const topY = 26;
-                    const chartHeight = baselineY - topY; // 214 units for expansive, detailed scale
+                    const baselineY = 226;
+                    const topY = 32;
+                    const chartHeight = baselineY - topY; // 194px
 
-                    // Granular parameters every 10 minutes (0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100)
+                    // Y ticks at 0, 20, 40, 60, 80, 100
                     const maxVal = Math.max(70, ...volumeByDate.map((v) => v.avgResolution));
-                    const yMax = Math.max(100, Math.ceil(maxVal / 10) * 10);
-                    const ticks: number[] = [];
-                    for (let i = 0; i <= yMax; i += 10) {
-                      ticks.push(i);
+                    const yMax = Math.max(100, Math.ceil(maxVal / 20) * 20);
+                    const ticks = [0, 20, 40, 60, 80, 100];
+                    if (yMax > 100) {
+                      for (let i = 120; i <= yMax; i += 20) ticks.push(i);
                     }
 
                     const points = volumeByDate.map((item, idx) => {
-                      const x = n > 1 ? Math.round(startX + idx * stepX) : Math.round(svgViewBoxWidth / 2);
+                      const x = n > 1 ? Math.round(startX + idx * stepX) : Math.round((startX + endX) / 2);
                       const y = baselineY - Math.round((item.avgResolution / yMax) * chartHeight);
-                      return { x, y, ...item };
+                      return { x, y, idx, ...item };
                     });
 
                     const firstX = points[0]?.x ?? startX;
@@ -2202,165 +2478,392 @@ export function TicketReportView({ tickets, dateRangeLabel }: TicketReportViewPr
                     const pathD = `M ${points.map((p) => `${p.x},${p.y}`).join(" L ")}`;
                     const areaD = `M ${firstX},${baselineY} L ${points.map((p) => `${p.x},${p.y}`).join(" L ")} L ${lastX},${baselineY} Z`;
 
-                    const ySLA = baselineY - Math.round((60 / yMax) * chartHeight);
+                    // Min & max identifiers for milestone callouts
+                    const allResolutions = points.map((p) => p.avgResolution);
+                    const maxRes = Math.max(...allResolutions);
+                    const minRes = Math.min(...allResolutions);
+
+                    const maxPoint = points.find((p) => p.avgResolution === maxRes);
+                    const minPoint = points.find((p) => p.avgResolution === minRes && p.avgResolution !== maxRes);
+
+                    // X-axis stride to avoid crowding
+                    const dateStride = n > 22 ? 3 : n > 12 ? 2 : 1;
 
                     return (
-                      <svg
-                        className="velocity-chart-svg"
-                        viewBox={`0 0 ${svgViewBoxWidth} ${viewBoxHeight}`}
-                        preserveAspectRatio="none"
-                      >
-                        <defs>
-                          <linearGradient id="gradVelocity" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.30" />
-                            <stop offset="100%" stopColor="#38bdf8" stopOpacity="0.02" />
-                          </linearGradient>
-                        </defs>
+                      <>
+                        <svg
+                          className="velocity-chart-svg"
+                          viewBox={`0 0 ${svgViewBoxWidth} ${viewBoxHeight}`}
+                          preserveAspectRatio="none"
+                          style={{ overflow: "visible" }}
+                        >
+                          <defs>
+                            <linearGradient id="gradVelocity" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.28" />
+                              <stop offset="85%" stopColor="#38bdf8" stopOpacity="0.04" />
+                              <stop offset="100%" stopColor="#38bdf8" stopOpacity="0.0" />
+                            </linearGradient>
+                            <filter id="glow-halo" x="-50%" y="-50%" width="200%" height="200%">
+                              <feDropShadow dx="0" dy="0" stdDeviation="4" floodColor="#38bdf8" floodOpacity="0.6" />
+                            </filter>
+                          </defs>
 
-                        {/* Dense Granular Horizontal Gridlines (every 10m) */}
-                        {ticks.map((tick) => {
-                          const yPos = baselineY - Math.round((tick / yMax) * chartHeight);
-                          const isSLA = tick === 60;
-                          const isPeakAlert = tick === 90;
-                          const isBaseline = tick === 0;
+                          {/* ── 1. Horizontal Gridlines & Y-Axis Ticks ── */}
+                          {ticks.map((tick) => {
+                            const yPos = baselineY - Math.round((tick / yMax) * chartHeight);
+                            const isSLA = tick === 60;
+                            const isBaseline = tick === 0;
 
-                          // Compute SLA percentage parameter
-                          const slaPct = Math.round((tick / 60) * 100);
+                            return (
+                              <g key={`grid-res-${tick}`}>
+                                <line
+                                  x1={startX - 10}
+                                  y1={yPos}
+                                  x2={endX + 6}
+                                  y2={yPos}
+                                  stroke={
+                                    isBaseline
+                                      ? "var(--line, rgba(255, 255, 255, 0.12))"
+                                      : isSLA
+                                      ? "rgba(245, 158, 11, 0.75)"
+                                      : "rgba(255, 255, 255, 0.05)"
+                                  }
+                                  strokeWidth={isBaseline ? "1.5" : isSLA ? "1.5" : "1"}
+                                  strokeDasharray={isBaseline ? undefined : isSLA ? "5 4" : "3 4"}
+                                />
 
-                          return (
-                            <g key={`grid-res-${tick}`}>
-                              <line
-                                x1="48"
-                                y1={yPos}
-                                x2={svgViewBoxWidth - 15}
-                                y2={yPos}
-                                stroke={
-                                  isBaseline
-                                    ? "var(--line)"
-                                    : isSLA
-                                    ? "#f59e0b"
-                                    : isPeakAlert
-                                    ? "rgba(244, 63, 94, 0.45)"
-                                    : "rgba(255, 255, 255, 0.08)"
-                                }
-                                strokeWidth={isBaseline ? "1.5" : isSLA ? "1.6" : "1"}
-                                strokeDasharray={isBaseline ? undefined : isSLA ? "5 4" : "3 4"}
-                              />
-
-                              {/* Left Y-Axis Label: Minute measurement */}
-                              <text
-                                x="42"
-                                y={yPos + 4}
-                                textAnchor="end"
-                                fill={isSLA ? "#f59e0b" : isPeakAlert ? "#f87171" : "var(--ink-muted)"}
-                                fontSize={isSLA ? "10.5" : "9.5"}
-                                fontWeight={isSLA ? "800" : "600"}
-                                fontFamily="var(--font-mono)"
-                              >
-                                {tick}m
-                              </text>
-
-                              {/* Right Parameter Annotations: SLA Percentages and Thresholds */}
-                              {isSLA && (
+                                {/* Left Y-Axis Label */}
                                 <text
-                                  x={svgViewBoxWidth - 20}
-                                  y={yPos - 6}
+                                  x={startX - 16}
+                                  y={yPos + 3.5}
                                   textAnchor="end"
+                                  fill={isSLA ? "#f59e0b" : "var(--ink-muted, #94a3b8)"}
+                                  fontSize={isSLA ? "10.5" : "9"}
+                                  fontWeight={isSLA ? "800" : "600"}
+                                  fontFamily="var(--font-mono)"
+                                >
+                                  {tick}m
+                                </text>
+                              </g>
+                            );
+                          })}
+
+                          {/* ── 2. Reference Threshold Line 90m (Breach Threshold) ── */}
+                          {(() => {
+                            const y90 = baselineY - Math.round((90 / yMax) * chartHeight);
+                            return (
+                              <g key="grid-breach-90">
+                                <line
+                                  x1={startX - 10}
+                                  y1={y90}
+                                  x2={endX + 6}
+                                  y2={y90}
+                                  stroke="rgba(248, 113, 113, 0.7)"
+                                  strokeWidth="1.5"
+                                  strokeDasharray="5 4"
+                                />
+                                {/* Right threshold tag for 90m */}
+                                <g transform={`translate(${endX + 10}, ${y90 - 8})`}>
+                                  <rect
+                                    width="68"
+                                    height="16"
+                                    rx="4"
+                                    fill="rgba(239, 68, 68, 0.16)"
+                                    stroke="rgba(239, 68, 68, 0.45)"
+                                    strokeWidth="1"
+                                  />
+                                  <text
+                                    x="34"
+                                    y="11"
+                                    textAnchor="middle"
+                                    fill="#f87171"
+                                    fontSize="8.5"
+                                    fontWeight="700"
+                                    fontFamily="var(--font-mono)"
+                                  >
+                                    Breach 90m
+                                  </text>
+                                </g>
+                              </g>
+                            );
+                          })()}
+
+                          {/* Right threshold tag for 60m (Target SLA) */}
+                          {(() => {
+                            const y60 = baselineY - Math.round((60 / yMax) * chartHeight);
+                            return (
+                              <g transform={`translate(${endX + 10}, ${y60 - 8})`}>
+                                <rect
+                                  width="68"
+                                  height="16"
+                                  rx="4"
+                                  fill="rgba(245, 158, 11, 0.16)"
+                                  stroke="rgba(245, 158, 11, 0.45)"
+                                  strokeWidth="1"
+                                />
+                                <text
+                                  x="34"
+                                  y="11"
+                                  textAnchor="middle"
                                   fill="#f59e0b"
-                                  fontSize="9.5"
-                                  fontFamily="var(--font-mono)"
-                                  fontWeight="700"
-                                >
-                                  Ambang SLA: 60 Menit (100%)
-                                </text>
-                              )}
-                              {isPeakAlert && (
-                                <text
-                                  x={svgViewBoxWidth - 20}
-                                  y={yPos - 5}
-                                  textAnchor="end"
-                                  fill="#f87171"
-                                  fontSize="9"
-                                  fontFamily="var(--font-mono)"
-                                  fontWeight="700"
-                                >
-                                  150% SLA (Breach Threshold)
-                                </text>
-                              )}
-                              {tick === 30 && (
-                                <text
-                                  x={svgViewBoxWidth - 20}
-                                  y={yPos - 4}
-                                  textAnchor="end"
-                                  fill="rgba(148, 163, 184, 0.7)"
                                   fontSize="8.5"
+                                  fontWeight="700"
                                   fontFamily="var(--font-mono)"
-                                  fontWeight="600"
                                 >
-                                  50% Target SLA
+                                  Target 60m
                                 </text>
-                              )}
-                              {tick === 100 && (
-                                <text
-                                  x={svgViewBoxWidth - 20}
-                                  y={yPos - 4}
-                                  textAnchor="end"
-                                  fill="rgba(148, 163, 184, 0.6)"
-                                  fontSize="8.5"
-                                  fontFamily="var(--font-mono)"
-                                  fontWeight="600"
-                                >
-                                  167% Skala Puncak
-                                </text>
-                              )}
-                            </g>
-                          );
-                        })}
+                              </g>
+                            );
+                          })()}
 
-                        {/* Area Under Curve */}
-                        <path d={areaD} fill="url(#gradVelocity)" />
+                          {/* ── 3. Gradient Area & Trend Path ── */}
+                          <path d={areaD} fill="url(#gradVelocity)" />
+                          <path
+                            d={pathD}
+                            fill="none"
+                            stroke="#38bdf8"
+                            strokeWidth="2.8"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
 
-                        {/* Velocity Path */}
-                        <path d={pathD} fill="none" stroke="#38bdf8" strokeWidth="2.8" />
+                          {/* ── 4. Vertical Cursor Guideline for Hovered Point ── */}
+                          {hoveredVelocityPoint && (
+                            <line
+                              x1={hoveredVelocityPoint.x}
+                              y1={topY}
+                              x2={hoveredVelocityPoint.x}
+                              y2={baselineY}
+                              stroke="rgba(56, 189, 248, 0.4)"
+                              strokeWidth="1.5"
+                              strokeDasharray="3 3"
+                            />
+                          )}
 
-                        {/* Data Points with Markers and Labels */}
-                        {points.map((p) => {
-                          const isBreach = p.avgResolution > 60;
-                          return (
-                            <g key={p.date}>
-                              <circle
-                                cx={p.x}
-                                cy={p.y}
-                                r={isBreach ? "5.5" : "4.5"}
-                                fill={isBreach ? "#ef4444" : "#38bdf8"}
-                                stroke="var(--panel-bg)"
-                                strokeWidth="2"
-                              />
-                              <text
-                                x={p.x}
-                                y={p.y - 7}
-                                textAnchor="middle"
-                                fill={isBreach ? "#f87171" : "var(--ink-primary)"}
-                                fontSize="10"
-                                fontWeight="800"
-                                fontFamily="var(--font-mono)"
+                          {/* ── 5. Data Points & Milestone Badges ── */}
+                          {points.map((p, idx) => {
+                            const isBreach = p.avgResolution > 60;
+                            const isHovered = hoveredVelocityPoint?.date === p.date;
+                            const isMax = maxPoint?.date === p.date;
+                            const isMin = minPoint?.date === p.date;
+
+                            // X-axis tick & label display
+                            const showXLabel = idx % dateStride === 0 || idx === n - 1;
+
+                            return (
+                              <g key={p.date}>
+                                {/* X-axis Tick & Label */}
+                                {showXLabel && (
+                                  <>
+                                    <line
+                                      x1={p.x}
+                                      y1={baselineY}
+                                      x2={p.x}
+                                      y2={baselineY + 4}
+                                      stroke="rgba(255, 255, 255, 0.2)"
+                                      strokeWidth="1"
+                                    />
+                                    <text
+                                      x={p.x}
+                                      y={baselineY + 18}
+                                      textAnchor="middle"
+                                      fill={isHovered ? "#38bdf8" : "var(--ink-muted, #94a3b8)"}
+                                      fontSize="9"
+                                      fontWeight={isHovered ? "700" : "500"}
+                                      fontFamily="var(--font-mono)"
+                                    >
+                                      {p.date.slice(5)}
+                                    </text>
+                                  </>
+                                )}
+
+                                {/* Data Point Circle */}
+                                <circle
+                                  cx={p.x}
+                                  cy={p.y}
+                                  r={isHovered ? "6.5" : isBreach ? "5" : "4"}
+                                  fill={isHovered ? "#ffffff" : isBreach ? "#ef4444" : "#38bdf8"}
+                                  stroke={isHovered ? (isBreach ? "#ef4444" : "#0284c7") : "var(--panel-bg, #0f172a)"}
+                                  strokeWidth={isHovered ? "3" : "2"}
+                                  filter={isHovered ? "url(#glow-halo)" : undefined}
+                                  style={{ transition: "all 0.15s ease" }}
+                                />
+
+                                {/* Milestone Callout Badge (Peak Max point) */}
+                                {isMax && !isHovered && (() => {
+                                  const maxBadgeText = `${p.avgResolution}m Max`;
+                                  const maxBadgeWidth = Math.max(72, maxBadgeText.length * 6.5 + 16);
+                                  const maxBadgeHeight = 17;
+                                  const halfW = maxBadgeWidth / 2;
+                                  const clampedX = Math.max(halfW + 6, Math.min(svgViewBoxWidth - halfW - 6, p.x));
+                                  const placeBelow = p.y < 30;
+                                  const rectY = placeBelow ? p.y + 8 : p.y - 8 - maxBadgeHeight;
+
+                                  return (
+                                    <g style={{ pointerEvents: "none" }}>
+                                      <rect
+                                        x={clampedX - halfW}
+                                        y={rectY}
+                                        width={maxBadgeWidth}
+                                        height={maxBadgeHeight}
+                                        rx="4"
+                                        fill="#0f172a"
+                                        stroke={isBreach ? "#ef4444" : "#f59e0b"}
+                                        strokeWidth="1.2"
+                                      />
+                                      <text
+                                        x={clampedX}
+                                        y={rectY + maxBadgeHeight / 2}
+                                        dominantBaseline="central"
+                                        textAnchor="middle"
+                                        fill={isBreach ? "#f87171" : "#fbbf24"}
+                                        fontSize="8.5"
+                                        fontWeight="800"
+                                        fontFamily="var(--font-mono)"
+                                      >
+                                        {maxBadgeText}
+                                      </text>
+                                    </g>
+                                  );
+                                })()}
+
+                                {/* Milestone Callout Badge (Fastest Min point) */}
+                                {isMin && !isHovered && (() => {
+                                  const minBadgeText = `${p.avgResolution}m Min`;
+                                  const minBadgeWidth = Math.max(68, minBadgeText.length * 6.5 + 16);
+                                  const minBadgeHeight = 17;
+                                  const halfW = minBadgeWidth / 2;
+                                  const clampedX = Math.max(halfW + 6, Math.min(svgViewBoxWidth - halfW - 6, p.x));
+                                  const placeAbove = p.y > baselineY - 24;
+                                  const rectY = placeAbove ? p.y - 8 - minBadgeHeight : p.y + 8;
+
+                                  return (
+                                    <g style={{ pointerEvents: "none" }}>
+                                      <rect
+                                        x={clampedX - halfW}
+                                        y={rectY}
+                                        width={minBadgeWidth}
+                                        height={minBadgeHeight}
+                                        rx="4"
+                                        fill="#0f172a"
+                                        stroke="#38bdf8"
+                                        strokeWidth="1.2"
+                                      />
+                                      <text
+                                        x={clampedX}
+                                        y={rectY + minBadgeHeight / 2}
+                                        dominantBaseline="central"
+                                        textAnchor="middle"
+                                        fill="#38bdf8"
+                                        fontSize="8.5"
+                                        fontWeight="800"
+                                        fontFamily="var(--font-mono)"
+                                      >
+                                        {minBadgeText}
+                                      </text>
+                                    </g>
+                                  );
+                                })()}
+
+                                {/* Breach callout if breached and not max */}
+                                {isBreach && !isMax && !isHovered && (() => {
+                                  const breachText = `${p.avgResolution}m !`;
+                                  const breachWidth = Math.max(58, breachText.length * 6.5 + 16);
+                                  const breachHeight = 17;
+                                  const halfW = breachWidth / 2;
+                                  const clampedX = Math.max(halfW + 6, Math.min(svgViewBoxWidth - halfW - 6, p.x));
+                                  const placeBelow = p.y < 30;
+                                  const rectY = placeBelow ? p.y + 8 : p.y - 8 - breachHeight;
+
+                                  return (
+                                    <g style={{ pointerEvents: "none" }}>
+                                      <rect
+                                        x={clampedX - halfW}
+                                        y={rectY}
+                                        width={breachWidth}
+                                        height={breachHeight}
+                                        rx="4"
+                                        fill="#0f172a"
+                                        stroke="#ef4444"
+                                        strokeWidth="1.2"
+                                      />
+                                      <text
+                                        x={clampedX}
+                                        y={rectY + breachHeight / 2}
+                                        dominantBaseline="central"
+                                        textAnchor="middle"
+                                        fill="#f87171"
+                                        fontSize="8.5"
+                                        fontWeight="800"
+                                        fontFamily="var(--font-mono)"
+                                      >
+                                        {breachText}
+                                      </text>
+                                    </g>
+                                  );
+                                })()}
+
+                                {/* Transparent Wide Hover Target Column */}
+                                <rect
+                                  x={p.x - stepX / 2}
+                                  y={topY}
+                                  width={stepX}
+                                  height={chartHeight + 25}
+                                  fill="transparent"
+                                  style={{ cursor: "pointer" }}
+                                  onMouseEnter={() => {
+                                    setHoveredVelocityPoint({
+                                      x: p.x,
+                                      y: p.y,
+                                      date: p.date,
+                                      avgResolution: p.avgResolution,
+                                      closed: p.closed,
+                                      percentX: (p.x / svgViewBoxWidth) * 100,
+                                      percentY: (p.y / viewBoxHeight) * 100,
+                                    });
+                                  }}
+                                />
+                              </g>
+                            );
+                          })}
+                        </svg>
+
+                        {/* Floating Interactive Tooltip Overlay */}
+                        {hoveredVelocityPoint && (
+                          <div
+                            className="velocity-chart-tooltip"
+                            style={{
+                              left: `${hoveredVelocityPoint.percentX}%`,
+                              top: `${hoveredVelocityPoint.percentY}%`,
+                            }}
+                          >
+                            <div className="velocity-tooltip-header">
+                              <span>📅 {hoveredVelocityPoint.date}</span>
+                              <span
+                                className={`velocity-tooltip-badge ${
+                                  hoveredVelocityPoint.avgResolution <= 60 ? "sla-ok" : "sla-breach"
+                                }`}
                               >
-                                {p.avgResolution}m
-                              </text>
-                              <text
-                                x={p.x}
-                                y={baselineY + 18}
-                                textAnchor="middle"
-                                fill="var(--ink-muted)"
-                                fontSize="9.5"
-                                fontFamily="var(--font-mono)"
-                              >
-                                {p.date.slice(5)}
-                              </text>
-                            </g>
-                          );
-                        })}
-                      </svg>
+                                {hoveredVelocityPoint.avgResolution <= 60 ? "✓ SLA OK" : "⚠ Breach"}
+                              </span>
+                            </div>
+                            <div className="velocity-tooltip-row">
+                              <span>Rata-rata Resolusi:</span>
+                              <span className="velocity-tooltip-val">
+                                {hoveredVelocityPoint.avgResolution} Menit
+                              </span>
+                            </div>
+                            {hoveredVelocityPoint.closed > 0 && (
+                              <div className="velocity-tooltip-row">
+                                <span>Tiket Selesai:</span>
+                                <span style={{ fontWeight: 600, color: "var(--ink-primary)" }}>
+                                  {hoveredVelocityPoint.closed} Tiket
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </>
                     );
                   })()}
                 </div>
@@ -2377,174 +2880,530 @@ export function TicketReportView({ tickets, dateRangeLabel }: TicketReportViewPr
             </div>
           </div>
         </article>
-      </div>
 
-      {/* ── 7. Shift Peak Load Heatmap Matrix (Standalone Full Width Row) ── */}
+      {/* ── 7. Shift Traffic Velocity (Multi-Line Trajectory Chart) ── */}
       <div className="heatmap-standalone-section" style={{ marginTop: "18px" }}>
-        <article className="panel report-panel">
+        <article className="panel report-panel shift-traffic-panel">
           <div className="panel-heading report-panel-heading">
-            <div>
-              <div className="panel-title" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <Zap size={16} className="text-amber-400" />
-                Matriks Intensitas Beban per Shift (Heatmap)
-              </div>
-              <p className="chart-definition-sub">Deteksi jam beban puncak untuk optimalisasi alokasi staf shift (Subuh, Pagi, Malam).</p>
+            <div className="panel-title" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <Activity size={16} className="text-emerald-400" />
+              Tren Trafik Beban per Shift (Shift Traffic Velocity)
             </div>
-            <span className="capacity-badge">
-              <Users size={12} /> Capacity Planning
-            </span>
           </div>
-          <div className="report-panel-body">
-            {/* Actionable capacity insight banner */}
-            <div className="shift-heatmap-insight-banner">
-              <Zap size={15} className="text-amber-400 flex-shrink-0" />
-              <div>
-                <strong>Analisis Beban Shift:</strong> Shift <strong>{shiftHeatmapData.peakShift.name}</strong> mencatat volume tiket masuk tertinggi yaitu{" "}
-                <strong>{shiftHeatmapData.shiftTotals[shiftHeatmapData.peakShift.id]} tiket</strong> (
-                {shiftHeatmapData.grandTotal > 0
-                  ? Math.round((shiftHeatmapData.shiftTotals[shiftHeatmapData.peakShift.id] / shiftHeatmapData.grandTotal) * 100)
-                  : 0}
-                % total). Disarankan memastikan alokasi personel dan kesiapan eskalasi mencukupi pada jam tersebut ({shiftHeatmapData.peakShift.time}).
-              </div>
-            </div>
+          <div className="report-panel-body shift-traffic-panel-body">
+            {/* 4 Summary Stat Pills for Quick Shift Intelligence */}
+            {(() => {
+              const pagiTotal = shiftHeatmapData.shiftTotals["Pagi"] || 0;
+              const malamTotal = shiftHeatmapData.shiftTotals["Malam"] || 0;
+              const subuhTotal = shiftHeatmapData.shiftTotals["Subuh"] || 0;
+              const grand = shiftHeatmapData.grandTotal || 1;
+              const pagiPct = Math.round((pagiTotal / grand) * 100);
+              const malamPct = Math.round((malamTotal / grand) * 100);
+              const subuhPct = Math.round((subuhTotal / grand) * 100);
 
-            <div className="shift-heatmap-table-wrap">
-              <table className="shift-heatmap-table">
-                <thead>
-                  <tr>
-                    <th className="th-shift-name">Shift Operasional</th>
-                    {shiftHeatmapData.dateList.map((d) => {
-                      const { dayName, dateShort } = formatHeatmapDate(d);
-                      return (
-                        <th key={d}>
-                          <div className="heat-date-th">
-                            <span className="heat-day-name">{dayName}</span>
-                            <span className="heat-date-num">{dateShort}</span>
-                          </div>
-                        </th>
-                      );
-                    })}
-                    <th style={{ textAlign: "right", paddingRight: "16px" }}>Total Beban</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {shiftHeatmapData.shiftDefs.map((shift) => (
-                    <tr key={shift.id}>
-                      <td className="shift-name-cell">
-                        <div className="shift-name-badge">
-                          <span className={`shift-icon-badge shift-icon-${shift.id.toLowerCase()}`}>
-                            {shift.id === "Subuh" ? (
-                              <Moon size={14} />
-                            ) : shift.id === "Pagi" ? (
-                              <Sun size={14} />
-                            ) : (
-                              <Sunset size={14} />
-                            )}
-                          </span>
-                          <div className="shift-title-block">
-                            <span className="shift-main-name">{shift.name}</span>
-                            <span className="shift-time-pill">{shift.time}</span>
-                          </div>
-                        </div>
-                      </td>
-                      {shiftHeatmapData.dateList.map((d) => {
-                        const count = shiftHeatmapData.matrix[shift.id][d] || 0;
-                        const intensityClass =
-                          count === 0
-                            ? "cell-zero"
-                            : count <= 2
-                            ? "cell-low"
-                            : count <= 4
-                            ? "cell-mid"
-                            : "cell-high";
+              return (
+                <div className="shift-traffic-metrics-strip">
+                  <div className="shift-traffic-metric-pill">
+                    <span className="shift-traffic-metric-label">
+                      <Sun size={13} style={{ color: "#fbbf24" }} />
+                      Shift Pagi (08:00–16:30)
+                    </span>
+                    <span className="shift-traffic-metric-val" style={{ color: "#fbbf24" }}>
+                      {pagiTotal} <small style={{ fontSize: "11px", fontWeight: "normal" }}>tiket</small>
+                    </span>
+                    <span className="shift-traffic-metric-sub">{pagiPct}% dari total beban</span>
+                  </div>
+
+                  <div className="shift-traffic-metric-pill">
+                    <span className="shift-traffic-metric-label">
+                      <Sunset size={13} style={{ color: "#c084fc" }} />
+                      Shift Malam (16:00–00:30)
+                    </span>
+                    <span className="shift-traffic-metric-val" style={{ color: "#c084fc" }}>
+                      {malamTotal} <small style={{ fontSize: "11px", fontWeight: "normal" }}>tiket</small>
+                    </span>
+                    <span className="shift-traffic-metric-sub">{malamPct}% dari total beban</span>
+                  </div>
+
+                  <div className="shift-traffic-metric-pill">
+                    <span className="shift-traffic-metric-label">
+                      <Moon size={13} style={{ color: "#38bdf8" }} />
+                      Shift Subuh (00:00–08:30)
+                    </span>
+                    <span className="shift-traffic-metric-val" style={{ color: "#38bdf8" }}>
+                      {subuhTotal} <small style={{ fontSize: "11px", fontWeight: "normal" }}>tiket</small>
+                    </span>
+                    <span className="shift-traffic-metric-sub">{subuhPct}% dari total beban</span>
+                  </div>
+
+                  <div className="shift-traffic-metric-pill">
+                    <span className="shift-traffic-metric-label">
+                      <Zap size={13} style={{ color: "#f87171" }} />
+                      Shift Beban Tertinggi (Peak)
+                    </span>
+                    <span className="shift-traffic-metric-val text-rose-400">
+                      {shiftHeatmapData.peakShift.name}
+                    </span>
+                    <span className="shift-traffic-metric-sub">
+                      {shiftHeatmapData.shiftTotals[shiftHeatmapData.peakShift.id]} tiket (
+                      {grand > 0
+                        ? Math.round(
+                            (shiftHeatmapData.shiftTotals[shiftHeatmapData.peakShift.id] / grand) * 100
+                          )
+                        : 0}
+                      % total)
+                    </span>
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* Clean, Prominent Multi-Line Chart Modeled After Resolution Velocity */}
+            <div
+              className="shift-traffic-chart-container"
+              onMouseLeave={() => setHoveredShiftTrafficPoint(null)}
+            >
+              {(() => {
+                const dateList = shiftHeatmapData.dateList;
+                const n = dateList.length;
+                const svgViewBoxWidth = Math.max(860, n * 50 + 60);
+                const viewBoxHeight = 280;
+                const startX = 46;
+                const endX = svgViewBoxWidth - 36;
+                const totalSpan = endX - startX;
+                const stepX = n > 1 ? totalSpan / (n - 1) : totalSpan / 2;
+
+                const baselineY = 226;
+                const topY = 38;
+                const chartHeight = baselineY - topY; // 188px
+
+                // Y ticks calculation - tight scaling to prevent empty top rows!
+                const allCounts = dateList.flatMap((d) => [
+                  shiftHeatmapData.matrix.Subuh[d] || 0,
+                  shiftHeatmapData.matrix.Pagi[d] || 0,
+                  shiftHeatmapData.matrix.Malam[d] || 0,
+                ]);
+                const maxCount = Math.max(3, ...allCounts);
+                const yMax = maxCount <= 3 ? 3 : maxCount <= 6 ? maxCount : Math.ceil(maxCount / 2) * 2;
+                const stepTick = yMax <= 4 ? 1 : yMax <= 8 ? 2 : Math.ceil(yMax / 4);
+                const ticks: number[] = [];
+                for (let i = 0; i <= yMax; i += stepTick) ticks.push(i);
+                if (ticks[ticks.length - 1] !== yMax) ticks.push(yMax);
+
+                // Coordinates generator for shifts
+                type ShiftKey = "Subuh" | "Pagi" | "Malam";
+                const shiftsMeta: { id: ShiftKey; name: string; color: string; gradId: string }[] = [
+                  { id: "Subuh", name: "Shift Subuh", color: "#38bdf8", gradId: "gradShiftSubuh" },
+                  { id: "Pagi", name: "Shift Pagi", color: "#fbbf24", gradId: "gradShiftPagi" },
+                  { id: "Malam", name: "Shift Malam", color: "#c084fc", gradId: "gradShiftMalam" },
+                ];
+
+                const shiftSeries = shiftsMeta.map((s) => {
+                  const points = dateList.map((d, idx) => {
+                    const x = n > 1 ? Math.round(startX + idx * stepX) : Math.round((startX + endX) / 2);
+                    const count = shiftHeatmapData.matrix[s.id][d] || 0;
+                    const y = baselineY - Math.round((count / yMax) * chartHeight);
+                    return { x, y, count, date: d, idx };
+                  });
+
+                  const firstX = points[0]?.x ?? startX;
+                  const lastX = points[points.length - 1]?.x ?? endX;
+                  const pathD = `M ${points.map((p) => `${p.x},${p.y}`).join(" L ")}`;
+                  const areaD = `M ${firstX},${baselineY} L ${points.map((p) => `${p.x},${p.y}`).join(" L ")} L ${lastX},${baselineY} Z`;
+
+                  return {
+                    ...s,
+                    points,
+                    pathD,
+                    areaD,
+                  };
+                });
+
+                // Overall peak point identifier
+                type ShiftPeakPoint = { x: number; y: number; count: number; shiftName: string; date: string };
+                let maxOverallCount = -1;
+                let foundPeak: ShiftPeakPoint | null = null;
+                shiftSeries.forEach((series) => {
+                  series.points.forEach((p) => {
+                    if (p.count > maxOverallCount && p.count > 0) {
+                      maxOverallCount = p.count;
+                      foundPeak = { x: p.x, y: p.y, count: p.count, shiftName: series.name, date: p.date };
+                    }
+                  });
+                });
+                const peakPointMeta: ShiftPeakPoint | null = foundPeak;
+
+                // X-axis stride to prevent label congestion
+                const dateStride = n > 22 ? 3 : n > 12 ? 2 : 1;
+
+                return (
+                  <>
+                    <svg
+                      className="shift-traffic-chart-svg"
+                      viewBox={`0 0 ${svgViewBoxWidth} ${viewBoxHeight}`}
+                      preserveAspectRatio="none"
+                      style={{ overflow: "visible" }}
+                    >
+                      <defs>
+                        <linearGradient id="gradShiftSubuh" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.2" />
+                          <stop offset="85%" stopColor="#38bdf8" stopOpacity="0.03" />
+                          <stop offset="100%" stopColor="#38bdf8" stopOpacity="0.0" />
+                        </linearGradient>
+                        <linearGradient id="gradShiftPagi" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#fbbf24" stopOpacity="0.2" />
+                          <stop offset="85%" stopColor="#fbbf24" stopOpacity="0.03" />
+                          <stop offset="100%" stopColor="#fbbf24" stopOpacity="0.0" />
+                        </linearGradient>
+                        <linearGradient id="gradShiftMalam" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#c084fc" stopOpacity="0.2" />
+                          <stop offset="85%" stopColor="#c084fc" stopOpacity="0.03" />
+                          <stop offset="100%" stopColor="#c084fc" stopOpacity="0.0" />
+                        </linearGradient>
+
+                        <filter id="glow-shift-subuh" x="-50%" y="-50%" width="200%" height="200%">
+                          <feDropShadow dx="0" dy="0" stdDeviation="3" floodColor="#38bdf8" floodOpacity="0.6" />
+                        </filter>
+                        <filter id="glow-shift-pagi" x="-50%" y="-50%" width="200%" height="200%">
+                          <feDropShadow dx="0" dy="0" stdDeviation="3" floodColor="#fbbf24" floodOpacity="0.6" />
+                        </filter>
+                        <filter id="glow-shift-malam" x="-50%" y="-50%" width="200%" height="200%">
+                          <feDropShadow dx="0" dy="0" stdDeviation="3" floodColor="#c084fc" floodOpacity="0.6" />
+                        </filter>
+                      </defs>
+
+                      {/* ── 1. Horizontal Gridlines ── */}
+                      {ticks.map((tick) => {
+                        const yPos = baselineY - Math.round((tick / yMax) * chartHeight);
+                        const isBaseline = tick === 0;
 
                         return (
-                          <td key={d} className={`heatmap-cell ${intensityClass}`}>
-                            <span className="heat-chip">{count > 0 ? count : "—"}</span>
-                          </td>
+                          <line
+                            key={`grid-shift-${tick}`}
+                            x1={startX - 8}
+                            y1={yPos}
+                            x2={endX + 6}
+                            y2={yPos}
+                            stroke={
+                              isBaseline
+                                ? "var(--line, rgba(255, 255, 255, 0.12))"
+                                : "rgba(255, 255, 255, 0.05)"
+                            }
+                            strokeWidth={isBaseline ? "1.2" : "1"}
+                            strokeDasharray={isBaseline ? undefined : "3 4"}
+                          />
                         );
                       })}
-                      <td className="shift-total-cell">
-                        <div className="shift-total-wrap">
-                          <div className="shift-total-num-wrap">
-                            <strong className="shift-total-num">{shiftHeatmapData.shiftTotals[shift.id]}</strong>
-                            <span className="shift-total-pct">
-                              ({shiftHeatmapData.grandTotal > 0
-                                ? Math.round((shiftHeatmapData.shiftTotals[shift.id] / shiftHeatmapData.grandTotal) * 100)
-                                : 0}
-                              %)
-                            </span>
-                          </div>
-                          <div className="shift-progress-track">
-                            <div
-                              className="shift-progress-fill"
-                              style={{
-                                width: `${
-                                  shiftHeatmapData.grandTotal > 0
-                                    ? Math.round((shiftHeatmapData.shiftTotals[shift.id] / shiftHeatmapData.grandTotal) * 100)
-                                    : 0
-                                }%`,
-                                background: shift.color,
+
+                      {/* ── 2. Multi-Line Paths and Area Gradients ── */}
+                      {shiftSeries.map((series) => {
+                        const isFiltered =
+                          activeShiftLineFilter !== "all" && activeShiftLineFilter !== series.id;
+                        const isTargeted = activeShiftLineFilter === series.id;
+                        const opacity = isFiltered ? 0.12 : 1;
+
+                        return (
+                          <g
+                            key={`series-${series.id}`}
+                            style={{ opacity, transition: "opacity 0.2s ease" }}
+                          >
+                            <path d={series.areaD} fill={`url(#${series.gradId})`} />
+                            <path
+                              d={series.pathD}
+                              fill="none"
+                              stroke={series.color}
+                              strokeWidth={isTargeted ? "2.6" : "2"}
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </g>
+                        );
+                      })}
+
+                      {/* ── 3. Vertical Cursor Guideline for Hovered Column ── */}
+                      {hoveredShiftTrafficPoint && (
+                        <line
+                          x1={hoveredShiftTrafficPoint.x}
+                          y1={topY}
+                          x2={hoveredShiftTrafficPoint.x}
+                          y2={baselineY}
+                          stroke="rgba(56, 189, 248, 0.4)"
+                          strokeWidth="1.2"
+                          strokeDasharray="3 3"
+                        />
+                      )}
+
+                      {/* ── 4. Data Points & Nodes per Shift ── */}
+                      {shiftSeries.map((series) => {
+                        const isFiltered =
+                          activeShiftLineFilter !== "all" && activeShiftLineFilter !== series.id;
+                        if (isFiltered) return null;
+
+                        return (
+                          <g key={`nodes-${series.id}`}>
+                            {series.points.map((p) => {
+                              const isColHovered = hoveredShiftTrafficPoint?.date === p.date;
+
+                              return (
+                                <circle
+                                  key={`dot-${series.id}-${p.date}`}
+                                  cx={p.x}
+                                  cy={p.y}
+                                  r={isColHovered ? "4.5" : "2.6"}
+                                  fill={isColHovered ? "#ffffff" : series.color}
+                                  stroke={isColHovered ? series.color : "var(--panel-bg, #0f172a)"}
+                                  strokeWidth={isColHovered ? "2" : "1.2"}
+                                  filter={
+                                    isColHovered ? `url(#glow-shift-${series.id.toLowerCase()})` : undefined
+                                  }
+                                  style={{ transition: "all 0.15s ease" }}
+                                />
+                              );
+                            })}
+                          </g>
+                        );
+                      })}
+
+                      {/* ── 5. X-Axis Tick Marks & Hover Hit Columns ── */}
+                      {dateList.map((d, idx) => {
+                        const x =
+                          n > 1 ? Math.round(startX + idx * stepX) : Math.round((startX + endX) / 2);
+                        const showXLabel = idx % dateStride === 0 || idx === n - 1;
+                        const subuh = shiftHeatmapData.matrix.Subuh[d] || 0;
+                        const pagi = shiftHeatmapData.matrix.Pagi[d] || 0;
+                        const malam = shiftHeatmapData.matrix.Malam[d] || 0;
+                        const total = subuh + pagi + malam;
+
+                        // Calculate y of highest shift for tooltip positioning
+                        const topShiftCount = Math.max(subuh, pagi, malam);
+                        const topShiftY =
+                          baselineY - Math.round((topShiftCount / yMax) * chartHeight);
+
+                        return (
+                          <g key={`col-${d}`}>
+                            {showXLabel && (
+                              <line
+                                x1={x}
+                                y1={baselineY}
+                                x2={x}
+                                y2={baselineY + 4}
+                                stroke="rgba(255, 255, 255, 0.18)"
+                                strokeWidth="1"
+                              />
+                            )}
+
+                            {/* Transparent Wide Hover Target Column */}
+                            <rect
+                              x={x - stepX / 2}
+                              y={topY}
+                              width={stepX}
+                              height={chartHeight + 24}
+                              fill="transparent"
+                              style={{ cursor: "pointer" }}
+                              onMouseEnter={() => {
+                                setHoveredShiftTrafficPoint({
+                                  x,
+                                  y: topShiftY,
+                                  date: d,
+                                  subuh,
+                                  pagi,
+                                  malam,
+                                  total,
+                                  percentX: (x / svgViewBoxWidth) * 100,
+                                  percentY: (topShiftY / viewBoxHeight) * 100,
+                                });
                               }}
                             />
-                          </div>
+                          </g>
+                        );
+                      })}
+                    </svg>
+
+                    {/* Y-Axis Tick Labels (HTML Overlay - Zero SVG Distortion) */}
+                    <div
+                      className="shift-traffic-y-axis"
+                      style={{ width: `${(startX / svgViewBoxWidth) * 100}%` }}
+                    >
+                      {ticks.map((tick) => {
+                        const yPos = baselineY - Math.round((tick / yMax) * chartHeight);
+                        const percentY = (yPos / viewBoxHeight) * 100;
+                        return (
+                          <span
+                            key={`y-label-${tick}`}
+                            className="shift-traffic-y-label"
+                            style={{ top: `${percentY}%` }}
+                          >
+                            {tick}
+                          </span>
+                        );
+                      })}
+                    </div>
+
+                    {/* X-Axis Date Labels (HTML Overlay - Zero SVG Distortion) */}
+                    <div
+                      className="shift-traffic-x-axis"
+                      style={{ top: `${(baselineY / viewBoxHeight) * 100}%` }}
+                    >
+                      {dateList.map((d, idx) => {
+                        const x =
+                          n > 1 ? Math.round(startX + idx * stepX) : Math.round((startX + endX) / 2);
+                        const showXLabel = idx % dateStride === 0 || idx === n - 1;
+                        if (!showXLabel) return null;
+                        const percentX = (x / svgViewBoxWidth) * 100;
+                        const isHovered = hoveredShiftTrafficPoint?.date === d;
+
+                        return (
+                          <span
+                            key={`x-label-${d}`}
+                            className={`shift-traffic-x-label ${isHovered ? "hovered" : ""}`}
+                            style={{ left: `${percentX}%` }}
+                          >
+                            {d.length >= 10 ? d.slice(5) : d}
+                          </span>
+                        );
+                      })}
+                    </div>
+
+                    {/* Milestone Peak Callout Badge (HTML Overlay - Zero SVG Distortion) */}
+                    {peakPointMeta && !hoveredShiftTrafficPoint && ((peak: ShiftPeakPoint) => {
+                      const percentX = (peak.x / svgViewBoxWidth) * 100;
+                      const percentY = (peak.y / viewBoxHeight) * 100;
+                      const clampedPercentX = Math.max(6, Math.min(94, percentX));
+                      const isNearTop = percentY < 12;
+
+                      return (
+                        <div
+                          className="shift-traffic-peak-badge"
+                          style={{
+                            left: `${clampedPercentX}%`,
+                            top: `${percentY}%`,
+                            transform: isNearTop
+                              ? "translate(-50%, 12px)"
+                              : "translate(-50%, calc(-100% - 10px))",
+                          }}
+                        >
+                          <span className="shift-traffic-peak-dot" />
+                          <span>Peak: <strong>{peak.count} Tiket</strong></span>
                         </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-                <tfoot>
-                  <tr className="heatmap-footer-row">
-                    <td className="shift-name-cell footer-label">
-                      <span>Total Masuk per Hari</span>
-                    </td>
-                    {shiftHeatmapData.dateList.map((d) => (
-                      <td key={`total-${d}`} className="heatmap-cell">
-                        <span className="heat-val-total">{shiftHeatmapData.dateTotals[d] || 0}</span>
-                      </td>
-                    ))}
-                    <td className="shift-total-cell footer-grand-total">
-                      <strong>{shiftHeatmapData.grandTotal} Tiket</strong>
-                    </td>
-                  </tr>
-                </tfoot>
-              </table>
+                      );
+                    })(peakPointMeta)}
+
+                    {/* Floating Interactive Hover Tooltip */}
+                    {hoveredShiftTrafficPoint && (
+                      <div
+                        className="shift-traffic-tooltip"
+                        style={{
+                          left: `${hoveredShiftTrafficPoint.percentX}%`,
+                          top: `${hoveredShiftTrafficPoint.percentY}%`,
+                        }}
+                      >
+                        <div className="shift-traffic-tooltip-header">
+                          <span>📅 {hoveredShiftTrafficPoint.date}</span>
+                          <span style={{ color: "#38bdf8", fontWeight: 700 }}>
+                            {hoveredShiftTrafficPoint.total} Tiket
+                          </span>
+                        </div>
+                        <div className="shift-traffic-tooltip-row">
+                          <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                            <span className="shift-legend-dot dot-pagi" /> Shift Pagi:
+                          </span>
+                          <span className="shift-traffic-tooltip-val" style={{ color: "#fbbf24" }}>
+                            {hoveredShiftTrafficPoint.pagi} Tiket
+                          </span>
+                        </div>
+                        <div className="shift-traffic-tooltip-row">
+                          <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                            <span className="shift-legend-dot dot-malam" /> Shift Malam:
+                          </span>
+                          <span className="shift-traffic-tooltip-val" style={{ color: "#c084fc" }}>
+                            {hoveredShiftTrafficPoint.malam} Tiket
+                          </span>
+                        </div>
+                        <div className="shift-traffic-tooltip-row">
+                          <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                            <span className="shift-legend-dot dot-subuh" /> Shift Subuh:
+                          </span>
+                          <span className="shift-traffic-tooltip-val" style={{ color: "#38bdf8" }}>
+                            {hoveredShiftTrafficPoint.subuh} Tiket
+                          </span>
+                        </div>
+                        <div className="shift-traffic-tooltip-row shift-traffic-tooltip-total">
+                          <span>Total Harian:</span>
+                          <span className="shift-traffic-tooltip-val">
+                            {hoveredShiftTrafficPoint.total} Tiket
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
             </div>
 
-            <div className="heatmap-legend-row">
-              <span className="heat-leg-label">Keterangan Intensitas:</span>
-              <div className="heat-leg-chips">
-                <span className="heat-leg-item">
-                  <span className="heat-chip cell-zero" style={{ minWidth: "24px", height: "20px", fontSize: "10px" }}>0</span> 0 Tiket (Rendah)
+            {/* Filter and Shift Legend Bar */}
+            <div className="shift-traffic-filter-bar">
+              <div className="shift-filter-buttons">
+                <span
+                  style={{
+                    fontSize: "11px",
+                    fontWeight: 600,
+                    color: "var(--ink-muted)",
+                    marginRight: "4px",
+                  }}
+                >
+                  Tampilkan Garis:
                 </span>
-                <span className="heat-leg-item">
-                  <span className="heat-chip cell-low" style={{ minWidth: "24px", height: "20px", fontSize: "10px" }}>1–2</span> 1–2 Tiket (Normal)
-                </span>
-                <span className="heat-leg-item">
-                  <span className="heat-chip cell-mid" style={{ minWidth: "24px", height: "20px", fontSize: "10px" }}>3–4</span> 3–4 Tiket (Padat)
-                </span>
-                <span className="heat-leg-item">
-                  <span className="heat-chip cell-high" style={{ minWidth: "24px", height: "20px", fontSize: "10px" }}>5+</span> 5+ Tiket (Beban Puncak / Peak)
-                </span>
+                <button
+                  type="button"
+                  className={`shift-filter-btn ${activeShiftLineFilter === "all" ? "active" : ""}`}
+                  onClick={() => setActiveShiftLineFilter("all")}
+                >
+                  <span>Semua Shift</span>
+                </button>
+                <button
+                  type="button"
+                  className={`shift-filter-btn ${activeShiftLineFilter === "Pagi" ? "active" : ""}`}
+                  onClick={() => setActiveShiftLineFilter("Pagi")}
+                >
+                  <span className="shift-legend-dot dot-pagi" />
+                  <span>Shift Pagi</span>
+                </button>
+                <button
+                  type="button"
+                  className={`shift-filter-btn ${activeShiftLineFilter === "Malam" ? "active" : ""}`}
+                  onClick={() => setActiveShiftLineFilter("Malam")}
+                >
+                  <span className="shift-legend-dot dot-malam" />
+                  <span>Shift Malam</span>
+                </button>
+                <button
+                  type="button"
+                  className={`shift-filter-btn ${activeShiftLineFilter === "Subuh" ? "active" : ""}`}
+                  onClick={() => setActiveShiftLineFilter("Subuh")}
+                >
+                  <span className="shift-legend-dot dot-subuh" />
+                  <span>Shift Subuh</span>
+                </button>
+              </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  fontSize: "11px",
+                  color: "var(--ink-muted)",
+                }}
+              >
+                <Info size={13} className="text-sky-400" />
+                <span>Arahkan kursor ke kurva grafik untuk rincian tiket per shift.</span>
               </div>
             </div>
           </div>
         </article>
       </div>
 
-      {/* ── 7. Audit Footer ── */}
-      <div className="report-audit-banner">
-        <div className="audit-col">
-          <span className="audit-label">DATA INTEGRITY NOTE</span>
-          <p className="audit-text">
-            Seluruh data dihasilkan secara real-time dari log antrean tiket terdaftar. Tidak ada tiket yang dieliminasi atau dimanipulasi. Data diformulasikan untuk evaluasi kesiapan kapasitas sistem NOC.
-          </p>
-        </div>
-        <div className="audit-meta">
-          <span>Scope: <strong>{dateRangeLabel}</strong></span>
-          <span>Generated: <strong>{new Date().toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" })}</strong></span>
-        </div>
-      </div>
+
 
       {/* ── 8. User Ticket Detail Modal (Task 2: Fixed Viewport Portal Modal) ── */}
       {isMounted &&
@@ -2694,11 +3553,6 @@ export function TicketReportView({ tickets, dateRangeLabel }: TicketReportViewPr
                   ) : (
                     <div className="user-tickets-empty">Tidak ada tiket detail khusus pada filter saat ini.</div>
                   )}
-                </div>
-
-                <div className="user-modal-safeguard">
-                  <Info size={12} className="text-sky-400 flex-shrink-0 mt-0.5" />
-                  <span>Rincian metrik penanganan tiket disajikan murni untuk visibilitas beban kerja dan koordinasi teknis, bukan untuk evaluasi kinerja komparatif.</span>
                 </div>
               </div>
             </div>

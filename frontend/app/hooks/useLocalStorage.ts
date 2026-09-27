@@ -15,12 +15,17 @@ export function useLocalStorage<T>(key: string, initial: T) {
       try {
         const raw = window.localStorage.getItem(key);
         if (raw !== null) {
-          const parsed = JSON.parse(raw) as T;
+          let parsed = JSON.parse(raw) as T;
           const currentInitial = initialRef.current;
+
+          if (Array.isArray(parsed)) {
+            parsed = (parsed as any[]).filter((item: any) => item?.project !== "L2") as T;
+          }
+
           // If stored tickets in localStorage has fewer items than seedTickets (e.g. stale mock data with only 5 tickets),
           // upgrade to the full simulated dataset
           if (
-            key === "ctd.tickets" &&
+            key.startsWith("ctd.tickets") &&
             Array.isArray(parsed) &&
             Array.isArray(currentInitial) &&
             parsed.length < currentInitial.length
@@ -29,6 +34,9 @@ export function useLocalStorage<T>(key: string, initial: T) {
             window.localStorage.setItem(key, JSON.stringify(currentInitial));
           } else {
             setValue(parsed);
+            if (Array.isArray(parsed)) {
+              window.localStorage.setItem(key, JSON.stringify(parsed));
+            }
           }
         }
       } catch {

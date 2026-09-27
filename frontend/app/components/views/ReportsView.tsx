@@ -87,10 +87,9 @@ export function ReportsView({ tickets, assessments, handoverCount }: ReportsView
       <section className="page-heading">
         <div>
           <div className="eyebrow">
-            <span className="live-dot live-dot-pulse" /> ANALITIK OPERASIONAL · {activeClient.code}
+            <span className="live-dot live-dot-pulse" /> REPORTS · {activeClient.code}
           </div>
-          <h1>Laporan — {activeClient.name}</h1>
-          <p>Rekap kesehatan sistem mingguan, asesmen checkpoint, dan ringkasan tiket untuk klien {activeClient.name}.</p>
+          <h1>Reports</h1>
         </div>
         <div className="page-actions">
           <button className="button button-secondary" onClick={printReport}>

@@ -33,12 +33,6 @@ export function statusTone(status: string) {
   return "neutral";
 }
 
-function agingTone(hours: number = 0): { tone: "success" | "warning" | "critical"; label: string } {
-  if (hours <= 2) return { tone: "success", label: `${hours.toFixed(1)}h (Normal)` };
-  if (hours <= 4) return { tone: "warning", label: `${hours.toFixed(1)}h (Aging)` };
-  return { tone: "critical", label: `${hours.toFixed(1)}h (Overdue)` };
-}
-
 export function TicketTable({
   tickets,
   onSelect,
@@ -69,8 +63,7 @@ export function TicketTable({
         <span className="th-project">PROJECT</span>
         <span className="th-assignee">ASSIGNEE</span>
         {showEscalationDetails && <span className="th-escalation">ESCALATED TO</span>}
-        {showEscalationDetails && <span className="th-aging">AGING</span>}
-        <span className="th-priority">PRIORITY</span>
+        <span className="th-priority">SEVERITY</span>
         <span className="th-status">STATUS</span>
         <span className="th-created">CREATED</span>
       </div>
@@ -79,7 +72,6 @@ export function TicketTable({
       <div className="ticket-rows-wrap">
         {rows.map((ticket) => {
           const typeLabel = ticket.type || ticket.category || "Incident";
-          const aging = ticket.agingHours ? agingTone(ticket.agingHours) : null;
 
           return (
             <button
@@ -131,27 +123,9 @@ export function TicketTable({
                 </div>
               )}
 
-              {/* Aging Indicator (Conditional) */}
-              {showEscalationDetails && (
-                <div className="ticket-cell ticket-cell-aging">
-                  <span className="ticket-cell-label">Aging:</span>
-                  {aging ? (
-                    <span className={`ticket-aging-badge aging-${aging.tone}`}>
-                      <span className={`aging-dot aging-dot-${aging.tone}`} />
-                      <span>{aging.label}</span>
-                    </span>
-                  ) : (
-                    <span className="ticket-aging-badge aging-neutral">
-                      <span className="aging-dot" />
-                      <span>&lt; 1h</span>
-                    </span>
-                  )}
-                </div>
-              )}
-
-              {/* Priority */}
+              {/* Priority / Severity */}
               <div className="ticket-cell ticket-cell-priority">
-                <span className="ticket-cell-label">Priority:</span>
+                <span className="ticket-cell-label">Severity:</span>
                 <Badge tone={severityTone(ticket.severity)}>{ticket.severity}</Badge>
               </div>
 

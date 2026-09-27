@@ -6,6 +6,8 @@
   width: 100%;
   margin: 0 auto;
   padding: 28px 32px 44px;
+  /* Perf: isolate layout reflow during sidebar/panel animations */
+  contain: layout style;
 }
 
 .page-heading {

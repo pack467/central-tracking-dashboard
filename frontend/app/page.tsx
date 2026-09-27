@@ -4,6 +4,8 @@ import { lazy, startTransition, Suspense, useCallback, useEffect, useMemo, useSt
 import { Sidebar } from "@/app/components/layout/Sidebar";
 import { Topbar } from "@/app/components/layout/Topbar";
 import { OverviewView } from "@/app/components/views/OverviewView";
+import { FloatingNewTicketButton } from "@/app/components/ui/FloatingNewTicketButton";
+import { ShiftCoveragePanel } from "@/app/components/layout/ShiftCoveragePanel";
 import { ToastProvider, useToast } from "@/app/components/ui/Toast";
 import { useCurrentHour } from "@/app/hooks/useLiveClock";
 import { useLocalStorage } from "@/app/hooks/useLocalStorage";
@@ -30,8 +32,8 @@ const MonitoringView = lazy(() => import("@/app/components/views/MonitoringView"
 const ShiftLogView = lazy(() => import("@/app/components/views/ShiftLogView").then((module) => ({ default: module.ShiftLogView })));
 const ReportsView = lazy(() => import("@/app/components/views/ReportsView").then((module) => ({ default: module.ReportsView })));
 const TeamRosterView = lazy(() => import("@/app/components/views/TeamRosterView").then((module) => ({ default: module.TeamRosterView })));
-const NotificationsView = lazy(() => import("@/app/components/views/NotificationsView").then((module) => ({ default: module.NotificationsView })));
 const ProfileView = lazy(() => import("@/app/components/views/ProfileView").then((module) => ({ default: module.ProfileView })));
+const NotificationsView = lazy(() => import("@/app/components/views/NotificationsView").then((module) => ({ default: module.NotificationsView })));
 import {
   NotificationProvider,
   useNotifications,
@@ -57,7 +59,7 @@ export default function Home() {
 const EMPTY_ASSESSMENTS: Record<string, CheckpointAssessment> = {};
 const EMPTY_ACKNOWLEDGED: string[] = [];
 
-export function Dashboard({ initialNav = "Overview" }: { initialNav?: string }) {
+export function Dashboard({ initialNav = "Dashboard" }: { initialNav?: string }) {
   const notify = useToast();
   const { addNotification } = useNotifications();
   const { activeClient, activeClientId } = useClient();
@@ -78,7 +80,7 @@ export function Dashboard({ initialNav = "Overview" }: { initialNav?: string }) 
     }
   }, []);
 
-  const [tickets, setTickets] = useLocalStorage<Ticket[]>("ctd.tickets.v2", ALL_COMBINED_SEED_TICKETS);
+  const [tickets, setTickets] = useLocalStorage<Ticket[]>("ctd.tickets.v4", ALL_COMBINED_SEED_TICKETS);
   const [assessments, setAssessments] = useLocalStorage<Record<string, CheckpointAssessment>>("ctd.checkpoints", EMPTY_ASSESSMENTS);
   const [acknowledged, setAcknowledged] = useLocalStorage<string[]>("ctd.acknowledged", EMPTY_ACKNOWLEDGED);
 
@@ -88,6 +90,8 @@ export function Dashboard({ initialNav = "Overview" }: { initialNav?: string }) 
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [guideOpen, setGuideOpen] = useState(false);
   const [pendingNoteKey, setPendingNoteKey] = useState<string | null>(null);
+  const [shiftPanelOpen, setShiftPanelOpen] = useLocalStorage<boolean>("ctd.shiftPanelOpen", false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useLocalStorage<boolean>("ctd.sidebarCollapsed", false);
 
   const [members, setMembers] = useState<RosterMember[]>(seedRosterMembers);
   
@@ -117,9 +121,22 @@ export function Dashboard({ initialNav = "Overview" }: { initialNav?: string }) 
     [clientTickets],
   );
 
+  const pageKey = useMemo(() => {
+    if (activeNav === "Dashboard" || activeNav === "Overview" || activeNav === "Utama") return "dashboard";
+    if (activeNav === "Tickets" || activeNav === "Ticket") return "tickets";
+    if (activeNav === "Monitoring") return "monitoring";
+    if (activeNav === "Shift Log" || activeNav === "Log shift") return "shift-log";
+    if (activeNav === "Reports" || activeNav === "Laporan") return "reports";
+    if (activeNav === "Team Roster" || activeNav === "Team" || activeNav === "Roster") return "team-roster";
+    if (activeNav === "Profile" || activeNav === "Profil" || activeNav === "Profil Pengguna") return "profile";
+    if (activeNav === "Notifications" || activeNav === "Notifikasi") return "notifications";
+    return activeNav.toLowerCase();
+  }, [activeNav]);
+
   const handleNavigate = useCallback((nextNav: string) => {
     setActiveNav(nextNav);
     if (typeof window !== "undefined") {
+      window.scrollTo(0, 0);
       if (nextNav === "Profile" || nextNav === "Profil") {
         window.history.replaceState(null, "", "#profile");
       } else if (window.location.hash === "#profile" || window.location.hash === "#profil") {
@@ -202,12 +219,14 @@ export function Dashboard({ initialNav = "Overview" }: { initialNav?: string }) 
     : 0;
 
   return (
-    <main className={`app-shell ${mobileNavOpen ? "nav-locked" : ""}`}>
+    <main className={`app-shell ${mobileNavOpen ? "nav-locked" : ""} ${shiftPanelOpen ? "shift-panel-is-open" : ""} ${sidebarCollapsed ? "sidebar-is-collapsed" : ""}`}>
       <Sidebar
         activeNav={activeNav}
         onNavigate={handleNavigate}
         onPrepareHandover={() => handover.openActive()}
         openTicketCount={openTicketCount}
+        collapsed={sidebarCollapsed}
+        onToggleCollapse={() => setSidebarCollapsed((prev) => !prev)}
       />
 
       <section className="workspace">
@@ -221,75 +240,65 @@ export function Dashboard({ initialNav = "Overview" }: { initialNav?: string }) 
         />
 
         <div className="page-content">
-          <Suspense fallback={<DashboardViewSkeleton />}>
-            {(activeNav === "Overview" || activeNav === "Utama") && (
-              <OverviewView
-                tickets={clientTickets}
-                allTickets={tickets}
-                assessments={assessments}
-                acknowledged={acknowledged}
-                onAcknowledge={acknowledgeAttention}
-                onUnacknowledge={unacknowledgeAttention}
-                currentHour={currentHour}
-                handoverRecord={handover.record}
-                handoverPendingCount={handoverPendingCount}
-                handoverProgressPercent={handoverProgressPercent}
-                handoverSavedLabel={handover.active ? `${handover.record.sourceShift} → ${handover.record.targetShift}` : null}
-                onAssess={handleAssess}
-                onRequestNote={setPendingNoteKey}
-                onOpenGuide={() => setGuideOpen(true)}
-                onGoToTickets={() => handleNavigate("Tickets")}
-                onGoToMonitoring={() => handleNavigate("Monitoring")}
-                onGoToNotifications={() => handleNavigate("Notifikasi")}
-                onSelectTicket={selectTicket}
-                onNewTicket={openTicketCreate}
-                onExportReport={() => {
-                  handleNavigate("Reports");
-                  notify.info("Buka tab Laporan untuk mengekspor ringkasan operasional.", { id: "report-tab-hint" });
-                }}
-                onOpenHandover={() => handover.openReader()}
-                onCreateHandover={() => handover.openWizard("create")}
-              />
-            )}
+          <div key={pageKey} className="page-view-enter">
+            <Suspense fallback={<DashboardViewSkeleton />}>
+              {(activeNav === "Dashboard" || activeNav === "Overview" || activeNav === "Utama") && (
+                <OverviewView
+                  tickets={clientTickets}
+                  allTickets={tickets}
+                  onGoToTickets={() => handleNavigate("Tickets")}
+                />
+              )}
 
-            {(activeNav === "Tickets" || activeNav === "Ticket") && (
-              <TicketsView tickets={clientTickets} onSelectTicket={selectTicket} onNewTicket={openTicketCreate} />
-            )}
+              {(activeNav === "Tickets" || activeNav === "Ticket") && (
+                <TicketsView tickets={clientTickets} onSelectTicket={selectTicket} onNewTicket={openTicketCreate} />
+              )}
 
-            {activeNav === "Monitoring" && (
-              <MonitoringView
-                assessments={assessments}
-                onAssess={handleAssess}
-                onRequestNote={setPendingNoteKey}
-                onOpenGuide={() => setGuideOpen(true)}
-                currentHour={currentHour}
-              />
-            )}
+              {activeNav === "Monitoring" && (
+                <MonitoringView
+                  assessments={assessments}
+                  onAssess={handleAssess}
+                  onRequestNote={setPendingNoteKey}
+                  onOpenGuide={() => setGuideOpen(true)}
+                  currentHour={currentHour}
+                />
+              )}
 
-            {(activeNav === "Shift Log" || activeNav === "Log shift") && (
-              <ShiftLogView workflow={handover} />
-            )}
+              {(activeNav === "Shift Log" || activeNav === "Log shift") && (
+                <ShiftLogView workflow={handover} />
+              )}
 
-            {(activeNav === "Reports" || activeNav === "Laporan") && (
-              <ReportsView tickets={clientTickets} assessments={assessments} handoverCount={handover.allTotal} />
-            )}
+              {(activeNav === "Reports" || activeNav === "Laporan") && (
+                <ReportsView tickets={clientTickets} assessments={assessments} handoverCount={handover.allTotal} />
+              )}
 
-            {(activeNav === "Team Roster" || activeNav === "Team" || activeNav === "Roster") && <TeamRosterView members={members} onMembersChange={setMembers} />}
+              {(activeNav === "Team Roster" || activeNav === "Team" || activeNav === "Roster") && <TeamRosterView members={members} onMembersChange={setMembers} />}
 
-            {(activeNav === "Notifikasi" || activeNav === "Notifications") && (
-              <NotificationsView />
-            )}
+              {(activeNav === "Profile" || activeNav === "Profil" || activeNav === "Profil Pengguna") && (
+                <ProfileView
+                  onNavigateToShiftSwap={() => handleNavigate("Team Roster")}
+                  onNavigateToHandover={() => handleNavigate("Shift Log")}
+                  onNavigateToTickets={() => handleNavigate("Tickets")}
+                />
+              )}
 
-            {(activeNav === "Profile" || activeNav === "Profil" || activeNav === "Profil Pengguna") && (
-              <ProfileView
-                onNavigateToShiftSwap={() => handleNavigate("Team Roster")}
-                onNavigateToHandover={() => handleNavigate("Shift Log")}
-                onNavigateToTickets={() => handleNavigate("Tickets")}
-              />
-            )}
-          </Suspense>
+              {(activeNav === "Notifications" || activeNav === "Notifikasi") && (
+                <NotificationsView />
+              )}
+            </Suspense>
+          </div>
         </div>
       </section>
+
+      {/* ── Floating Action Button: New Ticket (persists across all pages & viewport fixed) ── */}
+      <FloatingNewTicketButton onClick={openTicketCreate} />
+
+      {/* ── Global Shift Coverage Panel (Discord-style right panel) ── */}
+      <ShiftCoveragePanel
+        isOpen={shiftPanelOpen}
+        onToggle={() => setShiftPanelOpen((prev) => !prev)}
+        onNavigateToRoster={() => handleNavigate("Team Roster")}
+      />
 
       <Suspense fallback={null}>
         {mobileNavOpen && (

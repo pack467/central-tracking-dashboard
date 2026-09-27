@@ -9,14 +9,14 @@ async function seedHandoverNotes(db: D1Database) {
   const now = new Date().toISOString();
   const seedActor: HandoverActor = {
     id: "seed-operator",
-    name: "Agnes",
-    email: "agnes@company.internal",
+    name: "Agnes Siahaan",
+    email: "agnes.siahaan@company.internal",
     local: true,
   };
   const prevActor: HandoverActor = {
     id: "prev-operator",
-    name: "Dedi Prasetyo",
-    email: "dedi.prasetyo@company.internal",
+    name: "Tahan Julianus Nadeak",
+    email: "tahan.nadeak@company.internal",
     local: true,
   };
   const prevCreatedAt = new Date(Date.now() - 8 * 3600 * 1000).toISOString();
@@ -26,14 +26,14 @@ async function seedHandoverNotes(db: D1Database) {
   const completedContent = JSON.stringify({
     sourceShift: "Malam",
     targetShift: "Subuh",
-    sourcePic: "Dedi Prasetyo",
-    targetPic: "Agnes",
+    sourcePic: "Tahan Julianus Nadeak",
+    targetPic: "Agnes Siahaan",
     notes: "Pengecekan sistem monitoring shift malam berjalan lancar. Seluruh gateway, queue distributor, dan log collector dalam batas toleransi aman. Mohon pantau koneksi gateway B2B sekunder menjelang lonjakan transaksi pagi.",
     monitoringSummary: "Pengecekan sistem monitoring shift malam berjalan lancar. Seluruh gateway, queue distributor, dan log collector dalam batas toleransi aman.",
-    monitoringOwner: "Dedi Prasetyo",
+    monitoringOwner: "Tahan Julianus Nadeak",
     monitoredProjects: [...initialHandoverRecord.monitoredProjects],
-    validationNote: "Agnes telah memeriksa seluruh checklist dan menerima serah terima shift malam secara penuh.",
-    receiverEmail: "agnes@company.internal",
+    validationNote: "Agnes Siahaan telah memeriksa seluruh checklist dan menerima serah terima shift malam secara penuh.",
+    receiverEmail: "agnes.siahaan@company.internal",
     createdBy: prevActor,
     acceptance: {
       actor: seedActor,
@@ -69,7 +69,7 @@ async function seedHandoverNotes(db: D1Database) {
         severity: "Medium",
         priority: "P2 - Major",
         status: "Open",
-        owner: "Dedi Prasetyo",
+        owner: "Tahan Julianus Nadeak",
         source: "Gateway Log",
         createdAt: "06 Sep 2026, 05:30 WIB",
         updatedAt: "06 Sep 2026, 06:15 WIB",
@@ -132,13 +132,13 @@ async function seedHandoverNotes(db: D1Database) {
     sourceShift: "Pagi",
     targetShift: "Malam",
     sourcePic: "Kristina Marbun",
-    targetPic: "Dedi Prasetyo",
+    targetPic: "Tahan Julianus Nadeak",
     notes: "",
     monitoringSummary: "Semua checkpoint shift pagi terpantau normal.",
     monitoringOwner: "Kristina Marbun",
     monitoredProjects: [...initialHandoverRecord.monitoredProjects],
-    validationNote: "Diterima oleh Dedi Prasetyo.",
-    receiverEmail: "dedi.prasetyo@company.internal",
+    validationNote: "Diterima oleh Tahan Julianus Nadeak.",
+    receiverEmail: "tahan.nadeak@company.internal",
     createdBy: yesterdayActor,
     acceptance: { actor: prevActor, at: yesterdayAcceptedAt },
     findings: [],
@@ -183,13 +183,20 @@ async function seedHandoverNotes(db: D1Database) {
 
   // 4. Seed simulated historical dataset (~45 records) to test pagination and rows-per-page (10, 30, 50, 100)
   const operatorList = [
+    { name: "Tahan Julianus Nadeak", email: "tahan.nadeak@company.internal" },
+    { name: "Yuha Azhari Simbolon", email: "yuha.simbolon@company.internal" },
+    { name: "Nicholas Bima Nooka Putra", email: "nicholas.putra@company.internal" },
+    { name: "Pangondion Kurniawan Naibaho", email: "pangondion.k@company.internal" },
+    { name: "Natanael Tambun", email: "natanael.tambun@company.internal" },
+    { name: "Agnes Siahaan", email: "agnes.siahaan@company.internal" },
+    { name: "Ade Yuri F. Damanik", email: "ade.damanik@company.internal" },
+    { name: "Muhammad Ihsanul Arifin", email: "ihsanul.arifin@company.internal" },
     { name: "Mhd. Galih Khairi", email: "galih.khairi@company.internal" },
+    { name: "Pedro Hutagaol", email: "pedro.hutagaol@company.internal" },
     { name: "Kristina Marbun", email: "kristina.marbun@company.internal" },
-    { name: "M. Ihsanul Arifin", email: "ihsanul.arifin@company.internal" },
-    { name: "Agnes", email: "agnes@company.internal" },
-    { name: "Dedi Prasetyo", email: "dedi.prasetyo@company.internal" },
-    { name: "Pangondion Kurniawan", email: "pangondion.k@company.internal" },
-    { name: "Natanael", email: "natanael@company.internal" },
+    { name: "Andri Agung Exaudi Sigiro", email: "andri.sigiro@company.internal" },
+    { name: "Dimas Yudistira", email: "dimas.yudistira@company.internal" },
+    { name: "Tennov Pakpahan", email: "tennov.pakpahan@company.internal" },
   ];
   const shiftsCycle = [
     { from: "Malam", to: "Subuh" },
