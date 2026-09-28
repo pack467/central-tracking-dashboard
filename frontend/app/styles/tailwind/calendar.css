@@ -1,0 +1,268 @@
+/*
+ * Tailwind v4 migration of calendar.css.
+ * Legacy declarations are represented one-for-one as arbitrary-property utilities.
+ * Keep the matching legacy source file unimported until visual review is approved.
+ */
+/* ═══════════════════════════════════════════════
+   MONTHLY CALENDAR VIEW
+═══════════════════════════════════════════════ */
+.cal-view-tabs {
+  @apply [flex-shrink:0];
+}
+
+.monthly-cal-wrapper {
+  @apply [padding:0_16px_20px];
+}
+
+.monthly-cal-dow-row,
+.monthly-cal-week-row {
+  @apply [display:grid];
+  @apply [grid-template-columns:repeat(7,_1fr)];
+  @apply [gap:5px];
+  @apply [margin-bottom:5px];
+}
+
+.monthly-cal-dow-head {
+  @apply [padding:5px_0];
+  @apply [text-align:center];
+  @apply [font-family:var(--font-mono)];
+  @apply [font-size:10px];
+  @apply [font-weight:700];
+  @apply [color:var(--ink-muted)];
+  @apply [text-transform:uppercase];
+  @apply [letter-spacing:0.5px];
+}
+
+.monthly-cal-day {
+  @apply [min-height:72px];
+  @apply [border-radius:9px];
+  @apply [border:1px_solid_var(--line)];
+  @apply [padding:7px_6px_5px];
+  @apply [background:var(--panel-bg)];
+  @apply [display:flex];
+  @apply [flex-direction:column];
+  @apply [align-items:flex-start];
+  @apply [gap:4px];
+  @apply [text-align:left];
+  @apply [cursor:pointer];
+  @apply [transition:border-color_0.15s_ease,_box-shadow_0.15s_ease,_background_0.15s_ease];
+}
+
+.monthly-cal-day:hover {
+  @apply [border-color:var(--accent-blue-border)];
+  @apply [box-shadow:0_0_0_2px_var(--accent-blue-soft)];
+}
+
+.monthly-cal-day-empty {
+  @apply [background:transparent];
+  @apply [border-color:transparent];
+  @apply [cursor:default];
+  @apply [pointer-events:none];
+}
+
+.monthly-cal-day-today {
+  @apply [border-color:var(--accent-blue)];
+  @apply [background:var(--accent-blue-soft)];
+}
+
+.monthly-cal-day-selected {
+  @apply [border-color:var(--accent-blue)];
+  @apply [box-shadow:0_0_0_2px_var(--accent-blue)];
+}
+
+.monthly-day-num {
+  @apply [font-size:12px];
+  @apply [font-weight:700];
+  @apply [color:var(--ink-primary)];
+  @apply [font-family:var(--font-mono)];
+  @apply [line-height:1];
+}
+
+.monthly-cal-day-today .monthly-day-num {
+  @apply [color:var(--accent-blue)];
+}
+
+.monthly-day-avatars {
+  @apply [display:flex];
+  @apply [gap:3px];
+  @apply [flex-wrap:wrap];
+}
+
+.monthly-avatar-dot {
+  @apply [display:inline-flex];
+  @apply [align-items:center];
+  @apply [justify-content:center];
+  @apply [width:18px];
+  @apply [height:18px];
+  @apply [border-radius:99px];
+  @apply [border:1.5px_solid_var(--panel-border)];
+  @apply [font-size:8px];
+  @apply [font-weight:800];
+  @apply [color:#fff];
+  @apply [letter-spacing:-0.5px];
+  @apply [flex-shrink:0];
+}
+
+.monthly-avatar-more {
+  @apply [background:var(--panel-bg)];
+  @apply [color:var(--ink-secondary)];
+  @apply [border-color:var(--line)];
+  @apply [font-size:8px];
+  @apply [font-weight:700];
+}
+
+.monthly-day-count {
+  @apply [font-size:9.5px];
+  @apply [color:var(--ink-muted)];
+  @apply [font-family:var(--font-mono)];
+  @apply [font-weight:600];
+}
+
+/* Day detail panel below the calendar grid */
+.monthly-day-detail {
+  @apply [margin-top:14px];
+  @apply [border-radius:10px];
+  @apply [border:1px_solid_var(--accent-blue-border)];
+  @apply [background:var(--panel-bg)];
+  @apply [overflow:hidden];
+}
+
+.monthly-day-detail-header {
+  @apply [display:flex];
+  @apply [justify-content:space-between];
+  @apply [align-items:center];
+  @apply [padding:10px_14px];
+  @apply [background:var(--accent-blue-soft)];
+  @apply [border-bottom:1px_solid_var(--accent-blue-border)];
+  @apply [font-size:12.5px];
+  @apply [color:var(--ink-primary)];
+}
+
+.monthly-day-detail-header button {
+  @apply [width:24px];
+  @apply [height:24px];
+  @apply [border-radius:5px];
+  @apply [background:transparent];
+  @apply [color:var(--ink-muted)];
+  @apply [font-size:16px];
+  @apply [display:grid];
+  @apply [place-items:center];
+  @apply [transition:background_0.12s];
+}
+
+.monthly-day-detail-header button:hover {
+  @apply [background:rgba(127,_127,_127,_0.15)];
+}
+
+.monthly-day-detail-list {
+  @apply [display:grid];
+  @apply [gap:0];
+}
+
+.monthly-day-member-row {
+  @apply [display:flex];
+  @apply [align-items:center];
+  @apply [gap:10px];
+  @apply [padding:10px_14px];
+  @apply [border-bottom:1px_solid_var(--line)];
+  @apply [cursor:pointer];
+  @apply [transition:background_0.12s_ease];
+}
+
+.monthly-day-member-row:last-child {
+  @apply [border-bottom:0];
+}
+
+.monthly-day-member-row:hover {
+  @apply [background:var(--panel-bg-hover)];
+}
+
+.monthly-shift-pill {
+  @apply [margin-left:auto];
+  @apply [display:inline-flex];
+  @apply [align-items:center];
+  @apply [padding:3px_8px];
+  @apply [border-radius:99px];
+  @apply [border:1px_solid_var(--line)];
+  @apply [font-size:11px];
+  @apply [font-weight:700];
+  @apply [font-family:var(--font-mono)];
+  @apply [flex-shrink:0];
+}
+
+/* ═══════════════════════════════════════════════
+   PER-MEMBER MONTHLY HEATMAP (inside Drawer)
+═══════════════════════════════════════════════ */
+.member-heatmap-wrapper {
+  @apply [margin-top:4px];
+}
+
+.member-heatmap-dow {
+  @apply [display:grid];
+  @apply [grid-template-columns:repeat(7,_1fr)];
+  @apply [gap:3px];
+  @apply [margin-bottom:4px];
+}
+
+.member-heatmap-dow div {
+  @apply [text-align:center];
+  @apply [font-size:9px];
+  @apply [font-weight:700];
+  @apply [font-family:var(--font-mono)];
+  @apply [color:var(--ink-muted)];
+  @apply [text-transform:uppercase];
+  @apply [padding:2px_0];
+}
+
+.member-heatmap-grid {
+  @apply [display:grid];
+  @apply [grid-template-columns:repeat(7,_1fr)];
+  @apply [gap:3px];
+}
+
+.member-heatmap-cell {
+  @apply [aspect-ratio:1_/_1];
+  @apply [border-radius:5px];
+  @apply [border:1px_solid_var(--line)];
+  @apply [display:flex];
+  @apply [flex-direction:column];
+  @apply [align-items:center];
+  @apply [justify-content:center];
+  @apply [background:var(--bg)];
+  @apply [cursor:default];
+}
+
+.member-heatmap-empty {
+  @apply [background:transparent];
+  @apply [border-color:transparent];
+}
+
+.member-heatmap-today {
+  @apply [border-width:2px];
+  @apply ![border-color:var(--accent-blue)];
+}
+
+.heatmap-day-num {
+  @apply [font-size:8px];
+  @apply [font-family:var(--font-mono)];
+  @apply [font-weight:700];
+  @apply [line-height:1];
+  @apply [opacity:0.75];
+}
+
+.heatmap-shift-code {
+  @apply [font-size:10px];
+  @apply [font-weight:800];
+  @apply [line-height:1];
+  @apply [margin-top:1px];
+}
+
+.member-heatmap-legend {
+  @apply [display:flex];
+  @apply [gap:10px];
+  @apply [flex-wrap:wrap];
+  @apply [margin-top:8px];
+  @apply [padding-top:8px];
+  @apply [border-top:1px_solid_var(--line)];
+}
+

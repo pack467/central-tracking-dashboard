@@ -254,9 +254,9 @@ export function MonitoringHistorySection({ todayEntries, todayAssessments }: Mon
   }, [filteredHistory, notify]);
 
   return (
-    <article className="panel view-panel history-panel">
+    <article className="panel view-panel [margin-top:24px]">
       {/* 1. Header & Title */}
-      <div className="panel-heading history-heading">
+      <div className="[display:flex] [align-items:center] [justify-content:space-between] [gap:14px] [flex-wrap:wrap] [padding:var(--space-4)_var(--space-5)] [border-bottom:1px_solid_var(--line)]">
         <div>
           <div className="panel-title">Riwayat Asesmen Checkpoint</div>
         </div>
@@ -264,7 +264,7 @@ export function MonitoringHistorySection({ todayEntries, todayAssessments }: Mon
         <div className="history-head-actions">
           <button
             type="button"
-            className="button button-sm button-secondary history-export-btn"
+            className="[height:30px] [display:inline-flex] [align-items:center] [justify-content:center] [gap:6px] [padding:0_10px] [border-radius:7px] [font-size:12px]! [font-weight:600] [transition:all_0.15s_ease] [color:var(--ink-primary)] [border:1px_solid_var(--panel-border)]! [background:var(--panel-bg)]! hover:[background:var(--panel-bg-hover)]!"
             onClick={handleExportCSV}
             title="Download log asesmen ke format CSV"
           >
@@ -274,7 +274,7 @@ export function MonitoringHistorySection({ todayEntries, todayAssessments }: Mon
       </div>
 
       {/* 2. Filter & Search Toolbar */}
-      <div className="history-toolbar">
+      <div className="[display:flex] [align-items:center] [justify-content:space-between] [gap:12px] [flex-wrap:wrap] [padding:12px_18px] [background:var(--bg)] [border-bottom:1px_solid_var(--line)]">
         {/* Search input */}
         <div className="history-search-wrap">
           <Search size={14} className="history-search-icon" />
@@ -298,26 +298,32 @@ export function MonitoringHistorySection({ todayEntries, todayAssessments }: Mon
         </div>
 
         {/* Filter Controls */}
-        <div className="history-filters-group">
+        <div className="[display:flex] [align-items:center] [gap:10px] [flex-wrap:wrap]">
           {/* Verdict Filter Pills */}
-          <div className="history-filter-pill-group" role="group" aria-label="Filter status verdict">
+          <div className="[display:flex] [gap:4px] [background:var(--panel-bg)] [padding:3px] [border-radius:7px] [border:1px_solid_var(--line)]" role="group" aria-label="Filter status verdict">
             <button
               type="button"
-              className={`filter-pill-btn ${verdictFilter === "all" ? "active" : ""}`}
+              className={`[padding:4px_9px] [border-radius:5px] [font-size:11px]! [font-weight:600] [color:var(--ink-muted)] [transition:all_0.15s_ease] ${
+                verdictFilter === "all" ? "[background:var(--accent-blue-soft)]! [color:var(--accent-blue)]" : ""
+              }`}
               onClick={() => setVerdictFilter("all")}
             >
               Semua ({totalFilteredCount})
             </button>
             <button
               type="button"
-              className={`filter-pill-btn ok ${verdictFilter === "ok" ? "active" : ""}`}
+              className={`[padding:4px_9px] [border-radius:5px] [font-size:11px]! [font-weight:600] [color:var(--ink-muted)] [transition:all_0.15s_ease] ${
+                verdictFilter === "ok" ? "[background:var(--green-soft)]! [color:var(--green)]" : ""
+              }`}
               onClick={() => setVerdictFilter("ok")}
             >
               ✓ OK ({okFilteredCount})
             </button>
             <button
               type="button"
-              className={`filter-pill-btn nok ${verdictFilter === "nok" ? "active" : ""}`}
+              className={`[padding:4px_9px] [border-radius:5px] [font-size:11px]! [font-weight:600] [color:var(--ink-muted)] [transition:all_0.15s_ease] ${
+                verdictFilter === "nok" ? "[background:var(--red-soft)]! [color:var(--red)]" : ""
+              }`}
               onClick={() => setVerdictFilter("nok")}
             >
               ✗ NOK ({nokFilteredCount})
@@ -340,18 +346,18 @@ export function MonitoringHistorySection({ todayEntries, todayAssessments }: Mon
 
       {/* 3. Grouped History List */}
       {totalCount > 0 ? (
-        <div className="history-entries-container">
+        <div className="[display:flex] [flex-direction:column]">
           {groupedPageEntries.map((group) => {
             const stats = dateStatsMap.get(group.date);
             return (
-              <div key={group.date} className="history-date-group">
-                <div className="history-date-header">
-                  <div className="history-date-header-inner">
-                    <span className="history-date-title">{group.header}</span>
-                    <div className="history-date-summary">
-                      <span className="badge-stat ok">✓ {stats?.ok ?? 0} OK</span>
-                      <span className="badge-stat nok">✗ {stats?.nok ?? 0} NOK</span>
-                      <span className="badge-stat total">{stats?.total ?? 0} total</span>
+              <div key={group.date} className="[display:flex] [flex-direction:column]">
+                <div className="[box-sizing:border-box] [padding:12px_16px_6px] [display:flex] [align-items:center] [background:var(--panel-bg)]">
+                  <div className="[width:100%] [display:flex] [align-items:center] [justify-content:space-between] [gap:10px] [padding:6px_12px] [background:color-mix(in_srgb,_var(--accent-blue-soft)_30%,_var(--bg))] [border:1px_solid_var(--line)] [border-radius:6px]">
+                    <span className="[font-size:11px] [font-weight:700] [color:var(--ink-primary)] [font-family:var(--font-mono)]">{group.header}</span>
+                    <div className="[display:flex] [align-items:center] [gap:6px]">
+                      <span className="[font-size:9.5px] [font-weight:700] [font-family:var(--font-mono)] [padding:1px_5px] [border-radius:4px] [color:var(--green)] [background:var(--green-soft)]">✓ {stats?.ok ?? 0} OK</span>
+                      <span className="[font-size:9.5px] [font-weight:700] [font-family:var(--font-mono)] [padding:1px_5px] [border-radius:4px] [color:var(--red)] [background:var(--red-soft)]">✗ {stats?.nok ?? 0} NOK</span>
+                      <span className="[font-size:9.5px] [font-weight:700] [font-family:var(--font-mono)] [padding:1px_5px] [border-radius:4px] [color:var(--ink-muted)] [background:rgba(148,_163,_184,_0.15)]">{stats?.total ?? 0} total</span>
                     </div>
                   </div>
                 </div>
@@ -364,37 +370,47 @@ export function MonitoringHistorySection({ todayEntries, todayAssessments }: Mon
                     return (
                       <div
                         key={entry.id}
-                        className={`assessment-history-row-enhanced ${isOk ? "row-verdict-ok" : "row-verdict-nok"}`}
+                        className={`[box-sizing:border-box] [display:grid] [grid-template-columns:70px_minmax(160px,_1.4fr)_80px_minmax(0,_2.2fr)] [align-items:center] [gap:12px] [padding:8px_16px] [border-bottom:1px_solid_var(--line)] [transition:background_0.15s_ease] [@media(max-width:768px)]:[grid-template-columns:60px_1fr_70px] [@media(max-width:768px)]:[grid-template-areas:'time_project_verdict'_'note_note_note'] [@media(max-width:768px)]:[height:auto]! [@media(max-width:768px)]:[position:relative]! [@media(max-width:768px)]:[transform:none]! [@media(max-width:768px)]:[padding:10px_14px] ${
+                          isOk
+                            ? "[background:color-mix(in_srgb,_var(--green-soft)_20%,_var(--panel-bg))]"
+                            : "[background:color-mix(in_srgb,_var(--red-soft)_25%,_var(--panel-bg))] [border-left:3px_solid_var(--red)]"
+                        }`}
                       >
                         {/* Time */}
-                        <span className="history-time-cell">
-                          <strong>{entry.time}</strong>
-                          <small>{entry.date.slice(5)}</small>
+                        <span className="[display:flex] [flex-direction:column]">
+                          <strong className="[font-size:12px] [font-weight:700] [font-family:var(--font-mono)] [color:var(--ink-primary)]">{entry.time}</strong>
+                          <small className="[font-size:9px] [color:var(--ink-muted)] [font-family:var(--font-mono)]">{entry.date.slice(5)}</small>
                         </span>
 
                         {/* Project & Task */}
-                        <div className="history-project-cell">
+                        <div className="[display:flex] [align-items:center] [gap:8px] [min-width:0]">
                           <ProjectMark name={entry.project} />
-                          <div className="history-project-text">
-                            <strong>{entry.project}</strong>
-                            <span className="history-task-name">{entry.task}</span>
+                          <div className="[display:flex] [flex-direction:column] [min-width:0]">
+                            <strong className="[font-size:12px] [font-weight:700] [color:var(--ink-primary)]">{entry.project}</strong>
+                            <span className="[font-size:10.5px] [color:var(--ink-secondary)] [overflow:hidden] [text-overflow:ellipsis] [white-space:nowrap]">{entry.task}</span>
                           </div>
                         </div>
 
                         {/* Verdict Badge */}
                         <div className="history-verdict-cell">
-                          <span className={`assessment-verdict-badge ${isOk ? "verdict-ok" : "verdict-nok"}`}>
+                          <span
+                            className={`[display:inline-flex] [align-items:center] [justify-content:center] [padding:2px_7px] [border-radius:5px] [font-size:10px] [font-weight:800] [font-family:var(--font-mono)] [line-height:1.2] ${
+                              isOk
+                                ? "[color:var(--green)] [background:var(--green-soft)] [border:1px_solid_var(--green-border)]"
+                                : "[color:var(--red)] [background:var(--red-soft)] [border:1px_solid_var(--red-border)]"
+                            }`}
+                          >
                             {isOk ? "✓ OK" : "✗ NOK"}
                           </span>
                         </div>
 
                         {/* Note & Checker */}
-                        <div className="history-note-cell">
-                          <span className="history-note-text" title={entry.note}>
+                        <div className="[display:flex] [flex-direction:column] [min-width:0] [gap:2px]">
+                          <span className="[font-size:11.5px] [color:var(--ink-primary)] [overflow:hidden] [text-overflow:ellipsis] [white-space:nowrap]" title={entry.note}>
                             {entry.note || "Tanpa catatan tambahan."}
                           </span>
-                          <div className="history-checker-info">
-                            <span className="history-checker-name">
+                          <div className="[display:flex] [align-items:center] [gap:4px] [font-size:9.5px] [color:var(--ink-muted)] [font-family:var(--font-mono)]">
+                            <span className="[display:inline-flex] [align-items:center] [gap:3px] [font-weight:600]">
                               <User size={11} /> {entry.owner}
                             </span>
                             <span className="history-checker-role">· {ownerRole}</span>

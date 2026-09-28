@@ -11,6 +11,12 @@ export interface ProjectSelectProps {
   id?: string;
 }
 
+const PROJECT_SELECT_CONTAINER_CLASS = "[display:flex] [flex-direction:column] [gap:6px] [width:100%]";
+const PROJECT_SELECT_DROPDOWN_CLASS =
+  "[width:100%] [border-radius:7px] [padding:8px_11px] [font-size:12px]! [background:var(--input-bg)] [border:1px_solid_var(--panel-border)] [color:var(--ink-primary)] [cursor:pointer] [outline:none] [transition:border-color_0.15s_ease,_box-shadow_0.15s_ease] focus:[border-color:var(--accent-blue)] focus:[box-shadow:0_0_0_3px_var(--accent-blue-soft)]";
+const PROJECT_SELECT_CUSTOM_INPUT_CLASS =
+  "[width:100%] [border-radius:6px] [padding:7px_10px] [font-size:11.5px]! [background:rgba(15,_23,_42,_0.85)] [border:1px_dashed_var(--accent-blue-border)] [color:var(--ink-primary)] [outline:none] [transition:border-color_0.15s_ease] focus:[border-color:var(--accent-blue)] focus:[border-style:solid] focus:[box-shadow:0_0_0_2px_var(--accent-blue-soft)]";
+
 export function ProjectSelect({
   value,
   onChange,
@@ -42,10 +48,10 @@ export function ProjectSelect({
   };
 
   return (
-    <div className={`project-select-container ${className}`}>
+    <div className={`${PROJECT_SELECT_CONTAINER_CLASS} project-select-container ${className}`}>
       <select
         id={selectId}
-        className="project-select-dropdown"
+        className={`${PROJECT_SELECT_DROPDOWN_CLASS} project-select-dropdown`}
         value={isCustomMode || (!isStandard && value) ? "__custom__" : value}
         onChange={handleSelectChange}
       >
@@ -64,7 +70,7 @@ export function ProjectSelect({
       {(isCustomMode || (!isStandard && value)) && (
         <input
           type="text"
-          className="project-select-custom-input"
+          className={`${PROJECT_SELECT_CUSTOM_INPUT_CLASS} project-select-custom-input`}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder="Ketik nama proyek lain..."

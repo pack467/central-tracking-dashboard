@@ -1,0 +1,290 @@
+/*
+ * Tailwind v4 migration of legacy source.
+ * Legacy declarations are represented one-for-one as arbitrary-property utilities.
+ * Keep the matching legacy source file unimported until visual review is approved.
+ */
+/* ═══════════════════════════════════════════════
+   DASHBOARD GRID & PANELS
+═══════════════════════════════════════════════ */
+
+
+
+
+
+.stat-card-blue::before {
+  @apply [background:linear-gradient(90deg,_#38bdf8_0%,_#3b82f6_100%)];
+}
+
+.stat-card-green::before {
+  @apply [background:linear-gradient(90deg,_#4ade80_0%,_#22c55e_100%)];
+}
+
+.stat-card-amber::before {
+  @apply [background:linear-gradient(90deg,_#fbbf24_0%,_#f59e0b_100%)];
+}
+
+.stat-card-rose::before {
+  @apply [background:linear-gradient(90deg,_#f87171_0%,_#ef4444_100%)];
+}
+
+.stat-card-purple::before {
+  @apply [background:linear-gradient(90deg,_#c084fc_0%,_#a855f7_100%)];
+}
+
+/* Flat hover — border tint only, no lift or shadow */
+.stat-card-modern:hover {
+  @apply [background:var(--panel-bg-hover)];
+}
+
+.stat-card-modern:hover::before {
+  @apply [height:3px];
+  @apply [opacity:1];
+}
+
+.stat-card-blue:hover {
+  @apply [border-color:rgba(56,_189,_248,_0.45)];
+}
+
+.stat-card-green:hover {
+  @apply [border-color:rgba(74,_222,_128,_0.45)];
+}
+
+.stat-card-amber:hover {
+  @apply [border-color:rgba(251,_191,_36,_0.45)];
+}
+
+.stat-card-rose:hover {
+  @apply [border-color:rgba(248,_113,_113,_0.45)];
+}
+
+.stat-card-alert {
+  @apply [border-color:rgba(239,_68,_68,_0.4)];
+  @apply [animation:statCardAlertGlow_3s_ease-in-out_infinite_alternate];
+}
+
+@keyframes statCardAlertGlow {
+  0% {
+    border-color: rgba(239, 68, 68, 0.3);
+    box-shadow: 0 0 0 rgba(239, 68, 68, 0);
+  }
+  100% {
+    border-color: rgba(239, 68, 68, 0.6);
+    box-shadow: 0 0 14px rgba(239, 68, 68, 0.18);
+  }
+}
+
+.stat-card-clickable {
+  @apply [cursor:pointer];
+  @apply [user-select:none];
+}
+
+.stat-card-header {
+  @apply [display:flex];
+  @apply [justify-content:space-between];
+  @apply [align-items:center];
+  @apply [gap:10px];
+}
+
+.stat-card-title {
+  @apply [font-size:11px];
+  @apply [font-weight:700];
+  @apply [letter-spacing:0.8px];
+  @apply [font-family:var(--font-mono)];
+  @apply [text-transform:uppercase];
+  @apply [color:var(--ink-muted)];
+}
+
+/* Soft Icon Badges */
+.stat-icon-badge {
+  @apply [display:inline-grid];
+  @apply [place-items:center];
+  @apply [width:36px];
+  @apply [height:36px];
+  @apply [border-radius:10px];
+  @apply [flex-shrink:0];
+}
+
+/* Icon badge: no scale on hover */
+
+.stat-icon-badge-blue {
+  @apply [background:rgba(56,_189,_248,_0.12)];
+  @apply [color:#38bdf8];
+  @apply [border:1px_solid_rgba(56,_189,_248,_0.25)];
+}
+
+.stat-icon-badge-green {
+  @apply [background:rgba(74,_222,_128,_0.12)];
+  @apply [color:#4ade80];
+  @apply [border:1px_solid_rgba(74,_222,_128,_0.25)];
+}
+
+.stat-icon-badge-amber {
+  @apply [background:rgba(251,_191,_36,_0.12)];
+  @apply [color:#fbbf24];
+  @apply [border:1px_solid_rgba(251,_191,_36,_0.25)];
+}
+
+.stat-icon-badge-rose {
+  @apply [background:rgba(248,_113,_113,_0.12)];
+  @apply [color:#f87171];
+  @apply [border:1px_solid_rgba(248,_113,_113,_0.25)];
+}
+
+.stat-icon-badge-purple {
+  @apply [background:rgba(192,_132,_252,_0.12)];
+  @apply [color:#c084fc];
+  @apply [border:1px_solid_rgba(192,_132,_252,_0.25)];
+}
+
+/* Main Value & Subtitle */
+.stat-card-main {
+  @apply [margin-top:10px];
+}
+
+.stat-value-wrap {
+  @apply [display:flex];
+  @apply [align-items:baseline];
+  @apply [gap:4px];
+}
+
+.stat-card-value {
+  @apply [font-size:32px];
+  @apply [font-weight:800];
+  @apply [letter-spacing:-0.8px];
+  @apply [line-height:1];
+  @apply [color:var(--ink-primary)];
+}
+
+.stat-card-unit {
+  @apply [font-size:14px];
+  @apply [font-weight:600];
+  @apply [color:var(--ink-muted)];
+}
+
+.stat-card-subtitle {
+  @apply [font-size:12px];
+  @apply [font-weight:500];
+  @apply [color:var(--ink-secondary)];
+  @apply [margin-top:6px];
+  @apply [line-height:1.4];
+}
+
+/* Progress & Segment Bars */
+.stat-card-progress-section {
+  @apply [margin-top:14px];
+  @apply [margin-bottom:12px];
+}
+
+.stat-progress-label {
+  @apply [font-size:10px];
+  @apply [font-weight:600];
+  @apply [font-family:var(--font-mono)];
+  @apply [color:var(--ink-muted)];
+  @apply [margin-bottom:5px];
+}
+
+.stat-progress-track {
+  @apply [height:5px];
+  @apply [width:100%];
+  @apply [background:rgba(148,_163,_184,_0.15)];
+  @apply [border-radius:99px];
+  @apply [overflow:hidden];
+  @apply [display:flex];
+}
+
+.stat-progress-segment {
+  @apply [height:100%];
+  @apply [transition:width_0.3s_ease];
+}
+
+.stat-progress-segment:first-child {
+  @apply [border-top-left-radius:99px];
+  @apply [border-bottom-left-radius:99px];
+}
+
+.stat-progress-segment:last-child {
+  @apply [border-top-right-radius:99px];
+  @apply [border-bottom-right-radius:99px];
+}
+
+.stat-progress-bar {
+  @apply [height:100%];
+  @apply [border-radius:99px];
+  @apply [transition:width_0.3s_ease];
+}
+
+/* Footer & Status Pill Badges */
+.stat-card-footer {
+  @apply [display:flex];
+  @apply [align-items:center];
+  @apply [justify-content:space-between];
+  @apply [gap:8px];
+  @apply [margin-top:auto];
+  @apply [padding-top:4px];
+}
+
+.stat-pill-badge {
+  @apply [display:inline-flex];
+  @apply [align-items:center];
+  @apply [gap:5px];
+  @apply [padding:3.5px_9px];
+  @apply [border-radius:99px];
+  @apply [font-size:10.5px];
+  @apply [font-weight:600];
+  @apply [font-family:var(--font-mono)];
+  @apply [letter-spacing:0.2px];
+  @apply [line-height:1];
+}
+
+.stat-pill-icon {
+  @apply [display:inline-flex];
+  @apply [align-items:center];
+}
+
+.stat-pill-blue {
+  @apply [background:rgba(56,_189,_248,_0.12)];
+  @apply [color:#38bdf8];
+  @apply [border:1px_solid_rgba(56,_189,_248,_0.25)];
+}
+
+.stat-pill-green {
+  @apply [background:rgba(74,_222,_128,_0.12)];
+  @apply [color:#4ade80];
+  @apply [border:1px_solid_rgba(74,_222,_128,_0.25)];
+}
+
+.stat-pill-amber {
+  @apply [background:rgba(251,_191,_36,_0.12)];
+  @apply [color:#fbbf24];
+  @apply [border:1px_solid_rgba(251,_191,_36,_0.25)];
+}
+
+.stat-pill-rose {
+  @apply [background:rgba(248,_113,_113,_0.15)];
+  @apply [color:#f87171];
+  @apply [border:1px_solid_rgba(248,_113,_113,_0.32)];
+}
+
+.stat-pill-neutral {
+  @apply [background:rgba(148,_163,_184,_0.12)];
+  @apply [color:#94a3b8];
+  @apply [border:1px_solid_rgba(148,_163,_184,_0.22)];
+}
+
+.stat-card-action-hint {
+  @apply [font-size:11px];
+  @apply [font-weight:600];
+  @apply [color:var(--ink-muted)];
+  @apply [transition:color_0.15s_ease,_transform_0.15s_ease];
+}
+
+.stat-card-clickable:hover .stat-card-action-hint {
+  @apply [color:var(--accent-blue,_#38bdf8)];
+}
+
+.stat-card-clickable:hover .stat-card-action-hint span {
+  @apply [display:inline-block];
+  @apply [transform:translateX(2px)];
+  @apply [transition:transform_0.15s_ease];
+}
+

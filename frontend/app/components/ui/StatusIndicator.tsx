@@ -23,6 +23,30 @@ export interface StatusIndicatorProps {
   style?: React.CSSProperties;
 }
 
+const STATUS_INDICATOR_BASE_CLASS = "status-indicator [display:inline-flex] [align-items:center] [font-weight:500] [line-height:1] [white-space:nowrap] [flex-shrink:0] [user-select:none]";
+
+const STATUS_INDICATOR_SIZE_CLASSES = {
+  sm: "[font-size:10px] [gap:4px]",
+  md: "[font-size:11px] [gap:5.5px]",
+} as const;
+
+const STATUS_INDICATOR_STATE_CLASSES = {
+  bertugas: "[color:#4ade80]",
+  online: "[color:#38bdf8]",
+  offline: "[color:#94a3b8]",
+} as const;
+
+const STATUS_DOT_SIZE_CLASSES = {
+  sm: "[width:5px] [height:5px]",
+  md: "[width:6px] [height:6px]",
+} as const;
+
+const STATUS_DOT_STATE_CLASSES = {
+  bertugas: "[background:#22c55e] [box-shadow:0_0_6px_rgba(34,_197,_94,_0.65)]",
+  online: "[background:#38bdf8] [box-shadow:0_0_6px_rgba(56,_189,_248,_0.65)]",
+  offline: "[background:#64748b]",
+} as const;
+
 /**
  * Resolves any incoming status string to one of three canonical states:
  * 1. "bertugas" (Green dot + "Bertugas" label)
@@ -67,15 +91,17 @@ export function StatusIndicator({
 }: StatusIndicatorProps) {
   const { state, defaultLabel } = resolveMemberStatus(status);
   const displayLabel = label ?? defaultLabel;
-  const sizeClass = size === "sm" ? "status-indicator-sm" : "";
 
   return (
     <span
-      className={`status-indicator status-indicator-${state} ${sizeClass} ${className}`.trim()}
+      className={`${STATUS_INDICATOR_BASE_CLASS} ${STATUS_INDICATOR_SIZE_CLASSES[size]} ${STATUS_INDICATOR_STATE_CLASSES[state]} ${className}`.trim()}
       style={style}
       aria-label={`Status: ${displayLabel}`}
     >
-      <span className="status-indicator-dot" aria-hidden="true" />
+      <span
+        className={`[border-radius:50%] [flex-shrink:0] ${STATUS_DOT_SIZE_CLASSES[size]} ${STATUS_DOT_STATE_CLASSES[state]}`}
+        aria-hidden="true"
+      />
       <span className="status-indicator-label">{displayLabel}</span>
     </span>
   );

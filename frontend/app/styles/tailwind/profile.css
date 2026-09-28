@@ -1,0 +1,775 @@
+/*
+ * Tailwind v4 migration of profile.css.
+ * Legacy declarations are represented one-for-one as arbitrary-property utilities.
+ * Keep the matching legacy source file unimported until visual review is approved.
+ */
+/* ═════════════════════════════════════════════════════════════════════
+   PROFIL PENGGUNA (USER PROFILE) STYLES
+   Clean, modern, responsive NOC operator profile view.
+   CRITICAL CONSTRAINT: STRICTLY ZERO floating/lift hover effects
+   (Strictly no floating lift, no growing box-shadows on hover).
+   ═════════════════════════════════════════════════════════════════════ */
+
+.profile-page-container {
+  @apply [display:flex];
+  @apply [flex-direction:column];
+  @apply [gap:20px];
+  @apply [width:100%];
+}
+
+/* ── 1. Profile Summary Card (Top Banner) ── */
+.profile-summary-card {
+  @apply [background:var(--panel-bg)];
+  @apply [border:1px_solid_var(--panel-border)];
+  @apply [border-radius:12px];
+  @apply [padding:24px];
+  @apply [display:flex];
+  @apply [align-items:center];
+  @apply [justify-content:space-between];
+  @apply [gap:20px];
+  @apply [flex-wrap:wrap];
+  @apply [position:relative];
+  @apply [overflow:hidden];
+  @apply [box-shadow:var(--shadow-sm)];
+  @apply [transition:border-color_0.15s_ease];
+}
+
+.profile-summary-card:hover {
+  @apply [border-color:rgba(56,_189,_248,_0.3)];
+  /* STRICTLY NO transform or shadow growth */
+}
+
+.profile-summary-main {
+  @apply [display:flex];
+  @apply [align-items:center];
+  @apply [gap:20px];
+  @apply [flex-wrap:wrap];
+}
+
+.profile-avatar-large-wrapper {
+  @apply [position:relative];
+  @apply [display:inline-flex];
+  @apply [align-items:center];
+  @apply [justify-content:center];
+  @apply [width:72px];
+  @apply [height:72px];
+  @apply [min-width:72px];
+  @apply [min-height:72px];
+  @apply [border-radius:50%];
+  @apply [flex-shrink:0];
+  @apply [box-sizing:border-box];
+  @apply [background:transparent];
+  @apply [box-shadow:0_0_0_2px_var(--panel-bg,_#1e293b),_0_0_0_5px_var(--status-ring-color,_#22c55e),_0_0_16px_var(--status-ring-glow,_rgba(34,_197,_94,_0.5))];
+  @apply [transition:box-shadow_0.25s_ease];
+}
+
+.profile-large-status-badge {
+  @apply [position:absolute];
+  @apply [bottom:1px];
+  @apply [right:1px];
+  @apply [width:16px];
+  @apply [height:16px];
+  @apply [border-radius:50%];
+  @apply [border:3px_solid_var(--panel-bg,_#1e293b)];
+  @apply [background-color:var(--status-ring-color,_#22c55e)];
+  @apply [box-shadow:0_2px_5px_rgba(0,_0,_0,_0.5)];
+  @apply [transition:background-color_0.25s_ease];
+  @apply [z-index:2];
+}
+
+.profile-avatar-large {
+  @apply ![width:72px];
+  @apply ![height:72px];
+  @apply ![min-width:72px];
+  @apply ![min-height:72px];
+  @apply ![border-radius:50%];
+  @apply ![background:linear-gradient(135deg,_#475569,_#334155)];
+  @apply ![color:#f8fafc];
+  @apply ![display:flex];
+  @apply ![align-items:center];
+  @apply ![justify-content:center];
+  @apply ![font-size:26px];
+  @apply ![font-weight:700];
+  @apply ![font-family:var(--font-sans)];
+  @apply ![border:2px_solid_var(--panel-bg,_#1e293b)];
+  @apply ![box-shadow:none];
+  @apply ![filter:grayscale(100%)];
+  @apply ![-webkit-filter:grayscale(100%)];
+  @apply ![flex-shrink:0];
+  @apply ![user-select:none];
+}
+
+.profile-summary-info {
+  @apply [display:flex];
+  @apply [flex-direction:column];
+  @apply [gap:6px];
+}
+
+.profile-name-row {
+  @apply [display:flex];
+  @apply [align-items:center];
+  @apply [gap:10px];
+  @apply [flex-wrap:wrap];
+}
+
+.profile-name-title {
+  @apply [font-size:22px];
+  @apply [font-weight:700];
+  @apply [color:var(--ink-primary)];
+  @apply [margin:0];
+  @apply [line-height:1.2];
+}
+
+.profile-role-meta {
+  @apply [display:flex];
+  @apply [align-items:center];
+  @apply [gap:8px];
+  @apply [font-size:13px];
+  @apply [color:var(--ink-secondary)];
+  @apply [flex-wrap:wrap];
+}
+
+.profile-role-pill {
+  @apply [display:inline-flex];
+  @apply [align-items:center];
+  @apply [gap:5px];
+  @apply [padding:2px_8px];
+  @apply [background:rgba(56,_189,_248,_0.12)];
+  @apply [border:1px_solid_rgba(56,_189,_248,_0.3)];
+  @apply [color:var(--accent-blue)];
+  @apply [border-radius:5px];
+  @apply [font-weight:600];
+  @apply [font-size:11.5px];
+  @apply [font-family:var(--font-mono)];
+}
+
+.profile-emp-id {
+  @apply [font-family:var(--font-mono)];
+  @apply [color:var(--ink-muted)];
+  @apply [font-size:12px];
+}
+
+.profile-contact-chips {
+  @apply [display:flex];
+  @apply [align-items:center];
+  @apply [gap:10px];
+  @apply [margin-top:4px];
+  @apply [flex-wrap:wrap];
+}
+
+.profile-contact-btn {
+  @apply [display:inline-flex];
+  @apply [align-items:center];
+  @apply [gap:6px];
+  @apply [padding:4px_10px];
+  @apply [background:rgba(255,_255,_255,_0.04)];
+  @apply [border:1px_solid_var(--panel-border)];
+  @apply [border-radius:6px];
+  @apply [color:var(--ink-secondary)];
+  @apply [font-size:12px];
+  @apply [cursor:pointer];
+  @apply [transition:background_0.15s_ease,_border-color_0.15s_ease,_color_0.15s_ease];
+  @apply [line-height:1.4];
+  @apply [user-select:none];
+}
+
+.profile-contact-btn:hover {
+  @apply [background:rgba(56,_189,_248,_0.08)];
+  @apply [border-color:rgba(56,_189,_248,_0.35)];
+  @apply [color:var(--accent-blue)];
+  /* Static hover only, zero positional elevation */
+}
+
+.profile-summary-actions {
+  @apply [display:flex];
+  @apply [align-items:center];
+  @apply [gap:10px];
+}
+
+/* ── 2. Grid Layout: 2 Columns on Desktop ── */
+.profile-grid-layout {
+  @apply [display:grid];
+  @apply [grid-template-columns:1.35fr_1fr];
+  @apply [gap:20px];
+  @apply [align-items:start];
+}
+
+@media (max-width: 1024px) {
+  .profile-grid-layout {
+    @apply [grid-template-columns:1fr];
+  }
+}
+
+.profile-column {
+  @apply [display:flex];
+  @apply [flex-direction:column];
+  @apply [gap:20px];
+}
+
+/* ── 3. Shared Section Card ── */
+.profile-section-card {
+  @apply [background:var(--panel-bg)];
+  @apply [border:1px_solid_var(--panel-border)];
+  @apply [border-radius:12px];
+  @apply [padding:20px_22px];
+  @apply [box-shadow:var(--shadow-sm)];
+  @apply [display:flex];
+  @apply [flex-direction:column];
+  @apply [gap:16px];
+  @apply [transition:border-color_0.15s_ease];
+}
+
+.profile-section-card:hover {
+  @apply [border-color:rgba(255,_255,_255,_0.14)];
+  /* Static hover only, zero positional elevation */
+}
+
+.profile-card-header {
+  @apply [display:flex];
+  @apply [justify-content:space-between];
+  @apply [align-items:center];
+  @apply [border-bottom:1px_solid_var(--line)];
+  @apply [padding-bottom:12px];
+  @apply [margin-bottom:2px];
+}
+
+.profile-card-title-group {
+  @apply [display:flex];
+  @apply [align-items:center];
+  @apply [gap:8px];
+}
+
+.profile-card-title {
+  @apply [font-size:13px];
+  @apply [font-weight:700];
+  @apply [color:var(--ink-primary)];
+  @apply [letter-spacing:0.03em];
+  @apply [text-transform:uppercase];
+  @apply [font-family:var(--font-sans)];
+  @apply [margin:0];
+  @apply [display:flex];
+  @apply [align-items:center];
+  @apply [gap:7px];
+}
+
+.profile-card-subtitle {
+  @apply [font-size:11.5px];
+  @apply [color:var(--ink-muted)];
+  @apply [margin:0];
+  @apply [line-height:1.4];
+}
+
+/* ── 4. Account Info Fields Grid ── */
+.profile-info-grid {
+  @apply [display:grid];
+  @apply [grid-template-columns:repeat(2,_minmax(0,_1fr))];
+  @apply [gap:14px_18px];
+}
+
+@media (max-width: 640px) {
+  .profile-info-grid {
+    @apply [grid-template-columns:1fr];
+  }
+}
+
+.profile-info-item {
+  @apply [display:flex];
+  @apply [flex-direction:column];
+  @apply [gap:4px];
+}
+
+.profile-info-label {
+  @apply [font-size:11px];
+  @apply [font-family:var(--font-mono)];
+  @apply [color:var(--ink-muted)];
+  @apply [text-transform:uppercase];
+  @apply [letter-spacing:0.5px];
+}
+
+.profile-info-value {
+  @apply [font-size:13px];
+  @apply [font-weight:600];
+  @apply [color:var(--ink-primary)];
+  @apply [line-height:1.4];
+  @apply [word-break:break-word];
+}
+
+.profile-tenants-list {
+  @apply [display:flex];
+  @apply [flex-wrap:wrap];
+  @apply [gap:6px];
+  @apply [margin-top:4px];
+}
+
+.profile-tenant-badge {
+  @apply [display:inline-flex];
+  @apply [align-items:center];
+  @apply [gap:5px];
+  @apply [padding:3px_8px];
+  @apply [background:rgba(255,_255,_255,_0.035)];
+  @apply [border:1px_solid_var(--line)];
+  @apply [border-radius:6px];
+  @apply [font-size:11.5px];
+  @apply [font-weight:500];
+  @apply [color:var(--ink-secondary)];
+}
+
+.profile-permissions-tags {
+  @apply [display:flex];
+  @apply [flex-wrap:wrap];
+  @apply [gap:6px];
+  @apply [margin-top:4px];
+}
+
+.profile-perm-tag {
+  @apply [display:inline-flex];
+  @apply [align-items:center];
+  @apply [gap:4px];
+  @apply [padding:2px_7px];
+  @apply [background:rgba(74,_222,_128,_0.08)];
+  @apply [border:1px_solid_rgba(74,_222,_128,_0.25)];
+  @apply [border-radius:4px];
+  @apply [font-size:10.5px];
+  @apply [font-family:var(--font-mono)];
+  @apply [font-weight:600];
+  @apply [color:var(--green)];
+}
+
+/* ── 5. Shift & Availability Section ── */
+.profile-shift-hero {
+  @apply [display:flex];
+  @apply [align-items:center];
+  @apply [justify-content:space-between];
+  @apply [gap:12px];
+  @apply [padding:12px_14px];
+  @apply [background:rgba(56,_189,_248,_0.06)];
+  @apply [border:1px_solid_rgba(56,_189,_248,_0.2)];
+  @apply [border-radius:9px];
+  @apply [flex-wrap:wrap];
+}
+
+.profile-shift-hero-left {
+  @apply [display:flex];
+  @apply [align-items:center];
+  @apply [gap:10px];
+}
+
+.profile-shift-icon-box {
+  @apply [width:34px];
+  @apply [height:34px];
+  @apply [border-radius:8px];
+  @apply [background:rgba(56,_189,_248,_0.15)];
+  @apply [color:var(--accent-blue)];
+  @apply [display:flex];
+  @apply [align-items:center];
+  @apply [justify-content:center];
+  @apply [flex-shrink:0];
+}
+
+.profile-shift-hero-title {
+  @apply [font-size:13px];
+  @apply [font-weight:700];
+  @apply [color:var(--ink-primary)];
+  @apply [margin:0];
+}
+
+.profile-shift-hero-sub {
+  @apply [font-size:11.5px];
+  @apply [color:var(--ink-muted)];
+  @apply [margin:0];
+}
+
+/* Weekly Schedule Grid in Profile */
+.profile-weekly-schedule {
+  @apply [display:flex];
+  @apply [flex-direction:column];
+  @apply [gap:8px];
+}
+
+.profile-schedule-strip {
+  @apply [display:grid];
+  @apply [grid-template-columns:repeat(7,_1fr)];
+  @apply [gap:6px];
+  @apply [width:100%];
+}
+
+.profile-schedule-day {
+  @apply [display:flex];
+  @apply [flex-direction:column];
+  @apply [align-items:center];
+  @apply [justify-content:center];
+  @apply [gap:3px];
+  @apply [padding:8px_4px];
+  @apply [border-radius:7px];
+  @apply [border:1px_solid_transparent];
+  @apply [transition:border-color_0.15s_ease];
+  @apply [user-select:none];
+  @apply [text-align:center];
+}
+
+.profile-schedule-day:hover {
+  @apply [border-color:rgba(255,_255,_255,_0.18)];
+  /* STRICTLY NO transform */
+}
+
+.profile-day-label {
+  @apply [font-size:10.5px];
+  @apply [font-family:var(--font-mono)];
+  @apply [font-weight:700];
+  @apply [text-transform:uppercase];
+}
+
+.profile-day-code {
+  @apply [font-size:14px];
+  @apply [font-weight:800];
+  @apply [font-family:var(--font-mono)];
+  @apply [line-height:1];
+}
+
+.profile-day-sub {
+  @apply [font-size:9.5px];
+  @apply [color:var(--ink-muted)];
+  @apply [white-space:nowrap];
+}
+
+.profile-schedule-legend {
+  @apply [display:flex];
+  @apply [align-items:center];
+  @apply [justify-content:space-between];
+  @apply [gap:10px];
+  @apply [font-size:11px];
+  @apply [color:var(--ink-muted)];
+  @apply [padding-top:4px];
+  @apply [flex-wrap:wrap];
+}
+
+.profile-legend-items {
+  @apply [display:flex];
+  @apply [align-items:center];
+  @apply [gap:12px];
+  @apply [flex-wrap:wrap];
+}
+
+.profile-legend-item {
+  @apply [display:inline-flex];
+  @apply [align-items:center];
+  @apply [gap:4px];
+}
+
+.profile-legend-dot {
+  @apply [width:7px];
+  @apply [height:7px];
+  @apply [border-radius:50%];
+}
+
+/* ── 6. Personal Operational Summary Metrics ── */
+.profile-stats-tally {
+  @apply [display:grid];
+  @apply [grid-template-columns:repeat(4,_minmax(0,_1fr))];
+  @apply [gap:10px];
+}
+
+@media (max-width: 900px) {
+  .profile-stats-tally {
+    @apply [grid-template-columns:repeat(2,_minmax(0,_1fr))];
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-stats-tally {
+    @apply [grid-template-columns:1fr];
+  }
+}
+
+.profile-tally-item {
+  @apply [background:rgba(255,_255,_255,_0.025)];
+  @apply [border:1px_solid_var(--line)];
+  @apply [border-radius:8px];
+  @apply [padding:11px_13px];
+  @apply [display:flex];
+  @apply [flex-direction:column];
+  @apply [gap:3px];
+  @apply [transition:border-color_0.15s_ease];
+}
+
+.profile-tally-item:hover {
+  @apply [border-color:rgba(255,_255,_255,_0.14)];
+}
+
+.profile-tally-num {
+  @apply [font-size:19px];
+  @apply [font-weight:700];
+  @apply [font-family:var(--font-mono)];
+  @apply [color:var(--ink-primary)];
+  @apply [line-height:1.2];
+}
+
+.profile-tally-label {
+  @apply [font-size:11px];
+  @apply [color:var(--ink-muted)];
+  @apply [line-height:1.35];
+}
+
+/* Secondary Operational Metrics Grid */
+.profile-metrics-grid {
+  @apply [display:grid];
+  @apply [grid-template-columns:repeat(4,_minmax(0,_1fr))];
+  @apply [gap:10px];
+  @apply [margin-top:4px];
+}
+
+@media (max-width: 900px) {
+  .profile-metrics-grid {
+    @apply [grid-template-columns:repeat(2,_minmax(0,_1fr))];
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-metrics-grid {
+    @apply [grid-template-columns:1fr];
+  }
+}
+
+.profile-metric-tile {
+  @apply [background:rgba(255,_255,_255,_0.02)];
+  @apply [border:1px_solid_var(--line)];
+  @apply [border-radius:8px];
+  @apply [padding:11px_13px];
+  @apply [display:flex];
+  @apply [flex-direction:column];
+  @apply [gap:3px];
+  @apply [transition:border-color_0.15s_ease];
+}
+
+.profile-metric-tile:hover {
+  @apply [border-color:rgba(255,_255,_255,_0.14)];
+}
+
+.profile-metric-num {
+  @apply [font-size:19px];
+  @apply [font-weight:700];
+  @apply [font-family:var(--font-mono)];
+  @apply [color:var(--ink-primary)];
+  @apply [line-height:1.2];
+}
+
+.profile-metric-label {
+  @apply [font-size:11px];
+  @apply [color:var(--ink-muted)];
+  @apply [line-height:1.35];
+}
+
+.profile-activity-list {
+  @apply [display:flex];
+  @apply [flex-direction:column];
+  @apply [gap:8px];
+}
+
+.profile-activity-entry {
+  @apply [display:flex];
+  @apply [align-items:flex-start];
+  @apply [gap:12px];
+  @apply [padding:9px_12px];
+  @apply [background:rgba(255,_255,_255,_0.02)];
+  @apply [border:1px_solid_var(--line)];
+  @apply [border-radius:8px];
+  @apply [font-size:12px];
+  @apply [line-height:1.4];
+  @apply [transition:border-color_0.15s_ease];
+}
+
+.profile-activity-entry:hover {
+  @apply [border-color:rgba(255,_255,_255,_0.12)];
+  /* STRICTLY NO transform */
+}
+
+.profile-activity-icon {
+  @apply [width:24px];
+  @apply [height:24px];
+  @apply [border-radius:6px];
+  @apply [display:flex];
+  @apply [align-items:center];
+  @apply [justify-content:center];
+  @apply [flex-shrink:0];
+  @apply [margin-top:1px];
+}
+
+.profile-activity-content {
+  @apply [display:flex];
+  @apply [flex-direction:column];
+  @apply [gap:2px];
+  @apply [flex:1];
+  @apply [min-width:0];
+}
+
+.profile-activity-title {
+  @apply [color:var(--ink-primary)];
+  @apply [font-weight:600];
+  @apply [font-size:12px];
+}
+
+.profile-activity-meta {
+  @apply [font-size:11px];
+  @apply [color:var(--ink-muted)];
+  @apply [font-family:var(--font-mono)];
+}
+
+/* ── 7. Preferences Section ── */
+.profile-pref-group {
+  @apply [display:flex];
+  @apply [flex-direction:column];
+  @apply [gap:12px];
+}
+
+.profile-pref-row {
+  @apply [display:flex];
+  @apply [align-items:center];
+  @apply [justify-content:space-between];
+  @apply [gap:16px];
+  @apply [padding:10px_12px];
+  @apply [background:rgba(255,_255,_255,_0.02)];
+  @apply [border:1px_solid_var(--line)];
+  @apply [border-radius:8px];
+  @apply [transition:border-color_0.15s_ease];
+}
+
+.profile-pref-row:hover {
+  @apply [border-color:rgba(255,_255,_255,_0.1)];
+  /* STRICTLY NO transform */
+}
+
+.profile-pref-info {
+  @apply [display:flex];
+  @apply [flex-direction:column];
+  @apply [gap:2px];
+}
+
+.profile-pref-label {
+  @apply [font-size:12.5px];
+  @apply [font-weight:600];
+  @apply [color:var(--ink-primary)];
+  @apply [display:flex];
+  @apply [align-items:center];
+  @apply [gap:6px];
+}
+
+.profile-pref-desc {
+  @apply [font-size:11px];
+  @apply [color:var(--ink-muted)];
+  @apply [line-height:1.35];
+}
+
+/* Switch Toggle Component */
+.profile-switch {
+  @apply [position:relative];
+  @apply [display:inline-block];
+  @apply [width:38px];
+  @apply [height:22px];
+  @apply [flex-shrink:0];
+}
+
+.profile-switch input {
+  @apply [opacity:0];
+  @apply [width:0];
+  @apply [height:0];
+}
+
+.profile-slider {
+  @apply [position:absolute];
+  @apply [cursor:pointer];
+  @apply [top:0];
+  @apply [left:0];
+  @apply [right:0];
+  @apply [bottom:0];
+  @apply [background-color:#334155];
+  @apply [transition:background-color_0.2s_ease];
+  @apply [border-radius:22px];
+  @apply [border:1px_solid_rgba(255,_255,_255,_0.1)];
+}
+
+.profile-slider:before {
+  @apply [position:absolute];
+  @apply [content:""];
+  @apply [height:16px];
+  @apply [width:16px];
+  @apply [left:2px];
+  @apply [bottom:2px];
+  @apply [background-color:white];
+  @apply [transition:transform_0.2s_ease];
+  @apply [border-radius:50%];
+}
+
+.profile-switch input:checked + .profile-slider {
+  @apply [background-color:#2563eb];
+  @apply [border-color:rgba(56,_189,_248,_0.4)];
+}
+
+.profile-switch input:checked + .profile-slider:before {
+  @apply [transform:translateX(16px)];
+}
+
+.profile-switch input:focus-visible + .profile-slider {
+  @apply [outline:2px_solid_var(--accent-blue)];
+  @apply [outline-offset:2px];
+}
+
+/* ── 8. Edit Profile Modal Dialog ── */
+.profile-modal-grid {
+  @apply [display:flex];
+  @apply [flex-direction:column];
+  @apply [gap:16px];
+}
+
+.profile-form-group {
+  @apply [display:flex];
+  @apply [flex-direction:column];
+  @apply [gap:6px];
+}
+
+.profile-form-label {
+  @apply [font-size:11.5px];
+  @apply [font-weight:600];
+  @apply [color:var(--ink-secondary)];
+  @apply [font-family:var(--font-mono)];
+  @apply [text-transform:uppercase];
+  @apply [letter-spacing:0.5px];
+}
+
+.profile-form-input,
+.profile-form-textarea {
+  @apply [width:100%];
+  @apply [padding:8px_12px];
+  @apply [background:var(--input-bg)];
+  @apply [border:1px_solid_var(--line)];
+  @apply [border-radius:7px];
+  @apply [font-size:13px];
+  @apply [color:var(--ink-primary)];
+  @apply [font-family:var(--font-sans)];
+  @apply [transition:border-color_0.15s_ease,_box-shadow_0.15s_ease];
+  @apply [box-sizing:border-box];
+}
+
+.profile-form-input {
+  @apply [height:38px];
+}
+
+.profile-form-textarea {
+  @apply [min-height:84px];
+  @apply [resize:none];
+  @apply [line-height:1.5];
+}
+
+.profile-form-input:focus,
+.profile-form-textarea:focus {
+  @apply [outline:none];
+  @apply [border-color:var(--accent-blue)];
+  @apply [box-shadow:0_0_0_2px_var(--accent-blue-soft)];
+}
+
+.profile-form-hint {
+  @apply [font-size:11px];
+  @apply [color:var(--ink-muted)];
+  @apply [line-height:1.35];
+  @apply [margin-top:2px];
+}
+

@@ -1,0 +1,1019 @@
+/*
+ * Tailwind v4 migration of team-roster.css.
+ * Legacy declarations are represented one-for-one as arbitrary-property utilities.
+ * Keep the matching legacy source file unimported until visual review is approved.
+ */
+/* ═══════════════════════════════════════════════
+   TEAM ROSTER MAIN FULL-WIDTH LAYOUT
+═══════════════════════════════════════════════ */
+.roster-main-layout {
+  @apply [display:block];
+  @apply [width:100%];
+  @apply [margin-top:20px];
+}
+
+.roster-primary-column {
+  @apply [min-width:0];
+  @apply [width:100%];
+  @apply [display:flex];
+  @apply [flex-direction:column];
+  @apply [gap:20px];
+}
+
+/* ═══════════════════════════════════════════════
+   TOOLBAR & FILTER CONTROLS
+═══════════════════════════════════════════════ */
+.roster-toolbar-panel {
+  @apply [margin-bottom:0];
+  @apply [border-radius:10px];
+}
+
+.roster-toolbar-row {
+  @apply [display:flex];
+  @apply [align-items:center];
+  @apply [gap:10px];
+  @apply [padding:12px_16px];
+  @apply [border-bottom:1px_solid_var(--line)];
+  @apply [flex-wrap:wrap];
+  @apply [background:var(--panel-bg)];
+}
+
+.roster-search-field {
+  @apply [position:relative];
+  @apply [display:flex];
+  @apply [align-items:center];
+  @apply [flex:1_1_200px];
+  @apply [min-width:170px];
+  @apply [max-width:280px];
+  @apply [height:36px];
+  @apply [padding:0_10px];
+  @apply [border:1px_solid_var(--panel-border)];
+  @apply [border-radius:8px];
+  @apply [background:var(--input-bg,_#0f172a)];
+  @apply [transition:border-color_0.15s_ease,_box-shadow_0.15s_ease];
+  @apply [gap:8px];
+  @apply [box-sizing:border-box];
+}
+
+.roster-search-field:focus-within {
+  @apply [border-color:var(--accent-blue)];
+  @apply [box-shadow:0_0_0_3px_rgba(56,_189,_248,_0.12)];
+}
+
+.roster-search-field .search-icon {
+  @apply [color:var(--ink-muted)];
+  @apply [flex-shrink:0];
+  @apply [transition:color_0.15s_ease];
+}
+
+.roster-search-field:focus-within .search-icon {
+  @apply [color:var(--accent-blue)];
+}
+
+.roster-search-field input {
+  @apply [flex:1];
+  @apply [min-width:0];
+  @apply [height:100%];
+  @apply [border:none];
+  @apply [outline:none];
+  @apply [background:transparent];
+  @apply [color:var(--ink-primary)];
+  @apply [font-size:12px];
+  @apply [font-family:var(--font-sans)];
+}
+
+.roster-search-field input::placeholder {
+  @apply [color:var(--ink-muted)];
+}
+
+.roster-filters-group {
+  @apply [display:flex];
+  @apply [align-items:center];
+  @apply [gap:8px];
+  @apply [flex-wrap:wrap];
+}
+
+.roster-filter-select {
+  @apply [height:36px];
+  @apply [box-sizing:border-box];
+  @apply [padding:0_28px_0_11px];
+  @apply [color:var(--ink-primary)];
+  @apply [border:1px_solid_var(--panel-border)];
+  @apply [border-radius:8px];
+  @apply [background-color:var(--input-bg,_#0f172a)];
+  @apply [font-size:12px];
+  @apply [font-weight:500];
+  @apply [font-family:var(--font-sans)];
+  @apply [cursor:pointer];
+  @apply [display:inline-flex];
+  @apply [align-items:center];
+  @apply [appearance:none];
+  @apply [-webkit-appearance:none];
+  @apply [background-image:url("data:image/svg+xml,%3Csvg_xmlns='http://www.w3.org/2000/svg'_width='12'_height='12'_viewBox='0_0_24_24'_fill='none'_stroke='%2394a3b8'_stroke-width='2.5'_stroke-linecap='round'_stroke-linejoin='round'%3E%3Cpolyline_points='6_9_12_15_18_9'/%3E%3C/svg%3E")];
+  @apply [background-repeat:no-repeat];
+  @apply [background-position:right_9px_center];
+  @apply [transition:border-color_0.15s_ease,_box-shadow_0.15s_ease];
+  @apply [flex-shrink:0];
+}
+
+.roster-filter-select:hover {
+  @apply [border-color:rgba(148,_163,_184,_0.35)];
+}
+
+.roster-filter-select:focus {
+  @apply [border-color:var(--accent-blue)];
+  @apply [box-shadow:0_0_0_3px_rgba(56,_189,_248,_0.12)];
+  @apply [outline:0];
+}
+
+.roster-view-tabs {
+  @apply [margin-left:auto];
+  @apply [display:inline-flex];
+  @apply [align-items:center];
+  @apply [gap:2px];
+  @apply [height:36px];
+  @apply [box-sizing:border-box];
+  @apply [padding:3px];
+  @apply [background:var(--surface,_#0f172a)];
+  @apply [border:1px_solid_var(--panel-border)];
+  @apply [border-radius:8px];
+  @apply [flex-shrink:0];
+}
+
+.roster-view-tabs button {
+  @apply [display:inline-flex];
+  @apply [align-items:center];
+  @apply [justify-content:center];
+  @apply [height:28px];
+  @apply [padding:0_12px];
+  @apply [font-size:11.5px];
+  @apply [font-weight:600];
+  @apply [border-radius:6px];
+  @apply [gap:6px];
+  @apply [border:1px_solid_transparent];
+  @apply [background:transparent];
+  @apply [color:var(--ink-muted)];
+  @apply [cursor:pointer];
+  @apply [transition:color_0.15s_ease,_background-color_0.15s_ease];
+}
+
+.roster-view-tabs button:hover:not(.selected) {
+  @apply [color:var(--ink-primary)];
+  @apply [background:rgba(148,_163,_184,_0.08)];
+}
+
+.roster-view-tabs button.selected {
+  @apply [background:var(--accent-blue,_#2563eb)];
+  @apply [color:#ffffff];
+  @apply [font-weight:600];
+  @apply [box-shadow:0_1px_3px_rgba(0,_0,_0,_0.25)];
+}
+
+/* Roster Table */
+.roster-table-wrapper {
+  @apply [overflow-x:auto];
+  @apply [overscroll-behavior-x:contain];
+}
+
+.roster-table-header,
+.roster-table-row {
+  @apply [display:grid];
+  @apply [grid-template-columns:minmax(210px,_1.8fr)_minmax(180px,_1.4fr)_110px_80px_minmax(220px,_1.5fr)_50px];
+  @apply [gap:12px];
+  @apply [align-items:center];
+  @apply [padding:0_18px];
+}
+
+.roster-table-header {
+  @apply [height:38px];
+  @apply [color:var(--ink-muted)];
+  @apply [font-family:var(--font-mono)];
+  @apply [font-size:9.5px];
+  @apply [font-weight:700];
+  @apply [letter-spacing:0.8px];
+  @apply [border-bottom:1px_solid_var(--line)];
+}
+
+.roster-table-row {
+  @apply [min-height:60px];
+  @apply [border-bottom:1px_solid_var(--line)];
+  @apply [transition:background_0.15s_ease];
+}
+
+.roster-table-row:hover {
+  @apply [background:var(--panel-bg-hover)];
+}
+
+.roster-member-cell {
+  @apply [display:flex];
+  @apply [align-items:center];
+  @apply [gap:10px];
+  @apply [cursor:pointer];
+  @apply [min-width:0];
+}
+
+.roster-member-cell:hover strong {
+  @apply [color:var(--accent-blue)];
+}
+
+.roster-avatar {
+  @apply [width:32px];
+  @apply [height:32px];
+  @apply [font-size:11px];
+}
+
+.roster-member-info {
+  @apply [min-width:0];
+  @apply [display:flex];
+  @apply [flex-direction:column];
+  @apply [gap:2px];
+}
+
+.roster-member-info strong {
+  @apply [color:var(--ink-primary)];
+  @apply [font-size:13px];
+  @apply [font-weight:600];
+  @apply [overflow:hidden];
+  @apply [text-overflow:ellipsis];
+  @apply [white-space:nowrap];
+  @apply [transition:color_0.15s_ease];
+}
+
+.roster-role-row {
+  @apply [display:flex];
+  @apply [align-items:center];
+  @apply [gap:6px];
+}
+
+.roster-role-pill {
+  @apply [font-size:10px];
+  @apply [color:var(--ink-secondary)];
+  @apply [font-weight:500];
+}
+
+.roster-emp-id {
+  @apply [font-size:9.5px];
+  @apply [font-family:var(--font-mono)];
+  @apply [color:var(--ink-muted)];
+}
+
+.roster-shift-name {
+  @apply [display:block];
+  @apply [font-size:12px];
+  @apply [font-weight:600];
+  @apply [color:var(--ink-primary)];
+}
+
+.roster-shift-sub {
+  @apply [display:block];
+  @apply [font-size:10px];
+  @apply [color:var(--ink-muted)];
+  @apply [font-family:var(--font-mono)];
+  @apply [margin-top:1px];
+}
+
+.roster-contact-cell {
+  @apply [display:flex];
+  @apply [align-items:center];
+  @apply [gap:6px];
+}
+
+.roster-contact-btn {
+  @apply [display:grid];
+  @apply [place-items:center];
+  @apply [width:28px];
+  @apply [height:28px];
+  @apply [border-radius:6px];
+  @apply [border:1px_solid_var(--panel-border)];
+  @apply [background:var(--panel-bg)];
+  @apply [color:var(--ink-secondary)];
+  @apply [cursor:pointer];
+  @apply [transition:all_0.15s_ease];
+}
+
+.roster-contact-btn:hover {
+  @apply [color:var(--accent-blue)];
+  @apply [border-color:var(--accent-blue-border)];
+  @apply [background:var(--accent-blue-soft)];
+}
+
+/* Mini 7-Day Schedule Strip */
+.roster-mini-days {
+  @apply [display:flex];
+  @apply [gap:4px];
+}
+
+.roster-mini-day {
+  @apply [display:flex];
+  @apply [flex-direction:column];
+  @apply [align-items:center];
+  @apply [justify-content:center];
+  @apply [width:28px];
+  @apply [height:36px];
+  @apply [border-radius:6px];
+  @apply [border:1px_solid_var(--line)];
+  @apply [text-align:center];
+  @apply [cursor:default];
+}
+
+.roster-mini-day-label {
+  @apply [font-size:8px];
+  @apply [font-family:var(--font-mono)];
+  @apply [font-weight:700];
+  @apply [text-transform:uppercase];
+  @apply [opacity:0.8];
+  @apply [line-height:1];
+  @apply [margin-bottom:2px];
+}
+
+.roster-mini-shift-code {
+  @apply [font-size:11px];
+  @apply [font-weight:800];
+  @apply [line-height:1];
+}
+
+/* Roster Action Menu */
+.roster-action-menu-wrapper {
+  @apply [position:relative];
+  @apply [display:inline-flex];
+  @apply [justify-content:flex-end];
+}
+
+.roster-menu-btn {
+  @apply [width:28px];
+  @apply [height:28px];
+}
+
+.roster-menu-backdrop {
+  @apply [position:fixed];
+  @apply [inset:0];
+  @apply [z-index:60];
+}
+
+.roster-action-dropdown {
+  @apply [position:absolute];
+  @apply [top:100%];
+  @apply [right:0];
+  @apply [z-index:65];
+  @apply [min-width:190px];
+  @apply [padding:5px];
+  @apply [margin-top:4px];
+  @apply [border:1px_solid_var(--panel-border)];
+  @apply [border-radius:9px];
+  @apply [background:var(--modal-bg)];
+  @apply [box-shadow:var(--shadow-elevated)];
+  @apply [display:flex];
+  @apply [flex-direction:column];
+  @apply [gap:2px];
+}
+
+.roster-action-dropdown button {
+  @apply [display:flex];
+  @apply [align-items:center];
+  @apply [gap:8px];
+  @apply [width:100%];
+  @apply [padding:8px_10px];
+  @apply [border-radius:6px];
+  @apply [background:transparent];
+  @apply [color:var(--ink-primary)];
+  @apply [font-size:11.5px];
+  @apply [font-weight:500];
+  @apply [text-align:left];
+  @apply [transition:all_0.12s_ease];
+}
+
+.roster-action-dropdown button:hover {
+  @apply [background:var(--accent-blue-soft)];
+  @apply [color:var(--accent-blue)];
+}
+
+.roster-empty-state {
+  @apply [display:flex];
+  @apply [flex-direction:column];
+  @apply [align-items:center];
+  @apply [justify-content:center];
+  @apply [padding:44px_20px];
+  @apply [text-align:center];
+}
+
+.roster-empty-state strong {
+  @apply [font-size:14px];
+  @apply [color:var(--ink-primary)];
+  @apply [margin-bottom:4px];
+}
+
+.roster-empty-state p {
+  @apply [margin:0];
+  @apply [font-size:12px];
+  @apply [color:var(--ink-muted)];
+}
+
+/* Weekly Shift Calendar Matrix */
+.roster-calendar-wrapper {
+  @apply [padding:0];
+}
+
+.roster-calendar-topbar {
+  @apply [display:flex];
+  @apply [justify-content:space-between];
+  @apply [align-items:center];
+  @apply [gap:14px];
+  @apply [padding:14px_18px];
+  @apply [border-bottom:1px_solid_var(--line)];
+  @apply [background:var(--panel-bg)];
+  @apply [flex-wrap:wrap];
+}
+
+.roster-calendar-title {
+  @apply [display:flex];
+  @apply [align-items:center];
+  @apply [gap:8px];
+  @apply [font-size:13px];
+  @apply [color:var(--ink-primary)];
+}
+
+.roster-current-week-tag {
+  @apply [font-size:9px];
+  @apply [font-family:var(--font-mono)];
+  @apply [font-weight:700];
+  @apply [padding:2px_6px];
+  @apply [border-radius:4px];
+  @apply [background:var(--accent-blue-soft)];
+  @apply [color:var(--accent-blue)];
+  @apply [border:1px_solid_var(--accent-blue-border)];
+}
+
+.roster-calendar-nav {
+  @apply [display:flex];
+  @apply [gap:6px];
+}
+
+.roster-week-nav-btn {
+  @apply [padding:5px_9px];
+  @apply [font-size:11px];
+}
+
+.roster-calendar-legend {
+  @apply [display:flex];
+  @apply [align-items:center];
+  @apply [gap:14px];
+  @apply [padding:10px_18px];
+  @apply [background:var(--bg)];
+  @apply [border-bottom:1px_solid_var(--line)];
+  @apply [font-size:11px];
+  @apply [color:var(--ink-secondary)];
+  @apply [flex-wrap:wrap];
+}
+
+.legend-label {
+  @apply [display:flex];
+  @apply [align-items:center];
+  @apply [gap:5px];
+  @apply [font-weight:700];
+  @apply [color:var(--ink-primary)];
+  @apply [font-family:var(--font-mono)];
+  @apply [font-size:10.5px];
+}
+
+.legend-item {
+  @apply [display:inline-flex];
+  @apply [align-items:center];
+  @apply [gap:6px];
+  @apply [font-size:10.5px];
+}
+
+.legend-item i {
+  @apply [display:block];
+  @apply [width:12px];
+  @apply [height:12px];
+  @apply [border-radius:3px];
+  @apply [border:1px_solid_var(--line)];
+}
+
+.roster-calendar-grid-container {
+  @apply [overflow-x:auto];
+  @apply [overscroll-behavior-x:contain];
+}
+
+.roster-calendar-grid {
+  @apply [min-width:820px];
+}
+
+.roster-cal-header-row,
+.roster-cal-row {
+  @apply [display:grid];
+  @apply [grid-template-columns:200px_repeat(7,_1fr)];
+  @apply [border-bottom:1px_solid_var(--line)];
+}
+
+.roster-cal-header-row {
+  @apply [background:var(--bg)];
+  @apply [font-family:var(--font-mono)];
+  @apply [font-size:10.5px];
+}
+
+.roster-cal-member-head {
+  @apply [padding:10px_16px];
+  @apply [font-weight:700];
+  @apply [color:var(--ink-muted)];
+  @apply [display:flex];
+  @apply [align-items:center];
+}
+
+.roster-cal-day-head {
+  @apply [padding:8px_10px];
+  @apply [border-left:1px_solid_var(--line)];
+  @apply [text-align:center];
+  @apply [display:flex];
+  @apply [flex-direction:column];
+  @apply [align-items:center];
+  @apply [justify-content:center];
+}
+
+.roster-cal-day-head.today-column {
+  @apply [background:var(--accent-blue-soft)];
+  @apply [color:var(--accent-blue)];
+}
+
+.today-badge {
+  @apply [font-size:7.5px];
+  @apply [font-weight:800];
+  @apply [padding:1px_4px];
+  @apply [border-radius:3px];
+  @apply [background:var(--accent-blue)];
+  @apply [color:#ffffff];
+  @apply [margin-top:2px];
+}
+
+.roster-cal-member-cell {
+  @apply [padding:10px_16px];
+  @apply [display:flex];
+  @apply [align-items:center];
+  @apply [gap:10px];
+  @apply [cursor:pointer];
+}
+
+.roster-cal-member-cell:hover strong {
+  @apply [color:var(--accent-blue)];
+}
+
+.roster-cal-shift-cell {
+  @apply [padding:6px];
+  @apply [border-left:1px_solid_var(--line)];
+  @apply [display:grid];
+  @apply [place-items:center];
+}
+
+.roster-cal-shift-cell.today-cell {
+  @apply [background:color-mix(in_srgb,_var(--accent-blue-soft)_30%,_transparent)];
+}
+
+.roster-shift-block {
+  @apply [width:100%];
+  @apply [height:100%];
+  @apply [min-height:48px];
+  @apply [border-radius:6px];
+  @apply [border:1px_solid_var(--line)];
+  @apply [padding:6px_8px];
+  @apply [display:flex];
+  @apply [flex-direction:column];
+  @apply [justify-content:center];
+  @apply [text-align:center];
+  @apply [transition:background-color_0.15s_ease,_border-color_0.15s_ease];
+  @apply [cursor:default];
+}
+
+.roster-shift-block:hover {
+  @apply [background-color:var(--panel-bg-hover)];
+  @apply [border-color:var(--panel-border)];
+}
+
+.roster-shift-block-title {
+  @apply [font-size:11.5px];
+  @apply [font-weight:700];
+}
+
+.roster-shift-block-hours {
+  @apply [font-size:9.5px];
+  @apply [font-family:var(--font-mono)];
+  @apply [opacity:0.85];
+  @apply [margin-top:1px];
+}
+
+.roster-section-eyebrow {
+  @apply [display:block];
+  @apply [font-size:10px];
+  @apply [font-family:var(--font-mono)];
+  @apply [font-weight:700];
+  @apply [letter-spacing:0.8px];
+  @apply [color:var(--ink-muted)];
+  @apply [text-transform:uppercase];
+  @apply [margin-bottom:8px];
+}
+
+/* ── Coverage Panel & Members list in Side Column ── */
+.roster-coverage-panel {
+  @apply [display:flex];
+  @apply [flex-direction:column];
+  @apply [height:100%];
+  @apply [box-sizing:border-box];
+  @apply [padding:0];
+  @apply [overflow:hidden];
+}
+
+.roster-coverage-panel .coverage-ring {
+  @apply [margin:14px_auto_14px];
+  @apply [flex-shrink:0];
+}
+
+.roster-coverage-stats {
+  @apply [display:flex];
+  @apply [align-items:center];
+  @apply [justify-content:center];
+  @apply [gap:10px];
+  @apply [padding:0_14px];
+  @apply [margin-bottom:14px];
+  @apply [flex-shrink:0];
+}
+
+.roster-coverage-pill {
+  @apply [display:inline-flex];
+  @apply [align-items:center];
+  @apply [gap:6px];
+  @apply [padding:4px_10px];
+  @apply [border-radius:999px];
+  @apply [font-size:11px];
+  @apply [font-family:var(--font-sans)];
+  @apply [line-height:1];
+  @apply [transition:all_0.15s_ease];
+  @apply [user-select:none];
+}
+
+.roster-coverage-pill-active {
+  @apply [color:#4ade80];
+  @apply [background:rgba(34,_197,_94,_0.12)];
+  @apply [border:1px_solid_rgba(34,_197,_94,_0.28)];
+}
+
+.roster-coverage-pill-active .coverage-pill-dot {
+  @apply [width:6px];
+  @apply [height:6px];
+  @apply [border-radius:50%];
+  @apply [background:#22c55e];
+  @apply [box-shadow:0_0_6px_rgba(34,_197,_94,_0.65)];
+}
+
+.roster-coverage-pill-standby {
+  @apply [color:var(--ink-secondary)];
+  @apply [background:rgba(148,_163,_184,_0.08)];
+  @apply [border:1px_solid_rgba(148,_163,_184,_0.2)];
+}
+
+.roster-coverage-pill-standby .coverage-pill-dot {
+  @apply [width:6px];
+  @apply [height:6px];
+  @apply [border-radius:50%];
+  @apply [background:transparent];
+  @apply [border:1.5px_solid_var(--ink-muted)];
+}
+
+.coverage-pill-label {
+  @apply [font-size:11px];
+  @apply [font-weight:500];
+}
+
+.coverage-pill-count {
+  @apply [font-family:var(--font-mono)];
+  @apply [font-weight:700];
+  @apply [font-size:11.5px];
+}
+
+.roster-coverage-panel.shift-coverage-card .coverage-team.shift-coverage-team-list,
+.roster-coverage-panel .roster-coverage-team-list {
+  @apply [padding:8px_16px_16px];
+  @apply ![flex:1_1_0px];
+  @apply ![min-height:0];
+  @apply ![max-height:none];
+  @apply ![overflow-y:auto];
+  @apply [scrollbar-width:thin];
+  @apply [scrollbar-color:rgba(56,_189,_248,_0.25)_transparent];
+}
+
+.roster-coverage-team-list::-webkit-scrollbar {
+  @apply [width:4px];
+}
+
+.roster-coverage-team-list::-webkit-scrollbar-thumb {
+  @apply [background:var(--panel-border)];
+  @apply [border-radius:99px];
+}
+
+.roster-coverage-member-btn {
+  @apply [display:flex];
+  @apply [align-items:center];
+  @apply [width:100%];
+  @apply [gap:8px];
+  @apply [padding:7px_8px];
+  @apply [border-radius:6px];
+  @apply [border:none];
+  @apply [border-bottom:1px_solid_var(--line)];
+  @apply [background:transparent];
+  @apply [text-align:left];
+  @apply [cursor:pointer];
+  @apply [transition:background_0.15s_ease];
+}
+
+.roster-coverage-member-btn:last-child {
+  @apply [border-bottom:none];
+}
+
+.roster-coverage-member-btn:hover {
+  @apply [background:var(--panel-bg-hover,_rgba(148,_163,_184,_0.08))];
+}
+
+/* ── Coverage member row sub-elements ── */
+.coverage-member-avatar {
+  @apply [width:28px];
+  @apply [height:28px];
+  @apply [font-size:10px];
+  @apply [flex-shrink:0];
+}
+
+.coverage-member-info {
+  @apply [min-width:0];
+  @apply [flex:1];
+  @apply [overflow:hidden];
+}
+
+.coverage-member-name {
+  @apply [display:block];
+  @apply [font-size:11.5px];
+  @apply [font-weight:600];
+  @apply [color:var(--ink-primary)];
+  @apply [text-overflow:ellipsis];
+  @apply [white-space:nowrap];
+  @apply [overflow:hidden];
+}
+
+.coverage-member-role {
+  @apply [display:block];
+  @apply [color:var(--ink-muted)];
+  @apply [font-size:9.5px];
+  @apply [white-space:nowrap];
+  @apply [text-overflow:ellipsis];
+  @apply [overflow:hidden];
+}
+
+.coverage-member-status {
+  @apply [margin-left:auto];
+  @apply [font-size:9px];
+  @apply [font-weight:700];
+  @apply [font-family:var(--font-mono)];
+  @apply [white-space:nowrap];
+  @apply [flex-shrink:0];
+  @apply [padding:2px_5px];
+  @apply [border-radius:4px];
+}
+
+.coverage-status-live {
+  @apply [color:#4ade80];
+  @apply [background:rgba(74,_222,_128,_0.12)];
+  @apply [border:1px_solid_rgba(74,_222,_128,_0.25)];
+}
+
+.coverage-status-break {
+  @apply [color:#fbbf24];
+  @apply [background:rgba(251,_191,_36,_0.12)];
+  @apply [border:1px_solid_rgba(251,_191,_36,_0.25)];
+}
+
+.coverage-status-off {
+  @apply [color:var(--ink-muted)];
+  @apply [background:rgba(148,_163,_184,_0.08)];
+  @apply [border:1px_solid_var(--line)];
+}
+
+/* ── Virtual scroll body ── */
+.roster-virtual-body {
+  /* Contain scroll within the table body so the sticky header stays pinned */
+  @apply [overflow-y:auto];
+  /* Prevent horizontal scroll */
+  @apply [overflow-x:hidden];
+  /* Smooth momentum scrolling on iOS */
+  @apply [-webkit-overflow-scrolling:touch];
+  /* Let the browser handle scrollbar width consistently */
+  @apply [scrollbar-width:thin];
+  @apply [scrollbar-color:var(--panel-border)_transparent];
+}
+
+.roster-virtual-body::-webkit-scrollbar {
+  @apply [width:5px];
+}
+
+.roster-virtual-body::-webkit-scrollbar-thumb {
+  @apply [background:var(--panel-border)];
+  @apply [border-radius:99px];
+}
+
+/* Responsiveness */
+@media (max-width: 1140px) {
+  .roster-main-layout {
+    @apply [grid-template-columns:1fr];
+  }
+
+  .roster-main-layout .side-column {
+    @apply [position:static];
+  }
+}
+
+@media (max-width: 1200px) {
+  .roster-schedule-col-head,
+  .roster-schedule-strip-cell {
+    @apply ![display:none];
+  }
+
+  .roster-table-header,
+  .roster-table-row {
+    @apply [grid-template-columns:minmax(190px,_2fr)_minmax(160px,_1.5fr)_100px_75px_44px];
+  }
+}
+
+@media (max-width: 760px) {
+  .roster-table-header,
+  .roster-table-row {
+    @apply [grid-template-columns:1fr_100px_44px];
+  }
+
+  .roster-table-header > span:nth-child(2),
+  .roster-table-header > span:nth-child(4),
+  .roster-shift-cell,
+  .roster-contact-cell {
+    @apply ![display:none];
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   PRINT (Laporan → PDF)
+═══════════════════════════════════════════════ */
+@media print {
+  .sidebar, .topbar, .toast-stack, .modal-backdrop,
+  .drawer-backdrop, .mobile-nav-backdrop,
+  .page-actions, .filter-tabs, .assess-btn { @apply ![display:none]; }
+  .workspace { @apply ![width:100%]; @apply ![margin:0]; }
+  body { @apply [background:#ffffff]; }
+  .panel, .metric-card, .stat-chip { @apply [box-shadow:none]; @apply [break-inside:avoid]; }
+}
+
+/* ═══════════════════════════════════════════════
+   ROSTER VISUAL POLISH — Avatar Status Rings
+═══════════════════════════════════════════════ */
+.avatar-status-ring {
+  @apply [position:relative];
+  @apply [outline:2.5px_solid_transparent];
+  @apply [outline-offset:2px];
+  @apply [transition:outline-color_0.2s_ease];
+}
+
+.avatar-ring-active {
+  @apply [outline-color:var(--green)];
+}
+
+.avatar-ring-break {
+  @apply [outline-color:var(--orange)];
+}
+
+.avatar-ring-off {
+  @apply [outline-color:var(--ink-muted)];
+}
+
+/* Role pill with filled background */
+.roster-role-pill-filled {
+  @apply [display:inline-flex];
+  @apply [align-items:center];
+  @apply [padding:2px_7px];
+  @apply [border-radius:99px];
+  @apply [border:1px_solid_var(--panel-border)];
+  @apply [background:var(--panel-bg)];
+  @apply [color:var(--ink-secondary)];
+  @apply [font-size:10px];
+  @apply [font-weight:600];
+  @apply [letter-spacing:0.1px];
+}
+
+/* ═══════════════════════════════════════════════
+   ROSTER TABLE PAGINATION BAR
+═══════════════════════════════════════════════ */
+.roster-pagination-bar {
+  @apply [display:flex];
+  @apply [align-items:center];
+  @apply [justify-content:space-between];
+  @apply [gap:16px];
+  @apply [padding:12px_18px];
+  @apply [border-top:1px_solid_var(--line)];
+  @apply [background:var(--panel-bg)];
+  @apply [flex-wrap:wrap];
+}
+
+.roster-pagination-left {
+  @apply [display:flex];
+  @apply [align-items:center];
+  @apply [gap:16px];
+  @apply [flex-wrap:wrap];
+}
+
+.roster-rows-per-page {
+  @apply [display:flex];
+  @apply [align-items:center];
+  @apply [gap:8px];
+}
+
+.roster-pagination-label {
+  @apply [font-size:11.5px];
+  @apply [color:var(--ink-muted)];
+  @apply [font-weight:500];
+  @apply [white-space:nowrap];
+}
+
+.roster-page-size-select {
+  @apply [height:30px];
+  @apply [padding:0_24px_0_9px];
+  @apply [font-size:11.5px];
+  @apply [border-radius:6px];
+  @apply [background-position:right_7px_center];
+  @apply [background-color:var(--input-bg,_#0f172a)];
+}
+
+.roster-pagination-info {
+  @apply [font-size:11.5px];
+  @apply [color:var(--ink-muted)];
+  @apply [font-family:var(--font-sans)];
+  @apply [white-space:nowrap];
+}
+
+.roster-pagination-info strong {
+  @apply [color:var(--ink-primary)];
+  @apply [font-family:var(--font-mono)];
+}
+
+.roster-pagination-actions {
+  @apply [display:flex];
+  @apply [align-items:center];
+  @apply [gap:5px];
+}
+
+.roster-page-btn {
+  @apply [display:inline-flex];
+  @apply [align-items:center];
+  @apply [justify-content:center];
+  @apply [padding:4px_10px];
+  @apply [border-radius:6px];
+  @apply [font-size:11px];
+  @apply [font-weight:600];
+  @apply [font-family:var(--font-mono)];
+  @apply [background:rgba(148,_163,_184,_0.06)];
+  @apply [border:1px_solid_rgba(148,_163,_184,_0.15)];
+  @apply [color:var(--ink-secondary)];
+  @apply [cursor:pointer];
+  @apply [transition:all_0.15s_ease];
+  @apply [user-select:none];
+}
+
+.roster-page-btn:hover:not(:disabled) {
+  @apply [background:rgba(56,_189,_248,_0.12)];
+  @apply [border-color:rgba(56,_189,_248,_0.35)];
+  @apply [color:#38bdf8];
+}
+
+.roster-page-btn:disabled {
+  @apply [opacity:0.35];
+  @apply [cursor:not-allowed];
+  @apply [background:rgba(148,_163,_184,_0.03)];
+  @apply [border-color:rgba(148,_163,_184,_0.08)];
+  @apply [color:var(--ink-muted)];
+}
+
+.roster-page-numbers {
+  @apply [display:flex];
+  @apply [align-items:center];
+  @apply [gap:3px];
+}
+
+.roster-page-num {
+  @apply [min-width:26px];
+  @apply [height:26px];
+  @apply [padding:0];
+}
+
+.roster-page-num.active {
+  @apply [background:rgba(56,_189,_248,_0.18)];
+  @apply [border-color:rgba(56,_189,_248,_0.5)];
+  @apply [color:#38bdf8];
+  @apply [font-weight:700];
+}
+
+.roster-page-ellipsis {
+  @apply [padding:0_4px];
+  @apply [color:var(--ink-muted)];
+  @apply [font-size:12px];
+}
+

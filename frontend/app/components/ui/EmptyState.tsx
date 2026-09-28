@@ -11,6 +11,11 @@ interface EmptyStateProps {
   className?: string;
 }
 
+const EMPTY_STATE_CLASS = "empty-state [display:flex] [flex-direction:column] [align-items:center] [gap:4px] [padding:36px_20px] [text-align:center]";
+const EMPTY_STATE_ICON_CLASS = "empty-state-icon [display:grid] [place-items:center] [width:52px] [height:52px] [margin-bottom:8px] [color:var(--ink-muted)] [border:1px_dashed_var(--panel-border)] [border-radius:99px] [background:var(--bg)] [font-size:22px]";
+const EMPTY_STATE_TITLE_CLASS = "[color:var(--ink-primary)] [font-size:13.5px]";
+const EMPTY_STATE_MESSAGE_CLASS = "[max-width:380px] [margin:0] [color:var(--ink-muted)] [font-size:11.5px] [line-height:1.5]";
+
 export function EmptyState({
   icon = "◌",
   title,
@@ -22,12 +27,12 @@ export function EmptyState({
   className = "",
 }: EmptyStateProps) {
   return (
-    <div className={`empty-state empty-state-${tone} ${className}`}>
-      <span className={`empty-state-icon empty-icon-${tone}`} aria-hidden="true">
+    <div className={`${EMPTY_STATE_CLASS} empty-state-${tone} ${className}`}>
+      <span className={`${EMPTY_STATE_ICON_CLASS} empty-icon-${tone}`} aria-hidden="true">
         {icon}
       </span>
-      <strong>{title}</strong>
-      <p>{message}</p>
+      <strong className={EMPTY_STATE_TITLE_CLASS}>{title}</strong>
+      <p className={EMPTY_STATE_MESSAGE_CLASS}>{message}</p>
       {actionLabel && onAction && (
         <button
           type="button"

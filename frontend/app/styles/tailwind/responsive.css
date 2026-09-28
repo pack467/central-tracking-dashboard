@@ -1,0 +1,81 @@
+/*
+ * Tailwind v4 migration of responsive.css.
+ * Legacy declarations are represented one-for-one as arbitrary-property utilities.
+ * Keep the matching legacy source file unimported until visual review is approved.
+ */
+/* ═══════════════════════════════════════════════
+   RESPONSIVE BREAKPOINTS
+═══════════════════════════════════════════════ */
+/* Keep the monitoring table readable before its action controls become cramped. */
+@media (max-width: 1380px) {
+  .dashboard-grid { @apply [grid-template-columns:minmax(0,_1fr)]; }
+  .side-column { @apply [grid-template-columns:repeat(2,_minmax(0,_1fr))]; }
+}
+
+@media (max-width: 1240px) {
+  .sidebar { @apply [width:216px]; }
+  .sidebar-collapsed { @apply [width:68px]; }
+  .sidebar-toggle-tab { @apply [left:216px]; }
+  .sidebar-is-collapsed .sidebar-toggle-tab,
+  .sidebar-toggle-tab.sidebar-toggle-tab-collapsed { @apply [left:68px]; }
+  .workspace { @apply [margin-left:216px]; }
+  .sidebar-is-collapsed .workspace { @apply [margin-left:68px]; }
+  .metrics-grid { @apply [grid-template-columns:repeat(2,_1fr)]; }
+  .dashboard-grid { @apply [grid-template-columns:minmax(0,_1fr)_285px]; }
+  .page-content { @apply [padding-left:22px]; @apply [padding-right:22px]; }
+}
+
+@media (max-width: 940px) {
+  .app-shell { @apply [flex-direction:column]; }
+
+  .sidebar,
+  .sidebar-toggle-tab { @apply [display:none]; }
+  .workspace { @apply [width:100%]; @apply [margin:0]; }
+  .topbar { @apply [padding:0_14px]; @apply [height:56px]; }
+  .hamburger-button {
+    @apply [display:grid];
+    @apply [place-items:center];
+    @apply [width:40px];
+    @apply [height:40px];
+    @apply [margin-right:4px];
+    @apply [color:var(--ink-primary)];
+    @apply [border-radius:7px];
+  }
+  .hamburger-button:hover { @apply [background:var(--panel-bg-hover)]; }
+  .breadcrumbs { @apply [gap:6px]; }
+  .command-button { @apply [min-width:34px]; @apply [width:34px]; @apply [padding:0]; @apply [justify-content:center]; }
+  .command-button em, .command-button kbd { @apply [display:none]; }
+  .dashboard-grid { @apply [grid-template-columns:1fr]; }
+  .side-column { @apply [grid-template-columns:1fr_1fr]; }
+  .ticket-header, .ticket-row { @apply [grid-template-columns:minmax(190px,_2fr)_minmax(90px,_0.9fr)_minmax(120px,_1fr)_60px_70px]; }
+  .created-time, .ticket-header > span:last-child { @apply [display:none]; }
+}
+
+@media (max-width: 660px) {
+  .page-heading { @apply [flex-direction:column]; @apply [align-items:flex-start]; @apply [gap:12px]; }
+  .health-strip { @apply [flex-direction:column]; @apply [align-items:flex-start]; }
+  .service-health-grid { @apply [display:flex]; @apply [flex-wrap:wrap]; @apply [gap:8px_10px]; @apply [width:100%]; }
+  .project-pills { @apply [grid-template-columns:repeat(auto-fit,_minmax(145px,_1fr))]; @apply [width:100%]; }
+  .side-column { @apply [grid-template-columns:1fr]; }
+  .ticket-header, .ticket-row { @apply [grid-template-columns:1fr_85px_70px]; }
+  .ticket-owner, .ticket-header > span:nth-child(3) { @apply [display:none]; }
+  .page-content { @apply [padding:18px_16px_36px]; }
+  .health-intro { @apply [display:flex]; @apply [flex-wrap:wrap]; @apply [gap:4px]; @apply [padding-right:0]; @apply [border-right:0]; @apply [border-bottom:1px_solid_var(--line)]; @apply [padding-bottom:10px]; @apply [width:100%]; }
+}
+
+@media (max-width: 760px) {
+  .schedule-heading { @apply [flex-direction:column]; @apply [align-items:flex-start]; }
+  .filter-tabs { @apply [max-width:100%]; @apply [overflow-x:auto]; }
+
+  .schedule-table {
+    @apply [overflow-x:auto];
+    @apply [overscroll-behavior-x:contain];
+    @apply [scrollbar-gutter:stable];
+  }
+
+  .schedule-header, .schedule-row {
+    @apply [min-width:720px];
+    @apply [grid-template-columns:64px_250px_160px_186px];
+  }
+}
+

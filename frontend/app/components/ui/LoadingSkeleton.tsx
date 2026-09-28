@@ -8,6 +8,8 @@ interface SkeletonProps {
   style?: React.CSSProperties;
 }
 
+const SKELETON_PULSE_CLASS = "[background:var(--surface-hover,_rgba(127,_127,_127,_0.12))] [background-image:linear-gradient(_90deg,_rgba(127,_127,_127,_0.08)_0%,_rgba(127,_127,_127,_0.18)_50%,_rgba(127,_127,_127,_0.08)_100%_)] [background-size:200%_100%] [animation:skeletonShimmer_1.6s_ease-in-out_infinite] [border-radius:4px]";
+
 export function Skeleton({
   className = "",
   width,
@@ -17,7 +19,7 @@ export function Skeleton({
 }: SkeletonProps) {
   return (
     <div
-      className={`skeleton-pulse ${className}`}
+      className={`${SKELETON_PULSE_CLASS} ${className}`}
       style={{
         width: typeof width === "number" ? `${width}px` : width,
         height: typeof height === "number" ? `${height}px` : height,
@@ -31,7 +33,7 @@ export function Skeleton({
 
 export function DashboardViewSkeleton() {
   return (
-    <div className="view-skeleton-container" aria-label="Memuat konten dashboard...">
+    <div className="[padding:8px_0] [width:100%]" aria-label="Memuat konten dashboard...">
       {/* Top stats skeleton */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px", marginBottom: "20px" }}>
         {[1, 2, 3, 4].map((i) => (

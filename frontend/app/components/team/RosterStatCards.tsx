@@ -39,7 +39,10 @@ export function RosterStatCards({ members, swapRequests, onOpenSwaps }: RosterSt
   const offPct   = 100 - leavePct;
 
   return (
-    <section className="roster-metrics-grid" aria-label="Ringkasan statistik tim">
+    <section
+      className="roster-metrics-grid grid grid-cols-[repeat(4,_1fr)] gap-[14px] mb-[20px] max-[1140px]:grid-cols-[repeat(2,_1fr)] max-[640px]:grid-cols-[1fr]"
+      aria-label="Ringkasan statistik tim"
+    >
 
       {/* 1. TOTAL MEMBERS */}
       <StatCard

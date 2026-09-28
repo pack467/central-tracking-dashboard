@@ -74,3 +74,76 @@
   --shadow-panel: 0 4px 12px 0 rgba(0, 0, 0, 0.25);
   --shadow-elevated: 0 20px 40px 0 rgba(0, 0, 0, 0.45);
 }
+
+/*
+ * Tailwind v4 token bridge. These aliases deliberately point at the existing
+ * CSS variables so the legacy stylesheet remains the visual source of truth
+ * while components are migrated incrementally.
+ */
+@theme inline {
+  --font-dashboard-sans: var(--font-sans);
+  --font-dashboard-mono: var(--font-mono);
+
+  --color-dashboard-bg: var(--bg);
+  --color-sidebar-bg: var(--sidebar-bg);
+  --color-sidebar-text: var(--sidebar-text);
+  --color-sidebar-muted: var(--sidebar-muted);
+  --color-sidebar-hover: var(--sidebar-hover);
+  --color-sidebar-active: var(--sidebar-active);
+  --color-sidebar-active-text: var(--sidebar-active-text);
+  --color-sidebar-active-border: var(--sidebar-active-border);
+  --color-topbar-bg: var(--topbar-bg);
+  --color-panel-bg: var(--panel-bg);
+  --color-panel-bg-hover: var(--panel-bg-hover);
+  --color-panel-border: var(--panel-border);
+  --color-input-bg: var(--input-bg);
+  --color-modal-bg: var(--modal-bg);
+  --color-drawer-bg: var(--drawer-bg);
+  --color-overlay-bg: var(--overlay-bg);
+  --color-avatar-bg: var(--avatar-bg);
+  --color-avatar-text: var(--avatar-text);
+  --color-avatar-border: var(--avatar-border);
+  --color-ink-primary: var(--ink-primary);
+  --color-ink-secondary: var(--ink-secondary);
+  --color-ink-muted: var(--ink-muted);
+  --color-line: var(--line);
+  --color-accent-blue: var(--accent-blue);
+  --color-accent-blue-soft: var(--accent-blue-soft);
+  --color-accent-blue-border: var(--accent-blue-border);
+  --color-status-green: var(--green);
+  --color-status-green-soft: var(--green-soft);
+  --color-status-green-border: var(--green-border);
+  --color-status-orange: var(--orange);
+  --color-status-orange-soft: var(--orange-soft);
+  --color-status-orange-border: var(--orange-border);
+  --color-status-red: var(--red);
+  --color-status-red-soft: var(--red-soft);
+  --color-status-red-border: var(--red-border);
+  --color-status-purple: var(--purple);
+  --color-status-purple-soft: var(--purple-soft);
+  --color-status-purple-border: var(--purple-border);
+  --color-priority-critical: var(--priority-critical);
+  --color-priority-critical-soft: var(--priority-critical-soft);
+  --color-priority-critical-border: var(--priority-critical-border);
+  --color-priority-high: var(--priority-high);
+  --color-priority-high-soft: var(--priority-high-soft);
+  --color-priority-high-border: var(--priority-high-border);
+  --color-priority-medium: var(--priority-medium);
+  --color-priority-medium-soft: var(--priority-medium-soft);
+  --color-priority-medium-border: var(--priority-medium-border);
+  --color-priority-low: var(--priority-low);
+  --color-priority-low-soft: var(--priority-low-soft);
+  --color-priority-low-border: var(--priority-low-border);
+
+  --shadow-dashboard-sm: var(--shadow-sm);
+  --shadow-dashboard-panel: var(--shadow-panel);
+  --shadow-dashboard-elevated: var(--shadow-elevated);
+
+  --spacing-dashboard-1: var(--space-1);
+  --spacing-dashboard-2: var(--space-2);
+  --spacing-dashboard-3: var(--space-3);
+  --spacing-dashboard-4: var(--space-4);
+  --spacing-dashboard-5: var(--space-5);
+  --spacing-dashboard-6: var(--space-6);
+  --spacing-sticky-content-offset: var(--sticky-content-offset);
+}

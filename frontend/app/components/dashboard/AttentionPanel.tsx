@@ -147,7 +147,7 @@ export function AttentionPanel({
     <article className="panel attention-panel">
       <div className="panel-heading">
         <div className="panel-title">
-          <span className="attention-icon">!</span> Perlu Perhatian{" "}
+          <span className="attention-icon [display:grid] [place-items:center] [width:20px] [height:20px] [color:var(--orange)] [border-radius:99px] [background:var(--orange-soft)] [border:1px_solid_var(--orange-border)] [font-size:11px] [font-weight:800]">!</span> Perlu Perhatian{" "}
           <Badge tone={unreadAttentionCount > 0 ? "warning" : "success"}>
             {unreadAttentionCount}
           </Badge>
@@ -155,7 +155,7 @@ export function AttentionPanel({
         {onGoToNotifications && (
           <button
             type="button"
-            className="text-button"
+            className="text-button [padding:2px_0] [color:var(--accent-blue)] [background:transparent] [font-size:11.5px] [font-weight:600] [white-space:nowrap]"
             onClick={onGoToNotifications}
             title="Buka daftar lengkap notifikasi & alert sistem"
           >
@@ -166,9 +166,9 @@ export function AttentionPanel({
         )}
       </div>
 
-      <div className="attention-list">
+      <div className="attention-list [padding:0_20px]">
         {displayedItems.length === 0 ? (
-          <div style={{ padding: "24px 20px", textAlign: "center", color: "var(--ink-secondary)", fontSize: "12px" }}>
+          <div className="[padding:24px_20px] [text-align:center] [color:var(--ink-secondary)] [font-size:12px]">
             Semua anomali operasional telah di-acknowledge dan berstatus nominal.
           </div>
         ) : (
@@ -180,17 +180,17 @@ export function AttentionPanel({
 
             return (
               <div
-                className={`attention-row ${isAcknowledged ? "resolved" : ""} ${isRecentlyAcked ? "pending-ack" : ""}`}
+                className={`attention-row [display:grid] [grid-template-columns:28px_minmax(0,_1fr)_auto] [gap:12px] [align-items:center] [padding:14px_0] [border-bottom:1px_solid_var(--line)] ${isAcknowledged ? "resolved" : ""} ${isRecentlyAcked ? "pending-ack" : ""}`}
                 key={item.id}
               >
                 <ProjectMark name={projectName} />
                 <div className="attention-copy">
-                  <div>
+                  <div className="[display:flex] [align-items:center] [gap:7px] [margin-bottom:3px]">
                     <Badge tone={badgeTone}>{item.category}</Badge>
-                    <span className="attention-time">{item.time}</span>
+                    <span className="attention-time [color:var(--ink-muted)] [font-size:10px] [font-family:var(--font-mono)]">{item.time}</span>
                   </div>
-                  <strong>{item.title}</strong>
-                  <p>
+                  <strong className="[display:block] [overflow:hidden] [color:var(--ink-primary)] [font-size:12.5px] [font-weight:600] [text-overflow:ellipsis] [white-space:nowrap]">{item.title}</strong>
+                  <p className="[margin:2px_0_0] [color:var(--ink-secondary)] [font-size:11px] [line-height:1.4]">
                     {isAcknowledged
                       ? isRecentlyAcked
                         ? "Acknowledged — dapat dibatalkan (Undo)."
@@ -201,7 +201,7 @@ export function AttentionPanel({
 
                 <div className="ack-action-group">
                   <button
-                    className={`ack-button ${isAcknowledged ? "ack-active" : ""} ${isRecentlyAcked ? "undo-available" : ""}`}
+                    className={`ack-button [height:26px] [padding:0_10px] [color:var(--ink-secondary)] [border:1px_solid_var(--panel-border)]! [border-radius:5px] [background:var(--panel-bg)]! [font-size:10.5px]! [font-weight:600] [transition:all_0.15s_ease] ${isAcknowledged ? "ack-active" : ""} ${isRecentlyAcked ? "undo-available" : ""}`}
                     onClick={() => {
                       if (isAcknowledged) {
                         handleUndo(item);
@@ -226,4 +226,3 @@ export function AttentionPanel({
     </article>
   );
 }
-

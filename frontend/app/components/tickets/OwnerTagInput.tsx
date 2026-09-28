@@ -125,18 +125,21 @@ export function OwnerTagInput({
   };
 
   return (
-    <div ref={containerRef} className="ticket-owners-wrapper">
+    <div ref={containerRef} className="relative w-full">
       <div
-        className={`ticket-owners-box ${isOpen ? "is-focused" : ""} ${disabled ? "is-disabled" : ""}`}
+        className={`w-full min-h-[38px] [padding:4px_8px] [background-color:var(--input-bg)] [border:1px_solid_var(--panel-border)] rounded-[7px] box-border flex flex-wrap items-center gap-[6px] cursor-text [transition:border-color_0.12s_ease] [&.is-focused]:![border-color:var(--accent-blue)] [&.is-focused]:![box-shadow:none] [&.is-focused]:![outline:none] ${isOpen ? "is-focused" : ""} ${disabled ? "is-disabled" : ""}`}
         onClick={() => inputRef.current?.focus()}
       >
         {/* Rendered Chips */}
         {owners.map((ownerName) => (
-          <span key={ownerName} className="ticket-owner-chip">
-            <span className="ticket-owner-chip-icon">
+          <span
+            key={ownerName}
+            className="inline-flex items-center gap-[5px] h-[26px] [padding:0_7px_0_8px] [background:rgba(56,_189,_248,_0.08)] [border:1px_solid_rgba(56,_189,_248,_0.25)] rounded-[5px] [color:var(--ink-primary)] [font-size:11.5px] [font-weight:500] select-none [transition:border-color_0.1s_ease,_background-color_0.1s_ease]"
+          >
+            <span className="[color:var(--accent-blue)] flex items-center">
               <User size={11} />
             </span>
-            <span className="ticket-owner-chip-name">{ownerName}</span>
+            <span className="[color:var(--ink-primary)] [font-size:11.5px] [line-height:1]">{ownerName}</span>
             {!disabled && (
               <button
                 type="button"
@@ -144,7 +147,7 @@ export function OwnerTagInput({
                   e.stopPropagation();
                   removeOwner(ownerName);
                 }}
-                className="ticket-owner-chip-remove"
+                className="flex items-center justify-center w-[15px] h-[15px] rounded-[99px] [border:none] [background:transparent] [color:var(--ink-muted)] cursor-pointer p-0 ml-[2px] [transition:color_0.12s_ease,_background-color_0.12s_ease] [&:hover]:[color:#f87171] [&:hover]:[background:rgba(239,_68,_68,_0.15)]"
                 title={`Hapus ${ownerName}`}
                 aria-label={`Hapus ${ownerName}`}
               >
@@ -168,7 +171,7 @@ export function OwnerTagInput({
             onFocus={() => setIsOpen(true)}
             onKeyDown={handleKeyDown}
             placeholder={owners.length === 0 ? placeholder : "+ Tambah PIC..."}
-            className="ticket-owners-input"
+            className="![border:none] ![background:transparent] ![outline:none] ![color:var(--ink-primary)] ![font-size:12px] ![font-family:var(--font-sans)] ![padding:0_4px] ![height:26px] [flex:1_1_140px] [min-width:120px] ![box-shadow:none] [&::placeholder]:[color:var(--ink-muted)] [&::placeholder]:[font-size:11.5px]"
             disabled={disabled}
           />
         )}
@@ -176,7 +179,11 @@ export function OwnerTagInput({
 
       {/* Autocomplete suggestions dropdown */}
       {isOpen && !disabled && (suggestions.length > 0 || canAddCustom) && (
-        <div ref={dropdownRef} className="ticket-owners-dropdown" role="listbox">
+        <div
+          ref={dropdownRef}
+          className="absolute [top:calc(100%_+_4px)] left-0 right-0 z-[1050] [background:#0b1329] [border:1px_solid_rgba(255,_255,_255,_0.14)] rounded-[8px] [box-shadow:0_12px_28px_-4px_rgba(0,_0,_0,_0.7),_0_4px_10px_-2px_rgba(0,_0,_0,_0.5)] max-h-[180px] overflow-y-auto p-[4px] flex flex-col gap-[2px]"
+          role="listbox"
+        >
           {suggestions.map((member, idx) => {
             const isHighlighted = idx === highlightedIndex;
             return (
@@ -184,15 +191,17 @@ export function OwnerTagInput({
                 key={member.id}
                 role="option"
                 aria-selected={isHighlighted}
-                className={`ticket-owners-option ${isHighlighted ? "is-active" : ""}`}
+                className={`flex items-center justify-between [padding:6px_10px] rounded-[5px] cursor-pointer [transition:background-color_0.1s_ease] [font-size:12px] [&:hover]:[background:rgba(255,_255,_255,_0.08)] [&.is-active]:[background:rgba(255,_255,_255,_0.08)] ${isHighlighted ? "is-active" : ""}`}
                 onMouseEnter={() => setHighlightedIndex(idx)}
                 onClick={() => addOwner(member.name)}
               >
-                <div className="ticket-owners-option-left">
-                  <User size={12} className="ticket-owners-option-icon" />
-                  <span className="ticket-owners-option-name">{member.name}</span>
+                <div className="flex items-center gap-[7px] [color:var(--ink-primary)]">
+                  <User size={12} className="[color:var(--accent-blue)] shrink-0" />
+                  <span className="[font-weight:500]">{member.name}</span>
                 </div>
-                <span className="ticket-owners-option-role">{member.role}</span>
+                <span className="[font-size:10px] [color:var(--ink-muted)] [font-family:var(--font-mono)] [background:rgba(255,_255,_255,_0.04)] [padding:2px_6px] rounded-[4px] [border:1px_solid_rgba(255,_255,_255,_0.06)]">
+                  {member.role}
+                </span>
               </div>
             );
           })}
@@ -201,19 +210,21 @@ export function OwnerTagInput({
             <div
               role="option"
               aria-selected={highlightedIndex === suggestions.length}
-              className={`ticket-owners-option ticket-owners-option-custom ${
+              className={`flex items-center justify-between [padding:6px_10px] rounded-[5px] cursor-pointer [transition:background-color_0.1s_ease] [font-size:12px] [&:hover]:[background:rgba(255,_255,_255,_0.08)] [&.is-active]:[background:rgba(255,_255,_255,_0.08)] [border-top:1px_solid_rgba(255,_255,_255,_0.07)] mt-[2px] pt-[6px] ${
                 highlightedIndex === suggestions.length ? "is-active" : ""
               }`}
               onMouseEnter={() => setHighlightedIndex(suggestions.length)}
               onClick={() => addOwner(query)}
             >
-              <div className="ticket-owners-option-left">
-                <Plus size={12} className="ticket-owners-option-icon" />
+              <div className="flex items-center gap-[7px] [color:var(--ink-primary)]">
+                <Plus size={12} className="[color:var(--accent-blue)] shrink-0" />
                 <span>
                   Gunakan <strong>&ldquo;{query.trim()}&rdquo;</strong>
                 </span>
               </div>
-              <span className="ticket-owners-option-role">Custom PIC</span>
+              <span className="[font-size:10px] [color:var(--ink-muted)] [font-family:var(--font-mono)] [background:rgba(255,_255,_255,_0.04)] [padding:2px_6px] rounded-[4px] [border:1px_solid_rgba(255,_255,_255,_0.06)]">
+                Custom PIC
+              </span>
             </div>
           )}
         </div>

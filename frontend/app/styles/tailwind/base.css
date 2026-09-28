@@ -1,0 +1,64 @@
+/*
+ * Tailwind v4 migration of legacy source.
+ * Legacy declarations are represented one-for-one as arbitrary-property utilities.
+ * Keep the matching legacy source file unimported until visual review is approved.
+ */
+/* ═══════════════════════════════════════════════
+   BASE STYLES
+═══════════════════════════════════════════════ */
+* {
+  @apply [box-sizing:border-box];
+}
+
+html {
+  @apply [min-width:320px];
+  @apply [background-color:var(--bg)];
+  @apply [color:var(--ink-primary)];
+}
+
+body {
+  @apply [margin:0];
+  @apply [color:var(--ink-primary)];
+  @apply [font-family:var(--font-sans)];
+  @apply [font-size:13.5px];
+  @apply [line-height:1.5];
+  @apply [-webkit-font-smoothing:antialiased];
+  @apply [-moz-osx-font-smoothing:grayscale];
+  @apply [background-color:var(--bg)];
+}
+
+button, input, textarea, select {
+  @apply [font-family:inherit];
+  @apply [font-size:inherit];
+}
+
+button {
+  @apply [border:0];
+  @apply [cursor:pointer];
+  @apply [background:transparent];
+}
+
+button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
+  @apply [outline:2px_solid_var(--accent-blue)];
+  @apply [outline-offset:2px];
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  @apply [width:6px];
+  @apply [height:6px];
+}
+::-webkit-scrollbar-track {
+  @apply [background:transparent];
+}
+::-webkit-scrollbar-thumb {
+  @apply [background:#475569];
+  @apply [border-radius:99px];
+}
+
+/* App Shell */
+.app-shell {
+  @apply [min-height:100vh];
+  @apply [display:flex];
+}
+
