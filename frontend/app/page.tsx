@@ -291,7 +291,7 @@ export function Dashboard({ initialNav = "Dashboard" }: { initialNav?: string })
       </section>
 
       {/* ── Floating Action Button: New Ticket (persists across all pages & viewport fixed) ── */}
-      <FloatingNewTicketButton onClick={openTicketCreate} />
+      <FloatingNewTicketButton onClick={openTicketCreate} isOpen={ticketModalOpen} />
 
       {/* ── Global Shift Coverage Panel (Discord-style right panel) ── */}
       <ShiftCoveragePanel

@@ -307,25 +307,25 @@
   @apply ![display:none];
 }
 
-/* ── Workspace width adjusts smoothly when sidebar is collapsed or shift panel is open ── */
+/* ── Workspace adjusts smoothly when left sidebar is collapsed (Overlay mode for Shift Panel: zero reflow) ── */
 .workspace {
-  @apply [will-change:margin-left,_margin-right];
-  @apply [transition:margin-left_0.35s_cubic-bezier(0.16,_1,_0.3,_1),_margin-right_0.35s_cubic-bezier(0.16,_1,_0.3,_1)];
+  @apply [will-change:margin-left];
+  @apply [transition:margin-left_0.35s_cubic-bezier(0.16,_1,_0.3,_1)];
 }
 
 .sidebar-is-collapsed .workspace {
   @apply [margin-left:68px];
 }
 
-/* ── Workspace shrinks when shift panel is open (push, not overlay) ── */
+/* In Overlay mode, workspace stays static to guarantee 60-120 FPS buttery-smooth performance */
 .shift-panel-is-open .workspace {
-  @apply [margin-right:300px];
+  @apply [margin-right:0];
 }
 
 /* Sidebar collapsed + panel open */
 .sidebar-is-collapsed.shift-panel-is-open .workspace {
   @apply [margin-left:68px];
-  @apply [margin-right:300px];
+  @apply [margin-right:0];
 }
 
 
@@ -1548,7 +1548,8 @@
 }
 
 .fab-new-ticket:hover,
-.fab-new-ticket.fab-hovered {
+.fab-new-ticket.fab-hovered,
+.fab-new-ticket.fab-expanded {
   @apply [gap:8px];
   @apply [padding:0_18px_0_14px];
   @apply [transform:translateY(-2px)];
@@ -1596,9 +1597,12 @@
 
 .fab-new-ticket:hover .fab-label,
 .fab-new-ticket.fab-hovered .fab-label,
+.fab-new-ticket.fab-expanded .fab-label,
+.fab-new-ticket.fab-modal-open .fab-label,
 .fab-label.fab-label-visible {
   @apply [max-width:120px];
   @apply [opacity:1];
+  @apply [margin-left:8px];
 }
 
 /* ═══════════════════════════════════════════════
@@ -1635,10 +1639,15 @@
 
 /* When panel is open, shift the toggle tab */
 
-/* When panel is open, shift the FAB */
+/* When panel is open, shift the FAB to the left of the 300px panel */
 .shift-panel-is-open .fab-new-ticket {
-  @apply [right:328px];
+  @apply ![right:328px];
   @apply [transition:right_0.35s_cubic-bezier(0.16,_1,_0.3,_1)];
+}
+
+@keyframes shift-backdrop-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 /* ── Panel Header ── */
@@ -1707,6 +1716,24 @@
   @apply [padding:0];
 }
 
+.shift-panel-user-list-scroll::-webkit-scrollbar {
+  @apply [width:4px];
+}
+
+.shift-panel-user-list-scroll::-webkit-scrollbar-track {
+  @apply [background:rgba(255,_255,_255,_0.02)];
+  @apply [border-radius:4px];
+}
+
+.shift-panel-user-list-scroll::-webkit-scrollbar-thumb {
+  @apply [background:rgba(56,_189,_248,_0.3)];
+  @apply [border-radius:4px];
+}
+
+.shift-panel-user-list-scroll::-webkit-scrollbar-thumb:hover {
+  @apply [background:rgba(56,_189,_248,_0.55)];
+}
+
 .shift-panel-content .roster-member-row {
   @apply [padding:7px_8px];
   @apply [border-radius:8px];
@@ -1748,15 +1775,8 @@
 @media (max-width: 940px) {
   /* On mobile, panel is overlay with backdrop */
 
-  @keyframes shift-backdrop-in {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-
-
-
   .shift-panel-is-open .fab-new-ticket {
-    @apply [right:28px];
+    @apply [transform:none];
     @apply [opacity:0];
     @apply [pointer-events:none];
   }

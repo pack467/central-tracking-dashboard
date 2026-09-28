@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   ArrowRightLeft,
   ArrowRight,
@@ -14,6 +14,14 @@ import {
   CheckSquare,
   ChevronsUpDown,
   FileText,
+  Clock3,
+  UserRound,
+  FolderKanban,
+  Activity,
+  Type,
+  AlignLeft,
+  ListTodo,
+  Flag,
 } from "lucide-react";
 import { Modal } from "@/app/components/ui/Modal";
 import { ModalCloseButton } from "@/app/components/ui/ModalCloseButton";
@@ -56,16 +64,15 @@ export function HandoverWizard({
   initialStep,
   onStepChange,
   onDiscard,
-  actor,
   onDraftChange,
   onClose,
   onSave,
   saving,
 }: HandoverWizardProps) {
   const [step, setStep] = useState<1 | 2 | 3 | 4>(initialStep);
-  const [visitedSteps, setVisitedSteps] = useState<Set<number>>(new Set([1]));
   const [confirmDiscard, setConfirmDiscard] = useState(false);
   const [collapsedTasks, setCollapsedTasks] = useState<Record<number, boolean>>({});
+  const formScrollRef = useRef<HTMLDivElement>(null);
 
   const title = mode === "edit" ? "Edit Catatan Handover" : mode === "prepare" ? "Siapkan Handover" : "Buat Handover Baru";
 
@@ -76,9 +83,9 @@ export function HandoverWizard({
   };
 
   const handleStepChange = (targetStep: 1 | 2 | 3 | 4) => {
-    setVisitedSteps((prev) => new Set(prev).add(targetStep));
     setStep(targetStep);
     onStepChange(targetStep);
+    formScrollRef.current?.scrollTo({ top: 0 });
   };
 
   const updateTask = (taskId: number, change: Partial<HandoverDraft["tasks"][number]>) => {
@@ -127,10 +134,10 @@ export function HandoverWizard({
     }));
   };
 
-  const toggleTaskCollapse = (taskId: number) => {
+  const toggleTaskCollapse = (taskId: number, index: number) => {
     setCollapsedTasks((prev) => ({
       ...prev,
-      [taskId]: !prev[taskId],
+      [taskId]: !(prev[taskId] ?? index > 0),
     }));
   };
 
@@ -142,7 +149,7 @@ export function HandoverWizard({
     setCollapsedTasks(nextState);
   };
 
-  const areAllTasksCollapsed = draft.tasks.length > 0 && draft.tasks.every((task) => collapsedTasks[task.id]);
+  const areAllTasksCollapsed = draft.tasks.length > 0 && draft.tasks.every((task, index) => collapsedTasks[task.id] ?? index > 0);
 
   const addFinding = () => {
     onDraftChange((previous) => ({
@@ -168,7 +175,7 @@ export function HandoverWizard({
 
   return (
     <>
-      <Modal open={open} onClose={requestClose} label={title} variant="form" width={740}>
+      <Modal open={open} onClose={requestClose} label={title} variant="form" width={920}>
         {/* Modern Modal Header */}
         <header className="handover-modal-header">
           <div className="wizard-header-content">
@@ -182,63 +189,59 @@ export function HandoverWizard({
               </span>
               <h2>{title}</h2>
             </div>
-            <p className="wizard-subtitle">
-              Lengkapi 4 langkah berikut untuk menyerahkan tugas ke shift berikutnya dengan lengkap dan akurat.
-            </p>
-            <p className="wizard-subtitle" role="status">
-              {draftSaved ? "Draf otomatis disimpan di perangkat ini." : "Draf belum tersimpan di perangkat — jangan reload."}
-              {mode === "edit" ? " Revisi akan membatalkan penerimaan dan mengulang checklist." : " Data awal diambil dari tiket, asesmen, dan roster dashboard; periksa kembali sebelum simpan."}
+            <p className="wizard-subtitle">Siapkan informasi yang perlu diketahui shift penerima, lalu periksa kembali sebelum menyimpan.</p>
+            <p className="wizard-save-status" role="status">
+              <span className={draftSaved ? "wizard-save-dot saved" : "wizard-save-dot"} />
+              {draftSaved ? "Draf tersimpan otomatis di perangkat ini" : "Draf belum tersimpan — jangan tutup halaman"}
+              {mode === "edit" && <span> · Revisi akan mengulang checklist penerimaan.</span>}
             </p>
           </div>
           <ModalCloseButton onClose={requestClose} />
         </header>
 
         {/* 4-Step Interactive Progress Stepper */}
-        <div className="wizard-stepper-container" role="tablist">
+        <div className="wizard-stepper-container" role="navigation" aria-label="Langkah handover">
           <div className="wizard-stepper">
             {/* Step 1 */}
             <button
               type="button"
-              className={`wizard-step-node ${step === 1 ? "active" : ""} ${visitedSteps.has(1) && step > 1 ? "completed" : ""}`}
+              className={`wizard-step-node ${step === 1 ? "active" : ""}`}
               onClick={() => handleStepChange(1)}
+              aria-current={step === 1 ? "step" : undefined}
             >
-              <div className="wizard-step-circle">
-                {visitedSteps.has(1) && step > 1 ? <Check size={13} strokeWidth={3} /> : "1"}
-              </div>
+              <div className="wizard-step-circle">1</div>
               <div className="wizard-step-label-group">
                 <span className="wizard-step-kicker">Langkah 1</span>
-                <span className="wizard-step-name">Informasi Shift</span>
+                <span className="wizard-step-name">Shift &amp; PIC</span>
               </div>
             </button>
 
-            <div className={`wizard-step-connector ${step > 1 ? "completed" : ""}`} />
+            <div className="wizard-step-connector" />
 
             {/* Step 2 */}
             <button
               type="button"
-              className={`wizard-step-node ${step === 2 ? "active" : ""} ${visitedSteps.has(2) && step > 2 ? "completed" : ""}`}
+              className={`wizard-step-node ${step === 2 ? "active" : ""}`}
               onClick={() => handleStepChange(2)}
+              aria-current={step === 2 ? "step" : undefined}
             >
-              <div className="wizard-step-circle">
-                {visitedSteps.has(2) && step > 2 ? <Check size={13} strokeWidth={3} /> : "2"}
-              </div>
+              <div className="wizard-step-circle">2</div>
               <div className="wizard-step-label-group">
                 <span className="wizard-step-kicker">Langkah 2</span>
-                <span className="wizard-step-name">Catatan Shift</span>
+                <span className="wizard-step-name">Catatan</span>
               </div>
             </button>
 
-            <div className={`wizard-step-connector ${step > 2 ? "completed" : ""}`} />
+            <div className="wizard-step-connector" />
 
             {/* Step 3 */}
             <button
               type="button"
-              className={`wizard-step-node ${step === 3 ? "active" : ""} ${visitedSteps.has(3) && step > 3 ? "completed" : ""}`}
+              className={`wizard-step-node ${step === 3 ? "active" : ""}`}
               onClick={() => handleStepChange(3)}
+              aria-current={step === 3 ? "step" : undefined}
             >
-              <div className="wizard-step-circle">
-                {visitedSteps.has(3) && step > 3 ? <Check size={13} strokeWidth={3} /> : "3"}
-              </div>
+              <div className="wizard-step-circle">3</div>
               <div className="wizard-step-label-group">
                 <span className="wizard-step-kicker">Langkah 3</span>
                 <span className="wizard-step-name">
@@ -247,13 +250,14 @@ export function HandoverWizard({
               </div>
             </button>
 
-            <div className={`wizard-step-connector ${step > 3 ? "completed" : ""}`} />
+            <div className="wizard-step-connector" />
 
             {/* Step 4 */}
             <button
               type="button"
               className={`wizard-step-node ${step === 4 ? "active" : ""}`}
               onClick={() => handleStepChange(4)}
+              aria-current={step === 4 ? "step" : undefined}
             >
               <div className="wizard-step-circle">4</div>
               <div className="wizard-step-label-group">
@@ -267,12 +271,17 @@ export function HandoverWizard({
         </div>
 
         {/* Form Body Scroll Area */}
-        <div className="handover-form-scroll" inert={saving}>
+        <div ref={formScrollRef} className="handover-form-scroll" inert={saving}>
           {/* ══════════════════════════════════════
               STEP 1: INFORMASI SHIFT
              ══════════════════════════════════════ */}
           {step === 1 && (
             <section className="handover-form-step">
+              <div className="wizard-step-intro">
+                <span>Langkah 1 dari 4</span>
+                <h3>Siapa yang menyerahkan dan menerima shift?</h3>
+                <p>Pastikan tanggal, arah pergantian shift, dan penanggung jawab sudah benar.</p>
+              </div>
               {/* Card 1: Tanggal & Rotasi Shift */}
               <div className="wizard-section-card">
                 <div className="wizard-section-header">
@@ -283,28 +292,32 @@ export function HandoverWizard({
                 </div>
 
                 <div className="[margin-bottom:14px]!">
-                  <label>
-                    Tanggal Serah Terima
+                  <div className="wizard-date-field">
+                    <span>Tanggal serah terima</span>
                     <DatePicker
                       value={draft.date}
                       onChange={(date) => onDraftChange((prev) => ({ ...prev, date }))}
                       mode="single"
                       required
+                      aria-label="Tanggal serah terima"
                     />
-                  </label>
+                  </div>
                 </div>
 
                 {/* Shift Pengirim & Penerima with directional arrow */}
                 <div className="wizard-shift-flow-container">
                   <div className="wizard-shift-col">
                     <label>
-                      Shift Pengirim (Asal)
-                      <input
-                        value={draft.sourceShift}
-                        onChange={(event) => onDraftChange((prev) => ({ ...prev, sourceShift: event.target.value }))}
-                        placeholder="e.g. Subuh"
-                        required
-                      />
+                      Shift yang menyerahkan
+                      <span className="wizard-input-shell">
+                        <Clock3 className="wizard-field-icon" size={16} aria-hidden="true" />
+                        <input
+                          value={draft.sourceShift}
+                          onChange={(event) => onDraftChange((prev) => ({ ...prev, sourceShift: event.target.value }))}
+                          placeholder="Contoh: Subuh"
+                          required
+                        />
+                      </span>
                     </label>
                   </div>
 
@@ -314,20 +327,23 @@ export function HandoverWizard({
 
                   <div className="wizard-shift-col">
                     <label>
-                      Shift Penerima (Tujuan)
-                      <input
-                        value={draft.targetShift}
-                        onChange={(event) => onDraftChange((prev) => ({ ...prev, targetShift: event.target.value }))}
-                        placeholder="e.g. Pagi"
-                        required
-                      />
+                      Shift yang menerima
+                      <span className="wizard-input-shell">
+                        <Clock3 className="wizard-field-icon" size={16} aria-hidden="true" />
+                        <input
+                          value={draft.targetShift}
+                          onChange={(event) => onDraftChange((prev) => ({ ...prev, targetShift: event.target.value }))}
+                          placeholder="Contoh: Pagi"
+                          required
+                        />
+                      </span>
                     </label>
                   </div>
                 </div>
 
                 {/* Quick Shift Rotation Presets */}
                 <div className="wizard-shift-presets">
-                  <span className="wizard-preset-label">Rotasi Cepat:</span>
+                  <span className="wizard-preset-label">Pilih rotasi yang sesuai:</span>
                   {SHIFT_ROTATIONS.map((rotation) => {
                     const isSelected =
                       draft.sourceShift.toLowerCase() === rotation.from.toLowerCase() &&
@@ -357,22 +373,28 @@ export function HandoverWizard({
 
                 <div className="handover-form-grid handover-form-grid-two">
                   <label>
-                    PIC Shift Pengirim
-                    <input
-                      value={draft.sourcePic}
-                      onChange={(event) => onDraftChange((prev) => ({ ...prev, sourcePic: event.target.value }))}
-                      placeholder="Nama penanggung jawab shift saat ini"
-                      required
-                    />
+                    Penanggung jawab shift pengirim
+                    <span className="wizard-input-shell">
+                      <UserRound className="wizard-field-icon" size={16} aria-hidden="true" />
+                      <input
+                        value={draft.sourcePic}
+                        onChange={(event) => onDraftChange((prev) => ({ ...prev, sourcePic: event.target.value }))}
+                        placeholder="Nama penanggung jawab shift saat ini"
+                        required
+                      />
+                    </span>
                   </label>
                   <label>
-                    PIC Shift Penerima
-                    <input
-                      value={draft.targetPic}
-                      onChange={(event) => onDraftChange((prev) => ({ ...prev, targetPic: event.target.value }))}
-                      placeholder="Nama tim penerima (e.g. Budi, Andi)"
-                      required
-                    />
+                    Penanggung jawab shift penerima
+                    <span className="wizard-input-shell">
+                      <UserRound className="wizard-field-icon" size={16} aria-hidden="true" />
+                      <input
+                        value={draft.targetPic}
+                        onChange={(event) => onDraftChange((prev) => ({ ...prev, targetPic: event.target.value }))}
+                        placeholder="Nama penerima, contoh: Budi, Andi"
+                        required
+                      />
+                    </span>
                   </label>
                 </div>
               </div>
@@ -384,6 +406,11 @@ export function HandoverWizard({
              ══════════════════════════════════════ */}
           {step === 2 && (
             <section className="handover-form-step">
+              <div className="wizard-step-intro">
+                <span>Langkah 2 dari 4</span>
+                <h3>Apa yang perlu diketahui shift berikutnya?</h3>
+                <p>Tulis konteks umum atau pengingat. Kendala spesifik bisa dicatat pada langkah Temuan.</p>
+              </div>
               <div className="wizard-section-card">
                 <div className="wizard-section-header">
                   <span className="wizard-section-title">
@@ -394,17 +421,20 @@ export function HandoverWizard({
 
                 <div>
                   <label>
-                    Catatan Shift (Pesan Bebas dari Shifter Pengirim)
-                    <textarea
-                      rows={6}
-                      value={draft.notes ?? ""}
-                      onChange={(event) =>
-                        onDraftChange((prev) => ({ ...prev, notes: event.target.value }))
-                      }
-                      placeholder="Tuliskan catatan, konteks kendala, hal yang perlu diwaspadai, atau pengingat bagi shift penerima (opsional)..."
-                    />
+                    Catatan untuk shift penerima <span className="wizard-optional">Opsional</span>
+                    <span className="wizard-input-shell wizard-textarea-shell">
+                      <FileText className="wizard-field-icon" size={16} aria-hidden="true" />
+                      <textarea
+                        rows={6}
+                        value={draft.notes ?? ""}
+                        onChange={(event) =>
+                          onDraftChange((prev) => ({ ...prev, notes: event.target.value }))
+                        }
+                        placeholder="Contoh: Pantau lonjakan trafik setelah pukul 20.00 dan cek laporan monitoring sebelum pergantian shift."
+                      />
+                    </span>
                     <small className="[display:block]! [margin-top:6px]! [color:var(--ink-muted)]! [font-size:11px]!">
-                      Catatan ini akan tampil di tab Catatan Shift pada detail handover agar shift berikutnya segera mengetahui konteks pekerjaan Anda.
+                      Gunakan untuk informasi umum. Temuan dan tugas memiliki kolom tersendiri di langkah berikutnya.
                     </small>
                   </label>
                 </div>
@@ -417,9 +447,14 @@ export function HandoverWizard({
              ══════════════════════════════════════ */}
           {step === 3 && (
             <section className="handover-form-step">
+              <div className="wizard-step-intro">
+                <span>Langkah 3 dari 4</span>
+                <h3>Adakah kendala atau hal yang perlu dipantau?</h3>
+                <p>Catat satu temuan per kartu. Jika tidak ada, lanjutkan ke langkah Tugas.</p>
+              </div>
               <div className="handover-step-header-action">
                 <div className="wizard-section-title [font-size:13px]!">
-                  <ShieldCheck size={16} /> Daftar Temuan &amp; Pengecualian ({draft.findings.length})
+                  <ShieldCheck size={16} /> Temuan yang perlu diteruskan <span className="wizard-list-count">{draft.findings.length}</span>
                 </div>
                 <button type="button" className="handover-inline-add" onClick={addFinding}>
                   <Plus size={13} strokeWidth={2.5} /> Tambah Temuan
@@ -434,7 +469,7 @@ export function HandoverWizard({
                         <div className="[display:flex]! [align-items:center]! [gap:8px]!">
                           <span className="wizard-task-num-badge">#{index + 1}</span>
                           <strong className="[font-size:12.5px]!">
-                            {finding.title ? finding.title : `Temuan #${index + 1}`}
+                            {finding.title ? finding.title : `Temuan ${index + 1} · Belum diberi judul`}
                           </strong>
                           {finding.project && <ProjectMark name={finding.project} />}
                         </div>
@@ -448,45 +483,60 @@ export function HandoverWizard({
                         </button>
                       </div>
 
-                      <div className="handover-form-grid handover-form-grid-three">
-                        <label>
-                          Proyek
-                          <ProjectSelect
-                            value={finding.project}
-                            onChange={(project) => updateFinding(index, { project })}
-                            placeholder="Pilih proyek..."
-                          />
-                        </label>
-                        <label className="handover-form-wide">
-                          Judul Temuan
-                          <input
-                            value={finding.title}
-                            onChange={(event) => updateFinding(index, { title: event.target.value })}
-                            placeholder="Ringkasan kendala atau anomali"
-                          />
+                      <div className="handover-form-grid wizard-finding-grid">
+                        <label htmlFor={`finding-project-${index}`}>
+                          Proyek terkait
+                          <div className="wizard-input-shell">
+                            <FolderKanban className="wizard-field-icon" size={16} aria-hidden="true" />
+                            <ProjectSelect
+                              id={`finding-project-${index}`}
+                              value={finding.project}
+                              onChange={(project) => updateFinding(index, { project })}
+                              placeholder="Pilih atau ketik proyek"
+                            />
+                          </div>
+                          <small className="wizard-field-help">Pilih dari saran atau ketik nama proyek lain.</small>
                         </label>
                         <label>
-                          Status
-                          <select
-                            value={finding.state}
-                            onChange={(event) =>
-                              updateFinding(index, { state: event.target.value as "waiting" | "in-progress" })
-                            }
-                          >
-                            <option value="waiting">Monitored</option>
-                            <option value="in-progress">In Progress</option>
-                          </select>
+                          Kondisi saat ini
+                          <span className="wizard-input-shell wizard-select-shell">
+                            <Activity className="wizard-field-icon" size={16} aria-hidden="true" />
+                            <select
+                              value={finding.state}
+                              onChange={(event) =>
+                                updateFinding(index, { state: event.target.value as "waiting" | "in-progress" })
+                              }
+                            >
+                              <option value="waiting">Perlu dipantau</option>
+                              <option value="in-progress">Sedang ditindaklanjuti</option>
+                            </select>
+                            <ChevronDown className="wizard-select-chevron" size={16} aria-hidden="true" />
+                          </span>
+                        </label>
+                        <label className="wizard-grid-full">
+                          Ringkasan temuan
+                          <span className="wizard-input-shell">
+                            <Type className="wizard-field-icon" size={16} aria-hidden="true" />
+                            <input
+                              value={finding.title}
+                              onChange={(event) => updateFinding(index, { title: event.target.value })}
+                              placeholder="Contoh: Checkpoint SIEM belum menerima data terbaru"
+                            />
+                          </span>
                         </label>
                       </div>
 
                       <label className="[margin-top:10px]!">
-                        Rincian &amp; Tindak Lanjut
-                        <textarea
-                          rows={2}
-                          value={finding.detail}
-                          onChange={(event) => updateFinding(index, { detail: event.target.value })}
-                          placeholder="Kondisi terakhir dan langkah yang perlu diteruskan oleh shift penerima."
-                        />
+                        Kondisi terakhir dan tindak lanjut
+                        <span className="wizard-input-shell wizard-textarea-shell">
+                          <AlignLeft className="wizard-field-icon" size={16} aria-hidden="true" />
+                          <textarea
+                            rows={3}
+                            value={finding.detail}
+                            onChange={(event) => updateFinding(index, { detail: event.target.value })}
+                            placeholder="Apa yang sudah diperiksa? Apa yang harus dipantau atau dilakukan shift penerima?"
+                          />
+                        </span>
                       </label>
                     </article>
                   ))
@@ -496,10 +546,9 @@ export function HandoverWizard({
                     <div className="wizard-empty-icon">
                       <ShieldCheck size={26} />
                     </div>
-                    <div className="wizard-empty-title">Semua Berjalan Normal</div>
+                    <div className="wizard-empty-title">Belum ada temuan</div>
                     <div className="wizard-empty-desc">
-                      Tidak ada temuan khusus atau anomali pada shift ini. Klik tombol di bawah jika ada kendala
-                      atau isu yang perlu dieskalasi ke shift berikutnya.
+                      Jika ada kendala atau anomali yang perlu diketahui shift berikutnya, tambahkan di sini. Jika tidak ada, Anda bisa langsung melanjutkan.
                     </div>
                     <button type="button" className="wizard-empty-cta" onClick={addFinding}>
                       <Plus size={15} strokeWidth={2.5} /> Tambah Temuan Baru
@@ -515,13 +564,18 @@ export function HandoverWizard({
              ══════════════════════════════════════ */}
           {step === 4 && (
             <section className="handover-form-step">
+              <div className="wizard-step-intro">
+                <span>Langkah 4 dari 4</span>
+                <h3>Pekerjaan apa yang harus dilanjutkan?</h3>
+                <p>Periksa tugas yang sudah terisi dari dashboard. Buka kartu untuk mengubah rincian, status, atau prioritasnya.</p>
+              </div>
               <div className="wizard-task-controls">
                 <div className="[display:flex]! [flex-direction:column]! [gap:2px]!">
                   <span className="wizard-section-title [font-size:13px]!">
-                    <CheckSquare size={16} /> Ceklis Tugas Handover ({draft.tasks.length})
+                    <CheckSquare size={16} /> Tugas untuk shift penerima <span className="wizard-list-count">{draft.tasks.length}</span>
                   </span>
                   <span className="[font-size:11.5px]! [color:var(--text-muted)]!">
-                    Tugas operasional berjalan yang didelegasikan dan perlu dilanjutkan shift berikutnya.
+                    Tugas rutin dan pekerjaan yang masih berjalan.
                   </span>
                 </div>
 
@@ -545,7 +599,7 @@ export function HandoverWizard({
               {/* Collapsible Task Cards List */}
               <div className="handover-form-repeat-list">
                 {draft.tasks.map((task, index) => {
-                  const isCollapsed = Boolean(collapsedTasks[task.id]);
+                  const isCollapsed = collapsedTasks[task.id] ?? index > 0;
                   return (
                     <article
                       className={`wizard-task-card ${isCollapsed ? "collapsed" : "expanded"}`}
@@ -554,13 +608,13 @@ export function HandoverWizard({
                       {/* Accordion Header */}
                       <div
                         className="wizard-task-header"
-                        onClick={() => toggleTaskCollapse(task.id)}
+                        onClick={() => toggleTaskCollapse(task.id, index)}
                         role="button"
                         tabIndex={0}
                         onKeyDown={(e) => {
                           if (e.key === "Enter" || e.key === " ") {
                             e.preventDefault();
-                            toggleTaskCollapse(task.id);
+                            toggleTaskCollapse(task.id, index);
                           }
                         }}
                       >
@@ -596,65 +650,83 @@ export function HandoverWizard({
                       {!isCollapsed && (
                         <div className="wizard-task-body">
                           <div className="handover-form-grid handover-form-grid-task">
-                            <label>
+                            <label htmlFor={`task-project-${task.id}`}>
                               Proyek
-                              <ProjectSelect
-                                value={task.project}
-                                onChange={(project) => updateTask(task.id, { project })}
-                                placeholder="Pilih proyek..."
-                              />
+                              <div className="wizard-input-shell">
+                                <FolderKanban className="wizard-field-icon" size={16} aria-hidden="true" />
+                                <ProjectSelect
+                                  id={`task-project-${task.id}`}
+                                  value={task.project}
+                                  onChange={(project) => updateTask(task.id, { project })}
+                                  placeholder="Pilih atau ketik proyek"
+                                />
+                              </div>
                             </label>
                             <label>
                               Judul Tugas
-                              <input
-                                value={task.title}
-                                onChange={(event) => updateTask(task.id, { title: event.target.value })}
-                                placeholder="Judul pekerjaan atau pengecekan"
-                                required
-                              />
+                              <span className="wizard-input-shell">
+                                <ListTodo className="wizard-field-icon" size={16} aria-hidden="true" />
+                                <input
+                                  value={task.title}
+                                  onChange={(event) => updateTask(task.id, { title: event.target.value })}
+                                  placeholder="Contoh: Periksa alarm dan laporan SIEM"
+                                  required
+                                />
+                              </span>
                             </label>
                             <label>
-                              Tipe / Status
-                              <select
-                                value={task.state}
-                                onChange={(event) =>
-                                  updateTask(task.id, { state: event.target.value as HandoverState })
-                                }
-                              >
-                                <option value="repeat">Routine</option>
-                                <option value="waiting">Pending</option>
-                                <option value="in-progress">In Progress</option>
-                                <option value="done">Selesai</option>
-                                <option value="escalated">Dieskalasi</option>
-                                <option value="blocked">Terhambat</option>
-                                <option value="waiting-vendor">Menunggu Vendor</option>
-                                <option value="activity">Aktivitas</option>
-                              </select>
+                              Kondisi tugas
+                              <span className="wizard-input-shell wizard-select-shell">
+                                <Activity className="wizard-field-icon" size={16} aria-hidden="true" />
+                                <select
+                                  value={task.state}
+                                  onChange={(event) =>
+                                    updateTask(task.id, { state: event.target.value as HandoverState })
+                                  }
+                                >
+                                  <option value="repeat">Rutin / berulang</option>
+                                  <option value="waiting">Menunggu tindak lanjut</option>
+                                  <option value="in-progress">Sedang dikerjakan</option>
+                                  <option value="done">Selesai</option>
+                                  <option value="escalated">Dieskalasi</option>
+                                  <option value="blocked">Terhambat</option>
+                                  <option value="waiting-vendor">Menunggu Vendor</option>
+                                  <option value="activity">Aktivitas</option>
+                                </select>
+                                <ChevronDown className="wizard-select-chevron" size={16} aria-hidden="true" />
+                              </span>
                             </label>
                             <label>
                               Prioritas
-                              <select
-                                value={task.priority || "Medium"}
-                                onChange={(event) =>
-                                  updateTask(task.id, { priority: event.target.value })
-                                }
-                              >
-                                <option value="Critical">Critical</option>
-                                <option value="High">High</option>
-                                <option value="Medium">Medium</option>
-                                <option value="Low">Low</option>
-                              </select>
+                              <span className="wizard-input-shell wizard-select-shell">
+                                <Flag className="wizard-field-icon" size={16} aria-hidden="true" />
+                                <select
+                                  value={task.priority || "Medium"}
+                                  onChange={(event) =>
+                                    updateTask(task.id, { priority: event.target.value })
+                                  }
+                                >
+                                  <option value="Critical">Kritis</option>
+                                  <option value="High">Tinggi</option>
+                                  <option value="Medium">Sedang</option>
+                                  <option value="Low">Rendah</option>
+                                </select>
+                                <ChevronDown className="wizard-select-chevron" size={16} aria-hidden="true" />
+                              </span>
                             </label>
                           </div>
 
                           <label className="[margin-top:10px]!">
-                            Instruksi / Detail Pekerjaan
-                            <textarea
-                              rows={2}
-                              value={task.detail}
-                              onChange={(event) => updateTask(task.id, { detail: event.target.value })}
-                              placeholder="Jelaskan hal yang perlu diperiksa atau dikerjakan oleh shift penerima."
-                            />
+                            Apa yang perlu dilakukan shift penerima?
+                            <span className="wizard-input-shell wizard-textarea-shell">
+                              <AlignLeft className="wizard-field-icon" size={16} aria-hidden="true" />
+                              <textarea
+                                rows={3}
+                                value={task.detail}
+                                onChange={(event) => updateTask(task.id, { detail: event.target.value })}
+                                placeholder="Tulis langkah berikutnya, batas waktu bila ada, dan informasi yang diperlukan untuk mengerjakannya."
+                              />
+                            </span>
                           </label>
                         </div>
                       )}
@@ -685,40 +757,15 @@ export function HandoverWizard({
           </div>
 
           <div className="wizard-footer-right">
-            {/* Contextual Next Step Helper Hint */}
-            <div className="wizard-footer-hint">
-              {step === 1 && (
-                <>
-                  Langkah selanjutnya: <strong>Catatan Shift</strong> →
-                </>
-              )}
-              {step === 2 && (
-                <>
-                  Langkah selanjutnya: <strong>Temuan ({draft.findings.length})</strong> →
-                </>
-              )}
-              {step === 3 && (
-                <>
-                  Langkah selanjutnya: <strong>Tugas ({draft.tasks.length})</strong> →
-                </>
-              )}
-              {step === 4 && (
-                <>
-                  Langkah terakhir: <strong>Simpan serah terima</strong>
-                </>
-              )}
-            </div>
-
             {step < 4 ? (
               <button
                 type="button"
                 className="button button-primary"
                 onClick={() => {
-                  setVisitedSteps((prev) => new Set(prev).add(step));
                   handleStepChange((step + 1) as 1 | 2 | 3 | 4);
                 }}
               >
-                Lanjut (Langkah {step + 1}) →
+                {step === 1 ? "Lanjut ke Catatan" : step === 2 ? "Lanjut ke Temuan" : "Lanjut ke Tugas"} →
               </button>
             ) : (
               <button

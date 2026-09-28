@@ -274,33 +274,63 @@ export async function GET(request: Request) {
     let endDate = "";
     if (rawDate.includes("..")) {
       const parts = rawDate.split("..");
-      startDate = (parts[0] ?? "").slice(0, 10);
-      endDate = (parts[1] ?? "").slice(0, 10);
+      startDate = (parts[0] ?? "").slice(0, 10).trim();
+      endDate = (parts[1] ?? "").slice(0, 10).trim();
+      if (startDate && !endDate) {
+        endDate = startDate;
+      } else if (!startDate && endDate) {
+        startDate = endDate;
+      } else if (startDate && endDate && startDate > endDate) {
+        const temp = startDate;
+        startDate = endDate;
+        endDate = temp;
+      }
     } else if (rawDate) {
-      startDate = rawDate.slice(0, 10);
+      startDate = rawDate.slice(0, 10).trim();
       endDate = startDate;
     }
     const shift = (url.searchParams.get("shift") ?? "").slice(0, 50).trim().toLowerCase();
-    const pic = (url.searchParams.get("pic") ?? "").slice(0, 200).trim();
+    const rawPic = (url.searchParams.get("pic") ?? "").slice(0, 500).trim();
+    const picList = rawPic
+      ? rawPic
+          .split(/[,|]/)
+          .map((p) => p.trim().toLowerCase())
+          .filter(Boolean)
+      : [];
+
+    let picClause = "(1=1)";
+    const picBinds: string[] = [];
+    if (picList.length > 0) {
+      picClause = `(${picList
+        .map(() => "(instr(lower(json_extract(content, '$.sourcePic')), ?) > 0 OR instr(lower(json_extract(content, '$.targetPic')), ?) > 0)")
+        .join(" OR ")})`;
+      for (const p of picList) {
+        picBinds.push(p, p);
+      }
+    }
+
     const where = `WHERE (? = '' OR (handover_date >= ? AND handover_date <= ?))
       AND (? = '' OR instr(lower(title), ?) > 0 OR instr(lower(json_extract(content, '$.sourceShift')), ?) > 0 OR instr(lower(json_extract(content, '$.targetShift')), ?) > 0)
-      AND (? = '' OR instr(lower(json_extract(content, '$.sourcePic')), lower(?)) > 0 OR instr(lower(json_extract(content, '$.targetPic')), lower(?)) > 0)`;
+      AND ${picClause}`;
     const db = getHandoverDb();
 
     await seedHandoverNotes(db);
 
+    const baseBinds = [
+      startDate, startDate, endDate,
+      shift, shift, shift, shift,
+      ...picBinds,
+    ];
+
     const [rows, count] = await Promise.all([
-      db.prepare(`SELECT ${noteColumns} FROM handover_notes ${where} ORDER BY handover_date DESC, id DESC LIMIT ? OFFSET ?`).bind(
-        startDate, startDate, endDate,
-        shift, shift, shift, shift,
-        pic, pic, pic,
-        limit, (page - 1) * limit
-      ).all(),
-      db.prepare(`SELECT count(*) AS total FROM handover_notes ${where}`).bind(
-        startDate, startDate, endDate,
-        shift, shift, shift, shift,
-        pic, pic, pic
-      ).first(),
+      db
+        .prepare(`SELECT ${noteColumns} FROM handover_notes ${where} ORDER BY handover_date DESC, id DESC LIMIT ? OFFSET ?`)
+        .bind(...baseBinds, limit, (page - 1) * limit)
+        .all(),
+      db
+        .prepare(`SELECT count(*) AS total FROM handover_notes ${where}`)
+        .bind(...baseBinds)
+        .first(),
     ]);
     const notes = ((rows as any)?.results ?? []) as StoredHandoverRecord[];
     const total = Number((count as any)?.total ?? 0);

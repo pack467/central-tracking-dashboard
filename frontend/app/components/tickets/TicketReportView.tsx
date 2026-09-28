@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import {
   Clock,
@@ -29,13 +29,23 @@ import {
   Moon,
   Sun,
   Sunset,
+  StickyNote,
+  Copy,
+  Plus,
+  RotateCcw,
+  Check,
+  FolderKanban,
+  SlidersHorizontal,
+  Search,
 } from "lucide-react";
 import { useToast } from "@/app/components/ui/Toast";
 import { Avatar } from "@/app/components/ui/Avatar";
 import { ModalCloseButton } from "@/app/components/ui/ModalCloseButton";
+import { DatePicker } from "@/app/components/ui/DatePicker";
 import { useActiveShift } from "@/app/hooks/useLiveClock";
 import { useUserStatus, getStatusRingStyle } from "@/app/hooks/useUserStatus";
 import { useClient } from "@/app/context/ClientContext";
+import { getTodayWIB } from "@/app/lib/data";
 import type { Ticket } from "@/app/lib/types";
 
 interface TicketReportViewProps {
@@ -121,11 +131,272 @@ function formatHeatmapDate(dateStr: string) {
   return { dayName: "", dateShort: dateStr.slice(5) };
 }
 
+const DEFAULT_SHIFT_MEMO = `• Pantau koneksi gateway B2B sekunder menjelang lonjakan transaksi pagi.
+• Antrean ActiveMQ broker #228 masih dalam batas investigasi failover.
+• Jadwal checklist checkpoint berikutnya pukul 06:30 WIB (USIEM & SM).
+• Status failover DR cluster standby normal tanpa kendala.`;
+
+interface MonitoringCheckItem {
+  id: string;
+  project: string;
+  task: string;
+  status: "OK" | "NOK";
+  time: string;
+  issueNote?: string;
+}
+
+const DEFAULT_MONITORING_ITEMS: MonitoringCheckItem[] = [
+  { id: "mon-1", project: "B2B", task: "Health check gateway B2B sekunder", status: "OK", time: "06:00" },
+  { id: "mon-2", project: "SM", task: "Queue distributor check & routing", status: "OK", time: "06:15" },
+  { id: "mon-3", project: "USIEM", task: "Graylog indexer rate & pipeline buffer", status: "OK", time: "06:30" },
+  { id: "mon-4", project: "ActiveMQ", task: "Broker health check broker #228", status: "NOK", time: "06:45", issueNote: "Antrean naik" },
+  { id: "mon-5", project: "EPC Tools", task: "Validation worker cluster FMC", status: "OK", time: "07:00" },
+  { id: "mon-6", project: "DM", task: "Database replication sync & latency", status: "OK", time: "07:15" },
+  { id: "mon-7", project: "MB", task: "Webhook payment endpoint availability", status: "NOK", time: "07:30", issueNote: "Latensi > 200ms" },
+  { id: "mon-8", project: "APH", task: "Core switch spine DC Cikarang trunk", status: "OK", time: "07:45" },
+];
+
+const STAFF_ROSTER = [
+  { name: "Tahan Julianus Nadeak", role: "Incident Coordinator (Shift Pagi)", baseMonth: 38, baseYear: 245 },
+  { name: "Yuha Azhari Simbolon", role: "Operator NOC (Shift Pagi)", baseMonth: 32, baseYear: 198 },
+  { name: "Nicholas Bima Nooka Putra", role: "Infrastructure Engineer (Shift Pagi)", baseMonth: 29, baseYear: 184 },
+  { name: "Pangondion Kurniawan Naibaho", role: "Shift Lead (Shift Malam)", baseMonth: 45, baseYear: 290 },
+  { name: "Natanael Tambun", role: "Shift Lead (Shift Subuh)", baseMonth: 40, baseYear: 255 },
+  { name: "Agnes Siahaan", role: "Shift Lead (Shift Pagi)", baseMonth: 42, baseYear: 270 },
+  { name: "Ade Yuri F. Damanik", role: "L2 Specialist (Shift Pagi)", baseMonth: 34, baseYear: 220 },
+  { name: "Muhammad Ihsanul Arifin", role: "L2 Specialist (Shift Malam)", baseMonth: 48, baseYear: 310 },
+  { name: "Mhd. Galih Khairi", role: "Operator NOC (Shift Malam)", baseMonth: 52, baseYear: 325 },
+  { name: "Pedro Hutagaol", role: "Incident Coordinator (Shift Malam)", baseMonth: 36, baseYear: 230 },
+  { name: "Kristina Marbun", role: "Operator NOC (Shift Malam)", baseMonth: 44, baseYear: 280 },
+  { name: "Andri Agung Exaudi Sigiro", role: "Operator NOC (Shift Subuh)", baseMonth: 35, baseYear: 215 },
+  { name: "Dimas Yudistira", role: "Infrastructure Engineer (Shift Subuh)", baseMonth: 31, baseYear: 195 },
+  { name: "Tennov Pakpahan", role: "Operator NOC (On Leave)", baseMonth: 26, baseYear: 165 },
+];
+
+function getTicketShiftLocal(ticket: Ticket): "Subuh" | "Pagi" | "Malam" {
+  const rawShift = (ticket as any).createdDuringShift || ticket.shift;
+  if (rawShift) {
+    if (typeof rawShift === "string") {
+      if (rawShift.includes("Subuh")) return "Subuh";
+      if (rawShift.includes("Malam")) return "Malam";
+      if (rawShift.includes("Pagi")) return "Pagi";
+    }
+  }
+  if (ticket.created) {
+    const match = ticket.created.match(/(\d{1,2}):(\d{2})/);
+    if (match) {
+      const hours = parseInt(match[1], 10);
+      const minutes = parseInt(match[2], 10);
+      const totalMinutes = hours * 60 + minutes;
+      if (totalMinutes >= 16 * 60) return "Malam";
+      if (totalMinutes >= 8 * 60) return "Pagi";
+      return "Subuh";
+    }
+  }
+  return "Pagi";
+}
+
+function AnalyticsShifterMultiSelect({
+  selectedList,
+  onChange,
+  staffList,
+}: {
+  selectedList: string[];
+  onChange: (list: string[]) => void;
+  staffList: typeof STAFF_ROSTER;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleDown = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsOpen(false);
+    };
+    document.addEventListener("mousedown", handleDown);
+    document.addEventListener("keydown", handleKey);
+    return () => {
+      document.removeEventListener("mousedown", handleDown);
+      document.removeEventListener("keydown", handleKey);
+    };
+  }, [isOpen]);
+
+  const toggle = (name: string) => {
+    const exists = selectedList.includes(name);
+    const next = exists ? selectedList.filter((n) => n !== name) : [...selectedList, name];
+    onChange(next);
+  };
+
+  const selectAll = () => {
+    onChange(staffList.map((s) => s.name));
+  };
+
+  const clearAll = () => {
+    onChange([]);
+  };
+
+  const label = useMemo(() => {
+    if (selectedList.length === 0) return "Semua Shifter (14 Staf)";
+    if (selectedList.length === 1) {
+      const parts = selectedList[0].split(" ");
+      return parts.slice(0, 2).join(" ");
+    }
+    if (selectedList.length === 2) {
+      const p1 = selectedList[0].split(" ")[0];
+      const p2 = selectedList[1].split(" ")[0];
+      return `${p1}, ${p2}`;
+    }
+    return `${selectedList.length} Shifter Terpilih`;
+  }, [selectedList]);
+
+  return (
+    <div className="[position:relative] [width:100%]" ref={containerRef}>
+      <div
+        className="analytics-shifter-trigger"
+        data-active={selectedList.length > 0 ? "true" : undefined}
+        onClick={() => setIsOpen((prev) => !prev)}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            setIsOpen((prev) => !prev);
+          }
+        }}
+        title={selectedList.length > 0 ? selectedList.join(", ") : "Filter Shifter / PIC"}
+      >
+        <Users size={13} className="analytics-select-icon" />
+        <span className="[white-space:nowrap] [overflow:hidden] [text-overflow:ellipsis] [flex:1] [min-width:0]">
+          {label}
+        </span>
+        <ChevronDown size={12} className="analytics-select-arrow" />
+      </div>
+
+      {isOpen && (
+        <div className="analytics-shifter-popover">
+          <div className="analytics-shifter-header">
+            <span>Pilih Shifter ({selectedList.length}/{staffList.length})</span>
+            <div className="[display:flex] [align-items:center] [gap:8px]">
+              <button type="button" className="analytics-shifter-action" onClick={selectAll}>
+                Pilih Semua
+              </button>
+              <span>·</span>
+              <button type="button" className="analytics-shifter-action" onClick={clearAll}>
+                Hapus
+              </button>
+            </div>
+          </div>
+          <div className="analytics-shifter-list">
+            {staffList.map((staff) => {
+              const isSelected = selectedList.includes(staff.name);
+              return (
+                <label
+                  key={staff.name}
+                  className={`analytics-shifter-item ${isSelected ? "is-selected" : ""}`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={isSelected}
+                    onChange={() => toggle(staff.name)}
+                    className="analytics-shifter-checkbox"
+                  />
+                  <span className="[flex:1] [min-width:0] [overflow:hidden] [text-overflow:ellipsis] [white-space:nowrap]">
+                    {staff.name}
+                  </span>
+                </label>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: TicketReportViewProps) {
   const { activeClient } = useClient();
   const notify = useToast();
   const activeShift = useActiveShift();
   const { userStatus } = useUserStatus();
+
+  // Memo & Catatan Shift (Notepad state)
+  const [shiftMemo, setShiftMemo] = useState<string>(DEFAULT_SHIFT_MEMO);
+  const [memoCopied, setMemoCopied] = useState(false);
+
+  const handleMemoChange = (val: string) => {
+    setShiftMemo(val);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("ctd_shift_notepad_memo", val);
+    }
+  };
+
+  const handleCopyMemo = () => {
+    if (typeof navigator !== "undefined") {
+      navigator.clipboard.writeText(shiftMemo);
+      setMemoCopied(true);
+      notify.success("Memo berhasil disalin ke clipboard!", { id: "memo-copied" });
+      setTimeout(() => setMemoCopied(false), 2000);
+    }
+  };
+
+  const handleAddBullet = () => {
+    const next = shiftMemo.trimEnd() + (shiftMemo.trim() ? "\n• " : "• ");
+    handleMemoChange(next);
+  };
+
+  const handleResetMemo = () => {
+    handleMemoChange(DEFAULT_SHIFT_MEMO);
+    notify.info("Catatan memo dikembalikan ke default.", { id: "memo-reset" });
+  };
+
+  // Monitoring Checklist (OK / NOK state)
+  const [monitoringItems, setMonitoringItems] = useState<MonitoringCheckItem[]>(DEFAULT_MONITORING_ITEMS);
+
+  useEffect(() => {
+    try {
+      const savedMemo = localStorage.getItem("ctd_shift_notepad_memo");
+      if (savedMemo !== null) setShiftMemo(savedMemo);
+      const savedMon = localStorage.getItem("ctd_shift_monitoring_checklist");
+      if (savedMon) setMonitoringItems(JSON.parse(savedMon));
+    } catch {}
+  }, []);
+
+  const toggleMonitoringStatus = (id: string) => {
+    setMonitoringItems((prev) => {
+      const next = prev.map((item) => {
+        if (item.id !== id) return item;
+        const nextStatus = item.status === "OK" ? "NOK" : "OK";
+        return {
+          ...item,
+          status: nextStatus as "OK" | "NOK",
+          issueNote: nextStatus === "NOK" ? (item.issueNote || "Perlu perhatian") : undefined,
+        };
+      });
+      if (typeof window !== "undefined") {
+        localStorage.setItem("ctd_shift_monitoring_checklist", JSON.stringify(next));
+      }
+      return next;
+    });
+  };
+
+  const markAllOk = () => {
+    setMonitoringItems((prev) => {
+      const next = prev.map((item) => ({ ...item, status: "OK" as const, issueNote: undefined }));
+      if (typeof window !== "undefined") {
+        localStorage.setItem("ctd_shift_monitoring_checklist", JSON.stringify(next));
+      }
+      return next;
+    });
+    notify.success("Semua item monitoring ditandai OK!", { id: "mon-all-ok" });
+  };
+
+  const okCount = monitoringItems.filter((i) => i.status === "OK").length;
+  const nokCount = monitoringItems.filter((i) => i.status === "NOK").length;
 
   // Active hover and click selection states for charts
   const [hoveredDate, setHoveredDate] = useState<string | null>(null);
@@ -167,22 +438,130 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
   } | null>(null);
   const [activeShiftLineFilter, setActiveShiftLineFilter] = useState<"all" | "Subuh" | "Pagi" | "Malam">("all");
 
-  // 1. Overall Aggregates
-  const total = tickets.length;
+  // ── Analytics Filter State (controls all charts & reports below LIVE OPS VIEW) ──
+  const [analyticsDateFilter, setAnalyticsDateFilter] = useState<string>("");
+  const [analyticsProjectFilter, setAnalyticsProjectFilter] = useState<string>("All");
+  const [analyticsShiftFilter, setAnalyticsShiftFilter] = useState<string>("All");
+  const [analyticsSelectedShifters, setAnalyticsSelectedShifters] = useState<string[]>([]);
+  const [analyticsStatusFilter, setAnalyticsStatusFilter] = useState<string>("All");
+  const [analyticsSeverityFilter, setAnalyticsSeverityFilter] = useState<string>("All");
+
+  const isAnyAnalyticsFilterActive = useMemo(() => {
+    return (
+      Boolean(analyticsDateFilter) ||
+      analyticsProjectFilter !== "All" ||
+      analyticsShiftFilter !== "All" ||
+      analyticsSelectedShifters.length > 0 ||
+      analyticsStatusFilter !== "All" ||
+      analyticsSeverityFilter !== "All"
+    );
+  }, [
+    analyticsDateFilter,
+    analyticsProjectFilter,
+    analyticsShiftFilter,
+    analyticsSelectedShifters,
+    analyticsStatusFilter,
+    analyticsSeverityFilter,
+  ]);
+
+  const resetAllAnalyticsFilters = () => {
+    setAnalyticsDateFilter("");
+    setAnalyticsProjectFilter("All");
+    setAnalyticsShiftFilter("All");
+    setAnalyticsSelectedShifters([]);
+    setAnalyticsStatusFilter("All");
+    setAnalyticsSeverityFilter("All");
+    notify.info("Filter analitik dikembalikan ke default.", { id: "reset-analytics-filters" });
+  };
+
+  // Filtered tickets for all analytics charts & reports below LIVE OPS VIEW
+  const analyticsTickets = useMemo(() => {
+    return tickets.filter((t) => {
+      // 1. Date Range
+      if (analyticsDateFilter) {
+        const todayStr = getTodayWIB();
+        const ticketDate = t.date || (t.created && t.created.length >= 10 ? t.created.slice(0, 10) : todayStr);
+        if (analyticsDateFilter.includes("..")) {
+          const [start, end] = analyticsDateFilter.split("..");
+          if (start && ticketDate < start) return false;
+          if (end && ticketDate > end) return false;
+        } else if (analyticsDateFilter === "today" || analyticsDateFilter === todayStr) {
+          if (ticketDate !== todayStr) return false;
+        } else {
+          if (ticketDate !== analyticsDateFilter) return false;
+        }
+      }
+
+      // 2. Project
+      if (analyticsProjectFilter !== "All") {
+        if (t.project !== analyticsProjectFilter) return false;
+      }
+
+      // 3. Shift
+      if (analyticsShiftFilter !== "All") {
+        const tShift = t.shift || getTicketShiftLocal(t);
+        if (tShift !== analyticsShiftFilter) return false;
+      }
+
+      // 4. Shifter / PIC
+      if (analyticsSelectedShifters.length > 0) {
+        const owner = (t.owner || "").toLowerCase();
+        const matches = analyticsSelectedShifters.some((shifter) => {
+          const clean = shifter.toLowerCase().replace(/^(mhd\.|m\.)\s+/i, "");
+          return owner.includes(clean) || shifter.toLowerCase().includes(owner);
+        });
+        if (!matches) return false;
+      }
+
+      // 5. Status
+      if (analyticsStatusFilter !== "All") {
+        const s = (t.status || "").toLowerCase();
+        const target = analyticsStatusFilter.toLowerCase();
+        if (target === "active") {
+          if (s === "closed" || s === "ditutup") return false;
+        } else if (target === "closed") {
+          if (s !== "closed" && s !== "ditutup") return false;
+        } else if (target === "pending") {
+          if (s !== "pending") return false;
+        } else if (target === "escalated") {
+          if (s !== "escalated") return false;
+        }
+      }
+
+      // 6. Severity
+      if (analyticsSeverityFilter !== "All") {
+        const sev = (t.severity || "").toLowerCase();
+        if (sev !== analyticsSeverityFilter.toLowerCase()) return false;
+      }
+
+      return true;
+    });
+  }, [
+    tickets,
+    analyticsDateFilter,
+    analyticsProjectFilter,
+    analyticsShiftFilter,
+    analyticsSelectedShifters,
+    analyticsStatusFilter,
+    analyticsSeverityFilter,
+  ]);
+
+  // 1. Overall Aggregates (Downstream charts use analyticsTickets)
+  const total = analyticsTickets.length;
   const closedTickets = useMemo(
-    () => tickets.filter((t) => t.status.toLowerCase() === "closed" || t.status.toLowerCase() === "ditutup"),
-    [tickets]
+    () => analyticsTickets.filter((t) => t.status.toLowerCase() === "closed" || t.status.toLowerCase() === "ditutup"),
+    [analyticsTickets]
   );
   const activeTickets = useMemo(
-    () => tickets.filter((t) => {
+    () => analyticsTickets.filter((t) => {
       const s = t.status.toLowerCase();
       return s === "active" || s === "aktivitas" || s === "open" || s === "pending" || s === "escalated";
     }),
-    [tickets]
+    [analyticsTickets]
   );
   const criticalTickets = useMemo(
-    () => tickets.filter((t) => t.severity.toLowerCase() === "critical" || t.severity.toLowerCase() === "kritis"),
-    [tickets]
+    () => analyticsTickets.filter((t) => t.severity.toLowerCase() === "critical" || t.severity.toLowerCase() === "kritis"),
+    [analyticsTickets]
   );
 
   // Response & Resolution Metrics
@@ -193,10 +572,10 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
   }, [closedTickets]);
 
   const avgResponseMins = useMemo(() => {
-    const withResp = tickets.filter((t) => typeof t.responseMinutes === "number" && t.responseMinutes > 0);
+    const withResp = analyticsTickets.filter((t) => typeof t.responseMinutes === "number" && t.responseMinutes > 0);
     if (!withResp.length) return 0;
     return Math.round(withResp.reduce((sum, t) => sum + (t.responseMinutes || 0), 0) / withResp.length);
-  }, [tickets]);
+  }, [analyticsTickets]);
 
   // SLA Compliance
   const { slaRate, breachedCount, metSlaCount } = useMemo(() => {
@@ -204,7 +583,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
     let met = 0;
     let breached = 0;
 
-    for (const t of tickets) {
+    for (const t of analyticsTickets) {
       const target = t.slaTargetMinutes || (t.severity.toLowerCase() === "critical" || t.severity.toLowerCase() === "high" ? 60 : 120);
       const actual = t.resolutionMinutes ?? (t.agingHours ? (t.agingHours * 60) : 0);
       if (actual <= target) {
@@ -215,7 +594,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
     }
     const rate = Math.round((met / total) * 100);
     return { slaRate: rate, breachedCount: breached, metSlaCount: met };
-  }, [tickets, total]);
+  }, [analyticsTickets, total]);
 
   // 2. Project List & Colors
   const allProjects = useMemo(() => {
@@ -241,7 +620,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
       }
     > = {};
 
-    for (const t of tickets) {
+    for (const t of analyticsTickets) {
       if (t.project === "L2") continue;
       const d = t.date || "2026-08-31";
       if (!map[d]) {
@@ -525,7 +904,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
   // 7. SLA Breach Root Cause Breakdown (Constructive, system/process factors only)
   const breachRootCauses = useMemo(() => {
     const causes: Record<string, number> = {};
-    const breachedTickets = tickets.filter((t) => {
+    const breachedTickets = analyticsTickets.filter((t) => {
       const target = t.slaTargetMinutes || (t.severity.toLowerCase() === "critical" ? 60 : 120);
       const actual = t.resolutionMinutes ?? (t.agingHours ? t.agingHours * 60 : 30);
       return actual > target;
@@ -542,7 +921,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
     }
 
     return Object.entries(causes).sort((a, b) => b[1] - a[1]);
-  }, [tickets]);
+  }, [analyticsTickets]);
 
   // 8. Shift Load Matrix (Heatmap: Shift Subuh, Pagi, Malam vs Dates)
   const shiftHeatmapData = useMemo(() => {
@@ -566,7 +945,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
       for (const d of dateList) matrix[s.id][d] = 0;
     }
 
-    for (const t of tickets) {
+    for (const t of analyticsTickets) {
       const d = t.date || "2026-08-31";
       if (!dateSet.has(d)) continue;
 
@@ -612,7 +991,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
     }
 
     return { shiftDefs, dateList, matrix, shiftTotals, dateTotals, grandTotal, peakShift };
-  }, [tickets, volumeByDate]);
+  }, [analyticsTickets, volumeByDate]);
 
   // Max volumes for scaling charts
   const maxDayCreated = Math.max(1, ...volumeByDate.map((v) => v.created));
@@ -629,15 +1008,21 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
   // Selected Engineer Filter for quick ops coordination
   const [selectedEngineerFilter, setSelectedEngineerFilter] = useState<string | null>(null);
 
-  // Active reference date (latest date in volume series or current day)
-  const activeDate = volumeByDate.length > 0 ? volumeByDate[volumeByDate.length - 1].date : "2026-08-31";
+  // Active reference date for live ops (unaffected by analytics date filter)
+  const rawActiveDate = useMemo(() => {
+    const dates = tickets.map((t) => t.date).filter(Boolean).sort();
+    return dates.length > 0 ? dates[dates.length - 1]! : "2026-08-31";
+  }, [tickets]);
 
-  // Today's tickets: all tickets created today or currently active in operational queue
+  // Active reference date (latest date in volume series or current day)
+  const activeDate = volumeByDate.length > 0 ? volumeByDate[volumeByDate.length - 1].date : rawActiveDate;
+
+  // Today's tickets: all tickets created today or currently active in operational queue (unaffected by analytics filter)
   const todayTickets = useMemo(() => {
     return tickets
       .filter((t) => {
         const d = t.date || "2026-08-31";
-        const isToday = d === activeDate;
+        const isToday = d === rawActiveDate;
         const isActive = t.status.toLowerCase() !== "closed" && t.status.toLowerCase() !== "ditutup";
         return isToday || isActive;
       })
@@ -647,7 +1032,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
         const timeB = b.created || "00:00";
         return timeB.localeCompare(timeA);
       });
-  }, [tickets, activeDate]);
+  }, [tickets, rawActiveDate]);
 
   // Filtered today's tickets based on engineer selection
   const displayedTodayTickets = useMemo(() => {
@@ -766,23 +1151,6 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
   }, [selectedUserDetail]);
 
   const userSummaries = useMemo<UserSummaryData[]>(() => {
-    const STAFF_ROSTER = [
-      { name: "Tahan Julianus Nadeak", role: "Incident Coordinator (Shift Pagi)", baseMonth: 38, baseYear: 245 },
-      { name: "Yuha Azhari Simbolon", role: "Operator NOC (Shift Pagi)", baseMonth: 32, baseYear: 198 },
-      { name: "Nicholas Bima Nooka Putra", role: "Infrastructure Engineer (Shift Pagi)", baseMonth: 29, baseYear: 184 },
-      { name: "Pangondion Kurniawan Naibaho", role: "Shift Lead (Shift Malam)", baseMonth: 45, baseYear: 290 },
-      { name: "Natanael Tambun", role: "Shift Lead (Shift Subuh)", baseMonth: 40, baseYear: 255 },
-      { name: "Agnes Siahaan", role: "Shift Lead (Shift Pagi)", baseMonth: 42, baseYear: 270 },
-      { name: "Ade Yuri F. Damanik", role: "L2 Specialist (Shift Pagi)", baseMonth: 34, baseYear: 220 },
-      { name: "Muhammad Ihsanul Arifin", role: "L2 Specialist (Shift Malam)", baseMonth: 48, baseYear: 310 },
-      { name: "Mhd. Galih Khairi", role: "Operator NOC (Shift Malam)", baseMonth: 52, baseYear: 325 },
-      { name: "Pedro Hutagaol", role: "Incident Coordinator (Shift Malam)", baseMonth: 36, baseYear: 230 },
-      { name: "Kristina Marbun", role: "Operator NOC (Shift Malam)", baseMonth: 44, baseYear: 280 },
-      { name: "Andri Agung Exaudi Sigiro", role: "Operator NOC (Shift Subuh)", baseMonth: 35, baseYear: 215 },
-      { name: "Dimas Yudistira", role: "Infrastructure Engineer (Shift Subuh)", baseMonth: 31, baseYear: 195 },
-      { name: "Tennov Pakpahan", role: "Operator NOC (On Leave)", baseMonth: 26, baseYear: 165 },
-    ];
-
     const getInitials = (name: string) => {
       const clean = name.replace(/^(Mhd\.|M\.)\s+/i, "").trim();
       const parts = clean.split(/\s+/);
@@ -790,9 +1158,13 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
       return clean.slice(0, 2).toUpperCase();
     };
 
-    return STAFF_ROSTER.map((staff) => {
-      // Find all tickets assigned to this staff member
-      const staffTickets = tickets.filter((t) => {
+    const rosterToUse = analyticsSelectedShifters.length > 0
+      ? STAFF_ROSTER.filter((staff) => analyticsSelectedShifters.includes(staff.name))
+      : STAFF_ROSTER;
+
+    return rosterToUse.map((staff) => {
+      // Find all tickets assigned to this staff member (using analyticsTickets)
+      const staffTickets = analyticsTickets.filter((t) => {
         const owner = (t.owner || "").toLowerCase();
         const staffKey = staff.name.toLowerCase().replace(/^(mhd\.|m\.)\s+/i, "");
         return owner.includes(staffKey) || staff.name.toLowerCase().includes(owner);
@@ -848,7 +1220,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
         recentTickets: staffTickets.slice(0, 10),
       };
     }).sort((a, b) => a.name.localeCompare(b.name)); // Strictly alphabetical
-  }, [tickets, activeDate]);
+  }, [analyticsTickets, activeDate, analyticsSelectedShifters]);
 
   // CSV Export with enriched auditable fields
   const exportCsv = () => {
@@ -870,7 +1242,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
       "Subject",
     ];
 
-    const rows = tickets.map((t) => {
+    const rows = analyticsTickets.map((t) => {
       const target = t.slaTargetMinutes || (t.severity.toLowerCase() === "critical" ? 60 : 120);
       const actual = t.resolutionMinutes ?? (t.agingHours ? t.agingHours * 60 : 30);
       const slaMet = actual <= target ? "YES" : "NO (BREACHED)";
@@ -978,10 +1350,11 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
       <div className="ops-focus-section">
         <div className="ops-focus-header">
           <div className="ops-focus-header-left">
-            <span className="ops-live-badge"><span className="live-dot live-dot-pulse" /> LIVE OPS VIEW</span>
-            <div>
-              <div className="ops-section-title">Operational Focus — Pantauan Real-Time &amp; Koordinasi Shift</div>
-            </div>
+            <span className="ops-live-badge">
+              <span className="live-dot live-dot-pulse" />
+              LIVE OPS VIEW
+            </span>
+            <span className="ops-section-title">Operational Focus — Pantauan Real-Time &amp; Koordinasi Shift</span>
           </div>
           <span className={`ops-shift-badge ops-shift-${shiftWorkload.currentShift.toLowerCase()}`}>
             Shift Aktif: <strong>Shift {shiftWorkload.currentShift}</strong>
@@ -1175,118 +1548,281 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
             </div>
           </article>
 
-          {/* Right Column: Shift Workload Snapshot & Tickets per NOC Engineer */}
+          {/* Right Column: Shift Notepad Memo & Monitoring Checklist (OK/NOK) */}
           <div className="ops-right-column">
-            {/* Widget B — Active Shift Workload Snapshot */}
+            {/* Widget B — Shift Notepad / Memo */}
             <article className="panel report-panel ops-shift-panel">
               <div className="panel-heading report-panel-heading">
                 <div className="chart-heading-left">
                   <div className="panel-title [display:flex]! [align-items:center]! [gap:8px]!">
-                    <Users size={14} className="text-sky-400" />
-                    Kondisi Shift Aktif
+                    <StickyNote size={14} className="text-amber-400" />
+                    Memo & Catatan Shift
                   </div>
                 </div>
+                <div className="[display:flex] [align-items:center] [gap:6px]">
+                  <span className="memo-autosave-tag" title="Catatan tersimpan otomatis di perangkat">
+                    <span className="memo-live-dot" />
+                    Tersimpan
+                  </span>
+                  <button
+                    type="button"
+                    className="memo-quick-btn"
+                    onClick={handleCopyMemo}
+                    title="Salin isi memo ke clipboard"
+                  >
+                    <Copy size={10} />
+                    {memoCopied ? "Tersalin!" : "Salin"}
+                  </button>
+                </div>
               </div>
-              <div className="report-panel-body">
-                <div className="shift-snapshot-grid">
-                  <div className="shift-snap-card snap-inprogress">
-                    <span className="snap-num">{shiftWorkload.shiftTickets}</span>
-                    <span className="snap-label">Tiket Shift Ini</span>
-                  </div>
-                  <div className="shift-snap-card snap-pending">
-                    <span className="snap-num">{shiftWorkload.unclaimed}</span>
-                    <span className="snap-label">Belum Diklaim</span>
-                  </div>
-                  <div className="shift-snap-card snap-active">
-                    <span className="snap-num">{shiftWorkload.inProgress}</span>
-                    <span className="snap-label">Sedang Dikerjakan</span>
-                  </div>
-                  <div className="shift-snap-card snap-waiting">
-                    <span className="snap-num">{shiftWorkload.pending}</span>
-                    <span className="snap-label">Pending / Menunggu</span>
+              <div className="report-panel-body [padding:10px_12px]!">
+                <div className="memo-notepad-wrap">
+                  <textarea
+                    className="memo-notepad-textarea"
+                    placeholder="Tulis catatan operasional shift, instruksi serah terima, atau pengingat di sini..."
+                    value={shiftMemo}
+                    onChange={(e) => handleMemoChange(e.target.value)}
+                  />
+                  <div className="memo-notepad-footer">
+                    <div className="[display:flex] [align-items:center] [gap:6px]">
+                      <button
+                        type="button"
+                        className="memo-quick-btn"
+                        onClick={handleAddBullet}
+                        title="Tambah butir catatan baru"
+                      >
+                        <Plus size={10} /> Poin Catatan
+                      </button>
+                      <button
+                        type="button"
+                        className="memo-quick-btn"
+                        onClick={handleResetMemo}
+                        title="Kembalikan ke catatan awal"
+                      >
+                        <RotateCcw size={10} /> Reset
+                      </button>
+                    </div>
+                    <span className="[color:var(--ink-muted)] [font-size:10px]">
+                      {shiftMemo.split("\n").filter((l) => l.trim().length > 0).length} butir catatan
+                    </span>
                   </div>
                 </div>
               </div>
             </article>
 
-            {/* Widget C — Tickets per NOC Engineer (Beban Kerja per Engineer) */}
+            {/* Widget C — Monitoring Checklist (OK / NOK) */}
             <article className="panel report-panel ops-engineer-panel">
               <div className="panel-heading report-panel-heading">
                 <div className="chart-heading-left">
                   <div className="panel-title [display:flex]! [align-items:center]! [gap:8px]!">
-                    <UserCheck size={14} className="text-emerald-400" />
-                    Tiket per NOC Engineer
+                    <ShieldCheck size={14} className="text-emerald-400" />
+                    List Monitoring Shift
                   </div>
                 </div>
-                <span className="panel-sub-count">{engineerWorkloads.length} Staf</span>
+                <div className="[display:flex] [align-items:center] [gap:6px]">
+                  <span className="mon-counter-badge ok">
+                    <Check size={10} strokeWidth={2.5} /> {okCount} OK
+                  </span>
+                  <span className="mon-counter-badge nok">
+                    <AlertTriangle size={10} strokeWidth={2.5} /> {nokCount} NOK
+                  </span>
+                </div>
               </div>
-              <div className="report-panel-body [padding:12px_14px]! [display:flex]! [flex-direction:column]! [flex:1]! [min-height:0]!">
+              <div className="report-panel-body [padding:10px_12px]! [display:flex]! [flex-direction:column]! [flex:1]! [min-height:0]!">
                 <div className="engineer-workload-list">
-                  {engineerWorkloads.map((eng) => {
-                    const isSelected = selectedEngineerFilter === eng.name;
+                  {monitoringItems.map((item) => {
+                    const isOk = item.status === "OK";
                     return (
-                      <button
-                        type="button"
-                        key={eng.name}
-                        className={`engineer-workload-card ${isSelected ? "engineer-card-active" : ""}`}
-                        onClick={() => {
-                          setSelectedEngineerFilter(isSelected ? null : eng.name);
-                          setTodayPage(1);
-                        }}
-                        title={`Klik untuk memfilter tiket milik ${eng.name}`}
+                      <div
+                        key={item.id}
+                        className={`monitoring-check-card ${!isOk ? "is-nok" : ""}`}
                       >
-                        <div className="engineer-card-left">
-                          <Avatar size="sm" initials={eng.initials} name={eng.name} className="engineer-avatar" />
-                          <div className="engineer-info">
-                            <div className="engineer-name">{eng.name}</div>
-                            <div className="engineer-proj-breakdown">
-                              {Object.entries(eng.projectBreakdown).map(([proj, count]) => {
-                                const pColor = PROJECT_COLORS[proj] || "#94a3b8";
-                                return (
-                                  <span className="engineer-proj-pill" key={proj}>
-                                    <i className="legend-dot" style={{ background: pColor }} />
-                                    {proj} &times;{count}
-                                  </span>
-                                );
-                              })}
-                            </div>
+                        <div className="monitoring-card-left">
+                          <span className="monitoring-proj-tag" title={item.project}>
+                            {item.project}
+                          </span>
+                          <div className="monitoring-card-content">
+                            <span className="monitoring-task-text" title={item.task}>
+                              {item.task}
+                            </span>
+                            {!isOk && item.issueNote && (
+                              <div className="monitoring-issue-subline">
+                                <AlertTriangle size={10} className="text-rose-400" />
+                                <span>{item.issueNote}</span>
+                              </div>
+                            )}
                           </div>
                         </div>
-                        <div className="engineer-ticket-count-badge">
-                          {eng.totalTickets}
-                        </div>
-                      </button>
+                        <span
+                          className={`monitoring-status-btn ${isOk ? "btn-ok" : "btn-nok"}`}
+                          title={`Status: ${item.status}`}
+                        >
+                          {isOk ? <Check size={11} strokeWidth={2.5} /> : <X size={11} strokeWidth={2.5} />}
+                          {item.status}
+                        </span>
+                      </div>
                     );
                   })}
                 </div>
 
-                {/* Footer summary bar to anchor the card and eliminate empty void */}
+                {/* Footer summary bar */}
                 <div className="engineer-workload-footer">
                   <div className="engineer-workload-stats">
-                    <span className="engineer-workload-stat-item">
-                      Total: <strong>{engineerWorkloads.reduce((acc, e) => acc + e.totalTickets, 0)} tiket</strong>
-                    </span>
-                    <span className="engineer-workload-stat-dot">•</span>
-                    <span className="engineer-workload-stat-item">
-                      Rata-rata: <strong>{engineerWorkloads.length > 0 ? (engineerWorkloads.reduce((acc, e) => acc + e.totalTickets, 0) / engineerWorkloads.length).toFixed(1) : 0}</strong> / staf
+                    <span
+                      className="engineer-workload-stat-item"
+                      title={`${monitoringItems.length} dari 13 checkpoint shift telah diperiksa (${okCount} OK, ${nokCount} NOK)`}
+                    >
+                      Total: <strong>{monitoringItems.length} dari 13 Checklist</strong>
                     </span>
                   </div>
-                  {selectedEngineerFilter && (
-                    <button
-                      type="button"
-                      className="ops-filter-reset-mini-btn"
-                      onClick={() => {
-                        setSelectedEngineerFilter(null);
-                        setTodayPage(1);
-                      }}
-                      title="Reset filter engineer"
-                    >
-                      <X size={10} /> Reset
-                    </button>
-                  )}
+                  <div className="engineer-workload-stats">
+                    <span className="engineer-workload-stat-item">
+                      Rata-rata: <strong>{((okCount / (monitoringItems.length || 1)) * 100).toFixed(0)}%</strong> Kesiapan
+                    </span>
+                  </div>
                 </div>
               </div>
             </article>
+          </div>
+        </div>
+      </div>
+
+
+      {/* ── ANALYTICS FILTER SECTION (Controls all charts & tables below, does NOT affect LIVE OPS VIEW) ── */}
+      <div className="analytics-filter-section">
+        <div className="analytics-filter-header">
+          <div className="analytics-filter-title-wrap">
+            <div className="analytics-filter-title">
+              <SlidersHorizontal size={14} className="text-sky-400" />
+              <span>Filter Laporan &amp; Analitik Tiket</span>
+            </div>
+          </div>
+          <div className="analytics-filter-header-right">
+            <span className="analytics-filter-counter-badge">
+              Menampilkan <strong>{analyticsTickets.length}</strong> dari <strong>{tickets.length}</strong> Tiket
+            </span>
+            {isAnyAnalyticsFilterActive && (
+              <button
+                type="button"
+                className="analytics-filter-reset-action-btn"
+                onClick={resetAllAnalyticsFilters}
+                title="Kembalikan semua filter ke default"
+              >
+                <RotateCcw size={12} /> Reset Filter
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div className="analytics-filter-grid">
+          {/* 1. Date Range Picker */}
+          <div className="analytics-filter-field date-field">
+            <label className="analytics-filter-label">Rentang Tanggal</label>
+            <div className="analytics-date-picker-wrap">
+              <DatePicker
+                value={analyticsDateFilter}
+                onChange={setAnalyticsDateFilter}
+                placeholder="Pilih Rentang Tanggal"
+                showAllTimePreset={false}
+                aria-label="Filter tanggal analitik tiket"
+              />
+            </div>
+          </div>
+
+          {/* 2. Project Filter */}
+          <div className="analytics-filter-field">
+            <label className="analytics-filter-label">Proyek</label>
+            <div className="analytics-select-wrap">
+              <FolderKanban size={13} className="analytics-select-icon" />
+              <select
+                value={analyticsProjectFilter}
+                onChange={(e) => setAnalyticsProjectFilter(e.target.value)}
+                aria-label="Filter proyek"
+                className="analytics-select-input"
+                data-active={analyticsProjectFilter !== "All" ? "true" : undefined}
+              >
+                <option value="All">Semua Proyek</option>
+                {allProjects.map((p) => (
+                  <option key={p} value={p}>{p}</option>
+                ))}
+              </select>
+              <ChevronDown size={12} className="analytics-select-arrow" />
+            </div>
+          </div>
+
+          {/* 3. Shift Filter */}
+          <div className="analytics-filter-field">
+            <label className="analytics-filter-label">Shift</label>
+            <div className="analytics-select-wrap">
+              <Clock size={13} className="analytics-select-icon" />
+              <select
+                value={analyticsShiftFilter}
+                onChange={(e) => setAnalyticsShiftFilter(e.target.value)}
+                aria-label="Filter shift"
+                className="analytics-select-input"
+                data-active={analyticsShiftFilter !== "All" ? "true" : undefined}
+              >
+                <option value="All">Semua Shift</option>
+                <option value="Subuh">Shift Subuh (00:00–08:30)</option>
+                <option value="Pagi">Shift Pagi (08:00–16:30)</option>
+                <option value="Malam">Shift Malam (16:00–00:30)</option>
+              </select>
+              <ChevronDown size={12} className="analytics-select-arrow" />
+            </div>
+          </div>
+
+          {/* 4. Shifter (PIC) Multi-Select */}
+          <div className="analytics-filter-field shifter-field">
+            <label className="analytics-filter-label">Shifter (PIC)</label>
+            <AnalyticsShifterMultiSelect
+              selectedList={analyticsSelectedShifters}
+              onChange={setAnalyticsSelectedShifters}
+              staffList={STAFF_ROSTER}
+            />
+          </div>
+
+          {/* 5. Status Filter */}
+          <div className="analytics-filter-field">
+            <label className="analytics-filter-label">Status Tiket</label>
+            <div className="analytics-select-wrap">
+              <Activity size={13} className="analytics-select-icon" />
+              <select
+                value={analyticsStatusFilter}
+                onChange={(e) => setAnalyticsStatusFilter(e.target.value)}
+                aria-label="Filter status tiket"
+                className="analytics-select-input"
+                data-active={analyticsStatusFilter !== "All" ? "true" : undefined}
+              >
+                <option value="All">Semua Status</option>
+                <option value="active">Aktif / Open / In-Progress</option>
+                <option value="closed">Closed / Ditutup</option>
+                <option value="pending">Pending</option>
+                <option value="escalated">Escalated</option>
+              </select>
+              <ChevronDown size={12} className="analytics-select-arrow" />
+            </div>
+          </div>
+
+          {/* 6. Severity Filter */}
+          <div className="analytics-filter-field">
+            <label className="analytics-filter-label">Keparahan</label>
+            <div className="analytics-select-wrap">
+              <AlertTriangle size={13} className="analytics-select-icon" />
+              <select
+                value={analyticsSeverityFilter}
+                onChange={(e) => setAnalyticsSeverityFilter(e.target.value)}
+                aria-label="Filter keparahan"
+                className="analytics-select-input"
+                data-active={analyticsSeverityFilter !== "All" ? "true" : undefined}
+              >
+                <option value="All">Semua Severity</option>
+                <option value="Critical">Critical (Kritis)</option>
+                <option value="High">High (Tinggi)</option>
+                <option value="Medium">Medium (Sedang)</option>
+                <option value="Low">Low (Rendah)</option>
+              </select>
+              <ChevronDown size={12} className="analytics-select-arrow" />
+            </div>
           </div>
         </div>
       </div>
@@ -2659,18 +3195,6 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                                   </>
                                 )}
 
-                                {/* Data Point Circle */}
-                                <circle
-                                  cx={p.x}
-                                  cy={p.y}
-                                  r={isHovered ? "6.5" : isBreach ? "5" : "4"}
-                                  fill={isHovered ? "#ffffff" : isBreach ? "#ef4444" : "#38bdf8"}
-                                  stroke={isHovered ? (isBreach ? "#ef4444" : "#0284c7") : "var(--panel-bg, #0f172a)"}
-                                  strokeWidth={isHovered ? "3" : "2"}
-                                  filter={isHovered ? "url(#glow-halo)" : undefined}
-                                  className="[transition:all_0.15s_ease]!"
-                                />
-
                                 {/* Milestone Callout Badge (Peak Max point) */}
                                 {isMax && !isHovered && (() => {
                                   const maxBadgeText = `${p.avgResolution}m Max`;
@@ -2810,6 +3334,53 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                           })}
                         </svg>
 
+                        {/* ── Data Points & Nodes (HTML Overlay - Zero SVG Distortion, 100% Perfect Round Circles) ── */}
+                        <div
+                          className="velocity-nodes-layer [position:absolute]! [inset:0]! [pointer-events:none]! [overflow:visible]! [z-index:4]!"
+                          aria-hidden="true"
+                        >
+                          {points.map((p) => {
+                            const isBreach = p.avgResolution > 60;
+                            const isHovered = hoveredVelocityPoint?.date === p.date;
+                            const percentX = (p.x / svgViewBoxWidth) * 100;
+                            const percentY = (p.y / viewBoxHeight) * 100;
+                            const dotSize = isHovered ? 13 : isBreach ? 9 : 7;
+                            const dotColor = isHovered ? "#ffffff" : isBreach ? "#ef4444" : "#38bdf8";
+                            const borderColor = isHovered
+                              ? isBreach
+                                ? "#ef4444"
+                                : "#0284c7"
+                              : "var(--panel-bg, #0f172a)";
+
+                            return (
+                              <span
+                                key={`vel-html-dot-${p.date}`}
+                                className="velocity-node-dot"
+                                style={{
+                                  position: "absolute",
+                                  left: `${percentX}%`,
+                                  top: `${percentY}%`,
+                                  width: `${dotSize}px`,
+                                  height: `${dotSize}px`,
+                                  minWidth: `${dotSize}px`,
+                                  minHeight: `${dotSize}px`,
+                                  maxWidth: `${dotSize}px`,
+                                  maxHeight: `${dotSize}px`,
+                                  borderRadius: "50%",
+                                  transform: "translate(-50%, -50%)",
+                                  backgroundColor: dotColor,
+                                  border: isHovered ? `3px solid ${borderColor}` : `1.8px solid ${borderColor}`,
+                                  boxShadow: isHovered
+                                    ? `0 0 14px 2px ${isBreach ? "#ef4444" : "#38bdf8"}, 0 0 4px ${isBreach ? "#ef4444" : "#38bdf8"}`
+                                    : "none",
+                                  transition: "width 0.15s ease, height 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease",
+                                  zIndex: isHovered ? 10 : 4,
+                                }}
+                              />
+                            );
+                          })}
+                        </div>
+
                         {/* Floating Interactive Tooltip Overlay */}
                         {hoveredVelocityPoint && (
                           <div
@@ -2879,47 +3450,51 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
               return (
                 <div className="shift-traffic-metrics-strip">
                   <div className="shift-traffic-metric-pill">
-                    <span className="shift-traffic-metric-label">
-                      <Sun size={13} className="[color:#fbbf24]!" />
-                      Shift Pagi (08:00–16:30)
-                    </span>
-                    <span className="shift-traffic-metric-val [color:#fbbf24]!">
-                      {pagiTotal} <small className="[font-size:11px]! [font-weight:normal]!">tiket</small>
-                    </span>
-                    <span className="shift-traffic-metric-sub">{pagiPct}% dari total beban</span>
+                    <div className="shift-traffic-metric-label">
+                      <Sun size={13} className="[color:#fbbf24]! [flex-shrink:0]!" />
+                      <span className="shift-traffic-metric-name">Shift Pagi</span>
+                      <span className="shift-traffic-metric-hours">(08:00–16:30)</span>
+                    </div>
+                    <div className="shift-traffic-metric-val [color:#fbbf24]!">
+                      {pagiTotal} <small className="shift-metric-unit">tiket</small>
+                    </div>
+                    <div className="shift-traffic-metric-sub">{pagiPct}% dari total beban</div>
                   </div>
 
                   <div className="shift-traffic-metric-pill">
-                    <span className="shift-traffic-metric-label">
-                      <Sunset size={13} className="[color:#c084fc]!" />
-                      Shift Malam (16:00–00:30)
-                    </span>
-                    <span className="shift-traffic-metric-val [color:#c084fc]!">
-                      {malamTotal} <small className="[font-size:11px]! [font-weight:normal]!">tiket</small>
-                    </span>
-                    <span className="shift-traffic-metric-sub">{malamPct}% dari total beban</span>
+                    <div className="shift-traffic-metric-label">
+                      <Sunset size={13} className="[color:#c084fc]! [flex-shrink:0]!" />
+                      <span className="shift-traffic-metric-name">Shift Malam</span>
+                      <span className="shift-traffic-metric-hours">(16:00–00:30)</span>
+                    </div>
+                    <div className="shift-traffic-metric-val [color:#c084fc]!">
+                      {malamTotal} <small className="shift-metric-unit">tiket</small>
+                    </div>
+                    <div className="shift-traffic-metric-sub">{malamPct}% dari total beban</div>
                   </div>
 
                   <div className="shift-traffic-metric-pill">
-                    <span className="shift-traffic-metric-label">
-                      <Moon size={13} className="[color:#38bdf8]!" />
-                      Shift Subuh (00:00–08:30)
-                    </span>
-                    <span className="shift-traffic-metric-val [color:#38bdf8]!">
-                      {subuhTotal} <small className="[font-size:11px]! [font-weight:normal]!">tiket</small>
-                    </span>
-                    <span className="shift-traffic-metric-sub">{subuhPct}% dari total beban</span>
+                    <div className="shift-traffic-metric-label">
+                      <Moon size={13} className="[color:#38bdf8]! [flex-shrink:0]!" />
+                      <span className="shift-traffic-metric-name">Shift Subuh</span>
+                      <span className="shift-traffic-metric-hours">(00:00–08:30)</span>
+                    </div>
+                    <div className="shift-traffic-metric-val [color:#38bdf8]!">
+                      {subuhTotal} <small className="shift-metric-unit">tiket</small>
+                    </div>
+                    <div className="shift-traffic-metric-sub">{subuhPct}% dari total beban</div>
                   </div>
 
                   <div className="shift-traffic-metric-pill">
-                    <span className="shift-traffic-metric-label">
-                      <Zap size={13} className="[color:#f87171]!" />
-                      Shift Beban Tertinggi (Peak)
-                    </span>
-                    <span className="shift-traffic-metric-val text-rose-400">
+                    <div className="shift-traffic-metric-label">
+                      <Zap size={13} className="[color:#f87171]! [flex-shrink:0]!" />
+                      <span className="shift-traffic-metric-name">Total Beban Terbanyak</span>
+                      <span className="shift-traffic-metric-hours">(Kumulatif)</span>
+                    </div>
+                    <div className="shift-traffic-metric-val text-rose-400">
                       {shiftHeatmapData.peakShift.name}
-                    </span>
-                    <span className="shift-traffic-metric-sub">
+                    </div>
+                    <div className="shift-traffic-metric-sub">
                       {shiftHeatmapData.shiftTotals[shiftHeatmapData.peakShift.id]} tiket (
                       {grand > 0
                         ? Math.round(
@@ -2927,7 +3502,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                           )
                         : 0}
                       % total)
-                    </span>
+                    </div>
                   </div>
                 </div>
               );
@@ -3107,37 +3682,6 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                         />
                       )}
 
-                      {/* ── 4. Data Points & Nodes per Shift ── */}
-                      {shiftSeries.map((series) => {
-                        const isFiltered =
-                          activeShiftLineFilter !== "all" && activeShiftLineFilter !== series.id;
-                        if (isFiltered) return null;
-
-                        return (
-                          <g key={`nodes-${series.id}`}>
-                            {series.points.map((p) => {
-                              const isColHovered = hoveredShiftTrafficPoint?.date === p.date;
-
-                              return (
-                                <circle
-                                  key={`dot-${series.id}-${p.date}`}
-                                  cx={p.x}
-                                  cy={p.y}
-                                  r={isColHovered ? "4.5" : "2.6"}
-                                  fill={isColHovered ? "#ffffff" : series.color}
-                                  stroke={isColHovered ? series.color : "var(--panel-bg, #0f172a)"}
-                                  strokeWidth={isColHovered ? "2" : "1.2"}
-                                  filter={
-                                    isColHovered ? `url(#glow-shift-${series.id.toLowerCase()})` : undefined
-                                  }
-                                  className="[transition:all_0.15s_ease]!"
-                                />
-                              );
-                            })}
-                          </g>
-                        );
-                      })}
-
                       {/* ── 5. X-Axis Tick Marks & Hover Hit Columns ── */}
                       {dateList.map((d, idx) => {
                         const x =
@@ -3192,6 +3736,54 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                         );
                       })}
                     </svg>
+
+                    {/* ── Data Points & Nodes per Shift (HTML Overlay - Zero SVG Distortion, 100% Perfect Round Circles) ── */}
+                    <div
+                      className="shift-traffic-nodes-layer [position:absolute]! [inset:0]! [pointer-events:none]! [overflow:visible]! [z-index:4]!"
+                      aria-hidden="true"
+                    >
+                      {shiftSeries.map((series) => {
+                        const isFiltered =
+                          activeShiftLineFilter !== "all" && activeShiftLineFilter !== series.id;
+                        if (isFiltered) return null;
+
+                        return series.points.map((p) => {
+                          const isColHovered = hoveredShiftTrafficPoint?.date === p.date;
+                          const percentX = (p.x / svgViewBoxWidth) * 100;
+                          const percentY = (p.y / viewBoxHeight) * 100;
+                          const dotSize = isColHovered ? 11 : 6;
+
+                          return (
+                            <span
+                              key={`html-node-${series.id}-${p.date}`}
+                              className="shift-traffic-node-dot"
+                              style={{
+                                position: "absolute",
+                                left: `${percentX}%`,
+                                top: `${percentY}%`,
+                                width: `${dotSize}px`,
+                                height: `${dotSize}px`,
+                                minWidth: `${dotSize}px`,
+                                minHeight: `${dotSize}px`,
+                                maxWidth: `${dotSize}px`,
+                                maxHeight: `${dotSize}px`,
+                                borderRadius: "50%",
+                                transform: "translate(-50%, -50%)",
+                                backgroundColor: isColHovered ? "#ffffff" : series.color,
+                                border: isColHovered
+                                  ? `2.5px solid ${series.color}`
+                                  : "1.5px solid var(--panel-bg, #0f172a)",
+                                boxShadow: isColHovered
+                                  ? `0 0 12px 2px ${series.color}, 0 0 4px ${series.color}`
+                                  : "none",
+                                transition: "width 0.15s ease, height 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease",
+                                zIndex: isColHovered ? 10 : 4,
+                              }}
+                            />
+                          );
+                        });
+                      })}
+                    </div>
 
                     {/* Y-Axis Tick Labels (HTML Overlay - Zero SVG Distortion) */}
                     <div
@@ -3257,7 +3849,9 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                           }}
                         >
                           <span className="shift-traffic-peak-dot" />
-                          <span>Peak: <strong>{peak.count} Tiket</strong></span>
+                          <span>
+                            Lonjakan: <strong>{peak.count} Tiket</strong> ({peak.shiftName})
+                          </span>
                         </div>
                       );
                     })(peakPointMeta)}

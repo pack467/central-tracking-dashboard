@@ -32,6 +32,15 @@ button, input, textarea, select {
   @apply [font-size:inherit];
 }
 
+select {
+  @apply [color-scheme:dark];
+}
+
+select option {
+  @apply [background-color:#0f172a];
+  @apply [color:var(--ink-primary)];
+}
+
 button {
   @apply [border:0];
   @apply [cursor:pointer];

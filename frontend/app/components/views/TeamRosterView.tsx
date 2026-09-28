@@ -1,7 +1,7 @@
 "use client";
 
 import { lazy, startTransition, Suspense, useCallback, useMemo, useState } from "react";
-import { UserPlus, ArrowRightLeft, Table, Calendar, Search, X } from "lucide-react";
+import { UserPlus, ArrowRightLeft, Table, Calendar, Search, X, Users, Clock, Activity, ChevronDown } from "lucide-react";
 import { RosterStatCards } from "@/app/components/team/RosterStatCards";
 import { RosterTable } from "@/app/components/team/RosterTable";
 import { seedSwapRequests } from "@/app/lib/data";
@@ -180,46 +180,58 @@ export function TeamRosterView({ members, onMembersChange: setMembers }: {
 
               <div className="roster-filters-group">
                 {/* Role Filter */}
-                <select
-                  className="roster-filter-select"
-                  value={roleFilter}
-                  onChange={(e) => setRoleFilter(e.target.value)}
-                  aria-label="Filter role"
-                >
-                  <option value="All">All Roles ({derivedMembers.length})</option>
-                  <option value="Operator NOC">Operator NOC</option>
-                  <option value="Shift Lead">Shift Lead</option>
-                  <option value="Incident Coordinator">Incident Coordinator</option>
-                  <option value="L2 Specialist">L2 Specialist</option>
-                  <option value="Infrastructure Engineer">Infrastructure Engineer</option>
-                </select>
+                <div className="roster-filter-wrapper">
+                  <Users size={13} className="roster-filter-icon" />
+                  <select
+                    className={`roster-filter-select ${roleFilter !== "All" ? "filter-active" : ""}`}
+                    value={roleFilter}
+                    onChange={(e) => setRoleFilter(e.target.value)}
+                    aria-label="Filter role"
+                  >
+                    <option value="All">All Roles ({derivedMembers.length})</option>
+                    <option value="Operator NOC">Operator NOC</option>
+                    <option value="Shift Lead">Shift Lead</option>
+                    <option value="Incident Coordinator">Incident Coordinator</option>
+                    <option value="L2 Specialist">L2 Specialist</option>
+                    <option value="Infrastructure Engineer">Infrastructure Engineer</option>
+                  </select>
+                  <ChevronDown size={13} className="roster-filter-chevron" aria-hidden="true" />
+                </div>
 
                 {/* Shift Filter */}
-                <select
-                  className="roster-filter-select"
-                  value={shiftFilter}
-                  onChange={(e) => setShiftFilter(e.target.value)}
-                  aria-label="Filter shift"
-                >
-                  <option value="All">All Shifts</option>
-                  <option value="Subuh">Shift Subuh</option>
-                  <option value="Pagi">Shift Pagi</option>
-                  <option value="Malam">Shift Malam</option>
-                </select>
+                <div className="roster-filter-wrapper">
+                  <Clock size={13} className="roster-filter-icon" />
+                  <select
+                    className={`roster-filter-select ${shiftFilter !== "All" ? "filter-active" : ""}`}
+                    value={shiftFilter}
+                    onChange={(e) => setShiftFilter(e.target.value)}
+                    aria-label="Filter shift"
+                  >
+                    <option value="All">All Shifts</option>
+                    <option value="Subuh">Shift Subuh</option>
+                    <option value="Pagi">Shift Pagi</option>
+                    <option value="Malam">Shift Malam</option>
+                  </select>
+                  <ChevronDown size={13} className="roster-filter-chevron" aria-hidden="true" />
+                </div>
 
                 {/* Status Filter */}
-                <select
-                  className="roster-filter-select"
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  aria-label="Filter status"
-                >
-                  <option value="All">All Statuses</option>
-                  <option value="Active">Active (On Duty)</option>
-                  <option value="On Break">On Break</option>
-                  <option value="Off Duty">Off Duty</option>
-                  <option value="On Leave">On Leave</option>
-                </select>
+                <div className="roster-filter-wrapper">
+                  <Activity size={13} className="roster-filter-icon" />
+                  <select
+                    className={`roster-filter-select ${statusFilter !== "All" ? "filter-active" : ""}`}
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    aria-label="Filter status"
+                  >
+                    <option value="All">All Statuses</option>
+                    <option value="Active">Active (On Duty)</option>
+                    <option value="On Break">On Break</option>
+                    <option value="Off Duty">Off Duty</option>
+                    <option value="On Leave">On Leave</option>
+                  </select>
+                  <ChevronDown size={13} className="roster-filter-chevron" aria-hidden="true" />
+                </div>
               </div>
 
               {/* View Mode Switcher */}

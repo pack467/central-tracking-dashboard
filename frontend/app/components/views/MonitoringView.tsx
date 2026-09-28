@@ -173,7 +173,7 @@ export function MonitoringView({
 
     const firstCard = el.querySelector(".system-compact-card") as HTMLElement | null;
     const cardWidth = firstCard ? firstCard.offsetWidth + 12 : 240;
-    const visible = firstCard ? Math.max(1, Math.floor(clientWidth / cardWidth)) : 4;
+    const visible = firstCard ? Math.max(1, Math.round((clientWidth + 12) / cardWidth)) : 5;
     setVisibleCardsCount(visible);
     const idx = Math.min(Math.round(scrollLeft / cardWidth), Math.max(0, displayCount - 1));
     setScrollIndex(Math.max(0, idx));
@@ -196,7 +196,7 @@ export function MonitoringView({
     const el = scrollRef.current;
     if (!el) return;
     const firstCard = el.querySelector(".system-compact-card") as HTMLElement | null;
-    const step = firstCard ? (firstCard.offsetWidth + 12) * 2 : 460;
+    const step = firstCard ? (firstCard.offsetWidth + 12) * Math.max(1, Math.min(3, visibleCardsCount)) : 460;
     el.scrollBy({
       left: direction === "left" ? -step : step,
       behavior: "smooth",

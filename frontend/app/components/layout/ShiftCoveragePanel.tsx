@@ -65,10 +65,14 @@ export function ShiftCoveragePanel({
 
   return (
     <>
-      {/* ── Toggle Tab Handle (always visible on right edge) ── */}
+      {/* ── Toggle Tab Handle (always visible on right edge, GPU-transformed) ── */}
       <button
         type="button"
-        className={`shift-panel-toggle-tab [position:fixed] [right:0] [top:50%] [transform:translateY(-50%)] [z-index:80] [display:flex] [flex-direction:column] [align-items:center] [gap:6px] [padding:12px_6px] [border-radius:10px_0_0_10px] [cursor:pointer] [background:var(--panel-bg,_#1e293b)]! [border:1px_solid_var(--line,_rgba(255,_255,_255,_0.08))]! [border-right:none]! [color:var(--ink-muted,_#94a3b8)] [font-family:var(--font-primary,_'Plus_Jakarta_Sans',_sans-serif)]! [font-size:10px]! [font-weight:600] [will-change:right] [transition:right_0.35s_cubic-bezier(0.16,_1,_0.3,_1),_background_0.2s_ease,_color_0.2s_ease,_border-color_0.2s_ease] [box-shadow:-2px_0_12px_rgba(0,_0,_0,_0.15)] [@media(max-width:660px)]:[padding:10px_5px] [&:hover]:[background:var(--panel-bg-hover,_#283548)]! [&:hover]:[color:var(--ink-primary,_#e2e8f0)] [&:hover]:[padding-right:10px] ${isOpen ? "shift-panel-toggle-active [background:var(--panel-bg,_#1e293b)]! [color:var(--ink-muted,_#94a3b8)] [border-color:var(--line,_rgba(255,_255,_255,_0.08))]! [right:300px]! [@media(max-width:940px)]:[right:280px]! [@media(max-width:660px)]:[right:260px]!" : ""}`}
+        className={`shift-panel-toggle-tab [position:fixed] [right:0] [top:50%] [z-index:80] [display:flex] [flex-direction:column] [align-items:center] [gap:6px] [padding:12px_6px] [border-radius:10px_0_0_10px] [cursor:pointer] [background:var(--panel-bg,_#1e293b)]! [border:1px_solid_var(--line,_rgba(255,_255,_255,_0.08))]! [border-right:none]! [color:var(--ink-muted,_#94a3b8)] [font-family:var(--font-primary,_'Plus_Jakarta_Sans',_sans-serif)]! [font-size:10px]! [font-weight:600] [will-change:transform] [transition:transform_0.35s_cubic-bezier(0.16,_1,_0.3,_1),_background_0.2s_ease,_color_0.2s_ease,_border-color_0.2s_ease] [box-shadow:-2px_0_12px_rgba(0,_0,_0,_0.15)] [@media(max-width:660px)]:[padding:10px_5px] [&:hover]:[background:var(--panel-bg-hover,_#283548)]! [&:hover]:[color:var(--ink-primary,_#e2e8f0)] [&:hover]:[padding-right:10px] ${
+          isOpen
+            ? "shift-panel-toggle-active [background:var(--panel-bg,_#1e293b)]! [color:var(--ink-muted,_#94a3b8)] [border-color:var(--line,_rgba(255,_255,_255,_0.08))]! [transform:translate3d(-300px,_-50%,_0)]! [@media(max-width:940px)]:[transform:translate3d(-280px,_-50%,_0)]! [@media(max-width:660px)]:[transform:translate3d(-260px,_-50%,_0)]!"
+            : "[transform:translate3d(0,_-50%,_0)]"
+        }`}
         onClick={onToggle}
         aria-label={isOpen ? "Tutup panel roster tim" : "Buka panel roster tim"}
         title={isOpen ? "Tutup Roster Tim" : "Buka Roster Tim"}
@@ -82,10 +86,10 @@ export function ShiftCoveragePanel({
         )}
       </button>
 
-      {/* ── Mobile Backdrop ── */}
+      {/* ── Overlay Backdrop (frosted glass / efek berembun & dismiss on outside click) ── */}
       {isOpen && (
         <div
-          className="shift-panel-backdrop [display:none] [@media(max-width:940px)]:[display:block] [@media(max-width:940px)]:[position:fixed] [@media(max-width:940px)]:[inset:0] [@media(max-width:940px)]:[z-index:74] [@media(max-width:940px)]:[background:rgba(0,_0,_0,_0.5)] [@media(max-width:940px)]:[backdrop-filter:blur(4px)] [@media(max-width:940px)]:[-webkit-backdrop-filter:blur(4px)] [@media(max-width:940px)]:[animation:shift-backdrop-in_0.3s_ease]"
+          className="shift-panel-backdrop [position:fixed] [inset:0] [z-index:74] [background:rgba(10,_15,_29,_0.45)] [backdrop-filter:blur(4px)] [-webkit-backdrop-filter:blur(4px)] [animation:shift-backdrop-in_0.25s_ease] [cursor:pointer]"
           onClick={onToggle}
           aria-hidden="true"
         />
@@ -93,7 +97,7 @@ export function ShiftCoveragePanel({
 
       {/* ── Panel ── */}
       <aside
-        className={`shift-coverage-panel [position:fixed] [top:0] [right:0] [bottom:0] [width:300px] [z-index:75] [display:flex] [flex-direction:column] [background:var(--panel-bg,_#1e293b)] [border-left:1px_solid_var(--line,_rgba(255,_255,_255,_0.08))] [box-shadow:-4px_0_24px_rgba(0,_0,_0,_0.2)] [transform:translateX(100%)] [will-change:transform] [backface-visibility:hidden] [transition:transform_0.35s_cubic-bezier(0.16,_1,_0.3,_1)] [overflow:hidden] [@media(max-width:940px)]:[width:280px] [@media(max-width:660px)]:[width:260px] ${isOpen ? "shift-panel-open [transform:translateX(0)]!" : "shift-panel-closed [transform:translateX(100%)]! [pointer-events:none]!"}`}
+        className={`shift-coverage-panel [position:fixed] [top:0] [right:0] [bottom:0] [width:300px] [z-index:75] [display:flex] [flex-direction:column] [background:var(--panel-bg,_#1e293b)] [border-left:1px_solid_var(--line,_rgba(255,_255,_255,_0.08))] [box-shadow:-6px_0_32px_rgba(0,_0,_0,_0.35)] [transform:translateX(100%)] [will-change:transform] [backface-visibility:hidden] [transition:transform_0.35s_cubic-bezier(0.16,_1,_0.3,_1)] [overflow:hidden] [@media(max-width:940px)]:[width:280px] [@media(max-width:660px)]:[width:260px] ${isOpen ? "shift-panel-open [transform:translateX(0)]!" : "shift-panel-closed [transform:translateX(100%)]! [pointer-events:none]!"}`}
         aria-label="Panel Roster Tim & Shift Coverage"
         role="complementary"
       >
@@ -105,19 +109,26 @@ export function ShiftCoveragePanel({
           </div>
         </div>
 
-        {/* Panel Content */}
-        <div className="shift-panel-content [flex:1] [overflow-y:auto] [overflow-x:hidden] [padding:12px_14px_8px] [scrollbar-width:thin] [scrollbar-color:rgba(255,_255,_255,_0.08)_transparent]">
-          <CoverageDonutChart counts={counts} />
-          <StatsRow counts={counts} />
-          <StatusFilterTabs
-            activeTab={activeTab}
-            onSelectTab={setActiveTab}
-            counts={counts}
-          />
-          <MemberList
-            members={filteredMembers}
-            activeTab={activeTab}
-          />
+        {/* Panel Content (Flex container with fixed top & scrollable user list) */}
+        <div className="shift-panel-content [flex:1] [min-height:0] [display:flex] [flex-direction:column] [overflow:hidden] [padding:12px_14px_8px]">
+          {/* Top Fixed Section: Donut Chart, Stats, Filter Tabs */}
+          <div className="shift-panel-top-controls [flex-shrink:0] [display:flex] [flex-direction:column]">
+            <CoverageDonutChart counts={counts} />
+            <StatsRow counts={counts} />
+            <StatusFilterTabs
+              activeTab={activeTab}
+              onSelectTab={setActiveTab}
+              counts={counts}
+            />
+          </div>
+
+          {/* Dedicated Scrollable User List Section */}
+          <div className="shift-panel-user-list-scroll [flex:1] [min-height:0] [overflow-y:auto] [overflow-x:hidden] [margin-top:8px] [padding-right:2px] [scrollbar-width:thin] [scrollbar-color:rgba(56,_189,_248,_0.35)_rgba(255,_255,_255,_0.03)]">
+            <MemberList
+              members={filteredMembers}
+              activeTab={activeTab}
+            />
+          </div>
         </div>
 
         {/* Panel Footer */}
