@@ -396,7 +396,7 @@ export function NotificationsView() {
         <div className="notifications-toolbar">
           {/* Search Box */}
           <div className="notifications-search-box">
-            <Search size={14} className="search-icon" style={{ opacity: 0.6 }} />
+            <Search size={14} className="search-icon [opacity:0.6]!" />
             <input
               type="text"
               placeholder="Cari notifikasi, pesan, topik..."
@@ -414,14 +414,7 @@ export function NotificationsView() {
                   setSearch("");
                   setCurrentPage(1);
                 }}
-                style={{
-                  background: "transparent",
-                  border: "none",
-                  color: "var(--ink-muted)",
-                  cursor: "pointer",
-                  display: "grid",
-                  placeItems: "center",
-                }}
+                className="[background:transparent]! [border:none]! [color:var(--ink-muted)]! [cursor:pointer]! [display:grid]! [place-items:center]!"
                 aria-label="Hapus pencarian"
               >
                 <X size={12} />

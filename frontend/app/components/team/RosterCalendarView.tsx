@@ -159,7 +159,7 @@ export function RosterCalendarView({ members, onSelectMember }: RosterCalendarVi
       {/* ── Top Bar ── */}
       <div className="roster-calendar-topbar">
         <div className="roster-calendar-title">
-          <CalendarIcon size={16} style={{ color: "var(--accent-blue)" }} />
+          <CalendarIcon size={16} className="[color:var(--accent-blue)]!" />
           {calMode === "weekly" ? (
             <>
               <strong>Week 34 · 24 Aug – 30 Aug 2026</strong>
@@ -170,7 +170,7 @@ export function RosterCalendarView({ members, onSelectMember }: RosterCalendarVi
           )}
         </div>
 
-        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+        <div className="[display:flex]! [gap:8px]! [align-items:center]!">
           {/* View mode toggle */}
           <div className="filter-tabs cal-view-tabs" aria-label="Switch calendar view">
             <button className={calMode === "weekly" ? "selected" : ""} onClick={() => setCalMode("weekly")}>
@@ -217,7 +217,13 @@ export function RosterCalendarView({ members, onSelectMember }: RosterCalendarVi
         <span className="legend-label"><Info size={12} /> Shift:</span>
         {SHIFT_LEGEND.map((l) => (
           <span key={l.type} className="legend-item">
-            <i style={{ background: l.bg, borderColor: l.border, flexShrink: 0 }} />
+            <i
+              className="[flex-shrink:0]! [background:var(--roster-calendar-legend-bg)]! [border-color:var(--roster-calendar-legend-border)]!"
+              style={{
+                "--roster-calendar-legend-bg": l.bg,
+                "--roster-calendar-legend-border": l.border,
+              } as React.CSSProperties}
+            />
             {l.label}
           </span>
         ))}
@@ -268,13 +274,17 @@ export function RosterCalendarView({ members, onSelectMember }: RosterCalendarVi
                   return (
                     <div key={idx} className={`roster-cal-shift-cell ${isToday ? "today-cell" : ""}`}>
                       <div
-                        className="roster-shift-block"
-                        style={{ background: colors.bg, color: colors.color, borderColor: colors.border }}
+                        className="roster-shift-block [background:var(--roster-calendar-shift-bg)]! [color:var(--roster-calendar-shift-color)]! [border-color:var(--roster-calendar-shift-border)]!"
+                        style={{
+                          "--roster-calendar-shift-bg": colors.bg,
+                          "--roster-calendar-shift-color": colors.color,
+                          "--roster-calendar-shift-border": colors.border,
+                        } as React.CSSProperties}
                         title={`${member.name} — ${dayEntry.day}: ${dayEntry.shift} (${dayEntry.hours ?? "—"})`}
                       >
                         <strong className="roster-shift-block-title">{dayEntry.shift}</strong>
                         <span className="roster-shift-block-hours">
-                          <Clock size={9} style={{ display: "inline", marginRight: "2px", verticalAlign: "middle" }} />
+                          <Clock size={9} className="[display:inline]! [margin-right:2px]! [vertical-align:middle]!" />
                           {dayEntry.hours}
                         </span>
                       </div>
@@ -285,7 +295,7 @@ export function RosterCalendarView({ members, onSelectMember }: RosterCalendarVi
             ))}
 
             {totalCount === 0 && (
-              <div className="roster-empty-state" style={{ gridColumn: "1/-1" }}>
+              <div className="roster-empty-state [grid-column:1_/_-1]!">
                 No team members match the current filter.
               </div>
             )}
@@ -429,7 +439,7 @@ export function RosterCalendarView({ members, onSelectMember }: RosterCalendarVi
             <div className="monthly-day-detail anim-fade">
               <div className="monthly-day-detail-header">
                 <strong>
-                  <CalendarIcon size={14} style={{ display: "inline", marginRight: "6px", verticalAlign: "middle", color: "var(--accent-blue)" }} />
+                  <CalendarIcon size={14} className="[display:inline]! [margin-right:6px]! [vertical-align:middle]! [color:var(--accent-blue)]!" />
                   {selectedDay} {MONTH_NAMES[monthDate.getMonth()]} {monthDate.getFullYear()} — {membersOnDay.length} Scheduled
                 </strong>
                 <ModalCloseButton onClose={() => setSelectedDay(null)} label="Close day detail" />
@@ -452,15 +462,19 @@ export function RosterCalendarView({ members, onSelectMember }: RosterCalendarVi
                         statusRing={member.status === "Active" ? "active" : member.status === "On Break" ? "break" : "off"}
                         className="roster-avatar"
                       />
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <strong style={{ display: "block", fontSize: "12.5px", color: "var(--ink-primary)" }}>{member.name}</strong>
-                        <small style={{ fontSize: "11px", color: "var(--ink-muted)" }}>{member.role}</small>
+                      <div className="[flex:1]! [min-width:0]!">
+                        <strong className="[display:block]! [font-size:12.5px]! [color:var(--ink-primary)]!">{member.name}</strong>
+                        <small className="[font-size:11px]! [color:var(--ink-muted)]!">{member.role}</small>
                       </div>
                       <span
-                        className="monthly-shift-pill"
-                        style={{ background: sc.bg, color: sc.color, borderColor: sc.border }}
+                        className="monthly-shift-pill [background:var(--roster-calendar-shift-bg)]! [color:var(--roster-calendar-shift-color)]! [border-color:var(--roster-calendar-shift-border)]!"
+                        style={{
+                          "--roster-calendar-shift-bg": sc.bg,
+                          "--roster-calendar-shift-color": sc.color,
+                          "--roster-calendar-shift-border": sc.border,
+                        } as React.CSSProperties}
                       >
-                        <Clock size={11} style={{ display: "inline", marginRight: "3px", verticalAlign: "middle" }} />
+                        <Clock size={11} className="[display:inline]! [margin-right:3px]! [vertical-align:middle]!" />
                         {shift}
                       </span>
                     </div>
@@ -476,7 +490,7 @@ export function RosterCalendarView({ members, onSelectMember }: RosterCalendarVi
                 <strong>{selectedDay} {MONTH_NAMES[monthDate.getMonth()]} — No one scheduled</strong>
                 <ModalCloseButton onClose={() => setSelectedDay(null)} label="Close day detail" />
               </div>
-              <p style={{ padding: "12px 16px", color: "var(--ink-muted)", fontSize: "12px", margin: 0 }}>
+              <p className="[padding:12px_16px]! [color:var(--ink-muted)]! [font-size:12px]! [margin:0]!">
                 All team members are off or on leave this day.
               </p>
             </div>

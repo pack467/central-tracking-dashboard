@@ -2252,16 +2252,6 @@
   @apply ![text-decoration:none];
 }
 
-.report-footer-summary {
-  @apply [display:flex];
-  @apply [align-items:center];
-  @apply [gap:8px];
-  @apply [padding-top:10px];
-  @apply [border-top:1px_solid_var(--line)];
-  @apply [font-size:11px];
-  @apply [color:var(--ink-secondary)];
-}
-
 /* ── 7. Audit Banner ── */
 .report-audit-banner {
   @apply [display:flex];

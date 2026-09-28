@@ -172,8 +172,8 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
       <div className="handover-modal-scroll">
         {/* Read-Only Explanatory Microcopy Banner */}
         {isReadOnly && (
-          <div className="handover-readonly-notice" role="note">
-            <Lock size={14} className="handover-readonly-notice-icon" aria-hidden="true" />
+          <div className="handover-readonly-notice [display:flex] [align-items:center] [gap:8px] [padding:10px_14px] [margin-bottom:16px] [background:rgba(148,_163,_184,_0.08)] [border:1px_solid_rgba(148,_163,_184,_0.2)] [border-radius:8px] [font-size:12px] [color:var(--ink-secondary)] [line-height:1.4]" role="note">
+            <Lock size={14} className="handover-readonly-notice-icon [color:#94a3b8] [flex-shrink:0]" aria-hidden="true" />
             <span>Tampilan ini menampilkan catatan handover yang telah selesai dan tidak dapat diubah lagi.</span>
           </div>
         )}
@@ -228,24 +228,24 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
 
               {/* In Active mode: Progress bar. In Read-only mode: Static final summary line */}
               {!isReadOnly ? (
-                <div className="handover-progress-strip">
-                  <div className="handover-progress-text">
+                <div className="handover-progress-strip [display:flex] [flex-direction:column] [gap:6px] [padding-top:10px] [border-top:1px_solid_var(--line)]">
+                  <div className="handover-progress-text [display:flex] [justify-content:space-between] [align-items:center] [font-size:11.5px] [color:var(--ink-secondary)]">
                     <span>Progres Peninjauan Tugas</span>
-                    <strong>
+                    <strong className="[color:var(--ink-primary)] [font-family:var(--font-mono)]">
                       {completedTasksCount} dari {tasks.length} Tugas Ditandai Lanjut ({progressPercent}%)
                     </strong>
                   </div>
-                  <div className="handover-progress-bar-bg" role="progressbar" aria-valuenow={progressPercent} aria-valuemin={0} aria-valuemax={100}>
-                    <div className="handover-progress-bar-fill" style={{ width: `${progressPercent}%` }} />
+                  <div className="handover-progress-bar-bg [height:6px] [background:var(--line)] [border-radius:99px] [overflow:hidden]" role="progressbar" aria-valuenow={progressPercent} aria-valuemin={0} aria-valuemax={100}>
+                    <div className="handover-progress-bar-fill [height:100%] [background:var(--accent-blue)] [border-radius:99px] [transition:width_0.3s_ease]" style={{ width: `${progressPercent}%` }} />
                   </div>
                 </div>
               ) : (
-                <div className="handover-readonly-summary-line">
-                  <div className="handover-readonly-summary-text">
+                <div className="handover-readonly-summary-line [display:flex] [align-items:center] [justify-content:space-between] [gap:12px] [padding-top:10px] [border-top:1px_solid_var(--line)]">
+                  <div className="handover-readonly-summary-text [display:flex] [align-items:center] [gap:7px] [font-size:12px] [color:var(--ink-primary)]">
                     <CheckCircle2 size={15} style={{ color: "var(--green)" }} />
                     <strong>{completedTasksCount} dari {tasks.length} tugas dikonfirmasi untuk dilanjutkan</strong>
                   </div>
-                  <span className="handover-readonly-closed-tag">Arsip Permanen</span>
+                  <span className="handover-readonly-closed-tag [display:inline-flex] [align-items:center] [padding:3px_8px] [border-radius:99px] [font-size:10px] [font-weight:700] [text-transform:uppercase] [letter-spacing:0.5px] [background:rgba(148,_163,_184,_0.14)] [color:#94a3b8] [border:1px_solid_rgba(148,_163,_184,_0.25)]">Arsip Permanen</span>
                 </div>
               )}
             </div>
@@ -536,9 +536,9 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
                   >
                     Proyek yang Dimonitor ({record.monitoredProjects.length})
                   </span>
-                  <div className="handover-project-chips">
+                  <div className="handover-project-chips [display:flex] [flex-wrap:wrap] [gap:6px] [margin-bottom:12px]">
                     {record.monitoredProjects.map((project) => (
-                      <span key={project} className="handover-project-chip">
+                      <span key={project} className="handover-project-chip [display:inline-flex] [align-items:center] [gap:5px] [padding:3px_8px] [border-radius:6px] [background:var(--bg)] [border:1px_solid_var(--line)] [font-size:11px] [font-weight:600] [color:var(--ink-primary)]">
                         <ProjectMark name={project} /> {project}
                       </span>
                     ))}
@@ -564,15 +564,15 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
                       Hasil Checkpoint Monitoring Shift ({checkpoints.length})
                     </span>
 
-                    <div className="handover-checkpoint-results-list">
+                    <div className="handover-checkpoint-results-list [display:flex] [flex-direction:column] [gap:6px]">
                       {checkpoints.map((cp, idx) => (
-                        <div className="handover-checkpoint-result-row" key={`${cp.time}-${cp.project}-${idx}`}>
-                          <div className="handover-checkpoint-result-left">
-                            <span className="handover-checkpoint-time">{cp.time}</span>
+                        <div className="handover-checkpoint-result-row [display:flex] [align-items:center] [justify-content:space-between] [gap:12px] [padding:8px_12px] [background:var(--bg)] [border:1px_solid_var(--line)] [border-radius:6px]" key={`${cp.time}-${cp.project}-${idx}`}>
+                          <div className="handover-checkpoint-result-left [display:flex] [align-items:center] [gap:10px] [min-width:0]">
+                            <span className="handover-checkpoint-time [font-family:var(--font-mono)] [font-size:11px] [font-weight:700] [color:var(--ink-muted)]">{cp.time}</span>
                             <ProjectMark name={cp.project} />
-                            <div className="handover-checkpoint-meta">
-                              <strong>{cp.task}</strong>
-                              {cp.note && <small>{cp.note}</small>}
+                            <div className="handover-checkpoint-meta [display:flex] [flex-direction:column] [min-width:0]">
+                              <strong className="[font-size:12px] [color:var(--ink-primary)] [font-weight:600] [white-space:nowrap] [overflow:hidden] [text-overflow:ellipsis]">{cp.task}</strong>
+                              {cp.note && <small className="[font-size:11px] [color:var(--ink-muted)]">{cp.note}</small>}
                             </div>
                           </div>
 

@@ -31,8 +31,10 @@ export function ConfirmDialog({
         </div>
         <ModalCloseButton onClose={onCancel} />
       </div>
-      <div className={`confirm-hint ${danger ? "confirm-hint-danger" : ""}`}>
-        <strong>This action requires confirmation</strong> to prevent unintended changes.
+      <div
+        className={`confirm-hint [padding:10px_12px] [border:1px_solid_var(--accent-blue-border)] [border-radius:8px] [background:var(--accent-blue-soft)] [color:var(--ink-secondary)] [font-size:11.5px] [line-height:1.45] ${danger ? "confirm-hint-danger [border-color:var(--red-border)] [background:var(--red-soft)] [color:#fca5a5]" : ""}`}
+      >
+        <strong className={danger ? "[color:#f87171]" : undefined}>This action requires confirmation</strong> to prevent unintended changes.
       </div>
       <div className="modal-actions">
         <button type="button" className="button button-secondary" onClick={onCancel}>

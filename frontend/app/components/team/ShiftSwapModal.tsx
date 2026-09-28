@@ -103,8 +103,8 @@ export function ShiftSwapModal({
     <Modal open={open} onClose={onClose} label="Shift Swap & Scheduling Requests" width={680}>
       <div className="modal-title">
         <div>
-          <strong style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <ArrowRightLeft size={18} style={{ color: "var(--accent-blue)" }} />
+          <strong className="[display:flex]! [align-items:center]! [gap:8px]!">
+            <ArrowRightLeft size={18} className="[color:var(--accent-blue)]" />
             Shift Swap &amp; Schedule Requests
           </strong>
           <small>Kelola dan setujui pertukaran jadwal shift antar operator</small>
@@ -112,35 +112,33 @@ export function ShiftSwapModal({
         <ModalCloseButton onClose={onClose} />
       </div>
 
-      <div className="swap-modal-body" style={{ maxHeight: "70vh", overflowY: "auto", padding: "10px 0" }}>
+      <div className="swap-modal-body [max-height:70vh]! [overflow-y:auto]! [padding:10px_0]!">
         {!showNewForm ? (
-          <div style={{ marginBottom: "16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <span style={{ fontSize: "12px", color: "var(--ink-secondary)" }}>
+          <div className="[margin-bottom:16px]! [display:flex]! [justify-content:space-between]! [align-items:center]!">
+            <span className="[font-size:12px]! [color:var(--ink-secondary)]!">
               {requests.filter((r) => r.status === "Pending").length} permintaan menunggu persetujuan
             </span>
             <button
-              className="button button-primary"
-              style={{ fontSize: "12px", padding: "6px 12px" }}
+              className="button button-primary [font-size:12px]! [padding:6px_12px]!"
               onClick={() => setShowNewForm(true)}
             >
               ＋ Buat Permintaan Tukar Shift
             </button>
           </div>
         ) : (
-          <form onSubmit={handleCreateRequest} className="swap-create-form" style={{ marginBottom: "20px", padding: "16px", background: "var(--panel-bg)", border: "1px solid var(--panel-border)", borderRadius: "10px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
-              <strong style={{ fontSize: "13px", color: "var(--ink-primary)" }}>Formulir Tukar Shift Baru</strong>
+          <form onSubmit={handleCreateRequest} className="swap-create-form [margin-bottom:20px]! [padding:16px]! [background:var(--panel-bg)]! [border:1px_solid_var(--panel-border)]! [border-radius:10px]!">
+            <div className="[display:flex]! [justify-content:space-between]! [align-items:center]! [margin-bottom:12px]!">
+              <strong className="[font-size:13px]! [color:var(--ink-primary)]!">Formulir Tukar Shift Baru</strong>
               <button
                 type="button"
-                className="button button-secondary"
-                style={{ fontSize: "11px", padding: "3px 8px" }}
+                className="button button-secondary [font-size:11px]! [padding:3px_8px]!"
                 onClick={() => setShowNewForm(false)}
               >
                 Batal
               </button>
             </div>
 
-            <div className="two-inputs" style={{ marginBottom: "10px" }}>
+            <div className="two-inputs [margin-bottom:10px]!">
               <label>
                 <span>Pemohon (Requester)</span>
                 <select
@@ -172,7 +170,7 @@ export function ShiftSwapModal({
               </label>
             </div>
 
-            <div className="two-inputs" style={{ marginBottom: "10px" }}>
+            <div className="two-inputs [margin-bottom:10px]!">
               <label>
                 <span>Tanggal Pertukaran</span>
                 <input
@@ -197,7 +195,7 @@ export function ShiftSwapModal({
               </label>
             </div>
 
-            <label style={{ display: "grid", gap: "4px", marginBottom: "14px" }}>
+            <label className="[display:grid]! [gap:4px]! [margin-bottom:14px]!">
               <span>Alasan Pertukaran Shift</span>
               <textarea
                 rows={2}
@@ -208,7 +206,7 @@ export function ShiftSwapModal({
               />
             </label>
 
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>
+            <div className="[display:flex]! [justify-content:flex-end]! [gap:8px]!">
               <button type="button" className="button button-secondary" onClick={() => setShowNewForm(false)}>
                 Cancel
               </button>
@@ -220,7 +218,7 @@ export function ShiftSwapModal({
         )}
 
         {/* List of Requests */}
-        <div className="swap-requests-list" style={{ display: "grid", gap: "10px" }}>
+        <div className="swap-requests-list [display:grid]! [gap:10px]!">
           {requests.map((req) => {
             const isPending = req.status === "Pending";
             const isApproved = req.status === "Approved";
@@ -229,56 +227,51 @@ export function ShiftSwapModal({
             return (
               <div
                 key={req.id}
-                className="swap-request-card"
+                className="swap-request-card [padding:14px_16px]! [border-radius:9px]! [display:grid]! [gap:10px]! [background:var(--swap-request-card-bg)]! [border:var(--swap-request-card-border)]!"
                 style={{
-                  padding: "14px 16px",
-                  borderRadius: "9px",
-                  background: isApproved
+                  "--swap-request-card-bg": isApproved
                     ? "var(--green-soft)"
                     : isRejected
                     ? "var(--red-soft)"
                     : "var(--panel-bg)",
-                  border: `1px solid ${
+                  "--swap-request-card-border": `1px solid ${
                     isApproved
                       ? "var(--green-border)"
                       : isRejected
                       ? "var(--red-border)"
                       : "var(--panel-border)"
                   }`,
-                  display: "grid",
-                  gap: "10px",
-                }}
+                } as React.CSSProperties}
               >
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "12px" }}>
+                <div className="[display:flex]! [justify-content:space-between]! [align-items:flex-start]! [gap:12px]!">
                   <div>
-                    <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
-                      <strong style={{ fontSize: "13px", color: "var(--ink-primary)" }}>{req.requesterName}</strong>
-                      <span style={{ color: "var(--accent-blue)", fontSize: "11px", fontWeight: "700" }}>⇄</span>
-                      <strong style={{ fontSize: "13px", color: "var(--ink-primary)" }}>{req.targetMemberName}</strong>
+                    <div className="[display:flex]! [align-items:center]! [gap:8px]! [margin-bottom:4px]!">
+                      <strong className="[font-size:13px]! [color:var(--ink-primary)]!">{req.requesterName}</strong>
+                      <span className="[color:var(--accent-blue)]! [font-size:11px]! [font-weight:700]!">⇄</span>
+                      <strong className="[font-size:13px]! [color:var(--ink-primary)]!">{req.targetMemberName}</strong>
                       <Badge tone={isApproved ? "success" : isRejected ? "critical" : "warning"}>
                         {req.status}
                       </Badge>
                     </div>
-                    <div style={{ fontSize: "11.5px", color: "var(--ink-secondary)", display: "flex", gap: "12px", flexWrap: "wrap", alignItems: "center" }}>
-                      <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
-                        <Calendar size={12} style={{ color: "var(--accent-blue)" }} /> <strong>{req.requestedDate}</strong>
+                    <div className="[font-size:11.5px]! [color:var(--ink-secondary)]! [display:flex]! [gap:12px]! [flex-wrap:wrap]! [align-items:center]!">
+                      <span className="[display:inline-flex]! [align-items:center]! [gap:4px]!">
+                        <Calendar size={12} className="[color:var(--accent-blue)]" /> <strong>{req.requestedDate}</strong>
                       </span>
-                      <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
-                        <RefreshCw size={11} style={{ color: "var(--orange)" }} /> Target: <strong>{req.targetShift}</strong>
+                      <span className="[display:inline-flex]! [align-items:center]! [gap:4px]!">
+                        <RefreshCw size={11} className="[color:var(--orange)]" /> Target: <strong>{req.targetShift}</strong>
                       </span>
-                      <span style={{ color: "var(--ink-muted)", display: "inline-flex", alignItems: "center", gap: "4px" }}>
+                      <span className="[color:var(--ink-muted)]! [display:inline-flex]! [align-items:center]! [gap:4px]!">
                         <Clock size={12} /> {req.createdAt}
                       </span>
                     </div>
                   </div>
 
                   {/* Approve / Reject Buttons (Reusing OK/NOK aesthetic with toggle/undo) */}
-                  <div style={{ display: "flex", gap: "6px", flexShrink: 0 }}>
+                  <div className="[display:flex]! [gap:6px]! [flex-shrink:0]!">
                     {isPending ? (
                       <>
                         <button
-                          className="assess-btn assess-ok"
-                          style={{ minHeight: "28px", padding: "4px 10px", fontSize: "11px" }}
+                          className="assess-btn assess-ok [min-height:28px]! [padding:4px_10px]! [font-size:11px]!"
                           onClick={() => handleStatusChange(req.id, "Approved")}
                           title="Setujui pertukaran shift ini"
                         >
@@ -286,8 +279,7 @@ export function ShiftSwapModal({
                           <span className="assess-btn-text">Approve</span>
                         </button>
                         <button
-                          className="assess-btn assess-fail"
-                          style={{ minHeight: "28px", padding: "4px 10px", fontSize: "11px" }}
+                          className="assess-btn assess-fail [min-height:28px]! [padding:4px_10px]! [font-size:11px]!"
                           onClick={() => handleStatusChange(req.id, "Rejected")}
                           title="Tolak pertukaran shift ini"
                         >
@@ -297,8 +289,7 @@ export function ShiftSwapModal({
                       </>
                     ) : (
                       <button
-                        className="button button-secondary"
-                        style={{ fontSize: "10.5px", padding: "4px 8px" }}
+                        className="button button-secondary [font-size:10.5px]! [padding:4px_8px]!"
                         onClick={() => handleResetStatus(req.id)}
                         title="Klik untuk membatalkan dan mereset status kembali ke Pending (Undo)"
                       >
@@ -308,8 +299,8 @@ export function ShiftSwapModal({
                   </div>
                 </div>
 
-                <div style={{ fontSize: "11px", color: "var(--ink-secondary)", background: "rgba(127, 127, 127, 0.05)", padding: "8px 10px", borderRadius: "6px", border: "1px solid var(--line)" }}>
-                  <span style={{ fontWeight: "600", color: "var(--ink-primary)" }}>Alasan: </span>
+                <div className="[font-size:11px]! [color:var(--ink-secondary)]! [background:rgba(127,_127,_127,_0.05)]! [padding:8px_10px]! [border-radius:6px]! [border:1px_solid_var(--line)]!">
+                  <span className="[font-weight:600]! [color:var(--ink-primary)]!">Alasan: </span>
                   {req.reason}
                 </div>
               </div>
@@ -317,8 +308,8 @@ export function ShiftSwapModal({
           })}
 
           {requests.length === 0 && (
-            <div style={{ textAlign: "center", padding: "28px 16px", color: "var(--ink-muted)", fontSize: "12px" }}>
-              <AlertCircle size={28} style={{ margin: "0 auto 8px", display: "block" }} />
+            <div className="[text-align:center]! [padding:28px_16px]! [color:var(--ink-muted)]! [font-size:12px]!">
+              <AlertCircle size={28} className="[margin:0_auto_8px]! [display:block]!" />
               Belum ada permintaan tukar shift aktif.
             </div>
           )}

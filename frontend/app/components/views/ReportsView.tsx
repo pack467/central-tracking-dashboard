@@ -134,8 +134,8 @@ export function ReportsView({ tickets, assessments, handoverCount }: ReportsView
               <span className="report-project">{row.project}</span>
               <div className="report-bar-track">
                 <i
-                  className={row.average >= 97 ? "" : row.average >= 93 ? "warn" : "crit"}
-                  style={{ width: `${row.average}%` }}
+                  className={`${row.average >= 97 ? "" : row.average >= 93 ? "warn" : "crit"} [width:var(--report-bar-width)]`}
+                  style={{ "--report-bar-width": `${row.average}%` } as React.CSSProperties}
                 />
                 <em>{row.average}%</em>
               </div>

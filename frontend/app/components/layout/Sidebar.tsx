@@ -347,18 +347,23 @@ export function Sidebar({ activeNav, onNavigate, onPrepareHandover, openTicketCo
             >
               <Avatar size="md" initials="GK" shape="circle" className="profile-avatar" />
               <span
-                className="profile-status-badge"
-                style={{ backgroundColor: currentStatusConfig.color }}
+                className="profile-status-badge [background-color:var(--profile-status-badge-color)]!"
+                style={{ "--profile-status-badge-color": currentStatusConfig.color } as React.CSSProperties}
               />
             </div>
             <span className="profile-info">
               <strong>Galih Khairi</strong>
               <small className="profile-status-row">
                 <span
-                  className="profile-status-indicator-dot"
-                  style={{ backgroundColor: currentStatusConfig.color }}
+                  className="profile-status-indicator-dot [background-color:var(--profile-status-indicator-color)]!"
+                  style={{ "--profile-status-indicator-color": currentStatusConfig.color } as React.CSSProperties}
                 />
-                <span style={{ color: currentStatusConfig.color, fontWeight: 600 }}>{userStatus}</span>
+                <span
+                  className="[font-weight:600]! [color:var(--profile-status-text-color)]!"
+                  style={{ "--profile-status-text-color": currentStatusConfig.color } as React.CSSProperties}
+                >
+                  {userStatus}
+                </span>
                 <span className="profile-status-sep">·</span>
                 <span>Operator NOC</span>
               </small>
@@ -385,25 +390,17 @@ export function Sidebar({ activeNav, onNavigate, onPrepareHandover, openTicketCo
         {mounted && profileMenuOpen && menuPosition && createPortal(
           <>
             <div
-              className="profile-menu-backdrop"
-              style={{
-                position: "fixed",
-                inset: 0,
-                zIndex: 90,
-                background: "transparent",
-              }}
+              className="profile-menu-backdrop [position:fixed]! [inset:0]! [z-index:90]! [background:transparent]!"
               onClick={() => setProfileMenuOpen(false)}
               role="presentation"
             />
             <div
-              className="profile-dropdown-menu"
+              className="profile-dropdown-menu [position:fixed]! [z-index:95]! [left:var(--profile-menu-left)]! [width:var(--profile-menu-width)]! [bottom:var(--profile-menu-bottom)]!"
               style={{
-                position: "fixed",
-                left: `${menuPosition.left}px`,
-                width: `${menuPosition.width}px`,
-                bottom: `${menuPosition.bottom}px`,
-                zIndex: 95,
-              }}
+                "--profile-menu-left": `${menuPosition.left}px`,
+                "--profile-menu-width": `${menuPosition.width}px`,
+                "--profile-menu-bottom": `${menuPosition.bottom}px`,
+              } as React.CSSProperties}
               role="menu"
               aria-label="Menu Opsi Profil dan Status"
             >
@@ -418,16 +415,15 @@ export function Sidebar({ activeNav, onNavigate, onPrepareHandover, openTicketCo
                 <div className="profile-status-picker-title">
                   <span>PILIH STATUS</span>
                   <span
-                    className="profile-status-pill-badge"
+                    className="profile-status-pill-badge [color:var(--profile-status-pill-color)]! [background-color:var(--profile-status-pill-bg)]! [border-color:var(--profile-status-pill-border)]!"
                     style={{
-                      color: currentStatusConfig.color,
-                      backgroundColor: currentStatusConfig.badgeBg,
-                      borderColor: `${currentStatusConfig.color}40`,
-                    }}
+                      "--profile-status-pill-color": currentStatusConfig.color,
+                      "--profile-status-pill-bg": currentStatusConfig.badgeBg,
+                      "--profile-status-pill-border": `${currentStatusConfig.color}40`,
+                    } as React.CSSProperties}
                   >
                     <span
-                      className="profile-status-pill-dot"
-                      style={{ backgroundColor: currentStatusConfig.color }}
+                      className="profile-status-pill-dot [background-color:var(--profile-status-pill-color)]!"
                     />
                     {userStatus}
                   </span>
@@ -447,15 +443,17 @@ export function Sidebar({ activeNav, onNavigate, onPrepareHandover, openTicketCo
                         title={opt.desc}
                       >
                         <span
-                          className="profile-status-option-bullet"
-                          style={{
-                            backgroundColor: opt.color,
-                            boxShadow: isSelected ? `0 0 6px ${opt.color}` : undefined,
-                          }}
+                          className={`profile-status-option-bullet [background-color:var(--profile-status-option-color)]!${isSelected ? " [box-shadow:0_0_6px_var(--profile-status-option-color)]!" : ""}`}
+                          style={{ "--profile-status-option-color": opt.color } as React.CSSProperties}
                         />
                         <span className="profile-status-option-label">{opt.label}</span>
                         {isSelected && (
-                          <Check size={13} strokeWidth={2.5} style={{ color: opt.color, marginLeft: "auto" }} />
+                          <Check
+                            size={13}
+                            strokeWidth={2.5}
+                            className="[margin-left:auto]! [color:var(--profile-status-option-color)]!"
+                            style={{ "--profile-status-option-color": opt.color } as React.CSSProperties}
+                          />
                         )}
                       </button>
                     );

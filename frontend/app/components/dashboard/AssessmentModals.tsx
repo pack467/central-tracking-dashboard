@@ -26,23 +26,13 @@ export function NotAdequateModal({
     <Modal open={open} onClose={onClose} label="Tambah catatan anomali checkpoint (NOK)" width={520}>
       <div className="modal-title">
         <div>
-          <strong style={{ color: "var(--red)" }}>Tandai Checkpoint sebagai NOK</strong>
+          <strong className="[color:var(--red)]!">Tandai Checkpoint sebagai NOK</strong>
           <small>Masukkan penjelasan atau observasi anomali untuk log handover shift</small>
         </div>
         <ModalCloseButton onClose={onClose} />
       </div>
 
-      <div
-        style={{
-          marginBottom: "14px",
-          background: "var(--red-soft)",
-          border: "1px solid var(--red-border)",
-          borderRadius: "8px",
-          padding: "10px 12px",
-          fontSize: "12px",
-          color: "var(--red)",
-        }}
-      >
+      <div className="[margin-bottom:14px]! [background:var(--red-soft)]! [border:1px_solid_var(--red-border)]! [border-radius:8px]! [padding:10px_12px]! [font-size:12px]! [color:var(--red)]!">
         <strong>Format rekomendasi:</strong> Jelaskan gejala yang terlihat (misalnya queue buildup, traffic drop,
         high CPU), komponen terdampak, dan status penanganan / ID ticket.
       </div>
@@ -62,8 +52,7 @@ export function NotAdequateModal({
           Batal
         </button>
         <button
-          className="button button-danger"
-          style={{ background: "var(--red)", borderColor: "var(--red-border)" }}
+          className="button button-danger [background:var(--red)]! [border-color:var(--red-border)]!"
           onClick={submit}
         >
           Simpan Catatan NOK
@@ -84,12 +73,12 @@ export function AdequacyGuideModal({ open, onClose }: { open: boolean; onClose: 
         <ModalCloseButton onClose={onClose} />
       </div>
 
-      <div style={{ display: "grid", gap: "14px", fontSize: "12.5px", color: "var(--ink-primary)", lineHeight: 1.5 }}>
-        <div style={{ padding: "12px", background: "var(--green-soft)", border: "1px solid var(--green-border)", borderRadius: "8px" }}>
-          <strong style={{ color: "var(--green)", fontSize: "13px", display: "inline-flex", alignItems: "center", gap: "6px" }}>
+      <div className="[display:grid]! [gap:14px]! [font-size:12.5px]! [color:var(--ink-primary)]! [line-height:1.5]!">
+        <div className="[padding:12px]! [background:var(--green-soft)]! [border:1px_solid_var(--green-border)]! [border-radius:8px]!">
+          <strong className="[color:var(--green)]! [font-size:13px]! [display:inline-flex]! [align-items:center]! [gap:6px]!">
             <Check size={14} /> Kriteria OK (Passed / Normal)
           </strong>
-          <ul style={{ margin: "6px 0 0", paddingLeft: "18px", color: "var(--ink-secondary)" }}>
+          <ul className="[margin:6px_0_0]! [padding-left:18px]! [color:var(--ink-secondary)]!">
             <li><strong>Metrik sesuai SLA:</strong> Utilisasi CPU di bawah 85%, memori stabil, dan latensi respons dalam baseline normal.</li>
             <li><strong>Aliran pesan aktif:</strong> Topik Kafka aktif mengonsumsi dan menghasilkan pesan tanpa lag tak terduga.</li>
             <li><strong>Queue nominal:</strong> Kedalaman queue ActiveMQ/RabbitMQ dalam parameter operasi normal.</li>
@@ -97,11 +86,11 @@ export function AdequacyGuideModal({ open, onClose }: { open: boolean; onClose: 
           </ul>
         </div>
 
-        <div style={{ padding: "12px", background: "var(--red-soft)", border: "1px solid var(--red-border)", borderRadius: "8px" }}>
-          <strong style={{ color: "var(--red)", fontSize: "13px", display: "inline-flex", alignItems: "center", gap: "6px" }}>
+        <div className="[padding:12px]! [background:var(--red-soft)]! [border:1px_solid_var(--red-border)]! [border-radius:8px]!">
+          <strong className="[color:var(--red)]! [font-size:13px]! [display:inline-flex]! [align-items:center]! [gap:6px]!">
             <X size={14} /> Kriteria NOK (Failed / Action Required)
           </strong>
-          <ul style={{ margin: "6px 0 0", paddingLeft: "18px", color: "var(--ink-secondary)" }}>
+          <ul className="[margin:6px_0_0]! [padding-left:18px]! [color:var(--ink-secondary)]!">
             <li><strong>Penumpukan queue:</strong> Penumpukan pesan pending atau deadlock terdeteksi pada queue layanan.</li>
             <li><strong>Traffic hilang:</strong> Tidak ada produksi pesan pada topik Kafka aktif atau stream socket terputus.</li>
             <li><strong>Alert sumber daya:</strong> Lonjakan CPU atau memori berkelanjutan melebihi ambang alert.</li>
@@ -109,11 +98,11 @@ export function AdequacyGuideModal({ open, onClose }: { open: boolean; onClose: 
           </ul>
         </div>
 
-        <div style={{ padding: "12px", background: "var(--bg)", border: "1px solid var(--line)", borderRadius: "8px" }}>
-          <strong style={{ fontSize: "12.5px", display: "inline-flex", alignItems: "center", gap: "6px" }}>
-            <FileText size={13} style={{ color: "var(--accent-blue)" }} /> Prosedur pencatatan saat status NOK:
+        <div className="[padding:12px]! [background:var(--bg)]! [border:1px_solid_var(--line)]! [border-radius:8px]!">
+          <strong className="[font-size:12.5px]! [display:inline-flex]! [align-items:center]! [gap:6px]!">
+            <FileText size={13} className="[color:var(--accent-blue)]" /> Prosedur pencatatan saat status NOK:
           </strong>
-          <ol style={{ margin: "6px 0 0", paddingLeft: "18px", color: "var(--ink-secondary)" }}>
+          <ol className="[margin:6px_0_0]! [padding-left:18px]! [color:var(--ink-secondary)]!">
             <li>Klik tombol <strong>&quot;NOK&quot;</strong> pada baris checkpoint di jadwal monitoring.</li>
             <li>
               Di modal, masukkan 3 elemen utama: <strong>Gejala</strong>, <strong>Komponen terdampak</strong>, dan{" "}

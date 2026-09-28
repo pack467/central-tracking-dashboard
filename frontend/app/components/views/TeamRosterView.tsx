@@ -157,7 +157,7 @@ export function TeamRosterView({ members, onMembersChange: setMembers }: {
       />
 
       {/* 3. Main Roster Content (2 columns: Table/Calendar & Shift Coverage Widget) */}
-      <div className="roster-main-layout" style={{ marginTop: "20px" }}>
+      <div className="roster-main-layout [margin-top:20px]!">
         <div className="roster-primary-column">
           <article className="panel roster-toolbar-panel">
             {/* Toolbar: Search, Filters & View Toggle */}

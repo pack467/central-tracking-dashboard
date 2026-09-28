@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useRef, useEffect } from "react";
+import type { CSSProperties } from "react";
 import { 
   ChevronLeft, 
   ChevronRight, 
@@ -346,11 +347,10 @@ export function HealthStrip({
         ) : (
           <div className="health-carousel-viewport">
             <div
-              className="health-carousel-track"
+              className="health-carousel-track [transform:var(--health-carousel-transform)]! [transition:transform_280ms_cubic-bezier(0.22,_1,_0.36,_1)]!"
               style={{
-                transform: `translateX(-${safePage * 100}%)`,
-                transition: "transform 280ms cubic-bezier(0.22, 1, 0.36, 1)",
-              }}
+                "--health-carousel-transform": `translateX(-${safePage * 100}%)`,
+              } as CSSProperties}
             >
               {pages.map((pageChips, pIdx) => (
                 <div
@@ -454,7 +454,7 @@ export function AllServicesModal({
       <div className="service-all-modal-card" onClick={(e) => e.stopPropagation()}>
         <div className="service-all-modal-header">
           <div className="service-modal-header-left">
-            <span className="service-chip-mark" style={{ width: 28, height: 28, fontSize: 11 }}>
+            <span className="service-chip-mark [width:28px]! [height:28px]! [font-size:11px]!">
               <Grid size={15} />
             </span>
             <div>
@@ -516,7 +516,7 @@ export function AllServicesModal({
             </div>
 
             <div className="service-all-modal-search">
-              <Search size={13} style={{ color: "var(--ink-muted)", flexShrink: 0 }} />
+              <Search size={13} className="[color:var(--ink-muted)]! [flex-shrink:0]!" />
               <input
                 type="text"
                 placeholder="Cari nama layanan atau status..."
@@ -529,7 +529,7 @@ export function AllServicesModal({
           {/* All Chips Grid in Modal */}
           <div className="service-all-chips-grid">
             {filtered.length === 0 ? (
-              <div className="service-track-empty" style={{ padding: 20 }}>
+              <div className="service-track-empty [padding:20px]!">
                 <CheckCircle2 size={16} className="text-green" />
                 <span>Tidak ada layanan yang sesuai kriteria pencarian</span>
               </div>

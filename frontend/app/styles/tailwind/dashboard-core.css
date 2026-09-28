@@ -412,59 +412,6 @@
 }
 
 /* Service Health Grid (Flex Wrap Layout) */
-.service-health-grid {
-  @apply [display:flex];
-  @apply [flex-wrap:wrap];
-  @apply [gap:8px_10px];
-  @apply [align-items:center];
-  @apply [flex:1];
-  @apply [min-width:0];
-  @apply [width:100%];
-  @apply [box-sizing:border-box];
-}
-
-/* Compact Status Chip / Pill - Roomy & Comfortable */
-.service-health-chip {
-  @apply [display:inline-flex];
-  @apply [align-items:center];
-  @apply [gap:8px];
-  @apply [height:32px];
-  @apply [max-width:220px];
-  @apply [min-width:0];
-  @apply [padding:4px_12px_4px_6px];
-  @apply [border-radius:6px];
-  @apply [border:1px_solid_var(--line)];
-  @apply [background:var(--bg)];
-  @apply [color:var(--ink-secondary)];
-  @apply [font-size:11.5px];
-  @apply [font-weight:600];
-  @apply [line-height:1];
-  @apply [cursor:pointer];
-  @apply [position:relative];
-  @apply [transition:background_0.15s_ease,_border-color_0.15s_ease,_color_0.15s_ease];
-  @apply [user-select:none];
-  @apply [box-sizing:border-box];
-  @apply [flex:0_1_auto];
-  @apply [white-space:nowrap];
-}
-
-.service-health-chip:hover {
-  /* Clean high-contrast highlight: NO shadow, NO lifting card */
-  @apply ![transform:none];
-  @apply ![box-shadow:none];
-  @apply [border-color:rgba(255,_255,_255,_0.35)];
-  @apply [background:rgba(255,_255,_255,_0.08)];
-  @apply [color:#ffffff];
-  @apply [z-index:2];
-}
-
-.service-health-chip:focus-visible {
-  @apply [outline:none];
-  @apply [border-color:var(--accent-blue)];
-  @apply [box-shadow:none];
-  @apply [z-index:2];
-}
-
 /* Service Short Code / Avatar Icon */
 .service-chip-mark {
   @apply [display:inline-flex];
@@ -493,59 +440,9 @@
 }
 
 /* Service Name (Auto-sized, max-width with ellipsis truncation) */
-.service-chip-name {
-  @apply [font-size:12px];
-  @apply [font-weight:600];
-  @apply [color:var(--ink-primary)];
-  @apply [overflow:hidden];
-  @apply [text-overflow:ellipsis];
-  @apply [white-space:nowrap];
-  @apply [max-width:140px];
-  @apply [line-height:1.2];
-}
-
 /* Colored Status Dot */
-.service-chip-dot {
-  @apply [display:inline-block];
-  @apply [width:7px];
-  @apply [height:7px];
-  @apply [border-radius:99px];
-  @apply [flex-shrink:0];
-}
-
 /* Style Differentiation by Status */
-/* 1. Healthy (Green dot): subtle emerald border & highlight on hover */
-.service-health-chip.chip-success {
-  @apply [border-color:rgba(255,_255,_255,_0.12)];
-  @apply [background:rgba(255,_255,_255,_0.03)];
-  @apply [color:var(--ink-secondary)];
-}
-.service-health-chip.chip-success:hover,
-.service-health-chip.chip-success.active {
-  @apply [border-color:rgba(34,_197,_94,_0.7)];
-  @apply [background:rgba(34,_197,_94,_0.1)];
-  @apply [color:#ffffff];
-  @apply ![transform:none];
-  @apply ![box-shadow:none];
-}
-.service-health-chip.chip-success .service-chip-dot {
-  @apply [background:#22c55e];
-}
-
 /* 2. Warning (Yellow/amber dot): amber-tinted border/background */
-.service-health-chip.chip-warning {
-  @apply [border-color:rgba(245,_158,_11,_0.4)];
-  @apply [background:rgba(245,_158,_11,_0.08)];
-  @apply [color:#fbbf24];
-}
-.service-health-chip.chip-warning:hover,
-.service-health-chip.chip-warning.active {
-  @apply [border-color:#f59e0b];
-  @apply [background:rgba(245,_158,_11,_0.18)];
-  @apply [color:#ffffff];
-  @apply ![transform:none];
-  @apply ![box-shadow:none];
-}
 .service-health-chip.chip-warning .service-chip-mark {
   @apply [background:rgba(245,_158,_11,_0.22)];
   @apply [color:#fef08a];
@@ -555,24 +452,7 @@
   @apply [background:rgba(245,_158,_11,_0.35)];
   @apply [color:#ffffff];
 }
-.service-health-chip.chip-warning .service-chip-dot {
-  @apply [background:#f59e0b];
-}
-
 /* 3. Critical (Red dot): red-tinted border/background */
-.service-health-chip.chip-critical {
-  @apply [border-color:rgba(239,_68,_68,_0.45)];
-  @apply [background:rgba(239,_68,_68,_0.1)];
-  @apply [color:#f87171];
-}
-.service-health-chip.chip-critical:hover,
-.service-health-chip.chip-critical.active {
-  @apply [border-color:#ef4444];
-  @apply [background:rgba(239,_68,_68,_0.2)];
-  @apply [color:#ffffff];
-  @apply ![transform:none];
-  @apply ![box-shadow:none];
-}
 .service-health-chip.chip-critical .service-chip-mark {
   @apply [background:rgba(239,_68,_68,_0.24)];
   @apply [color:#fecaca];
@@ -582,10 +462,6 @@
   @apply [background:rgba(239,_68,_68,_0.38)];
   @apply [color:#ffffff];
 }
-.service-health-chip.chip-critical .service-chip-dot {
-  @apply [background:#ef4444];
-}
-
 /* Rich Hover Tooltip - Disabled / Hidden to prevent floating card popup */
 .service-chip-tooltip {
   @apply ![display:none];
@@ -1562,20 +1438,6 @@
   @apply [flex-shrink:0];
 }
 
-/* Direct TSX utility migration: ProjectMark.tsx
-.project-mark {
-  @apply [display:inline-grid];
-  @apply [place-items:center];
-  @apply [flex:none];
-  @apply [width:26px];
-  @apply [height:26px];
-  @apply [border-radius:6px];
-  @apply [font-size:10px];
-  @apply [font-weight:800];
-  @apply [font-family:var(--font-mono)];
-}
-*/
-
 .project-sm { @apply [color:#fbbf24]; @apply [background:rgba(251,_191,_36,_0.12)]; @apply [border:1px_solid_rgba(251,_191,_36,_0.3)]; }
 .project-bb, .project-b2b { @apply [color:#c084fc]; @apply [background:rgba(192,_132,_252,_0.12)]; @apply [border:1px_solid_rgba(192,_132,_252,_0.3)]; }
 .project-usiem { @apply [color:#4ade80]; @apply [background:rgba(74,_222,_128,_0.12)]; @apply [border:1px_solid_rgba(74,_222,_128,_0.3)]; }
@@ -1609,92 +1471,12 @@
   @apply [border-color:var(--accent-blue-border)];
 }
 
-/* Direct TSX utility migration: MetricCards.tsx
-.metric-top {
-  @apply [display:flex];
-  @apply [justify-content:space-between];
-  @apply [align-items:center];
-  @apply [gap:8px];
-  @apply [color:var(--ink-muted)];
-  @apply [font-size:10px];
-  @apply [font-weight:700];
-  @apply [letter-spacing:0.7px];
-  @apply [font-family:var(--font-mono)];
-  @apply [text-transform:uppercase];
-}
-
-.metric-top button {
-  @apply [padding:0];
-  @apply [color:var(--accent-blue)];
-  @apply [background:none];
-  @apply [font-size:11px];
-  @apply [font-weight:600];
-}
-*/
-
-/* Direct TSX utility migration: MetricCards.tsx
-.metric-number {
-  @apply [margin-top:10px];
-  @apply [color:var(--ink-primary)];
-  @apply [font-size:32px];
-  @apply [font-weight:700];
-  @apply [letter-spacing:-1px];
-  @apply [line-height:1];
-}
-
-.metric-number span {
-  @apply [margin-left:2px];
-  @apply [color:var(--ink-muted)];
-  @apply [font-size:16px];
-  @apply [font-weight:600];
-}
-*/
-
 .metric-card p {
   @apply [margin:8px_0_10px];
   @apply [color:var(--ink-secondary)];
   @apply [font-size:11.5px];
   @apply [line-height:1.4];
 }
-
-/* Direct TSX utility migration: MetricCards.tsx
-.progress-line {
-  @apply [height:5px];
-  @apply [overflow:hidden];
-  @apply [border-radius:99px];
-  @apply [background:var(--line)];
-}
-
-.progress-line i {
-  @apply [display:block];
-  @apply [height:100%];
-  @apply [border-radius:inherit];
-  @apply [background:var(--green)];
-}
-*/
-
-.metric-sparkline {
-  @apply [margin-top:10px];
-  @apply [width:100%];
-  @apply [height:30px];
-}
-
-/* Direct TSX utility migration: MetricCards.tsx
-.metric-foot {
-  @apply [display:flex];
-  @apply [align-items:center];
-  @apply [gap:7px];
-  @apply [margin-top:14px];
-  @apply [color:var(--ink-secondary)];
-  @apply [font-size:11px];
-}
-
-.metric-foot span {
-  @apply [white-space:nowrap];
-  @apply [overflow:hidden];
-  @apply [text-overflow:ellipsis];
-}
-*/
 
 .metric-time {
   @apply [margin-top:10px];
@@ -1731,6 +1513,7 @@
 }
 
 /* Base card — flat, subtle left accent, no heavy shadows */
+/* Direct utility classes now live in StatCard.tsx.
 .sc {
   @apply [display:flex];
   @apply [flex-direction:column];
@@ -1741,6 +1524,7 @@
   @apply [border-radius:11px];
   @apply [transition:border-color_0.15s_ease,_background-color_0.15s_ease];
 }
+*/
 
 /* Subtle left border accents per card tone */
 .sc-blue  { @apply [border-left:2.5px_solid_#38bdf8]; }
@@ -1757,12 +1541,15 @@
 .sc-purple:hover { @apply [border-color:rgba(192,_132,_252,_0.4)]; }
 .sc-gray:hover { @apply [border-color:rgba(148,_163,_184,_0.4)]; }
 
+/* Direct utility classes now live in StatCard.tsx.
 .sc-clickable {
   @apply [cursor:pointer];
   @apply [user-select:none];
 }
+*/
 
 /* Row 1: label + icon badge */
+/* Direct utility classes now live in StatCard.tsx.
 .sc-header {
   @apply [display:flex];
   @apply [align-items:center];
@@ -1778,8 +1565,10 @@
   @apply [font-family:var(--font-mono)];
   @apply [color:var(--ink-muted)];
 }
+*/
 
 /* Plain circle badge with subtle border */
+/* Direct utility classes now live in StatCard.tsx.
 .sc-icon {
   @apply [display:inline-grid];
   @apply [place-items:center];
@@ -1790,8 +1579,10 @@
   @apply [border:1px_solid_currentColor];
   @apply [opacity:0.95];
 }
+*/
 
 /* Row 2: big value */
+/* Direct utility classes now live in StatCard.tsx.
 .sc-value-row {
   @apply [display:flex];
   @apply [align-items:baseline];
@@ -1811,8 +1602,10 @@
   @apply [font-weight:600];
   @apply [color:var(--ink-muted)];
 }
+*/
 
 /* Rows 3+4: subtitle immediately above a thin bar */
+/* Direct utility classes now live in StatCard.tsx.
 .sc-body {
   @apply [display:flex];
   @apply [flex-direction:column];
@@ -1825,8 +1618,10 @@
   @apply [color:var(--ink-muted)];
   @apply [line-height:1.35];
 }
+*/
 
 /* Thin 3px progress track with rounded ends */
+/* Direct utility classes now live in StatCard.tsx.
 .sc-track {
   @apply [height:3px];
   @apply [width:100%];
@@ -1842,8 +1637,10 @@
   @apply [border-radius:99px];
   @apply [transition:width_0.3s_ease];
 }
+*/
 
 /* Row 5: outlined pill + optional "Review →" hint */
+/* Direct utility classes now live in StatCard.tsx.
 .sc-footer {
   @apply [display:flex];
   @apply [align-items:center];
@@ -1865,6 +1662,7 @@
   @apply [border:1px_solid_rgba(148,_163,_184,_0.2)];
   @apply [background:rgba(148,_163,_184,_0.08)];
 }
+*/
 
 .sc-pill-blue    { @apply [background:rgba(56,_189,_248,_0.08)];  @apply [border-color:rgba(56,_189,_248,_0.25)];  @apply [color:#38bdf8]; }
 .sc-pill-green   { @apply [background:rgba(74,_222,_128,_0.08)];  @apply [border-color:rgba(74,_222,_128,_0.25)];  @apply [color:#4ade80]; }
@@ -1874,6 +1672,7 @@
 .sc-pill-purple  { @apply [background:rgba(192,_132,_252,_0.08)]; @apply [border-color:rgba(192,_132,_252,_0.25)]; @apply [color:#c084fc]; }
 .sc-pill-gray    { @apply [background:rgba(148,_163,_184,_0.08)]; @apply [border-color:rgba(148,_163,_184,_0.2)]; @apply [color:#94a3b8]; }
 
+/* Direct utility classes now live in StatCard.tsx.
 .sc-hint {
   @apply [font-size:11px];
   @apply [font-weight:600];
@@ -1881,6 +1680,7 @@
   @apply [white-space:nowrap];
   @apply [transition:color_0.15s_ease];
 }
+*/
 
 .sc-clickable:hover .sc-hint {
   @apply [color:var(--accent-blue,_#38bdf8)];

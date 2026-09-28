@@ -365,7 +365,7 @@ export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModal
             <div className="adhoc-fields-container">
               <div className="adhoc-fields-header">
                 <span className="adhoc-fields-badge">
-                  <Zap size={11} style={{ display: "inline-block", verticalAlign: "middle", marginRight: "4px" }} />
+                  <Zap size={11} className="[display:inline-block]! [vertical-align:middle]! [margin-right:4px]!" />
                   Timeline Permintaan Ad-hoc
                 </span>
                 <small>Waktu masuk, respon, dan estimasi selesai pekerjaan.</small>
@@ -484,7 +484,7 @@ export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModal
           Batal
         </button>
         <button className="button button-primary" onClick={submit} type="button">
-          <Check size={14} style={{ display: "inline-block", verticalAlign: "middle", marginRight: "4px" }} /> Buat Ticket
+          <Check size={14} className="[display:inline-block]! [vertical-align:middle]! [margin-right:4px]!" /> Buat Ticket
         </button>
       </div>
     </Modal>

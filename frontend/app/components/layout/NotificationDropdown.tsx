@@ -132,7 +132,7 @@ export function NotificationDropdown({ onNavigate }: NotificationDropdownProps =
   };
 
   return (
-    <div className="notification-dropdown-wrapper">
+    <div className="notification-dropdown-wrapper [position:relative] [display:inline-flex]">
       <button
         ref={buttonRef}
         className={`icon-button notification-button ${isOpen ? "active" : ""}`}
@@ -144,38 +144,45 @@ export function NotificationDropdown({ onNavigate }: NotificationDropdownProps =
         type="button"
       >
         <IconBell size={17} />
-        {unreadCount > 0 && <i aria-label={`${unreadCount} notifikasi belum dibaca`}>{unreadCount}</i>}
+        {unreadCount > 0 && (
+          <i
+            className="[position:absolute] [top:-3px] [right:-3px] [display:grid] [place-items:center] [width:15px] [height:15px] [color:#ffffff] [border-radius:99px] [background:var(--red)] [font-size:9px] [font-style:normal] [font-weight:700]"
+            aria-label={`${unreadCount} notifikasi belum dibaca`}
+          >
+            {unreadCount}
+          </i>
+        )}
       </button>
 
       {isOpen && (
         <div
           ref={dropdownRef}
-          className="notification-panel modal-pop"
+          className="notification-panel modal-pop [position:fixed] [z-index:55] [border:1px_solid_var(--panel-border)] [border-radius:14px] [background:var(--modal-bg)] [box-shadow:var(--shadow-elevated)] [color:var(--ink-primary)] [display:flex] [flex-direction:column] [overflow:visible]"
           style={positionStyle}
           role="dialog"
           aria-label="Panel Notifikasi"
         >
           {/* Arrow / Caret pointing to the bell icon */}
           <div
-            className="notification-caret"
+            className="notification-caret [position:absolute] [top:-6px] [width:12px] [height:12px] [background:var(--panel-bg)] [border-left:1px_solid_var(--panel-border)] [border-top:1px_solid_var(--panel-border)] [transform:rotate(45deg)] [pointer-events:none] [z-index:4]"
             style={{ left: `${caretOffset}px` }}
             aria-hidden="true"
           />
 
           {/* Header */}
-          <div className="notification-header">
-            <div className="notification-header-title">
-              <strong>Notifikasi</strong>
+          <div className="notification-header [display:flex] [align-items:center] [justify-content:space-between] [gap:12px] [padding:13px_18px] [border-bottom:1px_solid_var(--line)] [background:var(--panel-bg)] [border-radius:14px_14px_0_0] [position:relative] [z-index:3]">
+            <div className="notification-header-title [display:flex] [align-items:center] [gap:8px]">
+              <strong className="[font-size:13.5px] [font-weight:700] [color:var(--ink-primary)]">Notifikasi</strong>
               {unreadCount > 0 ? (
-                <span className="notification-unread-pill">{unreadCount} baru</span>
+                <span className="notification-unread-pill [padding:2px_7px] [border-radius:99px] [background:var(--accent-blue-soft)] [color:var(--accent-blue)] [border:1px_solid_var(--accent-blue-border)] [font-size:10px] [font-weight:700] [font-family:var(--font-mono)] [line-height:1]">{unreadCount} baru</span>
               ) : (
-                <span className="notification-allread-pill">Semua dibaca</span>
+                <span className="notification-allread-pill [padding:2px_7px] [border-radius:99px] [background:var(--green-soft)] [color:var(--green)] [border:1px_solid_var(--green-border)] [font-size:9.5px] [font-weight:600] [font-family:var(--font-mono)] [line-height:1]">Semua dibaca</span>
               )}
             </div>
 
             {unreadCount > 0 && (
               <button
-                className="notification-header-action"
+                className="notification-header-action [color:var(--accent-blue)] [font-size:11px] [font-weight:600] [background:transparent] [padding:3px_6px] [border-radius:5px] [transition:all_0.15s_ease]"
                 onClick={() => markAllAsRead(activeClientId)}
                 type="button"
               >
@@ -185,12 +192,12 @@ export function NotificationDropdown({ onNavigate }: NotificationDropdownProps =
           </div>
 
           {/* Notification List with Max-Height Scrolling */}
-          <div className="notification-list" role="list">
+          <div className="notification-list [max-height:290px] [overflow-y:auto] [display:flex] [flex-direction:column] [padding:4px_0] [overscroll-behavior:contain] [scrollbar-width:thin] [scrollbar-color:rgba(56,_189,_248,_0.25)_transparent]" role="list">
             {notifications.length > 0 ? (
               notifications.map((item) => (
                 <div
                   key={item.id}
-                  className={`notification-item ${item.unread ? "unread" : "read"}`}
+                  className={`notification-item [display:flex] [align-items:flex-start] [gap:10px] [padding:12px_18px] [border-bottom:1px_solid_var(--line)] [cursor:pointer] [text-align:left] [transition:background_0.15s_ease] ${item.unread ? "unread" : "read"}`}
                   onClick={() => markAsRead(item.id)}
                   role="button"
                   tabIndex={0}
@@ -200,44 +207,44 @@ export function NotificationDropdown({ onNavigate }: NotificationDropdownProps =
                     }
                   }}
                 >
-                  <div className="notification-status-col">
+                  <div className="notification-status-col [padding-top:5px] [flex-shrink:0]">
                     <span
-                      className={`notification-read-dot ${item.unread ? "unread-dot" : "read-dot"}`}
+                      className={`notification-read-dot [display:block] [width:7px] [height:7px] [border-radius:99px] ${item.unread ? "unread-dot" : "read-dot"}`}
                       title={item.unread ? "Belum dibaca" : "Sudah dibaca"}
                       aria-hidden="true"
                     />
                   </div>
 
-                  <div className="notification-content">
-                    <div className="notification-top-row">
-                      <strong className="notification-title">{item.title}</strong>
-                      <span className="notification-time">{item.time}</span>
+                  <div className="notification-content [flex:1] [min-width:0] [display:flex] [flex-direction:column] [gap:2px]">
+                    <div className="notification-top-row [display:flex] [align-items:baseline] [justify-content:space-between] [gap:8px]">
+                      <strong className="notification-title [display:block] [overflow:hidden] [color:var(--ink-primary)] [font-size:12.5px] [font-weight:600] [line-height:1.35] [text-overflow:ellipsis] [white-space:nowrap]">{item.title}</strong>
+                      <span className="notification-time [flex-shrink:0] [color:var(--ink-muted)] [font-size:10px] [font-family:var(--font-mono)]">{item.time}</span>
                     </div>
 
-                    <p className="notification-message">{item.message}</p>
+                    <p className="notification-message [margin:2px_0_0] [color:var(--ink-secondary)] [font-size:11.5px] [line-height:1.45]">{item.message}</p>
 
-                    <div className="notification-meta-row">
+                    <div className="notification-meta-row [display:flex] [align-items:center] [gap:6px] [margin-top:6px]">
                       <Badge tone={item.severity}>{item.category}</Badge>
                       {item.unread && (
-                        <span className="notification-unread-label">Baru</span>
+                        <span className="notification-unread-label [font-size:9.5px] [font-weight:700] [color:var(--accent-blue)] [font-family:var(--font-mono)] [text-transform:uppercase]">Baru</span>
                       )}
                     </div>
                   </div>
                 </div>
               ))
             ) : (
-              <div className="notification-empty">
-                <span className="notification-empty-icon">✓</span>
-                <strong>Tidak ada notifikasi aktif</strong>
-                <p>Semua alert dan pemeriksaan sistem dalam kondisi nominal.</p>
+              <div className="notification-empty [display:flex] [flex-direction:column] [align-items:center] [gap:6px] [padding:34px_20px] [text-align:center]">
+                <span className="notification-empty-icon [display:grid] [place-items:center] [width:38px] [height:38px] [border-radius:99px] [background:var(--green-soft)] [border:1px_solid_var(--green-border)] [color:var(--green)] [font-size:16px] [font-weight:800] [margin-bottom:4px]">✓</span>
+                <strong className="[font-size:13px] [color:var(--ink-primary)]">Tidak ada notifikasi aktif</strong>
+                <p className="[margin:0] [font-size:11.5px] [color:var(--ink-muted)] [max-width:260px] [line-height:1.4]">Semua alert dan pemeriksaan sistem dalam kondisi nominal.</p>
               </div>
             )}
           </div>
 
           {/* Footer Actions */}
-          <div className="notification-footer">
+          <div className="notification-footer [padding:10px_14px] [border-top:1px_solid_var(--line)] [background:var(--bg)] [border-radius:0_0_14px_14px] [display:flex] [flex-direction:column] [gap:6px]">
             <button
-              className="notification-view-all-button"
+              className="notification-view-all-button [width:100%] [height:32px] [display:inline-flex] [align-items:center] [justify-content:center] [gap:6px] [padding:0_12px] [font-size:11.5px] [font-weight:600] [color:var(--accent-blue)] [border:1px_solid_var(--accent-blue-border)] [border-radius:7px] [background:var(--accent-blue-soft)] [cursor:pointer] [transition:all_0.15s_ease]"
               onClick={handleViewAll}
               type="button"
             >
@@ -246,7 +253,7 @@ export function NotificationDropdown({ onNavigate }: NotificationDropdownProps =
             </button>
             {notifications.length > 0 && (
               <button
-                className="notification-clear-button"
+                className="notification-clear-button [width:100%] [height:28px] [display:inline-flex] [align-items:center] [justify-content:center] [padding:0_12px] [font-size:11px] [font-weight:500] [color:var(--ink-secondary)] [border:1px_solid_transparent] [border-radius:6px] [background:transparent] [cursor:pointer] [transition:all_0.15s_ease]"
                 onClick={() => clearAll(activeClientId)}
                 type="button"
               >

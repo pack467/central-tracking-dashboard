@@ -38,11 +38,11 @@ function HistorySection({ member }: { member: RosterMember }) {
   return (
     <div>
       {/* Header + toggle */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
-        <span className="roster-section-eyebrow" style={{ margin: 0 }}>
+      <div className="[display:flex]! [justify-content:space-between]! [align-items:center]! [margin-bottom:10px]!">
+        <span className="roster-section-eyebrow [margin:0]!">
           SHIFT &amp; ATTENDANCE HISTORY
         </span>
-        <div className="filter-tabs" style={{ scale: "0.85", transformOrigin: "right center" }}>
+        <div className="filter-tabs [scale:0.85]! [transform-origin:right_center]!">
           <button className={mode === "list" ? "selected" : ""} onClick={() => setMode("list")}>
             List
           </button>
@@ -54,29 +54,20 @@ function HistorySection({ member }: { member: RosterMember }) {
 
       {/* ── List view ── */}
       {mode === "list" && (
-        <div style={{ display: "grid", gap: "8px" }}>
+        <div className="[display:grid]! [gap:8px]!">
           {member.history.map((h, i) => (
             <div
               key={i}
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                padding: "10px 12px",
-                background: "rgba(127,127,127,0.05)",
-                border: "1px solid var(--line)",
-                borderRadius: "8px",
-                fontSize: "12px",
-              }}
+              className="[display:flex]! [justify-content:space-between]! [align-items:center]! [padding:10px_12px]! [background:rgba(127,_127,_127,_0.05)]! [border:1px_solid_var(--line)]! [border-radius:8px]! [font-size:12px]!"
             >
-              <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-                <span style={{ fontFamily: "var(--font-mono)", fontWeight: "700", color: "var(--accent-blue)", flexShrink: 0 }}>
-                  <Clock size={12} style={{ display: "inline", verticalAlign: "middle", marginRight: "4px" }} />
+              <div className="[display:flex]! [gap:10px]! [align-items:center]!">
+                <span className="[font-family:var(--font-mono)]! [font-weight:700]! [color:var(--accent-blue)]! [flex-shrink:0]!">
+                  <Clock size={12} className="[display:inline]! [vertical-align:middle]! [margin-right:4px]!" />
                   {h.date}
                 </span>
                 <div>
-                  <strong style={{ display: "block", color: "var(--ink-primary)", fontSize: "12.5px" }}>{h.shift}</strong>
-                  {h.note && <small style={{ color: "var(--ink-muted)", fontSize: "11px" }}>{h.note}</small>}
+                  <strong className="[display:block]! [color:var(--ink-primary)]! [font-size:12.5px]!">{h.shift}</strong>
+                  {h.note && <small className="[color:var(--ink-muted)]! [font-size:11px]!">{h.note}</small>}
                 </div>
               </div>
               <Badge tone={h.status === "Present" ? "success" : h.status === "Leave" ? "critical" : "warning"}>
@@ -90,8 +81,8 @@ function HistorySection({ member }: { member: RosterMember }) {
       {/* ── Monthly heatmap ── */}
       {mode === "heatmap" && (
         <div className="member-heatmap-wrapper">
-          <p style={{ margin: "0 0 10px", fontSize: "11px", color: "var(--ink-muted)" }}>
-            <CalendarDays size={12} style={{ display: "inline", verticalAlign: "middle", marginRight: "4px" }} />
+          <p className="[margin:0_0_10px]! [font-size:11px]! [color:var(--ink-muted)]!">
+            <CalendarDays size={12} className="[display:inline]! [vertical-align:middle]! [margin-right:4px]!" />
             August 2026 — shift pattern based on weekly schedule
           </p>
 
@@ -110,8 +101,12 @@ function HistorySection({ member }: { member: RosterMember }) {
               return (
                 <div
                   key={day}
-                  className={`member-heatmap-cell ${isToday ? "member-heatmap-today" : ""}`}
-                  style={{ background: sc.bg, borderColor: isToday ? "var(--accent-blue)" : sc.border, color: sc.color }}
+                  className={`member-heatmap-cell [background:var(--member-heatmap-cell-bg)]! [border-color:var(--member-heatmap-cell-border)]! [color:var(--member-heatmap-cell-color)]! ${isToday ? "member-heatmap-today" : ""}`}
+                  style={{
+                    "--member-heatmap-cell-bg": sc.bg,
+                    "--member-heatmap-cell-border": isToday ? "var(--accent-blue)" : sc.border,
+                    "--member-heatmap-cell-color": sc.color,
+                  } as React.CSSProperties}
                   title={`${day} Aug — ${shift}${shiftDay?.hours ? ` (${shiftDay.hours})` : ""}`}
                 >
                   <span className="heatmap-day-num">{day}</span>
@@ -128,7 +123,13 @@ function HistorySection({ member }: { member: RosterMember }) {
               const sc = shiftColor(shift);
               return (
                 <span key={shift} className="legend-item">
-                  <i style={{ background: sc.bg, borderColor: sc.border }} />
+                  <i
+                    className="[background:var(--member-heatmap-legend-bg)]! [border-color:var(--member-heatmap-legend-border)]!"
+                    style={{
+                      "--member-heatmap-legend-bg": sc.bg,
+                      "--member-heatmap-legend-border": sc.border,
+                    } as React.CSSProperties}
+                  />
                   {shift}
                 </span>
               );
@@ -195,7 +196,7 @@ export function MemberDetailDrawer({
       >
         {/* Header */}
         <div className="drawer-header">
-          <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+          <div className="[display:flex]! [gap:12px]! [align-items:center]!">
             <div
               className="drawer-avatar-ring-wrapper"
               style={ringStyle as React.CSSProperties}
@@ -203,13 +204,13 @@ export function MemberDetailDrawer({
             >
               <Avatar size="lg" name={member.name} />
               <span
-                className="drawer-avatar-status-badge"
-                style={{ backgroundColor: ringColor }}
+                className="drawer-avatar-status-badge [background-color:var(--drawer-status-ring-color)]!"
+                style={{ "--drawer-status-ring-color": ringColor } as React.CSSProperties}
               />
             </div>
             <div>
-              <div style={{ display: "flex", gap: "8px", alignItems: "center", marginBottom: "4px" }}>
-                <h2 style={{ fontSize: "17px", fontWeight: "700", margin: 0, color: "var(--ink-primary)" }}>
+              <div className="[display:flex]! [gap:8px]! [align-items:center]! [margin-bottom:4px]!">
+                <h2 className="[font-size:17px]! [font-weight:700]! [margin:0]! [color:var(--ink-primary)]!">
                   {member.name}
                 </h2>
                 {isCurrentUser ? (
@@ -220,7 +221,7 @@ export function MemberDetailDrawer({
                   <Badge tone={statusTone(member.status)}>{member.status}</Badge>
                 )}
               </div>
-              <span style={{ fontSize: "11.5px", color: "var(--ink-muted)", fontFamily: "var(--font-mono)" }}>
+              <span className="[font-size:11.5px]! [color:var(--ink-muted)]! [font-family:var(--font-mono)]!">
                 {member.role} · ID: {member.employeeId}
               </span>
             </div>
@@ -231,56 +232,55 @@ export function MemberDetailDrawer({
         {/* Scrollable content */}
         <div className="drawer-content-inner">
           {/* Contact quick-copy */}
-          <div style={{ display: "flex", gap: "8px", marginBottom: "20px", flexWrap: "wrap" }}>
-            <button className="button button-secondary" style={{ fontSize: "11px", padding: "6px 10px" }} onClick={() => copyToClipboard(member.email, "Email")}>
+          <div className="[display:flex]! [gap:8px]! [margin-bottom:20px]! [flex-wrap:wrap]!">
+            <button className="button button-secondary [font-size:11px]! [padding:6px_10px]!" onClick={() => copyToClipboard(member.email, "Email")}>
               <Mail size={13} /> {member.email}
             </button>
-            <button className="button button-secondary" style={{ fontSize: "11px", padding: "6px 10px" }} onClick={() => copyToClipboard(member.phone, "Phone")}>
+            <button className="button button-secondary [font-size:11px]! [padding:6px_10px]!" onClick={() => copyToClipboard(member.phone, "Phone")}>
               <Phone size={13} /> {member.phone}
             </button>
           </div>
 
           {/* Attendance stats */}
-          <div style={{ marginBottom: "24px" }}>
+          <div className="[margin-bottom:24px]!">
             <span className="roster-section-eyebrow">ATTENDANCE &amp; PERFORMANCE</span>
-            <div className="metrics-grid" style={{ gridTemplateColumns: "repeat(3, 1fr)", gap: "10px", marginTop: "8px" }}>
-              <div className="metric-card" style={{ padding: "12px" }}>
-                <span className="metric-title" style={{ fontSize: "9px" }}>ON-TIME RATE</span>
-                <strong style={{ fontSize: "18px", color: "var(--green)", marginTop: "4px" }}>{member.stats.onTimePercentage}%</strong>
-                <small style={{ color: "var(--ink-muted)", fontSize: "10px" }}>On-time attendance</small>
+            <div className="metrics-grid [grid-template-columns:repeat(3,_1fr)]! [gap:10px]! [margin-top:8px]!">
+              <div className="metric-card [padding:12px]!">
+                <span className="metric-title [font-size:9px]!">ON-TIME RATE</span>
+                <strong className="[font-size:18px]! [color:var(--green)]! [margin-top:4px]!">{member.stats.onTimePercentage}%</strong>
+                <small className="[color:var(--ink-muted)]! [font-size:10px]!">On-time attendance</small>
               </div>
-              <div className="metric-card" style={{ padding: "12px" }}>
-                <span className="metric-title" style={{ fontSize: "9px" }}>SHIFTS DONE</span>
-                <strong style={{ fontSize: "18px", color: "var(--accent-blue)", marginTop: "4px" }}>{member.stats.shiftsCompleted}</strong>
-                <small style={{ color: "var(--ink-muted)", fontSize: "10px" }}>Completed shifts</small>
+              <div className="metric-card [padding:12px]!">
+                <span className="metric-title [font-size:9px]!">SHIFTS DONE</span>
+                <strong className="[font-size:18px]! [color:var(--accent-blue)]! [margin-top:4px]!">{member.stats.shiftsCompleted}</strong>
+                <small className="[color:var(--ink-muted)]! [font-size:10px]!">Completed shifts</small>
               </div>
-              <div className="metric-card" style={{ padding: "12px" }}>
-                <span className="metric-title" style={{ fontSize: "9px" }}>HANDOVER QUALITY</span>
-                <strong style={{ fontSize: "18px", color: "var(--purple)", marginTop: "4px" }}>{member.stats.handoverScore}%</strong>
-                <small style={{ color: "var(--ink-muted)", fontSize: "10px" }}>SOP compliance score</small>
+              <div className="metric-card [padding:12px]!">
+                <span className="metric-title [font-size:9px]!">HANDOVER QUALITY</span>
+                <strong className="[font-size:18px]! [color:var(--purple)]! [margin-top:4px]!">{member.stats.handoverScore}%</strong>
+                <small className="[color:var(--ink-muted)]! [font-size:10px]!">SOP compliance score</small>
               </div>
             </div>
           </div>
 
           {/* Current shift & status switcher */}
-          <div style={{ marginBottom: "24px", padding: "14px", background: "var(--panel-bg)", border: "1px solid var(--panel-border)", borderRadius: "10px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
-              <span className="roster-section-eyebrow" style={{ margin: 0 }}>CURRENT ASSIGNED SHIFT</span>
+          <div className="[margin-bottom:24px]! [padding:14px]! [background:var(--panel-bg)]! [border:1px_solid_var(--panel-border)]! [border-radius:10px]!">
+            <div className="[display:flex]! [justify-content:space-between]! [align-items:center]! [margin-bottom:8px]!">
+              <span className="roster-section-eyebrow [margin:0]!">CURRENT ASSIGNED SHIFT</span>
               <Badge tone="info">
-                <Clock size={11} style={{ display: "inline", verticalAlign: "middle", marginRight: "3px" }} />
+                <Clock size={11} className="[display:inline]! [vertical-align:middle]! [margin-right:3px]!" />
                 {member.currentShift}
               </Badge>
             </div>
-            <p style={{ margin: "0 0 12px", fontSize: "12px", color: "var(--ink-secondary)" }}>
+            <p className="[margin:0_0_12px]! [font-size:12px]! [color:var(--ink-secondary)]!">
               Assigned to Console 01 / NOC Command Desk. Joined <strong>{member.joinDate}</strong>.
             </p>
-            <div style={{ display: "flex", gap: "6px", alignItems: "center", flexWrap: "wrap" }}>
-              <span style={{ fontSize: "11px", color: "var(--ink-muted)", fontWeight: "600", marginRight: "4px" }}>Quick Status:</span>
+            <div className="[display:flex]! [gap:6px]! [align-items:center]! [flex-wrap:wrap]!">
+              <span className="[font-size:11px]! [color:var(--ink-muted)]! [font-weight:600]! [margin-right:4px]!">Quick Status:</span>
               {(["Active", "On Break", "Off Duty", "On Leave"] as const).map((s) => (
                 <button
                   key={s}
-                  className={`button ${member.status === s ? "button-primary" : "button-secondary"}`}
-                  style={{ fontSize: "11px", padding: "4px 8px" }}
+                  className={`button ${member.status === s ? "button-primary" : "button-secondary"} [font-size:11px]! [padding:4px_8px]!`}
                   onClick={() => handleStatusChange(s)}
                 >
                   {s}

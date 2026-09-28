@@ -89,6 +89,10 @@ export function Modal({ open, onClose, label, width, variant = "centered", child
 
   const className =
     variant === "wide" ? "handover-modal" : variant === "form" ? "handover-form-modal" : "ticket-modal";
+  const ticketModalTailwindClass =
+    variant === "centered"
+      ? "[width:min(600px,_calc(100vw_-_32px))] [overflow:hidden] [border:1px_solid_var(--panel-border)] [border-radius:14px] [background:var(--modal-bg)] [box-shadow:var(--shadow-elevated)] [color:var(--ink-primary)] [padding:22px_24px]"
+      : "";
 
   return (
     <div
@@ -100,7 +104,7 @@ export function Modal({ open, onClose, label, width, variant = "centered", child
     >
       <section
         ref={modalRef}
-        className={`${className} modal-pop`}
+        className={`${className} modal-pop ${ticketModalTailwindClass}`}
         role="dialog"
         aria-modal="true"
         aria-label={label}

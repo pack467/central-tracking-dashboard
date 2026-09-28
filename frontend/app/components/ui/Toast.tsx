@@ -147,14 +147,35 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   return (
     <ToastContext.Provider value={notifier}>
       {children}
-      <div className="toast-stack" aria-live="polite" role="status">
+      <div
+        className="toast-stack [position:fixed] [right:20px] [bottom:20px] [z-index:60] [display:flex] [flex-direction:column] [gap:8px] [pointer-events:none]"
+        aria-live="polite"
+        role="status"
+      >
         {toasts.map((toast) => (
-          <div key={toast.renderKey ?? toast.id} className={`toast toast-item toast-${toast.tone}`}>
-            <span>{toast.tone === "critical" || toast.tone === "warning" ? "!" : "✓"}</span>
-            <p>{toast.message}</p>
+          <div
+            key={toast.renderKey ?? toast.id}
+            className={`toast toast-item toast-${toast.tone} [pointer-events:auto] [position:relative] [overflow:hidden] [display:flex] [align-items:center] [gap:10px] [padding:10px_14px] [color:var(--ink-primary)] [border:1px_solid_var(--panel-border)] [border-radius:9px] [background:var(--panel-bg)] [box-shadow:0_10px_30px_-5px_rgba(0,_0,_0,_0.25),_0_4px_6px_-2px_rgba(0,_0,_0,_0.1)] [font-size:12px] [min-width:270px] [max-width:min(360px,_calc(100vw_-_40px))] [animation:toastIn_0.22s_cubic-bezier(0.16,_1,_0.3,_1)]`}
+          >
+            <span
+              className={`[display:grid] [place-items:center] [width:20px] [height:20px] [color:#ffffff] [border-radius:99px] [font-weight:800] [font-size:11px] [flex-shrink:0] ${
+                toast.tone === "warning"
+                  ? "[background:var(--orange)]"
+                  : toast.tone === "critical"
+                    ? "[background:var(--red)]"
+                    : toast.tone === "info"
+                      ? "[background:var(--accent-blue)]"
+                      : "[background:var(--green)]"
+              }`}
+            >
+              {toast.tone === "critical" || toast.tone === "warning" ? "!" : "✓"}
+            </span>
+            <p className="[margin:0] [flex:1] [line-height:1.35] [color:var(--ink-primary)] [font-weight:500]">
+              {toast.message}
+            </p>
             {toast.action && (
               <button
-                className="toast-action-button"
+                className="toast-action-button [display:grid] [place-items:center] [width:18px] [height:18px] [color:var(--ink-muted)] [border-radius:5px] [font-size:14px]! [line-height:1] [flex-shrink:0] [padding:4px_10px] [font-weight:700] [background:var(--accent-blue-soft)]! [border:1px_solid_var(--accent-blue-border)]! [cursor:pointer] [transition:all_0.15s_ease] [user-select:none] [&:hover]:[background:var(--panel-bg-hover)]! [&:hover]:[border-color:var(--accent-blue)]!"
                 onClick={() => {
                   toast.action?.onClick();
                   dismiss(toast.id);
@@ -163,10 +184,25 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
                 {toast.action.label}
               </button>
             )}
-            <button onClick={() => dismiss(toast.id)} aria-label="Tutup notifikasi">
+            <button
+              className="[display:grid] [place-items:center] [width:20px] [height:20px] [border-radius:4px] [background:transparent]! [color:var(--ink-muted)] [font-size:16px]! [line-height:1] [flex-shrink:0] [cursor:pointer] [transition:color_0.15s_ease] [&:hover]:[background:var(--bg)]!"
+              onClick={() => dismiss(toast.id)}
+              aria-label="Tutup notifikasi"
+            >
               ×
             </button>
-            <i className="toast-progress" style={{ animationDuration: `${toast.duration}ms` }} />
+            <i
+              className={`toast-progress [position:absolute] [bottom:0] [left:0] [height:3px] [border-radius:99px] [animation-name:toastCountdown] [animation-timing-function:linear] [animation-fill-mode:forwards] ${
+                toast.tone === "warning"
+                  ? "[background:var(--orange)]"
+                  : toast.tone === "critical"
+                    ? "[background:var(--red)]"
+                    : toast.tone === "info"
+                      ? "[background:var(--accent-blue)]"
+                      : "[background:var(--green)]"
+              }`}
+              style={{ animationDuration: `${toast.duration}ms` }}
+            />
           </div>
         ))}
       </div>

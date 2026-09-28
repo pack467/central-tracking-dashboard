@@ -8,7 +8,7 @@ export function Sparkline({
   const gradientId = `sparkGrad-${color.replace(/[^a-z0-9]/gi, "")}`;
 
   return (
-    <svg className="metric-sparkline" viewBox="0 0 160 32" preserveAspectRatio="none" aria-hidden="true">
+    <svg className="metric-sparkline [margin-top:10px] [width:100%] [height:30px]" viewBox="0 0 160 32" preserveAspectRatio="none" aria-hidden="true">
       <defs>
         <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor={color} stopOpacity="0.35" />

@@ -16,80 +16,15 @@
   @apply [background:var(--overlay-bg)];
 }
 
-.command-modal {
-  @apply [width:min(640px,_calc(100vw_-_32px))];
-  @apply [max-height:calc(100vh_-_64px)];
-  @apply [display:flex];
-  @apply [flex-direction:column];
-  @apply [overflow:hidden];
-  @apply [border:1px_solid_var(--panel-border)];
-  @apply [border-radius:14px];
-  @apply [background:var(--modal-bg)];
-  @apply [box-shadow:var(--shadow-elevated)];
-  @apply [color:var(--ink-primary)];
-}
 
-.ticket-modal {
-  @apply [width:min(600px,_calc(100vw_-_32px))];
-  @apply [overflow:hidden];
-  @apply [border:1px_solid_var(--panel-border)];
-  @apply [border-radius:14px];
-  @apply [background:var(--modal-bg)];
-  @apply [box-shadow:var(--shadow-elevated)];
-  @apply [color:var(--ink-primary)];
-}
 
 /* Command Palette Input Header */
-.command-input {
-  @apply [display:flex];
-  @apply [align-items:center];
-  @apply [gap:12px];
-  @apply [padding:16px_20px];
-  @apply [border-bottom:1px_solid_var(--line)];
-  @apply [background:var(--panel-bg)];
-}
-
-.command-input-icon {
-  @apply [color:var(--accent-blue)];
-  @apply [font-size:20px];
-  @apply [line-height:1];
-  @apply [display:grid];
-  @apply [place-items:center];
-  @apply [flex-shrink:0];
-}
-
-.command-input input {
-  @apply [flex:1];
-  @apply [min-width:0];
-  @apply [color:var(--ink-primary)];
-  @apply [background:transparent];
-  @apply [border:0];
-  @apply [outline:0];
-  @apply [font-size:14px];
-  @apply [font-family:var(--font-sans)];
-  @apply [font-weight:500];
-}
 
 .command-input input::placeholder {
   @apply [color:var(--ink-muted)];
   @apply [font-weight:400];
 }
 
-.command-esc-badge {
-  @apply [padding:3px_6px];
-  @apply [color:var(--ink-muted)];
-  @apply [border:1px_solid_var(--line)];
-  @apply [border-radius:5px];
-  @apply [background:var(--bg)];
-  @apply [font-size:10px];
-  @apply [font-family:var(--font-mono)];
-  @apply [font-weight:700];
-  @apply [line-height:1];
-  @apply [cursor:pointer];
-  @apply [transition:all_0.15s_ease];
-  @apply [user-select:none];
-  @apply [flex-shrink:0];
-}
 
 .command-esc-badge:hover {
   @apply [color:var(--ink-primary)];
@@ -98,53 +33,8 @@
 }
 
 /* Command Palette Body & Content Hierarchy */
-.command-body {
-  @apply [flex:1];
-  @apply [min-height:0];
-  @apply [overflow-y:auto];
-  @apply [padding:14px_16px_16px];
-  @apply [display:flex];
-  @apply [flex-direction:column];
-  @apply [gap:16px];
-}
-
-.command-section {
-  @apply [display:flex];
-  @apply [flex-direction:column];
-  @apply [gap:4px];
-}
-
-.command-section-label {
-  @apply [padding:2px_8px_6px];
-  @apply [color:var(--ink-muted)];
-  @apply [font-size:10px];
-  @apply [font-weight:700];
-  @apply [letter-spacing:1.1px];
-  @apply [font-family:var(--font-mono)];
-  @apply [text-transform:uppercase];
-}
-
-.command-results-list {
-  @apply [display:flex];
-  @apply [flex-direction:column];
-  @apply [gap:3px];
-}
 
 /* Command Item Row / Card */
-.command-item {
-  @apply [display:flex];
-  @apply [align-items:center];
-  @apply [gap:12px];
-  @apply [padding:9px_12px];
-  @apply [width:100%];
-  @apply [border-radius:8px];
-  @apply [border:1px_solid_transparent];
-  @apply [background:transparent];
-  @apply [text-align:left];
-  @apply [color:var(--ink-primary)];
-  @apply [cursor:pointer];
-  @apply [transition:background_0.15s_ease,_border-color_0.15s_ease,_transform_0.1s_ease];
-}
 
 .command-item:hover,
 .command-item.cursor-active {
@@ -157,21 +47,6 @@
 }
 
 /* Navigation Icon Box */
-.command-nav-icon-box {
-  @apply [width:32px];
-  @apply [height:32px];
-  @apply [flex-shrink:0];
-  @apply [display:grid];
-  @apply [place-items:center];
-  @apply [border-radius:8px];
-  @apply [background:var(--accent-blue-soft)];
-  @apply [border:1px_solid_var(--accent-blue-border)];
-  @apply [color:var(--accent-blue)];
-  @apply [font-size:14px];
-  @apply [font-weight:600];
-  @apply [line-height:1];
-  @apply [transition:all_0.15s_ease];
-}
 
 .command-item:hover .command-nav-icon-box,
 .command-item.cursor-active .command-nav-icon-box {
@@ -197,35 +72,6 @@
 }
 
 /* Item Content (Title & Subtitle Alignment) */
-.command-item-content {
-  @apply [flex:1];
-  @apply [min-width:0];
-  @apply [display:flex];
-  @apply [flex-direction:column];
-  @apply [gap:2px];
-}
-
-.command-item-title {
-  @apply [display:block];
-  @apply [overflow:hidden];
-  @apply [color:var(--ink-primary)];
-  @apply [font-size:12.5px];
-  @apply [font-weight:600];
-  @apply [line-height:1.35];
-  @apply [text-overflow:ellipsis];
-  @apply [white-space:nowrap];
-}
-
-.command-item-subtitle {
-  @apply [display:block];
-  @apply [overflow:hidden];
-  @apply [color:var(--ink-muted)];
-  @apply [font-size:11px];
-  @apply [font-family:var(--font-mono)];
-  @apply [font-weight:500];
-  @apply [text-overflow:ellipsis];
-  @apply [white-space:nowrap];
-}
 
 .command-item:hover .command-item-subtitle,
 .command-item.cursor-active .command-item-subtitle {
@@ -233,30 +79,6 @@
 }
 
 /* Item Right End (Badge & Enter Indicator) */
-.command-item-end {
-  @apply [display:flex];
-  @apply [align-items:center];
-  @apply [gap:8px];
-  @apply [flex-shrink:0];
-}
-
-.command-enter-indicator {
-  @apply [opacity:0];
-  @apply [transform:translateX(-4px)];
-  @apply [transition:opacity_0.15s_ease,_transform_0.15s_ease];
-  @apply [flex-shrink:0];
-}
-
-.command-enter-indicator kbd {
-  @apply [padding:2px_5px];
-  @apply [color:var(--accent-blue)];
-  @apply [border:1px_solid_var(--accent-blue-border)];
-  @apply [border-radius:4px];
-  @apply [background:var(--panel-bg)];
-  @apply [font-size:9.5px];
-  @apply [font-family:var(--font-mono)];
-  @apply [font-weight:700];
-}
 
 .command-item:hover .command-enter-indicator,
 .command-item.cursor-active .command-enter-indicator {
@@ -265,54 +87,6 @@
 }
 
 /* Command Palette Footer Toolbar */
-.command-footer {
-  @apply [display:flex];
-  @apply [align-items:center];
-  @apply [justify-content:space-between];
-  @apply [gap:16px];
-  @apply [padding:11px_20px];
-  @apply [color:var(--ink-muted)];
-  @apply [border-top:1px_solid_var(--line)];
-  @apply [background:var(--bg)];
-  @apply [font-size:11px];
-  @apply [flex-shrink:0];
-}
-
-.command-footer-left {
-  @apply [font-size:11px];
-  @apply [font-weight:600];
-  @apply [color:var(--ink-muted)];
-  @apply [font-family:var(--font-mono)];
-  @apply [letter-spacing:0.2px];
-}
-
-.command-footer-shortcuts {
-  @apply [display:flex];
-  @apply [align-items:center];
-  @apply [gap:14px];
-}
-
-.command-footer-shortcut {
-  @apply [display:inline-flex];
-  @apply [align-items:center];
-  @apply [gap:5px];
-  @apply [color:var(--ink-secondary)];
-  @apply [font-size:11px];
-  @apply [font-weight:500];
-}
-
-.command-footer-shortcut kbd {
-  @apply [padding:2px_5px];
-  @apply [color:var(--ink-secondary)];
-  @apply [border:1px_solid_var(--line)];
-  @apply [border-radius:4px];
-  @apply [background:var(--panel-bg)];
-  @apply [font-size:9.5px];
-  @apply [font-family:var(--font-mono)];
-  @apply [font-weight:700];
-  @apply [line-height:1];
-  @apply [box-shadow:0_1px_1px_rgba(0,_0,_0,_0.04)];
-}
 
 @media (max-width: 660px) {
   .command-footer-left {
@@ -325,9 +99,6 @@
   }
 }
 
-.ticket-modal {
-  @apply [padding:22px];
-}
 
 .modal-title {
   @apply [display:flex];
@@ -398,9 +169,6 @@
   @apply [box-shadow:none];
 }
 
-.ticket-modal {
-  @apply [padding:22px_24px];
-}
 
 .ticket-form-grid {
   @apply [display:flex];
@@ -922,25 +690,6 @@
 }
 
 /* ── Custom Dark-Themed TimePicker ── */
-.custom-timepicker-container {
-  @apply [position:relative];
-  @apply [width:100%];
-}
-
-.custom-timepicker-input-wrap {
-  @apply [position:relative];
-  @apply [display:flex];
-  @apply [align-items:center];
-  @apply [width:100%];
-}
-
-.custom-timepicker-icon {
-  @apply [position:absolute];
-  @apply [left:9px];
-  @apply [color:var(--ink-muted)];
-  @apply [pointer-events:none];
-  @apply [z-index:1];
-}
 
 .custom-timepicker-input {
   @apply ![width:100%];
@@ -1011,21 +760,6 @@
 }
 
 /* Time Picker Popover */
-.custom-timepicker-popover {
-  @apply [position:absolute];
-  @apply [top:calc(100%_+_4px)];
-  @apply [left:0];
-  @apply [z-index:1050];
-  @apply [width:184px];
-  @apply [background:#0b1329];
-  @apply [border:1px_solid_rgba(255,_255,_255,_0.14)];
-  @apply [border-radius:8px];
-  @apply [box-shadow:0_12px_28px_-4px_rgba(0,_0,_0,_0.7),_0_4px_10px_-2px_rgba(0,_0,_0,_0.5)];
-  @apply [overflow:hidden];
-  @apply [display:flex];
-  @apply [flex-direction:column];
-  @apply [animation:timepicker-appear_0.12s_ease-out];
-}
 
 @keyframes timepicker-appear {
   from {
@@ -1038,54 +772,6 @@
   }
 }
 
-.custom-timepicker-header {
-  @apply [display:grid];
-  @apply [grid-template-columns:1fr_auto_1fr];
-  @apply [align-items:center];
-  @apply [padding:7px_8px];
-  @apply [background:rgba(255,_255,_255,_0.03)];
-  @apply [border-bottom:1px_solid_rgba(255,_255,_255,_0.08)];
-}
-
-.timepicker-col-label {
-  @apply [font-size:9.5px];
-  @apply [font-weight:700];
-  @apply [color:var(--ink-muted)];
-  @apply [text-align:center];
-  @apply [letter-spacing:0.6px];
-  @apply [text-transform:uppercase];
-  @apply [font-family:var(--font-mono)];
-}
-
-.timepicker-col-sep {
-  @apply [font-size:11px];
-  @apply [font-weight:700];
-  @apply [color:var(--ink-muted)];
-  @apply [padding:0_4px];
-}
-
-.custom-timepicker-body {
-  @apply [display:grid];
-  @apply [grid-template-columns:1fr_1px_1fr];
-  @apply [height:156px];
-  @apply [background:rgba(0,_0,_0,_0.15)];
-}
-
-.custom-timepicker-divider {
-  @apply [background:rgba(255,_255,_255,_0.07)];
-  @apply [width:1px];
-  @apply [height:100%];
-}
-
-.custom-timepicker-column {
-  @apply [overflow-y:auto];
-  @apply [padding:4px];
-  @apply [display:flex];
-  @apply [flex-direction:column];
-  @apply [gap:2px];
-  @apply [scrollbar-width:thin];
-  @apply [scrollbar-color:rgba(255,_255,_255,_0.15)_transparent];
-}
 
 .custom-timepicker-column::-webkit-scrollbar {
   @apply [width:4px];
@@ -1124,14 +810,6 @@
   @apply ![font-weight:700];
 }
 
-.custom-timepicker-footer {
-  @apply [display:flex];
-  @apply [align-items:center];
-  @apply [justify-content:space-between];
-  @apply [padding:6px_10px];
-  @apply [background:rgba(255,_255,_255,_0.02)];
-  @apply [border-top:1px_solid_rgba(255,_255,_255,_0.08)];
-}
 
 .custom-timepicker-now-btn {
   @apply [font-size:10.5px];

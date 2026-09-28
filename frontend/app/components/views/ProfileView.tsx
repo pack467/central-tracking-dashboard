@@ -228,15 +228,7 @@ export function ProfileView({
             <span className="live-dot live-dot-pulse" /> PROFIL OPERASIONAL
           </div>
           <h1>
-            <User
-              size={22}
-              style={{
-                display: "inline-block",
-                verticalAlign: "middle",
-                marginRight: "8px",
-                color: "var(--accent-blue)",
-              }}
-            />
+            <User size={22} className="[display:inline-block]! [vertical-align:middle]! [margin-right:8px]! [color:var(--accent-blue)]!" />
             Profil Pengguna
           </h1>
           <p>Kelola informasi akun, peran, dan preferensi operasional Anda.</p>
@@ -262,8 +254,7 @@ export function ProfileView({
               ariaLabel={`Avatar profil ${profileData.name}`}
             />
             <span
-              className="profile-large-status-badge"
-              style={{ backgroundColor: currentStatusConfig.color }}
+              className="profile-large-status-badge [background-color:var(--status-ring-color)]!"
               title={`Status Kehadiran: ${userStatus}`}
             />
           </div>
@@ -273,38 +264,30 @@ export function ProfileView({
               <h2 className="profile-name-title">{profileData.name}</h2>
               <Badge tone={userStatus === "Online" ? "success" : userStatus === "Busy" ? "critical" : userStatus === "On Break" ? "warning" : "info"}>
                 <span
-                  style={{
-                    display: "inline-block",
-                    width: "7px",
-                    height: "7px",
-                    borderRadius: "50%",
-                    backgroundColor: currentStatusConfig.color,
-                    marginRight: "5px",
-                    verticalAlign: "middle",
-                    boxShadow: `0 0 6px ${currentStatusConfig.color}`,
-                  }}
+                  className="[display:inline-block]! [width:7px]! [height:7px]! [border-radius:50%]! [margin-right:5px]! [vertical-align:middle]! [background-color:var(--profile-status-color)]! [box-shadow:0_0_6px_var(--profile-status-color)]!"
+                  style={{ "--profile-status-color": currentStatusConfig.color } as React.CSSProperties}
                 />
                 {userStatus}
               </Badge>
               <Badge tone={statusTone(baseMember.status)}>
-                <span className="live-dot live-dot-pulse" style={{ marginRight: "4px" }} />
+                <span className="live-dot live-dot-pulse [margin-right:4px]!" />
                 {baseMember.status === "Active" ? "Aktif Bertugas" : baseMember.status}
               </Badge>
               <Badge tone="info">
-                <Clock size={11} style={{ marginRight: "4px", verticalAlign: "middle" }} />
+                <Clock size={11} className="[margin-right:4px]! [vertical-align:middle]!" />
                 {activeShift.label} ({activeShift.period})
               </Badge>
             </div>
 
             <div className="profile-role-meta">
               <span className="profile-role-pill">
-                <Briefcase size={11} style={{ marginRight: "3px" }} />
+                <Briefcase size={11} className="[margin-right:3px]!" />
                 {profileData.role}
               </span>
               <span>•</span>
               <span className="profile-emp-id">ID: {profileData.employeeId}</span>
               <span>•</span>
-              <span style={{ color: "var(--ink-muted)", fontSize: "12px" }}>
+              <span className="[color:var(--ink-muted)]! [font-size:12px]!">
                 {profileData.department}
               </span>
             </div>
@@ -317,9 +300,9 @@ export function ProfileView({
                 onClick={() => handleCopy(profileData.email, "Email")}
                 title="Klik untuk menyalin email"
               >
-                <Mail size={12} style={{ color: "var(--accent-blue)" }} />
+                <Mail size={12} className="[color:var(--accent-blue)]!" />
                 <span>{profileData.email}</span>
-                <Copy size={11} style={{ opacity: 0.6, marginLeft: "2px" }} />
+                <Copy size={11} className="[opacity:0.6]! [margin-left:2px]!" />
               </button>
 
               <button
@@ -328,9 +311,9 @@ export function ProfileView({
                 onClick={() => handleCopy(profileData.phone, "Nomor Telepon")}
                 title="Klik untuk menyalin nomor HP"
               >
-                <Phone size={12} style={{ color: "var(--green)" }} />
+                <Phone size={12} className="[color:var(--green)]!" />
                 <span>{profileData.phone}</span>
-                <Copy size={11} style={{ opacity: 0.6, marginLeft: "2px" }} />
+                <Copy size={11} className="[opacity:0.6]! [margin-left:2px]!" />
               </button>
             </div>
           </div>
@@ -360,7 +343,7 @@ export function ProfileView({
             <div className="profile-card-header">
               <div className="profile-card-title-group">
                 <h3 className="profile-card-title">
-                  <Shield size={14} style={{ color: "var(--accent-blue)" }} />
+                  <Shield size={14} className="[color:var(--accent-blue)]!" />
                   Informasi Akun &amp; Otorisasi
                 </h3>
               </div>
@@ -375,7 +358,7 @@ export function ProfileView({
 
               <div className="profile-info-item">
                 <span className="profile-info-label">Nomor Induk Karyawan</span>
-                <span className="profile-info-value" style={{ fontFamily: "var(--font-mono)" }}>
+                <span className="profile-info-value [font-family:var(--font-mono)]!">
                   {profileData.employeeId}
                 </span>
               </div>
@@ -388,16 +371,16 @@ export function ProfileView({
               <div className="profile-info-item">
                 <span className="profile-info-label">Tanggal Bergabung</span>
                 <span className="profile-info-value">
-                  {profileData.joinDate} <small style={{ color: "var(--ink-muted)", fontWeight: "normal" }}>(~2 tahun 8 bulan)</small>
+                  {profileData.joinDate} <small className="[color:var(--ink-muted)]! [font-weight:normal]!">(~2 tahun 8 bulan)</small>
                 </span>
               </div>
 
-              <div className="profile-info-item" style={{ gridColumn: "1 / -1" }}>
+              <div className="profile-info-item [grid-column:1_/_-1]!">
                 <span className="profile-info-label">Cakupan Klien / Tenant yang Diakses</span>
                 <div className="profile-tenants-list">
                   {clients.map((c) => (
                     <span key={c.id} className="profile-tenant-badge">
-                      <Building2 size={11} style={{ color: "var(--accent-blue)" }} />
+                      <Building2 size={11} className="[color:var(--accent-blue)]!" />
                       <span>{c.name}</span>
                     </span>
                   ))}
@@ -410,7 +393,7 @@ export function ProfileView({
                 </div>
               </div>
 
-              <div className="profile-info-item" style={{ gridColumn: "1 / -1" }}>
+              <div className="profile-info-item [grid-column:1_/_-1]!">
                 <span className="profile-info-label">Otorisasi &amp; Hak Akses Operasional</span>
                 <div className="profile-permissions-tags">
                   <span className="profile-perm-tag">
@@ -432,9 +415,9 @@ export function ProfileView({
               </div>
 
               {profileData.bio && (
-                <div className="profile-info-item" style={{ gridColumn: "1 / -1" }}>
+                <div className="profile-info-item [grid-column:1_/_-1]!">
                   <span className="profile-info-label">Catatan Operasional / Bio</span>
-                  <p style={{ margin: "4px 0 0", color: "var(--ink-secondary)", fontSize: "12.5px", lineHeight: 1.5 }}>
+                  <p className="[margin:4px_0_0]! [color:var(--ink-secondary)]! [font-size:12.5px]! [line-height:1.5]!">
                     {profileData.bio}
                   </p>
                 </div>
@@ -447,7 +430,7 @@ export function ProfileView({
             <div className="profile-card-header">
               <div className="profile-card-title-group">
                 <h3 className="profile-card-title">
-                  <History size={14} style={{ color: "var(--purple)" }} />
+                  <History size={14} className="[color:var(--purple)]!" />
                   Aktivitas Operasional Terbaru
                 </h3>
               </div>
@@ -459,25 +442,31 @@ export function ProfileView({
             {/* Primary Operational Summary Metric Cards (4 Stat Cards Row) */}
             <div className="profile-stats-tally" aria-label="Metrik ringkasan operasional utama">
               <div className="profile-tally-item" title="Volume akumulasi tiket yang pernah ditangani (Jam terbang tinggi)">
-                <span className="profile-tally-num" style={{ color: "var(--accent-blue)" }}>
+                <span className="profile-tally-num [color:var(--accent-blue)]!">
                   {operationalMetrics.totalTicketsHandled}
                 </span>
                 <span className="profile-tally-label">Total Tiket</span>
               </div>
               <div className="profile-tally-item" title="Konsistensi serah terima shift rutin diselesaikan secara tertib">
-                <span className="profile-tally-num" style={{ color: "var(--green)" }}>
+                <span className="profile-tally-num [color:var(--green)]!">
                   {operationalMetrics.handoversCompleted}
                 </span>
                 <span className="profile-tally-label">Serah Terima Diselesaikan</span>
               </div>
               <div className="profile-tally-item" title="Tingkat ketepatan waktu shift: Prima (Target >= 95%)">
-                <span className="profile-tally-num" style={{ color: getOnTimeColor(operationalMetrics.onTimeShiftRate) }}>
+                <span
+                  className="profile-tally-num [color:var(--profile-metric-color)]!"
+                  style={{ "--profile-metric-color": getOnTimeColor(operationalMetrics.onTimeShiftRate) } as React.CSSProperties}
+                >
                   {operationalMetrics.onTimeShiftRate}
                 </span>
                 <span className="profile-tally-label">Ketepatan Waktu Shift (On-Time)</span>
               </div>
               <div className="profile-tally-item" title="Kepatuhan SLA tiket: Optimal dan memenuhi target (Target >= 95%)">
-                <span className="profile-tally-num" style={{ color: getSlaColor(operationalMetrics.slaComplianceRate) }}>
+                <span
+                  className="profile-tally-num [color:var(--profile-metric-color)]!"
+                  style={{ "--profile-metric-color": getSlaColor(operationalMetrics.slaComplianceRate) } as React.CSSProperties}
+                >
                   {operationalMetrics.slaComplianceRate}
                 </span>
                 <span className="profile-tally-label">Kepatuhan SLA Tiket</span>
@@ -487,25 +476,34 @@ export function ProfileView({
             {/* Additional Operational Summary Metrics Grid (Replaces Activity Log) */}
             <div className="profile-metrics-grid" aria-label="Metrik ringkasan kontribusi operasional">
               <div className="profile-metric-tile" title="Kepatuhan evaluasi sensor checklist berkala">
-                <span className="profile-metric-num" style={{ color: "var(--accent-blue)" }}>
+                <span className="profile-metric-num [color:var(--accent-blue)]!">
                   {operationalMetrics.totalCheckpointsEvaluated}
                 </span>
                 <span className="profile-metric-label">Checkpoint Dievaluasi</span>
               </div>
               <div className="profile-metric-tile" title="Tiket yang dieskalasi ke tier lanjutan (Jumlah sedang/wajar: 6-15)">
-                <span className="profile-metric-num" style={{ color: getEscalationColor(operationalMetrics.totalEscalationsHandled) }}>
+                <span
+                  className="profile-metric-num [color:var(--profile-metric-color)]!"
+                  style={{ "--profile-metric-color": getEscalationColor(operationalMetrics.totalEscalationsHandled) } as React.CSSProperties}
+                >
                   {operationalMetrics.totalEscalationsHandled}
                 </span>
                 <span className="profile-metric-label">Total Eskalasi</span>
               </div>
               <div className="profile-metric-tile" title="Temuan anomali audit shift dalam batas aman dan terkendali (<= 5)">
-                <span className="profile-metric-num" style={{ color: getFindingsColor(operationalMetrics.totalFindingsRecorded) }}>
+                <span
+                  className="profile-metric-num [color:var(--profile-metric-color)]!"
+                  style={{ "--profile-metric-color": getFindingsColor(operationalMetrics.totalFindingsRecorded) } as React.CSSProperties}
+                >
                   {operationalMetrics.totalFindingsRecorded}
                 </span>
                 <span className="profile-metric-label">Total Temuan</span>
               </div>
               <div className="profile-metric-tile" title="Rata-rata kecepatan respon tiket: Sangat cepat / responsif (<= 10m)">
-                <span className="profile-metric-num" style={{ color: getResponseTimeColor(operationalMetrics.avgResponseTime) }}>
+                <span
+                  className="profile-metric-num [color:var(--profile-metric-color)]!"
+                  style={{ "--profile-metric-color": getResponseTimeColor(operationalMetrics.avgResponseTime) } as React.CSSProperties}
+                >
                   {operationalMetrics.avgResponseTime}
                 </span>
                 <span className="profile-metric-label">Rata-rata Respon Tiket</span>
@@ -515,25 +513,28 @@ export function ProfileView({
             {/* Additional Operational Summary Metrics Grid 2: Jam Kerja & Akumulasi Tugas */}
             <div className="profile-metrics-grid" aria-label="Metrik jam kerja dan akumulasi tugas">
               <div className="profile-metric-tile" title="Akumulasi total jam dinas shift resmi">
-                <span className="profile-metric-num" style={{ color: "var(--accent-blue)" }}>
+                <span className="profile-metric-num [color:var(--accent-blue)]!">
                   {operationalMetrics.totalShiftHours}
                 </span>
                 <span className="profile-metric-label">Total Jam Shift</span>
               </div>
               <div className="profile-metric-tile" title="Jam kerja lembur/di luar shift resmi (Perhatian moderat: 21-50 jam)">
-                <span className="profile-metric-num" style={{ color: getOvertimeColor(operationalMetrics.overtimeHours) }}>
+                <span
+                  className="profile-metric-num [color:var(--profile-metric-color)]!"
+                  style={{ "--profile-metric-color": getOvertimeColor(operationalMetrics.overtimeHours) } as React.CSSProperties}
+                >
                   {operationalMetrics.overtimeHours}
                 </span>
                 <span className="profile-metric-label">Jam Kerja di Luar Shift</span>
               </div>
               <div className="profile-metric-tile" title="Akumulasi seluruh tugas operasional yang diselesaikan dengan tuntas">
-                <span className="profile-metric-num" style={{ color: "var(--green)" }}>
+                <span className="profile-metric-num [color:var(--green)]!">
                   {operationalMetrics.tasksCompleted}
                 </span>
                 <span className="profile-metric-label">Tugas Diselesaikan</span>
               </div>
               <div className="profile-metric-tile" title="Total jejak interaksi dan aktivitas operasional di dashboard">
-                <span className="profile-metric-num" style={{ color: "var(--accent-blue)" }}>
+                <span className="profile-metric-num [color:var(--accent-blue)]!">
                   {operationalMetrics.totalActivities}
                 </span>
                 <span className="profile-metric-label">Total Activity</span>
@@ -549,7 +550,7 @@ export function ProfileView({
             <div className="profile-card-header">
               <div className="profile-card-title-group">
                 <h3 className="profile-card-title">
-                  <Clock size={14} style={{ color: "var(--accent-blue)" }} />
+                  <Clock size={14} className="[color:var(--accent-blue)]!" />
                   Shift &amp; Ketersediaan
                 </h3>
               </div>
@@ -572,14 +573,14 @@ export function ProfileView({
                 </div>
               </div>
               <Badge tone="success">
-                <span className="live-dot live-dot-pulse" style={{ marginRight: "3px" }} />
+                <span className="live-dot live-dot-pulse [margin-right:3px]!" />
                 Aktif
               </Badge>
             </div>
 
             {/* Weekly Schedule Grid (SEN..MIN) */}
             <div className="profile-weekly-schedule">
-              <span className="profile-info-label" style={{ marginBottom: "2px" }}>
+              <span className="profile-info-label [margin-bottom:2px]!">
                 Jadwal Minggu Ini (24 Agu – 30 Agu)
               </span>
 
@@ -587,12 +588,12 @@ export function ProfileView({
                 {scheduleDays.map((dayEntry, idx) => (
                   <div
                     key={idx}
-                    className="profile-schedule-day"
+                    className="profile-schedule-day [background:var(--profile-schedule-background)]! [color:var(--profile-schedule-color)]! [border-color:var(--profile-schedule-border)]!"
                     style={{
-                      background: dayEntry.style.bg,
-                      color: dayEntry.style.color,
-                      borderColor: dayEntry.style.border,
-                    }}
+                      "--profile-schedule-background": dayEntry.style.bg,
+                      "--profile-schedule-color": dayEntry.style.color,
+                      "--profile-schedule-border": dayEntry.style.border,
+                    } as React.CSSProperties}
                     title={`${dayEntry.day} (${dayEntry.date}): ${dayEntry.shift} (${dayEntry.hours ?? "-"})`}
                   >
                     <span className="profile-day-label">{dayEntry.day}</span>
@@ -609,11 +610,11 @@ export function ProfileView({
               <div className="profile-schedule-legend">
                 <div className="profile-legend-items">
                   <span className="profile-legend-item">
-                    <span className="profile-legend-dot" style={{ background: "#7c3aed" }} />
+                    <span className="profile-legend-dot [background:#7c3aed]!" />
                     <span>Malam (16:00–00:30)</span>
                   </span>
                   <span className="profile-legend-item">
-                    <span className="profile-legend-dot" style={{ background: "#475569" }} />
+                    <span className="profile-legend-dot [background:#475569]!" />
                     <span>Off (Libur)</span>
                   </span>
                 </div>
@@ -621,11 +622,10 @@ export function ProfileView({
             </div>
 
             {/* Shift Swap Option */}
-            <div style={{ paddingTop: "6px", borderTop: "1px solid var(--line)" }}>
+            <div className="[padding-top:6px]! [border-top:1px_solid_var(--line)]!">
               <button
                 type="button"
-                className="button button-secondary"
-                style={{ width: "100%", justifyContent: "center" }}
+                className="button button-secondary [width:100%]! [justify-content:center]!"
                 onClick={() => {
                   if (onNavigateToShiftSwap) {
                     onNavigateToShiftSwap();
@@ -654,8 +654,8 @@ export function ProfileView({
       >
         <div className="modal-title">
           <div>
-            <strong style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <User size={16} style={{ color: "var(--accent-blue)" }} />
+            <strong className="[display:flex]! [align-items:center]! [gap:8px]!">
+              <User size={16} className="[color:var(--accent-blue)]!" />
               Ubah Informasi Profil
             </strong>
             <small>Perbarui data diri, nomor kontak operasional, dan catatan serah terima shift.</small>

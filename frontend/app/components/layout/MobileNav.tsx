@@ -63,16 +63,16 @@ export function MobileNav({
 
   return (
     <div
-      className="mobile-nav-backdrop anim-fade"
+      className="mobile-nav-backdrop anim-fade [position:fixed] [inset:0] [z-index:70] [display:flex] [justify-content:flex-start] [background:var(--overlay-bg)]"
       role="presentation"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
     >
-      <div className="mobile-drawer anim-slide-right" role="dialog" aria-modal="true" aria-label="Navigasi mobile">
-        <div className="mobile-drawer-head">
+      <div className="mobile-drawer anim-slide-right [display:flex] [flex-direction:column] [gap:14px] [width:min(300px,_86vw)] [height:100%] [padding:20px_14px_18px] [overflow-y:auto] [color:var(--sidebar-text)] [background:var(--sidebar-bg)] [box-shadow:var(--shadow-elevated)]" role="dialog" aria-modal="true" aria-label="Navigasi mobile">
+        <div className="mobile-drawer-head [display:flex] [align-items:center] [justify-content:space-between] [gap:8px]">
           <BrandLogo size={26} />
-          <button className="mobile-drawer-close" onClick={onClose} aria-label="Tutup menu">
+          <button className="mobile-drawer-close [display:grid] [place-items:center] [width:34px] [height:34px] [color:var(--sidebar-muted)] [border:1px_solid_rgba(56,_189,_248,_0.2)]! [border-radius:7px] [font-size:19px]!" onClick={onClose} aria-label="Tutup menu">
             ×
           </button>
         </div>
@@ -86,7 +86,7 @@ export function MobileNav({
             return (
               <button
                 key={item.label}
-                className={`nav-item ${isActive ? "active" : ""}`}
+                className={`nav-item [min-height:44px] ${isActive ? "active" : ""}`}
                 onClick={() => {
                   onNavigate(item.label);
                   onClose();
@@ -105,7 +105,7 @@ export function MobileNav({
         </div>
 
         {/* ── Bottom Active Shift Card ── */}
-        <section className={`shift-card shift-card-${activeShift.id}`}>
+        <section className={`shift-card [margin:auto_0_12px] shift-card-${activeShift.id}`}>
           <div className="shift-card-top">
             <span className="live-dot live-dot-pulse" /> ACTIVE SHIFT
           </div>

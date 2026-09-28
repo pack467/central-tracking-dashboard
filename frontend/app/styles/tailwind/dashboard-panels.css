@@ -69,21 +69,6 @@
   @apply [font-size:11.5px];
 }
 
-/* Direct TSX utility migration: AttentionPanel.tsx
-.attention-icon {
-  @apply [display:grid];
-  @apply [place-items:center];
-  @apply [width:20px];
-  @apply [height:20px];
-  @apply [color:var(--orange)];
-  @apply [border-radius:99px];
-  @apply [background:var(--orange-soft)];
-  @apply [border:1px_solid_var(--orange-border)];
-  @apply [font-size:11px];
-  @apply [font-weight:800];
-}
-*/
-
 .text-button {
   @apply [padding:2px_0];
   @apply [color:var(--accent-blue)];
@@ -97,72 +82,9 @@
   @apply [text-decoration:underline];
 }
 
-/* Direct TSX utility migration: AttentionPanel.tsx
-.attention-list {
-  @apply [padding:0_20px];
-}
-*/
-
-/* Direct TSX utility migration: AttentionPanel.tsx
-.attention-row {
-  @apply [display:grid];
-  @apply [grid-template-columns:28px_minmax(0,_1fr)_auto];
-  @apply [gap:12px];
-  @apply [align-items:center];
-  @apply [padding:14px_0];
-  @apply [border-bottom:1px_solid_var(--line)];
-}
-*/
-
 .attention-row:last-child {
   @apply [border-bottom:0];
 }
-
-/* Direct TSX utility migration: AttentionPanel.tsx
-.attention-copy > div {
-  @apply [display:flex];
-  @apply [align-items:center];
-  @apply [gap:7px];
-  @apply [margin-bottom:3px];
-}
-
-.attention-time {
-  @apply [color:var(--ink-muted)];
-  @apply [font-size:10px];
-  @apply [font-family:var(--font-mono)];
-}
-
-.attention-copy strong {
-  @apply [display:block];
-  @apply [overflow:hidden];
-  @apply [color:var(--ink-primary)];
-  @apply [font-size:12.5px];
-  @apply [font-weight:600];
-  @apply [text-overflow:ellipsis];
-  @apply [white-space:nowrap];
-}
-
-.attention-copy p {
-  @apply [margin:2px_0_0];
-  @apply [color:var(--ink-secondary)];
-  @apply [font-size:11px];
-  @apply [line-height:1.4];
-}
-*/
-
-/* Direct TSX utility migration: AttentionPanel.tsx
-.ack-button {
-  @apply [height:26px];
-  @apply [padding:0_10px];
-  @apply [color:var(--ink-secondary)];
-  @apply [border:1px_solid_var(--panel-border)];
-  @apply [border-radius:5px];
-  @apply [background:var(--panel-bg)];
-  @apply [font-size:10.5px];
-  @apply [font-weight:600];
-  @apply [transition:all_0.15s_ease];
-}
-*/
 
 .ack-button:hover {
   @apply [color:var(--accent-blue)];
@@ -1086,93 +1008,6 @@
 
 .avatar-1 { @apply [background:#d97706]; }
 .avatar-2 { @apply [background:#16a34a]; }
-
-/* Direct TSX utility migration: HandoverQuickCard.tsx
-.handover-panel {
-  @apply [padding:18px_20px];
-  @apply [background:var(--accent-blue-soft)];
-  @apply [border:1px_solid_var(--accent-blue-border)];
-}
-*/
-
-/* Direct TSX utility migration: HandoverQuickCard.tsx
-.handover-label {
-  @apply [display:flex];
-  @apply [align-items:center];
-  @apply [gap:5px];
-  @apply [color:var(--accent-blue)];
-  @apply [font-size:9.5px];
-  @apply [font-weight:700];
-  @apply [letter-spacing:0.8px];
-  @apply [font-family:var(--font-mono)];
-}
-*/
-
-/* Direct TSX utility migration: HandoverQuickCard.tsx
-.handover-panel > strong {
-  @apply [display:block];
-  @apply [margin-top:8px];
-  @apply [color:var(--ink-primary)];
-  @apply [font-size:14px];
-  @apply [font-weight:700];
-}
-*/
-
-/* Direct TSX utility migration: HandoverQuickCard.tsx
-.handover-panel p {
-  @apply [margin:5px_0_12px];
-  @apply [color:var(--ink-secondary)];
-  @apply [font-size:11px];
-  @apply [line-height:1.4];
-}
-*/
-
-/* Direct TSX utility migration: HandoverQuickCard.tsx
-.handover-progress {
-  @apply [display:flex];
-  @apply [justify-content:space-between];
-  @apply [align-items:center];
-  @apply [gap:8px];
-  @apply [color:var(--ink-secondary)];
-  @apply [font-size:10.5px];
-  @apply [font-family:var(--font-mono)];
-}
-
-.handover-progress i {
-  @apply [display:block];
-  @apply [overflow:hidden];
-  @apply [width:75px];
-  @apply [height:5px];
-  @apply [border-radius:99px];
-  @apply [background:var(--line)];
-}
-
-.handover-progress b {
-  @apply [display:block];
-  @apply [width:66%];
-  @apply [height:100%];
-  @apply [border-radius:inherit];
-  @apply [background:var(--accent-blue)];
-}
-*/
-
-/* Direct TSX utility migration: HandoverQuickCard.tsx
-.handover-panel > button {
-  @apply [display:flex];
-  @apply [justify-content:space-between];
-  @apply [align-items:center];
-  @apply [width:100%];
-  @apply [margin-top:14px];
-  @apply [padding:9px_12px];
-  @apply [color:#ffffff];
-  @apply [border:1px_solid_var(--accent-blue)];
-  @apply [border-radius:7px];
-  @apply [background:var(--accent-blue)];
-  @apply [font-size:11px];
-  @apply [font-weight:600];
-  @apply [transition:all_0.15s_ease];
-}
-*/
 
 .handover-panel > button:hover {
   @apply [opacity:0.92];

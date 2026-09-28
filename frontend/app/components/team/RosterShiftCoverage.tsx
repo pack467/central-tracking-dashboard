@@ -186,7 +186,7 @@ export function RosterShiftCoverage({
 
   return (
     <article
-      className="panel shift-coverage-card roster-coverage-panel"
+      className="panel shift-coverage-card roster-coverage-panel [display:flex]! [flex-direction:column]! [height:100%] [box-sizing:border-box]! [padding:0]! [overflow:hidden]!"
       style={matchedHeight ? { height: `${matchedHeight}px` } : undefined}
     >
       {/* ── Header: Title, Subtitle, Shift Badge ── */}
@@ -324,7 +324,7 @@ export function RosterShiftCoverage({
       </div>
 
       {/* ── Scrollable Member List ── */}
-      <div className="coverage-team shift-coverage-team-list roster-coverage-team-list">
+      <div className="coverage-team shift-coverage-team-list roster-coverage-team-list [padding:8px_16px_16px]! [flex:1_1_0px]! [min-height:0]! [max-height:none]! [overflow-y:auto]! [scrollbar-width:thin]! [scrollbar-color:rgba(56,_189,_248,_0.25)_transparent]!">
         {filteredMembers.length === 0 ? (
           <div className="roster-empty-container">
             <div className="roster-empty-state">

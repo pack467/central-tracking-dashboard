@@ -15,8 +15,9 @@ export async function generateMetadata(): Promise<Metadata> {
     title,
     description,
     icons: {
-      icon: "/favicon.svg",
-      shortcut: "/favicon.svg",
+      icon: "/hutabyte_icon_transparent.png",
+      shortcut: "/hutabyte_icon_transparent.png",
+      apple: "/hutabyte_icon_transparent.png",
     },
     openGraph: {
       title,

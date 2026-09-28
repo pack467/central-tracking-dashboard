@@ -18,6 +18,22 @@ export interface AvatarProps {
   children?: React.ReactNode;
 }
 
+const AVATAR_BASE_CLASS =
+  "[display:inline-grid] [place-items:center] [flex-shrink:0] [user-select:none] [background:var(--avatar-bg,_#3a3a3e)]! [color:var(--avatar-text,_#f8fafc)]! [border:1px_solid_var(--avatar-border,_rgba(148,_163,_184,_0.22))] [font-family:var(--font-mono,_monospace)] [font-weight:700] [line-height:1] [text-align:center] [box-sizing:border-box] [filter:grayscale(100%)] [-webkit-filter:grayscale(100%)]";
+
+const AVATAR_SHAPE_CLASS: Record<"circle" | "rounded", string> = {
+  circle: "[border-radius:9999px]",
+  rounded: "[border-radius:8px]",
+};
+
+const AVATAR_SIZE_TAILWIND_CLASS: Record<Exclude<AvatarSize, number>, string> = {
+  xs: "[width:20px] [height:20px] [min-width:20px] [min-height:20px] [font-size:8.5px]",
+  sm: "[width:26px] [height:26px] [min-width:26px] [min-height:26px] [font-size:10px]",
+  md: "[width:32px] [height:32px] [min-width:32px] [min-height:32px] [font-size:11.5px]",
+  lg: "[width:42px] [height:42px] [min-width:42px] [min-height:42px] [font-size:14px]",
+  xl: "[width:72px] [height:72px] [min-width:72px] [min-height:72px] [font-size:26px] [font-family:var(--font-sans,_sans-serif)] [border-width:3px] [box-shadow:0_0_0_4px_rgba(148,_163,_184,_0.15)]",
+};
+
 /**
  * Global Shared Avatar Component
  * Enforces unified neutral grayscale styling across the entire application.
@@ -41,6 +57,8 @@ export function Avatar({
     : getInitials(name);
 
   const sizeClass = typeof size === "string" ? `ui-avatar-${size}` : "";
+  const tailwindSizeClass =
+    typeof size === "string" ? AVATAR_SIZE_TAILWIND_CLASS[size] : "";
   const customSizeStyle: React.CSSProperties =
     typeof size === "number"
       ? {
@@ -60,7 +78,7 @@ export function Avatar({
 
   return (
     <span
-      className={`ui-avatar ui-avatar-${shape} ${sizeClass} ${ringClass} ${className}`.trim()}
+      className={`ui-avatar ${AVATAR_BASE_CLASS} ui-avatar-${shape} ${AVATAR_SHAPE_CLASS[shape]} ${sizeClass} ${tailwindSizeClass} ${ringClass} ${className}`.trim()}
       style={{ ...customSizeStyle, ...style }}
       title={title ?? (name || undefined)}
       aria-label={ariaLabel ?? (name ? `Avatar ${name}` : undefined)}

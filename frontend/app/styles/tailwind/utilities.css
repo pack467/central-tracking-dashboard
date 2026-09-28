@@ -144,86 +144,14 @@
 /* ═══════════════════════════════════════════════
    STACKED TOAST SYSTEM
 ═══════════════════════════════════════════════ */
-.toast-stack {
-  @apply [position:fixed];
-  @apply [right:20px];
-  @apply [bottom:20px];
-  @apply [z-index:60];
-  @apply [display:flex];
-  @apply [flex-direction:column];
-  @apply [gap:8px];
-  @apply [pointer-events:none];
-}
-
-.toast-item {
-  @apply [position:relative];
-  @apply [overflow:hidden];
-  @apply [max-width:min(360px,_calc(100vw_-_40px))];
-  @apply [pointer-events:auto];
-  @apply [animation:toastIn_0.22s_cubic-bezier(0.16,_1,_0.3,_1)];
-}
-
-.toast-item p {
-  @apply [margin:0];
-  @apply [flex:1];
-  @apply [line-height:1.35];
-}
-
-.toast-item button {
-  @apply [display:grid];
-  @apply [place-items:center];
-  @apply [width:18px];
-  @apply [height:18px];
-  @apply [color:var(--ink-muted)];
-  @apply [border-radius:5px];
-  @apply [font-size:14px];
-  @apply [line-height:1];
-}
-
 .toast-item button:hover {
   @apply [color:var(--ink-primary)];
   @apply [background:var(--panel-bg-hover)];
 }
 
-.toast-progress {
-  @apply [position:absolute];
-  @apply [left:0];
-  @apply [bottom:0];
-  @apply [height:3px];
-  @apply [border-radius:99px];
-  @apply [background:var(--green)];
-  @apply [animation-name:toastCountdown];
-  @apply [animation-timing-function:linear];
-  @apply [animation-fill-mode:forwards];
-}
-
-.toast-warning .toast-progress { @apply [background:var(--orange)]; }
-.toast-critical .toast-progress { @apply [background:var(--red)]; }
-.toast-info .toast-progress { @apply [background:var(--accent-blue)]; }
-
 /* ═══════════════════════════════════════════════
    CONFIRM DIALOG / FORM HELPERS
 ═══════════════════════════════════════════════ */
-.confirm-hint {
-  @apply [padding:10px_12px];
-  @apply [border:1px_solid_var(--accent-blue-border)];
-  @apply [border-radius:8px];
-  @apply [background:var(--accent-blue-soft)];
-  @apply [color:var(--ink-secondary)];
-  @apply [font-size:11.5px];
-  @apply [line-height:1.45];
-}
-
-.confirm-hint-danger {
-  @apply [border-color:var(--red-border)];
-  @apply [background:var(--red-soft)];
-  @apply [color:#fca5a5];
-}
-
-.confirm-hint-danger strong {
-  @apply [color:#f87171];
-}
-
 .button-danger {
   @apply [color:#ffffff];
   @apply [background:var(--red)];
@@ -249,104 +177,19 @@
 /* ═══════════════════════════════════════════════
    EMPTY STATES
 ═══════════════════════════════════════════════ */
-/* Migrated to components/ui/EmptyState.tsx.
-.empty-state {
-  @apply [display:flex];
-  @apply [flex-direction:column];
-  @apply [align-items:center];
-  @apply [gap:4px];
-  @apply [padding:36px_20px];
-  @apply [text-align:center];
-}
-
-.empty-state-icon {
-  @apply [display:grid];
-  @apply [place-items:center];
-  @apply [width:52px];
-  @apply [height:52px];
-  @apply [margin-bottom:8px];
-  @apply [color:var(--ink-muted)];
-  @apply [border:1px_dashed_var(--panel-border)];
-  @apply [border-radius:99px];
-  @apply [background:var(--bg)];
-  @apply [font-size:22px];
-}
-
-.empty-state strong {
-  @apply [color:var(--ink-primary)];
-  @apply [font-size:13.5px];
-}
-
-.empty-state p {
-  @apply [max-width:380px];
-  @apply [margin:0];
-  @apply [color:var(--ink-muted)];
-  @apply [font-size:11.5px];
-  @apply [line-height:1.5];
-}
-*/
-
 /* ═══════════════════════════════════════════════
    MOBILE NAV DRAWER
 ═══════════════════════════════════════════════ */
 .hamburger-button { @apply [display:none]; }
 
-.mobile-nav-backdrop {
-  @apply [position:fixed];
-  @apply [inset:0];
-  @apply [z-index:70];
-  @apply [display:flex];
-  @apply [justify-content:flex-start];
-  @apply [background:var(--overlay-bg)];
-}
-
-.mobile-drawer {
-  @apply [display:flex];
-  @apply [flex-direction:column];
-  @apply [gap:14px];
-  @apply [width:min(300px,_86vw)];
-  @apply [height:100%];
-  @apply [padding:20px_14px_18px];
-  @apply [overflow-y:auto];
-  @apply [color:var(--sidebar-text)];
-  @apply [background:var(--sidebar-bg)];
-  @apply [box-shadow:var(--shadow-elevated)];
-}
-
-.mobile-drawer-head {
-  @apply [display:flex];
-  @apply [align-items:center];
-  @apply [justify-content:space-between];
-  @apply [gap:8px];
-}
-
 .mobile-drawer-head .brand-lockup {
   @apply [padding:0];
-}
-
-.mobile-drawer-close {
-  @apply [display:grid];
-  @apply [place-items:center];
-  @apply [width:34px];
-  @apply [height:34px];
-  @apply [color:var(--sidebar-muted)];
-  @apply [border:1px_solid_rgba(56,_189,_248,_0.2)];
-  @apply [border-radius:7px];
-  @apply [font-size:19px];
 }
 
 .mobile-drawer-close:hover {
   @apply [color:#38bdf8];
   @apply [background:rgba(56,_189,_248,_0.1)];
   @apply [border-color:rgba(56,_189,_248,_0.35)];
-}
-
-.mobile-drawer .nav-item {
-  @apply [min-height:44px];
-}
-
-.mobile-drawer .shift-card {
-  @apply [margin:auto_0_12px];
 }
 
 /* ═══════════════════════════════════════════════
@@ -864,21 +707,6 @@
   100% { opacity: 0.45; background-position: 200% 0; }
 }
 
-/* Migrated to components/ui/LoadingSkeleton.tsx.
-.skeleton-pulse {
-  @apply [background:var(--surface-hover,_rgba(127,_127,_127,_0.12))];
-  @apply [background-image:linear-gradient(_90deg,_rgba(127,_127,_127,_0.08)_0%,_rgba(127,_127,_127,_0.18)_50%,_rgba(127,_127,_127,_0.08)_100%_)];
-  @apply [background-size:200%_100%];
-  @apply [animation:skeletonShimmer_1.6s_ease-in-out_infinite];
-  @apply [border-radius:4px];
-}
-
-.view-skeleton-container {
-  @apply [padding:8px_0];
-  @apply [width:100%];
-}
-*/
-
 /* ═══════════════════════════════════════════════
    GLOBAL SHARED AVATAR COMPONENT (NEUTRAL GRAYSCALE)
 ═══════════════════════════════════════════════ */
@@ -983,68 +811,7 @@
 /* ═══════════════════════════════════════════════
    SHARED STATUS INDICATOR (DOT + COMPACT LABEL)
 ═══════════════════════════════════════════════ */
-/* Migrated to components/ui/StatusIndicator.tsx.
-.status-indicator {
-  @apply [display:inline-flex];
-  @apply [align-items:center];
-  @apply [gap:5.5px];
-  @apply [font-size:11px];
-  @apply [font-weight:500];
-  @apply [line-height:1];
-  @apply [white-space:nowrap];
-  @apply [flex-shrink:0];
-  @apply [user-select:none];
-}
-
-.status-indicator-dot {
-  @apply [width:6px];
-  @apply [height:6px];
-  @apply [border-radius:50%];
-  @apply [flex-shrink:0];
-}
-*/
-
 /* 1. Bertugas / Aktif (Green) */
-/* Migrated to components/ui/StatusIndicator.tsx.
-.status-indicator-bertugas {
-  @apply [color:#4ade80];
-}
-.status-indicator-bertugas .status-indicator-dot {
-  @apply [background:#22c55e];
-  @apply [box-shadow:0_0_6px_rgba(34,_197,_94,_0.65)];
-}
-*/
-
 /* 2. Online (Blue / Teal) */
-/* Migrated to components/ui/StatusIndicator.tsx.
-.status-indicator-online {
-  @apply [color:#38bdf8];
-}
-.status-indicator-online .status-indicator-dot {
-  @apply [background:#38bdf8];
-  @apply [box-shadow:0_0_6px_rgba(56,_189,_248,_0.65)];
-}
-*/
-
 /* 3. Offline (Muted Gray) */
-/* Migrated to components/ui/StatusIndicator.tsx.
-.status-indicator-offline {
-  @apply [color:#94a3b8];
-}
-.status-indicator-offline .status-indicator-dot {
-  @apply [background:#64748b];
-}
-*/
-
 /* Small variant */
-/* Migrated to components/ui/StatusIndicator.tsx.
-.status-indicator-sm {
-  @apply [font-size:10px];
-  @apply [gap:4px];
-}
-.status-indicator-sm .status-indicator-dot {
-  @apply [width:5px];
-  @apply [height:5px];
-}
-*/
-

@@ -63,12 +63,33 @@ export function ServiceHealthChip({
   const isHealthy = project.tone === "success";
   const isWarning = project.tone === "warning";
   const toneClass = isHealthy ? "chip-success" : isWarning ? "chip-warning" : "chip-critical";
+  const chipToneUtility = isHealthy
+    ? isActive
+      ? "[border:1px_solid_rgba(34,_197,_94,_0.7)]! [background:rgba(34,_197,_94,_0.1)]! [color:#ffffff]! [transform:none]! [box-shadow:none]!"
+      : "[border:1px_solid_rgba(255,_255,_255,_0.12)]! [background:rgba(255,_255,_255,_0.03)]! [color:var(--ink-secondary)]!"
+    : isWarning
+      ? isActive
+        ? "[border:1px_solid_#f59e0b]! [background:rgba(245,_158,_11,_0.18)]! [color:#ffffff]! [transform:none]! [box-shadow:none]!"
+        : "[border:1px_solid_rgba(245,_158,_11,_0.4)]! [background:rgba(245,_158,_11,_0.08)]! [color:#fbbf24]!"
+      : isActive
+        ? "[border:1px_solid_#ef4444]! [background:rgba(239,_68,_68,_0.2)]! [color:#ffffff]! [transform:none]! [box-shadow:none]!"
+        : "[border:1px_solid_rgba(239,_68,_68,_0.45)]! [background:rgba(239,_68,_68,_0.1)]! [color:#f87171]!";
+  const chipHoverUtility = isHealthy
+    ? "[&:hover]:[border:1px_solid_rgba(34,_197,_94,_0.7)]! [&:hover]:[background:rgba(34,_197,_94,_0.1)]! [&:hover]:[color:#ffffff]!"
+    : isWarning
+      ? "[&:hover]:[border:1px_solid_#f59e0b]! [&:hover]:[background:rgba(245,_158,_11,_0.18)]! [&:hover]:[color:#ffffff]!"
+      : "[&:hover]:[border:1px_solid_#ef4444]! [&:hover]:[background:rgba(239,_68,_68,_0.2)]! [&:hover]:[color:#ffffff]!";
+  const dotToneUtility = isHealthy
+    ? "[background:#22c55e]!"
+    : isWarning
+      ? "[background:#f59e0b]!"
+      : "[background:#ef4444]!";
   const clientTitle = getClientDisplayName(project.clientId);
 
   return (
     <button
       type="button"
-      className={`service-health-chip ${toneClass} ${isActive ? "active" : ""} ${className}`}
+      className={`service-health-chip ${toneClass} [display:inline-flex]! [align-items:center]! [gap:8px]! [height:32px]! [max-width:220px]! [min-width:0]! [padding:4px_12px_4px_6px]! [border-radius:6px]! [font-size:11.5px]! [font-weight:600]! [line-height:1]! [cursor:pointer]! [position:relative]! [transition:background_0.15s_ease,_border-color_0.15s_ease,_color_0.15s_ease]! [user-select:none]! [box-sizing:border-box]! [flex:0_1_auto]! [white-space:nowrap]! [&:hover]:[transform:none]! [&:hover]:[box-shadow:none]! [&:hover]:[z-index:2]! [&:focus-visible]:[outline:none]! [&:focus-visible]:[border-color:var(--accent-blue)]! [&:focus-visible]:[box-shadow:none]! [&:focus-visible]:[z-index:2]! ${chipToneUtility} ${chipHoverUtility} ${isActive ? "active" : ""} ${className}`}
       onClick={() => onClick?.(project)}
       aria-label={`Layanan ${project.name}: ${project.status} (${project.detail}) - ${clientTitle}`}
       aria-pressed={isActive}
@@ -78,9 +99,9 @@ export function ServiceHealthChip({
         <ProjectMark name={project.name} />
       </span>
 
-      <span className="service-chip-name">{project.name}</span>
+      <span className="service-chip-name [font-size:12px] [font-weight:600] [color:var(--ink-primary)] [overflow:hidden] [text-overflow:ellipsis] [white-space:nowrap] [max-width:140px] [line-height:1.2]">{project.name}</span>
 
-      <span className={`service-chip-dot dot-${project.tone}`} />
+      <span className={`service-chip-dot [display:inline-block] [width:7px] [height:7px] [border-radius:99px] [flex-shrink:0] ${dotToneUtility} dot-${project.tone}`} />
     </button>
   );
 }
@@ -106,7 +127,7 @@ export function ServiceHealthGrid({
 }: ServiceHealthGridProps) {
   return (
     <div
-      className={`service-health-grid ${className}`}
+      className={`service-health-grid [display:flex] [flex-wrap:wrap] [gap:8px_10px] [align-items:center] [flex:1] [min-width:0] [width:100%] [box-sizing:border-box] ${className}`}
       role="list"
       aria-label="Daftar chip kesehatan layanan"
     >
@@ -360,10 +381,10 @@ export function RelatedTasksList({
             >
               <div className="service-task-left">
                 <span className={`task-status-dot dot-${(task.state || "pending").toLowerCase()}`} />
-                <div style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0 }}>
+                <div className="[display:flex]! [flex-direction:column]! [gap:2px]! [min-width:0]!">
                   <span className="service-task-title">{task.title}</span>
                   {task.detail && (
-                    <small style={{ fontSize: "10.5px", color: "var(--ink-muted)", lineHeight: 1.3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    <small className="[font-size:10.5px]! [color:var(--ink-muted)]! [line-height:1.3]! [overflow:hidden]! [text-overflow:ellipsis]! [white-space:nowrap]!">
                       {task.detail}
                     </small>
                   )}
@@ -679,7 +700,7 @@ export function ServiceDetailModal({
             <span>Salin Ringkasan</span>
           </button>
 
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div className="[display:flex]! [align-items:center]! [gap:8px]!">
             <button
               type="button"
               className="service-modal-action-btn btn-primary"

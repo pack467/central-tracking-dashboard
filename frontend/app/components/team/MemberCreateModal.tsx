@@ -106,11 +106,11 @@ export function MemberCreateModal({
     >
       <div className="modal-title">
         <div>
-          <strong style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <strong className="[display:flex]! [align-items:center]! [gap:8px]!">
             {editingMember ? (
-              <UserCheck size={18} style={{ color: "var(--accent-blue)" }} />
+              <UserCheck size={18} className="[color:var(--accent-blue)]" />
             ) : (
-              <UserPlus size={18} style={{ color: "var(--accent-blue)" }} />
+              <UserPlus size={18} className="[color:var(--accent-blue)]" />
             )}
             {editingMember ? "Edit Data Anggota Tim" : "Tambah Anggota Tim Baru"}
           </strong>
@@ -119,8 +119,8 @@ export function MemberCreateModal({
         <ModalCloseButton onClose={onClose} />
       </div>
 
-      <form onSubmit={handleSubmit} style={{ padding: "8px 0" }}>
-        <div className="two-inputs" style={{ marginBottom: "12px" }}>
+      <form onSubmit={handleSubmit} className="[padding:8px_0]!">
+        <div className="two-inputs [margin-bottom:12px]!">
           <label>
             <span>Nama Lengkap *</span>
             <input
@@ -144,7 +144,7 @@ export function MemberCreateModal({
           </label>
         </div>
 
-        <div className="two-inputs" style={{ marginBottom: "12px" }}>
+        <div className="two-inputs [margin-bottom:12px]!">
           <label>
             <span>Employee ID</span>
             <input
@@ -166,7 +166,7 @@ export function MemberCreateModal({
           </label>
         </div>
 
-        <div className="two-inputs" style={{ marginBottom: "12px" }}>
+        <div className="two-inputs [margin-bottom:12px]!">
           <label>
             <span>Email</span>
             <input
@@ -188,7 +188,7 @@ export function MemberCreateModal({
           </label>
         </div>
 
-        <label style={{ display: "grid", gap: "4px", marginBottom: "16px" }}>
+        <label className="[display:grid]! [gap:4px]! [margin-bottom:16px]!">
           <span>Status Kehadiran</span>
           <select value={status} onChange={(e) => setStatus(e.target.value as RosterMemberStatus)}>
             <option value="Active">Active (Sedang Dinas)</option>

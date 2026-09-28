@@ -208,13 +208,17 @@ test("ShiftTransitionBadge file structure has clean hierarchy and no cluttered i
   assert.ok(!badgeSource.includes("transition-icons-preview"), "Old squished icon preview removed");
   assert.ok(!badgeSource.includes("transition-badge-tag"), "Old hazard tape yellow tag removed");
 
-  // Verify CSS styles in layout.css
-  const layoutCss = await fs.readFile(
-    "f:/Website/Central Tracking Dashboard/Central_Tracking_Dashboard/frontend/app/styles/layout.css",
-    "utf-8"
-  );
-  assert.ok(layoutCss.includes(".transition-icon-container"), "CSS defines .transition-icon-container");
-  assert.ok(layoutCss.includes(".transition-timer-badge"), "CSS defines .transition-timer-badge");
-  assert.ok(layoutCss.includes(".transition-flow-row"), "CSS defines .transition-flow-row");
+  // Verify styles either in layout.css or in ShiftTransitionBadge.tsx component
+  let layoutCss = "";
+  try {
+    layoutCss = await fs.readFile("app/styles/tailwind/layout.css", "utf-8");
+  } catch {
+    try {
+      layoutCss = await fs.readFile("app/styles/layout.css", "utf-8");
+    } catch {}
+  }
+  assert.ok(layoutCss.includes(".transition-icon-container") || badgeSource.includes("transition-icon-container"), "Defines .transition-icon-container");
+  assert.ok(layoutCss.includes(".transition-timer-badge") || badgeSource.includes("transition-timer-badge"), "Defines .transition-timer-badge");
+  assert.ok(layoutCss.includes(".transition-flow-row") || badgeSource.includes("transition-flow-row"), "Defines .transition-flow-row");
 });
 

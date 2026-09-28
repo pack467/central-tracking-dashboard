@@ -1,0 +1,109 @@
+# Tailwind Migration Progress
+
+## Active Tailwind sources
+- [x] frontend/app/globals.css
+- [x] frontend/app/styles/theme.css
+- [x] frontend/app/styles/tailwind/base.css
+- [x] frontend/app/styles/tailwind/calendar.css
+- [x] frontend/app/styles/tailwind/dashboard-core.css
+- [x] frontend/app/styles/tailwind/dashboard-foundation.css
+- [x] frontend/app/styles/tailwind/dashboard-panels.css
+- [x] frontend/app/styles/tailwind/handover.css
+- [x] frontend/app/styles/tailwind/layout.css
+- [x] frontend/app/styles/tailwind/monitoring-enhancements.css
+- [x] frontend/app/styles/tailwind/monitoring.css
+- [x] frontend/app/styles/tailwind/notifications.css
+- [x] frontend/app/styles/tailwind/overlays.css
+- [x] frontend/app/styles/tailwind/profile.css
+- [x] frontend/app/styles/tailwind/responsive.css
+- [x] frontend/app/styles/tailwind/spacing.css
+- [x] frontend/app/styles/tailwind/team-roster.css
+- [x] frontend/app/styles/tailwind/ticket-surfaces.css
+- [x] frontend/app/styles/tailwind/tickets-enhancements.css
+- [x] frontend/app/styles/tailwind/tickets.css
+- [x] frontend/app/styles/tailwind/utilities.css
+
+## Legacy cleanup complete
+- [x] frontend/app/styles/base.css — dihapus setelah konfirmasi
+- [x] frontend/app/styles/calendar.css — dihapus setelah konfirmasi
+- [x] frontend/app/styles/dashboard-core.css — dihapus setelah konfirmasi
+- [x] frontend/app/styles/dashboard-foundation.css — dihapus setelah konfirmasi
+- [x] frontend/app/styles/dashboard-panels.css — dihapus setelah konfirmasi
+- [x] frontend/app/styles/handover.css — dihapus setelah konfirmasi
+- [x] frontend/app/styles/layout.css — dihapus setelah konfirmasi
+- [x] frontend/app/styles/monitoring-enhancements.css — dihapus setelah konfirmasi
+- [x] frontend/app/styles/monitoring.css — dihapus setelah konfirmasi
+- [x] frontend/app/styles/notifications.css — dihapus setelah konfirmasi
+- [x] frontend/app/styles/overlays.css — dihapus setelah konfirmasi
+- [x] frontend/app/styles/profile.css — dihapus setelah konfirmasi
+- [x] frontend/app/styles/responsive.css — dihapus setelah konfirmasi
+- [x] frontend/app/styles/spacing.css — dihapus setelah konfirmasi
+- [x] frontend/app/styles/team-roster.css — dihapus setelah konfirmasi
+- [x] frontend/app/styles/ticket-surfaces.css — dihapus setelah konfirmasi
+- [x] frontend/app/styles/tickets-enhancements.css — dihapus setelah konfirmasi
+- [x] frontend/app/styles/tickets.css — dihapus setelah konfirmasi
+- [x] frontend/app/styles/utilities.css — dihapus setelah konfirmasi
+
+## Direct TSX utilities
+- [x] frontend/app/components/dashboard/MetricCards.tsx
+- [x] frontend/app/components/dashboard/HandoverQuickCard.tsx
+- [x] frontend/app/components/dashboard/AttentionPanel.tsx
+- [x] frontend/app/components/handover/TaskStatusBadge.tsx
+- [x] frontend/app/components/handover/TaskPriorityBadge.tsx
+- [x] frontend/app/components/handover/ProjectSelect.tsx
+- [x] frontend/app/components/ui/StatusIndicator.tsx
+- [x] frontend/app/components/ui/EmptyState.tsx
+- [x] frontend/app/components/ui/LoadingSkeleton.tsx
+- [x] frontend/app/components/tickets/OwnerTagInput.tsx
+- [x] frontend/app/components/layout/ShiftTransitionBadge.tsx
+- [x] frontend/app/components/layout/ClientSwitcher.tsx
+- [x] frontend/app/components/layout/Sidebar.tsx
+- [x] frontend/app/components/ui/Badge.tsx
+- [x] frontend/app/components/team/RosterStatCards.tsx
+- [x] frontend/app/components/ui/BrandLogo.tsx
+- [x] frontend/app/components/ui/ProjectMark.tsx
+- [x] frontend/app/components/ui/Sparkline.tsx
+- [x] frontend/app/components/handover/HandoverHistoryControls.tsx
+- [x] frontend/app/components/monitoring/MonitoringHistorySection.tsx
+- [x] frontend/app/components/ui/NoImagePlaceholder.tsx
+- [x] frontend/app/components/ui/ModalCloseButton.tsx
+- [x] frontend/app/components/ui/ConfirmDialog.tsx
+- [x] frontend/app/components/ui/Toast.tsx
+- [x] frontend/app/components/ui/Avatar.tsx
+- [x] frontend/app/components/ui/Modal.tsx
+- [x] frontend/app/components/ui/StatCard.tsx
+- [x] frontend/app/components/ui/FloatingNewTicketButton.tsx
+- [x] frontend/app/components/ui/DatePicker.tsx
+- [x] frontend/app/components/layout/MobileNav.tsx
+- [x] frontend/app/components/search/CommandPalette.tsx
+- [x] frontend/app/components/team/RosterShiftCoverage.tsx
+- [x] frontend/app/components/ui/TimePicker.tsx
+- [x] frontend/app/components/layout/NotificationDropdown.tsx
+- [x] frontend/app/components/views/NotificationsView.tsx
+- [x] frontend/app/components/views/ProfileView.tsx
+- [x] frontend/app/components/views/ReportsView.tsx
+- [x] frontend/app/components/views/TeamRosterView.tsx
+- [x] frontend/app/components/handover/HandoverModal.tsx
+- [x] frontend/app/components/tickets/TicketTable.tsx
+- [x] frontend/app/components/tickets/TicketDetailDrawer.tsx
+- [x] frontend/app/components/tickets/TicketReportView.tsx
+- [x] frontend/app/components/dashboard/ServiceHealthChip.tsx
+- [x] frontend/app/components/dashboard/HealthStrip.tsx
+- [x] frontend/app/components/team/MemberCreateModal.tsx
+- [x] frontend/app/components/team/MemberDetailDrawer.tsx
+- [x] frontend/app/components/layout/ShiftCoveragePanel.tsx
+- [x] frontend/app/components/tickets/TicketEditModal.tsx
+- [x] frontend/app/components/dashboard/AssessmentModals.tsx
+- [x] frontend/app/components/tickets/TicketCreateModal.tsx
+- [x] frontend/app/components/handover/HandoverWizard.tsx
+- [x] frontend/app/components/team/RosterTable.tsx
+- [x] frontend/app/components/team/RosterCalendarView.tsx
+- [x] frontend/app/components/team/ShiftSwapModal.tsx
+
+Catatan Teknis:
+- Tailwind v4 diaktifkan lewat `@import "tailwindcss"`; token lama dipetakan ke `@theme inline`.
+- Selector aktif menggunakan Tailwind v4 `@apply` dengan arbitrary value agar output CSS identik.
+- Media query, pseudo selector, dan keyframes struktural dipertahankan demi parity visual.
+- Nilai runtime data-driven dipertahankan sebagai custom property/inline style terukur.
+- Build: `npm run build` ✅ (Vinext; tidak ada binary `next` pada project ini).
+- Output CSS baseline dan migrasi identik; legacy snapshot sudah dihapus setelah konfirmasi.

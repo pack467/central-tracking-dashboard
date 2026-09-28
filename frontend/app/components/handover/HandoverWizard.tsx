@@ -282,7 +282,7 @@ export function HandoverWizard({
                   <span className="wizard-section-hint">Tentukan tanggal dan arah serah terima</span>
                 </div>
 
-                <div style={{ marginBottom: "14px" }}>
+                <div className="[margin-bottom:14px]!">
                   <label>
                     Tanggal Serah Terima
                     <DatePicker
@@ -403,7 +403,7 @@ export function HandoverWizard({
                       }
                       placeholder="Tuliskan catatan, konteks kendala, hal yang perlu diwaspadai, atau pengingat bagi shift penerima (opsional)..."
                     />
-                    <small style={{ display: "block", marginTop: "6px", color: "var(--ink-muted)", fontSize: "11px" }}>
+                    <small className="[display:block]! [margin-top:6px]! [color:var(--ink-muted)]! [font-size:11px]!">
                       Catatan ini akan tampil di tab Catatan Shift pada detail handover agar shift berikutnya segera mengetahui konteks pekerjaan Anda.
                     </small>
                   </label>
@@ -418,7 +418,7 @@ export function HandoverWizard({
           {step === 3 && (
             <section className="handover-form-step">
               <div className="handover-step-header-action">
-                <div className="wizard-section-title" style={{ fontSize: "13px" }}>
+                <div className="wizard-section-title [font-size:13px]!">
                   <ShieldCheck size={16} /> Daftar Temuan &amp; Pengecualian ({draft.findings.length})
                 </div>
                 <button type="button" className="handover-inline-add" onClick={addFinding}>
@@ -431,9 +431,9 @@ export function HandoverWizard({
                   draft.findings.map((finding, index) => (
                     <article className="handover-form-repeat" key={`finding-${index}`}>
                       <div className="handover-form-repeat-head">
-                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        <div className="[display:flex]! [align-items:center]! [gap:8px]!">
                           <span className="wizard-task-num-badge">#{index + 1}</span>
-                          <strong style={{ fontSize: "12.5px" }}>
+                          <strong className="[font-size:12.5px]!">
                             {finding.title ? finding.title : `Temuan #${index + 1}`}
                           </strong>
                           {finding.project && <ProjectMark name={finding.project} />}
@@ -479,7 +479,7 @@ export function HandoverWizard({
                         </label>
                       </div>
 
-                      <label style={{ marginTop: "10px" }}>
+                      <label className="[margin-top:10px]!">
                         Rincian &amp; Tindak Lanjut
                         <textarea
                           rows={2}
@@ -516,16 +516,16 @@ export function HandoverWizard({
           {step === 4 && (
             <section className="handover-form-step">
               <div className="wizard-task-controls">
-                <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                  <span className="wizard-section-title" style={{ fontSize: "13px" }}>
+                <div className="[display:flex]! [flex-direction:column]! [gap:2px]!">
+                  <span className="wizard-section-title [font-size:13px]!">
                     <CheckSquare size={16} /> Ceklis Tugas Handover ({draft.tasks.length})
                   </span>
-                  <span style={{ fontSize: "11.5px", color: "var(--text-muted)" }}>
+                  <span className="[font-size:11.5px]! [color:var(--text-muted)]!">
                     Tugas operasional berjalan yang didelegasikan dan perlu dilanjutkan shift berikutnya.
                   </span>
                 </div>
 
-                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <div className="[display:flex]! [align-items:center]! [gap:8px]!">
                   {draft.tasks.length > 1 && (
                     <button
                       type="button"
@@ -647,7 +647,7 @@ export function HandoverWizard({
                             </label>
                           </div>
 
-                          <label style={{ marginTop: "10px" }}>
+                          <label className="[margin-top:10px]!">
                             Instruksi / Detail Pekerjaan
                             <textarea
                               rows={2}

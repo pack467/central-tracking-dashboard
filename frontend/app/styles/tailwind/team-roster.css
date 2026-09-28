@@ -612,15 +612,6 @@
 }
 
 /* ── Coverage Panel & Members list in Side Column ── */
-.roster-coverage-panel {
-  @apply [display:flex];
-  @apply [flex-direction:column];
-  @apply [height:100%];
-  @apply [box-sizing:border-box];
-  @apply [padding:0];
-  @apply [overflow:hidden];
-}
-
 .roster-coverage-panel .coverage-ring {
   @apply [margin:14px_auto_14px];
   @apply [flex-shrink:0];
@@ -686,17 +677,6 @@
   @apply [font-family:var(--font-mono)];
   @apply [font-weight:700];
   @apply [font-size:11.5px];
-}
-
-.roster-coverage-panel.shift-coverage-card .coverage-team.shift-coverage-team-list,
-.roster-coverage-panel .roster-coverage-team-list {
-  @apply [padding:8px_16px_16px];
-  @apply ![flex:1_1_0px];
-  @apply ![min-height:0];
-  @apply ![max-height:none];
-  @apply ![overflow-y:auto];
-  @apply [scrollbar-width:thin];
-  @apply [scrollbar-color:rgba(56,_189,_248,_0.25)_transparent];
 }
 
 .roster-coverage-team-list::-webkit-scrollbar {
@@ -1016,4 +996,3 @@
   @apply [color:var(--ink-muted)];
   @apply [font-size:12px];
 }
-

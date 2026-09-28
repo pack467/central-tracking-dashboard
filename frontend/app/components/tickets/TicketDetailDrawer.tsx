@@ -250,26 +250,20 @@ export function TicketDetailDrawer({ ticket, onClose, onUpdate }: TicketDetailDr
         <div className="drawer-body anim-slide-left" role="dialog" aria-modal="true" aria-label="Detail ticket">
           <div className="drawer-header">
             <div>
-              <div style={{ display: "flex", gap: "8px", alignItems: "center", marginBottom: "8px", flexWrap: "wrap" }}>
+              <div className="[display:flex]! [gap:8px]! [align-items:center]! [margin-bottom:8px]! [flex-wrap:wrap]!">
                 <Badge tone={sevTone}>Severity {ticket.severity}</Badge>
                 <Badge tone={statusTone(ticket.status)}>{ticket.status}</Badge>
                 {categoryDisplay && (
                   <Badge tone="neutral">
-                    <Tag size={10} style={{ marginRight: "4px", verticalAlign: "middle" }} />
+                    <Tag size={10} className="[margin-right:4px]! [vertical-align:middle]!" />
                     {categoryDisplay}
                   </Badge>
                 )}
               </div>
-              <h2 style={{ fontSize: "18px", fontWeight: "700", margin: "0", color: "var(--ink-primary)" }}>
+              <h2 className="[font-size:18px]! [font-weight:700]! [margin:0]! [color:var(--ink-primary)]!">
                 {ticket.subject}
               </h2>
-              <span
-                style={{
-                  fontSize: "11px",
-                  color: "var(--ink-muted)",
-                  fontFamily: "var(--font-mono)",
-                }}
-              >
+              <span className="[font-size:11px]! [color:var(--ink-muted)]! [font-family:var(--font-mono)]!">
                 ID Ticket: #{ticket.id} · Dibuat pukul {ticket.created}
               </span>
             </div>
@@ -278,50 +272,34 @@ export function TicketDetailDrawer({ ticket, onClose, onUpdate }: TicketDetailDr
 
           <div className="drawer-content-inner">
             {/* Proyek, Kategori & Penanggung Jawab */}
-            <div className="drawer-meta-section" style={{ marginBottom: "20px" }}>
+            <div className="drawer-meta-section [margin-bottom:20px]!">
               <span className="drawer-section-title">
                 Proyek &amp; Penanggung Jawab
               </span>
 
-              <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: "10px" }}>
+              <div className="[display:flex]! [flex-direction:column]! [gap:12px]! [margin-top:10px]!">
                 {/* Project & Category Row */}
-                <div style={{ display: "flex", alignItems: "center", gap: "16px", flexWrap: "wrap" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <div className="[display:flex]! [align-items:center]! [gap:16px]! [flex-wrap:wrap]!">
+                  <div className="[display:flex]! [align-items:center]! [gap:10px]!">
                     <ProjectMark name={ticket.project} />
                     <div>
-                      <strong style={{ display: "block", fontSize: "13px", color: "var(--ink-primary)" }}>
+                      <strong className="[display:block]! [font-size:13px]! [color:var(--ink-primary)]!">
                         {ticket.project}
                       </strong>
-                      <span style={{ fontSize: "11px", color: "var(--ink-muted)" }}>
+                      <span className="[font-size:11px]! [color:var(--ink-muted)]!">
                         Proyek / Sistem
                       </span>
                     </div>
                   </div>
 
                   {categoryDisplay && (
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                        paddingLeft: "16px",
-                        borderLeft: "1px solid var(--line, rgba(255, 255, 255, 0.08))",
-                      }}
-                    >
+                    <div className="[display:flex]! [align-items:center]! [gap:8px]! [padding-left:16px]! [border-left:1px_solid_var(--line,_rgba(255,_255,_255,_0.08))]!">
                       <div>
-                        <strong
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "5px",
-                            fontSize: "13px",
-                            color: "var(--ink-primary)",
-                          }}
-                        >
-                          <Tag size={12} style={{ color: "var(--accent-blue)" }} />
+                        <strong className="[display:flex]! [align-items:center]! [gap:5px]! [font-size:13px]! [color:var(--ink-primary)]!">
+                          <Tag size={12} className="[color:var(--accent-blue)]!" />
                           {categoryDisplay}
                         </strong>
-                        <span style={{ fontSize: "11px", color: "var(--ink-muted)" }}>
+                        <span className="[font-size:11px]! [color:var(--ink-muted)]!">
                           Kategori Tiket
                         </span>
                       </div>
@@ -330,16 +308,8 @@ export function TicketDetailDrawer({ ticket, onClose, onUpdate }: TicketDetailDr
                 </div>
 
                 {/* Assignees (All Owners / PIC) */}
-                <div style={{ marginTop: "2px" }}>
-                  <span
-                    style={{
-                      fontSize: "11px",
-                      color: "var(--ink-muted)",
-                      display: "block",
-                      marginBottom: "6px",
-                      fontWeight: "500",
-                    }}
-                  >
+                <div className="[margin-top:2px]!">
+                  <span className="[font-size:11px]! [color:var(--ink-muted)]! [display:block]! [margin-bottom:6px]! [font-weight:500]!">
                     Pemilik Tiket ({ownersList.length > 1 ? `${ownersList.length} PIC` : "PIC"}):
                   </span>
                   <div className="drawer-owners-list">
@@ -356,13 +326,13 @@ export function TicketDetailDrawer({ ticket, onClose, onUpdate }: TicketDetailDr
 
             {/* Timeline Permintaan Ad-hoc (Explicit Time Fields captured at creation) */}
             {hasAdhocTimeline && (
-              <div className="drawer-adhoc-timeline" style={{ marginBottom: "22px" }}>
+              <div className="drawer-adhoc-timeline [margin-bottom:22px]!">
                 <div className="drawer-adhoc-header">
                   <span className="drawer-adhoc-badge">
-                    <Zap size={11} style={{ display: "inline-block", verticalAlign: "middle", marginRight: "4px" }} />
+                    <Zap size={11} className="[display:inline-block]! [vertical-align:middle]! [margin-right:4px]!" />
                     TIMELINE PERMINTAAN AD-HOC
                   </span>
-                  <small style={{ color: "var(--ink-muted)", fontSize: "11px" }}>
+                  <small className="[color:var(--ink-muted)]! [font-size:11px]!">
                     Waktu masuk, respon, dan penyelesaian operasional
                   </small>
                 </div>
@@ -415,29 +385,20 @@ export function TicketDetailDrawer({ ticket, onClose, onUpdate }: TicketDetailDr
               </div>
             )}
 
-            <div style={{ marginBottom: "24px" }}>
+            <div className="[margin-bottom:24px]!">
               <span className="drawer-section-title">
                 Deskripsi / Catatan Operasional
               </span>
-              <p style={{ margin: "8px 0 0", color: "var(--ink-secondary)", fontSize: "13px", lineHeight: 1.5 }}>
+              <p className="[margin:8px_0_0]! [color:var(--ink-secondary)]! [font-size:13px]! [line-height:1.5]!">
                 {ticket.description || "Item aktivitas operasional yang memerlukan pemeriksaan dan konfirmasi rutin."}
               </p>
             </div>
 
             <div>
-              <span
-                style={{
-                  fontSize: "11px",
-                  fontWeight: "700",
-                  color: "var(--ink-muted)",
-                  fontFamily: "var(--font-mono)",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.5px",
-                }}
-              >
+              <span className="[font-size:11px]! [font-weight:700]! [color:var(--ink-muted)]! [font-family:var(--font-mono)]! [text-transform:uppercase]! [letter-spacing:0.5px]!">
                 Riwayat aktivitas
               </span>
-              <div style={{ marginTop: "12px", display: "flex", flexDirection: "column", gap: "8px" }}>
+              <div className="[margin-top:12px]! [display:flex]! [flex-direction:column]! [gap:8px]!">
                 {ticket.history?.length ? (
                   ticket.history.map((entry, index) => {
                     const config = getActivityConfig(entry.type, entry.action, ticket.status);
@@ -446,49 +407,21 @@ export function TicketDetailDrawer({ ticket, onClose, onUpdate }: TicketDetailDr
                     return (
                       <div
                         key={index}
-                        className="ticket-activity-entry"
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "space-between",
-                          gap: "10px",
-                          fontSize: "12px",
-                          padding: "8px 12px",
-                          background: "rgba(255, 255, 255, 0.025)",
-                          border: "1px solid var(--line)",
-                          borderRadius: "7px",
-                        }}
+                        className="ticket-activity-entry [display:flex]! [align-items:center]! [justify-content:space-between]! [gap:10px]! [font-size:12px]! [padding:8px_12px]! [background:rgba(255,_255,_255,_0.025)]! [border:1px_solid_var(--line)]! [border-radius:7px]!"
                       >
                         {/* Time & Activity Badge */}
-                        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                          <span
-                            style={{
-                              color: "var(--ink-muted)",
-                              fontFamily: "var(--font-mono)",
-                              fontWeight: "600",
-                              fontSize: "11px",
-                              minWidth: "40px",
-                            }}
-                          >
+                        <div className="[display:flex]! [align-items:center]! [gap:10px]!">
+                          <span className="[color:var(--ink-muted)]! [font-family:var(--font-mono)]! [font-weight:600]! [font-size:11px]! [min-width:40px]!">
                             {entry.time}
                           </span>
 
                           <span
-                            className="activity-type-tag"
+                            className="activity-type-tag [display:inline-flex]! [align-items:center]! [gap:5px]! [padding:2px_7px]! [border-radius:4px]! [font-size:10.5px]! [font-weight:700]! [font-family:var(--font-mono)]! [line-height:1.3]! [color:var(--activity-tag-color)]! [background-color:var(--activity-tag-background)]! [border:1px_solid_var(--activity-tag-border)]!"
                             style={{
-                              display: "inline-flex",
-                              alignItems: "center",
-                              gap: "5px",
-                              padding: "2px 7px",
-                              borderRadius: "4px",
-                              fontSize: "10.5px",
-                              fontWeight: "700",
-                              fontFamily: "var(--font-mono)",
-                              color: config.color,
-                              backgroundColor: config.bgColor,
-                              border: `1px solid ${config.borderColor}`,
-                              lineHeight: "1.3",
-                            }}
+                              "--activity-tag-color": config.color,
+                              "--activity-tag-background": config.bgColor,
+                              "--activity-tag-border": config.borderColor,
+                            } as React.CSSProperties}
                           >
                             <IconComponent size={11} strokeWidth={2.4} />
                             <span>{config.label}</span>
@@ -496,14 +429,14 @@ export function TicketDetailDrawer({ ticket, onClose, onUpdate }: TicketDetailDr
                         </div>
 
                         {/* Author */}
-                        <span style={{ color: "var(--ink-muted)", fontSize: "11px" }}>
-                          oleh <strong style={{ color: "var(--ink-secondary)", fontWeight: "500" }}>{entry.author}</strong>
+                        <span className="[color:var(--ink-muted)]! [font-size:11px]!">
+                          oleh <strong className="[color:var(--ink-secondary)]! [font-weight:500]!">{entry.author}</strong>
                         </span>
                       </div>
                     );
                   })
                 ) : (
-                  <div style={{ color: "var(--ink-muted)", fontSize: "12px" }}>
+                  <div className="[color:var(--ink-muted)]! [font-size:12px]!">
                     Belum ada riwayat aktivitas yang tercatat.
                   </div>
                 )}
@@ -514,9 +447,8 @@ export function TicketDetailDrawer({ ticket, onClose, onUpdate }: TicketDetailDr
           <div className="drawer-footer">
             <button
               type="button"
-              className="button button-secondary"
+              className="button button-secondary [display:inline-flex]! [align-items:center]! [gap:6px]!"
               onClick={() => setEditModalOpen(true)}
-              style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}
             >
               <Edit3 size={13} />
               <span>Edit Ticket</span>

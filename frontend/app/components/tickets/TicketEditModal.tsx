@@ -98,8 +98,8 @@ export function TicketEditModal({ open, ticket, onClose, onSave }: TicketEditMod
     <Modal open={open} onClose={onClose} label={`Edit Ticket #${ticket.id}`} width={560}>
       <div className="modal-title">
         <div>
-          <strong style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-            <Edit3 size={15} style={{ color: "var(--accent-blue)" }} />
+          <strong className="[display:flex]! [align-items:center]! [gap:6px]!">
+            <Edit3 size={15} className="[color:var(--accent-blue)]" />
             Edit Ticket #{ticket.id}
           </strong>
           <small>Perbarui rincian subjek, proyek, severity, penanggung jawab, dan deskripsi ticket.</small>
@@ -109,9 +109,9 @@ export function TicketEditModal({ open, ticket, onClose, onSave }: TicketEditMod
         </button>
       </div>
 
-      <div className="ticket-form-grid" style={{ marginTop: "12px" }}>
+      <div className="ticket-form-grid [margin-top:12px]!">
         {/* Row 1: Subject / Title */}
-        <label className="ticket-field-subject" style={{ gridColumn: "1 / -1" }}>
+        <label className="ticket-field-subject [grid-column:1_/_-1]!">
           <div className="ticket-field-label-wrapper">
             <span>JUDUL / SUBJEK TICKET *</span>
           </div>
@@ -127,7 +127,7 @@ export function TicketEditModal({ open, ticket, onClose, onSave }: TicketEditMod
         </label>
 
         {/* Row 2: Project + Priority + Status (3 columns) */}
-        <div className="three-inputs" style={{ gridColumn: "1 / -1" }}>
+        <div className="three-inputs [grid-column:1_/_-1]!">
           <label>
             <span>PROYEK</span>
             <select value={project} onChange={(event) => setProject(event.target.value)}>
@@ -169,7 +169,7 @@ export function TicketEditModal({ open, ticket, onClose, onSave }: TicketEditMod
         </div>
 
         {/* Row 3: Assignee / Owner + Category (2 columns) */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", gridColumn: "1 / -1" }}>
+        <div className="[display:grid]! [grid-template-columns:1fr_1fr]! [gap:12px]! [grid-column:1_/_-1]!">
           <label>
             <span>PENANGGUNG JAWAB (ASSIGNEE)</span>
             <input
@@ -200,26 +200,26 @@ export function TicketEditModal({ open, ticket, onClose, onSave }: TicketEditMod
         </div>
 
         {/* Row 4: Description */}
-        <label style={{ gridColumn: "1 / -1" }}>
+        <label className="[grid-column:1_/_-1]!">
           <span>DESKRIPSI TICKET</span>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={3}
             placeholder="Deskripsi detail aktivitas operasional atau catatan penanganan..."
-            style={{ resize: "vertical", minHeight: "75px" }}
+            className="[resize:vertical]! [min-height:75px]!"
           />
         </label>
       </div>
 
       {error && <div className="form-error">{error}</div>}
 
-      <div className="modal-actions" style={{ marginTop: "16px" }}>
+      <div className="modal-actions [margin-top:16px]!">
         <button className="button button-secondary" onClick={onClose} type="button">
           Batal
         </button>
         <button className="button button-primary" onClick={handleSave} type="button">
-          <Check size={14} style={{ display: "inline-block", verticalAlign: "middle", marginRight: "4px" }} />
+          <Check size={14} className="[display:inline-block]! [vertical-align:middle]! [margin-right:4px]!" />
           Simpan Perubahan
         </button>
       </div>

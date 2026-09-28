@@ -141,6 +141,7 @@
   @apply [font-weight:800];
 }
 
+/* TSX utility migration (HandoverModal; private static selectors)
 .handover-progress-strip {
   @apply [display:flex];
   @apply [flex-direction:column];
@@ -175,6 +176,7 @@
   @apply [border-radius:99px];
   @apply [transition:width_0.3s_ease];
 }
+*/
 
 /* Nav Tabs */
 .handover-nav-tabs {
@@ -291,157 +293,27 @@
   @apply [line-height:1.4];
 }
 
-/* Migrated to TaskStatusBadge.tsx; selector snapshot retained until CSS cleanup confirmation.
-.handover-task-state-badge {
-  @apply [display:inline-flex];
-  @apply [align-items:center];
-  @apply [gap:5.5px];
-  @apply [padding:4px_10px];
-  @apply [border-radius:6px];
-  @apply [font-size:11px];
-  @apply [font-weight:700];
-  @apply [letter-spacing:0.2px];
-  @apply [line-height:1];
-  @apply [white-space:nowrap];
-  @apply [flex-shrink:0];
-  @apply [margin-top:1px];
-  @apply [border:1px_solid_transparent];
-  @apply [box-shadow:0_1px_2px_rgba(0,_0,_0,_0.18)];
-  @apply [transition:all_0.15s_ease];
-}
-
-.handover-task-state-badge svg {
-  @apply [flex-shrink:0];
-}
-*/
 
 /* Routine: Steady standing task — Slate / Sky Blue */
-/* Migrated to TaskStatusBadge.tsx.
-.handover-task-state-badge.status-routine {
-  @apply [background:rgba(56,_189,_248,_0.12)];
-  @apply [color:#38bdf8];
-  @apply [border-color:rgba(56,_189,_248,_0.32)];
-}
-*/
 
 /* Pending: Awaiting action / attention — Warm Amber / Yellow */
-/* Migrated to TaskStatusBadge.tsx.
-.handover-task-state-badge.status-pending {
-  @apply [background:rgba(251,_191,_36,_0.12)];
-  @apply [color:#fbbf24];
-  @apply [border-color:rgba(251,_191,_36,_0.32)];
-}
-*/
 
 /* In Progress: Actively being worked on — Purple */
-/* Migrated to TaskStatusBadge.tsx.
-.handover-task-state-badge.status-in-progress {
-  @apply [background:rgba(192,_132,_252,_0.12)];
-  @apply [color:#c084fc];
-  @apply [border-color:rgba(192,_132,_252,_0.32)];
-}
-*/
 
 /* Activity: Active operational check — Teal */
-/* Migrated to TaskStatusBadge.tsx.
-.handover-task-state-badge.status-activity {
-  @apply [background:rgba(45,_212,_191,_0.12)];
-  @apply [color:#2dd4bf];
-  @apply [border-color:rgba(45,_212,_191,_0.32)];
-}
-*/
 
 /* Escalated: Needs higher level attention — Soft Red */
-/* Migrated to TaskStatusBadge.tsx.
-.handover-task-state-badge.status-escalated {
-  @apply [background:rgba(248,_113,_113,_0.12)];
-  @apply [color:#f87171];
-  @apply [border-color:rgba(248,_113,_113,_0.32)];
-}
-*/
 
 /* Blocked: Blocked operational task — Red */
-/* Migrated to TaskStatusBadge.tsx.
-.handover-task-state-badge.status-blocked {
-  @apply [background:rgba(239,_68,_68,_0.14)];
-  @apply [color:#f87171];
-  @apply [border-color:rgba(248,_113,_113,_0.35)];
-}
-*/
 
 /* Selesai / Done: Completed operational task — Emerald Green */
-/* Migrated to TaskStatusBadge.tsx.
-.handover-task-state-badge.status-done {
-  @apply [background:rgba(34,_197,_94,_0.12)];
-  @apply [color:#4ade80];
-  @apply [border-color:rgba(34,_197,_94,_0.32)];
-}
-*/
 
 /* Waiting Vendor: Waiting on 3rd party or vendor — Orange */
-/* Migrated to TaskStatusBadge.tsx.
-.handover-task-state-badge.status-waiting-vendor {
-  @apply [background:rgba(249,_115,_22,_0.12)];
-  @apply [color:#fb923c];
-  @apply [border-color:rgba(249,_115,_22,_0.32)];
-}
-*/
 
-/* Migrated to TaskPriorityBadge.tsx; selector snapshot retained until CSS cleanup confirmation.
-.handover-task-priority-badge {
-  @apply [display:inline-flex];
-  @apply [align-items:center];
-  @apply [gap:4px];
-  @apply [padding:3px_8px];
-  @apply [border-radius:6px];
-  @apply [font-size:10.5px];
-  @apply [font-weight:700];
-  @apply [letter-spacing:0.25px];
-  @apply [line-height:1];
-  @apply [white-space:nowrap];
-  @apply [flex-shrink:0];
-  @apply [margin-top:1px];
-  @apply [border:1px_solid_transparent];
-  @apply [box-shadow:0_1px_2px_rgba(0,_0,_0,_0.18)];
-  @apply [transition:all_0.15s_ease];
-}
 
-.handover-task-priority-badge svg {
-  @apply [flex-shrink:0];
-}
-*/
 
-/* Migrated to TaskPriorityBadge.tsx.
-.handover-task-priority-badge.priority-critical {
-  @apply [background:rgba(239,_68,_68,_0.14)];
-  @apply [color:#f87171];
-  @apply [border-color:rgba(239,_68,_68,_0.35)];
-}
-*/
 
-/* Migrated to TaskPriorityBadge.tsx.
-.handover-task-priority-badge.priority-high {
-  @apply [background:rgba(249,_115,_22,_0.14)];
-  @apply [color:#fb923c];
-  @apply [border-color:rgba(249,_115,_22,_0.35)];
-}
-*/
 
-/* Migrated to TaskPriorityBadge.tsx.
-.handover-task-priority-badge.priority-medium {
-  @apply [background:rgba(234,_179,_8,_0.14)];
-  @apply [color:#facc15];
-  @apply [border-color:rgba(234,_179,_8,_0.35)];
-}
-*/
-
-/* Migrated to TaskPriorityBadge.tsx.
-.handover-task-priority-badge.priority-low {
-  @apply [background:rgba(45,_212,_191,_0.14)];
-  @apply [color:#2dd4bf];
-  @apply [border-color:rgba(45,_212,_191,_0.35)];
-}
-*/
 
 /* Finding Cards */
 .handover-finding-grid {
@@ -470,6 +342,7 @@
   @apply [border-radius:8px];
 }
 
+/* TSX utility migration (HandoverModal; private static selectors)
 .handover-project-chips {
   @apply [display:flex];
   @apply [flex-wrap:wrap];
@@ -489,6 +362,7 @@
   @apply [font-weight:600];
   @apply [color:var(--ink-primary)];
 }
+*/
 
 .handover-validation-box {
   @apply [padding:10px_12px];
@@ -1512,6 +1386,7 @@
 }
 
 /* Read-Only Explanatory Banner */
+/* TSX utility migration (HandoverModal; private static selectors)
 .handover-readonly-notice {
   @apply [display:flex];
   @apply [align-items:center];
@@ -1530,8 +1405,10 @@
   @apply [color:#94a3b8];
   @apply [flex-shrink:0];
 }
+*/
 
 /* Read-Only Summary Line (Replaces Progress Bar) */
+/* TSX utility migration (HandoverModal; private static selectors)
 .handover-readonly-summary-line {
   @apply [display:flex];
   @apply [align-items:center];
@@ -1562,6 +1439,7 @@
   @apply [color:#94a3b8];
   @apply [border:1px_solid_rgba(148,_163,_184,_0.25)];
 }
+*/
 
 /* Static Non-Clickable Task Status Badge (Read-Only Mode) */
 .handover-task-static-status {
@@ -1637,6 +1515,7 @@
 }
 
 /* Read-Only Status Monitoring Checkpoints */
+/* TSX utility migration (HandoverModal; private static selectors)
 .handover-checkpoint-results-list {
   @apply [display:flex];
   @apply [flex-direction:column];
@@ -1687,6 +1566,7 @@
   @apply [font-size:11px];
   @apply [color:var(--ink-muted)];
 }
+*/
 
 /* Static Verdict Pill */
 .handover-verdict-pill {
@@ -1773,58 +1653,10 @@
 /* ═══════════════════════════════════════════════
    PROJECT SELECT COMPONENT
 ═══════════════════════════════════════════════ */
-/* Migrated to ProjectSelect.tsx; selector snapshot retained until CSS cleanup confirmation.
-.project-select-container {
-  @apply [display:flex];
-  @apply [flex-direction:column];
-  @apply [gap:6px];
-  @apply [width:100%];
-}
-*/
 
-/* Migrated to ProjectSelect.tsx.
-.project-select-dropdown {
-  @apply [width:100%];
-  @apply [border-radius:7px];
-  @apply [padding:8px_11px];
-  @apply [font-size:12px];
-  @apply [background:var(--input-bg)];
-  @apply [border:1px_solid_var(--panel-border)];
-  @apply [color:var(--ink-primary)];
-  @apply [cursor:pointer];
-  @apply [outline:none];
-  @apply [transition:border-color_0.15s_ease,_box-shadow_0.15s_ease];
-}
-*/
 
-/* Migrated to ProjectSelect.tsx.
-.project-select-dropdown:focus {
-  @apply [border-color:var(--accent-blue)];
-  @apply [box-shadow:0_0_0_3px_var(--accent-blue-soft)];
-}
-*/
 
-/* Migrated to ProjectSelect.tsx.
-.project-select-custom-input {
-  @apply [width:100%];
-  @apply [border-radius:6px];
-  @apply [padding:7px_10px];
-  @apply [font-size:11.5px];
-  @apply [background:rgba(15,_23,_42,_0.85)];
-  @apply [border:1px_dashed_var(--accent-blue-border)];
-  @apply [color:var(--ink-primary)];
-  @apply [outline:none];
-  @apply [transition:border-color_0.15s_ease];
-}
-*/
 
-/* Migrated to ProjectSelect.tsx.
-.project-select-custom-input:focus {
-  @apply [border-color:var(--accent-blue)];
-  @apply [border-style:solid];
-  @apply [box-shadow:0_0_0_2px_var(--accent-blue-soft)];
-}
-*/
 
 /* ═══════════════════════════════════════════════
    TASK FORM GRID WITH PRIORITY
@@ -1845,6 +1677,7 @@
 /* ═══════════════════════════════════════════════
    CUSTOM DARK-THEME DATE PICKER
 ═══════════════════════════════════════════════ */
+/* DatePicker TSX migration (private declarations retained for review):
 .custom-datepicker-container {
   @apply [position:relative];
   @apply [width:100%];
@@ -1953,8 +1786,10 @@
   @apply [color:#f87171];
   @apply [transform:scale(1.08)];
 }
+*/
 
 /* Floating Dark Calendar Popover */
+/* DatePicker TSX migration (private declaration retained for review):
 .custom-datepicker-popover {
   @apply [position:absolute];
   @apply [top:calc(100%_+_6px)];
@@ -1969,6 +1804,7 @@
   @apply [padding:14px];
   @apply [animation:datepicker-fade-in_0.15s_ease-out];
 }
+*/
 
 @keyframes datepicker-fade-in {
   from {
@@ -1981,6 +1817,7 @@
   }
 }
 
+/* DatePicker TSX migration (private declarations retained for review):
 .custom-datepicker-header {
   @apply [display:flex];
   @apply [align-items:center];
@@ -2127,8 +1964,10 @@
   @apply [opacity:0.25];
   @apply [cursor:not-allowed];
 }
+*/
 
 /* Quick Selection Presets Bar */
+/* DatePicker TSX migration (private declarations retained for review):
 .custom-datepicker-presets {
   @apply [display:grid];
   @apply [grid-template-columns:repeat(6,_1fr)];
@@ -2203,6 +2042,7 @@
   @apply [background:var(--accent-blue-soft)];
   @apply [color:#7dd3fc];
 }
+*/
 
 .custom-datepicker-footer-clear {
   @apply [color:var(--ink-muted)];
@@ -3314,8 +3154,5 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     @apply [gap:8px];
   }
 }
-
-
-
 
 

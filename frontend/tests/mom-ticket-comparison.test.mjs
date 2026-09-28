@@ -39,9 +39,14 @@ test("Month-over-Month (MoM) ticket comparison is properly implemented in Ticket
   assert.ok(content.includes("Selisih (MoM):"), "Displays Selisih (MoM) in interactive popover");
 });
 
+function getTicketsEnhancementsCss() {
+  const p1 = path.resolve("app/styles/tailwind/tickets-enhancements.css");
+  const p2 = path.resolve("app/styles/tickets-enhancements.css");
+  return fs.existsSync(p1) ? fs.readFileSync(p1, "utf8") : fs.readFileSync(p2, "utf8");
+}
+
 test("CSS rules for Month-over-Month comparison are styled cleanly in tickets-enhancements.css", async () => {
-  const cssPath = path.resolve("app/styles/tickets-enhancements.css");
-  const css = fs.readFileSync(cssPath, "utf8");
+  const css = getTicketsEnhancementsCss();
 
   assert.ok(css.includes(".mom-metrics-strip"), "Contains .mom-metrics-strip");
   assert.ok(css.includes(".mom-metric-card"), "Contains .mom-metric-card");
@@ -52,22 +57,20 @@ test("CSS rules for Month-over-Month comparison are styled cleanly in tickets-en
 });
 
 test("user-summary-list expands to fill full height of the adjacent chart card", async () => {
-  const cssPath = path.resolve("app/styles/tickets-enhancements.css");
-  const css = fs.readFileSync(cssPath, "utf8");
+  const css = getTicketsEnhancementsCss();
 
   // Verify user-summary-list doesn't have artificial max-height cap and uses flex stretch
   const listBlockMatch = css.match(/\.user-summary-list\s*\{([^}]+)\}/);
   assert.ok(listBlockMatch, ".user-summary-list CSS rule exists");
   const listCss = listBlockMatch[1];
   assert.ok(!listCss.includes("max-height"), ".user-summary-list does NOT have max-height restriction");
-  assert.ok(listCss.includes("flex: 1"), ".user-summary-list has flex: 1 to fill height");
+  assert.ok(listCss.includes("flex: 1") || listCss.includes("flex:1"), ".user-summary-list has flex: 1 to fill height");
   assert.ok(css.includes(".user-summary-wrapper"), ".user-summary-wrapper CSS rule exists");
-  assert.ok(css.includes("justify-content: flex-start"), "Chart panels use justify-content: flex-start to prevent pushed down charts");
+  assert.ok(css.includes("justify-content: flex-start") || css.includes("justify-content:flex-start"), "Chart panels use justify-content: flex-start to prevent pushed down charts");
 });
 
 test("engineer-workload-list expands dynamically to fill ops-engineer-panel without empty void", async () => {
-  const cssPath = path.resolve("app/styles/tickets-enhancements.css");
-  const css = fs.readFileSync(cssPath, "utf8");
+  const css = getTicketsEnhancementsCss();
 
   const tsxPath = path.resolve("app/components/tickets/TicketReportView.tsx");
   const tsx = fs.readFileSync(tsxPath, "utf8");
@@ -76,8 +79,8 @@ test("engineer-workload-list expands dynamically to fill ops-engineer-panel with
   const engListMatch = css.match(/\.engineer-workload-list\s*\{([^}]+)\}/);
   assert.ok(engListMatch, ".engineer-workload-list CSS rule exists");
   const engListCss = engListMatch[1];
-  assert.ok(!engListCss.includes("max-height: 180px"), ".engineer-workload-list does NOT have max-height: 180px cap");
-  assert.ok(engListCss.includes("flex: 1 1 0%"), ".engineer-workload-list has flex: 1 1 0% to fill height dynamically");
+  assert.ok(!engListCss.includes("max-height: 180px") && !engListCss.includes("max-height:180px"), ".engineer-workload-list does NOT have max-height: 180px cap");
+  assert.ok(engListCss.includes("flex: 1 1 0%") || engListCss.includes("flex:1_1_0%"), ".engineer-workload-list has flex: 1 1 0% to fill height dynamically");
 
   // Verify ops-engineer-panel and report-panel-body have flex setup
   assert.ok(css.includes(".ops-engineer-panel"), "Contains .ops-engineer-panel");
@@ -109,8 +112,7 @@ test("Shift Traffic is rendered as clean interactive Multi-Line Trajectory Chart
   const tsxPath = path.resolve("app/components/tickets/TicketReportView.tsx");
   const tsx = fs.readFileSync(tsxPath, "utf8");
 
-  const cssPath = path.resolve("app/styles/tickets-enhancements.css");
-  const css = fs.readFileSync(cssPath, "utf8");
+  const css = getTicketsEnhancementsCss();
 
   // Verify multi-line chart structure & elements
   assert.ok(tsx.includes("shift-traffic-panel"), "Renders .shift-traffic-panel container");

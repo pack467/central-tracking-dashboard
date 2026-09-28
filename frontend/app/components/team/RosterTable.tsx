@@ -52,8 +52,12 @@ const ScheduleStrip = memo(function ScheduleStrip({ days }: ScheduleStripProps) 
       {days.map((dayEntry, idx) => (
         <div
           key={idx}
-          className="roster-mini-day"
-          style={{ background: dayEntry.style.bg, color: dayEntry.style.color, borderColor: dayEntry.style.border }}
+          className="roster-mini-day [background:var(--roster-mini-day-bg)]! [color:var(--roster-mini-day-color)]! [border-color:var(--roster-mini-day-border)]!"
+          style={{
+            "--roster-mini-day-bg": dayEntry.style.bg,
+            "--roster-mini-day-color": dayEntry.style.color,
+            "--roster-mini-day-border": dayEntry.style.border,
+          } as React.CSSProperties}
           title={`${dayEntry.day} (${dayEntry.date}): ${dayEntry.shift} (${dayEntry.hours ?? "-"})`}
         >
           <span className="roster-mini-day-label">{dayEntry.day}</span>
@@ -155,19 +159,14 @@ const RosterRow = memo(function RosterRow({
 
   return (
     <div
-      className="roster-table-row"
+      className={`roster-table-row${offsetTop !== undefined ? " [position:absolute]! [top:0]! [left:0]! [width:100%]! [transform:translateY(var(--roster-row-offset-y))]! [height:var(--roster-row-height)]! [will-change:transform]!" : ""}`}
       role="row"
       style={
         offsetTop !== undefined
           ? {
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: "100%",
-              transform: `translateY(${offsetTop}px)`,
-              height: ROW_HEIGHT,
-              willChange: "transform",
-            }
+              "--roster-row-offset-y": `${offsetTop}px`,
+              "--roster-row-height": `${ROW_HEIGHT}px`,
+            } as React.CSSProperties
           : undefined
       }
     >
@@ -191,15 +190,15 @@ const RosterRow = memo(function RosterRow({
             className="roster-avatar"
           />
           <span
-            className="roster-table-status-badge"
-            style={{ backgroundColor: ringColor }}
+            className="roster-table-status-badge [background-color:var(--roster-status-ring-color)]!"
+            style={{ "--roster-status-ring-color": ringColor } as React.CSSProperties}
           />
         </div>
         <div className="roster-member-info">
           <strong>{member.name}</strong>
           <div className="roster-role-row">
             <span className="roster-role-pill roster-role-pill-filled">
-              <Briefcase size={9} style={{ display: "inline", verticalAlign: "middle", marginRight: "3px" }} />
+              <Briefcase size={9} className="[display:inline]! [vertical-align:middle]! [margin-right:3px]!" />
               {member.role}
             </span>
             <span className="roster-emp-id">{member.employeeId}</span>
@@ -210,7 +209,7 @@ const RosterRow = memo(function RosterRow({
       {/* 2. Shift Column */}
       <div className="roster-shift-cell">
         <span className="roster-shift-name">
-          <Clock size={11} style={{ display: "inline", verticalAlign: "middle", marginRight: "4px", color: "var(--accent-blue)" }} />
+          <Clock size={11} className="[display:inline]! [vertical-align:middle]! [margin-right:4px]! [color:var(--accent-blue)]!" />
           {member.currentShift}
         </span>
         <span className="roster-shift-sub">Standby Room / Console 01</span>
@@ -220,12 +219,15 @@ const RosterRow = memo(function RosterRow({
       <div className="roster-status-cell">
         {isCurrentUser ? (
           <Badge tone={userStatus === "Online" ? "success" : userStatus === "Busy" ? "critical" : userStatus === "On Break" ? "warning" : "info"}>
-            <span className="live-dot live-dot-pulse" style={{ marginRight: "4px", backgroundColor: ringColor }} />
+            <span
+              className="live-dot live-dot-pulse [margin-right:4px]! [background-color:var(--roster-live-dot-color)]!"
+              style={{ "--roster-live-dot-color": ringColor } as React.CSSProperties}
+            />
             {userStatus}
           </Badge>
         ) : (
           <Badge tone={statusTone(member.status)}>
-            {member.status === "Active" && <span className="live-dot live-dot-pulse" style={{ marginRight: "4px" }} />}
+            {member.status === "Active" && <span className="live-dot live-dot-pulse [margin-right:4px]!" />}
             {member.status}
           </Badge>
         )}
@@ -352,7 +354,7 @@ export function RosterTable({ members, onSelectMember, onEditMember, onRequestSw
         <span>STATUS</span>
         <span>CONTACT</span>
         <span className="roster-schedule-col-head">THIS WEEK&apos;S SCHEDULE</span>
-        <span style={{ textAlign: "right" }}>ACTIONS</span>
+        <span className="[text-align:right]!">ACTIONS</span>
       </div>
 
       {/* Table body */}
@@ -362,7 +364,7 @@ export function RosterTable({ members, onSelectMember, onEditMember, onRequestSw
       >
         {totalCount === 0 ? (
           <div className="roster-empty-state">
-            <Calendar size={32} strokeWidth={1.5} style={{ color: "var(--ink-muted)", marginBottom: "8px" }} />
+            <Calendar size={32} strokeWidth={1.5} className="[color:var(--ink-muted)]! [margin-bottom:8px]!" />
             <strong>Tidak ada anggota tim yang sesuai</strong>
             <p>Ubah kata kunci pencarian atau filter untuk menampilkan data roster.</p>
           </div>

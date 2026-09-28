@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import {
-  History,
   Calendar,
   ArrowRight,
   Eye,
@@ -233,12 +232,7 @@ export function ShiftLogView({ workflow }: { workflow: HandoverWorkflow }) {
           <div className="eyebrow">
             <span className="live-dot live-dot-pulse" /> SHIFT LOG
           </div>
-          <div className="shift-log-title-row">
-            <span className="shift-log-title-icon">
-              <History size={18} />
-            </span>
-            <h1 style={{ margin: 0 }}>Shift Log</h1>
-          </div>
+          <h1>Shift Log</h1>
         </div>
       </section>
 

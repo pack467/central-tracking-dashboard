@@ -3,8 +3,6 @@
 import { useMemo, useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import {
-  Download,
-  Printer,
   Clock,
   CheckCircle2,
   AlertTriangle,
@@ -974,20 +972,6 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
           </div>
           <h1>Dashboard</h1>
         </div>
-
-        <div className="page-actions">
-          <button type="button" className="button button-secondary" onClick={printReport} title="Ekspor PDF atau cetak laporan">
-            <Printer size={14} /> Cetak / PDF
-          </button>
-          <button type="button" className="button button-primary" onClick={exportCsv} title="Download data tabular lengkap">
-            <Download size={14} /> Export CSV
-          </button>
-          {onGoToTickets && (
-            <button type="button" className="button button-secondary" onClick={onGoToTickets} title="Buka antrean tiket">
-              <span>◫</span> Lihat Tiket
-            </button>
-          )}
-        </div>
       </section>
 
       {/* ── 1. OPERATIONAL FOCUS PANEL — Real-time Actionable View for NOC/Ops ── */}
@@ -1009,12 +993,12 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
           <article className="panel report-panel ops-today-panel">
             <div className="panel-heading report-panel-heading">
               <div className="chart-heading-left">
-                <div className="panel-title" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <div className="panel-title [display:flex]! [align-items:center]! [gap:8px]!">
                   <ListChecks size={15} className="text-sky-400" />
                   Tiket Hari Ini
                 </div>
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <div className="[display:flex]! [align-items:center]! [gap:8px]!">
                 {selectedEngineerFilter && (
                   <button
                     type="button"
@@ -1031,7 +1015,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                 <span className="ops-count-badge">{displayedTodayTickets.length} tiket</span>
               </div>
             </div>
-            <div className="report-panel-body" style={{ padding: "12px 16px" }}>
+            <div className="report-panel-body [padding:12px_16px]!">
               {paginatedTodayTickets.length > 0 ? (
                 <>
                   <div className={`today-ticket-list ${todayPageSize > 10 || todayPageSize === 0 ? "has-scroll" : ""}`}>
@@ -1197,7 +1181,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
             <article className="panel report-panel ops-shift-panel">
               <div className="panel-heading report-panel-heading">
                 <div className="chart-heading-left">
-                  <div className="panel-title" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <div className="panel-title [display:flex]! [align-items:center]! [gap:8px]!">
                     <Users size={14} className="text-sky-400" />
                     Kondisi Shift Aktif
                   </div>
@@ -1229,14 +1213,14 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
             <article className="panel report-panel ops-engineer-panel">
               <div className="panel-heading report-panel-heading">
                 <div className="chart-heading-left">
-                  <div className="panel-title" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <div className="panel-title [display:flex]! [align-items:center]! [gap:8px]!">
                     <UserCheck size={14} className="text-emerald-400" />
                     Tiket per NOC Engineer
                   </div>
                 </div>
                 <span className="panel-sub-count">{engineerWorkloads.length} Staf</span>
               </div>
-              <div className="report-panel-body" style={{ padding: "12px 14px", display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
+              <div className="report-panel-body [padding:12px_14px]! [display:flex]! [flex-direction:column]! [flex:1]! [min-height:0]!">
                 <div className="engineer-workload-list">
                   {engineerWorkloads.map((eng) => {
                     const isSelected = selectedEngineerFilter === eng.name;
@@ -1427,8 +1411,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                                   }}
                                   onMouseEnter={() => setHoveredDate(item.date)}
                                   onMouseLeave={() => setHoveredDate(null)}
-                                  className={`stacked-bar-group ${isSelected ? "is-selected" : ""}`}
-                                  style={{ cursor: "pointer" }}
+                                  className={`stacked-bar-group [cursor:pointer]! ${isSelected ? "is-selected" : ""}`}
                                 >
                                   <title>{`Klik untuk melihat rincian tiket tanggal ${item.date}`}</title>
 
@@ -1591,8 +1574,8 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                 {/* Sub-view Mode Switcher & Period Indicators */}
                 <div className="mom-subview-toggle-bar">
                   <div className="mom-view-hint">
-                    Komparasi: <strong style={{ color: "#c084fc" }}>● {momData.prevMonthLabel} (Bulan Lalu)</strong> vs{" "}
-                    <strong style={{ color: "#38bdf8" }}>● {momData.currMonthLabel} (Bulan Ini)</strong>
+                    Komparasi: <strong className="[color:#c084fc]!">● {momData.prevMonthLabel} (Bulan Lalu)</strong> vs{" "}
+                    <strong className="[color:#38bdf8]!">● {momData.currMonthLabel} (Bulan Ini)</strong>
                   </div>
                   <div className="mom-toggle-btns">
                     <button
@@ -1752,7 +1735,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                                       key={`traj-pt-${item.index}`}
                                       role="button"
                                       tabIndex={0}
-                                      style={{ cursor: "pointer" }}
+                                      className="[cursor:pointer]!"
                                       onClick={() => {
                                         setSelectedMomItem((prev) =>
                                           prev?.id === `traj-${item.index}`
@@ -1836,11 +1819,11 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
 
                         <div className="chart-legend-center">
                           <span className="legend-item">
-                            <i className="legend-dot" style={{ background: "#38bdf8", width: "14px", height: "4px", borderRadius: "2px" }} />
+                            <i className="legend-dot [background:#38bdf8]! [width:14px]! [height:4px]! [border-radius:2px]!" />
                             {momData.currMonthLabel} (Bulan Ini: {momData.currTotal} tiket)
                           </span>
                           <span className="legend-item">
-                            <i className="legend-dot" style={{ background: "#a855f7", width: "14px", height: "4px", borderRadius: "2px" }} />
+                            <i className="legend-dot [background:#a855f7]! [width:14px]! [height:4px]! [border-radius:2px]!" />
                             {momData.prevMonthLabel} (Bulan Lalu: {momData.prevTotal} tiket)
                           </span>
                         </div>
@@ -1944,7 +1927,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                                       key={`mom-proj-${item.project}`}
                                       role="button"
                                       tabIndex={0}
-                                      style={{ cursor: "pointer" }}
+                                      className="[cursor:pointer]!"
                                       onClick={() => {
                                         setSelectedMomItem((prev) =>
                                           prev?.id === `proj-${item.project}`
@@ -2084,11 +2067,11 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
 
                         <div className="chart-legend-center">
                           <span className="legend-item">
-                            <i className="legend-dot" style={{ background: "#38bdf8" }} />
+                            <i className="legend-dot [background:#38bdf8]!" />
                             {momData.currMonthLabel} (Bulan Ini)
                           </span>
                           <span className="legend-item">
-                            <i className="legend-dot" style={{ background: "#a855f7" }} />
+                            <i className="legend-dot [background:#a855f7]!" />
                             {momData.prevMonthLabel} (Bulan Lalu)
                           </span>
                         </div>
@@ -2101,7 +2084,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
 
                 {/* 4. Interactive Detail Popover Card */}
                 {selectedMomItem ? (
-                  <div className="chart-hover-popover anim-fade" style={{ marginTop: "12px" }}>
+                  <div className="chart-hover-popover anim-fade [margin-top:12px]!">
                     <div className="popover-header">
                       <div className="popover-title-left">
                         {selectedMomItem.type === "project" ? (
@@ -2113,7 +2096,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                           <>
                             <Calendar size={13} className="text-sky-400" /> Timeline:{" "}
                             <strong>{selectedMomItem.label}</strong>
-                            <span style={{ fontSize: "11px", color: "var(--ink-muted)", marginLeft: "6px" }}>
+                            <span className="[font-size:11px]! [color:var(--ink-muted)]! [margin-left:6px]!">
                               ({selectedMomItem.currDate || "-"} vs {selectedMomItem.prevDate || "-"})
                             </span>
                           </>
@@ -2131,12 +2114,12 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                     </div>
                     <div className="popover-project-list">
                       <span className="popover-item">
-                        <i className="legend-dot" style={{ background: "#38bdf8" }} />
+                        <i className="legend-dot [background:#38bdf8]!" />
                         <strong>{momData.currMonthLabel} (Bulan Ini):</strong> {selectedMomItem.currCount} tiket
                         {typeof selectedMomItem.currResolved === "number" && ` (${selectedMomItem.currResolved} diselesaikan)`}
                       </span>
                       <span className="popover-item">
-                        <i className="legend-dot" style={{ background: "#c084fc" }} />
+                        <i className="legend-dot [background:#c084fc]!" />
                         <strong>{momData.prevMonthLabel} (Bulan Lalu):</strong> {selectedMomItem.prevCount} tiket
                         {typeof selectedMomItem.prevResolved === "number" && ` (${selectedMomItem.prevResolved} diselesaikan)`}
                       </span>
@@ -2181,7 +2164,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
           <article className="panel report-panel user-summary-panel">
             <div className="panel-heading report-panel-heading">
               <div className="chart-heading-left">
-                <div className="panel-title" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <div className="panel-title [display:flex]! [align-items:center]! [gap:8px]!">
                   <Users size={14} className="text-sky-400" />
                   Rekap Tiket per User
                 </div>
@@ -2385,8 +2368,8 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
       </div>
 
       {/* ── 6. Operational Velocity Trajectory ── */}
-      <article className="panel report-panel mgmt-velocity-panel" style={{ display: "flex", flexDirection: "column", width: "100%" }}>
-        <div className="panel-heading report-panel-heading" style={{ flexWrap: "wrap", gap: "12px", alignItems: "center" }}>
+      <article className="panel report-panel mgmt-velocity-panel [display:flex]! [flex-direction:column]! [width:100%]!">
+        <div className="panel-heading report-panel-heading [flex-wrap:wrap]! [gap:12px]! [align-items:center]!">
           <div>
             <div className="panel-title">Tren Durasi Penyelesaian (Resolution Velocity)</div>
           </div>
@@ -2492,10 +2475,9 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                     return (
                       <>
                         <svg
-                          className="velocity-chart-svg"
+                          className="velocity-chart-svg [overflow:visible]!"
                           viewBox={`0 0 ${svgViewBoxWidth} ${viewBoxHeight}`}
                           preserveAspectRatio="none"
-                          style={{ overflow: "visible" }}
                         >
                           <defs>
                             <linearGradient id="gradVelocity" x1="0" y1="0" x2="0" y2="1">
@@ -2686,7 +2668,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                                   stroke={isHovered ? (isBreach ? "#ef4444" : "#0284c7") : "var(--panel-bg, #0f172a)"}
                                   strokeWidth={isHovered ? "3" : "2"}
                                   filter={isHovered ? "url(#glow-halo)" : undefined}
-                                  style={{ transition: "all 0.15s ease" }}
+                                  className="[transition:all_0.15s_ease]!"
                                 />
 
                                 {/* Milestone Callout Badge (Peak Max point) */}
@@ -2810,7 +2792,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                                   width={stepX}
                                   height={chartHeight + 25}
                                   fill="transparent"
-                                  style={{ cursor: "pointer" }}
+                                  className="[cursor:pointer]!"
                                   onMouseEnter={() => {
                                     setHoveredVelocityPoint({
                                       x: p.x,
@@ -2856,7 +2838,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                             {hoveredVelocityPoint.closed > 0 && (
                               <div className="velocity-tooltip-row">
                                 <span>Tiket Selesai:</span>
-                                <span style={{ fontWeight: 600, color: "var(--ink-primary)" }}>
+                                <span className="[font-weight:600]! [color:var(--ink-primary)]!">
                                   {hoveredVelocityPoint.closed} Tiket
                                 </span>
                               </div>
@@ -2871,21 +2853,14 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
             ) : (
               <div className="chart-empty-hint">Tidak ada data resolusi pada filter ini.</div>
             )}
-
-            <div className="report-footer-summary" style={{ marginTop: "auto", paddingTop: "10px" }}>
-              <Activity size={14} className="text-sky-400" />
-              <span>
-                Resolusi aktual dihitung dari selisih waktu pembuatan hingga tiket berstatus ditutup / selesai.
-              </span>
-            </div>
           </div>
         </article>
 
       {/* ── 7. Shift Traffic Velocity (Multi-Line Trajectory Chart) ── */}
-      <div className="heatmap-standalone-section" style={{ marginTop: "18px" }}>
+      <div className="heatmap-standalone-section [margin-top:18px]!">
         <article className="panel report-panel shift-traffic-panel">
           <div className="panel-heading report-panel-heading">
-            <div className="panel-title" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <div className="panel-title [display:flex]! [align-items:center]! [gap:8px]!">
               <Activity size={16} className="text-emerald-400" />
               Tren Trafik Beban per Shift (Shift Traffic Velocity)
             </div>
@@ -2905,40 +2880,40 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                 <div className="shift-traffic-metrics-strip">
                   <div className="shift-traffic-metric-pill">
                     <span className="shift-traffic-metric-label">
-                      <Sun size={13} style={{ color: "#fbbf24" }} />
+                      <Sun size={13} className="[color:#fbbf24]!" />
                       Shift Pagi (08:00–16:30)
                     </span>
-                    <span className="shift-traffic-metric-val" style={{ color: "#fbbf24" }}>
-                      {pagiTotal} <small style={{ fontSize: "11px", fontWeight: "normal" }}>tiket</small>
+                    <span className="shift-traffic-metric-val [color:#fbbf24]!">
+                      {pagiTotal} <small className="[font-size:11px]! [font-weight:normal]!">tiket</small>
                     </span>
                     <span className="shift-traffic-metric-sub">{pagiPct}% dari total beban</span>
                   </div>
 
                   <div className="shift-traffic-metric-pill">
                     <span className="shift-traffic-metric-label">
-                      <Sunset size={13} style={{ color: "#c084fc" }} />
+                      <Sunset size={13} className="[color:#c084fc]!" />
                       Shift Malam (16:00–00:30)
                     </span>
-                    <span className="shift-traffic-metric-val" style={{ color: "#c084fc" }}>
-                      {malamTotal} <small style={{ fontSize: "11px", fontWeight: "normal" }}>tiket</small>
+                    <span className="shift-traffic-metric-val [color:#c084fc]!">
+                      {malamTotal} <small className="[font-size:11px]! [font-weight:normal]!">tiket</small>
                     </span>
                     <span className="shift-traffic-metric-sub">{malamPct}% dari total beban</span>
                   </div>
 
                   <div className="shift-traffic-metric-pill">
                     <span className="shift-traffic-metric-label">
-                      <Moon size={13} style={{ color: "#38bdf8" }} />
+                      <Moon size={13} className="[color:#38bdf8]!" />
                       Shift Subuh (00:00–08:30)
                     </span>
-                    <span className="shift-traffic-metric-val" style={{ color: "#38bdf8" }}>
-                      {subuhTotal} <small style={{ fontSize: "11px", fontWeight: "normal" }}>tiket</small>
+                    <span className="shift-traffic-metric-val [color:#38bdf8]!">
+                      {subuhTotal} <small className="[font-size:11px]! [font-weight:normal]!">tiket</small>
                     </span>
                     <span className="shift-traffic-metric-sub">{subuhPct}% dari total beban</span>
                   </div>
 
                   <div className="shift-traffic-metric-pill">
                     <span className="shift-traffic-metric-label">
-                      <Zap size={13} style={{ color: "#f87171" }} />
+                      <Zap size={13} className="[color:#f87171]!" />
                       Shift Beban Tertinggi (Peak)
                     </span>
                     <span className="shift-traffic-metric-val text-rose-400">
@@ -3039,10 +3014,9 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                 return (
                   <>
                     <svg
-                      className="shift-traffic-chart-svg"
+                      className="shift-traffic-chart-svg [overflow:visible]!"
                       viewBox={`0 0 ${svgViewBoxWidth} ${viewBoxHeight}`}
                       preserveAspectRatio="none"
-                      style={{ overflow: "visible" }}
                     >
                       <defs>
                         <linearGradient id="gradShiftSubuh" x1="0" y1="0" x2="0" y2="1">
@@ -3156,7 +3130,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                                   filter={
                                     isColHovered ? `url(#glow-shift-${series.id.toLowerCase()})` : undefined
                                   }
-                                  style={{ transition: "all 0.15s ease" }}
+                                  className="[transition:all_0.15s_ease]!"
                                 />
                               );
                             })}
@@ -3199,7 +3173,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                               width={stepX}
                               height={chartHeight + 24}
                               fill="transparent"
-                              style={{ cursor: "pointer" }}
+                              className="[cursor:pointer]!"
                               onMouseEnter={() => {
                                 setHoveredShiftTrafficPoint({
                                   x,
@@ -3299,31 +3273,31 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                       >
                         <div className="shift-traffic-tooltip-header">
                           <span>📅 {hoveredShiftTrafficPoint.date}</span>
-                          <span style={{ color: "#38bdf8", fontWeight: 700 }}>
+                          <span className="[color:#38bdf8]! [font-weight:700]!">
                             {hoveredShiftTrafficPoint.total} Tiket
                           </span>
                         </div>
                         <div className="shift-traffic-tooltip-row">
-                          <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                          <span className="[display:inline-flex]! [align-items:center]! [gap:6px]!">
                             <span className="shift-legend-dot dot-pagi" /> Shift Pagi:
                           </span>
-                          <span className="shift-traffic-tooltip-val" style={{ color: "#fbbf24" }}>
+                          <span className="shift-traffic-tooltip-val [color:#fbbf24]!">
                             {hoveredShiftTrafficPoint.pagi} Tiket
                           </span>
                         </div>
                         <div className="shift-traffic-tooltip-row">
-                          <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                          <span className="[display:inline-flex]! [align-items:center]! [gap:6px]!">
                             <span className="shift-legend-dot dot-malam" /> Shift Malam:
                           </span>
-                          <span className="shift-traffic-tooltip-val" style={{ color: "#c084fc" }}>
+                          <span className="shift-traffic-tooltip-val [color:#c084fc]!">
                             {hoveredShiftTrafficPoint.malam} Tiket
                           </span>
                         </div>
                         <div className="shift-traffic-tooltip-row">
-                          <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                          <span className="[display:inline-flex]! [align-items:center]! [gap:6px]!">
                             <span className="shift-legend-dot dot-subuh" /> Shift Subuh:
                           </span>
-                          <span className="shift-traffic-tooltip-val" style={{ color: "#38bdf8" }}>
+                          <span className="shift-traffic-tooltip-val [color:#38bdf8]!">
                             {hoveredShiftTrafficPoint.subuh} Tiket
                           </span>
                         </div>
@@ -3343,14 +3317,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
             {/* Filter and Shift Legend Bar */}
             <div className="shift-traffic-filter-bar">
               <div className="shift-filter-buttons">
-                <span
-                  style={{
-                    fontSize: "11px",
-                    fontWeight: 600,
-                    color: "var(--ink-muted)",
-                    marginRight: "4px",
-                  }}
-                >
+                <span className="[font-size:11px]! [font-weight:600]! [color:var(--ink-muted)]! [margin-right:4px]!">
                   Tampilkan Garis:
                 </span>
                 <button
@@ -3384,19 +3351,6 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                   <span className="shift-legend-dot dot-subuh" />
                   <span>Shift Subuh</span>
                 </button>
-              </div>
-
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "6px",
-                  fontSize: "11px",
-                  color: "var(--ink-muted)",
-                }}
-              >
-                <Info size={13} className="text-sky-400" />
-                <span>Arahkan kursor ke kurva grafik untuk rincian tiket per shift.</span>
               </div>
             </div>
           </div>
