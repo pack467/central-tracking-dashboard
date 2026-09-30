@@ -1,10 +1,30 @@
-import { Module } from '@nestjs/common';
+import { Module, MiddlewareConsumer } from '@nestjs/common';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
+import { ConfigModule } from '@nestjs/config';
+import { LoggerModule } from './common/logger/logger.module.js';
+import { RequestIdMiddleware } from './common/middleware/request-id.middleware.js';
+import { UsersModule } from './users/users.module.js';
+import { MetricsModule } from './metrics/metrics.module.js';
 
 @Module({
-  imports: [],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    LoggerModule,
+    UsersModule,
+    MetricsModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule {
+  configure(
+    consumer: MiddlewareConsumer,
+  ) {
+    consumer
+      .apply(RequestIdMiddleware)
+      .forRoutes('*');
+  }
+}
