@@ -1890,7 +1890,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                           <svg
                             className="report-bar-svg-lg"
                             viewBox={`0 0 ${svgViewBoxWidth} ${viewBoxHeight}`}
-                            preserveAspectRatio="xMidYMax meet"
+                            preserveAspectRatio="none"
                           >
                             {/* Subtle Horizontal Gridlines & Y-Axis Scale */}
                             {stackedYTicks.ticks.map((tick) => {
@@ -2188,7 +2188,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                               <svg
                                 className="report-bar-svg-lg"
                                 viewBox={`0 0 ${svgViewBoxWidth} ${viewBoxHeight}`}
-                                preserveAspectRatio="xMidYMax meet"
+                                preserveAspectRatio="none"
                               >
                                 <defs>
                                   <linearGradient id="gradMomCurr" x1="0" y1="0" x2="0" y2="1">
@@ -2402,7 +2402,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                               <svg
                                 className="report-bar-svg-lg"
                                 viewBox={`0 0 ${svgWidth} ${viewBoxHeight}`}
-                                preserveAspectRatio="xMidYMax meet"
+                                preserveAspectRatio="none"
                               >
                                 {/* Y-Axis Gridlines & Ticks */}
                                 {yTicks.ticks.map((tick) => {

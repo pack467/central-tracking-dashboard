@@ -141,6 +141,60 @@
   @apply [font-weight:800];
 }
 
+@media (max-width: 660px) {
+  .handover-summary-card {
+    @apply [margin-bottom:14px];
+    @apply [padding:14px];
+  }
+
+  .handover-flow-info {
+    @apply [display:grid];
+    @apply [grid-template-columns:1fr];
+    @apply [align-items:stretch];
+    @apply [gap:8px];
+    @apply [margin-bottom:12px];
+  }
+
+  .handover-flow-party {
+    @apply [min-width:0];
+  }
+
+  .handover-flow-party strong {
+    @apply [font-size:12.5px];
+    @apply [line-height:1.35];
+    @apply [overflow-wrap:anywhere];
+  }
+
+  .handover-flow-arrow {
+    @apply [display:grid];
+    @apply [place-items:center];
+    @apply [align-self:center];
+    @apply [width:24px];
+    @apply [height:20px];
+    @apply [transform:rotate(90deg)];
+  }
+
+  .handover-summary-card .handover-acceptance-status {
+    @apply [margin:10px_0];
+    @apply [font-size:12px];
+    @apply [line-height:1.5];
+  }
+
+  .handover-summary-card .handover-progress-text {
+    @apply [flex-direction:column];
+    @apply [align-items:flex-start];
+    @apply [justify-content:flex-start];
+    @apply [gap:4px];
+    @apply [font-size:11px];
+    @apply [line-height:1.35];
+  }
+
+  .handover-summary-card .handover-progress-text strong {
+    @apply [white-space:normal];
+    @apply [line-height:1.35];
+  }
+}
+
 /* TSX utility migration (HandoverModal; private static selectors)
 .handover-progress-strip {
   @apply [display:flex];
@@ -3354,6 +3408,25 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
 }
 
 @media (max-width: 640px) {
+  .shift-timeline {
+    @apply [padding:4px_0_8px_28px];
+  }
+
+  .shift-timeline::before {
+    @apply [left:10px];
+  }
+
+  .timeline-marker {
+    @apply [top:10px];
+    @apply [left:-28px];
+    @apply [width:24px];
+    @apply [height:24px];
+  }
+
+  .timeline-card {
+    @apply [padding:12px];
+  }
+
   .timeline-head {
     @apply [flex-direction:column];
     @apply [align-items:flex-start];
@@ -3374,6 +3447,45 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
   }
 
   .timeline-flow-container {
-    @apply [gap:8px];
+    @apply [flex-direction:column];
+    @apply [align-items:stretch];
+    @apply [gap:6px];
+  }
+
+  .shift-flow-card {
+    @apply [width:100%];
+    @apply [flex-wrap:wrap];
+    @apply [gap:6px];
+  }
+
+  .shift-flow-people {
+    @apply [min-width:0];
+  }
+
+  .timeline-flow-arrow {
+    @apply [align-self:center];
+    @apply [margin:0];
+    @apply [transform:rotate(90deg)];
+  }
+
+  .timeline-progress-section {
+    @apply [width:100%];
+    @apply [align-items:flex-start];
+  }
+
+  .timeline-task-breakdown {
+    @apply [width:100%];
+    @apply [flex-wrap:wrap];
+    @apply [gap:4px_6px];
+    @apply [white-space:normal];
+    @apply [line-height:1.35];
+  }
+
+  .breakdown-dot {
+    @apply [display:none];
+  }
+
+  .breakdown-item.breakdown-transition {
+    @apply [flex-basis:100%];
   }
 }

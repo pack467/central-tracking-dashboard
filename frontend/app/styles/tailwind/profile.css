@@ -526,7 +526,7 @@
 
 @media (max-width: 480px) {
   .profile-metrics-grid {
-    @apply [grid-template-columns:1fr];
+    @apply [grid-template-columns:repeat(2,_minmax(0,_1fr))];
   }
 }
 
@@ -772,4 +772,3 @@
   @apply [line-height:1.35];
   @apply [margin-top:2px];
 }
-

@@ -1003,8 +1003,13 @@
 .service-modal-close {
   @apply [display:inline-grid];
   @apply [place-items:center];
-  @apply [width:28px];
-  @apply [height:28px];
+  @apply [width:32px];
+  @apply [height:32px];
+  @apply [min-width:32px];
+  @apply [min-height:32px];
+  @apply [padding:0];
+  @apply [line-height:1];
+  @apply [flex-shrink:0];
   @apply [border-radius:6px];
   @apply [border:1px_solid_var(--line)];
   @apply [background:transparent];
@@ -1013,9 +1018,23 @@
   @apply [transition:all_0.15s_ease];
 }
 
+.service-modal-close svg {
+  @apply [display:block];
+  @apply [width:15px];
+  @apply [height:15px];
+  @apply [flex-shrink:0];
+  @apply [pointer-events:none];
+}
+
 .service-modal-close:hover {
   @apply [background:rgba(255,_255,_255,_0.08)];
   @apply [color:var(--ink-primary)];
+}
+
+.service-modal-close:focus-visible {
+  @apply [outline:none];
+  @apply [border-color:var(--accent-blue-border)];
+  @apply [box-shadow:0_0_0_3px_rgba(56,_189,_248,_0.18)];
 }
 /* ── Service Modal Banner (Keterangan Status Operasional) ── */
 .service-modal-banner {
@@ -1509,7 +1528,7 @@
 }
 
 @media (max-width: 640px) {
-  .roster-metrics-grid { @apply [grid-template-columns:1fr]; }
+  .roster-metrics-grid { @apply [grid-template-columns:repeat(2,_minmax(0,_1fr))]; }
 }
 
 /* Base card — flat, subtle left accent, no heavy shadows */
