@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { X } from "lucide-react";
 import type { ToastAction, ToastItem, ToastTone } from "@/app/lib/types";
 
 export type { ToastAction };
@@ -185,11 +186,11 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
               </button>
             )}
             <button
-              className="[display:grid] [place-items:center] [width:20px] [height:20px] [border-radius:4px] [background:transparent]! [color:var(--ink-muted)] [font-size:16px]! [line-height:1] [flex-shrink:0] [cursor:pointer] [transition:color_0.15s_ease] [&:hover]:[background:var(--bg)]!"
+              className="[display:grid] [place-items:center] [width:20px] [height:20px] [padding:0] [border-radius:4px] [background:transparent]! [color:var(--ink-muted)] [line-height:1] [flex-shrink:0] [cursor:pointer] [transition:color_0.15s_ease] [&:hover]:[background:var(--bg)]!"
               onClick={() => dismiss(toast.id)}
               aria-label="Tutup notifikasi"
             >
-              ×
+              <X size={14} strokeWidth={2.2} aria-hidden="true" />
             </button>
             <i
               className={`toast-progress [position:absolute] [bottom:0] [left:0] [height:3px] [border-radius:99px] [animation-name:toastCountdown] [animation-timing-function:linear] [animation-fill-mode:forwards] ${

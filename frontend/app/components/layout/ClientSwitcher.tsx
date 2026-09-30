@@ -12,10 +12,9 @@ export function ClientSwitcher() {
   const containerRef = useRef<HTMLDivElement>(null);
   const notify = useToast();
 
-  // Close dropdown when clicking outside
   useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+    function handleClickOutside(event: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
     }
@@ -23,9 +22,7 @@ export function ClientSwitcher() {
     if (isOpen) {
       document.addEventListener("mousedown", handleClickOutside);
     }
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen]);
 
   // Close on Escape key
@@ -83,16 +80,17 @@ export function ClientSwitcher() {
       </button>
 
       {isOpen && (
-        <div
-          className="client-dropdown-menu [position:absolute] [top:calc(100%_+_6px)] [left:0] [min-width:330px] [max-width:380px] [z-index:60] [background:#0d1527] [border:1px_solid_rgba(255,_255,_255,_0.14)] [box-shadow:0_16px_36px_rgba(0,_0,_0,_0.65),_0_0_1px_rgba(255,_255,_255,_0.25)] [border-radius:12px] [padding:8px] [backdrop-filter:blur(16px)] [animation:clientDropdownFadeIn_0.15s_ease-out]"
+        <>
+          <div
+          className="client-dropdown-menu [position:absolute] [top:calc(100%_+_6px)] [left:0] [width:min(330px,_calc(100vw_-_32px))] [max-width:calc(100vw_-_32px)] [z-index:60] [background:#0d1527] [border:1px_solid_rgba(255,_255,_255,_0.14)] [box-shadow:0_16px_36px_rgba(0,_0,_0,_0.65),_0_0_1px_rgba(255,_255,_255,_0.25)] [border-radius:12px] [padding:8px] [backdrop-filter:blur(16px)] [animation:clientDropdownFadeIn_0.15s_ease-out]"
           role="listbox"
           aria-label="Pilih Organisasi / Klien Operasional"
-        >
+          >
           <div className="client-dropdown-header [padding:6px_8px_8px] [border-bottom:1px_solid_rgba(255,_255,_255,_0.07)] [margin-bottom:6px]">
             <span className="client-dropdown-title [display:block] [font-size:9.5px] [font-weight:800] [letter-spacing:0.7px] [color:var(--accent-blue)] [text-transform:uppercase]">PILIH KLIEN OPERASIONAL</span>
           </div>
 
-          <div className="client-dropdown-list [display:flex] [flex-direction:column] [gap:4px]">
+          <div className="client-dropdown-list [display:flex] [flex-direction:column] [gap:4px] [max-height:360px] [overflow-y:auto] [overscroll-behavior:contain] [scrollbar-width:thin] [padding-right:2px]">
             {clients.map((client) => {
               const isSelected = client.id === activeClient.id;
               return (
@@ -130,7 +128,8 @@ export function ClientSwitcher() {
               );
             })}
           </div>
-        </div>
+          </div>
+        </>
       )}
     </div>
   );

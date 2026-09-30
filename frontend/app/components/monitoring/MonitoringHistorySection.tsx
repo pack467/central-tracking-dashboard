@@ -370,20 +370,20 @@ export function MonitoringHistorySection({ todayEntries, todayAssessments }: Mon
                     return (
                       <div
                         key={entry.id}
-                        className={`[box-sizing:border-box] [display:grid] [grid-template-columns:70px_minmax(160px,_1.4fr)_80px_minmax(0,_2.2fr)] [align-items:center] [gap:12px] [padding:8px_16px] [border-bottom:1px_solid_var(--line)] [transition:background_0.15s_ease] [@media(max-width:768px)]:[grid-template-columns:60px_1fr_70px] [@media(max-width:768px)]:[grid-template-areas:'time_project_verdict'_'note_note_note'] [@media(max-width:768px)]:[height:auto]! [@media(max-width:768px)]:[position:relative]! [@media(max-width:768px)]:[transform:none]! [@media(max-width:768px)]:[padding:10px_14px] ${
+                        className={`[box-sizing:border-box] [display:grid] [grid-template-columns:70px_minmax(160px,_1.4fr)_80px_minmax(0,_2.2fr)] [align-items:center] [gap:12px] [padding:8px_16px] [border-bottom:1px_solid_var(--line)] [transition:background_0.15s_ease] [@media(max-width:940px)]:[grid-template-columns:58px_minmax(0,_1fr)_auto] [@media(max-width:940px)]:[grid-template-areas:'time_project_verdict'_'time_note_note'] [@media(max-width:940px)]:[align-items:start] [@media(max-width:940px)]:[gap:8px] [@media(max-width:940px)]:[height:auto]! [@media(max-width:940px)]:[position:relative]! [@media(max-width:940px)]:[transform:none]! [@media(max-width:940px)]:[padding:10px_14px] ${
                           isOk
                             ? "[background:color-mix(in_srgb,_var(--green-soft)_20%,_var(--panel-bg))]"
                             : "[background:color-mix(in_srgb,_var(--red-soft)_25%,_var(--panel-bg))] [border-left:3px_solid_var(--red)]"
                         }`}
                       >
                         {/* Time */}
-                        <span className="[display:flex] [flex-direction:column]">
+                        <span className="[display:flex] [flex-direction:column] [@media(max-width:940px)]:[grid-area:time] [@media(max-width:940px)]:[padding-top:2px]">
                           <strong className="[font-size:12px] [font-weight:700] [font-family:var(--font-mono)] [color:var(--ink-primary)]">{entry.time}</strong>
                           <small className="[font-size:9px] [color:var(--ink-muted)] [font-family:var(--font-mono)]">{entry.date.slice(5)}</small>
                         </span>
 
                         {/* Project & Task */}
-                        <div className="[display:flex] [align-items:center] [gap:8px] [min-width:0]">
+                        <div className="[display:flex] [align-items:center] [gap:8px] [min-width:0] [@media(max-width:940px)]:[grid-area:project]">
                           <ProjectMark name={entry.project} />
                           <div className="[display:flex] [flex-direction:column] [min-width:0]">
                             <strong className="[font-size:12px] [font-weight:700] [color:var(--ink-primary)]">{entry.project}</strong>
@@ -392,7 +392,7 @@ export function MonitoringHistorySection({ todayEntries, todayAssessments }: Mon
                         </div>
 
                         {/* Verdict Badge */}
-                        <div className="history-verdict-cell">
+                        <div className="history-verdict-cell [@media(max-width:940px)]:[grid-area:verdict] [@media(max-width:940px)]:[justify-self:end]">
                           <span
                             className={`[display:inline-flex] [align-items:center] [justify-content:center] [padding:2px_7px] [border-radius:5px] [font-size:10px] [font-weight:800] [font-family:var(--font-mono)] [line-height:1.2] ${
                               isOk
@@ -405,7 +405,7 @@ export function MonitoringHistorySection({ todayEntries, todayAssessments }: Mon
                         </div>
 
                         {/* Note & Checker */}
-                        <div className="[display:flex] [flex-direction:column] [min-width:0] [gap:2px]">
+                        <div className="[display:flex] [flex-direction:column] [min-width:0] [gap:2px] [@media(max-width:940px)]:[grid-area:note]">
                           <span className="[font-size:11.5px] [color:var(--ink-primary)] [overflow:hidden] [text-overflow:ellipsis] [white-space:nowrap]" title={entry.note}>
                             {entry.note || "Tanpa catatan tambahan."}
                           </span>

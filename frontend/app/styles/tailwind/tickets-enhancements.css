@@ -1170,21 +1170,36 @@
   @apply [border:1px_solid_rgba(255,_255,_255,_0.12)];
   @apply [color:var(--ink-muted)];
   @apply [border-radius:6px];
-  @apply [width:22px];
-  @apply [height:22px];
-  @apply [display:inline-flex];
-  @apply [align-items:center];
-  @apply [justify-content:center];
+  @apply [width:28px];
+  @apply [height:28px];
+  @apply [min-width:28px];
+  @apply [min-height:28px];
+  @apply [display:inline-grid];
+  @apply [place-items:center];
   @apply [cursor:pointer];
   @apply [padding:0];
   @apply [transition:all_0.15s_ease];
   @apply [flex-shrink:0];
 }
 
+.chart-popover-close-btn svg {
+  @apply [display:block];
+  @apply [width:14px];
+  @apply [height:14px];
+  @apply [flex-shrink:0];
+  @apply [pointer-events:none];
+}
+
 .chart-popover-close-btn:hover {
   @apply [background:rgba(239,_68,_68,_0.2)];
   @apply [border-color:rgba(239,_68,_68,_0.5)];
   @apply [color:#f87171];
+}
+
+.chart-popover-close-btn:focus-visible {
+  @apply [outline:none];
+  @apply [border-color:var(--accent-blue-border)];
+  @apply [box-shadow:0_0_0_3px_rgba(56,_189,_248,_0.18)];
 }
 
 .chart-select-hint {
@@ -3968,8 +3983,12 @@
   @apply [border-radius:8px];
   @apply [width:32px];
   @apply [height:32px];
+  @apply [min-width:32px];
+  @apply [min-height:32px];
   @apply [display:grid];
   @apply [place-items:center];
+  @apply [padding:0];
+  @apply [line-height:1];
   @apply [color:var(--ink-secondary)];
   @apply [cursor:pointer];
   @apply [transition:all_0.15s_ease];
@@ -5044,4 +5063,3 @@
     @apply ![color:#0f172a];
   }
 }
-

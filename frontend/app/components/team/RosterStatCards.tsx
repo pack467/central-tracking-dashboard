@@ -40,7 +40,7 @@ export function RosterStatCards({ members, swapRequests, onOpenSwaps }: RosterSt
 
   return (
     <section
-      className="roster-metrics-grid grid grid-cols-[repeat(4,_1fr)] gap-[14px] mb-[20px] max-[1140px]:grid-cols-[repeat(2,_1fr)] max-[640px]:grid-cols-[1fr]"
+      className="roster-metrics-grid grid grid-cols-[repeat(4,_1fr)] gap-[14px] mb-[20px] max-[1140px]:grid-cols-[repeat(2,_1fr)] max-[640px]:grid-cols-[repeat(2,_minmax(0,_1fr))]"
       aria-label="Ringkasan statistik tim"
     >
 

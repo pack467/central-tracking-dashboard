@@ -9,7 +9,6 @@
 @import "./styles/tailwind/dashboard-panels.css";
 @import "./styles/tailwind/ticket-surfaces.css";
 @import "./styles/tailwind/overlays.css";
-@import "./styles/tailwind/responsive.css";
 @import "./styles/tailwind/monitoring.css";
 @import "./styles/tailwind/handover.css";
 @import "./styles/tailwind/utilities.css";
@@ -19,3 +18,4 @@
 @import "./styles/tailwind/tickets-enhancements.css";
 @import "./styles/tailwind/monitoring-enhancements.css";
 @import "./styles/tailwind/profile.css";
+@import "./styles/tailwind/responsive.css";

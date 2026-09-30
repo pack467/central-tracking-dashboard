@@ -82,6 +82,9 @@
  * while components are migrated incrementally.
  */
 @theme inline {
+  --breakpoint-3xl: 1920px;
+  --breakpoint-4xl: 2560px;
+
   --font-dashboard-sans: var(--font-sans);
   --font-dashboard-mono: var(--font-mono);
 

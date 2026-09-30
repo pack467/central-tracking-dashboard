@@ -307,6 +307,7 @@ export function Dashboard({ initialNav = "Dashboard" }: { initialNav?: string })
             onClose={() => setMobileNavOpen(false)}
             activeNav={activeNav}
             onNavigate={handleNavigate}
+            onPrepareHandover={() => handover.openActive()}
             handoverRecord={handover.record}
             openTicketCount={openTicketCount}
           />

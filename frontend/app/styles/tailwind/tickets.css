@@ -466,9 +466,8 @@
 }
 
 .filter-chip-remove {
-  @apply [display:inline-flex];
-  @apply [align-items:center];
-  @apply [justify-content:center];
+  @apply [display:inline-grid];
+  @apply [place-items:center];
   @apply [width:16px];
   @apply [height:16px];
   @apply [min-width:16px];
@@ -1204,4 +1203,3 @@
 .ticket-table-container .ticket-rows-wrap .ticket-row:last-child {
   @apply [border-bottom:none];
 }
-

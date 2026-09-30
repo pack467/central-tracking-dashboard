@@ -31,6 +31,7 @@
   .sidebar,
   .sidebar-toggle-tab { @apply [display:none]; }
   .workspace { @apply [width:100%]; @apply [margin:0]; }
+  .sidebar-is-collapsed .workspace { @apply [margin:0]; }
   .topbar { @apply [padding:0_14px]; @apply [height:56px]; }
   .hamburger-button {
     @apply [display:grid];
@@ -52,6 +53,33 @@
 }
 
 @media (max-width: 660px) {
+  .topbar { @apply [gap:8px]; @apply [overflow:visible]; }
+  .breadcrumbs { @apply [flex-shrink:0]; }
+  .topbar-actions { @apply [flex:1]; @apply [min-width:0]; @apply [justify-content:flex-end]; @apply [gap:6px]; }
+  .client-switcher-btn,
+  .shift-transition-pill,
+  .topbar-shift-badge { @apply [width:40px]; @apply [height:40px]; @apply [min-height:40px]; @apply [padding:0]; @apply [justify-content:center]; @apply [flex-shrink:0]; }
+  .client-switcher-btn { @apply [gap:0]; }
+  .client-name-group,
+  .client-chevron,
+  .topbar-shift-badge .shift-badge-label,
+  .shift-transition-pill .transition-info-stack,
+  .shift-transition-pill .transition-badge-actions { @apply [display:none]; }
+  .live-clock-badge { @apply [display:inline-flex]; @apply [height:40px]; @apply [padding:0_7px]; @apply [gap:4px]; @apply [flex-shrink:0]; }
+  .live-clock-badge .live-clock-date,
+  .live-clock-badge .live-clock-divider,
+  .live-clock-badge .timezone-pill-badge { @apply [display:none]; }
+  .client-dropdown-menu {
+    @apply [position:fixed];
+    @apply [top:64px];
+    @apply [right:16px];
+    @apply [left:16px];
+    @apply [width:auto];
+    @apply [max-width:none];
+    @apply [max-height:calc(100dvh_-_80px)];
+    @apply [z-index:110];
+  }
+  .client-dropdown-list { @apply [max-height:calc(100dvh_-_144px)]; }
   .page-heading { @apply [flex-direction:column]; @apply [align-items:flex-start]; @apply [gap:12px]; }
   .health-strip { @apply [flex-direction:column]; @apply [align-items:flex-start]; }
   .service-health-grid { @apply [display:flex]; @apply [flex-wrap:wrap]; @apply [gap:8px_10px]; @apply [width:100%]; }
@@ -63,19 +91,151 @@
   .health-intro { @apply [display:flex]; @apply [flex-wrap:wrap]; @apply [gap:4px]; @apply [padding-right:0]; @apply [border-right:0]; @apply [border-bottom:1px_solid_var(--line)]; @apply [padding-bottom:10px]; @apply [width:100%]; }
 }
 
+/* Keep monitoring summaries concise on phone screens without hiding their detail. */
+@media (max-width: 600px) {
+  .ticket-stats,
+  .system-strip { @apply [grid-template-columns:repeat(2,_minmax(0,_1fr))]; }
+  .monitoring-stat-cards-grid { @apply [gap:10px]; @apply [margin-bottom:16px]; }
+  .monitoring-stat-cards-grid .sc { @apply [gap:4px]; @apply [padding:10px_14px]; }
+  .monitoring-stat-cards-grid .sc-icon { @apply [width:26px]; @apply [height:26px]; }
+  .monitoring-stat-cards-grid .sc-value { @apply [font-size:28px]; }
+  .monitoring-stat-cards-grid .sc-body { @apply [gap:3px]; }
+  .monitoring-stat-cards-grid .sc-subtitle { @apply [line-height:1.25]; }
+  .monitoring-stat-cards-grid .sc-footer { @apply [margin-top:0]; }
+}
+
+@media (max-width: 640px) {
+  .page-heading { @apply [margin-bottom:0]; }
+  .ticket-report-container { @apply [gap:16px]; }
+
+  .shift-panel-toggle-tab,
+  .shift-coverage-panel { @apply [display:none]; }
+
+  .ops-focus-section { @apply [gap:12px]; }
+  .ops-today-panel,
+  .ops-right-column,
+  .ops-engineer-panel { @apply [min-width:0]; }
+  .ops-focus-header { @apply [gap:10px]; @apply [padding:0]; }
+  .ops-focus-header-left { @apply [display:flex]; @apply [flex-wrap:wrap]; @apply [gap:8px]; @apply [width:100%]; }
+  .ops-section-title { @apply [flex-basis:100%]; @apply [font-size:15px]; @apply [line-height:1.25]; }
+  .ops-shift-badge { @apply [height:28px]; @apply [padding:0_10px]; }
+
+  .report-panel-heading { @apply [padding:12px_14px]; @apply [gap:10px]; }
+  .primary-chart-panel .report-panel-body,
+  .velocity-panel-body,
+  .shift-traffic-panel-body { @apply [padding:12px]; }
+  .primary-chart-panel .report-panel-body { @apply [gap:10px]; }
+  .chart-heading-left { @apply [width:100%]; }
+  .chart-tab-controls { @apply [width:100%]; }
+  .chart-tab-btn { @apply [flex:1]; @apply [justify-content:center]; @apply [min-height:44px]; @apply [padding:5px_8px]; @apply [text-align:center]; }
+
+  .today-ticket-row {
+    @apply [width:100%];
+    @apply [min-width:0];
+    @apply [grid-template-columns:minmax(0,_1fr)_auto];
+    @apply [grid-template-areas:'id_badges'_'subject_badges'];
+    @apply [gap:4px_8px];
+    @apply [padding:8px_10px];
+  }
+  .today-ticket-list { @apply [min-width:0]; }
+  .today-ticket-id-col { @apply [grid-area:id]; }
+  .today-ticket-subject { @apply [grid-area:subject]; }
+  .today-ticket-badges { @apply [grid-area:badges]; @apply [flex-direction:column]; @apply [align-items:flex-end]; @apply [gap:4px]; }
+  .today-ticket-meta { @apply [gap:0]; }
+  .today-ticket-owner { @apply [display:none]; }
+
+  .svg-barchart-wrap { @apply [min-height:220px]; @apply [flex:none]; }
+  .report-bar-svg-lg { @apply [min-height:220px]; @apply [height:220px]; }
+
+  .velocity-legend-strip { @apply [gap:8px_12px]; }
+  .velocity-legend-item { @apply [font-size:10px]; }
+  .velocity-metrics-strip { @apply [grid-template-columns:repeat(2,_minmax(0,_1fr))]; @apply [gap:8px]; }
+  .velocity-metric-pill { @apply [padding:8px_10px]; }
+  .velocity-chart-container { @apply [height:230px]; @apply [min-height:220px]; }
+  .velocity-chart-svg { @apply [min-height:220px]; }
+
+  .shift-traffic-metrics-strip { @apply [gap:8px]; @apply [margin-bottom:10px]; }
+  .shift-traffic-metric-pill { @apply [gap:6px]; @apply [padding:10px]; }
+  .shift-traffic-metric-label { @apply [align-items:flex-start]; @apply [gap:4px]; @apply [white-space:normal]; }
+  .shift-traffic-metric-name { @apply [min-width:0]; }
+  .shift-traffic-metric-hours { @apply [display:none]; }
+  .shift-traffic-metric-sub { @apply [white-space:normal]; }
+  .shift-traffic-chart-container { @apply [height:230px]; @apply [min-height:220px]; }
+  .shift-traffic-chart-svg { @apply [min-height:220px]; }
+  .shift-traffic-peak-badge { @apply [display:none]; }
+  .shift-traffic-filter-bar { @apply [padding-right:0]; }
+
+  /* Keep compact dashboard controls readable instead of forcing a single clipped row. */
+  .engineer-workload-footer { @apply [flex-direction:column]; @apply [align-items:flex-start]; @apply [gap:5px]; }
+  .engineer-workload-stats { @apply [white-space:normal]; @apply [flex-wrap:wrap]; }
+
+  .today-pagination { @apply [flex-direction:column]; @apply [align-items:stretch]; @apply [gap:10px]; }
+  .today-pagination-left { @apply [flex-direction:column]; @apply [align-items:flex-start]; @apply [gap:8px]; }
+  .today-page-size-selector { @apply [width:100%]; @apply [flex-wrap:wrap]; }
+  .today-pagination-actions { @apply [width:100%]; @apply [justify-content:space-between]; }
+  .page-size-btn,
+  .today-page-btn { @apply [min-height:36px]; }
+
+  .mom-subview-toggle-bar { @apply [flex-direction:column]; @apply [align-items:stretch]; @apply [gap:10px]; @apply [padding:10px]; }
+  .mom-view-hint { @apply [width:100%]; @apply [line-height:1.45]; }
+  .mom-toggle-btns { @apply [width:100%]; }
+  .mom-toggle-btn { @apply [flex:1]; @apply [min-width:0]; @apply [min-height:44px]; @apply [justify-content:center]; @apply [padding:6px_8px]; @apply [text-align:center]; }
+}
+
 @media (max-width: 760px) {
   .schedule-heading { @apply [flex-direction:column]; @apply [align-items:flex-start]; }
   .filter-tabs { @apply [max-width:100%]; @apply [overflow-x:auto]; }
 
   .schedule-table {
-    @apply [overflow-x:auto];
-    @apply [overscroll-behavior-x:contain];
-    @apply [scrollbar-gutter:stable];
+    @apply [padding:8px_12px_12px];
+    @apply [overflow:visible];
   }
 
-  .schedule-header, .schedule-row {
-    @apply [min-width:720px];
-    @apply [grid-template-columns:64px_250px_160px_186px];
+  .schedule-header { @apply [display:none]; }
+  .schedule-body { @apply [max-height:none]; @apply [overflow:visible]; @apply [padding-right:0]; }
+  .schedule-row {
+    @apply [min-width:0];
+    @apply [grid-template-columns:54px_minmax(0,_1fr)_auto];
+    @apply [grid-template-rows:auto_auto];
+    @apply [column-gap:8px];
+    @apply [row-gap:5px];
+    @apply [min-height:78px];
+    @apply [max-height:none];
+    @apply [padding:10px_8px];
   }
+  .schedule-time { @apply [grid-column:1]; @apply [grid-row:1_/_span_2]; @apply [padding-top:4px]; }
+  .schedule-check { @apply [grid-column:2]; @apply [grid-row:1]; @apply [align-items:flex-start]; @apply [gap:7px]; }
+  .schedule-owner { @apply [grid-column:2]; @apply [grid-row:2]; @apply [gap:6px]; }
+  .schedule-assessment-cell { @apply [grid-column:3]; @apply [grid-row:1_/_span_2]; @apply [justify-self:end]; @apply [align-self:center]; }
+  .schedule-assessment-cell .assessment-actions { @apply [width:auto]; @apply [grid-template-columns:repeat(2,_40px)]; @apply [gap:6px]; }
+  .schedule-assessment-cell .assess-btn { @apply [width:40px]; @apply [min-width:40px]; @apply [min-height:40px]; @apply [padding:0]; @apply [border-radius:8px]; }
+  .schedule-assessment-cell .assess-btn-text,
+  .schedule-assessment-cell .ubah-btn { @apply ![display:none]; }
+  .schedule-check .schedule-task-desc { @apply [white-space:normal]; @apply [line-height:1.35]; }
+  .checked-by-name,
+  .checked-by-placeholder { @apply [font-size:10.5px]; }
+}
+
+@media (min-width: 761px) and (max-width: 940px) {
+  .schedule-table { @apply [padding:8px_14px_14px]; }
+  .schedule-header { @apply [display:none]; }
+  .schedule-body { @apply [max-height:none]; @apply [overflow:visible]; @apply [padding-right:0]; }
+  .schedule-row {
+    @apply [grid-template-columns:60px_minmax(0,_1fr)_auto];
+    @apply [grid-template-rows:auto_auto];
+    @apply [column-gap:10px];
+    @apply [row-gap:6px];
+    @apply [min-height:80px];
+    @apply [max-height:none];
+    @apply [padding:10px];
+  }
+  .schedule-time { @apply [grid-column:1]; @apply [grid-row:1_/_span_2]; }
+  .schedule-check { @apply [grid-column:2]; @apply [grid-row:1]; }
+  .schedule-owner { @apply [grid-column:2]; @apply [grid-row:2]; }
+  .schedule-assessment-cell { @apply [grid-column:3]; @apply [grid-row:1_/_span_2]; @apply [justify-self:end]; @apply [align-self:center]; }
+  .schedule-assessment-cell .assessment-actions { @apply [width:auto]; @apply [grid-template-columns:repeat(2,_40px)]; }
+  .schedule-assessment-cell .assess-btn { @apply [min-height:40px]; @apply [padding:4px]; }
+  .schedule-assessment-cell .assess-btn-text,
+  .schedule-assessment-cell .ubah-btn { @apply [display:none]; }
 }
 

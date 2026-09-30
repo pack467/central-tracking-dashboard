@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { X } from "lucide-react";
 import { BrandLogo } from "@/app/components/ui/BrandLogo";
 import { Avatar } from "@/app/components/ui/Avatar";
 import { navItems, USER_STATUS_CONFIG, type UserPresenceStatus } from "./Sidebar";
@@ -12,6 +13,7 @@ interface MobileNavProps {
   onClose: () => void;
   activeNav: string;
   onNavigate: (label: string) => void;
+  onPrepareHandover: () => void;
   handoverRecord: HandoverRecordData;
   openTicketCount?: number;
 }
@@ -21,6 +23,7 @@ export function MobileNav({
   onClose,
   activeNav,
   onNavigate,
+  onPrepareHandover,
   handoverRecord,
   openTicketCount = 0,
 }: MobileNavProps) {
@@ -72,8 +75,8 @@ export function MobileNav({
       <div className="mobile-drawer anim-slide-right [display:flex] [flex-direction:column] [gap:14px] [width:min(300px,_86vw)] [height:100%] [padding:20px_14px_18px] [overflow-y:auto] [color:var(--sidebar-text)] [background:var(--sidebar-bg)] [box-shadow:var(--shadow-elevated)]" role="dialog" aria-modal="true" aria-label="Navigasi mobile">
         <div className="mobile-drawer-head [display:flex] [align-items:center] [justify-content:space-between] [gap:8px]">
           <BrandLogo size={26} />
-          <button className="mobile-drawer-close [display:grid] [place-items:center] [width:34px] [height:34px] [color:var(--sidebar-muted)] [border:1px_solid_rgba(56,_189,_248,_0.2)]! [border-radius:7px] [font-size:19px]!" onClick={onClose} aria-label="Tutup menu">
-            ×
+          <button className="mobile-drawer-close [display:grid] [place-items:center] [width:44px] [height:44px] [min-width:44px] [padding:0] [color:var(--sidebar-muted)] [border:1px_solid_rgba(56,_189,_248,_0.2)]! [border-radius:7px]" onClick={onClose} aria-label="Tutup menu">
+            <X size={18} strokeWidth={2.2} aria-hidden="true" />
           </button>
         </div>
 
@@ -113,11 +116,11 @@ export function MobileNav({
           <p>{activeShift.period} · {handoverRecord.sourceShift} → {handoverRecord.targetShift}</p>
           <button
             onClick={() => {
-              onNavigate("Dashboard");
+              onPrepareHandover();
               onClose();
             }}
           >
-            Buka dashboard <span>→</span>
+            Siapkan Handover <span>→</span>
           </button>
         </section>
 

@@ -657,7 +657,7 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
                   onClick={() => setSearch("")}
                   aria-label="Remove search filter"
                 >
-                  ×
+                  <X size={10} strokeWidth={2.4} aria-hidden="true" />
                 </button>
               </span>
             )}
@@ -670,7 +670,7 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
                   onClick={() => setStatusFilter("All")}
                   aria-label="Remove status filter"
                 >
-                  ×
+                  <X size={10} strokeWidth={2.4} aria-hidden="true" />
                 </button>
               </span>
             )}
@@ -683,7 +683,7 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
                   onClick={() => setDateFilter("")}
                   aria-label="Hapus filter tanggal"
                 >
-                  ×
+                  <X size={10} strokeWidth={2.4} aria-hidden="true" />
                 </button>
               </span>
             )}
@@ -696,7 +696,7 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
                   onClick={() => setTypeFilter("All Types")}
                   aria-label="Remove type filter"
                 >
-                  ×
+                  <X size={10} strokeWidth={2.4} aria-hidden="true" />
                 </button>
               </span>
             )}
@@ -709,7 +709,7 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
                   onClick={() => setPriorityFilter("All Severities")}
                   aria-label="Remove severity filter"
                 >
-                  ×
+                  <X size={10} strokeWidth={2.4} aria-hidden="true" />
                 </button>
               </span>
             )}
@@ -722,7 +722,7 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
                   onClick={() => setProjectFilter("All Projects")}
                   aria-label="Remove project filter"
                 >
-                  ×
+                  <X size={10} strokeWidth={2.4} aria-hidden="true" />
                 </button>
               </span>
             )}
@@ -735,7 +735,7 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
                   onClick={() => setShiftFilter("Semua Shift")}
                   aria-label="Remove shift filter"
                 >
-                  ×
+                  <X size={10} strokeWidth={2.4} aria-hidden="true" />
                 </button>
               </span>
             )}
