@@ -6,6 +6,8 @@ import { LoggerModule } from './common/logger/logger.module.js';
 import { RequestIdMiddleware } from './common/middleware/request-id.middleware.js';
 import { UsersModule } from './users/users.module.js';
 import { MetricsModule } from './metrics/metrics.module.js';
+import { PrismaService } from './prisma/prisma.service.js';
+import { PrismaModule } from './prisma/prisma.module.js';
 
 @Module({
   imports: [
@@ -15,9 +17,10 @@ import { MetricsModule } from './metrics/metrics.module.js';
     LoggerModule,
     UsersModule,
     MetricsModule,
+    PrismaModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, PrismaService],
 })
 export class AppModule {
   configure(
