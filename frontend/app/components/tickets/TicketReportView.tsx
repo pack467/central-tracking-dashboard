@@ -85,6 +85,16 @@ const PRIORITY_COLORS = {
   Low: "#2dd4bf",
 };
 
+// Reusable standard panel card and header utilities matching legacy dashboard specifications
+const REPORT_PANEL_CARD =
+  "bg-[var(--panel-bg)] border border-[var(--panel-border)] rounded-[12px] shadow-[var(--shadow-panel)] overflow-hidden flex flex-col";
+
+const REPORT_PANEL_HEADING =
+  "flex justify-between items-center flex-wrap gap-[12px] max-[768px]:gap-[10px] p-[14px_20px] max-[768px]:p-[12px_14px] border-b border-[var(--line)]";
+
+const REPORT_PANEL_TITLE =
+  "flex items-center gap-[8px] text-[14px] font-bold text-[var(--ink-primary)]";
+
 // Helper for generating clean Y-axis ticks
 function computeYTicks(maxVal: number) {
   const safeMax = Math.max(1, maxVal);
@@ -255,9 +265,9 @@ function AnalyticsShifterMultiSelect({
   }, [selectedList]);
 
   return (
-    <div className="[position:relative] [width:100%]" ref={containerRef}>
+    <div className="relative w-full" ref={containerRef}>
       <div
-        className="analytics-shifter-trigger"
+        className="relative flex items-center justify-between gap-[6px] w-full h-[34px] p-[0_10px_0_30px] bg-[rgba(15,23,42,0.85)] border border-[rgba(148,163,184,0.16)] rounded-[7px] text-[11.5px] text-[#f8fafc] cursor-pointer select-none [transition:all_0.15s_ease] overflow-hidden hover:border-[rgba(56,189,248,0.3)] hover:bg-[rgba(15,23,42,0.95)] data-[active=true]:border-[rgba(56,189,248,0.45)] data-[active=true]:bg-[rgba(56,189,248,0.08)] data-[active=true]:text-[#38bdf8] data-[active=true]:font-semibold analytics-shifter-trigger"
         data-active={selectedList.length > 0 ? "true" : undefined}
         onClick={() => setIsOpen((prev) => !prev)}
         role="button"
@@ -270,42 +280,42 @@ function AnalyticsShifterMultiSelect({
         }}
         title={selectedList.length > 0 ? selectedList.join(", ") : "Filter Shifter / PIC"}
       >
-        <Users size={13} className="analytics-select-icon" />
-        <span className="[white-space:nowrap] [overflow:hidden] [text-overflow:ellipsis] [flex:1] [min-width:0]">
+        <Users size={13} className="absolute left-[10px] text-[#94a3b8] pointer-events-none shrink-0 analytics-select-icon" />
+        <span className="whitespace-nowrap overflow-hidden text-ellipsis flex-1 min-w-0">
           {label}
         </span>
-        <ChevronDown size={12} className="analytics-select-arrow" />
+        <ChevronDown size={12} className="absolute right-[10px] text-[#94a3b8] pointer-events-none shrink-0 opacity-70 analytics-select-arrow" />
       </div>
 
       {isOpen && (
-        <div className="analytics-shifter-popover">
-          <div className="analytics-shifter-header">
+        <div className="absolute top-[calc(100%+4px)] left-0 w-[260px] bg-[#0f172a] border border-[rgba(148,163,184,0.2)] rounded-[8px] shadow-[0_10px_25px_rgba(0,0,0,0.5)] z-50 p-[6px] flex flex-col gap-[4px] analytics-shifter-popover">
+          <div className="flex items-center justify-between p-[4px_6px_6px] [border-bottom:1px_solid_rgba(148,163,184,0.1)] text-[10px] font-semibold text-[#94a3b8] analytics-shifter-header">
             <span>Pilih Shifter ({selectedList.length}/{staffList.length})</span>
-            <div className="[display:flex] [align-items:center] [gap:8px]">
-              <button type="button" className="analytics-shifter-action" onClick={selectAll}>
+            <div className="flex items-center gap-[8px]">
+              <button type="button" className="text-[#38bdf8] cursor-pointer text-[10px] bg-transparent border-none p-0 hover:underline analytics-shifter-action" onClick={selectAll}>
                 Pilih Semua
               </button>
               <span>·</span>
-              <button type="button" className="analytics-shifter-action" onClick={clearAll}>
+              <button type="button" className="text-[#38bdf8] cursor-pointer text-[10px] bg-transparent border-none p-0 hover:underline analytics-shifter-action" onClick={clearAll}>
                 Hapus
               </button>
             </div>
           </div>
-          <div className="analytics-shifter-list">
+          <div className="flex flex-col gap-[2px] max-h-[210px] overflow-y-auto pr-[2px] analytics-shifter-list">
             {staffList.map((staff) => {
               const isSelected = selectedList.includes(staff.name);
               return (
                 <label
                   key={staff.name}
-                  className={`analytics-shifter-item ${isSelected ? "is-selected" : ""}`}
+                  className={`flex items-center gap-[8px] p-[5px_8px] rounded-[5px] text-[11px] cursor-pointer [transition:background_0.15s_ease] ${isSelected ? "bg-[rgba(56,189,248,0.14)] text-[#38bdf8] font-semibold is-selected" : "text-[#f8fafc] hover:bg-[rgba(56,189,248,0.08)]"} analytics-shifter-item`}
                 >
                   <input
                     type="checkbox"
                     checked={isSelected}
                     onChange={() => toggle(staff.name)}
-                    className="analytics-shifter-checkbox"
+                    className="w-[13px] h-[13px] rounded-[3px] accent-[#0284c7] cursor-pointer analytics-shifter-checkbox"
                   />
-                  <span className="[flex:1] [min-width:0] [overflow:hidden] [text-overflow:ellipsis] [white-space:nowrap]">
+                  <span className="flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">
                     {staff.name}
                   </span>
                 </label>
@@ -317,6 +327,27 @@ function AnalyticsShifterMultiSelect({
     </div>
   );
 }
+
+const SHIFT_BADGE_STYLES = {
+  subuh: "bg-[rgba(56,189,248,0.12)] border-[rgba(56,189,248,0.28)] text-[#cbd5e1] [&_strong]:text-[#38bdf8]",
+  pagi: "bg-[rgba(245,158,11,0.12)] border-[rgba(245,158,11,0.28)] text-[#cbd5e1] [&_strong]:text-[#fbbf24]",
+  malam: "bg-[rgba(168,85,247,0.12)] border-[rgba(168,85,247,0.28)] text-[#cbd5e1] [&_strong]:text-[#c084fc]",
+} as const;
+
+const OPS_PRIORITY_PILL_STYLES = {
+  crit: "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] font-bold whitespace-nowrap bg-[rgba(239,68,68,0.15)] text-[#f87171] border border-[rgba(239,68,68,0.3)] priority-pill priority-pill-crit",
+  high: "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] font-bold whitespace-nowrap bg-[rgba(249,115,22,0.15)] text-[#fb923c] border border-[rgba(249,115,22,0.3)] priority-pill priority-pill-high",
+  med: "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] font-bold whitespace-nowrap bg-[rgba(245,158,11,0.15)] text-[#fbbf24] border border-[rgba(245,158,11,0.3)] priority-pill priority-pill-med",
+  low: "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] font-bold whitespace-nowrap bg-[rgba(45,212,191,0.15)] text-[#2dd4bf] border border-[rgba(45,212,191,0.3)] priority-pill priority-pill-low",
+} as const;
+
+const OPS_STATUS_PILL_STYLES = {
+  active: "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] font-bold whitespace-nowrap bg-[rgba(16,185,129,0.15)] text-[#34d399] border border-[rgba(16,185,129,0.25)] status-pill status-pill-active",
+  inprogress: "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] font-bold whitespace-nowrap bg-[rgba(56,189,248,0.15)] text-[#38bdf8] border border-[rgba(56,189,248,0.25)] status-pill status-pill-inprogress",
+  pending: "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] font-bold whitespace-nowrap bg-[rgba(245,158,11,0.15)] text-[#fbbf24] border border-[rgba(245,158,11,0.25)] status-pill status-pill-pending",
+  escalated: "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] font-bold whitespace-nowrap bg-[rgba(168,85,247,0.15)] text-[#c084fc] border border-[rgba(168,85,247,0.25)] status-pill status-pill-escalated",
+  closed: "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] font-bold whitespace-nowrap bg-[rgba(148,163,184,0.15)] text-[#cbd5e1] border border-[rgba(148,163,184,0.25)] status-pill status-pill-closed",
+} as const;
 
 export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: TicketReportViewProps) {
   const { activeClient } = useClient();
@@ -1327,7 +1358,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
           strokeDasharray={strokeDasharray}
           strokeDashoffset={strokeDashoffset}
           strokeLinecap="round"
-          className="donut-segment"
+          className="donut-segment [transition:stroke-width_0.2s_ease,opacity_0.2s_ease] hover:[stroke-width:19] hover:opacity-95"
           transform={`rotate(-90 ${cx} ${cy})`}
         />
       );
@@ -1335,47 +1366,47 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
   };
 
   return (
-    <div className="ticket-report-container">
+    <div className="p-0 flex flex-col gap-5 w-full ticket-report-container">
       {/* ── Page Header ── */}
-      <section className="page-heading">
+      <section className="page-heading flex justify-between items-end mb-[22px] max-[660px]:flex-col max-[660px]:items-start max-[660px]:gap-[12px] max-[640px]:mb-0">
         <div>
-          <div className="eyebrow">
-            <span className="live-dot live-dot-pulse" /> DASHBOARD · {activeClient.code}
+          <div className="eyebrow flex items-center gap-[8px] text-[var(--ink-muted)] text-[10px] tracking-[1px] font-bold font-mono uppercase">
+            <span className="inline-block w-[6px] h-[6px] min-w-[6px] min-h-[6px] rounded-[50%] bg-[#10b981] shrink-0 [animation:livePulse_1.8s_ease-in-out_infinite] live-dot live-dot-pulse" /> DASHBOARD · {activeClient.code}
           </div>
-          <h1>Dashboard</h1>
+          <h1 className="m-[6px_0_4px] text-[var(--ink-primary)] text-[24px] leading-[1.2] tracking-[-0.4px] font-bold">Dashboard</h1>
         </div>
       </section>
 
-      {/* ── 1. OPERATIONAL FOCUS PANEL — Real-time Actionable View for NOC/Ops ── */}
-      <div className="ops-focus-section">
-        <div className="ops-focus-header">
-          <div className="ops-focus-header-left">
-            <span className="ops-live-badge">
-              <span className="live-dot live-dot-pulse" />
+      {/* className="ops-focus-section" */}
+      <div className="flex flex-col gap-[14px] bg-transparent border-none rounded-none p-0 ops-focus-section">
+        <div className="flex items-center justify-between gap-[12px] flex-wrap p-[2px_0_4px] ops-focus-header">
+          <div className="inline-flex items-center gap-[10px] leading-none ops-focus-header-left">
+            <span className="inline-flex items-center justify-center gap-[6px] h-[22px] px-[9px] bg-[rgba(16,185,129,0.14)] border border-[rgba(16,185,129,0.32)] rounded-[99px] text-[10px] font-extrabold text-[#10b981] tracking-[0.04em] whitespace-nowrap shrink-0 leading-none box-border ops-live-badge">
+              <span className="inline-block w-[6px] h-[6px] min-w-[6px] min-h-[6px] rounded-[50%] bg-[#10b981] shrink-0 [animation:livePulse_1.8s_ease-in-out_infinite] live-dot live-dot-pulse" />
               LIVE OPS VIEW
             </span>
-            <span className="ops-section-title">Operational Focus — Pantauan Real-Time &amp; Koordinasi Shift</span>
+            <span className="inline-flex items-center text-[14px] font-bold text-[#f8fafc] leading-none m-0 tracking-[-0.01em] ops-section-title">Operational Focus — Pantauan Real-Time &amp; Koordinasi Shift</span>
           </div>
-          <span className={`ops-shift-badge ops-shift-${shiftWorkload.currentShift.toLowerCase()}`}>
+          <span className={`inline-flex items-center gap-[6px] h-[26px] px-[12px] border rounded-[6px] text-[11.5px] text-[#cbd5e1] whitespace-nowrap shrink-0 leading-none box-border [&_strong]:font-bold ops-shift-badge ${SHIFT_BADGE_STYLES[shiftWorkload.currentShift.toLowerCase() as keyof typeof SHIFT_BADGE_STYLES] || "bg-[rgba(99,102,241,0.12)] border-[rgba(99,102,241,0.25)] text-[#cbd5e1] [&_strong]:text-[#818cf8]"}`}>
             Shift Aktif: <strong>Shift {shiftWorkload.currentShift}</strong>
           </span>
         </div>
 
-        <div className="ops-focus-grid">
+        <div className="grid grid-cols-[minmax(0,1fr)_410px] max-[1140px]:grid-cols-1 gap-[16px] items-stretch w-full ops-focus-grid">
           {/* Widget A — Today's Tickets Monitor (Tiket Hari Ini) */}
-          <article className="panel report-panel ops-today-panel">
-            <div className="panel-heading report-panel-heading">
-              <div className="chart-heading-left">
-                <div className="panel-title [display:flex]! [align-items:center]! [gap:8px]!">
+          <article className={`${REPORT_PANEL_CARD} flex flex-col h-full ops-today-panel`}>
+            <div className={`${REPORT_PANEL_HEADING} report-panel-heading`}>
+              <div className="flex flex-col gap-[2px] chart-heading-left">
+                <div className={`${REPORT_PANEL_TITLE} panel-title`}>
                   <ListChecks size={15} className="text-sky-400" />
                   Tiket Hari Ini
                 </div>
               </div>
-              <div className="[display:flex]! [align-items:center]! [gap:8px]!">
+              <div className="flex items-center gap-[8px]">
                 {selectedEngineerFilter && (
                   <button
                     type="button"
-                    className="ops-filter-reset-btn"
+                    className="inline-flex items-center gap-[4px] p-[2px_8px] rounded-[6px] border border-[rgba(239,68,68,0.3)] bg-[rgba(239,68,68,0.1)] text-[#f87171] text-[10px] font-semibold cursor-pointer transition-all duration-150 ease-[ease] hover:bg-[rgba(239,68,68,0.2)] ops-filter-reset-btn"
                     onClick={() => {
                       setSelectedEngineerFilter(null);
                       setTodayPage(1);
@@ -1385,36 +1416,36 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                     <X size={11} /> Reset Filter ({selectedEngineerFilter})
                   </button>
                 )}
-                <span className="ops-count-badge">{displayedTodayTickets.length} tiket</span>
+                <span className="inline-flex px-[10px] py-[2px] rounded-[99px] text-[10px] font-bold text-[#38bdf8] bg-[rgba(56,189,248,0.12)] border border-[rgba(56,189,248,0.25)] whitespace-nowrap shrink-0 ops-count-badge">{displayedTodayTickets.length} tiket</span>
               </div>
             </div>
-            <div className="report-panel-body [padding:12px_16px]!">
+            <div className="report-panel-body [padding:12px_16px]! flex flex-col flex-1 justify-between">
               {paginatedTodayTickets.length > 0 ? (
                 <>
-                  <div className={`today-ticket-list ${todayPageSize > 10 || todayPageSize === 0 ? "has-scroll" : ""}`}>
+                  <div className={`flex flex-col gap-[5px] flex-1 overflow-visible today-ticket-list ${todayPageSize > 10 || todayPageSize === 0 ? "has-scroll overflow-y-auto max-h-[540px] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden" : ""}`}>
                     {paginatedTodayTickets.map((ticket) => {
                       const projColor = PROJECT_COLORS[ticket.project] || "#94a3b8";
                       const sev = ticket.severity.toLowerCase();
-                      const priorityClass =
+                      const priorityKey =
                         sev === "critical" || sev === "kritis"
-                          ? "priority-pill-crit"
+                          ? "crit"
                           : sev === "high" || sev === "tinggi"
-                          ? "priority-pill-high"
+                          ? "high"
                           : sev === "medium" || sev === "sedang"
-                          ? "priority-pill-med"
-                          : "priority-pill-low";
+                          ? "med"
+                          : "low";
 
                       const st = ticket.status.toLowerCase();
-                      const statusClass =
+                      const statusKey =
                         st === "active" || st === "open" || st === "aktivitas"
-                          ? "status-pill-active"
+                          ? "active"
                           : st === "in progress" || st === "in-progress"
-                          ? "status-pill-inprogress"
+                          ? "inprogress"
                           : st === "pending"
-                          ? "status-pill-pending"
+                          ? "pending"
                           : st === "escalated"
-                          ? "status-pill-escalated"
-                          : "status-pill-closed";
+                          ? "escalated"
+                          : "closed";
 
                       const statusLabel =
                         st === "active" || st === "aktivitas"
@@ -1430,27 +1461,27 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                           : "Closed";
 
                       return (
-                        <div className="today-ticket-row" key={ticket.id}>
-                          <div className="today-ticket-id-col">
-                            <span className="today-ticket-id">#{ticket.id}</span>
-                            <span className="today-ticket-proj" style={{ color: projColor }}>
+                        <div className="grid grid-cols-[88px_1fr_auto] items-center gap-[12px] p-[7px_12px] rounded-[8px] border border-[rgba(148,163,184,0.08)] bg-[rgba(148,163,184,0.03)] hover:bg-[rgba(148,163,184,0.08)] hover:border-[rgba(56,189,248,0.2)] transition-all duration-150 ease-[ease] today-ticket-row" key={ticket.id}>
+                          <div className="flex flex-col gap-[2px] today-ticket-id-col">
+                            <span className="font-mono text-[11px] font-bold text-[#f8fafc] today-ticket-id">#{ticket.id}</span>
+                            <span className="text-[10px] font-semibold today-ticket-proj" style={{ color: projColor }}>
                               ● {ticket.project}
                             </span>
                           </div>
-                          <div className="today-ticket-subject">
-                            <span className="today-ticket-title" title={ticket.subject}>{ticket.subject}</span>
-                            <div className="today-ticket-meta">
-                              <span className="today-ticket-type">{ticket.type || ticket.category || "Incident"}</span>
+                          <div className="flex flex-col gap-[2px] min-w-0 today-ticket-subject">
+                            <span className="text-[12px] font-semibold text-[#f8fafc] whitespace-nowrap overflow-hidden text-ellipsis today-ticket-title" title={ticket.subject}>{ticket.subject}</span>
+                            <div className="flex items-center gap-[8px] text-[10px] text-[#94a3b8] today-ticket-meta">
+                              <span className="text-[10px] text-[#94a3b8] today-ticket-type">{ticket.type || ticket.category || "Incident"}</span>
                               {ticket.owner && (
-                                <span className="today-ticket-owner">
+                                <span className="inline-flex items-center gap-[3px] text-[#cbd5e1] font-medium today-ticket-owner">
                                   <User size={10} /> {ticket.owner}
                                 </span>
                               )}
                             </div>
                           </div>
-                          <div className="today-ticket-badges">
-                            <span className={`priority-pill ${priorityClass}`}>{ticket.severity}</span>
-                            <span className={`status-pill ${statusClass}`}>{statusLabel}</span>
+                          <div className="flex items-center gap-[6px] shrink-0 today-ticket-badges">
+                            <span className={OPS_PRIORITY_PILL_STYLES[priorityKey]}>{ticket.severity}</span>
+                            <span className={OPS_STATUS_PILL_STYLES[statusKey]}>{statusLabel}</span>
                           </div>
                         </div>
                       );
@@ -1458,32 +1489,43 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                   </div>
 
                   {/* Pagination & Page Size Controls */}
-                  <div className="today-pagination">
-                    <div className="today-pagination-left">
-                      <span className="today-page-info">
+                  <div className="flex items-center justify-between gap-[8px] mt-auto pt-[10px] [border-top:1px_solid_rgba(148,163,184,0.08)] today-pagination">
+                    <div className="flex items-center gap-[12px] flex-wrap today-pagination-left">
+                      <span className="font-mono text-[11px] text-[#94a3b8] [&_strong]:text-[#f8fafc] [&_strong]:font-bold today-page-info">
                         Halaman <strong>{currentTodayPage}</strong> dari <strong>{totalTodayPages}</strong>
-                        <span className="today-total-info"> ({displayedTodayTickets.length} tiket)</span>
+                        <span className="text-[#94a3b8] today-total-info"> ({displayedTodayTickets.length} tiket)</span>
                       </span>
 
-                      <div className="today-page-size-selector">
-                        <span className="page-size-label">Tampilkan:</span>
-                        {[10, 15, 25].map((size) => (
-                          <button
-                            key={size}
-                            type="button"
-                            className={`page-size-btn ${todayPageSize === size ? "active" : ""}`}
-                            onClick={() => {
-                              setTodayPageSize(size);
-                              setTodayPage(1);
-                            }}
-                            title={`Tampilkan ${size} tiket per halaman`}
-                          >
-                            {size}
-                          </button>
-                        ))}
+                      <div className="inline-flex items-center gap-[3px] bg-[rgba(148,163,184,0.05)] p-[2px_4px] rounded-[6px] border border-[rgba(148,163,184,0.1)] today-page-size-selector">
+                        <span className="text-[10px] text-[#94a3b8] font-medium mr-[2px] pl-[2px] page-size-label">Tampilkan:</span>
+                        {[10, 15, 25].map((size) => {
+                          const isActive = todayPageSize === size;
+                          return (
+                            <button
+                              key={size}
+                              type="button"
+                              className={
+                                isActive
+                                  ? "border-none p-[2px_6px] rounded-[4px] cursor-pointer text-[10px] font-bold font-mono transition-all duration-150 ease-[ease] bg-[rgba(56,189,248,0.22)] text-[#38bdf8] page-size-btn active"
+                                  : "border-none p-[2px_6px] rounded-[4px] cursor-pointer text-[10px] font-semibold font-mono transition-all duration-150 ease-[ease] bg-transparent text-[#cbd5e1] hover:bg-[rgba(56,189,248,0.12)] hover:text-[#38bdf8] page-size-btn"
+                              }
+                              onClick={() => {
+                                setTodayPageSize(size);
+                                setTodayPage(1);
+                              }}
+                              title={`Tampilkan ${size} tiket per halaman`}
+                            >
+                              {size}
+                            </button>
+                          );
+                        })}
                         <button
                           type="button"
-                          className={`page-size-btn ${todayPageSize === 0 ? "active" : ""}`}
+                          className={
+                            todayPageSize === 0
+                              ? "border-none p-[2px_6px] rounded-[4px] cursor-pointer text-[10px] font-bold font-mono transition-all duration-150 ease-[ease] bg-[rgba(56,189,248,0.22)] text-[#38bdf8] page-size-btn active"
+                              : "border-none p-[2px_6px] rounded-[4px] cursor-pointer text-[10px] font-semibold font-mono transition-all duration-150 ease-[ease] bg-transparent text-[#cbd5e1] hover:bg-[rgba(56,189,248,0.12)] hover:text-[#38bdf8] page-size-btn"
+                          }
                           onClick={() => {
                             setTodayPageSize(0);
                             setTodayPage(1);
@@ -1496,10 +1538,10 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                     </div>
 
                     {totalTodayPages > 1 && (
-                      <div className="today-pagination-actions">
+                      <div className="flex items-center gap-[5px] today-pagination-actions">
                         <button
                           type="button"
-                          className="today-page-btn today-page-nav"
+                          className="inline-flex items-center justify-center gap-[3px] p-[3px_8px] rounded-[6px] text-[10.5px] font-semibold font-mono bg-[rgba(148,163,184,0.06)] border border-[rgba(148,163,184,0.15)] text-[#cbd5e1] cursor-pointer transition-all duration-150 ease-[ease] select-none enabled:hover:bg-[rgba(56,189,248,0.12)] enabled:hover:border-[rgba(56,189,248,0.35)] enabled:hover:text-[#38bdf8] disabled:opacity-30 disabled:cursor-not-allowed disabled:bg-[rgba(148,163,184,0.03)] disabled:border-[rgba(148,163,184,0.08)] disabled:text-[#94a3b8] today-page-btn today-page-nav"
                           onClick={() => setTodayPage((p) => Math.max(1, p - 1))}
                           disabled={currentTodayPage <= 1}
                           title="Halaman Sebelumnya"
@@ -1508,22 +1550,29 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                           <span>Prev</span>
                         </button>
 
-                        <div className="today-page-numbers">
-                          {Array.from({ length: totalTodayPages }, (_, i) => i + 1).map((pageNum) => (
-                            <button
-                              key={pageNum}
-                              type="button"
-                              className={`today-page-btn today-page-num ${pageNum === currentTodayPage ? "active" : ""}`}
-                              onClick={() => setTodayPage(pageNum)}
-                            >
-                              {pageNum}
-                            </button>
-                          ))}
+                        <div className="flex items-center gap-[3px] today-page-numbers">
+                          {Array.from({ length: totalTodayPages }, (_, i) => i + 1).map((pageNum) => {
+                            const isCurrent = pageNum === currentTodayPage;
+                            return (
+                              <button
+                                key={pageNum}
+                                type="button"
+                                className={
+                                  isCurrent
+                                    ? "inline-flex items-center justify-center gap-[3px] min-w-[24px] h-[24px] p-0 rounded-[6px] text-[10.5px] font-bold font-mono cursor-pointer transition-all duration-150 ease-[ease] select-none bg-[rgba(56,189,248,0.18)] border border-[rgba(56,189,248,0.5)] text-[#38bdf8] today-page-btn today-page-num active"
+                                    : "inline-flex items-center justify-center gap-[3px] min-w-[24px] h-[24px] p-0 rounded-[6px] text-[10.5px] font-semibold font-mono cursor-pointer transition-all duration-150 ease-[ease] select-none bg-[rgba(148,163,184,0.06)] border border-[rgba(148,163,184,0.15)] text-[#cbd5e1] hover:bg-[rgba(56,189,248,0.12)] hover:border-[rgba(56,189,248,0.35)] hover:text-[#38bdf8] today-page-btn today-page-num"
+                                }
+                                onClick={() => setTodayPage(pageNum)}
+                              >
+                                {pageNum}
+                              </button>
+                            );
+                          })}
                         </div>
 
                         <button
                           type="button"
-                          className="today-page-btn today-page-nav"
+                          className="inline-flex items-center justify-center gap-[3px] p-[3px_8px] rounded-[6px] text-[10.5px] font-semibold font-mono bg-[rgba(148,163,184,0.06)] border border-[rgba(148,163,184,0.15)] text-[#cbd5e1] cursor-pointer transition-all duration-150 ease-[ease] select-none enabled:hover:bg-[rgba(56,189,248,0.12)] enabled:hover:border-[rgba(56,189,248,0.35)] enabled:hover:text-[#38bdf8] disabled:opacity-30 disabled:cursor-not-allowed disabled:bg-[rgba(148,163,184,0.03)] disabled:border-[rgba(148,163,184,0.08)] disabled:text-[#94a3b8] today-page-btn today-page-nav"
                           onClick={() => setTodayPage((p) => Math.min(totalTodayPages, p + 1))}
                           disabled={currentTodayPage >= totalTodayPages}
                           title="Halaman Berikutnya"
@@ -1536,7 +1585,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                   </div>
                 </>
               ) : (
-                <div className="chart-empty-hint ops-empty-hint">
+                <div className="flex items-center justify-center gap-[8px] p-[32px] text-center text-[#94a3b8] text-[12.5px] chart-empty-hint ops-empty-hint">
                   <CheckCircle2 size={20} className="text-emerald-400" />
                   <span>
                     {selectedEngineerFilter
@@ -1549,24 +1598,24 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
           </article>
 
           {/* Right Column: Shift Notepad Memo & Monitoring Checklist (OK/NOK) */}
-          <div className="ops-right-column">
+          <div className="flex flex-col gap-[12px] h-full ops-right-column">
             {/* Widget B — Shift Notepad / Memo */}
-            <article className="panel report-panel ops-shift-panel">
-              <div className="panel-heading report-panel-heading">
-                <div className="chart-heading-left">
-                  <div className="panel-title [display:flex]! [align-items:center]! [gap:8px]!">
+            <article className={`${REPORT_PANEL_CARD} shrink-0 ops-shift-panel`}>
+              <div className={`${REPORT_PANEL_HEADING} report-panel-heading`}>
+                <div className="flex flex-col gap-[2px] chart-heading-left">
+                  <div className={`${REPORT_PANEL_TITLE} panel-title`}>
                     <StickyNote size={14} className="text-amber-400" />
-                    Memo & Catatan Shift
+                    Memo &amp; Catatan Shift
                   </div>
                 </div>
-                <div className="[display:flex] [align-items:center] [gap:6px]">
-                  <span className="memo-autosave-tag" title="Catatan tersimpan otomatis di perangkat">
-                    <span className="memo-live-dot" />
+                <div className="flex items-center gap-[6px]">
+                  <span className="inline-flex items-center gap-[5px] text-[10px] text-[#94a3b8] memo-autosave-tag" title="Catatan tersimpan otomatis di perangkat">
+                    <span className="w-[5px] h-[5px] rounded-[50%] bg-[#10b981] memo-live-dot" />
                     Tersimpan
                   </span>
                   <button
                     type="button"
-                    className="memo-quick-btn"
+                    className="inline-flex items-center gap-[4px] p-[2px_8px] rounded-[4px] bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] text-[#cbd5e1] text-[10.5px] cursor-pointer transition-all duration-150 ease-[ease] hover:bg-[rgba(56,189,248,0.15)] hover:border-[rgba(56,189,248,0.3)] hover:text-[#38bdf8] memo-quick-btn"
                     onClick={handleCopyMemo}
                     title="Salin isi memo ke clipboard"
                   >
@@ -1575,19 +1624,19 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                   </button>
                 </div>
               </div>
-              <div className="report-panel-body [padding:10px_12px]!">
-                <div className="memo-notepad-wrap">
+              <div className="flex flex-col flex-1 justify-between p-[10px_12px] report-panel-body">
+                <div className="flex flex-col gap-[6px] p-[10px_12px] bg-[#0b1120] border border-[rgba(148,163,184,0.12)] rounded-[8px] relative box-border memo-notepad-wrap">
                   <textarea
-                    className="memo-notepad-textarea"
+                    className="w-full h-[96px] min-h-[96px] bg-transparent border-none [outline:none]! resize-none text-[#f1f5f9] text-[11.5px] leading-[24px] p-0 box-border bg-[linear-gradient(rgba(148,163,184,0.08)_1px,transparent_1px)] bg-[length:100%_24px] placeholder:text-[#94a3b8] placeholder:italic memo-notepad-textarea"
                     placeholder="Tulis catatan operasional shift, instruksi serah terima, atau pengingat di sini..."
                     value={shiftMemo}
                     onChange={(e) => handleMemoChange(e.target.value)}
                   />
-                  <div className="memo-notepad-footer">
+                  <div className="flex items-center justify-between pt-[6px] [border-top:1px_solid_rgba(148,163,184,0.08)] text-[10.5px] memo-notepad-footer">
                     <div className="[display:flex] [align-items:center] [gap:6px]">
                       <button
                         type="button"
-                        className="memo-quick-btn"
+                        className="inline-flex items-center gap-[4px] p-[2px_8px] rounded-[4px] bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] text-[#cbd5e1] text-[10.5px] cursor-pointer transition-all duration-150 ease-[ease] hover:bg-[rgba(56,189,248,0.15)] hover:border-[rgba(56,189,248,0.3)] hover:text-[#38bdf8] memo-quick-btn"
                         onClick={handleAddBullet}
                         title="Tambah butir catatan baru"
                       >
@@ -1595,7 +1644,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                       </button>
                       <button
                         type="button"
-                        className="memo-quick-btn"
+                        className="inline-flex items-center gap-[4px] p-[2px_8px] rounded-[4px] bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] text-[#cbd5e1] text-[10.5px] cursor-pointer transition-all duration-150 ease-[ease] hover:bg-[rgba(56,189,248,0.15)] hover:border-[rgba(56,189,248,0.3)] hover:text-[#38bdf8] memo-quick-btn"
                         onClick={handleResetMemo}
                         title="Kembalikan ke catatan awal"
                       >
@@ -1611,42 +1660,46 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
             </article>
 
             {/* Widget C — Monitoring Checklist (OK / NOK) */}
-            <article className="panel report-panel ops-engineer-panel">
-              <div className="panel-heading report-panel-heading">
-                <div className="chart-heading-left">
-                  <div className="panel-title [display:flex]! [align-items:center]! [gap:8px]!">
+            <article className={`${REPORT_PANEL_CARD} flex flex-col flex-1 min-h-0 ops-engineer-panel`}>
+              <div className={`${REPORT_PANEL_HEADING} report-panel-heading`}>
+                <div className="flex flex-col gap-[2px] chart-heading-left">
+                  <div className={`${REPORT_PANEL_TITLE} panel-title`}>
                     <ShieldCheck size={14} className="text-emerald-400" />
                     List Monitoring Shift
                   </div>
                 </div>
-                <div className="[display:flex] [align-items:center] [gap:6px]">
-                  <span className="mon-counter-badge ok">
+                <div className="flex items-center gap-[6px]">
+                  <span className="inline-flex items-center gap-[4px] p-[2px_8px] rounded-[99px] text-[10.5px] font-bold bg-[rgba(16,185,129,0.14)] text-[#34d399] border border-[rgba(16,185,129,0.3)] mon-counter-badge ok">
                     <Check size={10} strokeWidth={2.5} /> {okCount} OK
                   </span>
-                  <span className="mon-counter-badge nok">
+                  <span className="inline-flex items-center gap-[4px] p-[2px_8px] rounded-[99px] text-[10.5px] font-bold bg-[rgba(244,63,94,0.15)] text-[#fb7185] border border-[rgba(244,63,94,0.35)] mon-counter-badge nok">
                     <AlertTriangle size={10} strokeWidth={2.5} /> {nokCount} NOK
                   </span>
                 </div>
               </div>
-              <div className="report-panel-body [padding:10px_12px]! [display:flex]! [flex-direction:column]! [flex:1]! [min-height:0]!">
-                <div className="engineer-workload-list">
+              <div className="report-panel-body [padding:10px_12px]! [display:flex]! [flex-direction:column]! [flex:1]! [min-height:0]! justify-start">
+                <div className="flex flex-col gap-[7px] flex-[1_1_0%] min-h-0 overflow-y-auto pr-[4px] [scrollbar-width:thin] [scrollbar-color:rgba(56,189,248,0.25)_transparent] [&::-webkit-scrollbar]:w-[4px] [&::-webkit-scrollbar-track]:bg-[rgba(148,163,184,0.05)] [&::-webkit-scrollbar-track]:rounded-[4px] [&::-webkit-scrollbar-thumb]:bg-[rgba(56,189,248,0.25)] [&::-webkit-scrollbar-thumb]:rounded-[4px] [&::-webkit-scrollbar-thumb:hover]:bg-[rgba(56,189,248,0.45)] engineer-workload-list">
                   {monitoringItems.map((item) => {
                     const isOk = item.status === "OK";
                     return (
                       <div
                         key={item.id}
-                        className={`monitoring-check-card ${!isOk ? "is-nok" : ""}`}
+                        className={`flex items-center justify-between gap-[10px] p-[7px_11px] rounded-[8px] shrink-0 cursor-default monitoring-check-card ${
+                          isOk
+                            ? "bg-[rgba(255,255,255,0.025)] border border-[rgba(255,255,255,0.07)] hover:bg-[rgba(255,255,255,0.04)] hover:border-[rgba(255,255,255,0.12)]"
+                            : "bg-[rgba(244,63,94,0.05)] border border-[rgba(244,63,94,0.25)] border-l-[3.5px] border-l-[#f43f5e]! hover:bg-[rgba(244,63,94,0.08)] hover:border-[rgba(244,63,94,0.32)] is-nok"
+                        }`}
                       >
-                        <div className="monitoring-card-left">
-                          <span className="monitoring-proj-tag" title={item.project}>
+                        <div className="flex items-center gap-[10px] min-w-0 flex-1 monitoring-card-left">
+                          <span className="inline-flex items-center justify-center min-w-[62px] p-[2.5px_8px] rounded-[5px] text-[10px] font-bold font-mono bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.09)] text-[#cbd5e1] shrink-0 whitespace-nowrap text-center monitoring-proj-tag" title={item.project}>
                             {item.project}
                           </span>
-                          <div className="monitoring-card-content">
-                            <span className="monitoring-task-text" title={item.task}>
+                          <div className="flex flex-col min-w-0 flex-1 gap-[1px] monitoring-card-content">
+                            <span className="text-[11.5px] font-medium text-[#f8fafc] whitespace-nowrap overflow-hidden text-ellipsis leading-[1.3] monitoring-task-text" title={item.task}>
                               {item.task}
                             </span>
                             {!isOk && item.issueNote && (
-                              <div className="monitoring-issue-subline">
+                              <div className="inline-flex items-center gap-[4px] text-[10px] font-semibold text-[#fb7185] leading-[1.2] mt-[1px] monitoring-issue-subline">
                                 <AlertTriangle size={10} className="text-rose-400" />
                                 <span>{item.issueNote}</span>
                               </div>
@@ -1654,7 +1707,11 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                           </div>
                         </div>
                         <span
-                          className={`monitoring-status-btn ${isOk ? "btn-ok" : "btn-nok"}`}
+                          className={`inline-flex items-center justify-center gap-[5px] h-[24px] p-[0_9px] rounded-[6px] text-[10.5px] font-bold font-mono cursor-default select-none shrink-0 tracking-[0.02em] monitoring-status-btn ${
+                            isOk
+                              ? "bg-[rgba(16,185,129,0.12)] border border-[rgba(16,185,129,0.3)] text-[#34d399] btn-ok"
+                              : "bg-[rgba(244,63,94,0.14)] border border-[rgba(244,63,94,0.35)] text-[#fb7185] btn-nok"
+                          }`}
                           title={`Status: ${item.status}`}
                         >
                           {isOk ? <Check size={11} strokeWidth={2.5} /> : <X size={11} strokeWidth={2.5} />}
@@ -1666,8 +1723,8 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                 </div>
 
                 {/* Footer summary bar */}
-                <div className="engineer-workload-footer">
-                  <div className="engineer-workload-stats">
+                <div className="flex items-center justify-between mt-auto pt-[10px] [border-top:1px_solid_rgba(148,163,184,0.08)] shrink-0 gap-[8px] engineer-workload-footer">
+                  <div className="flex items-center gap-[6px] text-[10.5px] text-[#94a3b8] font-mono whitespace-nowrap shrink-0 [&_strong]:text-[#f8fafc] [&_strong]:font-bold engineer-workload-stats">
                     <span
                       className="engineer-workload-stat-item"
                       title={`${monitoringItems.length} dari 13 checkpoint shift telah diperiksa (${okCount} OK, ${nokCount} NOK)`}
@@ -1675,7 +1732,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                       Total: <strong>{monitoringItems.length} dari 13 Checklist</strong>
                     </span>
                   </div>
-                  <div className="engineer-workload-stats">
+                  <div className="flex items-center gap-[6px] text-[10.5px] text-[#94a3b8] font-mono whitespace-nowrap shrink-0 [&_strong]:text-[#f8fafc] [&_strong]:font-bold engineer-workload-stats">
                     <span className="engineer-workload-stat-item">
                       Rata-rata: <strong>{((okCount / (monitoringItems.length || 1)) * 100).toFixed(0)}%</strong> Kesiapan
                     </span>
@@ -1687,24 +1744,24 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
         </div>
       </div>
 
-
       {/* ── ANALYTICS FILTER SECTION (Controls all charts & tables below, does NOT affect LIVE OPS VIEW) ── */}
-      <div className="analytics-filter-section">
-        <div className="analytics-filter-header">
-          <div className="analytics-filter-title-wrap">
-            <div className="analytics-filter-title">
+      {/* className="analytics-filter-section" */}
+      <div className="flex flex-col gap-[12px] p-[14px_16px] bg-[rgba(15,23,42,0.65)] border border-[rgba(148,163,184,0.14)] rounded-[12px] [box-shadow:0_4px_16px_rgba(0,0,0,0.2)] [transition:all_0.2s_ease] my-[6px] hover:border-[rgba(56,189,248,0.25)] analytics-filter-section">
+        <div className="flex items-center justify-between gap-[12px] flex-wrap analytics-filter-header">
+          <div className="flex flex-col gap-[2px] analytics-filter-title-wrap">
+            <div className="inline-flex items-center gap-[7px] text-[13px] font-bold text-[#f8fafc] analytics-filter-title">
               <SlidersHorizontal size={14} className="text-sky-400" />
               <span>Filter Laporan &amp; Analitik Tiket</span>
             </div>
           </div>
-          <div className="analytics-filter-header-right">
-            <span className="analytics-filter-counter-badge">
+          <div className="flex items-center gap-[8px] analytics-filter-header-right">
+            <span className="inline-flex items-center gap-[4px] p-[3px_10px] rounded-[99px] text-[11px] font-mono bg-[rgba(56,189,248,0.08)] border border-[rgba(56,189,248,0.22)] text-[#cbd5e1] [&_strong]:text-[#38bdf8] [&_strong]:font-bold analytics-filter-counter-badge">
               Menampilkan <strong>{analyticsTickets.length}</strong> dari <strong>{tickets.length}</strong> Tiket
             </span>
             {isAnyAnalyticsFilterActive && (
               <button
                 type="button"
-                className="analytics-filter-reset-action-btn"
+                className="inline-flex items-center gap-[5px] p-[3px_9px] rounded-[6px] text-[11px] font-semibold text-[#f87171] bg-[rgba(239,68,68,0.1)] border border-[rgba(239,68,68,0.25)] cursor-pointer [transition:all_0.15s_ease] hover:bg-[rgba(239,68,68,0.2)] hover:border-[rgba(239,68,68,0.4)] analytics-filter-reset-action-btn"
                 onClick={resetAllAnalyticsFilters}
                 title="Kembalikan semua filter ke default"
               >
@@ -1714,11 +1771,11 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
           </div>
         </div>
 
-        <div className="analytics-filter-grid">
+        <div className="grid grid-cols-[minmax(210px,1.3fr)_repeat(auto-fit,minmax(140px,1fr))] max-[1024px]:grid-cols-2 max-[640px]:grid-cols-1 gap-[10px] items-end w-full analytics-filter-grid">
           {/* 1. Date Range Picker */}
-          <div className="analytics-filter-field date-field">
-            <label className="analytics-filter-label">Rentang Tanggal</label>
-            <div className="analytics-date-picker-wrap">
+          <div className="flex flex-col gap-[4px] min-w-0 analytics-filter-field date-field">
+            <label className="text-[10.5px] font-semibold text-[#94a3b8] tracking-[0.02em] analytics-filter-label">Rentang Tanggal</label>
+            <div className="relative w-full [&_.date-picker-input-wrapper]:h-[34px] analytics-date-picker-wrap">
               <DatePicker
                 value={analyticsDateFilter}
                 onChange={setAnalyticsDateFilter}
@@ -1730,15 +1787,15 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
           </div>
 
           {/* 2. Project Filter */}
-          <div className="analytics-filter-field">
-            <label className="analytics-filter-label">Proyek</label>
-            <div className="analytics-select-wrap">
-              <FolderKanban size={13} className="analytics-select-icon" />
+          <div className="flex flex-col gap-[4px] min-w-0 analytics-filter-field">
+            <label className="text-[10.5px] font-semibold text-[#94a3b8] tracking-[0.02em] analytics-filter-label">Proyek</label>
+            <div className="relative flex items-center w-full analytics-select-wrap">
+              <FolderKanban size={13} className="absolute left-[10px] text-[#94a3b8] pointer-events-none shrink-0 analytics-select-icon" />
               <select
                 value={analyticsProjectFilter}
                 onChange={(e) => setAnalyticsProjectFilter(e.target.value)}
                 aria-label="Filter proyek"
-                className="analytics-select-input"
+                className="w-full h-[34px] p-[0_28px_0_30px] bg-[rgba(15,23,42,0.85)] border border-[rgba(148,163,184,0.16)] rounded-[7px] text-[11.5px] text-[#f8fafc] [appearance:none] [-webkit-appearance:none] cursor-pointer [transition:all_0.15s_ease] [outline:none] whitespace-nowrap overflow-hidden text-ellipsis [color-scheme:dark] hover:border-[rgba(56,189,248,0.3)] hover:bg-[rgba(15,23,42,0.95)] focus:border-[#38bdf8] focus:shadow-[0_0_0_2px_rgba(56,189,248,0.2)] [&_option]:bg-[#0f172a] [&_option]:text-[#f8fafc] [&_option]:p-[6px_10px] data-[active=true]:border-[rgba(56,189,248,0.45)] data-[active=true]:bg-[rgba(56,189,248,0.08)] data-[active=true]:text-[#38bdf8] data-[active=true]:font-semibold analytics-select-input"
                 data-active={analyticsProjectFilter !== "All" ? "true" : undefined}
               >
                 <option value="All">Semua Proyek</option>
@@ -1746,20 +1803,20 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                   <option key={p} value={p}>{p}</option>
                 ))}
               </select>
-              <ChevronDown size={12} className="analytics-select-arrow" />
+              <ChevronDown size={12} className="absolute right-[10px] text-[#94a3b8] pointer-events-none shrink-0 opacity-70 analytics-select-arrow" />
             </div>
           </div>
 
           {/* 3. Shift Filter */}
-          <div className="analytics-filter-field">
-            <label className="analytics-filter-label">Shift</label>
-            <div className="analytics-select-wrap">
-              <Clock size={13} className="analytics-select-icon" />
+          <div className="flex flex-col gap-[4px] min-w-0 analytics-filter-field">
+            <label className="text-[10.5px] font-semibold text-[#94a3b8] tracking-[0.02em] analytics-filter-label">Shift</label>
+            <div className="relative flex items-center w-full analytics-select-wrap">
+              <Clock size={13} className="absolute left-[10px] text-[#94a3b8] pointer-events-none shrink-0 analytics-select-icon" />
               <select
                 value={analyticsShiftFilter}
                 onChange={(e) => setAnalyticsShiftFilter(e.target.value)}
                 aria-label="Filter shift"
-                className="analytics-select-input"
+                className="w-full h-[34px] p-[0_28px_0_30px] bg-[rgba(15,23,42,0.85)] border border-[rgba(148,163,184,0.16)] rounded-[7px] text-[11.5px] text-[#f8fafc] [appearance:none] [-webkit-appearance:none] cursor-pointer [transition:all_0.15s_ease] [outline:none] whitespace-nowrap overflow-hidden text-ellipsis [color-scheme:dark] hover:border-[rgba(56,189,248,0.3)] hover:bg-[rgba(15,23,42,0.95)] focus:border-[#38bdf8] focus:shadow-[0_0_0_2px_rgba(56,189,248,0.2)] [&_option]:bg-[#0f172a] [&_option]:text-[#f8fafc] [&_option]:p-[6px_10px] data-[active=true]:border-[rgba(56,189,248,0.45)] data-[active=true]:bg-[rgba(56,189,248,0.08)] data-[active=true]:text-[#38bdf8] data-[active=true]:font-semibold analytics-select-input"
                 data-active={analyticsShiftFilter !== "All" ? "true" : undefined}
               >
                 <option value="All">Semua Shift</option>
@@ -1767,13 +1824,13 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                 <option value="Pagi">Shift Pagi (08:00–16:30)</option>
                 <option value="Malam">Shift Malam (16:00–00:30)</option>
               </select>
-              <ChevronDown size={12} className="analytics-select-arrow" />
+              <ChevronDown size={12} className="absolute right-[10px] text-[#94a3b8] pointer-events-none shrink-0 opacity-70 analytics-select-arrow" />
             </div>
           </div>
 
           {/* 4. Shifter (PIC) Multi-Select */}
-          <div className="analytics-filter-field shifter-field">
-            <label className="analytics-filter-label">Shifter (PIC)</label>
+          <div className="flex flex-col gap-[4px] min-w-0 analytics-filter-field shifter-field">
+            <label className="text-[10.5px] font-semibold text-[#94a3b8] tracking-[0.02em] analytics-filter-label">Shifter (PIC)</label>
             <AnalyticsShifterMultiSelect
               selectedList={analyticsSelectedShifters}
               onChange={setAnalyticsSelectedShifters}
@@ -1782,15 +1839,15 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
           </div>
 
           {/* 5. Status Filter */}
-          <div className="analytics-filter-field">
-            <label className="analytics-filter-label">Status Tiket</label>
-            <div className="analytics-select-wrap">
-              <Activity size={13} className="analytics-select-icon" />
+          <div className="flex flex-col gap-[4px] min-w-0 analytics-filter-field">
+            <label className="text-[10.5px] font-semibold text-[#94a3b8] tracking-[0.02em] analytics-filter-label">Status Tiket</label>
+            <div className="relative flex items-center w-full analytics-select-wrap">
+              <Activity size={13} className="absolute left-[10px] text-[#94a3b8] pointer-events-none shrink-0 analytics-select-icon" />
               <select
                 value={analyticsStatusFilter}
                 onChange={(e) => setAnalyticsStatusFilter(e.target.value)}
                 aria-label="Filter status tiket"
-                className="analytics-select-input"
+                className="w-full h-[34px] p-[0_28px_0_30px] bg-[rgba(15,23,42,0.85)] border border-[rgba(148,163,184,0.16)] rounded-[7px] text-[11.5px] text-[#f8fafc] [appearance:none] [-webkit-appearance:none] cursor-pointer [transition:all_0.15s_ease] [outline:none] whitespace-nowrap overflow-hidden text-ellipsis [color-scheme:dark] hover:border-[rgba(56,189,248,0.3)] hover:bg-[rgba(15,23,42,0.95)] focus:border-[#38bdf8] focus:shadow-[0_0_0_2px_rgba(56,189,248,0.2)] [&_option]:bg-[#0f172a] [&_option]:text-[#f8fafc] [&_option]:p-[6px_10px] data-[active=true]:border-[rgba(56,189,248,0.45)] data-[active=true]:bg-[rgba(56,189,248,0.08)] data-[active=true]:text-[#38bdf8] data-[active=true]:font-semibold analytics-select-input"
                 data-active={analyticsStatusFilter !== "All" ? "true" : undefined}
               >
                 <option value="All">Semua Status</option>
@@ -1799,20 +1856,20 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                 <option value="pending">Pending</option>
                 <option value="escalated">Escalated</option>
               </select>
-              <ChevronDown size={12} className="analytics-select-arrow" />
+              <ChevronDown size={12} className="absolute right-[10px] text-[#94a3b8] pointer-events-none shrink-0 opacity-70 analytics-select-arrow" />
             </div>
           </div>
 
           {/* 6. Severity Filter */}
-          <div className="analytics-filter-field">
-            <label className="analytics-filter-label">Keparahan</label>
-            <div className="analytics-select-wrap">
-              <AlertTriangle size={13} className="analytics-select-icon" />
+          <div className="flex flex-col gap-[4px] min-w-0 analytics-filter-field">
+            <label className="text-[10.5px] font-semibold text-[#94a3b8] tracking-[0.02em] analytics-filter-label">Keparahan</label>
+            <div className="relative flex items-center w-full analytics-select-wrap">
+              <AlertTriangle size={13} className="absolute left-[10px] text-[#94a3b8] pointer-events-none shrink-0 analytics-select-icon" />
               <select
                 value={analyticsSeverityFilter}
                 onChange={(e) => setAnalyticsSeverityFilter(e.target.value)}
                 aria-label="Filter keparahan"
-                className="analytics-select-input"
+                className="w-full h-[34px] p-[0_28px_0_30px] bg-[rgba(15,23,42,0.85)] border border-[rgba(148,163,184,0.16)] rounded-[7px] text-[11.5px] text-[#f8fafc] [appearance:none] [-webkit-appearance:none] cursor-pointer [transition:all_0.15s_ease] [outline:none] whitespace-nowrap overflow-hidden text-ellipsis [color-scheme:dark] hover:border-[rgba(56,189,248,0.3)] hover:bg-[rgba(15,23,42,0.95)] focus:border-[#38bdf8] focus:shadow-[0_0_0_2px_rgba(56,189,248,0.2)] [&_option]:bg-[#0f172a] [&_option]:text-[#f8fafc] [&_option]:p-[6px_10px] data-[active=true]:border-[rgba(56,189,248,0.45)] data-[active=true]:bg-[rgba(56,189,248,0.08)] data-[active=true]:text-[#38bdf8] data-[active=true]:font-semibold analytics-select-input"
                 data-active={analyticsSeverityFilter !== "All" ? "true" : undefined}
               >
                 <option value="All">Semua Severity</option>
@@ -1821,7 +1878,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                 <option value="Medium">Medium (Sedang)</option>
                 <option value="Low">Low (Rendah)</option>
               </select>
-              <ChevronDown size={12} className="analytics-select-arrow" />
+              <ChevronDown size={12} className="absolute right-[10px] text-[#94a3b8] pointer-events-none shrink-0 opacity-70 analytics-select-arrow" />
             </div>
           </div>
         </div>
@@ -1829,29 +1886,38 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
 
 
       {/* ── 2. Primary Charts Section: Enhanced Stacked Bar per Project & Trajectory + Rekap Tiket per User ── */}
-      <div className="report-primary-chart-grid">
+      {/* className="report-primary-chart-grid" */}
+      <div className="grid grid-cols-[minmax(0,1fr)_380px] max-[1140px]:grid-cols-1 gap-[16px] items-stretch w-full report-primary-chart-grid">
         {/* Left: Volume per Project / Trajectory Chart (Tabs) */}
-        <article className="panel report-panel primary-chart-panel">
-          <div className="panel-heading report-panel-heading">
-            <div className="chart-heading-left">
-              <div className="panel-title">
+        <article className={`${REPORT_PANEL_CARD} flex flex-col h-full primary-chart-panel`}>
+          <div className={`${REPORT_PANEL_HEADING} report-panel-heading`}>
+            <div className="flex flex-col gap-[2px] chart-heading-left">
+              <div className="flex items-center gap-[8px] text-[14px] font-bold text-[var(--ink-primary)] panel-title">
                 {selectedChartTab === "stacked-project"
                   ? "Ticket Volume per Project (Stacked by System)"
                   : "Perbandingan Tiket: Bulan Lalu vs Bulan Ini (MoM)"}
               </div>
             </div>
 
-            <div className="chart-tab-controls">
+            <div className="flex gap-[6px] bg-[rgba(15,23,42,0.4)] p-[3px] rounded-[8px] border border-[var(--line)] chart-tab-controls">
               <button
                 type="button"
-                className={`chart-tab-btn ${selectedChartTab === "stacked-project" ? "active" : ""}`}
+                className={`inline-flex items-center gap-[6px] p-[5px_11px] rounded-[6px] text-[11.5px] border-none cursor-pointer [transition:all_0.15s_ease] ${
+                  selectedChartTab === "stacked-project"
+                    ? "bg-[var(--accent-blue)] text-[#0f172a] font-bold active"
+                    : "bg-transparent text-[var(--ink-secondary)] font-semibold hover:text-[var(--ink-primary)]"
+                } chart-tab-btn`}
                 onClick={() => setSelectedChartTab("stacked-project")}
               >
                 <BarChart3 size={12} /> Volume per Project
               </button>
               <button
                 type="button"
-                className={`chart-tab-btn ${selectedChartTab === "trajectory" ? "active" : ""}`}
+                className={`inline-flex items-center gap-[6px] p-[5px_11px] rounded-[6px] text-[11.5px] border-none cursor-pointer [transition:all_0.15s_ease] ${
+                  selectedChartTab === "trajectory"
+                    ? "bg-[var(--accent-blue)] text-[#0f172a] font-bold active"
+                    : "bg-transparent text-[var(--ink-secondary)] font-semibold hover:text-[var(--ink-primary)]"
+                } chart-tab-btn`}
                 onClick={() => setSelectedChartTab("trajectory")}
               >
                 <TrendingUp size={12} /> Bulan Lalu vs Bulan Ini
@@ -1859,10 +1925,10 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
             </div>
           </div>
 
-          <div className="report-panel-body">
+          <div className="flex flex-col flex-1 justify-start p-[16px_20px] gap-[12px] report-panel-body">
             {/* View A: Stacked Bar Chart per Project (Enhanced Sizing, Wide Bars, Distinct Gridlines & Y-Axis Scale) */}
             {selectedChartTab === "stacked-project" && (
-              <div className="stacked-chart-container">
+              <div className="flex flex-col flex-1 w-full justify-start gap-[12px] stacked-chart-container">
                 {volumeByDate.length > 0 ? (
                   <>
                     {(() => {
@@ -1886,9 +1952,9 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                       const chartHeight = baselineY - topY; // 203
 
                       return (
-                        <div className="svg-barchart-wrap">
+                        <div className="w-full overflow-x-auto overflow-y-hidden flex-1 flex flex-col justify-start min-h-[270px] svg-barchart-wrap">
                           <svg
-                            className="report-bar-svg-lg"
+                            className="w-full h-full min-h-[270px] max-h-[390px] block report-bar-svg-lg"
                             viewBox={`0 0 ${svgViewBoxWidth} ${viewBoxHeight}`}
                             preserveAspectRatio="none"
                           >
@@ -1947,7 +2013,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                                   }}
                                   onMouseEnter={() => setHoveredDate(item.date)}
                                   onMouseLeave={() => setHoveredDate(null)}
-                                  className={`stacked-bar-group [cursor:pointer]! ${isSelected ? "is-selected" : ""}`}
+                                  className={`stacked-bar-group [cursor:pointer]! [&_rect]:[transition:opacity_0.15s_ease,fill_0.15s_ease] [&_rect]:hover:opacity-100 ${isSelected ? "is-selected" : ""}`}
                                 >
                                   <title>{`Klik untuk melihat rincian tiket tanggal ${item.date}`}</title>
 
@@ -2044,12 +2110,12 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                     })()}
 
                     {/* Stacked Bar Legend */}
-                    <div className="project-legend-pills">
-                      <span className="legend-pills-label">Sistem:</span>
+                    <div className="flex items-center gap-[8px] flex-wrap pt-[10px] mt-0 [border-top:1px_solid_var(--line)] project-legend-pills">
+                      <span className="text-[11px] font-bold font-mono text-[var(--ink-muted)] legend-pills-label">Sistem:</span>
                       {allProjects.map((proj) => (
-                        <div className="project-legend-pill" key={proj}>
+                        <div className="inline-flex items-center gap-[6px] p-[3px_9px] rounded-[6px] bg-[rgba(15,23,42,0.4)] border border-[var(--line)] text-[11.5px] text-[var(--ink-primary)] [transition:border-color_0.15s_ease,background_0.15s_ease] hover:border-[rgba(56,189,248,0.4)] hover:bg-[rgba(15,23,42,0.7)] project-legend-pill" key={proj}>
                           <span
-                            className="legend-color-dot"
+                            className="w-[9px] h-[9px] rounded-[2.5px] inline-block shrink-0 legend-color-dot"
                             style={{ background: PROJECT_COLORS[proj] || "#94a3b8" }}
                           />
                           <span className="legend-proj-name">{proj}</span>
@@ -2063,29 +2129,29 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                         const selectedItem = volumeByDate.find((v) => v.date === selectedDate);
                         if (!selectedItem) return null;
                         return (
-                          <div className="chart-hover-popover anim-fade">
-                            <div className="popover-header">
-                              <div className="popover-title-left">
+                          <div className="mt-[14px] p-[12px_16px] bg-[rgba(15,23,42,0.92)] [backdrop-filter:blur(10px)] [-webkit-backdrop-filter:blur(10px)] border border-[rgba(56,189,248,0.4)] [box-shadow:0_4px_20px_rgba(0,0,0,0.35)] rounded-[10px] flex flex-col gap-[8px] chart-hover-popover anim-fade">
+                            <div className="flex items-center justify-between gap-[8px] text-[12px] text-[var(--accent-blue)] border-b border-[rgba(255,255,255,0.08)] pb-[6px] popover-header">
+                              <div className="flex items-center gap-[8px] popover-title-left">
                                 <Calendar size={13} /> Tanggal: <strong>{selectedDate}</strong> · Total: <strong>{selectedItem.created} Tiket</strong>
                               </div>
                               <button
                                 type="button"
-                                className="chart-popover-close-btn"
+                                className="bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] text-[var(--ink-muted)] rounded-[6px] w-[28px] h-[28px] min-w-[28px] min-h-[28px] inline-grid place-items-center cursor-pointer p-0 [transition:all_0.15s_ease] shrink-0 hover:bg-[rgba(239,68,68,0.2)] hover:border-[rgba(239,68,68,0.5)] hover:text-[#f87171] focus-visible:[outline:none] focus-visible:border-[var(--accent-blue-border)] focus-visible:[box-shadow:0_0_0_3px_rgba(56,189,248,0.18)] chart-popover-close-btn"
                                 onClick={() => setSelectedDate(null)}
                                 title="Tutup detail tanggal"
                                 aria-label="Tutup detail tanggal"
                               >
-                                <X size={13} />
+                                <X size={13} className="block w-[14px] h-[14px] shrink-0 pointer-events-none" />
                               </button>
                             </div>
-                            <div className="popover-project-list">
+                            <div className="flex gap-[14px] flex-wrap popover-project-list">
                               {Object.entries(selectedItem.projectCounts || {}).map(([proj, cnt]) => {
                                 const dayTotal = selectedItem.created || 1;
                                 const pct = Math.round((cnt / dayTotal) * 100);
                                 return (
-                                  <span className="popover-item" key={proj}>
+                                  <span className="inline-flex items-center gap-[6px] text-[12px] text-[var(--ink-primary)] bg-[rgba(255,255,255,0.03)] p-[3px_8px] rounded-[5px] border border-[rgba(255,255,255,0.05)] popover-item" key={proj}>
                                     <i
-                                      className="legend-color-dot"
+                                      className="w-[9px] h-[9px] rounded-[2.5px] inline-block shrink-0 legend-color-dot"
                                       style={{ background: PROJECT_COLORS[proj] || "#94a3b8" }}
                                     />
                                     <strong>{proj}:</strong> {cnt} ({pct}%)
@@ -2099,24 +2165,28 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                     ) : null}
                   </>
                 ) : (
-                  <div className="chart-empty-hint">Tidak ada data volume pada rentang filter ini.</div>
+                  <div className="p-[40px_0] text-center text-[var(--ink-muted)] text-[12px] chart-empty-hint">Tidak ada data volume pada rentang filter ini.</div>
                 )}
               </div>
             )}
 
             {/* View B: Month-over-Month (MoM) Comparison Chart (Bulan Lalu vs Bulan Ini) */}
             {selectedChartTab === "trajectory" && (
-              <div className="mom-chart-container">
+              <div className="flex flex-col flex-1 w-full justify-start gap-[12px] mom-chart-container">
                 {/* Sub-view Mode Switcher & Period Indicators */}
-                <div className="mom-subview-toggle-bar">
-                  <div className="mom-view-hint">
+                <div className="flex items-center justify-between mb-[12px] p-[6px_12px] bg-[rgba(255,255,255,0.02)] rounded-[8px] border border-[rgba(255,255,255,0.06)] mom-subview-toggle-bar">
+                  <div className="text-[12px] text-[#94a3b8] mom-view-hint">
                     Komparasi: <strong className="[color:#c084fc]!">● {momData.prevMonthLabel} (Bulan Lalu)</strong> vs{" "}
                     <strong className="[color:#38bdf8]!">● {momData.currMonthLabel} (Bulan Ini)</strong>
                   </div>
-                  <div className="mom-toggle-btns">
+                  <div className="flex gap-[6px] mom-toggle-btns">
                     <button
                       type="button"
-                      className={`mom-toggle-btn ${momSubView === "trajectory" ? "active" : ""}`}
+                      className={`inline-flex items-center gap-[5px] p-[5px_12px] text-[11px] font-semibold rounded-[6px] border cursor-pointer [transition:all_0.2s_ease] ${
+                        momSubView === "trajectory"
+                          ? "bg-[rgba(56,189,248,0.15)] border-[rgba(56,189,248,0.4)] text-[#38bdf8] active"
+                          : "border-[rgba(255,255,255,0.08)] bg-transparent text-[#94a3b8] hover:bg-[rgba(255,255,255,0.06)] hover:text-[#fff]"
+                      } mom-toggle-btn`}
                       onClick={() => {
                         setMomSubView("trajectory");
                         setSelectedMomItem(null);
@@ -2126,7 +2196,11 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                     </button>
                     <button
                       type="button"
-                      className={`mom-toggle-btn ${momSubView === "project" ? "active" : ""}`}
+                      className={`inline-flex items-center gap-[5px] p-[5px_12px] text-[11px] font-semibold rounded-[6px] border cursor-pointer [transition:all_0.2s_ease] ${
+                        momSubView === "project"
+                          ? "bg-[rgba(56,189,248,0.15)] border-[rgba(56,189,248,0.4)] text-[#38bdf8] active"
+                          : "border-[rgba(255,255,255,0.08)] bg-transparent text-[#94a3b8] hover:bg-[rgba(255,255,255,0.06)] hover:text-[#fff]"
+                      } mom-toggle-btn`}
                       onClick={() => {
                         setMomSubView("project");
                         setSelectedMomItem(null);
@@ -2139,7 +2213,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
 
                 {/* 3A. Subview: Tren Trajectory MoM (Line & Area Chart) */}
                 {momSubView === "trajectory" && (
-                  <div className="trajectory-chart-container">
+                  <div className="flex flex-col flex-1 w-full justify-start gap-[12px] trajectory-chart-container">
                     {momData.trajectoryPoints.length > 0 ? (
                       <>
                         {(() => {
@@ -2184,9 +2258,9 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                           const areaPrev = `M ${firstX},${baselineY} L ${polyPrev} L ${lastX},${baselineY} Z`;
 
                           return (
-                            <div className="svg-barchart-wrap">
+                            <div className="w-full overflow-x-auto overflow-y-hidden flex-1 flex flex-col justify-start min-h-[270px] svg-barchart-wrap">
                               <svg
-                                className="report-bar-svg-lg"
+                                className="w-full h-full min-h-[270px] max-h-[390px] block report-bar-svg-lg"
                                 viewBox={`0 0 ${svgViewBoxWidth} ${viewBoxHeight}`}
                                 preserveAspectRatio="none"
                               >
@@ -2353,26 +2427,26 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                           );
                         })()}
 
-                        <div className="chart-legend-center">
-                          <span className="legend-item">
-                            <i className="legend-dot [background:#38bdf8]! [width:14px]! [height:4px]! [border-radius:2px]!" />
+                        <div className="flex justify-center gap-[24px] mt-[16px] pt-[12px] border-t border-[var(--line)] text-[12px] text-[var(--ink-secondary)] chart-legend-center">
+                          <span className="inline-flex items-center gap-[8px] legend-item">
+                            <i className="w-[14px] h-[4px] rounded-[2px] inline-block bg-[#38bdf8] legend-dot" />
                             {momData.currMonthLabel} (Bulan Ini: {momData.currTotal} tiket)
                           </span>
-                          <span className="legend-item">
-                            <i className="legend-dot [background:#a855f7]! [width:14px]! [height:4px]! [border-radius:2px]!" />
+                          <span className="inline-flex items-center gap-[8px] legend-item">
+                            <i className="w-[14px] h-[4px] rounded-[2px] inline-block bg-[#a855f7] legend-dot" />
                             {momData.prevMonthLabel} (Bulan Lalu: {momData.prevTotal} tiket)
                           </span>
                         </div>
                       </>
                     ) : (
-                      <div className="chart-empty-hint">Tidak ada data trajectory perbandingan.</div>
+                      <div className="p-[40px_0] text-center text-[var(--ink-muted)] text-[12px] chart-empty-hint">Tidak ada data trajectory perbandingan.</div>
                     )}
                   </div>
                 )}
 
                 {/* 3B. Subview: Komparasi per Sistem (Grouped Bar Chart) */}
                 {momSubView === "project" && (
-                  <div className="trajectory-chart-container">
+                  <div className="flex flex-col flex-1 w-full justify-start gap-[12px] trajectory-chart-container">
                     {momData.projectComparison.length > 0 ? (
                       <>
                         {(() => {
@@ -2398,9 +2472,9 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                           const yTicks = computeYTicks(maxCount);
 
                           return (
-                            <div className="svg-barchart-wrap">
+                            <div className="w-full overflow-x-auto overflow-y-hidden flex-1 flex flex-col justify-start min-h-[270px] svg-barchart-wrap">
                               <svg
-                                className="report-bar-svg-lg"
+                                className="w-full h-full min-h-[270px] max-h-[390px] block report-bar-svg-lg"
                                 viewBox={`0 0 ${svgWidth} ${viewBoxHeight}`}
                                 preserveAspectRatio="none"
                               >
@@ -2601,28 +2675,28 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                           );
                         })()}
 
-                        <div className="chart-legend-center">
-                          <span className="legend-item">
-                            <i className="legend-dot [background:#38bdf8]!" />
+                        <div className="flex justify-center gap-[24px] mt-[16px] pt-[12px] border-t border-[var(--line)] text-[12px] text-[var(--ink-secondary)] chart-legend-center">
+                          <span className="inline-flex items-center gap-[8px] legend-item">
+                            <i className="w-[9px] h-[9px] rounded-[2.5px] inline-block bg-[#38bdf8] legend-dot" />
                             {momData.currMonthLabel} (Bulan Ini)
                           </span>
-                          <span className="legend-item">
-                            <i className="legend-dot [background:#a855f7]!" />
+                          <span className="inline-flex items-center gap-[8px] legend-item">
+                            <i className="w-[9px] h-[9px] rounded-[2.5px] inline-block bg-[#a855f7] legend-dot" />
                             {momData.prevMonthLabel} (Bulan Lalu)
                           </span>
                         </div>
                       </>
                     ) : (
-                      <div className="chart-empty-hint">Tidak ada data sistem perbandingan.</div>
+                      <div className="p-[40px_0] text-center text-[var(--ink-muted)] text-[12px] chart-empty-hint">Tidak ada data sistem perbandingan.</div>
                     )}
                   </div>
                 )}
 
                 {/* 4. Interactive Detail Popover Card */}
                 {selectedMomItem ? (
-                  <div className="chart-hover-popover anim-fade [margin-top:12px]!">
-                    <div className="popover-header">
-                      <div className="popover-title-left">
+                  <div className="mt-[12px] p-[12px_16px] bg-[rgba(15,23,42,0.92)] [backdrop-filter:blur(10px)] [-webkit-backdrop-filter:blur(10px)] border border-[rgba(56,189,248,0.4)] [box-shadow:0_4px_20px_rgba(0,0,0,0.35)] rounded-[10px] flex flex-col gap-[8px] chart-hover-popover anim-fade">
+                    <div className="flex items-center justify-between gap-[8px] text-[12px] text-[var(--accent-blue)] border-b border-[rgba(255,255,255,0.08)] pb-[6px] popover-header">
+                      <div className="flex items-center gap-[8px] popover-title-left">
                         {selectedMomItem.type === "project" ? (
                           <>
                             <Layers size={13} className="text-sky-400" /> Komparasi Sistem:{" "}
@@ -2632,7 +2706,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                           <>
                             <Calendar size={13} className="text-sky-400" /> Timeline:{" "}
                             <strong>{selectedMomItem.label}</strong>
-                            <span className="[font-size:11px]! [color:var(--ink-muted)]! [margin-left:6px]!">
+                            <span className="text-[11px] text-[var(--ink-muted)] ml-[6px]">
                               ({selectedMomItem.currDate || "-"} vs {selectedMomItem.prevDate || "-"})
                             </span>
                           </>
@@ -2640,28 +2714,28 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                       </div>
                       <button
                         type="button"
-                        className="chart-popover-close-btn"
+                        className="bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] text-[var(--ink-muted)] rounded-[6px] w-[28px] h-[28px] min-w-[28px] min-h-[28px] inline-grid place-items-center cursor-pointer p-0 [transition:all_0.15s_ease] shrink-0 hover:bg-[rgba(239,68,68,0.2)] hover:border-[rgba(239,68,68,0.5)] hover:text-[#f87171] focus-visible:[outline:none] focus-visible:border-[var(--accent-blue-border)] focus-visible:[box-shadow:0_0_0_3px_rgba(56,189,248,0.18)] chart-popover-close-btn"
                         onClick={() => setSelectedMomItem(null)}
                         title="Tutup detail komparasi"
                         aria-label="Tutup detail komparasi"
                       >
-                        <X size={13} />
+                        <X size={13} className="block w-[14px] h-[14px] shrink-0 pointer-events-none" />
                       </button>
                     </div>
-                    <div className="popover-project-list">
-                      <span className="popover-item">
-                        <i className="legend-dot [background:#38bdf8]!" />
+                    <div className="flex gap-[14px] flex-wrap popover-project-list">
+                      <span className="inline-flex items-center gap-[6px] text-[12px] text-[var(--ink-primary)] bg-[rgba(255,255,255,0.03)] p-[3px_8px] rounded-[5px] border border-[rgba(255,255,255,0.05)] popover-item">
+                        <i className="w-[9px] h-[9px] rounded-[2.5px] inline-block bg-[#38bdf8] legend-dot" />
                         <strong>{momData.currMonthLabel} (Bulan Ini):</strong> {selectedMomItem.currCount} tiket
                         {typeof selectedMomItem.currResolved === "number" && ` (${selectedMomItem.currResolved} diselesaikan)`}
                       </span>
-                      <span className="popover-item">
-                        <i className="legend-dot [background:#c084fc]!" />
+                      <span className="inline-flex items-center gap-[6px] text-[12px] text-[var(--ink-primary)] bg-[rgba(255,255,255,0.03)] p-[3px_8px] rounded-[5px] border border-[rgba(255,255,255,0.05)] popover-item">
+                        <i className="w-[9px] h-[9px] rounded-[2.5px] inline-block bg-[#c084fc] legend-dot" />
                         <strong>{momData.prevMonthLabel} (Bulan Lalu):</strong> {selectedMomItem.prevCount} tiket
                         {typeof selectedMomItem.prevResolved === "number" && ` (${selectedMomItem.prevResolved} diselesaikan)`}
                       </span>
-                      <span className="popover-item">
+                      <span className="inline-flex items-center gap-[6px] text-[12px] text-[var(--ink-primary)] bg-[rgba(255,255,255,0.03)] p-[3px_8px] rounded-[5px] border border-[rgba(255,255,255,0.05)] popover-item">
                         <i
-                          className="legend-dot"
+                          className="w-[9px] h-[9px] rounded-[2.5px] inline-block legend-dot"
                           style={{
                             background:
                               selectedMomItem.delta > 0
@@ -2696,73 +2770,73 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
         </article>
 
         {/* Right: Rekap Tiket per User (Task 3) */}
-        <div className="user-summary-wrapper">
-          <article className="panel report-panel user-summary-panel">
-            <div className="panel-heading report-panel-heading">
-              <div className="chart-heading-left">
-                <div className="panel-title [display:flex]! [align-items:center]! [gap:8px]!">
+        <div className="relative w-full h-full min-h-0 max-[1140px]:h-[480px] user-summary-wrapper">
+          <article className={`absolute inset-0 w-full h-full flex flex-col ${REPORT_PANEL_CARD} user-summary-panel`}>
+            <div className={`${REPORT_PANEL_HEADING} report-panel-heading`}>
+              <div className="flex flex-col gap-[2px] chart-heading-left">
+                <div className="flex items-center gap-[8px] text-[14px] font-bold text-[var(--ink-primary)] panel-title">
                   <Users size={14} className="text-sky-400" />
                   Rekap Tiket per User
                 </div>
               </div>
-              <span className="panel-sub-count">{userSummaries.length} Staf</span>
+              <span className="text-[11px] font-mono text-[var(--ink-muted)] font-semibold panel-sub-count">{userSummaries.length} Staf</span>
             </div>
-            <div className="report-panel-body user-summary-body">
-              <div className="user-summary-list">
+            <div className="flex flex-col flex-1 justify-between p-[20px] min-h-0 overflow-hidden report-panel-body user-summary-body">
+              <div className="flex flex-col gap-[8px] [flex:1_1_0%] min-h-0 overflow-y-auto pr-[4px] [scrollbar-width:thin] [scrollbar-color:rgba(56,189,248,0.25)_transparent] [&::-webkit-scrollbar]:w-[4px] [&::-webkit-scrollbar-track]:bg-[rgba(148,163,184,0.05)] [&::-webkit-scrollbar-track]:rounded-[4px] [&::-webkit-scrollbar-thumb]:bg-[rgba(56,189,248,0.25)] [&::-webkit-scrollbar-thumb]:rounded-[4px] user-summary-list">
                 {userSummaries.map((user) => (
                   <button
                     type="button"
                     key={user.name}
-                    className="user-summary-card"
+                    className="flex flex-col gap-[5px] p-[8px_10px] rounded-[8px] bg-[rgba(148,163,184,0.04)] border border-[rgba(148,163,184,0.1)] cursor-pointer text-left w-full [transition:all_0.15s_ease] hover:bg-[rgba(56,189,248,0.08)] hover:border-[rgba(56,189,248,0.3)] user-summary-card"
                     onClick={() => setSelectedUserDetail(user)}
                     title={`Klik untuk melihat rincian sistem dan histori tiket ${user.name}`}
                   >
-                    <div className="user-summary-card-top">
-                      <div className="user-profile-left">
-                        <Avatar size="sm" initials={user.initials} name={user.name} className="user-avatar-sm" />
-                        <div className="user-name-role">
-                          <span className="user-summary-name">{user.name}</span>
-                          <span className="user-summary-role">{user.role}</span>
+                    <div className="flex items-center justify-between gap-[8px] user-summary-card-top">
+                      <div className="flex items-center gap-[7px] min-w-0 user-profile-left">
+                        <Avatar size="sm" initials={user.initials} name={user.name} className="w-[24px] h-[24px] rounded-[50%] flex items-center justify-center text-[9.5px] font-bold text-[#fff] shrink-0 user-avatar-sm" />
+                        <div className="flex flex-col min-w-0 user-name-role">
+                          <span className="text-[11px] font-bold text-[var(--ink-primary)] whitespace-nowrap overflow-hidden text-ellipsis user-summary-name">{user.name}</span>
+                          <span className="text-[9px] text-[var(--ink-muted)] whitespace-nowrap overflow-hidden text-ellipsis user-summary-role">{user.role}</span>
                         </div>
                       </div>
-                      <span className="user-detail-link">
+                      <span className="inline-flex items-center gap-[2px] text-[9.5px] font-semibold text-[#38bdf8] shrink-0 user-detail-link">
                         Detail <ChevronRight size={11} />
                       </span>
                     </div>
 
                     {/* 3 Metric Pills */}
-                    <div className="user-metrics-row">
-                      <div className="user-metric-col metric-today">
-                        <span className="metric-lbl">HARI INI</span>
-                        <strong className="metric-val">{user.todayCount}</strong>
+                    <div className="grid grid-cols-3 gap-[4px] p-[3px_6px] rounded-[6px] bg-[rgba(15,23,42,0.4)] border border-[rgba(148,163,184,0.08)] user-metrics-row">
+                      <div className="flex flex-col items-center text-center gap-[1px] user-metric-col metric-today">
+                        <span className="text-[7.5px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl">HARI INI</span>
+                        <strong className="text-[12px] font-extrabold font-mono text-[#38bdf8] metric-val">{user.todayCount}</strong>
                       </div>
-                      <div className="user-metric-col metric-month">
-                        <span className="metric-lbl">BULAN INI</span>
-                        <strong className="metric-val">{user.monthCount}</strong>
+                      <div className="flex flex-col items-center text-center gap-[1px] user-metric-col metric-month">
+                        <span className="text-[7.5px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl">BULAN INI</span>
+                        <strong className="text-[12px] font-extrabold font-mono text-[#10b981] metric-val">{user.monthCount}</strong>
                       </div>
-                      <div className="user-metric-col metric-year">
-                        <span className="metric-lbl">TAHUN INI</span>
-                        <strong className="metric-val">{user.yearCount}</strong>
+                      <div className="flex flex-col items-center text-center gap-[1px] user-metric-col metric-year">
+                        <span className="text-[7.5px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl">TAHUN INI</span>
+                        <strong className="text-[12px] font-extrabold font-mono text-[#818cf8] metric-val">{user.yearCount}</strong>
                       </div>
                     </div>
 
                     {/* Today's project tags */}
-                    <div className="user-today-projects">
-                      <span className="user-proj-label">Hari Ini:</span>
+                    <div className="flex items-center gap-[4px] text-[9px] text-[var(--ink-muted)] user-today-projects">
+                      <span className="text-[8.5px] text-[var(--ink-muted)] font-semibold shrink-0 user-proj-label">Hari Ini:</span>
                       {Object.keys(user.todayBreakdown).length > 0 ? (
-                        <div className="user-proj-pills-wrap">
+                        <div className="flex flex-wrap gap-[3px] user-proj-pills-wrap">
                           {Object.entries(user.todayBreakdown).map(([proj, count]) => {
                             const pColor = PROJECT_COLORS[proj] || "#94a3b8";
                             return (
-                              <span className="user-proj-badge" key={proj}>
-                                <i className="legend-dot" style={{ background: pColor }} />
+                              <span className="inline-flex items-center gap-[2px] p-[1px_4px] rounded-[3px] text-[8.5px] font-mono font-semibold bg-[rgba(255,255,255,0.06)] text-[var(--ink-secondary)] user-proj-badge" key={proj}>
+                                <i className="w-[9px] h-[9px] rounded-[2.5px] inline-block legend-dot" style={{ background: pColor }} />
                                 {proj} &times;{count}
                               </span>
                             );
                           })}
                         </div>
                       ) : (
-                        <span className="user-proj-none">Tidak ada tiket baru hari ini</span>
+                        <span className="text-[8.5px] text-[var(--ink-muted)] italic user-proj-none">Tidak ada tiket baru hari ini</span>
                       )}
                     </div>
                   </button>
@@ -2775,18 +2849,18 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
 
 
       {/* ── 5. Distributions: Category Donut & Priority Donut ── */}
-      <div className="report-charts-grid">
+      <div className="grid grid-cols-2 max-[960px]:grid-cols-1 gap-[18px] report-charts-grid">
         {/* Category Distribution (Donut + Ranked Bars) */}
-        <article className="panel report-panel">
-          <div className="panel-heading report-panel-heading">
-            <div className="panel-title">Distribusi Kategori / Tipe Tiket</div>
-            <span className="panel-sub-count">{typeCounts.length} Kategori</span>
+        <article className={`${REPORT_PANEL_CARD} report-panel`}>
+          <div className={`${REPORT_PANEL_HEADING} report-panel-heading`}>
+            <div className={`${REPORT_PANEL_TITLE} panel-title`}>Distribusi Kategori / Tipe Tiket</div>
+            <span className="text-[11px] font-mono text-[var(--ink-muted)] font-semibold panel-sub-count">{typeCounts.length} Kategori</span>
           </div>
-          <div className="report-panel-body">
-            <div className="donut-and-list-grid">
+          <div className="flex flex-col flex-1 justify-between p-[20px] report-panel-body">
+            <div className="grid grid-cols-[140px_1fr] max-[540px]:grid-cols-1 max-[540px]:justify-items-center gap-[20px] items-center donut-and-list-grid">
               {/* Donut Chart */}
-              <div className="donut-chart-wrap">
-                <svg className="donut-svg" viewBox="0 0 160 160">
+              <div className="relative w-[130px] h-[130px] donut-chart-wrap">
+                <svg className="w-full h-full donut-svg" viewBox="0 0 160 160">
                   {renderDonutSlices(
                     typeCounts.map(([type, count], idx) => ({
                       label: type,
@@ -2799,28 +2873,28 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                     16
                   )}
                 </svg>
-                <div className="donut-center-content">
-                  <span className="donut-total-num">{total}</span>
-                  <span className="donut-total-label">TOTAL</span>
+                <div className="absolute inset-0 flex flex-col items-center justify-center donut-center-content">
+                  <span className="text-[20px] font-extrabold font-mono text-[var(--ink-primary)] leading-none donut-total-num">{total}</span>
+                  <span className="text-[8px] font-bold font-mono tracking-[0.8px] text-[var(--ink-muted)] mt-[2px] donut-total-label">TOTAL</span>
                 </div>
               </div>
 
               {/* Ranked Category Bars */}
-              <div className="category-distribution-list">
+              <div className="flex flex-col gap-[9px] w-full category-distribution-list">
                 {typeCounts.map(([type, count], idx) => {
                   const pct = total > 0 ? Math.round((count / total) * 100) : 0;
                   const color = CATEGORY_COLORS[idx % CATEGORY_COLORS.length];
 
                   return (
-                    <div className="category-dist-row" key={type}>
-                      <div className="category-dist-info">
-                        <span className="category-dist-name">
-                          <i className="legend-dot" style={{ background: color }} /> {type}
+                    <div className="flex flex-col gap-[4px] category-dist-row" key={type}>
+                      <div className="flex justify-between text-[11.5px] font-medium text-[var(--ink-primary)] category-dist-info">
+                        <span className="inline-flex items-center gap-[6px] category-dist-name">
+                          <i className="w-[9px] h-[9px] rounded-[2.5px] inline-block legend-dot" style={{ background: color }} /> {type}
                         </span>
-                        <span className="category-dist-count">{count} ({pct}%)</span>
+                        <span className="font-mono text-[11px] text-[var(--ink-muted)] category-dist-count">{count} ({pct}%)</span>
                       </div>
-                      <div className="category-dist-track">
-                        <div className="category-dist-fill" style={{ width: `${pct}%`, background: color }} />
+                      <div className="h-[5px] w-full bg-[rgba(148,163,184,0.15)] rounded-[99px] overflow-hidden category-dist-track">
+                        <div className="h-full rounded-[99px] category-dist-fill" style={{ width: `${pct}%`, background: color }} />
                       </div>
                     </div>
                   );
@@ -2831,16 +2905,16 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
         </article>
 
         {/* Severity Distribution */}
-        <article className="panel report-panel">
-          <div className="panel-heading report-panel-heading">
-            <div className="panel-title">Distribusi Berdasarkan Severity</div>
-            <span className="panel-sub-count">Severity Ratios</span>
+        <article className={`${REPORT_PANEL_CARD} report-panel`}>
+          <div className={`${REPORT_PANEL_HEADING} report-panel-heading`}>
+            <div className={`${REPORT_PANEL_TITLE} panel-title`}>Distribusi Berdasarkan Severity</div>
+            <span className="text-[11px] font-mono text-[var(--ink-muted)] font-semibold panel-sub-count">Severity Ratios</span>
           </div>
-          <div className="report-panel-body">
-            <div className="donut-and-list-grid">
+          <div className="flex flex-col flex-1 justify-between p-[20px] report-panel-body">
+            <div className="grid grid-cols-[140px_1fr] max-[540px]:grid-cols-1 max-[540px]:justify-items-center gap-[20px] items-center donut-and-list-grid">
               {/* Donut Chart for Priority */}
-              <div className="donut-chart-wrap">
-                <svg className="donut-svg" viewBox="0 0 160 160">
+              <div className="relative w-[130px] h-[130px] donut-chart-wrap">
+                <svg className="w-full h-full donut-svg" viewBox="0 0 160 160">
                   {renderDonutSlices(
                     [
                       { label: "Critical", count: priorityCounts.Critical, color: PRIORITY_COLORS.Critical },
@@ -2854,48 +2928,48 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                     16
                   )}
                 </svg>
-                <div className="donut-center-content">
-                  <span className="donut-total-num">{priorityCounts.Critical + priorityCounts.High}</span>
-                  <span className="donut-total-label">CRIT/HIGH</span>
+                <div className="absolute inset-0 flex flex-col items-center justify-center donut-center-content">
+                  <span className="text-[20px] font-extrabold font-mono text-[var(--ink-primary)] leading-none donut-total-num">{priorityCounts.Critical + priorityCounts.High}</span>
+                  <span className="text-[8px] font-bold font-mono tracking-[0.8px] text-[var(--ink-muted)] mt-[2px] donut-total-label">CRIT/HIGH</span>
                 </div>
               </div>
 
               {/* Priority Summary Grid */}
-              <div className="priority-spectrum-list">
-                <div className="priority-spec-box priority-crit">
-                  <div className="spec-top">
-                    <span className="crit-dot" />
+              <div className="grid grid-cols-2 gap-[10px] w-full priority-spectrum-list">
+                <div className="p-[10px_12px] rounded-[8px] bg-[rgba(15,23,42,0.35)] border border-[var(--line)] [border-left:3px_solid_#ef4444] flex flex-col gap-[2px] priority-spec-box priority-crit">
+                  <div className="flex items-center gap-[6px] text-[11px] text-[var(--ink-primary)] spec-top">
+                    <span className="w-[7px] h-[7px] rounded-[50%] bg-[#ef4444] crit-dot" />
                     <strong>Critical</strong>
                   </div>
-                  <span className="spec-count">{priorityCounts.Critical}</span>
-                  <span className="spec-pct">{total > 0 ? Math.round((priorityCounts.Critical / total) * 100) : 0}% share</span>
+                  <span className="text-[18px] font-extrabold font-mono text-[var(--ink-primary)] leading-[1.1] mt-[2px] spec-count">{priorityCounts.Critical}</span>
+                  <span className="text-[9.5px] text-[var(--ink-muted)] font-mono spec-pct">{total > 0 ? Math.round((priorityCounts.Critical / total) * 100) : 0}% share</span>
                 </div>
 
-                <div className="priority-spec-box priority-high">
-                  <div className="spec-top">
-                    <span className="high-dot" />
+                <div className="p-[10px_12px] rounded-[8px] bg-[rgba(15,23,42,0.35)] border border-[var(--line)] [border-left:3px_solid_#f97316] flex flex-col gap-[2px] priority-spec-box priority-high">
+                  <div className="flex items-center gap-[6px] text-[11px] text-[var(--ink-primary)] spec-top">
+                    <span className="w-[7px] h-[7px] rounded-[50%] bg-[#f97316] high-dot" />
                     <strong>High</strong>
                   </div>
-                  <span className="spec-count">{priorityCounts.High}</span>
-                  <span className="spec-pct">{total > 0 ? Math.round((priorityCounts.High / total) * 100) : 0}% share</span>
+                  <span className="text-[18px] font-extrabold font-mono text-[var(--ink-primary)] leading-[1.1] mt-[2px] spec-count">{priorityCounts.High}</span>
+                  <span className="text-[9.5px] text-[var(--ink-muted)] font-mono spec-pct">{total > 0 ? Math.round((priorityCounts.High / total) * 100) : 0}% share</span>
                 </div>
 
-                <div className="priority-spec-box priority-med">
-                  <div className="spec-top">
-                    <span className="med-dot" />
+                <div className="p-[10px_12px] rounded-[8px] bg-[rgba(15,23,42,0.35)] border border-[var(--line)] [border-left:3px_solid_#f59e0b] flex flex-col gap-[2px] priority-spec-box priority-med">
+                  <div className="flex items-center gap-[6px] text-[11px] text-[var(--ink-primary)] spec-top">
+                    <span className="w-[7px] h-[7px] rounded-[50%] bg-[#f59e0b] med-dot" />
                     <strong>Medium</strong>
                   </div>
-                  <span className="spec-count">{priorityCounts.Medium}</span>
-                  <span className="spec-pct">{total > 0 ? Math.round((priorityCounts.Medium / total) * 100) : 0}% share</span>
+                  <span className="text-[18px] font-extrabold font-mono text-[var(--ink-primary)] leading-[1.1] mt-[2px] spec-count">{priorityCounts.Medium}</span>
+                  <span className="text-[9.5px] text-[var(--ink-muted)] font-mono spec-pct">{total > 0 ? Math.round((priorityCounts.Medium / total) * 100) : 0}% share</span>
                 </div>
 
-                <div className="priority-spec-box priority-low">
-                  <div className="spec-top">
-                    <span className="low-dot" />
+                <div className="p-[10px_12px] rounded-[8px] bg-[rgba(15,23,42,0.35)] border border-[var(--line)] [border-left:3px_solid_#2dd4bf] flex flex-col gap-[2px] priority-spec-box priority-low">
+                  <div className="flex items-center gap-[6px] text-[11px] text-[var(--ink-primary)] spec-top">
+                    <span className="w-[7px] h-[7px] rounded-[50%] bg-[#2dd4bf] low-dot" />
                     <strong>Low</strong>
                   </div>
-                  <span className="spec-count">{priorityCounts.Low}</span>
-                  <span className="spec-pct">{total > 0 ? Math.round((priorityCounts.Low / total) * 100) : 0}% share</span>
+                  <span className="text-[18px] font-extrabold font-mono text-[var(--ink-primary)] leading-[1.1] mt-[2px] spec-count">{priorityCounts.Low}</span>
+                  <span className="text-[9.5px] text-[var(--ink-muted)] font-mono spec-pct">{total > 0 ? Math.round((priorityCounts.Low / total) * 100) : 0}% share</span>
                 </div>
               </div>
             </div>
@@ -2904,27 +2978,27 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
       </div>
 
       {/* ── 6. Operational Velocity Trajectory ── */}
-      <article className="panel report-panel mgmt-velocity-panel [display:flex]! [flex-direction:column]! [width:100%]!">
-        <div className="panel-heading report-panel-heading [flex-wrap:wrap]! [gap:12px]! [align-items:center]!">
+      <article className={`${REPORT_PANEL_CARD} flex flex-col w-full mgmt-velocity-panel`}>
+        <div className={`${REPORT_PANEL_HEADING} report-panel-heading`}>
           <div>
-            <div className="panel-title">Tren Durasi Penyelesaian (Resolution Velocity)</div>
+            <div className={`${REPORT_PANEL_TITLE} panel-title`}>Tren Durasi Penyelesaian (Resolution Velocity)</div>
           </div>
-          <div className="velocity-legend-strip">
-            <div className="velocity-legend-item">
-              <span className="velocity-legend-line velocity-legend-blue" />
+          <div className="flex items-center gap-[16px] flex-wrap velocity-legend-strip">
+            <div className="flex items-center gap-[6px] text-[11px] font-semibold text-[var(--ink-secondary)] velocity-legend-item">
+              <span className="inline-block w-[16px] h-[3px] rounded-[2px] bg-[#38bdf8] shadow-[0_0_8px_rgba(56,189,248,0.4)] velocity-legend-line velocity-legend-blue" />
               <span>Rata-rata Resolusi</span>
             </div>
-            <div className="velocity-legend-item">
-              <span className="velocity-legend-line velocity-legend-orange" />
+            <div className="flex items-center gap-[6px] text-[11px] font-semibold text-[var(--ink-secondary)] velocity-legend-item">
+              <span className="inline-block w-[16px] h-0 rounded-[2px] bg-[#f59e0b] border-t-[2px] border-t-dashed border-t-[#f59e0b] border-transparent velocity-legend-line velocity-legend-orange" />
               <span>Target SLA (60m)</span>
             </div>
-            <div className="velocity-legend-item">
-              <span className="velocity-legend-line velocity-legend-red" />
+            <div className="flex items-center gap-[6px] text-[11px] font-semibold text-[var(--ink-secondary)] velocity-legend-item">
+              <span className="inline-block w-[16px] h-0 rounded-[2px] bg-[#f87171] border-t-[2px] border-t-dashed border-t-[#f87171] border-transparent velocity-legend-line velocity-legend-red" />
               <span>Batas Kritis / Breach (90m)</span>
             </div>
           </div>
         </div>
-          <div className="report-panel-body velocity-panel-body">
+          <div className="flex flex-col flex-1 p-[16px_20px] gap-[10px] justify-between report-panel-body velocity-panel-body">
             {volumeByDate.length > 0 ? (
               <>
                 {/* 4 Summary Stat Pills for Quick Velocity Intelligence */}
@@ -2937,22 +3011,22 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                   const compliancePct = Math.round((metCount / volumeByDate.length) * 100);
 
                   return (
-                    <div className="velocity-metrics-strip">
-                      <div className="velocity-metric-pill">
-                        <span className="velocity-metric-label">Rata-rata Resolusi</span>
-                        <span className="velocity-metric-val">{avg} <small>menit</small></span>
+                    <div className="grid grid-cols-4 max-[860px]:grid-cols-2 gap-[10px] mb-[2px] velocity-metrics-strip">
+                      <div className="flex flex-col gap-[3px] p-[8px_12px] bg-[rgba(15,23,42,0.55)] border border-[rgba(255,255,255,0.08)] rounded-[8px] velocity-metric-pill">
+                        <span className="text-[10px] text-[var(--ink-muted)] font-semibold whitespace-nowrap overflow-hidden text-ellipsis velocity-metric-label">Rata-rata Resolusi</span>
+                        <span className="font-mono text-[15px] font-extrabold text-[var(--ink-primary)] leading-[1.1] [&_small]:text-[10px] [&_small]:font-medium [&_small]:text-[var(--ink-muted)] velocity-metric-val">{avg} <small>menit</small></span>
                       </div>
-                      <div className="velocity-metric-pill">
-                        <span className="velocity-metric-label">Kepatuhan SLA (≤60m)</span>
-                        <span className="velocity-metric-val text-emerald-400">{compliancePct}%</span>
+                      <div className="flex flex-col gap-[3px] p-[8px_12px] bg-[rgba(15,23,42,0.55)] border border-[rgba(255,255,255,0.08)] rounded-[8px] velocity-metric-pill">
+                        <span className="text-[10px] text-[var(--ink-muted)] font-semibold whitespace-nowrap overflow-hidden text-ellipsis velocity-metric-label">Kepatuhan SLA (≤60m)</span>
+                        <span className="font-mono text-[15px] font-extrabold text-[var(--ink-primary)] leading-[1.1] [&_small]:text-[10px] [&_small]:font-medium velocity-metric-val">{compliancePct}%</span>
                       </div>
-                      <div className="velocity-metric-pill">
-                        <span className="velocity-metric-label">Durasi Tercepat</span>
-                        <span className="velocity-metric-val text-sky-400">{min} <small>menit</small></span>
+                      <div className="flex flex-col gap-[3px] p-[8px_12px] bg-[rgba(15,23,42,0.55)] border border-[rgba(255,255,255,0.08)] rounded-[8px] velocity-metric-pill">
+                        <span className="text-[10px] text-[var(--ink-muted)] font-semibold whitespace-nowrap overflow-hidden text-ellipsis velocity-metric-label">Durasi Tercepat</span>
+                        <span className="font-mono text-[15px] font-extrabold text-[var(--ink-primary)] leading-[1.1] [&_small]:text-[10px] [&_small]:font-medium velocity-metric-val">{min} <small>menit</small></span>
                       </div>
-                      <div className="velocity-metric-pill">
-                        <span className="velocity-metric-label">Durasi Tertinggi</span>
-                        <span className={`velocity-metric-val ${max > 60 ? "text-rose-400" : "text-amber-400"}`}>
+                      <div className="flex flex-col gap-[3px] p-[8px_12px] bg-[rgba(15,23,42,0.55)] border border-[rgba(255,255,255,0.08)] rounded-[8px] velocity-metric-pill">
+                        <span className="text-[10px] text-[var(--ink-muted)] font-semibold whitespace-nowrap overflow-hidden text-ellipsis velocity-metric-label">Durasi Tertinggi</span>
+                        <span className="font-mono text-[15px] font-extrabold leading-[1.1] [&_small]:text-[10px] [&_small]:font-medium velocity-metric-val text-[var(--ink-primary)]">
                           {max} <small>menit</small>
                         </span>
                       </div>
@@ -2962,7 +3036,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
 
                 {/* Clean, Prominent Line Chart with Collision-Free Labels & Interactive Hover */}
                 <div
-                  className="velocity-chart-container"
+                  className="relative w-full h-[290px] min-h-[280px] flex flex-col flex-1 overflow-visible velocity-chart-container"
                   onMouseLeave={() => setHoveredVelocityPoint(null)}
                 >
                   {(() => {
@@ -3011,7 +3085,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                     return (
                       <>
                         <svg
-                          className="velocity-chart-svg [overflow:visible]!"
+                          className="w-full h-full min-h-[280px] block select-none !overflow-visible velocity-chart-svg"
                           viewBox={`0 0 ${svgViewBoxWidth} ${viewBoxHeight}`}
                           preserveAspectRatio="none"
                         >
@@ -3384,30 +3458,30 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                         {/* Floating Interactive Tooltip Overlay */}
                         {hoveredVelocityPoint && (
                           <div
-                            className="velocity-chart-tooltip"
+                            className="absolute pointer-events-none z-[99] -translate-x-1/2 -translate-y-full -mt-[12px] bg-[rgba(15,23,42,0.94)] backdrop-blur-[8px] border border-[rgba(56,189,248,0.35)] rounded-[8px] p-[8px_12px] shadow-[0_8px_24px_rgba(0,0,0,0.45),0_0_12px_rgba(56,189,248,0.15)] min-w-[150px] whitespace-nowrap [animation:tooltipFade_0.15s_ease-out] velocity-chart-tooltip"
                             style={{
                               left: `${hoveredVelocityPoint.percentX}%`,
                               top: `${hoveredVelocityPoint.percentY}%`,
                             }}
                           >
-                            <div className="velocity-tooltip-header">
+                            <div className="text-[11px] font-bold text-[var(--ink-primary)] mb-[4px] border-b border-[rgba(255,255,255,0.08)] pb-[3px] flex items-center justify-between gap-[8px] velocity-tooltip-header">
                               <span>📅 {hoveredVelocityPoint.date}</span>
                               <span
-                                className={`velocity-tooltip-badge ${
-                                  hoveredVelocityPoint.avgResolution <= 60 ? "sla-ok" : "sla-breach"
+                                className={`inline-block text-[9.5px] font-bold p-[2px_6px] rounded-[4px] mt-[4px] velocity-tooltip-badge ${
+                                  hoveredVelocityPoint.avgResolution <= 60 ? "bg-[rgba(16,185,129,0.15)] text-[#34d399] border border-[rgba(16,185,129,0.3)] sla-ok" : "bg-[rgba(239,68,68,0.15)] text-[#f87171] border border-[rgba(239,68,68,0.3)] sla-breach"
                                 }`}
                               >
                                 {hoveredVelocityPoint.avgResolution <= 60 ? "✓ SLA OK" : "⚠ Breach"}
                               </span>
                             </div>
-                            <div className="velocity-tooltip-row">
+                            <div className="flex items-center justify-between gap-[12px] text-[11px] mt-[3px] text-[var(--ink-secondary)] velocity-tooltip-row">
                               <span>Rata-rata Resolusi:</span>
-                              <span className="velocity-tooltip-val">
+                              <span className="font-bold font-mono text-[#38bdf8] velocity-tooltip-val">
                                 {hoveredVelocityPoint.avgResolution} Menit
                               </span>
                             </div>
                             {hoveredVelocityPoint.closed > 0 && (
-                              <div className="velocity-tooltip-row">
+                              <div className="flex items-center justify-between gap-[12px] text-[11px] mt-[3px] text-[var(--ink-secondary)] velocity-tooltip-row">
                                 <span>Tiket Selesai:</span>
                                 <span className="[font-weight:600]! [color:var(--ink-primary)]!">
                                   {hoveredVelocityPoint.closed} Tiket
@@ -3422,21 +3496,21 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                 </div>
               </>
             ) : (
-              <div className="chart-empty-hint">Tidak ada data resolusi pada filter ini.</div>
+              <div className="text-[12px] text-[var(--ink-muted)] text-center py-[24px] italic chart-empty-hint">Tidak ada data resolusi pada filter ini.</div>
             )}
           </div>
         </article>
 
       {/* ── 7. Shift Traffic Velocity (Multi-Line Trajectory Chart) ── */}
-      <div className="heatmap-standalone-section [margin-top:18px]!">
-        <article className="panel report-panel shift-traffic-panel">
-          <div className="panel-heading report-panel-heading">
-            <div className="panel-title [display:flex]! [align-items:center]! [gap:8px]!">
+      <div className="heatmap-standalone-section mt-[18px]">
+        <article className="bg-[var(--panel-bg)] border border-[rgba(16,185,129,0.18)] rounded-[12px] shadow-[var(--shadow-panel)] overflow-hidden flex flex-col shift-traffic-panel">
+          <div className={`${REPORT_PANEL_HEADING} report-panel-heading`}>
+            <div className={`${REPORT_PANEL_TITLE} panel-title`}>
               <Activity size={16} className="text-emerald-400" />
               Tren Trafik Beban per Shift (Shift Traffic Velocity)
             </div>
           </div>
-          <div className="report-panel-body shift-traffic-panel-body">
+          <div className="flex flex-col flex-1 justify-between p-[16px_20px] gap-[12px] report-panel-body shift-traffic-panel-body">
             {/* 4 Summary Stat Pills for Quick Shift Intelligence */}
             {(() => {
               const pagiTotal = shiftHeatmapData.shiftTotals["Pagi"] || 0;
@@ -3448,53 +3522,53 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
               const subuhPct = Math.round((subuhTotal / grand) * 100);
 
               return (
-                <div className="shift-traffic-metrics-strip">
-                  <div className="shift-traffic-metric-pill">
-                    <div className="shift-traffic-metric-label">
+                <div className="grid grid-cols-4 max-[900px]:grid-cols-2 gap-[12px] mb-[14px] shift-traffic-metrics-strip">
+                  <div className="flex flex-col gap-[8px] p-[12px_15px] rounded-[10px] bg-[rgba(15,23,42,0.55)] border border-[rgba(148,163,184,0.12)] min-w-0 shadow-[0_2px_8px_rgba(0,0,0,0.18)] transition-all duration-150 hover:bg-[rgba(15,23,42,0.75)] hover:border-[rgba(56,189,248,0.3)] hover:-translate-y-[1px] shift-traffic-metric-pill">
+                    <div className="text-[11px] font-semibold text-[var(--ink-muted,#94a3b8)] flex items-center gap-[6px] whitespace-nowrap leading-[1.3] shift-traffic-metric-label">
                       <Sun size={13} className="[color:#fbbf24]! [flex-shrink:0]!" />
-                      <span className="shift-traffic-metric-name">Shift Pagi</span>
-                      <span className="shift-traffic-metric-hours">(08:00–16:30)</span>
+                      <span className="text-[var(--ink-primary,#f8fafc)] font-semibold shift-traffic-metric-name">Shift Pagi</span>
+                      <span className="text-[10px] text-[var(--ink-muted,#94a3b8)] font-mono font-medium opacity-80 ml-[2px] shift-traffic-metric-hours">(08:00–16:30)</span>
                     </div>
-                    <div className="shift-traffic-metric-val [color:#fbbf24]!">
-                      {pagiTotal} <small className="shift-metric-unit">tiket</small>
+                    <div className="text-[18px] font-extrabold font-mono leading-[1.2] flex items-baseline gap-[6px] shift-traffic-metric-val [color:#fbbf24]!">
+                      {pagiTotal} <small className="text-[11.5px] font-medium text-[var(--ink-muted,#94a3b8)] shift-metric-unit">tiket</small>
                     </div>
-                    <div className="shift-traffic-metric-sub">{pagiPct}% dari total beban</div>
+                    <div className="text-[10.5px] text-[var(--ink-muted,#94a3b8)] font-mono leading-[1.35] whitespace-nowrap overflow-hidden text-ellipsis shift-traffic-metric-sub">{pagiPct}% dari total beban</div>
                   </div>
 
-                  <div className="shift-traffic-metric-pill">
-                    <div className="shift-traffic-metric-label">
+                  <div className="flex flex-col gap-[8px] p-[12px_15px] rounded-[10px] bg-[rgba(15,23,42,0.55)] border border-[rgba(148,163,184,0.12)] min-w-0 shadow-[0_2px_8px_rgba(0,0,0,0.18)] transition-all duration-150 hover:bg-[rgba(15,23,42,0.75)] hover:border-[rgba(56,189,248,0.3)] hover:-translate-y-[1px] shift-traffic-metric-pill">
+                    <div className="text-[11px] font-semibold text-[var(--ink-muted,#94a3b8)] flex items-center gap-[6px] whitespace-nowrap leading-[1.3] shift-traffic-metric-label">
                       <Sunset size={13} className="[color:#c084fc]! [flex-shrink:0]!" />
-                      <span className="shift-traffic-metric-name">Shift Malam</span>
-                      <span className="shift-traffic-metric-hours">(16:00–00:30)</span>
+                      <span className="text-[var(--ink-primary,#f8fafc)] font-semibold shift-traffic-metric-name">Shift Malam</span>
+                      <span className="text-[10px] text-[var(--ink-muted,#94a3b8)] font-mono font-medium opacity-80 ml-[2px] shift-traffic-metric-hours">(16:00–00:30)</span>
                     </div>
-                    <div className="shift-traffic-metric-val [color:#c084fc]!">
-                      {malamTotal} <small className="shift-metric-unit">tiket</small>
+                    <div className="text-[18px] font-extrabold font-mono leading-[1.2] flex items-baseline gap-[6px] shift-traffic-metric-val [color:#c084fc]!">
+                      {malamTotal} <small className="text-[11.5px] font-medium text-[var(--ink-muted,#94a3b8)] shift-metric-unit">tiket</small>
                     </div>
-                    <div className="shift-traffic-metric-sub">{malamPct}% dari total beban</div>
+                    <div className="text-[10.5px] text-[var(--ink-muted,#94a3b8)] font-mono leading-[1.35] whitespace-nowrap overflow-hidden text-ellipsis shift-traffic-metric-sub">{malamPct}% dari total beban</div>
                   </div>
 
-                  <div className="shift-traffic-metric-pill">
-                    <div className="shift-traffic-metric-label">
+                  <div className="flex flex-col gap-[8px] p-[12px_15px] rounded-[10px] bg-[rgba(15,23,42,0.55)] border border-[rgba(148,163,184,0.12)] min-w-0 shadow-[0_2px_8px_rgba(0,0,0,0.18)] transition-all duration-150 hover:bg-[rgba(15,23,42,0.75)] hover:border-[rgba(56,189,248,0.3)] hover:-translate-y-[1px] shift-traffic-metric-pill">
+                    <div className="text-[11px] font-semibold text-[var(--ink-muted,#94a3b8)] flex items-center gap-[6px] whitespace-nowrap leading-[1.3] shift-traffic-metric-label">
                       <Moon size={13} className="[color:#38bdf8]! [flex-shrink:0]!" />
-                      <span className="shift-traffic-metric-name">Shift Subuh</span>
-                      <span className="shift-traffic-metric-hours">(00:00–08:30)</span>
+                      <span className="text-[var(--ink-primary,#f8fafc)] font-semibold shift-traffic-metric-name">Shift Subuh</span>
+                      <span className="text-[10px] text-[var(--ink-muted,#94a3b8)] font-mono font-medium opacity-80 ml-[2px] shift-traffic-metric-hours">(00:00–08:30)</span>
                     </div>
-                    <div className="shift-traffic-metric-val [color:#38bdf8]!">
-                      {subuhTotal} <small className="shift-metric-unit">tiket</small>
+                    <div className="text-[18px] font-extrabold font-mono leading-[1.2] flex items-baseline gap-[6px] shift-traffic-metric-val [color:#38bdf8]!">
+                      {subuhTotal} <small className="text-[11.5px] font-medium text-[var(--ink-muted,#94a3b8)] shift-metric-unit">tiket</small>
                     </div>
-                    <div className="shift-traffic-metric-sub">{subuhPct}% dari total beban</div>
+                    <div className="text-[10.5px] text-[var(--ink-muted,#94a3b8)] font-mono leading-[1.35] whitespace-nowrap overflow-hidden text-ellipsis shift-traffic-metric-sub">{subuhPct}% dari total beban</div>
                   </div>
 
-                  <div className="shift-traffic-metric-pill">
-                    <div className="shift-traffic-metric-label">
+                  <div className="flex flex-col gap-[8px] p-[12px_15px] rounded-[10px] bg-[rgba(15,23,42,0.55)] border border-[rgba(148,163,184,0.12)] min-w-0 shadow-[0_2px_8px_rgba(0,0,0,0.18)] transition-all duration-150 hover:bg-[rgba(15,23,42,0.75)] hover:border-[rgba(56,189,248,0.3)] hover:-translate-y-[1px] shift-traffic-metric-pill">
+                    <div className="text-[11px] font-semibold text-[var(--ink-muted,#94a3b8)] flex items-center gap-[6px] whitespace-nowrap leading-[1.3] shift-traffic-metric-label">
                       <Zap size={13} className="[color:#f87171]! [flex-shrink:0]!" />
-                      <span className="shift-traffic-metric-name">Total Beban Terbanyak</span>
-                      <span className="shift-traffic-metric-hours">(Kumulatif)</span>
+                      <span className="text-[var(--ink-primary,#f8fafc)] font-semibold shift-traffic-metric-name">Total Beban Terbanyak</span>
+                      <span className="text-[10px] text-[var(--ink-muted,#94a3b8)] font-mono font-medium opacity-80 ml-[2px] shift-traffic-metric-hours">(Kumulatif)</span>
                     </div>
-                    <div className="shift-traffic-metric-val text-rose-400">
+                    <div className="text-[18px] font-extrabold font-mono leading-[1.2] flex items-baseline gap-[6px] shift-traffic-metric-val text-rose-400">
                       {shiftHeatmapData.peakShift.name}
                     </div>
-                    <div className="shift-traffic-metric-sub">
+                    <div className="text-[10.5px] text-[var(--ink-muted,#94a3b8)] font-mono leading-[1.35] whitespace-nowrap overflow-hidden text-ellipsis shift-traffic-metric-sub">
                       {shiftHeatmapData.shiftTotals[shiftHeatmapData.peakShift.id]} tiket (
                       {grand > 0
                         ? Math.round(
@@ -3510,7 +3584,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
 
             {/* Clean, Prominent Multi-Line Chart Modeled After Resolution Velocity */}
             <div
-              className="shift-traffic-chart-container"
+              className="relative w-full h-[275px] min-h-[265px] max-h-[310px] flex flex-col flex-1 overflow-visible shift-traffic-chart-container"
               onMouseLeave={() => setHoveredShiftTrafficPoint(null)}
             >
               {(() => {
@@ -3589,7 +3663,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                 return (
                   <>
                     <svg
-                      className="shift-traffic-chart-svg [overflow:visible]!"
+                      className="w-full h-full min-h-[265px] block select-none overflow-visible shift-traffic-chart-svg"
                       viewBox={`0 0 ${svgViewBoxWidth} ${viewBoxHeight}`}
                       preserveAspectRatio="none"
                     >
@@ -3787,7 +3861,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
 
                     {/* Y-Axis Tick Labels (HTML Overlay - Zero SVG Distortion) */}
                     <div
-                      className="shift-traffic-y-axis"
+                      className="absolute left-0 top-0 bottom-0 pointer-events-none z-[5] shift-traffic-y-axis"
                       style={{ width: `${(startX / svgViewBoxWidth) * 100}%` }}
                     >
                       {ticks.map((tick) => {
@@ -3796,7 +3870,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                         return (
                           <span
                             key={`y-label-${tick}`}
-                            className="shift-traffic-y-label"
+                            className="absolute right-[10px] -translate-y-1/2 text-[11px] font-semibold font-mono text-[var(--ink-muted,#94a3b8)] leading-none text-right select-none tracking-[-0.02em] shift-traffic-y-label"
                             style={{ top: `${percentY}%` }}
                           >
                             {tick}
@@ -3807,7 +3881,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
 
                     {/* X-Axis Date Labels (HTML Overlay - Zero SVG Distortion) */}
                     <div
-                      className="shift-traffic-x-axis"
+                      className="absolute left-0 right-0 h-[24px] pointer-events-none z-[5] shift-traffic-x-axis"
                       style={{ top: `${(baselineY / viewBoxHeight) * 100}%` }}
                     >
                       {dateList.map((d, idx) => {
@@ -3821,7 +3895,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                         return (
                           <span
                             key={`x-label-${d}`}
-                            className={`shift-traffic-x-label ${isHovered ? "hovered" : ""}`}
+                            className={`absolute -translate-x-1/2 translate-y-[6px] text-[11px] font-medium font-mono text-[var(--ink-muted,#94a3b8)] whitespace-nowrap select-none transition-[color,font-weight] duration-150 tracking-[-0.01em] shift-traffic-x-label ${isHovered ? "text-[#38bdf8] font-bold hovered" : ""}`}
                             style={{ left: `${percentX}%` }}
                           >
                             {d.length >= 10 ? d.slice(5) : d}
@@ -3839,7 +3913,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
 
                       return (
                         <div
-                          className="shift-traffic-peak-badge"
+                          className="absolute pointer-events-none z-[15] inline-flex items-center gap-[5px] p-[3px_9px] rounded-[6px] bg-[rgba(15,23,42,0.95)] border-[1.2px] border-solid border-[#f59e0b] text-[11px] font-bold font-mono leading-[1.2] text-[#fbbf24] shadow-[0_4px_12px_rgba(0,0,0,0.5),0_0_10px_rgba(245,158,11,0.25)] whitespace-nowrap [&_strong]:text-[#fef08a] [&_strong]:font-extrabold shift-traffic-peak-badge"
                           style={{
                             left: `${clampedPercentX}%`,
                             top: `${percentY}%`,
@@ -3848,7 +3922,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                               : "translate(-50%, calc(-100% - 10px))",
                           }}
                         >
-                          <span className="shift-traffic-peak-dot" />
+                          <span className="w-[5px] h-[5px] rounded-[50%] bg-[#f59e0b] shadow-[0_0_6px_#f59e0b] shrink-0 shift-traffic-peak-dot" />
                           <span>
                             Lonjakan: <strong>{peak.count} Tiket</strong> ({peak.shiftName})
                           </span>
@@ -3859,45 +3933,45 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                     {/* Floating Interactive Hover Tooltip */}
                     {hoveredShiftTrafficPoint && (
                       <div
-                        className="shift-traffic-tooltip"
+                        className="absolute pointer-events-none z-[99] -translate-x-1/2 -translate-y-full -mt-[12px] bg-[rgba(15,23,42,0.94)] backdrop-blur-[8px] border border-[rgba(56,189,248,0.35)] rounded-[8px] p-[8px_12px] shadow-[0_8px_24px_rgba(0,0,0,0.45),0_0_12px_rgba(56,189,248,0.15)] min-w-[160px] whitespace-nowrap shift-traffic-tooltip"
                         style={{
                           left: `${hoveredShiftTrafficPoint.percentX}%`,
                           top: `${hoveredShiftTrafficPoint.percentY}%`,
                         }}
                       >
-                        <div className="shift-traffic-tooltip-header">
+                        <div className="text-[11px] font-bold text-[var(--ink-primary)] mb-[4px] border-b border-[rgba(255,255,255,0.08)] pb-[3px] flex items-center justify-between gap-[8px] shift-traffic-tooltip-header">
                           <span>📅 {hoveredShiftTrafficPoint.date}</span>
                           <span className="[color:#38bdf8]! [font-weight:700]!">
                             {hoveredShiftTrafficPoint.total} Tiket
                           </span>
                         </div>
-                        <div className="shift-traffic-tooltip-row">
+                        <div className="flex items-center justify-between gap-[12px] text-[11px] mt-[3px] text-[var(--ink-secondary)] shift-traffic-tooltip-row">
                           <span className="[display:inline-flex]! [align-items:center]! [gap:6px]!">
-                            <span className="shift-legend-dot dot-pagi" /> Shift Pagi:
+                            <span className="w-[8px] h-[8px] rounded-[50%] inline-block bg-[#fbbf24] shadow-[0_0_6px_rgba(251,191,36,0.6)] shift-legend-dot dot-pagi" /> Shift Pagi:
                           </span>
-                          <span className="shift-traffic-tooltip-val [color:#fbbf24]!">
+                          <span className="font-bold font-mono shift-traffic-tooltip-val [color:#fbbf24]!">
                             {hoveredShiftTrafficPoint.pagi} Tiket
                           </span>
                         </div>
-                        <div className="shift-traffic-tooltip-row">
+                        <div className="flex items-center justify-between gap-[12px] text-[11px] mt-[3px] text-[var(--ink-secondary)] shift-traffic-tooltip-row">
                           <span className="[display:inline-flex]! [align-items:center]! [gap:6px]!">
-                            <span className="shift-legend-dot dot-malam" /> Shift Malam:
+                            <span className="w-[8px] h-[8px] rounded-[50%] inline-block bg-[#c084fc] shadow-[0_0_6px_rgba(192,132,252,0.6)] shift-legend-dot dot-malam" /> Shift Malam:
                           </span>
-                          <span className="shift-traffic-tooltip-val [color:#c084fc]!">
+                          <span className="font-bold font-mono shift-traffic-tooltip-val [color:#c084fc]!">
                             {hoveredShiftTrafficPoint.malam} Tiket
                           </span>
                         </div>
-                        <div className="shift-traffic-tooltip-row">
+                        <div className="flex items-center justify-between gap-[12px] text-[11px] mt-[3px] text-[var(--ink-secondary)] shift-traffic-tooltip-row">
                           <span className="[display:inline-flex]! [align-items:center]! [gap:6px]!">
-                            <span className="shift-legend-dot dot-subuh" /> Shift Subuh:
+                            <span className="w-[8px] h-[8px] rounded-[50%] inline-block bg-[#38bdf8] shadow-[0_0_6px_rgba(56,189,248,0.6)] shift-legend-dot dot-subuh" /> Shift Subuh:
                           </span>
-                          <span className="shift-traffic-tooltip-val [color:#38bdf8]!">
+                          <span className="font-bold font-mono shift-traffic-tooltip-val [color:#38bdf8]!">
                             {hoveredShiftTrafficPoint.subuh} Tiket
                           </span>
                         </div>
-                        <div className="shift-traffic-tooltip-row shift-traffic-tooltip-total">
+                        <div className="flex items-center justify-between gap-[12px] text-[11px] border-t border-[rgba(255,255,255,0.08)] pt-[3px] mt-[4px] font-bold text-[var(--ink-primary)] shift-traffic-tooltip-row shift-traffic-tooltip-total">
                           <span>Total Harian:</span>
-                          <span className="shift-traffic-tooltip-val">
+                          <span className="font-bold font-mono shift-traffic-tooltip-val">
                             {hoveredShiftTrafficPoint.total} Tiket
                           </span>
                         </div>
@@ -3909,40 +3983,40 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
             </div>
 
             {/* Filter and Shift Legend Bar */}
-            <div className="shift-traffic-filter-bar">
-              <div className="shift-filter-buttons">
-                <span className="[font-size:11px]! [font-weight:600]! [color:var(--ink-muted)]! [margin-right:4px]!">
+            <div className="flex items-center justify-between flex-wrap gap-[8px] mt-[4px] pt-[10px] pr-[20px] border-t border-[rgba(148,163,184,0.1)] shift-traffic-filter-bar">
+              <div className="flex items-center gap-[5px] flex-wrap shift-filter-buttons">
+                <span className="text-[11px] font-semibold text-[var(--ink-muted)] mr-[4px]">
                   Tampilkan Garis:
                 </span>
                 <button
                   type="button"
-                  className={`shift-filter-btn ${activeShiftLineFilter === "all" ? "active" : ""}`}
+                  className={`inline-flex items-center gap-[4px] p-[2px_8px] rounded-[5px] text-[10.5px] font-semibold cursor-pointer transition-all duration-150 ease-out select-none border shift-filter-btn ${activeShiftLineFilter === "all" ? "bg-[rgba(56,189,248,0.18)] text-white border-[#38bdf8] shadow-[0_0_8px_rgba(56,189,248,0.2)] active" : "bg-[rgba(148,163,184,0.06)] border-[rgba(148,163,184,0.15)] text-[var(--ink-secondary)] hover:bg-[rgba(56,189,248,0.1)] hover:text-[#38bdf8] hover:border-[rgba(56,189,248,0.3)]"}`}
                   onClick={() => setActiveShiftLineFilter("all")}
                 >
                   <span>Semua Shift</span>
                 </button>
                 <button
                   type="button"
-                  className={`shift-filter-btn ${activeShiftLineFilter === "Pagi" ? "active" : ""}`}
+                  className={`inline-flex items-center gap-[4px] p-[2px_8px] rounded-[5px] text-[10.5px] font-semibold cursor-pointer transition-all duration-150 ease-out select-none border shift-filter-btn ${activeShiftLineFilter === "Pagi" ? "bg-[rgba(56,189,248,0.18)] text-white border-[#38bdf8] shadow-[0_0_8px_rgba(56,189,248,0.2)] active" : "bg-[rgba(148,163,184,0.06)] border-[rgba(148,163,184,0.15)] text-[var(--ink-secondary)] hover:bg-[rgba(56,189,248,0.1)] hover:text-[#38bdf8] hover:border-[rgba(56,189,248,0.3)]"}`}
                   onClick={() => setActiveShiftLineFilter("Pagi")}
                 >
-                  <span className="shift-legend-dot dot-pagi" />
+                  <span className="inline-block w-[8px] h-[8px] rounded-[50%] shrink-0 bg-[#fbbf24] shadow-[0_0_6px_rgba(251,191,36,0.6)] shift-legend-dot dot-pagi" />
                   <span>Shift Pagi</span>
                 </button>
                 <button
                   type="button"
-                  className={`shift-filter-btn ${activeShiftLineFilter === "Malam" ? "active" : ""}`}
+                  className={`inline-flex items-center gap-[4px] p-[2px_8px] rounded-[5px] text-[10.5px] font-semibold cursor-pointer transition-all duration-150 ease-out select-none border shift-filter-btn ${activeShiftLineFilter === "Malam" ? "bg-[rgba(56,189,248,0.18)] text-white border-[#38bdf8] shadow-[0_0_8px_rgba(56,189,248,0.2)] active" : "bg-[rgba(148,163,184,0.06)] border-[rgba(148,163,184,0.15)] text-[var(--ink-secondary)] hover:bg-[rgba(56,189,248,0.1)] hover:text-[#38bdf8] hover:border-[rgba(56,189,248,0.3)]"}`}
                   onClick={() => setActiveShiftLineFilter("Malam")}
                 >
-                  <span className="shift-legend-dot dot-malam" />
+                  <span className="inline-block w-[8px] h-[8px] rounded-[50%] shrink-0 bg-[#c084fc] shadow-[0_0_6px_rgba(192,132,252,0.6)] shift-legend-dot dot-malam" />
                   <span>Shift Malam</span>
                 </button>
                 <button
                   type="button"
-                  className={`shift-filter-btn ${activeShiftLineFilter === "Subuh" ? "active" : ""}`}
+                  className={`inline-flex items-center gap-[4px] p-[2px_8px] rounded-[5px] text-[10.5px] font-semibold cursor-pointer transition-all duration-150 ease-out select-none border shift-filter-btn ${activeShiftLineFilter === "Subuh" ? "bg-[rgba(56,189,248,0.18)] text-white border-[#38bdf8] shadow-[0_0_8px_rgba(56,189,248,0.2)] active" : "bg-[rgba(148,163,184,0.06)] border-[rgba(148,163,184,0.15)] text-[var(--ink-secondary)] hover:bg-[rgba(56,189,248,0.1)] hover:text-[#38bdf8] hover:border-[rgba(56,189,248,0.3)]"}`}
                   onClick={() => setActiveShiftLineFilter("Subuh")}
                 >
-                  <span className="shift-legend-dot dot-subuh" />
+                  <span className="inline-block w-[8px] h-[8px] rounded-[50%] shrink-0 bg-[#38bdf8] shadow-[0_0_6px_rgba(56,189,248,0.6)] shift-legend-dot dot-subuh" />
                   <span>Shift Subuh</span>
                 </button>
               </div>
@@ -3958,10 +4032,10 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
         selectedUserDetail &&
         typeof document !== "undefined" &&
         createPortal(
-          <div className="user-modal-overlay" onClick={() => setSelectedUserDetail(null)}>
-            <div className="user-modal-card" onClick={(e) => e.stopPropagation()}>
-              <div className="user-modal-header">
-                <div className="user-modal-profile">
+          <div className="fixed inset-0 w-screen h-screen bg-black/80 backdrop-blur-[6px] z-[999999] flex items-center justify-center p-[24px_16px] overflow-y-auto overscroll-contain animate-[modalFadeIn_0.15s_ease-out] user-modal-overlay" onClick={() => setSelectedUserDetail(null)}>
+            <div className="relative w-full max-w-[660px] max-h-[86vh] bg-[#0f172a] border border-[rgba(56,189,248,0.35)] rounded-[14px] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85),0_0_0_1px_rgba(255,255,255,0.05)] flex flex-col overflow-hidden m-auto animate-[modalScaleUp_0.15s_ease-out] user-modal-card" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-center justify-between p-[16px_20px] border-b border-[rgba(148,163,184,0.12)] bg-[rgba(148,163,184,0.04)] shrink-0 user-modal-header">
+                <div className="flex items-center gap-[12px] user-modal-profile">
                   <div
                     className="drawer-avatar-ring-wrapper"
                     style={getStatusRingStyle(
@@ -3970,7 +4044,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                       userStatus
                     ) as React.CSSProperties}
                   >
-                    <Avatar size="lg" initials={selectedUserDetail.initials} name={selectedUserDetail.name} className="user-avatar-lg" />
+                    <Avatar size="lg" initials={selectedUserDetail.initials} name={selectedUserDetail.name} className="w-[42px] h-[42px] rounded-full flex items-center justify-center text-[15px] font-extrabold text-white user-avatar-lg" />
                     <span
                       className="drawer-avatar-status-badge"
                       style={{
@@ -3983,8 +4057,8 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                     />
                   </div>
                   <div>
-                    <h3 className="user-modal-title">{selectedUserDetail.name}</h3>
-                    <p className="user-modal-sub">{selectedUserDetail.role}</p>
+                    <h3 className="text-[15px] font-extrabold text-[var(--ink-primary)] m-0 user-modal-title">{selectedUserDetail.name}</h3>
+                    <p className="text-[11.5px] text-[var(--ink-muted)] m-[2px_0_0] user-modal-sub">{selectedUserDetail.role}</p>
                   </div>
                 </div>
                 <ModalCloseButton
@@ -3993,27 +4067,27 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                 />
               </div>
 
-              <div className="user-modal-body">
+              <div className="p-[16px_20px] flex flex-col gap-[14px] overflow-y-auto flex-1 user-modal-body">
                 {/* 3 Period Summaries */}
-                <div className="user-modal-periods-grid">
+                <div className="grid grid-cols-3 max-[600px]:grid-cols-1 gap-[10px] user-modal-periods-grid">
                   {/* Hari Ini */}
-                  <div className="user-period-card">
-                    <div className="period-card-header">
-                      <span className="period-badge today">HARI INI</span>
-                      <strong className="period-total">{selectedUserDetail.todayCount} Tiket</strong>
+                  <div className="p-[12px_10px] rounded-[10px] bg-[rgba(148,163,184,0.05)] border border-[rgba(148,163,184,0.12)] flex flex-col gap-[8px] user-period-card">
+                    <div className="flex items-center justify-between pb-[6px] border-b border-[rgba(148,163,184,0.08)] period-card-header">
+                      <span className="text-[8.5px] font-bold font-mono p-[2px_6px] rounded-[4px] bg-[rgba(56,189,248,0.15)] text-[#38bdf8] period-badge today">HARI INI</span>
+                      <strong className="text-[13px] font-extrabold font-mono text-[var(--ink-primary)] period-total">{selectedUserDetail.todayCount} Tiket</strong>
                     </div>
-                    <div className="period-breakdown-list">
+                    <div className="flex flex-col gap-[4px] period-breakdown-list">
                       {Object.keys(selectedUserDetail.todayBreakdown).length > 0 ? (
                         Object.entries(selectedUserDetail.todayBreakdown).map(([proj, count]) => {
                           const pColor = PROJECT_COLORS[proj] || "#94a3b8";
                           const pct = Math.round((count / Math.max(1, selectedUserDetail.todayCount)) * 100);
                           return (
-                            <div className="period-breakdown-row" key={proj}>
-                              <div className="period-proj-tag">
+                            <div className="flex items-center justify-between text-[10px] py-[2px] period-breakdown-row" key={proj}>
+                              <div className="flex items-center gap-[4px] text-[var(--ink-secondary)] period-proj-tag">
                                 <i className="legend-dot" style={{ background: pColor }} />
                                 <span>{proj}</span>
                               </div>
-                              <span className="period-count-pct">{count} ({pct}%)</span>
+                              <span className="font-mono font-semibold text-[var(--ink-muted)] period-count-pct">{count} ({pct}%)</span>
                             </div>
                           );
                         })
@@ -4024,22 +4098,22 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                   </div>
 
                   {/* Bulan Ini */}
-                  <div className="user-period-card">
-                    <div className="period-card-header">
-                      <span className="period-badge month">BULAN INI</span>
-                      <strong className="period-total">{selectedUserDetail.monthCount} Tiket</strong>
+                  <div className="p-[12px_10px] rounded-[10px] bg-[rgba(148,163,184,0.05)] border border-[rgba(148,163,184,0.12)] flex flex-col gap-[8px] user-period-card">
+                    <div className="flex items-center justify-between pb-[6px] border-b border-[rgba(148,163,184,0.08)] period-card-header">
+                      <span className="text-[8.5px] font-bold font-mono p-[2px_6px] rounded-[4px] bg-[rgba(16,185,129,0.15)] text-[#34d399] period-badge month">BULAN INI</span>
+                      <strong className="text-[13px] font-extrabold font-mono text-[var(--ink-primary)] period-total">{selectedUserDetail.monthCount} Tiket</strong>
                     </div>
-                    <div className="period-breakdown-list">
+                    <div className="flex flex-col gap-[4px] period-breakdown-list">
                       {Object.entries(selectedUserDetail.monthBreakdown).map(([proj, count]) => {
                         const pColor = PROJECT_COLORS[proj] || "#94a3b8";
                         const pct = Math.round((count / Math.max(1, selectedUserDetail.monthCount)) * 100);
                         return (
-                          <div className="period-breakdown-row" key={proj}>
-                            <div className="period-proj-tag">
+                          <div className="flex items-center justify-between text-[10px] py-[2px] period-breakdown-row" key={proj}>
+                            <div className="flex items-center gap-[4px] text-[var(--ink-secondary)] period-proj-tag">
                               <i className="legend-dot" style={{ background: pColor }} />
                               <span>{proj}</span>
                             </div>
-                            <span className="period-count-pct">{count} ({pct}%)</span>
+                            <span className="font-mono font-semibold text-[var(--ink-muted)] period-count-pct">{count} ({pct}%)</span>
                           </div>
                         );
                       })}
@@ -4047,22 +4121,22 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                   </div>
 
                   {/* Tahun Ini */}
-                  <div className="user-period-card">
-                    <div className="period-card-header">
-                      <span className="period-badge year">TAHUN INI</span>
-                      <strong className="period-total">{selectedUserDetail.yearCount} Tiket</strong>
+                  <div className="p-[12px_10px] rounded-[10px] bg-[rgba(148,163,184,0.05)] border border-[rgba(148,163,184,0.12)] flex flex-col gap-[8px] user-period-card">
+                    <div className="flex items-center justify-between pb-[6px] border-b border-[rgba(148,163,184,0.08)] period-card-header">
+                      <span className="text-[8.5px] font-bold font-mono p-[2px_6px] rounded-[4px] bg-[rgba(129,140,248,0.15)] text-[#818cf8] period-badge year">TAHUN INI</span>
+                      <strong className="text-[13px] font-extrabold font-mono text-[var(--ink-primary)] period-total">{selectedUserDetail.yearCount} Tiket</strong>
                     </div>
-                    <div className="period-breakdown-list">
+                    <div className="flex flex-col gap-[4px] period-breakdown-list">
                       {Object.entries(selectedUserDetail.yearBreakdown).map(([proj, count]) => {
                         const pColor = PROJECT_COLORS[proj] || "#94a3b8";
                         const pct = Math.round((count / Math.max(1, selectedUserDetail.yearCount)) * 100);
                         return (
-                          <div className="period-breakdown-row" key={proj}>
-                            <div className="period-proj-tag">
+                          <div className="flex items-center justify-between text-[10px] py-[2px] period-breakdown-row" key={proj}>
+                            <div className="flex items-center gap-[4px] text-[var(--ink-secondary)] period-proj-tag">
                               <i className="legend-dot" style={{ background: pColor }} />
                               <span>{proj}</span>
                             </div>
-                            <span className="period-count-pct">{count} ({pct}%)</span>
+                            <span className="font-mono font-semibold text-[var(--ink-muted)] period-count-pct">{count} ({pct}%)</span>
                           </div>
                         );
                       })}
@@ -4071,10 +4145,10 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                 </div>
 
                 {/* Recent Activity / Assigned Tickets */}
-                <div className="user-modal-tickets-section">
-                  <div className="user-tickets-title">Tiket Terkait dalam Antrean ({selectedUserDetail.recentTickets.length})</div>
+                <div className="flex flex-col gap-[8px] user-modal-tickets-section">
+                  <div className="text-[11.5px] font-bold text-[var(--ink-primary)] user-tickets-title">Tiket Terkait dalam Antrean ({selectedUserDetail.recentTickets.length})</div>
                   {selectedUserDetail.recentTickets.length > 0 ? (
-                    <div className="user-modal-tickets-list">
+                    <div className="flex flex-col gap-[4px] max-h-[160px] overflow-y-auto pr-[4px] user-modal-tickets-list">
                       {selectedUserDetail.recentTickets.map((t) => {
                         const pColor = PROJECT_COLORS[t.project] || "#94a3b8";
                         const sLower = t.severity.toLowerCase();
@@ -4088,12 +4162,12 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                             : "priority-pill-med";
 
                         return (
-                          <div className="user-modal-ticket-row" key={t.id}>
-                            <span className="user-modal-ticket-id">#{t.id}</span>
-                            <span className="user-modal-ticket-proj" style={{ color: pColor }}>● {t.project}</span>
-                            <span className="user-modal-ticket-sub" title={t.subject}>{t.subject}</span>
+                          <div className="grid grid-cols-[75px_75px_1fr_60px_70px] items-center gap-[8px] p-[6px_10px] rounded-[6px] bg-[rgba(148,163,184,0.04)] text-[10.5px] user-modal-ticket-row" key={t.id}>
+                            <span className="font-mono font-bold text-[var(--ink-primary)] user-modal-ticket-id">#{t.id}</span>
+                            <span className="font-semibold user-modal-ticket-proj" style={{ color: pColor }}>● {t.project}</span>
+                            <span className="text-[var(--ink-secondary)] whitespace-nowrap overflow-hidden text-ellipsis user-modal-ticket-sub" title={t.subject}>{t.subject}</span>
                             <span className={`priority-pill ${pClass}`}>{t.severity}</span>
-                            <span className="user-modal-ticket-st">{t.status}</span>
+                            <span className="text-[9.5px] text-[#38bdf8] font-semibold user-modal-ticket-st">{t.status}</span>
                           </div>
                         );
                       })}

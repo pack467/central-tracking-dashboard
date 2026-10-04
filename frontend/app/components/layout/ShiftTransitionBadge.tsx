@@ -77,17 +77,17 @@ export function ShiftTransitionBadge({ onOpenHandover, onNavigate }: ShiftTransi
 
   return (
     <div
-      className="shift-transition-container [position:relative] [display:inline-flex] [align-items:center]"
+      className="shift-transition-container relative inline-flex items-center"
       ref={containerRef}
     >
       <button
         type="button"
-        className={`shift-transition-pill [display:inline-flex] [align-items:center] [gap:12px] [padding:5px_12px] [min-height:38px] [border-radius:8px] [cursor:pointer] [user-select:none] [color:#ffffff] [transition:background-color_0.18s_ease,_border-color_0.18s_ease] [box-shadow:none] [&:hover_.transition-chevron]:[color:rgba(255,_255,_255,_0.85)] ${
+        className={`shift-transition-pill inline-flex items-center gap-[12px] px-[12px] py-[5px] min-h-[38px] rounded-[8px] cursor-pointer select-none text-[#ffffff] transition-[background-color_0.18s_ease,border-color_0.18s_ease] shadow-none [&:hover_.transition-chevron]:text-[rgba(255,255,255,0.85)] ${
           transition.isActive
             ? isOpen
-              ? "active-window open [border:1px_solid_#f59e0b]! [background:rgba(245,_158,_11,_0.18)]!"
-              : "active-window [border:1px_solid_rgba(245,_158,_11,_0.32)]! [background:rgba(245,_158,_11,_0.08)]! [&:hover]:[border:1px_solid_rgba(245,_158,_11,_0.55)]! [&:hover]:[background:rgba(245,_158,_11,_0.14)]!"
-            : "upcoming-window [border:1px_solid_rgba(56,_189,_248,_0.3)]! [background:rgba(56,_189,_248,_0.08)]! [&:hover]:[border:1px_solid_rgba(56,_189,_248,_0.55)]! [&:hover]:[background:rgba(56,_189,_248,_0.14)]!"
+              ? "active-window open border border-[#f59e0b] bg-[rgba(245,158,11,0.18)]"
+              : "active-window border border-[rgba(245,158,11,0.32)] bg-[rgba(245,158,11,0.08)] hover:border-[rgba(245,158,11,0.55)] hover:bg-[rgba(245,158,11,0.14)]"
+            : "upcoming-window border border-[rgba(56,189,248,0.3)] bg-[rgba(56,189,248,0.08)] hover:border-[rgba(56,189,248,0.55)] hover:bg-[rgba(56,189,248,0.14)]"
         }`}
         onClick={() => setIsOpen((prev) => !prev)}
         aria-expanded={isOpen}
@@ -100,74 +100,74 @@ export function ShiftTransitionBadge({ onOpenHandover, onNavigate }: ShiftTransi
       >
         {/* Lead Icon with subtle live glow */}
         <div
-          className={`transition-icon-container [position:relative] [display:flex] [align-items:center] [justify-content:center] [width:24px] [height:24px] [border-radius:6px] [flex-shrink:0] ${
+          className={`transition-icon-container relative flex items-center justify-center w-[24px] h-[24px] rounded-[6px] shrink-0 ${
             transition.isActive
-              ? "[background:rgba(245,_158,_11,_0.14)] [border:1px_solid_rgba(245,_158,_11,_0.3)]"
-              : "[background:rgba(56,_189,_248,_0.14)] [border:1px_solid_rgba(56,_189,_248,_0.3)]"
+              ? "bg-[rgba(245,158,11,0.14)] border border-[rgba(245,158,11,0.3)]"
+              : "bg-[rgba(56,189,248,0.14)] border border-[rgba(56,189,248,0.3)]"
           }`}
           aria-hidden="true"
         >
           <ArrowRightLeft
             size={13}
-            className={`transition-lead-icon ${transition.isActive ? "[color:#fbbf24]" : "[color:#38bdf8]"}`}
+            className={`transition-lead-icon ${transition.isActive ? "text-[#fbbf24]" : "text-[#38bdf8]"}`}
           />
           {transition.isActive && (
-            <span className="transition-live-dot [position:absolute] [top:-2px] [right:-2px] [width:6px] [height:6px] [border-radius:50%] [background:#f59e0b] [box-shadow:0_0_6px_#f59e0b] [animation:liveDotPulse_2s_infinite_ease-in-out]" />
+            <span className="transition-live-dot absolute -top-[2px] -right-[2px] w-[6px] h-[6px] rounded-[50%] bg-[#f59e0b] [box-shadow:0_0_6px_#f59e0b] animate-[liveDotPulse_2s_infinite_ease-in-out]" />
           )}
         </div>
 
         {/* Clean 2-line textual hierarchy */}
-        <div className="transition-info-stack [display:flex] [flex-direction:column] [align-items:flex-start] [text-align:left] [line-height:1.15] [min-width:0]">
-          <div className="transition-meta-row [display:flex] [align-items:center] [gap:4px]">
-            <span className={`transition-kicker-label [font-size:8.5px] [font-weight:800] [letter-spacing:0.6px] [text-transform:uppercase] [font-family:var(--font-mono)] ${transition.isActive ? "[color:#fbbf24]" : "[color:#38bdf8]"}`}>
+        <div className="transition-info-stack flex flex-col items-start text-left leading-[1.15] min-w-0">
+          <div className="transition-meta-row transition-meta-line flex items-center gap-[4px] max-[900px]:hidden">
+            <span className={`transition-kicker-label text-[8.5px] font-extrabold tracking-[0.6px] uppercase font-[var(--font-mono)] ${transition.isActive ? "text-[#fbbf24]" : "text-[#38bdf8]"}`}>
               {transition.isActive ? "TRANSISI SHIFT" : "MENUJU TRANSISI"}
             </span>
-            <span className="transition-meta-dot [color:rgba(255,_255,_255,_0.35)] [font-size:9px]">·</span>
-            <span className="transition-time-range [font-size:9.5px] [font-family:var(--font-mono)] [color:rgba(255,_255,_255,_0.7)] [font-weight:500]">{transition.windowStart}–{transition.windowEnd}</span>
+            <span className="transition-meta-dot text-[rgba(255,255,255,0.35)] text-[9px]">·</span>
+            <span className="transition-time-range text-[9.5px] font-[var(--font-mono)] text-[rgba(255,255,255,0.7)] font-medium">{transition.windowStart}–{transition.windowEnd}</span>
           </div>
 
-          <div className="transition-flow-row [display:flex] [align-items:center] [gap:4px] [margin-top:1px] [font-size:11.5px] [font-weight:700] [color:#f8fafc] [white-space:nowrap]">
-            <span className="shift-name-from [color:#e2e8f0]">{fromShiftName}</span>
-            <ArrowRight size={10} className={`shift-flow-arrow [opacity:0.85] ${transition.isActive ? "[color:#fbbf24]" : "[color:#38bdf8]"}`} />
-            <span className="shift-name-to [color:#ffffff]">{toShiftName}</span>
+          <div className="transition-flow-row transition-names-label flex items-center gap-[4px] mt-[1px] text-[11.5px] font-bold text-[#f8fafc] whitespace-nowrap max-[640px]:hidden">
+            <span className="shift-name-from text-[#e2e8f0]">{fromShiftName}</span>
+            <ArrowRight size={10} className={`shift-flow-arrow opacity-85 ${transition.isActive ? "text-[#fbbf24]" : "text-[#38bdf8]"}`} />
+            <span className="shift-name-to text-[#ffffff]">{toShiftName}</span>
           </div>
         </div>
 
         {/* Countdown Badge & Chevron */}
-        <div className="transition-badge-actions [display:inline-flex] [align-items:center] [gap:8px] [margin-left:auto] [flex-shrink:0]">
-          <span className={`transition-timer-badge [display:inline-flex] [align-items:center] [justify-content:center] [height:24px] [min-width:64px] [padding:0_10px] [border-radius:999px] [font-size:10.5px] [font-weight:700] [font-family:var(--font-mono)] [line-height:1] [letter-spacing:0.2px] [text-align:center] [white-space:nowrap] [box-sizing:border-box] ${transition.isActive ? "[background:rgba(245,_158,_11,_0.18)] [color:#fbbf24] [border:1px_solid_rgba(245,_158,_11,_0.4)]" : "[background:rgba(56,_189,_248,_0.15)] [color:#38bdf8] [border:1px_solid_rgba(56,_189,_248,_0.4)]"}`}>
+        <div className="transition-badge-actions inline-flex items-center gap-[8px] ml-auto shrink-0">
+          <span className={`transition-timer-badge inline-flex items-center justify-center h-[24px] min-w-[64px] px-[10px] rounded-[999px] text-[10.5px] font-bold font-[var(--font-mono)] leading-none tracking-[0.2px] text-center whitespace-nowrap box-border ${transition.isActive ? "bg-[rgba(245,158,11,0.18)] text-[#fbbf24] border border-[rgba(245,158,11,0.4)]" : "bg-[rgba(56,189,248,0.15)] text-[#38bdf8] border border-[rgba(56,189,248,0.4)]"}`}>
             {transition.isActive
               ? `Sisa ${transition.minutesRemaining}m`
               : `dlm ${transition.minutesUntilStart}m`}
           </span>
-          <ChevronDown size={12} className={`transition-chevron [display:inline-flex] [align-items:center] [justify-content:center] [color:rgba(255,_255,_255,_0.55)] [transition:transform_0.2s_ease,_color_0.15s_ease] [flex-shrink:0] ${isOpen ? "rotate-180" : ""}`} />
+          <ChevronDown size={12} className={`transition-chevron inline-flex items-center justify-center text-[rgba(255,255,255,0.55)] transition-[transform_0.2s_ease,color_0.15s_ease] shrink-0 ${isOpen ? "rotate-180" : ""}`} />
         </div>
       </button>
 
       {isOpen && (
         <div
-          className="shift-transition-popover [position:absolute] [top:calc(100%_+_8px)] [right:0] [width:420px] [max-width:calc(100vw_-_24px)] [background:#111520] [border:1px_solid_rgba(245,_158,_11,_0.35)] [border-radius:12px] [box-shadow:0_16px_40px_rgba(0,_0,_0,_0.75),_0_0_28px_rgba(245,_158,_11,_0.15)] [padding:16px] [z-index:100] [backdrop-filter:blur(16px)] [display:flex] [flex-direction:column] [gap:13px] [animation:transitionPopoverFade_0.18s_cubic-bezier(0.16,_1,_0.3,_1)]"
+          className="shift-transition-popover absolute top-[calc(100%+8px)] right-0 w-[420px] max-w-[calc(100vw-24px)] max-[640px]:w-[calc(100vw-20px)] max-[640px]:-right-[40px] bg-[#111520] border border-[rgba(245,158,11,0.35)] rounded-[12px] [box-shadow:0_16px_40px_rgba(0,0,0,0.75),_0_0_28px_rgba(245,158,11,0.15)] p-[16px] z-[100] backdrop-blur-[16px] flex flex-col gap-[13px] animate-[transitionPopoverFade_0.18s_cubic-bezier(0.16,1,0.3,1)]"
           role="dialog"
           aria-label="Detail Jendela Pergantian Shift"
         >
           {/* Popover Header */}
-          <div className="transition-popover-header [display:flex] [align-items:flex-start] [justify-content:space-between] [gap:10px] [padding-bottom:10px] [border-bottom:1px_solid_rgba(255,_255,_255,_0.08)]">
-            <div className="transition-header-title-box [display:flex] [flex-direction:column] [gap:2px]">
-              <span className="transition-header-kicker [display:inline-flex] [align-items:center] [gap:5px] [font-size:9.5px] [font-weight:800] [letter-spacing:0.8px] [color:#fbbf24] [text-transform:uppercase] [font-family:var(--font-mono)]">
+          <div className="transition-popover-header flex items-start justify-between gap-[10px] pb-[10px] border-b border-[rgba(255,255,255,0.08)]">
+            <div className="transition-header-title-box flex flex-col gap-[2px]">
+              <span className="transition-header-kicker inline-flex items-center gap-[5px] text-[9.5px] font-extrabold tracking-[0.8px] text-[#fbbf24] uppercase font-[var(--font-mono)]">
                 <ArrowRightLeft size={13} />
                 <span>HANDOVER WINDOW</span>
               </span>
-              <h4 className="transition-header-heading [margin:0] [font-size:14px] [font-weight:700] [color:#ffffff]">
+              <h4 className="transition-header-heading m-0 text-[14px] font-bold text-[#ffffff]">
                 {transition.isActive
                   ? `Pergantian Shift: ${transition.label}`
                   : `Persiapan Shift: ${transition.label}`}
               </h4>
             </div>
             <span
-              className={`transition-status-pill [font-size:10px] [font-weight:700] [padding:3px_8px] [border-radius:999px] [white-space:nowrap] [font-family:var(--font-mono)] ${
+              className={`transition-status-pill text-[10px] font-bold px-[8px] py-[3px] rounded-[999px] whitespace-nowrap font-[var(--font-mono)] ${
                 transition.isActive
-                  ? "status-overlap-active [background:rgba(245,_158,_11,_0.2)] [color:#fbbf24] [border:1px_solid_rgba(245,_158,_11,_0.4)]"
-                  : "status-upcoming [background:rgba(56,_189,_248,_0.15)] [color:#38bdf8] [border:1px_solid_rgba(56,_189,_248,_0.35)]"
+                  ? "status-overlap-active bg-[rgba(245,158,11,0.2)] text-[#fbbf24] border border-[rgba(245,158,11,0.4)]"
+                  : "status-upcoming bg-[rgba(56,189,248,0.15)] text-[#38bdf8] border border-[rgba(56,189,248,0.35)]"
               }`}
             >
               {transition.isActive ? "Overlap Aktif (30m)" : `Mulai dlm ${transition.minutesUntilStart}m`}
@@ -175,85 +175,85 @@ export function ShiftTransitionBadge({ onOpenHandover, onNavigate }: ShiftTransi
           </div>
 
           {/* Overlap Progress Meter */}
-          <div className="transition-timeline-box [display:flex] [flex-direction:column] [gap:6px] [background:rgba(255,_255,_255,_0.03)] [padding:9px_11px] [border-radius:8px] [border:1px_solid_rgba(255,_255,_255,_0.06)]">
-            <div className="transition-timeline-labels [display:flex] [align-items:center] [justify-content:space-between] [font-size:10px] [font-family:var(--font-mono)] [color:var(--ink-muted)]">
-              <span className="timeline-start-time [display:inline-flex] [align-items:center] [gap:4px] [color:#cbd5e1] [font-weight:600]">
+          <div className="transition-timeline-box flex flex-col gap-[6px] bg-[rgba(255,255,255,0.03)] p-[9px_11px] rounded-[8px] border border-[rgba(255,255,255,0.06)]">
+            <div className="transition-timeline-labels flex items-center justify-between text-[10px] font-[var(--font-mono)] text-[var(--ink-muted)]">
+              <span className="timeline-start-time inline-flex items-center gap-[4px] text-[#cbd5e1] font-semibold">
                 <Clock size={11} /> {transition.windowStart} WIB
               </span>
-              <span className="timeline-info-center [color:#fbbf24] [font-weight:600]">
+              <span className="timeline-info-center text-[#fbbf24] font-semibold">
                 {transition.isActive
                   ? `Sisa ${transition.minutesRemaining} menit dari total 30 menit`
                   : `Mulai pada pukul ${transition.windowStart} WIB`}
               </span>
-              <span className="timeline-end-time [display:inline-flex] [align-items:center] [gap:4px] [color:#cbd5e1] [font-weight:600]">{transition.windowEnd} WIB</span>
+              <span className="timeline-end-time inline-flex items-center gap-[4px] text-[#cbd5e1] font-semibold">{transition.windowEnd} WIB</span>
             </div>
-            <div className="transition-progress-track [width:100%] [height:6px] [border-radius:999px] [background:rgba(255,_255,_255,_0.08)] [overflow:hidden]">
+            <div className="transition-progress-track w-full h-[6px] rounded-[999px] bg-[rgba(255,255,255,0.08)] overflow-hidden">
               <div
-                className="transition-progress-fill [height:100%] [background:linear-gradient(90deg,_#f59e0b_0%,_#a855f7_100%)] [border-radius:999px] [transition:width_0.3s_ease] [box-shadow:0_0_10px_rgba(245,_158,_11,_0.5)]"
+                className="transition-progress-fill h-full bg-[linear-gradient(90deg,#f59e0b_0%,#a855f7_100%)] rounded-[999px] transition-[width] duration-300 ease-out [box-shadow:0_0_10px_rgba(245,158,11,0.5)]"
                 style={{ width: `${transition.isActive ? transition.progressPercent : 0}%` }}
               />
             </div>
           </div>
 
           {/* Visual Shift Handover Cards (From Shift -> To Shift) */}
-          <div className="transition-shifts-grid [display:grid] [grid-template-columns:1fr_auto_1fr] [align-items:center] [gap:8px]">
+          <div className="transition-shifts-grid grid grid-cols-[1fr_auto_1fr] items-center gap-[8px]">
             {/* Outgoing Shift Card */}
-            <div className={`transition-shift-card from-card shift-theme-${transition.fromShift.id} [display:flex] [flex-direction:column] [padding:10px] [border-radius:9px] ${
+            <div className={`transition-shift-card from-card shift-theme-${transition.fromShift.id} flex flex-col p-[10px] rounded-[9px] ${
               transition.fromShift.id === "pagi"
-                ? "[border:1px_solid_rgba(245,_158,_11,_0.3)] [background:rgba(245,_158,_11,_0.05)]"
+                ? "border border-[rgba(245,158,11,0.3)] bg-[rgba(245,158,11,0.05)]"
                 : transition.fromShift.id === "malam"
-                  ? "[border:1px_solid_rgba(168,_85,_247,_0.3)] [background:rgba(168,_85,_247,_0.05)]"
+                  ? "border border-[rgba(168,85,247,0.3)] bg-[rgba(168,85,247,0.05)]"
                   : transition.fromShift.id === "subuh"
-                    ? "[border:1px_solid_rgba(56,_189,_248,_0.3)] [background:rgba(56,_189,_248,_0.05)]"
-                    : "[border:1px_solid_rgba(255,_255,_255,_0.08)] [background:rgba(255,_255,_255,_0.03)]"
+                    ? "border border-[rgba(56,189,248,0.3)] bg-[rgba(56,189,248,0.05)]"
+                    : "border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.03)]"
             }`}>
-              <div className="shift-card-header [display:flex] [align-items:center] [justify-content:space-between] [margin-bottom:4px]">
-                <span className="shift-card-role-tag [font-size:8px] [font-weight:800] [letter-spacing:0.6px] [color:var(--ink-muted)] [font-family:var(--font-mono)]">SHIFT KELUAR</span>
-                <FromIcon size={14} className={`shift-card-icon ${transition.fromShift.id === "malam" ? "[color:#c084fc]" : transition.fromShift.id === "subuh" ? "[color:#38bdf8]" : "[color:#fbbf24]"}`} />
+              <div className="shift-card-header flex items-center justify-between mb-[4px]">
+                <span className="shift-card-role-tag text-[8px] font-extrabold tracking-[0.6px] text-[var(--ink-muted)] font-[var(--font-mono)]">SHIFT KELUAR</span>
+                <FromIcon size={14} className={`shift-card-icon ${transition.fromShift.id === "malam" ? "text-[#c084fc]" : transition.fromShift.id === "subuh" ? "text-[#38bdf8]" : "text-[#fbbf24]"}`} />
               </div>
-              <strong className="shift-card-name [font-size:12px] [font-weight:700] [color:#ffffff]">{transition.fromShift.label}</strong>
-              <span className="shift-card-hours [font-size:9.5px] [font-family:var(--font-mono)] [color:#94a3b8] [margin-top:1px]">{transition.fromShift.period}</span>
-              <p className="shift-card-desc [margin:6px_0_0] [font-size:9.5px] [line-height:1.35] [color:var(--ink-muted)]">
+              <strong className="shift-card-name text-[12px] font-bold text-[#ffffff]">{transition.fromShift.label}</strong>
+              <span className="shift-card-hours text-[9.5px] font-[var(--font-mono)] text-[#94a3b8] mt-[1px]">{transition.fromShift.period}</span>
+              <p className="shift-card-desc m-[6px_0_0] text-[9.5px] leading-[1.35] text-[var(--ink-muted)]">
                 Penyelesaian checklist monitoring, update tiket kendala, & transfer informasi operasional.
               </p>
             </div>
 
             {/* Connecting Transfer Indicator */}
-            <div className="transition-connector [display:flex] [flex-direction:column] [align-items:center] [gap:3px]">
-              <span className="connector-line [width:1px] [height:8px] [background:rgba(255,_255,_255,_0.15)]" />
-              <span className="connector-badge [width:24px] [height:24px] [border-radius:50%] [display:grid] [place-items:center] [background:rgba(245,_158,_11,_0.18)] [color:#fbbf24] [border:1px_solid_rgba(245,_158,_11,_0.4)]">
+            <div className="transition-connector flex flex-col items-center gap-[3px]">
+              <span className="connector-line w-[1px] h-[8px] bg-[rgba(255,255,255,0.15)]" />
+              <span className="connector-badge w-[24px] h-[24px] rounded-[50%] grid place-items-center bg-[rgba(245,158,11,0.18)] text-[#fbbf24] border border-[rgba(245,158,11,0.4)]">
                 <ArrowRight size={14} />
               </span>
-              <span className="connector-line [width:1px] [height:8px] [background:rgba(255,_255,_255,_0.15)]" />
+              <span className="connector-line w-[1px] h-[8px] bg-[rgba(255,255,255,0.15)]" />
             </div>
 
             {/* Incoming Shift Card */}
-            <div className={`transition-shift-card to-card shift-theme-${transition.toShift.id} [display:flex] [flex-direction:column] [padding:10px] [border-radius:9px] ${
+            <div className={`transition-shift-card to-card shift-theme-${transition.toShift.id} flex flex-col p-[10px] rounded-[9px] ${
               transition.toShift.id === "pagi"
-                ? "[border:1px_solid_rgba(245,_158,_11,_0.3)] [background:rgba(245,_158,_11,_0.05)]"
+                ? "border border-[rgba(245,158,11,0.3)] bg-[rgba(245,158,11,0.05)]"
                 : transition.toShift.id === "malam"
-                  ? "[border:1px_solid_rgba(168,_85,_247,_0.3)] [background:rgba(168,_85,_247,_0.05)]"
+                  ? "border border-[rgba(168,85,247,0.3)] bg-[rgba(168,85,247,0.05)]"
                   : transition.toShift.id === "subuh"
-                    ? "[border:1px_solid_rgba(56,_189,_248,_0.3)] [background:rgba(56,_189,_248,_0.05)]"
-                    : "[border:1px_solid_rgba(255,_255,_255,_0.08)] [background:rgba(255,_255,_255,_0.03)]"
+                    ? "border border-[rgba(56,189,248,0.3)] bg-[rgba(56,189,248,0.05)]"
+                    : "border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.03)]"
             }`}>
-              <div className="shift-card-header [display:flex] [align-items:center] [justify-content:space-between] [margin-bottom:4px]">
-                <span className="shift-card-role-tag [font-size:8px] [font-weight:800] [letter-spacing:0.6px] [color:var(--ink-muted)] [font-family:var(--font-mono)]">SHIFT MASUK</span>
-                <ToIcon size={14} className={`shift-card-icon ${transition.toShift.id === "malam" ? "[color:#c084fc]" : transition.toShift.id === "subuh" ? "[color:#38bdf8]" : "[color:#fbbf24]"}`} />
+              <div className="shift-card-header flex items-center justify-between mb-[4px]">
+                <span className="shift-card-role-tag text-[8px] font-extrabold tracking-[0.6px] text-[var(--ink-muted)] font-[var(--font-mono)]">SHIFT MASUK</span>
+                <ToIcon size={14} className={`shift-card-icon ${transition.toShift.id === "malam" ? "text-[#c084fc]" : transition.toShift.id === "subuh" ? "text-[#38bdf8]" : "text-[#fbbf24]"}`} />
               </div>
-              <strong className="shift-card-name [font-size:12px] [font-weight:700] [color:#ffffff]">{transition.toShift.label}</strong>
-              <span className="shift-card-hours [font-size:9.5px] [font-family:var(--font-mono)] [color:#94a3b8] [margin-top:1px]">{transition.toShift.period}</span>
-              <p className="shift-card-desc [margin:6px_0_0] [font-size:9.5px] [line-height:1.35] [color:var(--ink-muted)]">
+              <strong className="shift-card-name text-[12px] font-bold text-[#ffffff]">{transition.toShift.label}</strong>
+              <span className="shift-card-hours text-[9.5px] font-[var(--font-mono)] text-[#94a3b8] mt-[1px]">{transition.toShift.period}</span>
+              <p className="shift-card-desc m-[6px_0_0] text-[9.5px] leading-[1.35] text-[var(--ink-muted)]">
                 Verifikasi checklist serah-terima, periksa tiket terbuka, & ambil alih pemantauan sistem.
               </p>
             </div>
           </div>
 
           {/* SOP Checklist / Note Hint */}
-          <div className="transition-hint-banner [display:flex] [align-items:flex-start] [gap:8px] [padding:8px_10px] [border-radius:8px] [background:rgba(56,_189,_248,_0.06)] [border:1px_solid_rgba(56,_189,_248,_0.18)] [font-size:10.5px] [line-height:1.4] [color:#cbd5e1]">
-            <CheckCircle2 size={14} className="hint-banner-icon [color:#38bdf8] [flex-shrink:0] [margin-top:2px]" />
+          <div className="transition-hint-banner flex items-start gap-[8px] p-[8px_10px] rounded-[8px] bg-[rgba(56,189,248,0.06)] border border-[rgba(56,189,248,0.18)] text-[10.5px] leading-[1.4] text-[#cbd5e1]">
+            <CheckCircle2 size={14} className="hint-banner-icon text-[#38bdf8] shrink-0 mt-[2px]" />
             <div className="hint-banner-text">
-              <strong className="[display:block] [color:#38bdf8] [font-size:10.5px] [margin-bottom:2px]">SOP Temu Shift 30 Menit:</strong>
+              <strong className="block text-[#38bdf8] text-[10.5px] mb-[2px]">SOP Temu Shift 30 Menit:</strong>
               <span>
                 Kedua PIC shift bertugas bersama selama {transition.windowPeriod} untuk memastikan
                 kesinambungan pemantauan tanpa kendala terlewat.
@@ -262,10 +262,10 @@ export function ShiftTransitionBadge({ onOpenHandover, onNavigate }: ShiftTransi
           </div>
 
           {/* Popover Actions */}
-          <div className="transition-popover-actions [display:flex] [align-items:center] [gap:8px] [padding-top:6px]">
+          <div className="transition-popover-actions flex items-center gap-[8px] pt-[6px]">
             <button
               type="button"
-              className="transition-btn-primary [flex:1] [display:inline-flex] [align-items:center] [justify-content:center] [gap:6px] [padding:8px_12px] [background:linear-gradient(135deg,_#f59e0b_0%,_#d97706_100%)]! [color:#090d16] [font-weight:700] [font-size:11px]! [border-radius:7px] [border:none]! [cursor:pointer] [transition:filter_0.15s_ease,_background_0.15s_ease] [box-shadow:0_1px_3px_rgba(0,_0,_0,_0.2)] [&:hover]:[filter:brightness(1.08)]"
+              className="transition-btn-primary flex-1 inline-flex items-center justify-center gap-[6px] p-[8px_12px] bg-[linear-gradient(135deg,#f59e0b_0%,#d97706_100%)] text-[#090d16] font-bold text-[11px] rounded-[7px] border-none cursor-pointer transition-[filter,background] duration-150 [box-shadow:0_1px_3px_rgba(0,0,0,0.2)] hover:brightness-110"
               onClick={handleOpenHandover}
             >
               <ExternalLink size={13} />
@@ -273,7 +273,7 @@ export function ShiftTransitionBadge({ onOpenHandover, onNavigate }: ShiftTransi
             </button>
             <button
               type="button"
-              className="transition-btn-secondary [display:inline-flex] [align-items:center] [justify-content:center] [gap:5px] [padding:8px_12px] [background:rgba(255,_255,_255,_0.05)]! [border:1px_solid_rgba(255,_255,_255,_0.1)]! [color:#e2e8f0] [font-weight:600] [font-size:11px]! [border-radius:7px] [cursor:pointer] [transition:all_0.15s_ease] [&:hover]:[background:rgba(255,_255,_255,_0.1)]! [&:hover]:[border:1px_solid_rgba(255,_255,_255,_0.2)]! [&:hover]:[color:#ffffff]"
+              className="transition-btn-secondary inline-flex items-center justify-center gap-[5px] p-[8px_12px] bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-[#e2e8f0] font-semibold text-[11px] rounded-[7px] cursor-pointer transition-all duration-150 hover:bg-[rgba(255,255,255,0.1)] hover:border-[rgba(255,255,255,0.2)] hover:text-[#ffffff]"
               onClick={handleOpenRoster}
             >
               <Users size={13} />

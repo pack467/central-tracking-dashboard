@@ -7,7 +7,7 @@ interface BrandLogoProps {
 }
 export function BrandLogo({ size = 32, showText = true, className = "" }: BrandLogoProps) {
   return (
-    <div className={`brand-lockup [display:flex] [align-items:center] [gap:12px] [padding:2px_8px_24px] [color:#ffffff] ${className}`}>
+    <div className={`brand-lockup flex items-center ${showText ? "gap-[12px] p-[2px_8px_24px]" : "gap-0 p-0 w-[28px] h-[28px] justify-center"} text-[#ffffff] ${className}`}>
       <span className="brand-logo-icon [display:inline-grid] [place-items:center] [flex-shrink:0]" aria-hidden="true" style={{ width: size, height: size }}>
         <img
           src="/hutabyte_icon_transparent.png"
@@ -25,12 +25,10 @@ export function BrandLogo({ size = 32, showText = true, className = "" }: BrandL
         />
       </span>
 
-      {showText && (
-        <span className="brand-text [display:flex] [flex-direction:column]">
-          <strong className="[display:block] [font-size:15.5px] [font-weight:700] [letter-spacing:-0.2px] [color:var(--ink-primary,_#ffffff)] [line-height:1.15]">Central</strong>
-          <small className="[display:block] [margin-top:3px] [font-size:8.5px] [font-weight:700] [letter-spacing:1.2px] [color:#38bdf8] [font-family:var(--font-mono)] [text-transform:uppercase]">TRACKING DASHBOARD</small>
-        </span>
-      )}
+      <span className={`brand-text flex flex-col ${showText ? "" : "hidden"}`}>
+        <strong className="block text-[15.5px] font-bold tracking-[-0.2px] text-[var(--ink-primary,#ffffff)] leading-[1.15]">Central</strong>
+        <small className="block mt-[3px] text-[8.5px] font-bold tracking-[1.2px] text-[#38bdf8] font-['JetBrains_Mono',monospace] uppercase">TRACKING DASHBOARD</small>
+      </span>
     </div>
   );
 }

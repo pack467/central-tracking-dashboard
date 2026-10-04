@@ -18,26 +18,26 @@ export function HandoverQuickCard({
   onCreate,
 }: HandoverQuickCardProps) {
   return (
-    <article className="panel handover-panel [padding:18px_20px] [background:var(--accent-blue-soft)] [border:1px_solid_var(--accent-blue-border)]">
-      <div className="handover-label [display:flex] [align-items:center] [gap:5px] [color:var(--accent-blue)] [font-size:9.5px] [font-weight:700] [letter-spacing:0.8px] [font-family:var(--font-mono)]">
+    <article className="panel handover-panel p-[18px_20px] bg-[var(--accent-blue-soft)] border border-[var(--accent-blue-border)] rounded-[10px] overflow-hidden shadow-[var(--shadow-panel)]">
+      <div className="handover-label flex items-center gap-[5px] text-[var(--accent-blue)] text-[9.5px] font-bold tracking-[0.8px] font-mono">
         <span>⊙</span> HANDOVER READINESS
       </div>
-      <strong className="[display:block] [margin-top:8px] [color:var(--ink-primary)] [font-size:14px] [font-weight:700]">{pendingCount} tugas perlu tindak lanjut</strong>
-      <p className="[margin:5px_0_12px] [color:var(--ink-secondary)] [font-size:11px] [line-height:1.4]">
+      <strong className="block mt-[8px] text-[var(--ink-primary)] text-[14px] font-bold">{pendingCount} tugas perlu tindak lanjut</strong>
+      <p className="mt-[5px] mr-0 mb-[12px] ml-0 text-[var(--ink-secondary)] text-[11px] leading-[1.4]">
         {savedLabel
           ? `Handover ${savedLabel} ${accepted ? "sudah diterima." : "tersimpan dan menunggu penerimaan."}`
           : "Buat catatan baru untuk mendokumentasikan proses serah-terima shift."}
       </p>
-      <div className="handover-progress [display:flex] [justify-content:space-between] [align-items:center] [gap:8px] [color:var(--ink-secondary)] [font-size:10.5px] [font-family:var(--font-mono)]">
+      <div className="handover-progress flex justify-between items-center gap-[8px] text-[var(--ink-secondary)] text-[10.5px] font-mono">
         <span>{progressPercent}% checklist diperiksa</span>
-        <i className="[display:block] [overflow:hidden] [width:75px] [height:5px] [border-radius:99px] [background:var(--line)]">
-          <b className="[display:block] [height:100%] [border-radius:inherit] [background:var(--accent-blue)]" style={{ width: `${progressPercent}%` }} />
+        <i className="block overflow-hidden w-[75px] h-[5px] rounded-[99px] bg-[var(--line)] not-italic">
+          <b className="block h-full rounded-[inherit] bg-[var(--accent-blue)]" style={{ width: `${progressPercent}%` }} />
         </i>
       </div>
-      <button className="[display:flex] [justify-content:space-between] [align-items:center] [width:100%] [margin-top:14px] [padding:9px_12px] [color:#ffffff] [border:1px_solid_var(--accent-blue)]! [border-radius:7px] [background:var(--accent-blue)]! [font-size:11px]! [font-weight:600] [transition:all_0.15s_ease]" onClick={() => onOpen()}>
+      <button className="flex justify-between items-center w-full mt-[14px] px-[12px] py-[9px] text-[#ffffff] border border-[var(--accent-blue)] rounded-[7px] bg-[var(--accent-blue)] text-[11px] font-semibold transition-all duration-150 cursor-pointer" onClick={() => onOpen()}>
         Buka catatan handover <span>→</span>
       </button>
-      <button className="handover-create-button [display:flex] [justify-content:space-between] [align-items:center] [width:100%] [margin-top:14px] [padding:9px_12px] [color:#ffffff] [border:1px_solid_var(--accent-blue)]! [border-radius:7px] [background:var(--accent-blue)]! [font-size:11px]! [font-weight:600] [transition:all_0.15s_ease]" onClick={() => onCreate()}>
+      <button className="handover-create-button flex justify-between items-center w-full mt-[14px] px-[12px] py-[9px] text-[#ffffff] border border-[var(--accent-blue)] rounded-[7px] bg-[var(--accent-blue)] text-[11px] font-semibold transition-all duration-150 cursor-pointer" onClick={() => onCreate()}>
         <span>＋</span> Buat Handover Baru
       </button>
     </article>

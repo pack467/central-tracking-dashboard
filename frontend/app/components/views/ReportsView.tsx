@@ -84,14 +84,14 @@ export function ReportsView({ tickets, assessments, handoverCount }: ReportsView
 
   return (
     <>
-      <section className="page-heading">
+      <section className="page-heading flex justify-between items-end mb-[22px] max-[660px]:flex-col max-[660px]:items-start max-[660px]:gap-[12px] max-[640px]:mb-0">
         <div>
-          <div className="eyebrow">
+          <div className="eyebrow flex items-center gap-[8px] text-[var(--ink-muted)] text-[10px] tracking-[1px] font-bold font-mono uppercase">
             <span className="live-dot live-dot-pulse" /> REPORTS · {activeClient.code}
           </div>
-          <h1>Reports</h1>
+          <h1 className="m-[6px_0_4px] text-[var(--ink-primary)] text-[24px] leading-[1.2] tracking-[-0.4px] font-bold">Reports</h1>
         </div>
-        <div className="page-actions">
+        <div className="page-actions flex gap-[9px]">
           <button className="button button-secondary" onClick={printReport}>
             Cetak / PDF
           </button>
@@ -101,45 +101,47 @@ export function ReportsView({ tickets, assessments, handoverCount }: ReportsView
         </div>
       </section>
 
-      <section className="ticket-stats">
-        <article className="stat-chip stat-success">
-          <strong>{overallAverage}%</strong>
-          <span>Kesehatan mingguan</span>
+      <section className="grid grid-cols-[repeat(auto-fit,_minmax(130px,_1fr))] gap-[10px] mb-[20px] max-[600px]:grid-cols-2">
+        <article className="p-[12px_14px] border border-[var(--green-border)] rounded-[10px] bg-[var(--panel-bg)] shadow-[var(--shadow-panel)]">
+          <strong className="block text-[var(--green)] font-mono text-[22px] font-bold leading-[1.1]">{overallAverage}%</strong>
+          <span className="block mt-[2px] text-[var(--ink-muted)] text-[10px] font-bold tracking-[0.6px] uppercase">Kesehatan mingguan</span>
         </article>
-        <article className="stat-chip stat-success">
-          <strong>{adequateCount}</strong>
-          <span>Checkpoint OK</span>
+        <article className="p-[12px_14px] border border-[var(--green-border)] rounded-[10px] bg-[var(--panel-bg)] shadow-[var(--shadow-panel)]">
+          <strong className="block text-[var(--green)] font-mono text-[22px] font-bold leading-[1.1]">{adequateCount}</strong>
+          <span className="block mt-[2px] text-[var(--ink-muted)] text-[10px] font-bold tracking-[0.6px] uppercase">Checkpoint OK</span>
         </article>
-        <article className="stat-chip stat-critical">
-          <strong>{notAdequateCount}</strong>
-          <span>Checkpoint NOK</span>
+        <article className="p-[12px_14px] border border-[var(--red-border)] rounded-[10px] bg-[var(--panel-bg)] shadow-[var(--shadow-panel)]">
+          <strong className="block text-[var(--red)] font-mono text-[22px] font-bold leading-[1.1]">{notAdequateCount}</strong>
+          <span className="block mt-[2px] text-[var(--ink-muted)] text-[10px] font-bold tracking-[0.6px] uppercase">Checkpoint NOK</span>
         </article>
-        <article className="stat-chip stat-warning">
-          <strong>{tickets.filter(isOpenTicket).length}</strong>
-          <span>Open Tickets</span>
+        <article className="p-[12px_14px] border border-[var(--orange-border)] rounded-[10px] bg-[var(--panel-bg)] shadow-[var(--shadow-panel)]">
+          <strong className="block text-[var(--orange)] font-mono text-[22px] font-bold leading-[1.1]">{tickets.filter(isOpenTicket).length}</strong>
+          <span className="block mt-[2px] text-[var(--ink-muted)] text-[10px] font-bold tracking-[0.6px] uppercase">Open Tickets</span>
         </article>
-        <article className="stat-chip">
-          <strong>{handoverCount}</strong>
-          <span>Catatan handover</span>
+        <article className="p-[12px_14px] border border-[var(--panel-border)] rounded-[10px] bg-[var(--panel-bg)] shadow-[var(--shadow-panel)]">
+          <strong className="block text-[var(--ink-primary)] font-mono text-[22px] font-bold leading-[1.1]">{handoverCount}</strong>
+          <span className="block mt-[2px] text-[var(--ink-muted)] text-[10px] font-bold tracking-[0.6px] uppercase">Catatan handover</span>
         </article>
       </section>
 
-      <article className="panel view-panel">
-        <div className="panel-heading">
-          <div className="panel-title">Kesehatan sistem per proyek · 7 hari terakhir</div>
+      <article className="panel view-panel mb-[20px] overflow-hidden bg-[var(--panel-bg)] border border-[var(--panel-border)] rounded-[10px] shadow-[var(--shadow-panel)]">
+        <div className="panel-heading flex justify-between items-start gap-[16px] p-[16px_20px_14px] border-b border-[var(--line)]">
+          <div className="panel-title flex items-center gap-[8px] text-[var(--ink-primary)] text-[14px] font-bold">Kesehatan sistem per proyek · 7 hari terakhir</div>
         </div>
-        <div className="report-bars">
+        <div className="grid gap-[12px] p-[16px_20px_20px]">
           {weekly.map((row) => (
-            <div className="report-row" key={row.project}>
-              <span className="report-project">{row.project}</span>
-              <div className="report-bar-track">
+            <div className="grid grid-cols-[84px_minmax(160px,_1fr)_minmax(0,_1fr)] items-center gap-[14px] max-[640px]:grid-cols-[70px_1fr] max-[640px]:gap-[10px]" key={row.project}>
+              <span className="text-[var(--ink-primary)] text-[12px] font-bold truncate">{row.project}</span>
+              <div className="relative h-[14px] rounded-[99px] bg-[var(--bg)] border border-[var(--line)] overflow-hidden">
                 <i
-                  className={`${row.average >= 97 ? "" : row.average >= 93 ? "warn" : "crit"} [width:var(--report-bar-width)]`}
-                  style={{ "--report-bar-width": `${row.average}%` } as React.CSSProperties}
+                  className={`absolute inset-y-0 left-0 rounded-[inherit] transition-[width] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                    row.average >= 97 ? "bg-[var(--green)]" : row.average >= 93 ? "bg-[var(--orange)]" : "bg-[var(--red)]"
+                  }`}
+                  style={{ width: `${row.average}%` }}
                 />
-                <em>{row.average}%</em>
+                <em className="absolute right-[6px] top-1/2 -translate-y-1/2 text-[var(--ink-secondary)] font-mono text-[9px] not-italic font-bold select-none">{row.average}%</em>
               </div>
-              <span className="report-days">
+              <span className="overflow-hidden text-[var(--ink-muted)] font-mono text-[10px] text-ellipsis whitespace-nowrap max-[640px]:hidden">
                 {row.days.join(" · ")}
               </span>
             </div>
@@ -147,11 +149,11 @@ export function ReportsView({ tickets, assessments, handoverCount }: ReportsView
         </div>
       </article>
 
-      <article className="panel view-panel">
-        <div className="panel-heading">
-          <div className="panel-title">Ringkasan naratif</div>
+      <article className="panel view-panel mb-[20px] overflow-hidden bg-[var(--panel-bg)] border border-[var(--panel-border)] rounded-[10px] shadow-[var(--shadow-panel)]">
+        <div className="panel-heading flex justify-between items-start gap-[16px] p-[16px_20px_14px] border-b border-[var(--line)]">
+          <div className="panel-title flex items-center gap-[8px] text-[var(--ink-primary)] text-[14px] font-bold">Ringkasan naratif</div>
         </div>
-        <div className="report-narrative">
+        <div className="p-[20px] text-[var(--ink-secondary)] text-[13px] leading-[1.6] flex flex-col gap-[12px] [&_strong]:text-[var(--ink-primary)]">
           <p>
             Selama tujuh hari terakhir rata-rata kesehatan seluruh proyek berada pada{" "}
             <strong>{overallAverage}%</strong>.

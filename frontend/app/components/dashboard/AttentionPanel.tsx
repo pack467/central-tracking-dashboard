@@ -144,10 +144,10 @@ export function AttentionPanel({
   };
 
   return (
-    <article className="panel attention-panel">
-      <div className="panel-heading">
-        <div className="panel-title">
-          <span className="attention-icon [display:grid] [place-items:center] [width:20px] [height:20px] [color:var(--orange)] [border-radius:99px] [background:var(--orange-soft)] [border:1px_solid_var(--orange-border)] [font-size:11px] [font-weight:800]">!</span> Perlu Perhatian{" "}
+    <article className="panel attention-panel bg-[var(--panel-bg)] border border-[var(--panel-border)] rounded-[10px] overflow-hidden shadow-[var(--shadow-panel)]">
+      <div className="panel-heading flex justify-between items-start gap-[16px] px-[20px] pt-[16px] pb-[14px] border-b border-[var(--line)]">
+        <div className="panel-title flex items-center gap-[8px] text-[var(--ink-primary)] text-[14px] font-bold">
+          <span className="attention-icon grid place-items-center w-[20px] h-[20px] text-[var(--orange)] rounded-[99px] bg-[var(--orange-soft)] border border-[var(--orange-border)] text-[11px] font-extrabold">!</span> Perlu Perhatian{" "}
           <Badge tone={unreadAttentionCount > 0 ? "warning" : "success"}>
             {unreadAttentionCount}
           </Badge>
@@ -155,7 +155,7 @@ export function AttentionPanel({
         {onGoToNotifications && (
           <button
             type="button"
-            className="text-button [padding:2px_0] [color:var(--accent-blue)] [background:transparent] [font-size:11.5px] [font-weight:600] [white-space:nowrap]"
+            className="text-button py-[2px] px-0 text-[var(--accent-blue)] bg-transparent text-[11.5px] font-semibold whitespace-nowrap hover:underline cursor-pointer"
             onClick={onGoToNotifications}
             title="Buka daftar lengkap notifikasi & alert sistem"
           >
@@ -166,9 +166,9 @@ export function AttentionPanel({
         )}
       </div>
 
-      <div className="attention-list [padding:0_20px]">
+      <div className="attention-list px-[20px] py-0">
         {displayedItems.length === 0 ? (
-          <div className="[padding:24px_20px] [text-align:center] [color:var(--ink-secondary)] [font-size:12px]">
+          <div className="px-[20px] py-[24px] text-center text-[var(--ink-secondary)] text-[12px]">
             Semua anomali operasional telah di-acknowledge dan berstatus nominal.
           </div>
         ) : (
@@ -180,17 +180,19 @@ export function AttentionPanel({
 
             return (
               <div
-                className={`attention-row [display:grid] [grid-template-columns:28px_minmax(0,_1fr)_auto] [gap:12px] [align-items:center] [padding:14px_0] [border-bottom:1px_solid_var(--line)] ${isAcknowledged ? "resolved" : ""} ${isRecentlyAcked ? "pending-ack" : ""}`}
+                className={`attention-row grid grid-cols-[28px_minmax(0,1fr)_auto] gap-[12px] items-center py-[14px] px-0 border-b border-[var(--line)] last:border-b-0 ${
+                  isAcknowledged ? "resolved opacity-[0.55] transition-opacity duration-300 ease" : ""
+                } ${isRecentlyAcked ? "pending-ack opacity-[0.8]" : ""}`}
                 key={item.id}
               >
                 <ProjectMark name={projectName} />
                 <div className="attention-copy">
-                  <div className="[display:flex] [align-items:center] [gap:7px] [margin-bottom:3px]">
+                  <div className="flex items-center gap-[7px] mb-[3px]">
                     <Badge tone={badgeTone}>{item.category}</Badge>
-                    <span className="attention-time [color:var(--ink-muted)] [font-size:10px] [font-family:var(--font-mono)]">{item.time}</span>
+                    <span className="attention-time text-[var(--ink-muted)] text-[10px] font-mono">{item.time}</span>
                   </div>
-                  <strong className="[display:block] [overflow:hidden] [color:var(--ink-primary)] [font-size:12.5px] [font-weight:600] [text-overflow:ellipsis] [white-space:nowrap]">{item.title}</strong>
-                  <p className="[margin:2px_0_0] [color:var(--ink-secondary)] [font-size:11px] [line-height:1.4]">
+                  <strong className="block overflow-hidden text-[var(--ink-primary)] text-[12.5px] font-semibold text-ellipsis whitespace-nowrap">{item.title}</strong>
+                  <p className="mt-[2px] mr-0 mb-0 ml-0 text-[var(--ink-secondary)] text-[11px] leading-[1.4]">
                     {isAcknowledged
                       ? isRecentlyAcked
                         ? "Acknowledged — dapat dibatalkan (Undo)."
@@ -201,7 +203,11 @@ export function AttentionPanel({
 
                 <div className="ack-action-group">
                   <button
-                    className={`ack-button [height:26px] [padding:0_10px] [color:var(--ink-secondary)] [border:1px_solid_var(--panel-border)]! [border-radius:5px] [background:var(--panel-bg)]! [font-size:10.5px]! [font-weight:600] [transition:all_0.15s_ease] ${isAcknowledged ? "ack-active" : ""} ${isRecentlyAcked ? "undo-available" : ""}`}
+                    className={`ack-button h-[26px] px-[10px] py-0 rounded-[5px] text-[10.5px] font-semibold transition-all duration-150 cursor-pointer border ${
+                      isAcknowledged
+                        ? "ack-active text-[var(--green)] border-[var(--green-border)] bg-[var(--green-soft)] hover:text-[var(--orange)] hover:border-[var(--orange-border)] hover:bg-[var(--orange-soft)]"
+                        : "text-[var(--ink-secondary)] border-[var(--panel-border)] bg-[var(--panel-bg)] hover:text-[var(--accent-blue)] hover:border-[var(--accent-blue-border)] hover:bg-[var(--accent-blue-soft)]"
+                    } ${isRecentlyAcked ? "undo-available animate-[ack-pulse_2s_infinite_ease-in-out]" : ""}`}
                     onClick={() => {
                       if (isAcknowledged) {
                         handleUndo(item);

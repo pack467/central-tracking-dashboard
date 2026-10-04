@@ -220,27 +220,30 @@ export function ProfileView({
   };
 
   return (
-    <div className="profile-page-container">
+    <div className="flex flex-col gap-[20px] w-full">
       {/* ── 1. Page Header Block ── */}
-      <section className="page-heading">
+      <section className="page-heading flex justify-between items-end mb-[22px] max-[660px]:flex-col max-[660px]:items-start max-[660px]:gap-[12px] max-[640px]:mb-0">
         <div>
-          <div className="eyebrow">
+          <div className="flex items-center gap-[8px] text-[var(--ink-muted)] text-[10px] tracking-[1px] font-bold font-mono uppercase">
             <span className="live-dot live-dot-pulse" /> PROFIL OPERASIONAL
           </div>
-          <h1>
+          <h1 className="m-[6px_0_4px] text-[var(--ink-primary)] text-[24px] leading-[1.2] tracking-[-0.4px] font-bold">
             <User size={22} className="[display:inline-block]! [vertical-align:middle]! [margin-right:8px]! [color:var(--accent-blue)]!" />
             Profil Pengguna
           </h1>
-          <p>Kelola informasi akun, peran, dan preferensi operasional Anda.</p>
+          <p className="m-0 text-[var(--ink-secondary)] text-[13px]">Kelola informasi akun, peran, dan preferensi operasional Anda.</p>
         </div>
       </section>
 
       {/* ── 2. Top Profile Summary Card ── */}
-      <section className="profile-summary-card" aria-label="Ringkasan identitas operator">
-        <div className="profile-summary-main">
+      <section
+        className="bg-[var(--panel-bg)] border border-[var(--panel-border)] rounded-[12px] p-[24px] flex items-center justify-between gap-[20px] flex-wrap relative overflow-hidden [box-shadow:var(--shadow-sm)] transition-[border-color] duration-150 ease-out hover:border-[rgba(56,189,248,0.3)]"
+        aria-label="Ringkasan identitas operator"
+      >
+        <div className="flex items-center gap-[20px] flex-wrap">
           {/* Avatar circle with dynamic status ring */}
           <div
-            className="profile-avatar-large-wrapper"
+            className="relative inline-flex items-center justify-center w-[72px] h-[72px] min-w-[72px] min-h-[72px] rounded-[50%] shrink-0 box-border bg-transparent [box-shadow:0_0_0_2px_var(--panel-bg,#1e293b),_0_0_0_5px_var(--status-ring-color,#22c55e),_0_0_16px_var(--status-ring-glow,rgba(34,197,94,0.5))] transition-[box-shadow] duration-250 ease-out"
             style={{
               "--status-ring-color": currentStatusConfig.color,
               "--status-ring-glow": currentStatusConfig.glow,
@@ -250,18 +253,18 @@ export function ProfileView({
               name={profileData.name}
               size="xl"
               shape="circle"
-              className="profile-avatar-large"
+              className="!w-[72px] !h-[72px] !min-w-[72px] !min-h-[72px] !rounded-[50%] !bg-[linear-gradient(135deg,#475569,#334155)] !text-[#f8fafc] !flex !items-center !justify-center !text-[26px] !font-bold ![font-family:var(--font-sans)] !border-2 !border-[var(--panel-bg,#1e293b)] ![box-shadow:none] !grayscale !shrink-0 !select-none"
               ariaLabel={`Avatar profil ${profileData.name}`}
             />
             <span
-              className="profile-large-status-badge [background-color:var(--status-ring-color)]!"
+              className="absolute bottom-[1px] right-[1px] w-[16px] h-[16px] rounded-[50%] border-[3px] border-[var(--panel-bg,#1e293b)] bg-[var(--status-ring-color,#22c55e)] [box-shadow:0_2px_5px_rgba(0,0,0,0.5)] transition-[background-color] duration-250 ease-out z-[2]"
               title={`Status Kehadiran: ${userStatus}`}
             />
           </div>
 
-          <div className="profile-summary-info">
-            <div className="profile-name-row">
-              <h2 className="profile-name-title">{profileData.name}</h2>
+          <div className="flex flex-col gap-[6px]">
+            <div className="flex items-center gap-[10px] flex-wrap">
+              <h2 className="text-[22px] font-bold text-[var(--ink-primary)] m-0 leading-[1.2]">{profileData.name}</h2>
               <Badge tone={userStatus === "Online" ? "success" : userStatus === "Busy" ? "critical" : userStatus === "On Break" ? "warning" : "info"}>
                 <span
                   className="[display:inline-block]! [width:7px]! [height:7px]! [border-radius:50%]! [margin-right:5px]! [vertical-align:middle]! [background-color:var(--profile-status-color)]! [box-shadow:0_0_6px_var(--profile-status-color)]!"
@@ -270,7 +273,7 @@ export function ProfileView({
                 {userStatus}
               </Badge>
               <Badge tone={statusTone(baseMember.status)}>
-                <span className="live-dot live-dot-pulse [margin-right:4px]!" />
+                <span className="live-dot live-dot-pulse [margin-right:4px]! [width:6px]! [height:6px]! [min-width:6px]! [min-height:6px]!" />
                 {baseMember.status === "Active" ? "Aktif Bertugas" : baseMember.status}
               </Badge>
               <Badge tone="info">
@@ -279,24 +282,24 @@ export function ProfileView({
               </Badge>
             </div>
 
-            <div className="profile-role-meta">
-              <span className="profile-role-pill">
+            <div className="flex items-center gap-[8px] text-[13px] text-[var(--ink-secondary)] flex-wrap">
+              <span className="inline-flex items-center gap-[5px] px-[8px] py-[2px] bg-[rgba(56,189,248,0.12)] border border-[rgba(56,189,248,0.3)] text-[var(--accent-blue)] rounded-[5px] font-semibold text-[11.5px] [font-family:var(--font-mono)]">
                 <Briefcase size={11} className="[margin-right:3px]!" />
                 {profileData.role}
               </span>
               <span>•</span>
-              <span className="profile-emp-id">ID: {profileData.employeeId}</span>
+              <span className="[font-family:var(--font-mono)] text-[var(--ink-muted)] text-[12px]">ID: {profileData.employeeId}</span>
               <span>•</span>
-              <span className="[color:var(--ink-muted)]! [font-size:12px]!">
+              <span className="text-[var(--ink-muted)] text-[12px]">
                 {profileData.department}
               </span>
             </div>
 
             {/* Quick Contact Badges */}
-            <div className="profile-contact-chips">
+            <div className="flex items-center gap-[10px] mt-[4px] flex-wrap">
               <button
                 type="button"
-                className="profile-contact-btn"
+                className="inline-flex items-center gap-[6px] px-[10px] py-[4px] bg-[rgba(255,255,255,0.04)] border border-[var(--panel-border)] rounded-[6px] text-[var(--ink-secondary)] text-[12px] cursor-pointer transition-[background,border-color,color] duration-150 ease-out leading-[1.4] select-none hover:bg-[rgba(56,189,248,0.08)] hover:border-[rgba(56,189,248,0.35)] hover:text-[var(--accent-blue)]"
                 onClick={() => handleCopy(profileData.email, "Email")}
                 title="Klik untuk menyalin email"
               >
@@ -307,7 +310,7 @@ export function ProfileView({
 
               <button
                 type="button"
-                className="profile-contact-btn"
+                className="inline-flex items-center gap-[6px] px-[10px] py-[4px] bg-[rgba(255,255,255,0.04)] border border-[var(--panel-border)] rounded-[6px] text-[var(--ink-secondary)] text-[12px] cursor-pointer transition-[background,border-color,color] duration-150 ease-out leading-[1.4] select-none hover:bg-[rgba(56,189,248,0.08)] hover:border-[rgba(56,189,248,0.35)] hover:text-[var(--accent-blue)]"
                 onClick={() => handleCopy(profileData.phone, "Nomor Telepon")}
                 title="Klik untuk menyalin nomor HP"
               >
@@ -319,7 +322,7 @@ export function ProfileView({
           </div>
         </div>
 
-        <div className="profile-summary-actions">
+        <div className="flex items-center gap-[10px]">
           <button
             type="button"
             className="button button-secondary"
@@ -335,57 +338,57 @@ export function ProfileView({
       </section>
 
       {/* ── 3. 2-Column Responsive Grid ── */}
-      <div className="profile-grid-layout">
+      <div className="grid grid-cols-[1.35fr_1fr] max-[1024px]:grid-cols-1 gap-[20px] [align-items:start]">
         {/* ── LEFT / MAIN COLUMN ── */}
-        <div className="profile-column">
+        <div className="flex flex-col gap-[20px]">
           {/* Card: Informasi Akun */}
-          <section className="profile-section-card" aria-label="Informasi akun operator">
-            <div className="profile-card-header">
-              <div className="profile-card-title-group">
-                <h3 className="profile-card-title">
+          <section className="bg-[var(--panel-bg)] border border-[var(--panel-border)] rounded-[12px] p-[20px_22px] [box-shadow:var(--shadow-sm)] flex flex-col gap-[16px] transition-[border-color] duration-150 ease-out hover:border-[rgba(255,255,255,0.14)]" aria-label="Informasi akun operator">
+            <div className="flex justify-between items-center [border-bottom:1px_solid_var(--line)] pb-[12px] mb-[2px]">
+              <div className="flex items-center gap-[8px]">
+                <h3 className="text-[13px] font-bold text-[var(--ink-primary)] tracking-[0.03em] uppercase [font-family:var(--font-sans)] m-0 flex items-center gap-[7px]">
                   <Shield size={14} className="[color:var(--accent-blue)]!" />
                   Informasi Akun &amp; Otorisasi
                 </h3>
               </div>
-              <span className="profile-card-subtitle">Detail hak akses dan penugasan sistem</span>
+              <span className="text-[11.5px] text-[var(--ink-muted)] m-0 leading-[1.4]">Detail hak akses dan penugasan sistem</span>
             </div>
 
-            <div className="profile-info-grid">
-              <div className="profile-info-item">
-                <span className="profile-info-label">Peran &amp; Tanggung Jawab</span>
-                <span className="profile-info-value">{profileData.role} (First Response &amp; Console)</span>
+            <div className="grid grid-cols-2 max-[640px]:grid-cols-1 gap-[14px_18px]">
+              <div className="flex flex-col gap-[4px]">
+                <span className="text-[11px] [font-family:var(--font-mono)] text-[var(--ink-muted)] uppercase tracking-[0.5px]">Peran &amp; Tanggung Jawab</span>
+                <span className="text-[13px] font-semibold text-[var(--ink-primary)] leading-[1.4] break-words">{profileData.role} (First Response &amp; Console)</span>
               </div>
 
-              <div className="profile-info-item">
-                <span className="profile-info-label">Nomor Induk Karyawan</span>
-                <span className="profile-info-value [font-family:var(--font-mono)]!">
+              <div className="flex flex-col gap-[4px]">
+                <span className="text-[11px] [font-family:var(--font-mono)] text-[var(--ink-muted)] uppercase tracking-[0.5px]">Nomor Induk Karyawan</span>
+                <span className="text-[13px] font-semibold text-[var(--ink-primary)] leading-[1.4] break-words [font-family:var(--font-mono)]!">
                   {profileData.employeeId}
                 </span>
               </div>
 
-              <div className="profile-info-item">
-                <span className="profile-info-label">Departemen</span>
-                <span className="profile-info-value">{profileData.department}</span>
+              <div className="flex flex-col gap-[4px]">
+                <span className="text-[11px] [font-family:var(--font-mono)] text-[var(--ink-muted)] uppercase tracking-[0.5px]">Departemen</span>
+                <span className="text-[13px] font-semibold text-[var(--ink-primary)] leading-[1.4] break-words">{profileData.department}</span>
               </div>
 
-              <div className="profile-info-item">
-                <span className="profile-info-label">Tanggal Bergabung</span>
-                <span className="profile-info-value">
-                  {profileData.joinDate} <small className="[color:var(--ink-muted)]! [font-weight:normal]!">(~2 tahun 8 bulan)</small>
+              <div className="flex flex-col gap-[4px]">
+                <span className="text-[11px] [font-family:var(--font-mono)] text-[var(--ink-muted)] uppercase tracking-[0.5px]">Tanggal Bergabung</span>
+                <span className="text-[13px] font-semibold text-[var(--ink-primary)] leading-[1.4] break-words">
+                  {profileData.joinDate} <small className="text-[var(--ink-muted)] font-normal">(~2 tahun 8 bulan)</small>
                 </span>
               </div>
 
-              <div className="profile-info-item [grid-column:1_/_-1]!">
-                <span className="profile-info-label">Cakupan Klien / Tenant yang Diakses</span>
-                <div className="profile-tenants-list">
+              <div className="flex flex-col gap-[4px] [grid-column:1_/_-1]!">
+                <span className="text-[11px] [font-family:var(--font-mono)] text-[var(--ink-muted)] uppercase tracking-[0.5px]">Cakupan Klien / Tenant yang Diakses</span>
+                <div className="flex flex-wrap gap-[6px] mt-[4px]">
                   {clients.map((c) => (
-                    <span key={c.id} className="profile-tenant-badge">
+                    <span key={c.id} className="inline-flex items-center gap-[5px] px-[8px] py-[3px] bg-[rgba(255,255,255,0.035)] border border-[var(--line)] rounded-[6px] text-[11.5px] font-medium text-[var(--ink-secondary)]">
                       <Building2 size={11} className="[color:var(--accent-blue)]!" />
                       <span>{c.name}</span>
                     </span>
                   ))}
                   {clients.length === 0 && (
-                    <span className="profile-tenant-badge">
+                    <span className="inline-flex items-center gap-[5px] px-[8px] py-[3px] bg-[rgba(255,255,255,0.035)] border border-[var(--line)] rounded-[6px] text-[11.5px] font-medium text-[var(--ink-secondary)]">
                       <Building2 size={11} />
                       <span>Tritronik Enterprise NOC</span>
                     </span>
@@ -393,31 +396,31 @@ export function ProfileView({
                 </div>
               </div>
 
-              <div className="profile-info-item [grid-column:1_/_-1]!">
-                <span className="profile-info-label">Otorisasi &amp; Hak Akses Operasional</span>
-                <div className="profile-permissions-tags">
-                  <span className="profile-perm-tag">
+              <div className="flex flex-col gap-[4px] [grid-column:1_/_-1]!">
+                <span className="text-[11px] [font-family:var(--font-mono)] text-[var(--ink-muted)] uppercase tracking-[0.5px]">Otorisasi &amp; Hak Akses Operasional</span>
+                <div className="flex flex-wrap gap-[6px] mt-[4px]">
+                  <span className="inline-flex items-center gap-[4px] px-[7px] py-[2px] bg-[rgba(74,222,128,0.08)] border border-[rgba(74,222,128,0.25)] rounded-[4px] text-[10.5px] [font-family:var(--font-mono)] font-semibold text-[var(--green)]">
                     <Check size={10} strokeWidth={3} /> Buat &amp; Update Tiket
                   </span>
-                  <span className="profile-perm-tag">
+                  <span className="inline-flex items-center gap-[4px] px-[7px] py-[2px] bg-[rgba(74,222,128,0.08)] border border-[rgba(74,222,128,0.25)] rounded-[4px] text-[10.5px] [font-family:var(--font-mono)] font-semibold text-[var(--green)]">
                     <Check size={10} strokeWidth={3} /> Evaluasi Checkpoint Monitoring
                   </span>
-                  <span className="profile-perm-tag">
+                  <span className="inline-flex items-center gap-[4px] px-[7px] py-[2px] bg-[rgba(74,222,128,0.08)] border border-[rgba(74,222,128,0.25)] rounded-[4px] text-[10.5px] [font-family:var(--font-mono)] font-semibold text-[var(--green)]">
                     <Check size={10} strokeWidth={3} /> Validasi Serah Terima Shift
                   </span>
-                  <span className="profile-perm-tag">
+                  <span className="inline-flex items-center gap-[4px] px-[7px] py-[2px] bg-[rgba(74,222,128,0.08)] border border-[rgba(74,222,128,0.25)] rounded-[4px] text-[10.5px] [font-family:var(--font-mono)] font-semibold text-[var(--green)]">
                     <Check size={10} strokeWidth={3} /> Eksekusi Runbook SOP
                   </span>
-                  <span className="profile-perm-tag">
+                  <span className="inline-flex items-center gap-[4px] px-[7px] py-[2px] bg-[rgba(74,222,128,0.08)] border border-[rgba(74,222,128,0.25)] rounded-[4px] text-[10.5px] [font-family:var(--font-mono)] font-semibold text-[var(--green)]">
                     <Check size={10} strokeWidth={3} /> Eskalasi Tier-2 Specialist
                   </span>
                 </div>
               </div>
 
               {profileData.bio && (
-                <div className="profile-info-item [grid-column:1_/_-1]!">
-                  <span className="profile-info-label">Catatan Operasional / Bio</span>
-                  <p className="[margin:4px_0_0]! [color:var(--ink-secondary)]! [font-size:12.5px]! [line-height:1.5]!">
+                <div className="flex flex-col gap-[4px] [grid-column:1_/_-1]!">
+                  <span className="text-[11px] [font-family:var(--font-mono)] text-[var(--ink-muted)] uppercase tracking-[0.5px]">Catatan Operasional / Bio</span>
+                  <p className="mt-[4px] text-[var(--ink-secondary)] text-[12.5px] leading-[1.5]">
                     {profileData.bio}
                   </p>
                 </div>
@@ -426,148 +429,148 @@ export function ProfileView({
           </section>
 
           {/* Card: Aktivitas Terbaru (Personal Activity Reference, NOT a performance scorecard) */}
-          <section className="profile-section-card" aria-label="Aktivitas terbaru operator">
-            <div className="profile-card-header">
-              <div className="profile-card-title-group">
-                <h3 className="profile-card-title">
+          <section className="bg-[var(--panel-bg)] border border-[var(--panel-border)] rounded-[12px] p-[20px_22px] [box-shadow:var(--shadow-sm)] flex flex-col gap-[16px] transition-[border-color] duration-150 ease-out hover:border-[rgba(255,255,255,0.14)]" aria-label="Aktivitas terbaru operator">
+            <div className="flex justify-between items-center [border-bottom:1px_solid_var(--line)] pb-[12px] mb-[2px]">
+              <div className="flex items-center gap-[8px]">
+                <h3 className="text-[13px] font-bold text-[var(--ink-primary)] tracking-[0.03em] uppercase [font-family:var(--font-sans)] m-0 flex items-center gap-[7px]">
                   <History size={14} className="[color:var(--purple)]!" />
                   Aktivitas Operasional Terbaru
                 </h3>
               </div>
-              <span className="profile-card-subtitle">
+              <span className="text-[11.5px] text-[var(--ink-muted)] m-0 leading-[1.4]">
                 Referensi catatan kontribusi pribadi (bukan pemeringkatan)
               </span>
             </div>
 
             {/* Primary Operational Summary Metric Cards (4 Stat Cards Row) */}
-            <div className="profile-stats-tally" aria-label="Metrik ringkasan operasional utama">
-              <div className="profile-tally-item" title="Volume akumulasi tiket yang pernah ditangani (Jam terbang tinggi)">
-                <span className="profile-tally-num [color:var(--accent-blue)]!">
+            <div className="grid grid-cols-4 max-[900px]:grid-cols-2 max-[480px]:grid-cols-1 gap-[10px]" aria-label="Metrik ringkasan operasional utama">
+              <div className="bg-[rgba(255,255,255,0.025)] border border-[var(--line)] rounded-[8px] p-[11px_13px] flex flex-col gap-[3px] transition-[border-color] duration-150 ease-out hover:border-[rgba(255,255,255,0.14)]" title="Volume akumulasi tiket yang pernah ditangani (Jam terbang tinggi)">
+                <span className="text-[19px] font-bold [font-family:var(--font-mono)] leading-[1.2] [color:var(--accent-blue)]!">
                   {operationalMetrics.totalTicketsHandled}
                 </span>
-                <span className="profile-tally-label">Total Tiket</span>
+                <span className="text-[11px] text-[var(--ink-muted)] leading-[1.35]">Total Tiket</span>
               </div>
-              <div className="profile-tally-item" title="Konsistensi serah terima shift rutin diselesaikan secara tertib">
-                <span className="profile-tally-num [color:var(--green)]!">
+              <div className="bg-[rgba(255,255,255,0.025)] border border-[var(--line)] rounded-[8px] p-[11px_13px] flex flex-col gap-[3px] transition-[border-color] duration-150 ease-out hover:border-[rgba(255,255,255,0.14)]" title="Konsistensi serah terima shift rutin diselesaikan secara tertib">
+                <span className="text-[19px] font-bold [font-family:var(--font-mono)] leading-[1.2] [color:var(--green)]!">
                   {operationalMetrics.handoversCompleted}
                 </span>
-                <span className="profile-tally-label">Serah Terima Diselesaikan</span>
+                <span className="text-[11px] text-[var(--ink-muted)] leading-[1.35]">Serah Terima Diselesaikan</span>
               </div>
-              <div className="profile-tally-item" title="Tingkat ketepatan waktu shift: Prima (Target >= 95%)">
+              <div className="bg-[rgba(255,255,255,0.025)] border border-[var(--line)] rounded-[8px] p-[11px_13px] flex flex-col gap-[3px] transition-[border-color] duration-150 ease-out hover:border-[rgba(255,255,255,0.14)]" title="Tingkat ketepatan waktu shift: Prima (Target >= 95%)">
                 <span
-                  className="profile-tally-num [color:var(--profile-metric-color)]!"
+                  className="text-[19px] font-bold [font-family:var(--font-mono)] leading-[1.2] [color:var(--profile-metric-color)]!"
                   style={{ "--profile-metric-color": getOnTimeColor(operationalMetrics.onTimeShiftRate) } as React.CSSProperties}
                 >
                   {operationalMetrics.onTimeShiftRate}
                 </span>
-                <span className="profile-tally-label">Ketepatan Waktu Shift (On-Time)</span>
+                <span className="text-[11px] text-[var(--ink-muted)] leading-[1.35]">Ketepatan Waktu Shift (On-Time)</span>
               </div>
-              <div className="profile-tally-item" title="Kepatuhan SLA tiket: Optimal dan memenuhi target (Target >= 95%)">
+              <div className="bg-[rgba(255,255,255,0.025)] border border-[var(--line)] rounded-[8px] p-[11px_13px] flex flex-col gap-[3px] transition-[border-color] duration-150 ease-out hover:border-[rgba(255,255,255,0.14)]" title="Kepatuhan SLA tiket: Optimal dan memenuhi target (Target >= 95%)">
                 <span
-                  className="profile-tally-num [color:var(--profile-metric-color)]!"
+                  className="text-[19px] font-bold [font-family:var(--font-mono)] leading-[1.2] [color:var(--profile-metric-color)]!"
                   style={{ "--profile-metric-color": getSlaColor(operationalMetrics.slaComplianceRate) } as React.CSSProperties}
                 >
                   {operationalMetrics.slaComplianceRate}
                 </span>
-                <span className="profile-tally-label">Kepatuhan SLA Tiket</span>
+                <span className="text-[11px] text-[var(--ink-muted)] leading-[1.35]">Kepatuhan SLA Tiket</span>
               </div>
             </div>
 
             {/* Additional Operational Summary Metrics Grid (Replaces Activity Log) */}
-            <div className="profile-metrics-grid" aria-label="Metrik ringkasan kontribusi operasional">
-              <div className="profile-metric-tile" title="Kepatuhan evaluasi sensor checklist berkala">
-                <span className="profile-metric-num [color:var(--accent-blue)]!">
+            <div className="grid grid-cols-4 max-[900px]:grid-cols-2 max-[480px]:grid-cols-2 gap-[10px] mt-[4px]" aria-label="Metrik ringkasan kontribusi operasional">
+              <div className="bg-[rgba(255,255,255,0.02)] border border-[var(--line)] rounded-[8px] p-[11px_13px] flex flex-col gap-[3px] transition-[border-color] duration-150 ease-out hover:border-[rgba(255,255,255,0.14)]" title="Kepatuhan evaluasi sensor checklist berkala">
+                <span className="text-[19px] font-bold [font-family:var(--font-mono)] leading-[1.2] [color:var(--accent-blue)]!">
                   {operationalMetrics.totalCheckpointsEvaluated}
                 </span>
-                <span className="profile-metric-label">Checkpoint Dievaluasi</span>
+                <span className="text-[11px] text-[var(--ink-muted)] leading-[1.35]">Checkpoint Dievaluasi</span>
               </div>
-              <div className="profile-metric-tile" title="Tiket yang dieskalasi ke tier lanjutan (Jumlah sedang/wajar: 6-15)">
+              <div className="bg-[rgba(255,255,255,0.02)] border border-[var(--line)] rounded-[8px] p-[11px_13px] flex flex-col gap-[3px] transition-[border-color] duration-150 ease-out hover:border-[rgba(255,255,255,0.14)]" title="Tiket yang dieskalasi ke tier lanjutan (Jumlah sedang/wajar: 6-15)">
                 <span
-                  className="profile-metric-num [color:var(--profile-metric-color)]!"
+                  className="text-[19px] font-bold [font-family:var(--font-mono)] leading-[1.2] [color:var(--profile-metric-color)]!"
                   style={{ "--profile-metric-color": getEscalationColor(operationalMetrics.totalEscalationsHandled) } as React.CSSProperties}
                 >
                   {operationalMetrics.totalEscalationsHandled}
                 </span>
-                <span className="profile-metric-label">Total Eskalasi</span>
+                <span className="text-[11px] text-[var(--ink-muted)] leading-[1.35]">Total Eskalasi</span>
               </div>
-              <div className="profile-metric-tile" title="Temuan anomali audit shift dalam batas aman dan terkendali (<= 5)">
+              <div className="bg-[rgba(255,255,255,0.02)] border border-[var(--line)] rounded-[8px] p-[11px_13px] flex flex-col gap-[3px] transition-[border-color] duration-150 ease-out hover:border-[rgba(255,255,255,0.14)]" title="Temuan anomali audit shift dalam batas aman dan terkendali (<= 5)">
                 <span
-                  className="profile-metric-num [color:var(--profile-metric-color)]!"
+                  className="text-[19px] font-bold [font-family:var(--font-mono)] leading-[1.2] [color:var(--profile-metric-color)]!"
                   style={{ "--profile-metric-color": getFindingsColor(operationalMetrics.totalFindingsRecorded) } as React.CSSProperties}
                 >
                   {operationalMetrics.totalFindingsRecorded}
                 </span>
-                <span className="profile-metric-label">Total Temuan</span>
+                <span className="text-[11px] text-[var(--ink-muted)] leading-[1.35]">Total Temuan</span>
               </div>
-              <div className="profile-metric-tile" title="Rata-rata kecepatan respon tiket: Sangat cepat / responsif (<= 10m)">
+              <div className="bg-[rgba(255,255,255,0.02)] border border-[var(--line)] rounded-[8px] p-[11px_13px] flex flex-col gap-[3px] transition-[border-color] duration-150 ease-out hover:border-[rgba(255,255,255,0.14)]" title="Rata-rata kecepatan respon tiket: Sangat cepat / responsif (<= 10m)">
                 <span
-                  className="profile-metric-num [color:var(--profile-metric-color)]!"
+                  className="text-[19px] font-bold [font-family:var(--font-mono)] leading-[1.2] [color:var(--profile-metric-color)]!"
                   style={{ "--profile-metric-color": getResponseTimeColor(operationalMetrics.avgResponseTime) } as React.CSSProperties}
                 >
                   {operationalMetrics.avgResponseTime}
                 </span>
-                <span className="profile-metric-label">Rata-rata Respon Tiket</span>
+                <span className="text-[11px] text-[var(--ink-muted)] leading-[1.35]">Rata-rata Respon Tiket</span>
               </div>
             </div>
 
             {/* Additional Operational Summary Metrics Grid 2: Jam Kerja & Akumulasi Tugas */}
-            <div className="profile-metrics-grid" aria-label="Metrik jam kerja dan akumulasi tugas">
-              <div className="profile-metric-tile" title="Akumulasi total jam dinas shift resmi">
-                <span className="profile-metric-num [color:var(--accent-blue)]!">
+            <div className="grid grid-cols-4 max-[900px]:grid-cols-2 max-[480px]:grid-cols-2 gap-[10px] mt-[4px]" aria-label="Metrik jam kerja dan akumulasi tugas">
+              <div className="bg-[rgba(255,255,255,0.02)] border border-[var(--line)] rounded-[8px] p-[11px_13px] flex flex-col gap-[3px] transition-[border-color] duration-150 ease-out hover:border-[rgba(255,255,255,0.14)]" title="Akumulasi total jam dinas shift resmi">
+                <span className="text-[19px] font-bold [font-family:var(--font-mono)] leading-[1.2] [color:var(--accent-blue)]!">
                   {operationalMetrics.totalShiftHours}
                 </span>
-                <span className="profile-metric-label">Total Jam Shift</span>
+                <span className="text-[11px] text-[var(--ink-muted)] leading-[1.35]">Total Jam Shift</span>
               </div>
-              <div className="profile-metric-tile" title="Jam kerja lembur/di luar shift resmi (Perhatian moderat: 21-50 jam)">
+              <div className="bg-[rgba(255,255,255,0.02)] border border-[var(--line)] rounded-[8px] p-[11px_13px] flex flex-col gap-[3px] transition-[border-color] duration-150 ease-out hover:border-[rgba(255,255,255,0.14)]" title="Jam kerja lembur/di luar shift resmi (Perhatian moderat: 21-50 jam)">
                 <span
-                  className="profile-metric-num [color:var(--profile-metric-color)]!"
+                  className="text-[19px] font-bold [font-family:var(--font-mono)] leading-[1.2] [color:var(--profile-metric-color)]!"
                   style={{ "--profile-metric-color": getOvertimeColor(operationalMetrics.overtimeHours) } as React.CSSProperties}
                 >
                   {operationalMetrics.overtimeHours}
                 </span>
-                <span className="profile-metric-label">Jam Kerja di Luar Shift</span>
+                <span className="text-[11px] text-[var(--ink-muted)] leading-[1.35]">Jam Kerja di Luar Shift</span>
               </div>
-              <div className="profile-metric-tile" title="Akumulasi seluruh tugas operasional yang diselesaikan dengan tuntas">
-                <span className="profile-metric-num [color:var(--green)]!">
+              <div className="bg-[rgba(255,255,255,0.02)] border border-[var(--line)] rounded-[8px] p-[11px_13px] flex flex-col gap-[3px] transition-[border-color] duration-150 ease-out hover:border-[rgba(255,255,255,0.14)]" title="Akumulasi seluruh tugas operasional yang diselesaikan dengan tuntas">
+                <span className="text-[19px] font-bold [font-family:var(--font-mono)] leading-[1.2] [color:var(--green)]!">
                   {operationalMetrics.tasksCompleted}
                 </span>
-                <span className="profile-metric-label">Tugas Diselesaikan</span>
+                <span className="text-[11px] text-[var(--ink-muted)] leading-[1.35]">Tugas Diselesaikan</span>
               </div>
-              <div className="profile-metric-tile" title="Total jejak interaksi dan aktivitas operasional di dashboard">
-                <span className="profile-metric-num [color:var(--accent-blue)]!">
+              <div className="bg-[rgba(255,255,255,0.02)] border border-[var(--line)] rounded-[8px] p-[11px_13px] flex flex-col gap-[3px] transition-[border-color] duration-150 ease-out hover:border-[rgba(255,255,255,0.14)]" title="Total jejak interaksi dan aktivitas operasional di dashboard">
+                <span className="text-[19px] font-bold [font-family:var(--font-mono)] leading-[1.2] [color:var(--accent-blue)]!">
                   {operationalMetrics.totalActivities}
                 </span>
-                <span className="profile-metric-label">Total Activity</span>
+                <span className="text-[11px] text-[var(--ink-muted)] leading-[1.35]">Total Activity</span>
               </div>
             </div>
           </section>
         </div>
 
         {/* ── RIGHT / SIDEBAR COLUMN ── */}
-        <div className="profile-column">
+        <div className="flex flex-col gap-[20px]">
           {/* Card: Shift & Ketersediaan */}
-          <section className="profile-section-card" aria-label="Jadwal shift dan ketersediaan">
-            <div className="profile-card-header">
-              <div className="profile-card-title-group">
-                <h3 className="profile-card-title">
+          <section className="bg-[var(--panel-bg)] border border-[var(--panel-border)] rounded-[12px] p-[20px_22px] [box-shadow:var(--shadow-sm)] flex flex-col gap-[16px] transition-[border-color] duration-150 ease-out hover:border-[rgba(255,255,255,0.14)]" aria-label="Jadwal shift dan ketersediaan">
+            <div className="flex justify-between items-center [border-bottom:1px_solid_var(--line)] pb-[12px] mb-[2px]">
+              <div className="flex items-center gap-[8px]">
+                <h3 className="text-[13px] font-bold text-[var(--ink-primary)] tracking-[0.03em] uppercase [font-family:var(--font-sans)] m-0 flex items-center gap-[7px]">
                   <Clock size={14} className="[color:var(--accent-blue)]!" />
                   Shift &amp; Ketersediaan
                 </h3>
               </div>
-              <span className="profile-card-subtitle">Jadwal tugas minggu berjalan</span>
+              <span className="text-[11.5px] text-[var(--ink-muted)] m-0 leading-[1.4]">Jadwal tugas minggu berjalan</span>
             </div>
 
             {/* Current Shift Banner */}
-            <div className="profile-shift-hero">
-              <div className="profile-shift-hero-left">
-                <div className="profile-shift-icon-box">
+            <div className="flex items-center justify-between gap-[12px] p-[12px_14px] bg-[rgba(56,189,248,0.06)] border border-[rgba(56,189,248,0.2)] rounded-[9px] flex-wrap">
+              <div className="flex items-center gap-[10px]">
+                <div className="w-[34px] h-[34px] rounded-[8px] bg-[rgba(56,189,248,0.15)] text-[var(--accent-blue)] flex items-center justify-center shrink-0">
                   <Clock size={18} />
                 </div>
                 <div>
-                  <h4 className="profile-shift-hero-title">
+                  <h4 className="text-[13px] font-bold text-[var(--ink-primary)] m-0">
                     {activeShift.label} ({activeShift.period})
                   </h4>
-                  <p className="profile-shift-hero-sub">
+                  <p className="text-[11.5px] text-[var(--ink-muted)] m-0">
                     Pola Kerja: 5 Hari Kerja, 2 Hari Libur (Standar Rotasi NOC)
                   </p>
                 </div>
@@ -579,16 +582,16 @@ export function ProfileView({
             </div>
 
             {/* Weekly Schedule Grid (SEN..MIN) */}
-            <div className="profile-weekly-schedule">
-              <span className="profile-info-label [margin-bottom:2px]!">
+            <div className="flex flex-col gap-[8px]">
+              <span className="text-[11px] [font-family:var(--font-mono)] text-[var(--ink-muted)] uppercase tracking-[0.5px] mb-[2px]">
                 Jadwal Minggu Ini (24 Agu – 30 Agu)
               </span>
 
-              <div className="profile-schedule-strip">
+              <div className="grid grid-cols-7 gap-[6px] w-full">
                 {scheduleDays.map((dayEntry, idx) => (
                   <div
                     key={idx}
-                    className="profile-schedule-day [background:var(--profile-schedule-background)]! [color:var(--profile-schedule-color)]! [border-color:var(--profile-schedule-border)]!"
+                    className="flex flex-col items-center justify-center gap-[3px] p-[8px_4px] rounded-[7px] border border-transparent transition-[border-color] duration-150 ease-out select-none text-center hover:border-[rgba(255,255,255,0.18)] [background:var(--profile-schedule-background)]! [color:var(--profile-schedule-color)]! [border-color:var(--profile-schedule-border)]!"
                     style={{
                       "--profile-schedule-background": dayEntry.style.bg,
                       "--profile-schedule-color": dayEntry.style.color,
@@ -596,25 +599,25 @@ export function ProfileView({
                     } as React.CSSProperties}
                     title={`${dayEntry.day} (${dayEntry.date}): ${dayEntry.shift} (${dayEntry.hours ?? "-"})`}
                   >
-                    <span className="profile-day-label">{dayEntry.day}</span>
-                    <span className="profile-day-code">
+                    <span className="text-[10.5px] [font-family:var(--font-mono)] font-bold uppercase">{dayEntry.day}</span>
+                    <span className="text-[14px] font-extrabold [font-family:var(--font-mono)] leading-none">
                       {dayEntry.shift === "Leave" ? "L" : dayEntry.shift === "Off" ? "—" : dayEntry.shift[0]}
                     </span>
-                    <span className="profile-day-sub">
+                    <span className="text-[9.5px] text-[var(--ink-muted)] whitespace-nowrap">
                       {dayEntry.shift === "Off" ? "Libur" : dayEntry.shift}
                     </span>
                   </div>
                 ))}
               </div>
 
-              <div className="profile-schedule-legend">
-                <div className="profile-legend-items">
-                  <span className="profile-legend-item">
-                    <span className="profile-legend-dot [background:#7c3aed]!" />
+              <div className="flex items-center justify-between gap-[10px] text-[11px] text-[var(--ink-muted)] pt-[4px] flex-wrap">
+                <div className="flex items-center gap-[12px] flex-wrap">
+                  <span className="inline-flex items-center gap-[4px]">
+                    <span className="w-[7px] h-[7px] rounded-full [background:#7c3aed]!" />
                     <span>Malam (16:00–00:30)</span>
                   </span>
-                  <span className="profile-legend-item">
-                    <span className="profile-legend-dot [background:#475569]!" />
+                  <span className="inline-flex items-center gap-[4px]">
+                    <span className="w-[7px] h-[7px] rounded-full [background:#475569]!" />
                     <span>Off (Libur)</span>
                   </span>
                 </div>
@@ -622,10 +625,10 @@ export function ProfileView({
             </div>
 
             {/* Shift Swap Option */}
-            <div className="[padding-top:6px]! [border-top:1px_solid_var(--line)]!">
+            <div className="pt-[6px] [border-top:1px_solid_var(--line)]">
               <button
                 type="button"
-                className="button button-secondary [width:100%]! [justify-content:center]!"
+                className="button button-secondary w-full justify-center"
                 onClick={() => {
                   if (onNavigateToShiftSwap) {
                     onNavigateToShiftSwap();
@@ -664,59 +667,59 @@ export function ProfileView({
         </div>
 
         <form onSubmit={handleSaveProfile}>
-          <div className="profile-modal-grid">
-            <div className="profile-form-group">
-              <label htmlFor="edit-name" className="profile-form-label">
+          <div className="flex flex-col gap-[16px]">
+            <div className="flex flex-col gap-[6px]">
+              <label htmlFor="edit-name" className="text-[11.5px] font-semibold text-[var(--ink-secondary)] [font-family:var(--font-mono)] uppercase tracking-[0.5px]">
                 Nama Lengkap
               </label>
               <input
                 id="edit-name"
                 type="text"
                 required
-                className="profile-form-input"
+                className="w-full h-[38px] px-[12px] py-[8px] bg-[var(--input-bg)] border border-[var(--line)] rounded-[7px] text-[13px] text-[var(--ink-primary)] [font-family:var(--font-sans)] transition-[border-color,box-shadow] duration-150 ease-out box-border focus:outline-none focus:border-[var(--accent-blue)] focus:[box-shadow:0_0_0_2px_var(--accent-blue-soft)]"
                 value={editForm.name}
                 onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
               />
             </div>
 
-            <div className="profile-form-group">
-              <label htmlFor="edit-email" className="profile-form-label">
+            <div className="flex flex-col gap-[6px]">
+              <label htmlFor="edit-email" className="text-[11.5px] font-semibold text-[var(--ink-secondary)] [font-family:var(--font-mono)] uppercase tracking-[0.5px]">
                 Alamat Email Resmi
               </label>
               <input
                 id="edit-email"
                 type="email"
                 required
-                className="profile-form-input"
+                className="w-full h-[38px] px-[12px] py-[8px] bg-[var(--input-bg)] border border-[var(--line)] rounded-[7px] text-[13px] text-[var(--ink-primary)] [font-family:var(--font-sans)] transition-[border-color,box-shadow] duration-150 ease-out box-border focus:outline-none focus:border-[var(--accent-blue)] focus:[box-shadow:0_0_0_2px_var(--accent-blue-soft)]"
                 value={editForm.email}
                 onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
               />
-              <span className="profile-form-hint">Digunakan untuk notifikasi handover dan eskalasi.</span>
+              <span className="text-[11px] text-[var(--ink-muted)] leading-[1.35] mt-[2px]">Digunakan untuk notifikasi handover dan eskalasi.</span>
             </div>
 
-            <div className="profile-form-group">
-              <label htmlFor="edit-phone" className="profile-form-label">
+            <div className="flex flex-col gap-[6px]">
+              <label htmlFor="edit-phone" className="text-[11.5px] font-semibold text-[var(--ink-secondary)] [font-family:var(--font-mono)] uppercase tracking-[0.5px]">
                 Nomor Telepon / WhatsApp
               </label>
               <input
                 id="edit-phone"
                 type="tel"
                 required
-                className="profile-form-input"
+                className="w-full h-[38px] px-[12px] py-[8px] bg-[var(--input-bg)] border border-[var(--line)] rounded-[7px] text-[13px] text-[var(--ink-primary)] [font-family:var(--font-sans)] transition-[border-color,box-shadow] duration-150 ease-out box-border focus:outline-none focus:border-[var(--accent-blue)] focus:[box-shadow:0_0_0_2px_var(--accent-blue-soft)]"
                 value={editForm.phone}
                 onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
               />
-              <span className="profile-form-hint">Nomor aktif untuk koordinasi darurat insiden P1.</span>
+              <span className="text-[11px] text-[var(--ink-muted)] leading-[1.35] mt-[2px]">Nomor aktif untuk koordinasi darurat insiden P1.</span>
             </div>
 
-            <div className="profile-form-group">
-              <label htmlFor="edit-bio" className="profile-form-label">
+            <div className="flex flex-col gap-[6px]">
+              <label htmlFor="edit-bio" className="text-[11.5px] font-semibold text-[var(--ink-secondary)] [font-family:var(--font-mono)] uppercase tracking-[0.5px]">
                 Catatan Operasional / Handover Note
               </label>
               <textarea
                 id="edit-bio"
                 rows={3}
-                className="profile-form-textarea"
+                className="w-full min-h-[84px] px-[12px] py-[8px] bg-[var(--input-bg)] border border-[var(--line)] rounded-[7px] text-[13px] text-[var(--ink-primary)] [font-family:var(--font-sans)] transition-[border-color,box-shadow] duration-150 ease-out box-border resize-none leading-[1.5] focus:outline-none focus:border-[var(--accent-blue)] focus:[box-shadow:0_0_0_2px_var(--accent-blue-soft)]"
                 value={editForm.bio}
                 onChange={(e) => setEditForm({ ...editForm, bio: e.target.value })}
               />

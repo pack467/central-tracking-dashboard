@@ -413,7 +413,7 @@ export function DatePicker({
   }, [rangeStart, value]);
 
   return (
-    <div className={`[position:relative] [width:100%] ${className}`} ref={containerRef}>
+    <div className={`relative w-full supports-[anchor-name:--test]:[anchor-name:--dd-tanggal] ${className}`} ref={containerRef}>
       {/* Hidden native input for form submission / validation */}
       <input
         type="hidden"
@@ -426,7 +426,11 @@ export function DatePicker({
 
       {/* Visible Trigger Box */}
       <div
-        className={`custom-datepicker-trigger [display:flex] [align-items:center] [justify-content:space-between] [width:100%] [height:38px] [padding:0_10px_0_12px] [background:var(--input-bg)] [border:1px_solid_var(--panel-border)] [border-radius:7px] [color:var(--ink-primary)] [font-size:12px] [font-weight:500] [cursor:pointer] [transition:border-color_0.15s_ease,_box-shadow_0.15s_ease,_background_0.15s_ease] [user-select:none] [box-sizing:border-box] [&:hover]:[border-color:var(--accent-blue-border)] [&:hover]:[background:rgba(15,_23,_42,_0.9)] focus-visible:[border-color:var(--accent-blue)] focus-visible:[box-shadow:0_0_0_3px_var(--accent-blue-soft)] focus-visible:[outline:none] [&.is-open]:[border-color:var(--accent-blue)] [&.is-open]:[box-shadow:0_0_0_3px_var(--accent-blue-soft)] [&.is-open]:[outline:none] [&.is-disabled]:[opacity:0.5] [&.is-disabled]:[cursor:not-allowed] [&.is-disabled]:[pointer-events:none] [&:hover_.custom-datepicker-cal-icon]:[color:#7dd3fc] [&:hover_.custom-datepicker-cal-icon]:[transform:scale(1.08)] ${isOpen ? "is-open" : ""} ${disabled ? "is-disabled" : ""}`}
+        className={`group flex items-center justify-between w-full h-[38px] p-[0_10px_0_12px] bg-[var(--input-bg)] border rounded-[7px] text-[var(--ink-primary)] text-[12px] font-medium cursor-pointer transition-all duration-150 select-none box-border hover:border-[var(--accent-blue-border)] hover:bg-[rgba(15,23,42,0.9)] focus-visible:border-[var(--accent-blue)] focus-visible:shadow-[0_0_0_3px_var(--accent-blue-soft)] focus-visible:outline-none supports-[anchor-name:--test]:[anchor-name:--dd-tanggal] ${
+          isOpen
+            ? "border-[var(--accent-blue)] shadow-[0_0_0_3px_var(--accent-blue-soft)] outline-none"
+            : "border-[var(--panel-border)]"
+        } ${disabled ? "opacity-50 cursor-not-allowed pointer-events-none" : ""}`}
         onClick={() => {
           if (disabled) return;
           if (isOpen) {
@@ -452,15 +456,19 @@ export function DatePicker({
           }
         }}
       >
-        <span className={`[color:var(--ink-primary)] [white-space:nowrap] [overflow:hidden] [text-overflow:ellipsis] [flex:1] [min-width:0] [margin-right:8px] [line-height:1] [letter-spacing:0.1px] [&.is-range]:[font-size:11.5px] [&.is-range]:[font-weight:600] [&.is-range]:[letter-spacing:-0.1px] [&.is-placeholder]:[color:var(--ink-muted)] ${!displayLabel ? "is-placeholder" : ""} ${isRange ? "is-range" : ""}`}>
+        <span
+          className={`whitespace-nowrap overflow-hidden text-ellipsis flex-1 min-w-0 mr-[8px] leading-none tracking-[0.1px] ${
+            !displayLabel ? "text-[var(--ink-muted)]" : "text-[var(--ink-primary)]"
+          } ${isRange ? "text-[11.5px] font-semibold tracking-[-0.1px]" : ""}`}
+        >
           {displayLabel || placeholder}
         </span>
 
-        <div className="[display:flex] [align-items:center] [gap:6px] [flex-shrink:0]">
+        <div className="flex items-center gap-[6px] shrink-0">
           {clearable && value && !disabled && (
             <button
               type="button"
-              className="[display:inline-flex]! [align-items:center]! [justify-content:center]! [width:20px]! [height:20px]! [border-radius:50%]! [background:rgba(255,_255,_255,_0.05)]! [border:1px_solid_rgba(255,_255,_255,_0.08)]! [color:var(--ink-muted)]! [cursor:pointer]! [transition:all_0.15s_ease]! [flex-shrink:0]! [&:hover]:[background:rgba(239,_68,_68,_0.18)]! [&:hover]:[border-color:rgba(239,_68,_68,_0.35)]! [&:hover]:[color:#f87171]! [&:hover]:[transform:scale(1.08)]!"
+              className="inline-flex items-center justify-center w-[20px] h-[20px] rounded-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] text-[var(--ink-muted)] cursor-pointer transition-all duration-150 shrink-0 hover:bg-[rgba(239,68,68,0.18)] hover:border-[rgba(239,68,68,0.35)] hover:text-[#f87171] hover:scale-[1.08]"
               onClick={(e) => {
                 e.stopPropagation();
                 setRangeStart(null);
@@ -473,7 +481,10 @@ export function DatePicker({
               <X size={13} />
             </button>
           )}
-          <span className="custom-datepicker-cal-icon [display:inline-flex] [align-items:center] [justify-content:center] [width:20px] [height:20px] [color:var(--accent-blue)] [transition:color_0.15s_ease,_transform_0.15s_ease] [flex-shrink:0]" aria-hidden="true">
+          <span
+            className="inline-flex items-center justify-center w-[20px] h-[20px] text-[var(--accent-blue)] transition-all duration-150 shrink-0 group-hover:text-[#7dd3fc] group-hover:scale-[1.08]"
+            aria-hidden="true"
+          >
             <CalendarIcon size={14} />
           </span>
         </div>
@@ -482,13 +493,15 @@ export function DatePicker({
       {/* Floating Dark-Theme Calendar Popup */}
       {isOpen && (
         <div
-          className={`[position:absolute] [top:calc(100%_+_6px)] [left:0] [z-index:9999] [width:295px] [max-width:calc(100vw_-_32px)] [background:#131b2e] [border:1px_solid_var(--line)] [border-radius:10px] [box-shadow:0_12px_30px_rgba(0,_0,_0,_0.6),_0_4px_12px_rgba(0,_0,_0,_0.4)] [padding:14px] [animation:datepicker-fade-in_0.15s_ease-out] ${align === "right" ? "[left:auto] [right:0]" : ""}`}
+          className={`absolute top-[calc(100%+6px)] left-0 z-[9999] w-[295px] max-w-[calc(100vw-32px)] bg-[#131b2e] border border-[var(--line)] rounded-[10px] shadow-[0_12px_30px_rgba(0,0,0,0.6),_0_4px_12px_rgba(0,0,0,0.4)] p-[14px] animate-[datepicker-fade-in_0.15s_ease-out] max-h-[calc(100dvh-32px)] overflow-y-auto overscroll-contain supports-[position-anchor:--test]:[position-anchor:--dd-tanggal] supports-[position-anchor:--test]:[top:anchor(bottom)] supports-[position-anchor:--test]:mt-1.5 supports-[position-anchor:--test]:[position-try-fallbacks:flip-block] ${
+            align === "right" ? "left-auto right-0" : ""
+          }`}
           role="dialog"
           aria-label="Pilih rentang tanggal"
         >
           {/* Quick Presets Bar */}
           <div
-            className="custom-datepicker-presets [display:grid] [grid-template-columns:repeat(6,_1fr)] [gap:5px] [margin-bottom:12px] [padding-bottom:10px] [border-bottom:1px_solid_var(--line)] [&>button:nth-child(n+4)]:[grid-column:span_3]! [&[data-count='6']>button:nth-child(n+4)]:[grid-column:span_2]!"
+            className="grid grid-cols-6 gap-[5px] mb-[12px] pb-[10px] border-b border-[var(--line)] [&>button:nth-child(n+4)]:col-span-3 [&[data-count='6']>button:nth-child(n+4)]:col-span-2"
             data-count={presets.length}
             role="toolbar"
             aria-label="Preset rentang tanggal"
@@ -499,7 +512,11 @@ export function DatePicker({
                 <button
                   key={preset.label}
                   type="button"
-                  className={`custom-datepicker-preset-btn [grid-column:span_2]! [background:rgba(255,_255,_255,_0.04)]! [border:1px_solid_rgba(255,_255,_255,_0.08)]! [border-radius:5px]! [color:#94a3b8]! [font-size:10.5px]! [font-weight:500]! [padding:5px_6px]! [text-align:center]! [cursor:pointer]! [transition:all_0.15s_ease]! [user-select:none]! [white-space:nowrap]! [&:hover:not(.is-active)]:[background:rgba(56,_189,_248,_0.15)]! [&:hover:not(.is-active)]:[border-color:rgba(56,_189,_248,_0.35)]! [&:hover:not(.is-active)]:[color:#ffffff]! [&.is-active]:[background:var(--accent-blue-soft)]! [&.is-active]:[border-color:var(--accent-blue)]! [&.is-active]:[color:var(--accent-blue)]! [&.is-active]:[font-weight:600]! ${isActive ? "is-active" : ""}`}
+                  className={`col-span-2 rounded-[5px] text-[10.5px] p-[5px_6px] text-center cursor-pointer transition-all duration-150 select-none whitespace-nowrap border ${
+                    isActive
+                      ? "bg-[var(--accent-blue-soft)] border-[var(--accent-blue)] text-[var(--accent-blue)] font-semibold"
+                      : "bg-[rgba(255,255,255,0.04)] border-[rgba(255,255,255,0.08)] text-[#94a3b8] font-medium hover:bg-[rgba(56,189,248,0.15)] hover:border-[rgba(56,189,248,0.35)] hover:text-white"
+                  }`}
                   onClick={() => handleApplyPreset(preset.value)}
                 >
                   {preset.label}
@@ -509,10 +526,10 @@ export function DatePicker({
           </div>
 
           {/* Header with Month/Year and navigation arrows */}
-          <div className="[display:flex] [align-items:center] [justify-content:space-between] [margin-bottom:12px]">
+          <div className="flex items-center justify-between mb-[12px]">
             <button
               type="button"
-              className="[display:inline-grid]! [place-items:center]! [width:28px]! [height:28px]! [border-radius:6px]! [background:transparent]! [border:1px_solid_var(--line)]! [color:var(--ink-secondary)]! [cursor:pointer]! [transition:all_0.15s_ease]! [&:hover]:[background:var(--panel-bg-hover)]! [&:hover]:[color:var(--accent-blue)]! [&:hover]:[border-color:var(--accent-blue-border)]!"
+              className="inline-grid place-items-center w-[28px] h-[28px] rounded-[6px] bg-transparent border border-[var(--line)] text-[var(--ink-secondary)] cursor-pointer transition-all duration-150 hover:bg-[var(--panel-bg-hover)] hover:text-[var(--accent-blue)] hover:border-[var(--accent-blue-border)]"
               onClick={handlePrevMonth}
               title="Bulan sebelumnya"
               aria-label="Bulan sebelumnya"
@@ -520,13 +537,13 @@ export function DatePicker({
               <ChevronLeft size={16} />
             </button>
 
-            <span className="[font-size:13px] [font-weight:700] [color:var(--ink-primary)] [letter-spacing:0.2px]">
+            <span className="text-[13px] font-bold text-[var(--ink-primary)] tracking-[0.2px]">
               {MONTH_NAMES[viewMonth]} {viewYear}
             </span>
 
             <button
               type="button"
-              className="[display:inline-grid]! [place-items:center]! [width:28px]! [height:28px]! [border-radius:6px]! [background:transparent]! [border:1px_solid_var(--line)]! [color:var(--ink-secondary)]! [cursor:pointer]! [transition:all_0.15s_ease]! [&:hover]:[background:var(--panel-bg-hover)]! [&:hover]:[color:var(--accent-blue)]! [&:hover]:[border-color:var(--accent-blue-border)]!"
+              className="inline-grid place-items-center w-[28px] h-[28px] rounded-[6px] bg-transparent border border-[var(--line)] text-[var(--ink-secondary)] cursor-pointer transition-all duration-150 hover:bg-[var(--panel-bg-hover)] hover:text-[var(--accent-blue)] hover:border-[var(--accent-blue-border)]"
               onClick={handleNextMonth}
               title="Bulan berikutnya"
               aria-label="Bulan berikutnya"
@@ -536,16 +553,16 @@ export function DatePicker({
           </div>
 
           {/* Day of Week Headers */}
-          <div className="[display:grid] [grid-template-columns:repeat(7,_1fr)] [gap:2px] [margin-bottom:6px] [text-align:center]">
+          <div className="grid grid-cols-7 gap-[2px] mb-[6px] text-center">
             {DAY_NAMES.map((dayName) => (
-              <span key={dayName} className="[font-size:10px] [font-weight:700] [font-family:var(--font-mono)] [color:var(--ink-muted)] [text-transform:uppercase] [padding:3px_0]">
+              <span key={dayName} className="text-[10px] font-bold font-mono text-[var(--ink-muted)] uppercase py-[3px]">
                 {dayName}
               </span>
             ))}
           </div>
 
           {/* Days Grid */}
-          <div className="[display:grid] [grid-template-columns:repeat(7,_1fr)] [gap:3px_0]">
+          <div className="grid grid-cols-7 gap-y-[3px]">
             {calendarDays.map(({ ymd, dayNum, isCurrentMonth }) => {
               const isDisabled = Boolean((min && ymd < min) || (max && ymd > max));
               const isToday = ymd === todayYMD;
@@ -602,14 +619,23 @@ export function DatePicker({
               const isSelected = isRangeStart || isRangeEnd;
 
               const classNames = [
-                "custom-datepicker-day [position:relative]! [display:inline-grid]! [place-items:center]! [height:32px]! [border-radius:6px]! [border:1px_solid_transparent]! [background:transparent]! [color:#cbd5e1]! [font-size:11.5px]! [font-weight:500]! [cursor:pointer]! [transition:background-color_0.12s_ease,_color_0.12s_ease,_border-color_0.12s_ease]! [user-select:none]! [&:hover:not(:disabled)]:[border-color:rgba(56,_189,_248,_0.4)]! [&:hover:not(:disabled):not(.is-selected):not(.is-in-range)]:[background:rgba(56,_189,_248,_0.2)]! [&:hover:not(:disabled):not(.is-selected):not(.is-in-range)]:[color:#ffffff]! [&:hover:not(:disabled)]:[z-index:2]! [&.is-today]:[border-color:var(--accent-blue-border)]! [&.is-today:not(.is-selected):not(.is-in-range):not(.is-other-month)]:[color:var(--accent-blue)]! [&.is-today:not(.is-selected):not(.is-in-range)]:[font-weight:700]! [&.is-selected]:[background:var(--accent-blue)]! [&.is-selected]:[color:#ffffff]! [&.is-selected]:[font-weight:700]! [&.is-selected]:[box-shadow:0_0_10px_rgba(56,_189,_248,_0.4)]! [&.is-selected:not(.is-range-start):not(.is-range-end)]:[z-index:2]! [&.is-range-start]:[border-top-right-radius:0]! [&.is-range-start]:[border-bottom-right-radius:0]! [&.is-range-start]:[z-index:3]! [&.is-range-end]:[border-top-left-radius:0]! [&.is-range-end]:[border-bottom-left-radius:0]! [&.is-range-end]:[z-index:3]! [&.is-range-start.is-range-end]:[border-radius:6px]! [&.is-in-range]:[background:rgba(56,_189,_248,_0.2)]! [&.is-in-range]:[color:#f1f5f9]! [&.is-in-range]:[font-weight:600]! [&.is-in-range]:[border-radius:0]! [&.is-range-preview]:[background:rgba(56,_189,_248,_0.12)] [&.is-range-preview]:[color:#f8fafc] [&.is-range-preview]:[border-radius:0] [&.is-range-preview.is-range-start]:[border-radius:6px_0_0_6px]! [&.is-range-preview.is-range-end]:[border-radius:0_6px_6px_0]! [&.is-other-month:not(.is-selected):not(.is-in-range)]:[color:#475569]! [&:disabled]:[opacity:0.25]! [&:disabled]:[cursor:not-allowed]!",
-                isSelected ? "is-selected" : "",
-                isRangeStart ? "is-range-start" : "",
-                isRangeEnd ? "is-range-end" : "",
-                isInRange ? "is-in-range" : "",
-                isRangePreview ? "is-range-preview" : "",
-                isToday ? "is-today" : "",
-                !isCurrentMonth ? "is-other-month" : "",
+                "relative inline-grid place-items-center h-[32px] rounded-[6px] border border-transparent bg-transparent text-[#cbd5e1] text-[11.5px] font-medium cursor-pointer transition-colors duration-150 select-none hover:not-disabled:border-[rgba(56,189,248,0.4)] hover:not-disabled:z-[2] disabled:opacity-25 disabled:cursor-not-allowed",
+                isSelected
+                  ? "bg-[var(--accent-blue)] text-white font-bold shadow-[0_0_10px_rgba(56,189,248,0.4)] z-[3]"
+                  : isInRange
+                  ? isRangePreview
+                    ? "bg-[rgba(56,189,248,0.12)] text-[#f8fafc] rounded-none"
+                    : "bg-[rgba(56,189,248,0.2)] text-[#f1f5f9] font-semibold rounded-none"
+                  : !isCurrentMonth
+                  ? "text-[#475569]"
+                  : "hover:not-disabled:bg-[rgba(56,189,248,0.2)] hover:not-disabled:text-white",
+                isRangeStart && !isRangeEnd ? "rounded-r-none z-[3]" : "",
+                isRangeEnd && !isRangeStart ? "rounded-l-none z-[3]" : "",
+                isRangeStart && isRangeEnd ? "rounded-[6px]" : "",
+                isRangePreview && isRangeStart ? "rounded-l-[6px]" : "",
+                isRangePreview && isRangeEnd ? "rounded-r-[6px]" : "",
+                isToday ? "border-[var(--accent-blue-border)]" : "",
+                isToday && !isSelected && !isInRange && isCurrentMonth ? "text-[var(--accent-blue)] font-bold" : "",
               ]
                 .filter(Boolean)
                 .join(" ");
@@ -630,16 +656,18 @@ export function DatePicker({
           </div>
 
           {/* Footer Actions: Selection Summary & Selesai confirmation */}
-          <div className="[display:flex] [align-items:center] [justify-content:space-between] [margin-top:10px] [padding-top:10px] [border-top:1px_solid_var(--line)]">
+          <div className="flex items-center justify-between mt-[10px] pt-[10px] border-t border-[var(--line)]">
             <span
-              className={`[font-size:11px] [font-weight:500] [max-width:200px] [white-space:nowrap] [overflow:hidden] [text-overflow:ellipsis] ${rangeStart ? "[color:var(--accent-blue)]" : "[color:var(--ink-secondary)]"}`}
+              className={`text-[11px] font-medium max-w-[200px] whitespace-nowrap overflow-hidden text-ellipsis ${
+                rangeStart ? "text-[var(--accent-blue)]" : "text-[var(--ink-secondary)]"
+              }`}
               title={footerLabel}
             >
               {footerLabel}
             </span>
             <button
               type="button"
-              className="[background:transparent]! [border:none]! [font-size:11px]! [font-weight:600]! [cursor:pointer]! [padding:4px_8px]! [border-radius:5px]! [transition:all_0.15s_ease]! [color:var(--accent-blue)]! [&:hover]:[background:var(--accent-blue-soft)]! [&:hover]:[color:#7dd3fc]!"
+              className="bg-transparent border-none text-[11px] font-semibold cursor-pointer p-[4px_8px] rounded-[5px] transition-all duration-150 text-[var(--accent-blue)] hover:bg-[var(--accent-blue-soft)] hover:text-[#7dd3fc]"
               onClick={handleClose}
             >
               Selesai

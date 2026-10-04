@@ -2,20 +2,7 @@
 @import "./styles/theme.css";
 @import "./styles/tailwind/base.css";
 @import "./styles/tailwind/layout.css";
-@import "./styles/tailwind/notifications.css";
-@import "./styles/tailwind/dashboard-core.css";
-@import "./styles/tailwind/tickets.css";
-@import "./styles/tailwind/dashboard-foundation.css";
-@import "./styles/tailwind/dashboard-panels.css";
-@import "./styles/tailwind/ticket-surfaces.css";
 @import "./styles/tailwind/overlays.css";
-@import "./styles/tailwind/monitoring.css";
-@import "./styles/tailwind/handover.css";
 @import "./styles/tailwind/utilities.css";
-@import "./styles/tailwind/team-roster.css";
-@import "./styles/tailwind/calendar.css";
-@import "./styles/tailwind/spacing.css";
-@import "./styles/tailwind/tickets-enhancements.css";
-@import "./styles/tailwind/monitoring-enhancements.css";
-@import "./styles/tailwind/profile.css";
 @import "./styles/tailwind/responsive.css";
+

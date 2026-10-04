@@ -127,15 +127,15 @@ export function TeamRosterView({ members, onMembersChange: setMembers }: {
   return (
     <>
       {/* 1. Page Header */}
-      <section className="page-heading">
+      <section className="page-heading flex justify-between items-end mb-[22px] max-[660px]:flex-col max-[660px]:items-start max-[660px]:gap-[12px] max-[640px]:mb-0">
         <div>
-          <div className="eyebrow">
+          <div className="flex items-center gap-[8px] text-[var(--ink-muted)] text-[10px] tracking-[1px] font-bold font-mono uppercase">
             <span className="live-dot live-dot-pulse" /> TEAM ROSTER
           </div>
-          <h1>Team Roster</h1>
+          <h1 className="m-[6px_0_4px] text-[var(--ink-primary)] text-[24px] leading-[1.2] tracking-[-0.4px] font-bold">Team Roster</h1>
         </div>
 
-        <div className="page-actions">
+        <div className="page-actions flex gap-[9px]">
           <button
             className="button button-secondary button-swap-badge"
             onClick={() => setSwapModalOpen(true)}
@@ -157,33 +157,38 @@ export function TeamRosterView({ members, onMembersChange: setMembers }: {
       />
 
       {/* 3. Main Roster Content (2 columns: Table/Calendar & Shift Coverage Widget) */}
-      <div className="roster-main-layout [margin-top:20px]!">
-        <div className="roster-primary-column">
-          <article className="panel roster-toolbar-panel">
+      <div className="block w-full mt-[20px]">
+        <div className="min-w-0 w-full flex flex-col gap-[20px]">
+          <article className="mb-0 overflow-hidden bg-[var(--panel-bg)] border border-[var(--panel-border)] rounded-[10px] shadow-[var(--shadow-panel)]">
             {/* Toolbar: Search, Filters & View Toggle */}
-            <div className="roster-toolbar-row">
-              <div className="roster-search-field">
-                <Search size={14} className="search-icon" />
+            <div className="flex items-center gap-[10px] p-[12px_16px] border-b border-[var(--line)] flex-wrap bg-[var(--panel-bg)]">
+              <div className="group relative flex items-center flex-[1_1_200px] min-w-[170px] max-w-[280px] h-[36px] px-[10px] border border-[var(--panel-border)] rounded-[8px] bg-[var(--input-bg,#0f172a)] transition-[border-color,box-shadow] duration-150 ease gap-[8px] box-border focus-within:border-[var(--accent-blue)] focus-within:shadow-[0_0_0_3px_rgba(56,189,248,0.12)]">
+                <Search size={14} className="text-[var(--ink-muted)] shrink-0 transition-colors duration-150 ease group-focus-within:text-[var(--accent-blue)]" />
                 <input
                   type="text"
                   placeholder="Cari nama, role, employee ID..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   aria-label="Cari anggota tim"
+                  className="flex-1 min-w-0 h-full border-none outline-none bg-transparent text-[var(--ink-primary)] text-[12px] font-sans placeholder:text-[var(--ink-muted)]"
                 />
                 {search && (
-                  <button className="search-clear" onClick={() => setSearch("")} aria-label="Hapus pencarian">
+                  <button className="flex items-center justify-center p-0 border-none bg-transparent text-[var(--ink-muted)] hover:text-[var(--ink-primary)] cursor-pointer" onClick={() => setSearch("")} aria-label="Hapus pencarian">
                     <X size={12} />
                   </button>
                 )}
               </div>
 
-              <div className="roster-filters-group">
+              <div className="flex items-center gap-[8px] flex-wrap">
                 {/* Role Filter */}
-                <div className="roster-filter-wrapper">
-                  <Users size={13} className="roster-filter-icon" />
+                <div className="group relative inline-flex items-center">
+                  <Users size={13} className="absolute left-[10px] text-[var(--ink-muted,#94a3b8)] pointer-events-none flex items-center justify-center transition-colors duration-150 ease z-[1] group-hover:text-[var(--accent-blue,#38bdf8)] group-focus-within:text-[var(--accent-blue,#38bdf8)]" />
                   <select
-                    className={`roster-filter-select ${roleFilter !== "All" ? "filter-active" : ""}`}
+                    className={`h-[36px] box-border pl-[30px] pr-[28px] py-0 text-[var(--ink-primary)] border border-[var(--panel-border)] rounded-[8px] bg-[var(--input-bg,#0f172a)] text-[12px] font-medium font-sans cursor-pointer inline-flex items-center appearance-none -webkit-appearance-none transition-[border-color,box-shadow,background-color,color] duration-150 ease shrink-0 [color-scheme:dark] hover:border-[rgba(148,163,184,0.35)] focus:border-[var(--accent-blue)] focus:shadow-[0_0_0_3px_rgba(56,189,248,0.12)] focus:outline-none ${
+                      roleFilter !== "All"
+                        ? "border-[rgba(56,189,248,0.4)] bg-[rgba(56,189,248,0.08)] text-[var(--accent-blue,#38bdf8)] font-semibold"
+                        : ""
+                    }`}
                     value={roleFilter}
                     onChange={(e) => setRoleFilter(e.target.value)}
                     aria-label="Filter role"
@@ -195,14 +200,18 @@ export function TeamRosterView({ members, onMembersChange: setMembers }: {
                     <option value="L2 Specialist">L2 Specialist</option>
                     <option value="Infrastructure Engineer">Infrastructure Engineer</option>
                   </select>
-                  <ChevronDown size={13} className="roster-filter-chevron" aria-hidden="true" />
+                  <ChevronDown size={13} className="absolute right-[10px] text-[var(--ink-muted,#94a3b8)] pointer-events-none flex items-center justify-center transition-colors duration-150 ease z-[1] group-hover:text-[var(--accent-blue,#38bdf8)] group-focus-within:text-[var(--accent-blue,#38bdf8)]" aria-hidden="true" />
                 </div>
 
                 {/* Shift Filter */}
-                <div className="roster-filter-wrapper">
-                  <Clock size={13} className="roster-filter-icon" />
+                <div className="group relative inline-flex items-center">
+                  <Clock size={13} className="absolute left-[10px] text-[var(--ink-muted,#94a3b8)] pointer-events-none flex items-center justify-center transition-colors duration-150 ease z-[1] group-hover:text-[var(--accent-blue,#38bdf8)] group-focus-within:text-[var(--accent-blue,#38bdf8)]" />
                   <select
-                    className={`roster-filter-select ${shiftFilter !== "All" ? "filter-active" : ""}`}
+                    className={`h-[36px] box-border pl-[30px] pr-[28px] py-0 text-[var(--ink-primary)] border border-[var(--panel-border)] rounded-[8px] bg-[var(--input-bg,#0f172a)] text-[12px] font-medium font-sans cursor-pointer inline-flex items-center appearance-none -webkit-appearance-none transition-[border-color,box-shadow,background-color,color] duration-150 ease shrink-0 [color-scheme:dark] hover:border-[rgba(148,163,184,0.35)] focus:border-[var(--accent-blue)] focus:shadow-[0_0_0_3px_rgba(56,189,248,0.12)] focus:outline-none ${
+                      shiftFilter !== "All"
+                        ? "border-[rgba(56,189,248,0.4)] bg-[rgba(56,189,248,0.08)] text-[var(--accent-blue,#38bdf8)] font-semibold"
+                        : ""
+                    }`}
                     value={shiftFilter}
                     onChange={(e) => setShiftFilter(e.target.value)}
                     aria-label="Filter shift"
@@ -212,14 +221,18 @@ export function TeamRosterView({ members, onMembersChange: setMembers }: {
                     <option value="Pagi">Shift Pagi</option>
                     <option value="Malam">Shift Malam</option>
                   </select>
-                  <ChevronDown size={13} className="roster-filter-chevron" aria-hidden="true" />
+                  <ChevronDown size={13} className="absolute right-[10px] text-[var(--ink-muted,#94a3b8)] pointer-events-none flex items-center justify-center transition-colors duration-150 ease z-[1] group-hover:text-[var(--accent-blue,#38bdf8)] group-focus-within:text-[var(--accent-blue,#38bdf8)]" aria-hidden="true" />
                 </div>
 
                 {/* Status Filter */}
-                <div className="roster-filter-wrapper">
-                  <Activity size={13} className="roster-filter-icon" />
+                <div className="group relative inline-flex items-center">
+                  <Activity size={13} className="absolute left-[10px] text-[var(--ink-muted,#94a3b8)] pointer-events-none flex items-center justify-center transition-colors duration-150 ease z-[1] group-hover:text-[var(--accent-blue,#38bdf8)] group-focus-within:text-[var(--accent-blue,#38bdf8)]" />
                   <select
-                    className={`roster-filter-select ${statusFilter !== "All" ? "filter-active" : ""}`}
+                    className={`h-[36px] box-border pl-[30px] pr-[28px] py-0 text-[var(--ink-primary)] border border-[var(--panel-border)] rounded-[8px] bg-[var(--input-bg,#0f172a)] text-[12px] font-medium font-sans cursor-pointer inline-flex items-center appearance-none -webkit-appearance-none transition-[border-color,box-shadow,background-color,color] duration-150 ease shrink-0 [color-scheme:dark] hover:border-[rgba(148,163,184,0.35)] focus:border-[var(--accent-blue)] focus:shadow-[0_0_0_3px_rgba(56,189,248,0.12)] focus:outline-none ${
+                      statusFilter !== "All"
+                        ? "border-[rgba(56,189,248,0.4)] bg-[rgba(56,189,248,0.08)] text-[var(--accent-blue,#38bdf8)] font-semibold"
+                        : ""
+                    }`}
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
                     aria-label="Filter status"
@@ -230,20 +243,28 @@ export function TeamRosterView({ members, onMembersChange: setMembers }: {
                     <option value="Off Duty">Off Duty</option>
                     <option value="On Leave">On Leave</option>
                   </select>
-                  <ChevronDown size={13} className="roster-filter-chevron" aria-hidden="true" />
+                  <ChevronDown size={13} className="absolute right-[10px] text-[var(--ink-muted,#94a3b8)] pointer-events-none flex items-center justify-center transition-colors duration-150 ease z-[1] group-hover:text-[var(--accent-blue,#38bdf8)] group-focus-within:text-[var(--accent-blue,#38bdf8)]" aria-hidden="true" />
                 </div>
               </div>
 
               {/* View Mode Switcher */}
-              <div className="filter-tabs roster-view-tabs" aria-label="Pilihan tampilan roster">
+              <div className="ml-auto inline-flex items-center gap-[2px] h-[36px] box-border p-[3px] bg-[var(--surface,#0f172a)] border border-[var(--panel-border)] rounded-[8px] shrink-0" aria-label="Pilihan tampilan roster">
                 <button
-                  className={viewMode === "table" ? "selected" : ""}
+                  className={`inline-flex items-center justify-center h-[28px] px-[12px] text-[11.5px] font-semibold rounded-[6px] gap-[6px] border border-transparent cursor-pointer transition-[color,background-color] duration-150 ease ${
+                    viewMode === "table"
+                      ? "bg-[var(--accent-blue,#2563eb)] text-white shadow-[0_1px_3px_rgba(0,0,0,0.25)]"
+                      : "bg-transparent text-[var(--ink-muted)] hover:text-[var(--ink-primary)] hover:bg-[rgba(148,163,184,0.08)]"
+                  }`}
                   onClick={() => startTransition(() => setViewMode("table"))}
                 >
                   <Table size={13} /> Table
                 </button>
                 <button
-                  className={viewMode === "calendar" ? "selected" : ""}
+                  className={`inline-flex items-center justify-center h-[28px] px-[12px] text-[11.5px] font-semibold rounded-[6px] gap-[6px] border border-transparent cursor-pointer transition-[color,background-color] duration-150 ease ${
+                    viewMode === "calendar"
+                      ? "bg-[var(--accent-blue,#2563eb)] text-white shadow-[0_1px_3px_rgba(0,0,0,0.25)]"
+                      : "bg-transparent text-[var(--ink-muted)] hover:text-[var(--ink-primary)] hover:bg-[rgba(148,163,184,0.08)]"
+                  }`}
                   onClick={() => startTransition(() => setViewMode("calendar"))}
                 >
                   <Calendar size={13} /> Weekly Calendar

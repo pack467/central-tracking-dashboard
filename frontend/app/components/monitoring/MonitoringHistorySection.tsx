@@ -1,10 +1,11 @@
 "use client";
 
 import { useMemo, useState, useCallback, useEffect } from "react";
-import { Search, Download, User, X } from "lucide-react";
+import { Search, Download, User, X, Check } from "lucide-react";
 import { DatePicker } from "@/app/components/ui/DatePicker";
 import { ProjectMark } from "@/app/components/ui/ProjectMark";
 import { EmptyState } from "@/app/components/ui/EmptyState";
+import { PaginationBar } from "@/app/components/ui/PaginationBar";
 import { useToast } from "@/app/components/ui/Toast";
 import { getOwnerRole } from "@/app/lib/data";
 import type { CheckpointAssessment, HistoricalAssessmentEntry, MonitoringEntry } from "@/app/lib/types";
@@ -51,7 +52,7 @@ function formatDateHeader(dateStr: string) {
 }
 
 export function MonitoringHistorySection({ todayEntries, todayAssessments }: MonitoringHistorySectionProps) {
-  const { activeClient, activeClientId } = useClient();
+  const { activeClientId } = useClient();
   const seedHistorical = useMemo(() => getClientHistoricalAssessments(activeClientId), [activeClientId]);
   const notify = useToast();
   const [searchQuery, setSearchQuery] = useState("");
@@ -254,9 +255,9 @@ export function MonitoringHistorySection({ todayEntries, todayAssessments }: Mon
   }, [filteredHistory, notify]);
 
   return (
-    <article className="panel view-panel [margin-top:24px]">
+    <article className="[background:var(--panel-bg)] [border:1px_solid_var(--panel-border)] rounded-[10px] [box-shadow:var(--shadow-panel)] [scroll-margin-top:var(--sticky-content-offset)] [margin-top:24px] mb-5 min-[1920px]:-mb-9">
       {/* 1. Header & Title */}
-      <div className="[display:flex] [align-items:center] [justify-content:space-between] [gap:14px] [flex-wrap:wrap] [padding:var(--space-4)_var(--space-5)] [border-bottom:1px_solid_var(--line)]">
+      <div className="rounded-t-[10px] [display:flex] [align-items:center] [justify-content:space-between] [gap:14px] [flex-wrap:wrap] [padding:var(--space-4)_var(--space-5)] [border-bottom:1px_solid_var(--line)]">
         <div>
           <div className="panel-title">Riwayat Asesmen Checkpoint</div>
         </div>
@@ -274,21 +275,22 @@ export function MonitoringHistorySection({ todayEntries, todayAssessments }: Mon
       </div>
 
       {/* 2. Filter & Search Toolbar */}
-      <div className="[display:flex] [align-items:center] [justify-content:space-between] [gap:12px] [flex-wrap:wrap] [padding:12px_18px] [background:var(--bg)] [border-bottom:1px_solid_var(--line)]">
-        {/* Search input */}
-        <div className="history-search-wrap">
-          <Search size={14} className="history-search-icon" />
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-3 p-[16px_20px] bg-[#0f172a] border-b border-[#334155]">
+        {/* Search input (order-1 w-full xl:w-[380px], rata kiri di desktop) */}
+        <div className="relative flex items-center order-1 w-full xl:w-[380px]">
+          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#64748b] pointer-events-none shrink-0" />
           <input
             type="text"
-            className="history-search-input"
+            className="w-full h-[38px] pl-9 pr-8 bg-[#0f172a] border border-[#334155] rounded-[7px] text-[13px] text-[#f1f5f9] placeholder-[#64748b] transition-all focus-visible:border-[#38bdf8]/60 focus-visible:ring-2 focus-visible:ring-[#38bdf8]/25 focus-visible:outline-none"
             placeholder="Cari checkpoint, sistem, pemeriksa, atau catatan..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            aria-label="Cari riwayat checkpoint"
           />
           {searchQuery && (
             <button
               type="button"
-              className="history-search-clear"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 inline-flex items-center justify-center w-5 h-5 text-[#94a3b8] hover:text-[#f8fafc] rounded-full hover:bg-slate-800 transition-colors cursor-pointer"
               onClick={() => setSearchQuery("")}
               aria-label="Bersihkan pencarian"
             >
@@ -297,41 +299,56 @@ export function MonitoringHistorySection({ todayEntries, todayAssessments }: Mon
           )}
         </div>
 
-        {/* Filter Controls */}
-        <div className="[display:flex] [align-items:center] [gap:10px] [flex-wrap:wrap]">
-          {/* Verdict Filter Pills */}
-          <div className="[display:flex] [gap:4px] [background:var(--panel-bg)] [padding:3px] [border-radius:7px] [border:1px_solid_var(--line)]" role="group" aria-label="Filter status verdict">
+        {/* Filter Group: Segmented Filter + DatePicker (order-2 xl:ml-auto, rata kanan di desktop) */}
+        <div className="flex flex-wrap items-center gap-3 order-2 xl:ml-auto max-md:w-full">
+          {/* Segmented Filter (Semua / OK / NOK) */}
+          <div
+            className="inline-flex items-center gap-[3px] p-[3px] rounded-[7px] bg-[#0f172a] border border-[#334155] h-[38px] box-border select-none shrink-0 max-md:w-full max-md:justify-between"
+            role="group"
+            aria-label="Filter status verdict"
+          >
             <button
               type="button"
-              className={`[padding:4px_9px] [border-radius:5px] [font-size:11px]! [font-weight:600] [color:var(--ink-muted)] [transition:all_0.15s_ease] ${
-                verdictFilter === "all" ? "[background:var(--accent-blue-soft)]! [color:var(--accent-blue)]" : ""
+              className={`inline-flex items-center justify-center gap-1.5 h-full px-3 rounded-[5px] text-[12px] font-semibold transition-all cursor-pointer whitespace-nowrap leading-none max-md:flex-1 ${
+                verdictFilter === "all"
+                  ? "bg-[#1e293b] text-[#38bdf8] font-bold border border-[#334155]/80 shadow-[0_1px_2px_rgba(0,0,0,0.2)]"
+                  : "border border-transparent bg-transparent text-[#94a3b8] hover:text-[#f8fafc] hover:bg-white/[0.04]"
               }`}
               onClick={() => setVerdictFilter("all")}
             >
-              Semua ({totalFilteredCount})
+              <span>Semua</span>
+              <span className="font-normal opacity-85">({totalFilteredCount})</span>
             </button>
             <button
               type="button"
-              className={`[padding:4px_9px] [border-radius:5px] [font-size:11px]! [font-weight:600] [color:var(--ink-muted)] [transition:all_0.15s_ease] ${
-                verdictFilter === "ok" ? "[background:var(--green-soft)]! [color:var(--green)]" : ""
+              className={`inline-flex items-center justify-center gap-1.5 h-full px-3 rounded-[5px] text-[12px] font-semibold transition-all cursor-pointer whitespace-nowrap leading-none max-md:flex-1 ${
+                verdictFilter === "ok"
+                  ? "bg-[#1e293b] text-[#4ade80] font-bold border border-[#334155]/80 shadow-[0_1px_2px_rgba(0,0,0,0.2)]"
+                : "border border-transparent bg-transparent text-[#94a3b8] hover:text-[#f8fafc] hover:bg-white/[0.04]"
               }`}
               onClick={() => setVerdictFilter("ok")}
             >
-              ✓ OK ({okFilteredCount})
+              <Check size={13} strokeWidth={2.5} className="shrink-0 text-[#4ade80]" />
+              <span>OK</span>
+              <span className="font-normal opacity-85">({okFilteredCount})</span>
             </button>
             <button
               type="button"
-              className={`[padding:4px_9px] [border-radius:5px] [font-size:11px]! [font-weight:600] [color:var(--ink-muted)] [transition:all_0.15s_ease] ${
-                verdictFilter === "nok" ? "[background:var(--red-soft)]! [color:var(--red)]" : ""
+              className={`inline-flex items-center justify-center gap-1.5 h-full px-3 rounded-[5px] text-[12px] font-semibold transition-all cursor-pointer whitespace-nowrap leading-none max-md:flex-1 ${
+                verdictFilter === "nok"
+                  ? "bg-[#1e293b] text-[#f87171] font-bold border border-[#334155]/80 shadow-[0_1px_2px_rgba(0,0,0,0.2)]"
+                  : "border border-transparent bg-transparent text-[#94a3b8] hover:text-[#f8fafc] hover:bg-white/[0.04]"
               }`}
               onClick={() => setVerdictFilter("nok")}
             >
-              ✗ NOK ({nokFilteredCount})
+              <X size={13} strokeWidth={2.5} className="shrink-0 text-[#f87171]" />
+              <span>NOK</span>
+              <span className="font-normal opacity-85">({nokFilteredCount})</span>
             </button>
           </div>
 
           {/* Date Filter Picker */}
-          <div className="history-date-picker-wrap">
+          <div className="w-[160px] max-md:w-full shrink-0">
             <DatePicker
               value={dateFilter}
               onChange={setDateFilter}
@@ -346,7 +363,7 @@ export function MonitoringHistorySection({ todayEntries, todayAssessments }: Mon
 
       {/* 3. Grouped History List */}
       {totalCount > 0 ? (
-        <div className="[display:flex] [flex-direction:column]">
+        <div className="rounded-b-[10px] overflow-hidden [display:flex] [flex-direction:column]">
           {groupedPageEntries.map((group) => {
             const stats = dateStatsMap.get(group.date);
             return (
@@ -425,78 +442,26 @@ export function MonitoringHistorySection({ todayEntries, todayAssessments }: Mon
           })}
 
           {/* 4. Pagination Controls Bar */}
-          <div className="roster-pagination-bar ticket-pagination-bar">
-            <div className="roster-pagination-left">
-              <div className="roster-rows-per-page">
-                <span className="roster-pagination-label">Rows per page:</span>
-                <select
-                  className="roster-filter-select roster-page-size-select"
-                  value={pageSize}
-                  onChange={(e) => {
-                    setPageSize(Number(e.target.value));
-                    setCurrentPage(1);
-                  }}
-                  aria-label="Jumlah entri riwayat per halaman"
-                >
-                  <option value="10">10</option>
-                  <option value="30">30</option>
-                  <option value="50">50</option>
-                  <option value="100">100</option>
-                </select>
-              </div>
-
-              <span className="roster-pagination-info">
-                Menampilkan <strong>{totalCount === 0 ? 0 : startIdx + 1}–{endIdx}</strong> dari{" "}
-                <strong>{totalCount}</strong> entri
-              </span>
-            </div>
-
-            <div className="roster-pagination-actions">
-              <button
-                type="button"
-                className="roster-page-btn roster-page-nav"
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                disabled={safeCurrentPage <= 1}
-                aria-label="Halaman sebelumnya"
-              >
-                Prev
-              </button>
-
-              <div className="roster-page-numbers">
-                {pageNumbers.map((p, idx) =>
-                  p === "..." ? (
-                    <span key={`ellipsis-${idx}`} className="roster-page-ellipsis">
-                      …
-                    </span>
-                  ) : (
-                    <button
-                      key={p}
-                      type="button"
-                      className={`roster-page-btn roster-page-num ${p === safeCurrentPage ? "active" : ""}`}
-                      onClick={() => setCurrentPage(Number(p))}
-                      aria-label={`Halaman ${p}`}
-                      aria-current={p === safeCurrentPage ? "page" : undefined}
-                    >
-                      {p}
-                    </button>
-                  ),
-                )}
-              </div>
-
-              <button
-                type="button"
-                className="roster-page-btn roster-page-nav"
-                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                disabled={safeCurrentPage >= totalPages || totalPages <= 1}
-                aria-label="Halaman berikutnya"
-              >
-                Next
-              </button>
-            </div>
-          </div>
+          <PaginationBar
+            pageSize={pageSize}
+            onPageSizeChange={(newSize) => {
+              setPageSize(newSize);
+              setCurrentPage(1);
+            }}
+            currentPage={safeCurrentPage}
+            onPageChange={setCurrentPage}
+            totalCount={totalCount}
+            startIdx={startIdx}
+            endIdx={endIdx}
+            totalPages={totalPages}
+            pageNumbers={pageNumbers}
+            pageSizeOptions={[10, 30, 50, 100]}
+            itemLabel="entri"
+            selectAriaLabel="Jumlah entri riwayat per halaman"
+          />
         </div>
       ) : (
-        <div style={{ padding: "32px 16px" }}>
+        <div className="rounded-b-[10px] overflow-hidden" style={{ padding: "32px 16px" }}>
           <EmptyState
             icon="◷"
             title="Tidak ada riwayat asesmen yang cocok"

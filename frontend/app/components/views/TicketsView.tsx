@@ -292,12 +292,12 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
     if (totalFilteredCount === 0) return null;
 
     return (
-      <div className="roster-pagination-bar ticket-pagination-bar">
-        <div className="roster-pagination-left">
-          <div className="roster-rows-per-page">
-            <span className="roster-pagination-label">Rows per page:</span>
+      <div className="flex items-center justify-between flex-wrap gap-4 px-[18px] py-3 border-t border-[#334155] rounded-b-[8px] bg-[#1e293b] max-[640px]:flex-col max-[640px]:items-start max-[640px]:gap-3">
+        <div className="flex items-center flex-wrap gap-4 max-[640px]:flex-col max-[640px]:items-start max-[640px]:gap-2">
+          <div className="flex items-center gap-2">
+            <span className="text-[11.5px] text-[#94a3b8] font-medium whitespace-nowrap">Rows per page:</span>
             <select
-              className="roster-filter-select roster-page-size-select"
+              className="h-[30px] pl-[9px] pr-[24px] text-[11.5px] font-medium border border-[#334155] rounded-[6px] bg-[#0f172a] text-[#f8fafc] cursor-pointer outline-hidden [color-scheme:dark] transition-all duration-150 hover:border-[#94a3b8]/35 focus:border-[#38bdf8] focus:shadow-[0_0_0_3px_rgba(56,189,248,0.12)]"
               value={pageSize}
               onChange={(e) => {
                 setPageSize(Number(e.target.value));
@@ -305,23 +305,27 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
               }}
               aria-label="Jumlah tiket per halaman"
             >
-              <option value="10">10</option>
-              <option value="30">30</option>
-              <option value="50">50</option>
-              <option value="100">100</option>
+              <option value="10" className="bg-[#0f172a] text-[#f8fafc]">10</option>
+              <option value="30" className="bg-[#0f172a] text-[#f8fafc]">30</option>
+              <option value="50" className="bg-[#0f172a] text-[#f8fafc]">50</option>
+              <option value="100" className="bg-[#0f172a] text-[#f8fafc]">100</option>
             </select>
           </div>
 
-          <span className="roster-pagination-info">
-            Menampilkan <strong>{totalFilteredCount === 0 ? 0 : startIdx + 1}–{endIdx}</strong> dari{" "}
-            <strong>{totalFilteredCount}</strong> tiket
+          <span className="text-[11.5px] text-[#94a3b8] font-sans whitespace-nowrap">
+            Menampilkan <strong className="text-[#f8fafc] font-mono font-semibold">{totalFilteredCount === 0 ? 0 : startIdx + 1}–{endIdx}</strong> dari{" "}
+            <strong className="text-[#f8fafc] font-mono font-semibold">{totalFilteredCount}</strong> tiket
           </span>
         </div>
 
-        <div className="roster-pagination-actions">
+        <div className="flex items-center gap-[5px]">
           <button
             type="button"
-            className="roster-page-btn roster-page-nav"
+            className={`inline-flex items-center justify-center px-2.5 py-1 rounded-[6px] text-[11px] font-semibold font-mono border select-none transition-all duration-150 ${
+              safeCurrentPage <= 1
+                ? "border-[rgba(148,163,184,0.08)] bg-[rgba(148,163,184,0.03)] text-[#94a3b8] opacity-35 cursor-not-allowed"
+                : "border-[rgba(148,163,184,0.15)] bg-[rgba(148,163,184,0.06)] text-[#cbd5e1] hover:bg-[rgba(56,189,248,0.12)] hover:border-[rgba(56,189,248,0.35)] hover:text-[#38bdf8] cursor-pointer"
+            }`}
             onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
             disabled={safeCurrentPage <= 1}
             aria-label="Halaman sebelumnya"
@@ -329,17 +333,21 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
             Prev
           </button>
 
-          <div className="roster-page-numbers">
+          <div className="flex items-center gap-[3px]">
             {pageNumbers.map((p, idx) =>
               p === "..." ? (
-                <span key={`ellipsis-${idx}`} className="roster-page-ellipsis">
+                <span key={`ellipsis-${idx}`} className="px-1 text-[#94a3b8] text-[12px]">
                   …
                 </span>
               ) : (
                 <button
                   key={p}
                   type="button"
-                  className={`roster-page-btn roster-page-num ${p === safeCurrentPage ? "active" : ""}`}
+                  className={`inline-flex items-center justify-center min-w-[26px] h-[26px] p-0 rounded-[6px] text-[11px] font-mono border select-none transition-all duration-150 ${
+                    p === safeCurrentPage
+                      ? "border-[rgba(56,189,248,0.5)] bg-[rgba(56,189,248,0.18)] text-[#38bdf8] font-bold cursor-pointer"
+                      : "border-[rgba(148,163,184,0.15)] bg-[rgba(148,163,184,0.06)] text-[#cbd5e1] font-semibold hover:bg-[rgba(56,189,248,0.12)] hover:border-[rgba(56,189,248,0.35)] hover:text-[#38bdf8] cursor-pointer"
+                  }`}
                   onClick={() => setCurrentPage(Number(p))}
                   aria-label={`Halaman ${p}`}
                   aria-current={p === safeCurrentPage ? "page" : undefined}
@@ -352,7 +360,11 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
 
           <button
             type="button"
-            className="roster-page-btn roster-page-nav"
+            className={`inline-flex items-center justify-center px-2.5 py-1 rounded-[6px] text-[11px] font-semibold font-mono border select-none transition-all duration-150 ${
+              safeCurrentPage >= totalPages || totalPages <= 1
+                ? "border-[rgba(148,163,184,0.08)] bg-[rgba(148,163,184,0.03)] text-[#94a3b8] opacity-35 cursor-not-allowed"
+                : "border-[rgba(148,163,184,0.15)] bg-[rgba(148,163,184,0.06)] text-[#cbd5e1] hover:bg-[rgba(56,189,248,0.12)] hover:border-[rgba(56,189,248,0.35)] hover:text-[#38bdf8] cursor-pointer"
+            }`}
             onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
             disabled={safeCurrentPage >= totalPages || totalPages <= 1}
             aria-label="Halaman berikutnya"
@@ -365,24 +377,28 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
   };
 
   return (
-    <div className="tickets-page-container">
+    <div className="w-full">
       {/* ── Page Header ── */}
-      <section className="page-heading">
+      <section className="flex justify-between items-end mb-[22px] max-[768px]:flex-col max-[768px]:items-start max-[768px]:gap-3">
         <div>
-          <div className="eyebrow">
-            <span className="live-dot live-dot-pulse" /> TICKETS · {activeClient.code}
+          <div className="flex items-center gap-2 text-[10px] font-mono font-bold tracking-[1px] text-[#94a3b8] uppercase">
+            <span className="w-[7px] h-[7px] rounded-full bg-[#4ade80] animate-pulse shrink-0" /> TICKETS · {activeClient.code}
           </div>
-          <h1>Tickets</h1>
+          <h1 className="text-[24px] font-bold text-[#f8fafc] leading-[1.2] tracking-[-0.4px] mt-[6px] mb-[4px]">Tickets</h1>
         </div>
-        <div className="page-actions">
-          <button className="button button-primary" onClick={onNewTicket}>
+        <div className="flex gap-[9px]">
+          <button
+            type="button"
+            className="inline-flex items-center justify-center gap-[7px] h-[36px] px-[15px] rounded-[7px] text-[12px] font-semibold text-white bg-[#38bdf8] shadow-[0_1px_2px_0_rgba(0,0,0,0.2)] cursor-pointer hover:opacity-90 active:scale-[0.98] transition-all"
+            onClick={onNewTicket}
+          >
             <span>＋</span> New Ticket
           </button>
         </div>
       </section>
 
       {/* ── 1. Top Summary Stat Cards ── */}
-      <section className="roster-metrics-grid" aria-label="Ringkasan statistik tiket">
+      <section className="grid grid-cols-4 max-[1140px]:grid-cols-2 max-[640px]:grid-cols-2 gap-[14px] mb-[20px]" aria-label="Ringkasan statistik tiket">
         {/* Total Ticket */}
         <StatCard
           label="TOTAL TICKETS"
@@ -433,50 +449,68 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
       </section>
 
       {/* ── 2. Sub-Navigation Switcher (Daftar Tiket / Escalations / Ticket Report) ── */}
-      <div className="ticket-view-switcher" role="tablist" aria-label="Navigasi view tiket">
+      <div className="flex gap-2 mb-4 border-b border-[#334155] pb-2.5" role="tablist" aria-label="Navigasi view tiket">
         <button
           type="button"
           role="tab"
           aria-selected={activeTab === "queue"}
-          className={`view-switcher-tab ${activeTab === "queue" ? "active" : ""}`}
+          className={`inline-flex items-center gap-2 px-4 py-2 rounded-[8px] border text-[12.5px] cursor-pointer select-none transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38bdf8] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0f172a] ${
+            activeTab === "queue"
+              ? "border-[#334155] bg-[#1e293b] text-[#38bdf8] font-bold shadow-[0_1px_2px_0_rgba(0,0,0,0.2)]"
+              : "border-transparent bg-transparent text-[#cbd5e1] hover:bg-[#243044] hover:text-[#f8fafc] font-semibold"
+          }`}
           onClick={() => handleTabChange("queue")}
         >
           <Layers size={14} />
           <span>Daftar Tiket</span>
-          <span className="tab-badge">{tickets.length}</span>
+          <span className="inline-flex items-center px-1.5 py-[1px] rounded-full text-[10px] font-mono font-bold bg-[rgba(148,163,184,0.15)] text-[#94a3b8]">
+            {tickets.length}
+          </span>
         </button>
 
         <button
           type="button"
           role="tab"
           aria-selected={activeTab === "escalations"}
-          className={`view-switcher-tab ${activeTab === "escalations" ? "active" : ""}`}
+          className={`inline-flex items-center gap-2 px-4 py-2 rounded-[8px] border text-[12.5px] cursor-pointer select-none transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38bdf8] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0f172a] ${
+            activeTab === "escalations"
+              ? "border-[#334155] bg-[#1e293b] text-[#38bdf8] font-bold shadow-[0_1px_2px_0_rgba(0,0,0,0.2)]"
+              : "border-transparent bg-transparent text-[#cbd5e1] hover:bg-[#243044] hover:text-[#f8fafc] font-semibold"
+          }`}
           onClick={() => handleTabChange("escalations")}
         >
           <ShieldAlert size={14} />
           <span>Escalations</span>
-          <span className={`tab-badge ${escalatedCount > 0 ? "tab-badge-rose" : "tab-badge-muted"}`}>
+          <span
+            className={`inline-flex items-center px-1.5 py-[1px] rounded-full text-[10px] font-mono font-bold ${
+              escalatedCount > 0
+                ? "bg-[rgba(248,113,113,0.15)] text-[#f87171] border border-[rgba(248,113,113,0.3)]"
+                : "bg-[rgba(148,163,184,0.08)] text-[#94a3b8] opacity-75"
+            }`}
+          >
             {escalatedCount}
           </span>
         </button>
       </div>
 
       {/* ── 3. Main Content Panel ── */}
-      <article className="panel view-panel ticket-main-panel">
+      <article className="bg-[#1e293b] border border-[#334155] rounded-[10px] shadow-[0_4px_12px_0_rgba(0,0,0,0.25)] overflow-hidden mb-5">
         {/* Multi-Dimensional Filter Toolbar */}
-        <div className="ticket-toolbar-grid">
+        <div className="flex flex-wrap gap-2 items-center px-5 py-3.5 border-b border-[#334155] max-[900px]:flex-col max-[900px]:items-stretch">
           {/* Search Field */}
-          <div className="ticket-search-field">
-            <Search size={14} className="search-icon" />
+          <div className="relative flex items-center flex-[1_1_200px] min-w-[160px] h-[34px] px-2.5 border border-[#334155] rounded-[8px] bg-[#0f172a] gap-2 transition-[border-color,box-shadow] duration-150 focus-within:border-[#38bdf8] focus-within:shadow-[0_0_0_3px_rgba(56,189,248,0.12)] max-[900px]:w-full max-[900px]:flex-none group/search">
+            <Search size={14} className="text-[#94a3b8] group-focus-within/search:text-[#38bdf8] shrink-0 transition-colors duration-150" />
             <input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
               placeholder="Cari ID, subjek, proyek, atau PIC…"
               aria-label="Cari tiket"
+              className="flex-1 min-w-0 h-full border-0 outline-hidden bg-transparent text-[#f8fafc] text-[12px] placeholder:text-[#94a3b8]"
             />
             {search && (
               <button
-                className="search-clear"
+                type="button"
+                className="inline-flex items-center justify-center w-[18px] h-[18px] min-w-[18px] rounded-full border-0 bg-transparent text-[#94a3b8] hover:text-[#f8fafc] hover:bg-[rgba(148,163,184,0.15)] cursor-pointer p-0 transition-colors duration-150"
                 onClick={() => setSearch("")}
                 aria-label="Bersihkan pencarian"
               >
@@ -488,7 +522,7 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
           {/* Mobile Filters Toggle */}
           <button
             type="button"
-            className="mobile-filter-toggle"
+            className="hidden max-[900px]:inline-flex items-center gap-1.5 h-[34px] px-3 border border-[#334155] rounded-[8px] bg-[#0f172a] text-[#cbd5e1] text-[12px] font-semibold cursor-pointer hover:border-[#38bdf8] hover:text-[#38bdf8] transition-all duration-150"
             onClick={() => setMobileFiltersOpen((v) => !v)}
             aria-expanded={mobileFiltersOpen}
             aria-label="Toggle filter panel"
@@ -496,7 +530,7 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
             <SlidersHorizontal size={13} />
             Filters
             {hasActiveFilters && (
-              <span className="mobile-filter-badge">
+              <span className="inline-flex items-center justify-center min-w-[16px] h-[16px] px-1 rounded-full bg-[#38bdf8] text-white text-[9.5px] font-mono font-bold leading-none">
                 {[
                   dateFilter !== "",
                   typeFilter !== "All Types",
@@ -509,9 +543,9 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
           </button>
 
           {/* Filter Controls (hidden on mobile unless open) */}
-          <div className={`ticket-filter-controls${mobileFiltersOpen ? " filters-open" : ""}`}>
+          <div className={`flex items-center gap-2 flex-wrap max-[900px]:w-full max-[900px]:flex-col max-[900px]:gap-2 max-[900px]:pt-2 max-[900px]:border-t max-[900px]:border-[#334155] ${mobileFiltersOpen ? "max-[900px]:flex" : "max-[900px]:hidden"}`}>
             {/* Date Range Picker: "Semua Waktu" is present on Queue & Escalations, but excluded only in Ticket Report & Analytics */}
-            <div className="ticket-date-filter-wrap">
+            <div className="flex items-center min-w-[140px] h-[34px] [&_.custom-datepicker-trigger]:!h-[34px] [&_.custom-datepicker-trigger]:!bg-[#0f172a] [&_.custom-datepicker-trigger]:!border-[#334155] [&_.custom-datepicker-trigger]:!text-[11.5px] [&_.custom-datepicker-trigger]:!rounded-[8px]">
               <DatePicker
                 value={dateFilter}
                 onChange={setDateFilter}
@@ -522,13 +556,14 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
             </div>
 
             {/* Ticket Type / Category Filter */}
-            <div className="filter-select-wrap">
-              <Tag size={13} className="select-icon" />
+            <div className="relative flex items-center group/select">
+              <Tag size={13} className="pointer-events-none absolute left-[9px] text-[#94a3b8] transition-colors duration-150 z-1 group-has-[select[data-active=true]]/select:text-[#38bdf8]" />
               <select
                 value={typeFilter}
                 onChange={(e) => setTypeFilter(e.target.value)}
                 aria-label="Filter kategori tiket"
                 data-active={typeFilter !== "All Types" ? "true" : undefined}
+                className="h-[34px] pl-7 pr-7 border border-[#334155] rounded-[8px] bg-[#0f172a] text-[#f8fafc] text-[11.5px] cursor-pointer appearance-none outline-hidden hover:border-[rgba(56,189,248,0.3)] focus:border-[#38bdf8] focus:shadow-[0_0_0_3px_rgba(56,189,248,0.12)] data-[active=true]:border-[#38bdf8] data-[active=true]:bg-[rgba(56,189,248,0.06)] data-[active=true]:text-[#38bdf8] data-[active=true]:font-semibold transition-[border-color,box-shadow,color,background-color] duration-150"
               >
                 {TICKET_TYPES.map((t) => (
                   <option key={t} value={t}>
@@ -539,8 +574,8 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
             </div>
 
             {/* Severity Filter */}
-            <div className="filter-select-wrap">
-              <BarChart2 size={13} className="select-icon" />
+            <div className="relative flex items-center group/select">
+              <BarChart2 size={13} className="pointer-events-none absolute left-[9px] text-[#94a3b8] transition-colors duration-150 z-1 group-has-[select[data-active=true]]/select:text-[#38bdf8]" />
               <select
                 value={priorityFilter}
                 onChange={(e) => setPriorityFilter(e.target.value)}
@@ -550,6 +585,7 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
                     ? "true"
                     : undefined
                 }
+                className="h-[34px] pl-7 pr-7 border border-[#334155] rounded-[8px] bg-[#0f172a] text-[#f8fafc] text-[11.5px] cursor-pointer appearance-none outline-hidden hover:border-[rgba(56,189,248,0.3)] focus:border-[#38bdf8] focus:shadow-[0_0_0_3px_rgba(56,189,248,0.12)] data-[active=true]:border-[#38bdf8] data-[active=true]:bg-[rgba(56,189,248,0.06)] data-[active=true]:text-[#38bdf8] data-[active=true]:font-semibold transition-[border-color,box-shadow,color,background-color] duration-150"
               >
                 {PRIORITY_OPTIONS.map((p) => (
                   <option key={p} value={p}>
@@ -560,13 +596,14 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
             </div>
 
             {/* Project Filter */}
-            <div className="filter-select-wrap">
-              <FolderOpen size={13} className="select-icon" />
+            <div className="relative flex items-center group/select">
+              <FolderOpen size={13} className="pointer-events-none absolute left-[9px] text-[#94a3b8] transition-colors duration-150 z-1 group-has-[select[data-active=true]]/select:text-[#38bdf8]" />
               <select
                 value={projectFilter}
                 onChange={(e) => setProjectFilter(e.target.value)}
                 aria-label="Filter proyek"
                 data-active={projectFilter !== "All Projects" ? "true" : undefined}
+                className="h-[34px] pl-7 pr-7 border border-[#334155] rounded-[8px] bg-[#0f172a] text-[#f8fafc] text-[11.5px] cursor-pointer appearance-none outline-hidden hover:border-[rgba(56,189,248,0.3)] focus:border-[#38bdf8] focus:shadow-[0_0_0_3px_rgba(56,189,248,0.12)] data-[active=true]:border-[#38bdf8] data-[active=true]:bg-[rgba(56,189,248,0.06)] data-[active=true]:text-[#38bdf8] data-[active=true]:font-semibold transition-[border-color,box-shadow,color,background-color] duration-150"
               >
                 {projectOptions.map((proj) => (
                   <option key={proj} value={proj}>
@@ -577,13 +614,14 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
             </div>
 
             {/* Shift Filter */}
-            <div className="filter-select-wrap">
-              <Clock size={13} className="select-icon" />
+            <div className="relative flex items-center group/select">
+              <Clock size={13} className="pointer-events-none absolute left-[9px] text-[#94a3b8] transition-colors duration-150 z-1 group-has-[select[data-active=true]]/select:text-[#38bdf8]" />
               <select
                 value={shiftFilter}
                 onChange={(e) => setShiftFilter(e.target.value)}
                 aria-label="Filter shift tiket"
                 data-active={shiftFilter !== "Semua Shift" ? "true" : undefined}
+                className="h-[34px] pl-7 pr-7 border border-[#334155] rounded-[8px] bg-[#0f172a] text-[#f8fafc] text-[11.5px] cursor-pointer appearance-none outline-hidden hover:border-[rgba(56,189,248,0.3)] focus:border-[#38bdf8] focus:shadow-[0_0_0_3px_rgba(56,189,248,0.12)] data-[active=true]:border-[#38bdf8] data-[active=true]:bg-[rgba(56,189,248,0.06)] data-[active=true]:text-[#38bdf8] data-[active=true]:font-semibold transition-[border-color,box-shadow,color,background-color] duration-150"
               >
                 {SHIFT_OPTIONS.map((s) => (
                   <option key={s} value={s}>
@@ -594,15 +632,16 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
             </div>
 
             {/* Sort Divider + Sort Control */}
-            <div className="filter-sort-divider" aria-hidden="true" />
+            <div className="w-[1px] h-[22px] bg-[#334155] mx-1 max-[900px]:hidden" aria-hidden="true" />
 
             {/* Sort Order */}
-            <div className="filter-select-wrap">
-              <ArrowUpDown size={13} className="select-icon" />
+            <div className="relative flex items-center group/select">
+              <ArrowUpDown size={13} className="pointer-events-none absolute left-[9px] text-[#94a3b8] transition-colors duration-150 z-1" />
               <select
                 value={sort}
                 onChange={(e) => setSort(e.target.value)}
                 aria-label="Urutkan tiket"
+                className="h-[34px] pl-7 pr-7 border border-[#334155] rounded-[8px] bg-[#0f172a] text-[#f8fafc] text-[11.5px] cursor-pointer appearance-none outline-hidden hover:border-[rgba(56,189,248,0.3)] focus:border-[#38bdf8] focus:shadow-[0_0_0_3px_rgba(56,189,248,0.12)] transition-[border-color,box-shadow] duration-150"
               >
                 {SORT_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -615,22 +654,26 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
         </div>
 
         {/* Status Tabs Bar */}
-        <div className="view-filter-bar">
-          <div className="filter-tabs" aria-label="Filter status tiket" role="tablist">
+        <div className="flex items-center justify-between px-5 py-2.5 border-b border-[#334155] gap-3">
+          <div className="flex gap-[3px] p-[3px] rounded-[6px] bg-[#0f172a] border border-[#334155] overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" aria-label="Filter status tiket" role="tablist">
             {STATUS_OPTIONS.map((option) => (
               <button
                 key={option}
                 type="button"
                 role="tab"
                 aria-selected={statusFilter === option}
-                className={statusFilter === option ? "selected" : ""}
+                className={`flex items-center px-2.5 py-1 rounded-[4px] border border-transparent text-[10.5px] cursor-pointer select-none transition-all ${
+                  statusFilter === option
+                    ? "bg-[#1e293b] text-[#38bdf8] font-bold shadow-[0_1px_2px_0_rgba(0,0,0,0.2)]"
+                    : "bg-transparent text-[#94a3b8] hover:text-[#f8fafc] font-semibold"
+                }`}
                 onClick={() => setStatusFilter(option)}
               >
                 {option}
               </button>
             ))}
           </div>
-          <div className="filter-count" aria-live="polite">
+          <div className="text-[11px] text-[#94a3b8] [&>strong]:text-[#f8fafc] [&>strong]:font-semibold" aria-live="polite">
             {totalFilteredCount > 0 ? (
               <>
                 Menampilkan <strong>{startIdx + 1}–{endIdx}</strong> dari{" "}
@@ -646,14 +689,14 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
 
         {/* ── Active Filter Chips Row — only renders when filters are active ── */}
         {hasActiveFilters && (
-          <div className="active-filter-chips-row" aria-label="Active filters">
-            <span className="chips-label">Filters:</span>
+          <div className="flex flex-wrap gap-1.5 items-center px-5 py-2 bg-[rgba(56,189,248,0.02)] border-b border-[#334155]" aria-label="Active filters">
+            <span className="text-[10.5px] font-bold text-[#94a3b8] uppercase tracking-[0.5px] whitespace-nowrap shrink-0">Filters:</span>
             {search && (
-              <span className="filter-chip">
+              <span className="inline-flex items-center gap-[5px] pl-[9px] pr-[7px] py-[3px] rounded-[6px] bg-[rgba(56,189,248,0.08)] border border-[rgba(56,189,248,0.25)] text-[#38bdf8] text-[11px] font-medium">
                 &ldquo;{search}&rdquo;
                 <button
                   type="button"
-                  className="filter-chip-remove"
+                  className="inline-grid place-items-center w-4 h-4 min-w-[16px] min-h-[16px] rounded-full border-0 bg-transparent text-current cursor-pointer opacity-70 hover:opacity-100 hover:bg-[rgba(248,113,113,0.2)] hover:text-[#f87171] transition-all p-0 m-0 leading-none"
                   onClick={() => setSearch("")}
                   aria-label="Remove search filter"
                 >
@@ -662,11 +705,11 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
               </span>
             )}
             {statusFilter !== "All" && (
-              <span className="filter-chip">
+              <span className="inline-flex items-center gap-[5px] pl-[9px] pr-[7px] py-[3px] rounded-[6px] bg-[rgba(56,189,248,0.08)] border border-[rgba(56,189,248,0.25)] text-[#38bdf8] text-[11px] font-medium">
                 {statusFilter}
                 <button
                   type="button"
-                  className="filter-chip-remove"
+                  className="inline-grid place-items-center w-4 h-4 min-w-[16px] min-h-[16px] rounded-full border-0 bg-transparent text-current cursor-pointer opacity-70 hover:opacity-100 hover:bg-[rgba(248,113,113,0.2)] hover:text-[#f87171] transition-all p-0 m-0 leading-none"
                   onClick={() => setStatusFilter("All")}
                   aria-label="Remove status filter"
                 >
@@ -675,11 +718,11 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
               </span>
             )}
             {dateFilter !== "" && (
-              <span className="filter-chip">
+              <span className="inline-flex items-center gap-[5px] pl-[9px] pr-[7px] py-[3px] rounded-[6px] bg-[rgba(56,189,248,0.08)] border border-[rgba(56,189,248,0.25)] text-[#38bdf8] text-[11px] font-medium">
                 {selectedRangeLabel}
                 <button
                   type="button"
-                  className="filter-chip-remove"
+                  className="inline-grid place-items-center w-4 h-4 min-w-[16px] min-h-[16px] rounded-full border-0 bg-transparent text-current cursor-pointer opacity-70 hover:opacity-100 hover:bg-[rgba(248,113,113,0.2)] hover:text-[#f87171] transition-all p-0 m-0 leading-none"
                   onClick={() => setDateFilter("")}
                   aria-label="Hapus filter tanggal"
                 >
@@ -688,11 +731,11 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
               </span>
             )}
             {typeFilter !== "All Types" && (
-              <span className="filter-chip">
+              <span className="inline-flex items-center gap-[5px] pl-[9px] pr-[7px] py-[3px] rounded-[6px] bg-[rgba(56,189,248,0.08)] border border-[rgba(56,189,248,0.25)] text-[#38bdf8] text-[11px] font-medium">
                 {typeFilter}
                 <button
                   type="button"
-                  className="filter-chip-remove"
+                  className="inline-grid place-items-center w-4 h-4 min-w-[16px] min-h-[16px] rounded-full border-0 bg-transparent text-current cursor-pointer opacity-70 hover:opacity-100 hover:bg-[rgba(248,113,113,0.2)] hover:text-[#f87171] transition-all p-0 m-0 leading-none"
                   onClick={() => setTypeFilter("All Types")}
                   aria-label="Remove type filter"
                 >
@@ -701,11 +744,11 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
               </span>
             )}
             {priorityFilter !== "All Severities" && priorityFilter !== "All Priorities" && (
-              <span className="filter-chip">
+              <span className="inline-flex items-center gap-[5px] pl-[9px] pr-[7px] py-[3px] rounded-[6px] bg-[rgba(56,189,248,0.08)] border border-[rgba(56,189,248,0.25)] text-[#38bdf8] text-[11px] font-medium">
                 {priorityFilter}
                 <button
                   type="button"
-                  className="filter-chip-remove"
+                  className="inline-grid place-items-center w-4 h-4 min-w-[16px] min-h-[16px] rounded-full border-0 bg-transparent text-current cursor-pointer opacity-70 hover:opacity-100 hover:bg-[rgba(248,113,113,0.2)] hover:text-[#f87171] transition-all p-0 m-0 leading-none"
                   onClick={() => setPriorityFilter("All Severities")}
                   aria-label="Remove severity filter"
                 >
@@ -714,11 +757,11 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
               </span>
             )}
             {projectFilter !== "All Projects" && (
-              <span className="filter-chip">
+              <span className="inline-flex items-center gap-[5px] pl-[9px] pr-[7px] py-[3px] rounded-[6px] bg-[rgba(56,189,248,0.08)] border border-[rgba(56,189,248,0.25)] text-[#38bdf8] text-[11px] font-medium">
                 {projectFilter}
                 <button
                   type="button"
-                  className="filter-chip-remove"
+                  className="inline-grid place-items-center w-4 h-4 min-w-[16px] min-h-[16px] rounded-full border-0 bg-transparent text-current cursor-pointer opacity-70 hover:opacity-100 hover:bg-[rgba(248,113,113,0.2)] hover:text-[#f87171] transition-all p-0 m-0 leading-none"
                   onClick={() => setProjectFilter("All Projects")}
                   aria-label="Remove project filter"
                 >
@@ -727,11 +770,11 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
               </span>
             )}
             {shiftFilter !== "Semua Shift" && (
-              <span className="filter-chip">
+              <span className="inline-flex items-center gap-[5px] pl-[9px] pr-[7px] py-[3px] rounded-[6px] bg-[rgba(56,189,248,0.08)] border border-[rgba(56,189,248,0.25)] text-[#38bdf8] text-[11px] font-medium">
                 {shiftFilter}
                 <button
                   type="button"
-                  className="filter-chip-remove"
+                  className="inline-grid place-items-center w-4 h-4 min-w-[16px] min-h-[16px] rounded-full border-0 bg-transparent text-current cursor-pointer opacity-70 hover:opacity-100 hover:bg-[rgba(248,113,113,0.2)] hover:text-[#f87171] transition-all p-0 m-0 leading-none"
                   onClick={() => setShiftFilter("Semua Shift")}
                   aria-label="Remove shift filter"
                 >
@@ -741,7 +784,7 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
             )}
             <button
               type="button"
-              className="clear-all-filters-btn"
+              className="bg-transparent border-0 px-1.5 py-[3px] text-[#94a3b8] text-[11px] font-semibold cursor-pointer ml-auto hover:text-[#f87171] hover:underline transition-colors rounded-[4px]"
               onClick={clearAllFilters}
               aria-label="Clear all active filters"
             >
@@ -752,14 +795,14 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
 
         {/* ── Tab Views Rendering with Smooth CSS Transition ── */}
         {activeTab === "queue" && (
-          <div className="ticket-view-content anim-tab-fade" key="queue-tab">
+          <div className="animate-tab-fade" key="queue-tab">
             {filteredTickets.length > 0 ? (
               <>
                 <TicketTable tickets={paginatedTickets} onSelect={onSelectTicket} />
                 {renderPagination()}
               </>
             ) : (
-              <div className="tickets-empty-container">
+              <div className="px-5 py-6">
                 <EmptyState
                   icon="◫"
                   title="Tidak ada ticket yang cocok"
@@ -773,7 +816,7 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
         )}
 
         {activeTab === "escalations" && (
-          <div className="ticket-view-content anim-tab-fade" key="escalations-tab">
+          <div className="animate-tab-fade" key="escalations-tab">
             {filteredTickets.length > 0 ? (
               <>
                 <TicketTable
@@ -784,7 +827,7 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
                 {renderPagination()}
               </>
             ) : (
-              <div className="escalations-empty-wrap">
+              <div className="px-5 pt-9 pb-12">
                 <EmptyState
                   icon={<CheckCircle2 size={24} />}
                   tone="success"

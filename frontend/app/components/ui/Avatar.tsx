@@ -34,6 +34,14 @@ const AVATAR_SIZE_TAILWIND_CLASS: Record<Exclude<AvatarSize, number>, string> = 
   xl: "[width:72px] [height:72px] [min-width:72px] [min-height:72px] [font-size:26px] [font-family:var(--font-sans,_sans-serif)] [border-width:3px] [box-shadow:0_0_0_4px_rgba(148,_163,_184,_0.15)]",
 };
 
+const AVATAR_STATUS_RING_CLASS: Record<string, string> = {
+  active: "relative outline-[2.5px] outline-solid outline-[var(--green)] outline-offset-[2px] transition-[outline-color] duration-200",
+  break: "relative outline-[2.5px] outline-solid outline-[var(--orange)] outline-offset-[2px] transition-[outline-color] duration-200",
+  off: "relative outline-[2.5px] outline-solid outline-[var(--ink-muted)] outline-offset-[2px] transition-[outline-color] duration-200",
+  verified: "relative outline-[2.5px] outline-solid outline-[var(--green)] outline-offset-[2px] transition-[outline-color] duration-200",
+  pending: "relative outline-[2.5px] outline-solid outline-[var(--orange)] outline-offset-[2px] transition-[outline-color] duration-200",
+};
+
 /**
  * Global Shared Avatar Component
  * Enforces unified neutral grayscale styling across the entire application.
@@ -71,9 +79,7 @@ export function Avatar({
       : {};
 
   const ringClass = statusRing
-    ? statusRing === "verified" || statusRing === "pending"
-      ? `avatar-${statusRing}`
-      : `avatar-status-ring avatar-ring-${statusRing}`
+    ? AVATAR_STATUS_RING_CLASS[statusRing] ?? "relative outline-[2.5px] outline-solid outline-[var(--ink-muted)] outline-offset-[2px] transition-[outline-color] duration-200"
     : "";
 
   return (

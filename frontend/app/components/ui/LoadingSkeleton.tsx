@@ -37,7 +37,7 @@ export function DashboardViewSkeleton() {
       {/* Top stats skeleton */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px", marginBottom: "20px" }}>
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="panel" style={{ padding: "18px" }}>
+          <div key={i} className="panel overflow-hidden bg-[var(--panel-bg)] border border-[var(--panel-border)] rounded-[10px] shadow-[var(--shadow-panel)]" style={{ padding: "18px" }}>
             <Skeleton height={14} width="40%" style={{ marginBottom: "12px" }} />
             <Skeleton height={28} width="60%" style={{ marginBottom: "8px" }} />
             <Skeleton height={12} width="80%" />
@@ -47,7 +47,7 @@ export function DashboardViewSkeleton() {
 
       {/* Main content split */}
       <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "20px" }}>
-        <div className="panel" style={{ padding: "20px" }}>
+        <div className="panel overflow-hidden bg-[var(--panel-bg)] border border-[var(--panel-border)] rounded-[10px] shadow-[var(--shadow-panel)]" style={{ padding: "20px" }}>
           <Skeleton height={20} width="35%" style={{ marginBottom: "16px" }} />
           {[1, 2, 3, 4, 5].map((i) => (
             <div key={i} style={{ display: "flex", gap: "12px", alignItems: "center", marginBottom: "14px" }}>
@@ -60,7 +60,7 @@ export function DashboardViewSkeleton() {
             </div>
           ))}
         </div>
-        <div className="panel" style={{ padding: "20px" }}>
+        <div className="panel overflow-hidden bg-[var(--panel-bg)] border border-[var(--panel-border)] rounded-[10px] shadow-[var(--shadow-panel)]" style={{ padding: "20px" }}>
           <Skeleton height={20} width="50%" style={{ marginBottom: "16px" }} />
           <Skeleton height={140} width="100%" borderRadius={8} style={{ marginBottom: "16px" }} />
           <Skeleton height={14} width="70%" style={{ marginBottom: "8px" }} />

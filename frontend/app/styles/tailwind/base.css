@@ -6,63 +6,67 @@
 /* ═══════════════════════════════════════════════
    BASE STYLES
 ═══════════════════════════════════════════════ */
-* {
-  @apply [box-sizing:border-box];
-}
+@layer base {
+  * {
+    @apply [box-sizing:border-box];
+  }
 
-html {
-  @apply [min-width:320px];
-  @apply [background-color:var(--bg)];
-  @apply [color:var(--ink-primary)];
-}
+  html {
+    @apply [min-width:320px];
+    @apply [background-color:var(--bg)];
+    @apply [color:var(--ink-primary)];
+  }
 
-body {
-  @apply [margin:0];
-  @apply [color:var(--ink-primary)];
-  @apply [font-family:var(--font-sans)];
-  @apply [font-size:13.5px];
-  @apply [line-height:1.5];
-  @apply [-webkit-font-smoothing:antialiased];
-  @apply [-moz-osx-font-smoothing:grayscale];
-  @apply [background-color:var(--bg)];
-}
+  body {
+    @apply [margin:0];
+    @apply [color:var(--ink-primary)];
+    @apply [font-family:var(--font-sans)];
+    @apply [font-size:13.5px];
+    @apply [line-height:1.5];
+    @apply [-webkit-font-smoothing:antialiased];
+    @apply [-moz-osx-font-smoothing:grayscale];
+    @apply [background-color:var(--bg)];
+    @apply [letter-spacing:normal];
+    @apply [word-spacing:normal];
+  }
 
-button, input, textarea, select {
-  @apply [font-family:inherit];
-  @apply [font-size:inherit];
-}
+  button, input, textarea, select {
+    @apply [font-family:inherit];
+    @apply [font-size:inherit];
+  }
 
-select {
-  @apply [color-scheme:dark];
-}
+  select {
+    @apply [color-scheme:dark];
+  }
 
-select option {
-  @apply [background-color:#0f172a];
-  @apply [color:var(--ink-primary)];
-}
+  select option {
+    @apply [background-color:#0f172a];
+    @apply [color:var(--ink-primary)];
+  }
 
-button {
-  @apply [border:0];
-  @apply [cursor:pointer];
-  @apply [background:transparent];
-}
+  button {
+    @apply [border:0];
+    @apply [cursor:pointer];
+    @apply [background:transparent];
+  }
 
-button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
-  @apply [outline:2px_solid_var(--accent-blue)];
-  @apply [outline-offset:2px];
-}
+  button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
+    @apply [outline:2px_solid_var(--accent-blue)];
+    @apply [outline-offset:2px];
+  }
 
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-  @apply [width:6px];
-  @apply [height:6px];
-}
-::-webkit-scrollbar-track {
-  @apply [background:transparent];
-}
-::-webkit-scrollbar-thumb {
-  @apply [background:#475569];
-  @apply [border-radius:99px];
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    @apply [width:6px];
+    @apply [height:6px];
+  }
+  ::-webkit-scrollbar-track {
+    @apply [background:transparent];
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply [background:#475569];
+    @apply [border-radius:99px];
+  }
 }
 
 /* App Shell */
@@ -70,4 +74,98 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-
   @apply [min-height:100vh];
   @apply [display:flex];
 }
+
+/* ═══════════════════════════════════════════════
+   BUTTONS (Shared base buttons across modals & views)
+═══════════════════════════════════════════════ */
+.button {
+  @apply [height:36px];
+  @apply [display:inline-flex];
+  @apply [align-items:center];
+  @apply [justify-content:center];
+  @apply [gap:7px];
+  @apply [padding:0_15px];
+  @apply [border-radius:7px];
+  @apply [font-size:12px];
+  @apply [font-weight:600];
+  @apply [transition:all_0.15s_ease];
+}
+
+.button-primary {
+  @apply [color:#ffffff];
+  @apply [background:var(--accent-blue)];
+  @apply [box-shadow:var(--shadow-sm)];
+}
+
+.button-primary:hover {
+  @apply [opacity:0.92];
+}
+
+.button-secondary {
+  @apply [color:var(--ink-primary)];
+  @apply [border:1px_solid_var(--panel-border)];
+  @apply [background:var(--panel-bg)];
+}
+
+.button-secondary:hover {
+  @apply [background:var(--panel-bg-hover)];
+}
+
+.button-sm {
+  @apply [height:34px];
+  @apply [padding:0_14px];
+  @apply [font-size:12px];
+  @apply [font-weight:600];
+  @apply [gap:6px];
+}
+
+/* ═══════════════════════════════════════════════
+   PRINT STYLES (Laporan → PDF)
+═══════════════════════════════════════════════ */
+@media print {
+  .sidebar, .topbar, .toast-stack, .modal-backdrop,
+  .drawer-backdrop, .mobile-nav-backdrop,
+  .page-actions, .filter-tabs, .assess-btn { @apply ![display:none]; }
+  .workspace { @apply ![width:100%]; @apply ![margin:0]; }
+  body { @apply [background:#ffffff]; }
+  .panel, .metric-card, .stat-chip { @apply [box-shadow:none]; @apply [break-inside:avoid]; }
+}
+
+/* ═══════════════════════════════════════════════
+   DATEPICKER ANIMATION & NATIVE DATE INPUT
+═══════════════════════════════════════════════ */
+@keyframes datepicker-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+input[type="date"] {
+  @apply [color-scheme:dark];
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  @apply [cursor:pointer];
+  @apply [filter:invert(0.8)_sepia(100%)_saturate(300%)_hue-rotate(170deg)_brightness(1.1)];
+  @apply [opacity:0.85];
+  @apply [transition:opacity_0.15s_ease,_filter_0.15s_ease];
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  @apply [opacity:1];
+  @apply [filter:invert(0.9)_sepia(100%)_saturate(600%)_hue-rotate(185deg)_brightness(1.3)];
+}
+
+/* Page content anchor scroll offset */
+.page-content > *,
+.page-view-enter > * {
+  @apply [scroll-margin-top:76px];
+}
+
+
 

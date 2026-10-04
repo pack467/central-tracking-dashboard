@@ -76,17 +76,186 @@
   --shadow-elevated: 0 20px 40px 0 rgba(0, 0, 0, 0.45);
 }
 
+@keyframes tabFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes trafficPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.45; transform: scale(0.85); }
+}
+
+@keyframes livePulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.45; transform: scale(0.8); }
+}
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes tooltipFade {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -95%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -100%);
+  }
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalScaleUp {
+  from { transform: scale(0.96); opacity: 0.8; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes peakBadgeFade {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -80%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, calc(-100% - 10px));
+  }
+}
+
+@keyframes statCardAlertGlow {
+  0% {
+    border-color: rgba(239, 68, 68, 0.3);
+    box-shadow: 0 0 0 rgba(239, 68, 68, 0);
+  }
+  100% {
+    border-color: rgba(239, 68, 68, 0.6);
+    box-shadow: 0 0 14px rgba(239, 68, 68, 0.18);
+  }
+}
+
+@keyframes ack-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.2);
+  }
+}
+
+@keyframes revealName {
+  from {
+    opacity: 0;
+    transform: translateX(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes profileDropdownUp {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes clientDropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes liveDotPulse {
+  0%, 100% {
+    transform: scale(0.9);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.3);
+    opacity: 0.4;
+  }
+}
+
+@keyframes transitionPopoverFade {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes fab-entrance {
+  from {
+    opacity: 0;
+    transform: scale(0.6) translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes shift-backdrop-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 /*
  * Tailwind v4 token bridge. These aliases deliberately point at the existing
  * CSS variables so the legacy stylesheet remains the visual source of truth
  * while components are migrated incrementally.
  */
 @theme inline {
+  --animate-tab-fade: tabFadeIn 180ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-traffic-pulse-14: trafficPulse 1.4s ease-in-out infinite;
+  --animate-traffic-pulse-18: trafficPulse 1.8s ease-in-out infinite;
+  --animate-live-pulse: livePulse 1.8s ease-in-out infinite;
+  --animate-fade-slide-in: fadeSlideIn 0.2s ease forwards;
+  --animate-tooltip-fade: tooltipFade 0.15s ease-out forwards;
+  --animate-modal-fade-in: modalFadeIn 0.15s ease-out forwards;
+  --animate-modal-scale-up: modalScaleUp 0.15s ease-out forwards;
+  --animate-peak-badge-fade: peakBadgeFade 0.2s ease-out forwards;
+  --animate-stat-card-alert-glow: statCardAlertGlow 3s ease-in-out infinite alternate;
+  --animate-ack-pulse: ack-pulse 2s infinite ease-in-out;
+  --animate-reveal-name: revealName 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-profile-dropdown-up: profileDropdownUp 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-client-dropdown-fade-in: clientDropdownFadeIn 0.15s ease-out;
+  --animate-live-dot-pulse: liveDotPulse 2s infinite ease-in-out;
+  --animate-transition-popover-fade: transitionPopoverFade 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-fab-entrance: fab-entrance 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both;
+  --animate-shift-backdrop-in: shift-backdrop-in 0.25s ease;
   --breakpoint-3xl: 1920px;
   --breakpoint-4xl: 2560px;
 
-  --font-dashboard-sans: var(--font-sans);
-  --font-dashboard-mono: var(--font-mono);
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-dashboard-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-dashboard-mono: 'JetBrains Mono', monospace;
 
   --color-dashboard-bg: var(--bg);
   --color-sidebar-bg: var(--sidebar-bg);
