@@ -155,55 +155,75 @@ export function RosterCalendarView({ members, onSelectMember }: RosterCalendarVi
   }, [totalPages, safeCurrentPage]);
 
   return (
-    <div className="roster-calendar-wrapper">
+    <div className="p-0">
       {/* ── Top Bar ── */}
-      <div className="roster-calendar-topbar">
-        <div className="roster-calendar-title">
-          <CalendarIcon size={16} className="[color:var(--accent-blue)]!" />
+      <div className="flex justify-between items-center gap-[14px] p-[14px_18px] border-b border-[var(--line)] bg-[var(--panel-bg)] flex-wrap">
+        <div className="flex items-center gap-[8px] text-[13px] text-[var(--ink-primary)]">
+          <CalendarIcon size={16} className="text-[var(--accent-blue)]" />
           {calMode === "weekly" ? (
             <>
               <strong>Week 34 · 24 Aug – 30 Aug 2026</strong>
-              {weekOffset === 0 && <span className="roster-current-week-tag">CURRENT WEEK</span>}
+              {weekOffset === 0 && (
+                <span className="text-[9px] font-mono font-bold p-[2px_6px] rounded-[4px] bg-[var(--accent-blue-soft)] text-[var(--accent-blue)] border border-[var(--accent-blue-border)]">
+                  CURRENT WEEK
+                </span>
+              )}
             </>
           ) : (
             <strong>{MONTH_NAMES[monthDate.getMonth()]} {monthDate.getFullYear()}</strong>
           )}
         </div>
 
-        <div className="[display:flex]! [gap:8px]! [align-items:center]!">
+        <div className="flex gap-[8px] items-center">
           {/* View mode toggle */}
-          <div className="filter-tabs cal-view-tabs" aria-label="Switch calendar view">
-            <button className={calMode === "weekly" ? "selected" : ""} onClick={() => setCalMode("weekly")}>
+          <div className="inline-flex items-center gap-[2px] h-[36px] box-border p-[3px] bg-[var(--surface,#0f172a)] border border-[var(--panel-border)] rounded-[8px] shrink-0" aria-label="Switch calendar view">
+            <button
+              type="button"
+              className={`inline-flex items-center justify-center h-[28px] px-[12px] text-[11.5px] font-semibold rounded-[6px] gap-[6px] border border-transparent cursor-pointer transition-[color,background-color] duration-150 ease ${
+                calMode === "weekly"
+                  ? "bg-[var(--accent-blue,#2563eb)] text-white shadow-[0_1px_3px_rgba(0,0,0,0.25)]"
+                  : "bg-transparent text-[var(--ink-muted)] hover:text-[var(--ink-primary)] hover:bg-[rgba(148,163,184,0.08)]"
+              }`}
+              onClick={() => setCalMode("weekly")}
+            >
               Weekly
             </button>
-            <button className={calMode === "monthly" ? "selected" : ""} onClick={() => setCalMode("monthly")}>
+            <button
+              type="button"
+              className={`inline-flex items-center justify-center h-[28px] px-[12px] text-[11.5px] font-semibold rounded-[6px] gap-[6px] border border-transparent cursor-pointer transition-[color,background-color] duration-150 ease ${
+                calMode === "monthly"
+                  ? "bg-[var(--accent-blue,#2563eb)] text-white shadow-[0_1px_3px_rgba(0,0,0,0.25)]"
+                  : "bg-transparent text-[var(--ink-muted)] hover:text-[var(--ink-primary)] hover:bg-[rgba(148,163,184,0.08)]"
+              }`}
+              onClick={() => setCalMode("monthly")}
+            >
               Monthly
             </button>
           </div>
 
           {/* Nav buttons */}
-          <div className="roster-calendar-nav">
+          <div className="flex gap-[6px]">
             {calMode === "weekly" ? (
               <>
-                <button className="button button-secondary roster-week-nav-btn" onClick={() => setWeekOffset((p) => p - 1)}>
+                <button className="button button-secondary px-[9px] py-[5px] text-[11px]" onClick={() => setWeekOffset((p) => p - 1)}>
                   <ChevronLeft size={14} /> Prev
                 </button>
-                <button className="button button-secondary roster-week-nav-btn" onClick={() => setWeekOffset(0)} disabled={weekOffset === 0}>
+                <button className="button button-secondary px-[9px] py-[5px] text-[11px]" onClick={() => setWeekOffset(0)} disabled={weekOffset === 0}>
                   Today
                 </button>
-                <button className="button button-secondary roster-week-nav-btn" onClick={() => setWeekOffset((p) => p + 1)}>
+                <button className="button button-secondary px-[9px] py-[5px] text-[11px]" onClick={() => setWeekOffset((p) => p + 1)}>
                   Next <ChevronRight size={14} />
                 </button>
               </>
             ) : (
               <>
-                <button className="button button-secondary roster-week-nav-btn" onClick={prevMonth} aria-label="Bulan sebelumnya">
+                <button className="button button-secondary px-[9px] py-[5px] text-[11px]" onClick={prevMonth} aria-label="Bulan sebelumnya">
                   <ChevronLeft size={14} />
                 </button>
-                <button className="button button-secondary roster-week-nav-btn" onClick={goToday} disabled={isCurrentMonth}>
+                <button className="button button-secondary px-[9px] py-[5px] text-[11px]" onClick={goToday} disabled={isCurrentMonth}>
                   Today
                 </button>
-                <button className="button button-secondary roster-week-nav-btn" onClick={nextMonth} aria-label="Bulan berikutnya">
+                <button className="button button-secondary px-[9px] py-[5px] text-[11px]" onClick={nextMonth} aria-label="Bulan berikutnya">
                   <ChevronRight size={14} />
                 </button>
               </>
@@ -213,16 +233,16 @@ export function RosterCalendarView({ members, onSelectMember }: RosterCalendarVi
       </div>
 
       {/* ── Shift Legend (always visible) ── */}
-      <div className="roster-calendar-legend">
-        <span className="legend-label"><Info size={12} /> Shift:</span>
+      <div className="flex items-center gap-[14px] p-[10px_18px] bg-[var(--bg)] border-b border-[var(--line)] text-[11px] text-[var(--ink-secondary)] flex-wrap">
+        <span className="flex items-center gap-[5px] font-bold text-[var(--ink-primary)] font-mono text-[10.5px]"><Info size={12} /> Shift:</span>
         {SHIFT_LEGEND.map((l) => (
-          <span key={l.type} className="legend-item">
+          <span key={l.type} className="inline-flex items-center gap-[6px] text-[10.5px]">
             <i
-              className="[flex-shrink:0]! [background:var(--roster-calendar-legend-bg)]! [border-color:var(--roster-calendar-legend-border)]!"
+              className="block w-[12px] h-[12px] rounded-[3px] border shrink-0"
               style={{
-                "--roster-calendar-legend-bg": l.bg,
-                "--roster-calendar-legend-border": l.border,
-              } as React.CSSProperties}
+                backgroundColor: l.bg,
+                borderColor: l.border,
+              }}
             />
             {l.label}
           </span>
@@ -232,160 +252,164 @@ export function RosterCalendarView({ members, onSelectMember }: RosterCalendarVi
       {/* ══ WEEKLY VIEW ══════════════════════════════════ */}
       {calMode === "weekly" && (
         <>
-          <div className="roster-calendar-grid-container">
-          <div className="roster-calendar-grid">
-            {/* Header */}
-            <div className="roster-cal-header-row">
-              <div className="roster-cal-member-head">TEAM MEMBER</div>
-              {weekDays.map((d, idx) => (
-                <div key={idx} className={`roster-cal-day-head ${d.isToday ? "today-column" : ""}`}>
-                  <strong>{d.short}</strong>
-                  <small>{d.date}</small>
-                  {d.isToday && <span className="today-badge">TODAY</span>}
+          <div className="overflow-x-auto [overscroll-behavior-x:contain] py-[var(--space-2)]">
+            <div className="min-w-[820px]">
+              {/* Header */}
+              <div className="grid grid-cols-[200px_repeat(7,1fr)] border-b border-[var(--line)] bg-[var(--bg)] font-mono text-[10.5px]">
+                <div className="p-[10px_16px] font-bold text-[var(--ink-muted)] flex items-center">TEAM MEMBER</div>
+                {weekDays.map((d, idx) => (
+                  <div key={idx} className={`p-[8px_10px] border-l border-[var(--line)] text-center flex flex-col items-center justify-center ${d.isToday ? "bg-[var(--accent-blue-soft)] text-[var(--accent-blue)]" : ""}`}>
+                    <strong>{d.short}</strong>
+                    <small>{d.date}</small>
+                    {d.isToday && <span className="text-[7.5px] font-extrabold p-[1px_4px] rounded-[3px] bg-[var(--accent-blue)] text-white mt-[2px]">TODAY</span>}
+                  </div>
+                ))}
+              </div>
+
+              {/* Member rows */}
+              {paginatedMembers.map((member) => (
+                <div className="grid grid-cols-[200px_repeat(7,1fr)] border-b border-[var(--line)]" key={member.id}>
+                  <div
+                    className="p-[var(--space-3)_var(--space-4)] flex items-center gap-[var(--space-3)] cursor-pointer hover:[&_strong]:text-[var(--accent-blue)]"
+                    onClick={() => onSelectMember(member)}
+                    role="button"
+                    tabIndex={0}
+                    title={`View ${member.name}'s profile`}
+                  >
+                    <Avatar
+                      size="md"
+                      name={member.name}
+                      statusRing={member.status === "Active" ? "active" : member.status === "On Break" ? "break" : "off"}
+                      className="w-[32px] h-[32px] text-[11px]"
+                    />
+                    <div className="flex flex-col gap-[2px] min-w-0 flex-1">
+                      <strong className="text-[var(--ink-primary)] text-[13px] font-semibold overflow-hidden text-ellipsis whitespace-nowrap transition-colors duration-150 ease">{member.name}</strong>
+                      <small className="text-[10px] text-[var(--ink-secondary)] font-medium">{member.role}</small>
+                    </div>
+                  </div>
+
+                  {member.weeklySchedule.map((dayEntry, idx) => {
+                    const colors = shiftColor(dayEntry.shift);
+                    const isToday = weekDays[idx]?.isToday;
+                    return (
+                      <div key={idx} className={`p-[var(--space-2)] border-l border-[var(--line)] grid place-items-center ${isToday ? "bg-[color-mix(in_srgb,var(--accent-blue-soft)_30%,transparent)]" : ""}`}>
+                        <div
+                          className="w-full h-full min-h-[48px] rounded-[6px] border p-[6px_8px] flex flex-col justify-center text-center transition-[background-color,border-color] duration-150 ease cursor-default hover:bg-[var(--panel-bg-hover)] hover:border-[var(--panel-border)]"
+                          style={{
+                            backgroundColor: colors.bg,
+                            color: colors.color,
+                            borderColor: colors.border,
+                          }}
+                          title={`${member.name} — ${dayEntry.day}: ${dayEntry.shift} (${dayEntry.hours ?? "—"})`}
+                        >
+                          <strong className="text-[11.5px] font-bold">{dayEntry.shift}</strong>
+                          <span className="text-[9.5px] font-mono opacity-85 mt-[1px]">
+                            <Clock size={9} className="inline mr-[2px] vertical-middle" />
+                            {dayEntry.hours}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               ))}
-            </div>
 
-            {/* Member rows */}
-            {paginatedMembers.map((member) => (
-              <div className="roster-cal-row" key={member.id}>
-                <div
-                  className="roster-cal-member-cell"
-                  onClick={() => onSelectMember(member)}
-                  role="button"
-                  tabIndex={0}
-                  title={`View ${member.name}'s profile`}
-                >
-                  <Avatar
-                    size="md"
-                    name={member.name}
-                    statusRing={member.status === "Active" ? "active" : member.status === "On Break" ? "break" : "off"}
-                    className="roster-avatar"
-                  />
-                  <div className="roster-member-info">
-                    <strong>{member.name}</strong>
-                    <small>{member.role}</small>
-                  </div>
+              {totalCount === 0 && (
+                <div className="flex flex-col items-center justify-center p-[44px_20px] text-center text-[var(--ink-muted)] [grid-column:1_/_-1]!">
+                  No team members match the current filter.
                 </div>
-
-                {member.weeklySchedule.map((dayEntry, idx) => {
-                  const colors = shiftColor(dayEntry.shift);
-                  const isToday = weekDays[idx]?.isToday;
-                  return (
-                    <div key={idx} className={`roster-cal-shift-cell ${isToday ? "today-cell" : ""}`}>
-                      <div
-                        className="roster-shift-block [background:var(--roster-calendar-shift-bg)]! [color:var(--roster-calendar-shift-color)]! [border-color:var(--roster-calendar-shift-border)]!"
-                        style={{
-                          "--roster-calendar-shift-bg": colors.bg,
-                          "--roster-calendar-shift-color": colors.color,
-                          "--roster-calendar-shift-border": colors.border,
-                        } as React.CSSProperties}
-                        title={`${member.name} — ${dayEntry.day}: ${dayEntry.shift} (${dayEntry.hours ?? "—"})`}
-                      >
-                        <strong className="roster-shift-block-title">{dayEntry.shift}</strong>
-                        <span className="roster-shift-block-hours">
-                          <Clock size={9} className="[display:inline]! [margin-right:2px]! [vertical-align:middle]!" />
-                          {dayEntry.hours}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            ))}
-
-            {totalCount === 0 && (
-              <div className="roster-empty-state [grid-column:1_/_-1]!">
-                No team members match the current filter.
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Pagination Footer for Weekly Calendar */}
-        <div className="roster-pagination-bar">
-          <div className="roster-pagination-left">
-            <div className="roster-rows-per-page">
-              <span className="roster-pagination-label">Rows per page:</span>
-              <select
-                className="roster-filter-select roster-page-size-select"
-                value={pageSize === "all" ? "all" : String(pageSize)}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  setPageSize(val === "all" ? "all" : Number(val));
-                  setCurrentPage(1);
-                }}
-                aria-label="Jumlah baris per halaman"
-              >
-                <option value="10">10</option>
-                <option value="25">25</option>
-                <option value="50">50</option>
-                <option value="all">All</option>
-              </select>
-            </div>
-
-            <span className="roster-pagination-info">
-              Showing <strong>{totalCount === 0 ? 0 : startIdx + 1}–{endIdx}</strong> of <strong>{totalCount}</strong> members
-            </span>
-          </div>
-
-          <div className="roster-pagination-actions">
-            <button
-              className="roster-page-btn roster-page-nav"
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              disabled={safeCurrentPage <= 1}
-              aria-label="Halaman sebelumnya"
-            >
-              Prev
-            </button>
-
-            <div className="roster-page-numbers">
-              {pageNumbers.map((p, idx) =>
-                p === "..." ? (
-                  <span key={`ellipsis-${idx}`} className="roster-page-ellipsis">…</span>
-                ) : (
-                  <button
-                    key={p}
-                    className={`roster-page-btn roster-page-num ${p === safeCurrentPage ? "active" : ""}`}
-                    onClick={() => setCurrentPage(Number(p))}
-                    aria-label={`Halaman ${p}`}
-                    aria-current={p === safeCurrentPage ? "page" : undefined}
-                  >
-                    {p}
-                  </button>
-                )
               )}
             </div>
-
-            <button
-              className="roster-page-btn roster-page-nav"
-              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-              disabled={safeCurrentPage >= totalPages || totalPages <= 1}
-              aria-label="Halaman berikutnya"
-            >
-              Next
-            </button>
           </div>
-        </div>
-      </>
+
+          {/* Pagination Footer for Weekly Calendar */}
+          <div className="flex items-center justify-between gap-[16px] p-[12px_18px] border-t border-[var(--line)] bg-[var(--panel-bg)] flex-wrap">
+            <div className="flex items-center gap-[16px] flex-wrap">
+              <div className="flex items-center gap-[8px]">
+                <span className="text-[11.5px] text-[var(--ink-muted)] font-medium whitespace-nowrap">Rows per page:</span>
+                <select
+                  className="h-[30px] p-[0_24px_0_9px] text-[11.5px] rounded-[6px] bg-[position:right_7px_center] bg-[var(--input-bg,#0f172a)] [color-scheme:dark] border border-[var(--panel-border)] text-[var(--ink-primary)] cursor-pointer inline-flex items-center appearance-none -webkit-appearance-none"
+                  value={pageSize === "all" ? "all" : String(pageSize)}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setPageSize(val === "all" ? "all" : Number(val));
+                    setCurrentPage(1);
+                  }}
+                  aria-label="Jumlah baris per halaman"
+                >
+                  <option value="10">10</option>
+                  <option value="25">25</option>
+                  <option value="50">50</option>
+                  <option value="all">All</option>
+                </select>
+              </div>
+
+              <span className="text-[11.5px] text-[var(--ink-muted)] font-sans whitespace-nowrap">
+                Showing <strong className="text-[var(--ink-primary)] font-mono">{totalCount === 0 ? 0 : startIdx + 1}–{endIdx}</strong> of <strong className="text-[var(--ink-primary)] font-mono">{totalCount}</strong> members
+              </span>
+            </div>
+
+            <div className="flex items-center gap-[5px]">
+              <button
+                className="inline-flex items-center justify-center p-[4px_10px] rounded-[6px] text-[11px] font-semibold font-mono bg-[rgba(148,163,184,0.06)] border border-[rgba(148,163,184,0.15)] text-[var(--ink-secondary)] cursor-pointer transition-all duration-150 ease select-none hover:not-disabled:bg-[rgba(56,189,248,0.12)] hover:not-disabled:border-[rgba(56,189,248,0.35)] hover:not-disabled:text-[#38bdf8] disabled:opacity-35 disabled:cursor-not-allowed disabled:bg-[rgba(148,163,184,0.03)] disabled:border-[rgba(148,163,184,0.08)] disabled:text-[var(--ink-muted)]"
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={safeCurrentPage <= 1}
+                aria-label="Halaman sebelumnya"
+              >
+                Prev
+              </button>
+
+              <div className="flex items-center gap-[3px]">
+                {pageNumbers.map((p, idx) =>
+                  p === "..." ? (
+                    <span key={`ellipsis-${idx}`} className="px-[4px] text-[var(--ink-muted)] text-[12px]">…</span>
+                  ) : (
+                    <button
+                      key={p}
+                      className={`inline-flex items-center justify-center min-w-[26px] h-[26px] p-0 rounded-[6px] text-[11px] font-mono cursor-pointer transition-all duration-150 ease select-none border ${
+                        p === safeCurrentPage
+                          ? "bg-[rgba(56,189,248,0.18)] border-[rgba(56,189,248,0.5)] text-[#38bdf8] font-bold"
+                          : "bg-[rgba(148,163,184,0.06)] border-[rgba(148,163,184,0.15)] text-[var(--ink-secondary)] font-semibold hover:bg-[rgba(56,189,248,0.12)] hover:border-[rgba(56,189,248,0.35)] hover:text-[#38bdf8]"
+                      }`}
+                      onClick={() => setCurrentPage(Number(p))}
+                      aria-label={`Halaman ${p}`}
+                      aria-current={p === safeCurrentPage ? "page" : undefined}
+                    >
+                      {p}
+                    </button>
+                  )
+                )}
+              </div>
+
+              <button
+                className="inline-flex items-center justify-center p-[4px_10px] rounded-[6px] text-[11px] font-semibold font-mono bg-[rgba(148,163,184,0.06)] border border-[rgba(148,163,184,0.15)] text-[var(--ink-secondary)] cursor-pointer transition-all duration-150 ease select-none hover:not-disabled:bg-[rgba(56,189,248,0.12)] hover:not-disabled:border-[rgba(56,189,248,0.35)] hover:not-disabled:text-[#38bdf8] disabled:opacity-35 disabled:cursor-not-allowed disabled:bg-[rgba(148,163,184,0.03)] disabled:border-[rgba(148,163,184,0.08)] disabled:text-[var(--ink-muted)]"
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                disabled={safeCurrentPage >= totalPages || totalPages <= 1}
+                aria-label="Halaman berikutnya"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        </>
       )}
 
       {/* ══ MONTHLY VIEW ═════════════════════════════════ */}
       {calMode === "monthly" && (
-        <div className="monthly-cal-wrapper">
+        <div className="px-[16px] pb-[20px] pt-0">
           {/* Day-of-week header */}
-          <div className="monthly-cal-dow-row">
+          <div className="grid grid-cols-[repeat(7,1fr)] gap-[5px] mb-[5px]">
             {DOW_LABELS.map((d) => (
-              <div key={d} className="monthly-cal-dow-head">{d}</div>
+              <div key={d} className="py-[5px] text-center font-mono text-[10px] font-bold text-[var(--ink-muted)] uppercase tracking-[0.5px]">{d}</div>
             ))}
           </div>
 
           {/* Weeks */}
           {monthGrid.map((week, wi) => (
-            <div key={wi} className="monthly-cal-week-row">
+            <div key={wi} className="grid grid-cols-[repeat(7,1fr)] gap-[5px] mb-[5px]">
               {week.map((day, di) => {
                 if (day === null) {
-                  return <div key={di} className="monthly-cal-day monthly-cal-day-empty" />;
+                  return <div key={di} className="min-h-[72px] rounded-[9px] border border-transparent p-[7px_6px_5px] bg-transparent cursor-default pointer-events-none" />;
                 }
 
                 const dow = di; // 0=Mon
@@ -398,35 +422,40 @@ export function RosterCalendarView({ members, onSelectMember }: RosterCalendarVi
                 return (
                   <button
                     key={di}
-                    className={`monthly-cal-day ${isToday ? "monthly-cal-day-today" : ""} ${isSelected ? "monthly-cal-day-selected" : ""}`}
+                    className={`min-h-[72px] rounded-[9px] p-[7px_6px_5px] flex flex-col items-start gap-[4px] text-left cursor-pointer transition-[border-color,box-shadow,background] duration-150 ease border ${
+                      isSelected
+                        ? "border-[var(--accent-blue)] shadow-[0_0_0_2px_var(--accent-blue)] bg-[var(--panel-bg)]"
+                        : isToday
+                        ? "border-[var(--accent-blue)] bg-[var(--accent-blue-soft)]"
+                        : "border-[var(--line)] bg-[var(--panel-bg)] hover:border-[var(--accent-blue-border)] hover:shadow-[0_0_0_2px_var(--accent-blue-soft)]"
+                    }`}
                     onClick={() => setSelectedDay(day === selectedDay ? null : day)}
                     aria-label={`${day} ${MONTH_NAMES[monthDate.getMonth()]} — ${scheduledMembers.length} on shift`}
                   >
-                    <span className="monthly-day-num">{day}</span>
+                    <span className={`text-[12px] font-bold font-mono leading-none ${isToday ? "text-[var(--accent-blue)]" : "text-[var(--ink-primary)]"}`}>{day}</span>
 
                     {/* Avatar dot stack */}
-                    <div className="monthly-day-avatars">
+                    <div className="flex gap-[3px] flex-wrap">
                       {scheduledMembers.slice(0, 4).map((m) => {
                         const shift = memberShiftForDow(m, dow);
-                        const sc = shiftColor(shift);
                         return (
                           <Avatar
                             key={m.id}
                             size="xs"
                             initials={initials(m.name)[0]}
                             name={m.name}
-                            className="monthly-avatar-dot"
+                            className="inline-flex items-center justify-center w-[18px] h-[18px] rounded-[99px] border-[1.5px] border-[var(--panel-border)] text-[8px] font-extrabold text-white tracking-[-0.5px] shrink-0"
                             title={`${m.name} — ${shift}`}
                           />
                         );
                       })}
                       {scheduledMembers.length > 4 && (
-                        <span className="monthly-avatar-dot monthly-avatar-more">+{scheduledMembers.length - 4}</span>
+                        <span className="inline-flex items-center justify-center w-[18px] h-[18px] rounded-[99px] border border-[var(--line)] text-[8px] font-bold bg-[var(--panel-bg)] text-[var(--ink-secondary)] shrink-0">+{scheduledMembers.length - 4}</span>
                       )}
                     </div>
 
                     {scheduledMembers.length > 0 && (
-                      <span className="monthly-day-count">{scheduledMembers.length} on shift</span>
+                      <span className="text-[9.5px] text-[var(--ink-muted)] font-mono font-semibold">{scheduledMembers.length} on shift</span>
                     )}
                   </button>
                 );
@@ -436,21 +465,21 @@ export function RosterCalendarView({ members, onSelectMember }: RosterCalendarVi
 
           {/* Day detail panel */}
           {selectedDay !== null && membersOnDay.length > 0 && (
-            <div className="monthly-day-detail anim-fade">
-              <div className="monthly-day-detail-header">
+            <div className="mt-[14px] rounded-[10px] border border-[var(--accent-blue-border)] bg-[var(--panel-bg)] overflow-hidden anim-fade">
+              <div className="flex justify-between items-center p-[10px_14px] bg-[var(--accent-blue-soft)] border-b border-[var(--accent-blue-border)] text-[12.5px] text-[var(--ink-primary)]">
                 <strong>
-                  <CalendarIcon size={14} className="[display:inline]! [margin-right:6px]! [vertical-align:middle]! [color:var(--accent-blue)]!" />
+                  <CalendarIcon size={14} className="inline mr-[6px] vertical-middle text-[var(--accent-blue)]" />
                   {selectedDay} {MONTH_NAMES[monthDate.getMonth()]} {monthDate.getFullYear()} — {membersOnDay.length} Scheduled
                 </strong>
                 <ModalCloseButton onClose={() => setSelectedDay(null)} label="Close day detail" />
               </div>
-              <div className="monthly-day-detail-list">
+              <div className="grid gap-0">
                 {membersOnDay.map(({ member, shift }) => {
                   const sc = shiftColor(shift);
                   return (
                     <div
                       key={member.id}
-                      className="monthly-day-member-row"
+                      className="flex items-center gap-[10px] p-[10px_14px] border-b border-[var(--line)] last:border-b-0 cursor-pointer transition-colors duration-120 ease hover:bg-[var(--panel-bg-hover)]"
                       onClick={() => onSelectMember(member)}
                       role="button"
                       tabIndex={0}
@@ -460,21 +489,21 @@ export function RosterCalendarView({ members, onSelectMember }: RosterCalendarVi
                         size="md"
                         name={member.name}
                         statusRing={member.status === "Active" ? "active" : member.status === "On Break" ? "break" : "off"}
-                        className="roster-avatar"
+                        className="w-[32px] h-[32px] text-[11px]"
                       />
-                      <div className="[flex:1]! [min-width:0]!">
-                        <strong className="[display:block]! [font-size:12.5px]! [color:var(--ink-primary)]!">{member.name}</strong>
-                        <small className="[font-size:11px]! [color:var(--ink-muted)]!">{member.role}</small>
+                      <div className="flex-1 min-w-0">
+                        <strong className="block text-[12.5px] text-[var(--ink-primary)]">{member.name}</strong>
+                        <small className="text-[11px] text-[var(--ink-muted)]">{member.role}</small>
                       </div>
                       <span
-                        className="monthly-shift-pill [background:var(--roster-calendar-shift-bg)]! [color:var(--roster-calendar-shift-color)]! [border-color:var(--roster-calendar-shift-border)]!"
+                        className="ml-auto inline-flex items-center p-[3px_8px] rounded-[99px] border text-[11px] font-bold font-mono shrink-0"
                         style={{
-                          "--roster-calendar-shift-bg": sc.bg,
-                          "--roster-calendar-shift-color": sc.color,
-                          "--roster-calendar-shift-border": sc.border,
-                        } as React.CSSProperties}
+                          backgroundColor: sc.bg,
+                          color: sc.color,
+                          borderColor: sc.border,
+                        }}
                       >
-                        <Clock size={11} className="[display:inline]! [margin-right:3px]! [vertical-align:middle]!" />
+                        <Clock size={11} className="inline mr-[3px] vertical-middle" />
                         {shift}
                       </span>
                     </div>
@@ -485,12 +514,12 @@ export function RosterCalendarView({ members, onSelectMember }: RosterCalendarVi
           )}
 
           {selectedDay !== null && membersOnDay.length === 0 && (
-            <div className="monthly-day-detail anim-fade">
-              <div className="monthly-day-detail-header">
+            <div className="mt-[14px] rounded-[10px] border border-[var(--accent-blue-border)] bg-[var(--panel-bg)] overflow-hidden anim-fade">
+              <div className="flex justify-between items-center p-[10px_14px] bg-[var(--accent-blue-soft)] border-b border-[var(--accent-blue-border)] text-[12.5px] text-[var(--ink-primary)]">
                 <strong>{selectedDay} {MONTH_NAMES[monthDate.getMonth()]} — No one scheduled</strong>
                 <ModalCloseButton onClose={() => setSelectedDay(null)} label="Close day detail" />
               </div>
-              <p className="[padding:12px_16px]! [color:var(--ink-muted)]! [font-size:12px]! [margin:0]!">
+              <p className="p-[12px_16px] text-[var(--ink-muted)] text-[12px] m-0">
                 All team members are off or on leave this day.
               </p>
             </div>

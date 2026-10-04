@@ -271,20 +271,20 @@ export function ShiftSwapModal({
                     {isPending ? (
                       <>
                         <button
-                          className="assess-btn assess-ok [min-height:28px]! [padding:4px_10px]! [font-size:11px]!"
+                          className="inline-flex items-center justify-center gap-[4.5px] min-h-[28px] px-[10px] py-[4px] text-[11px] font-semibold rounded-[6px] border border-[var(--green-border)] bg-[var(--green-soft)] text-[var(--green)] hover:bg-[var(--green)] hover:text-white cursor-pointer transition-colors"
                           onClick={() => handleStatusChange(req.id, "Approved")}
                           title="Setujui pertukaran shift ini"
                         >
-                          <Check size={13} strokeWidth={2.5} className="assess-btn-icon" />
-                          <span className="assess-btn-text">Approve</span>
+                          <Check size={13} strokeWidth={2.5} className="block shrink-0 m-0" />
+                          <span className="inline-flex items-center leading-none">Approve</span>
                         </button>
                         <button
-                          className="assess-btn assess-fail [min-height:28px]! [padding:4px_10px]! [font-size:11px]!"
+                          className="inline-flex items-center justify-center gap-[4.5px] min-h-[28px] px-[10px] py-[4px] text-[11px] font-semibold rounded-[6px] border border-[var(--red-border)] bg-[var(--red-soft)] text-[var(--red)] hover:bg-[var(--red)] hover:text-white cursor-pointer transition-colors"
                           onClick={() => handleStatusChange(req.id, "Rejected")}
                           title="Tolak pertukaran shift ini"
                         >
-                          <X size={13} strokeWidth={2.5} className="assess-btn-icon" />
-                          <span className="assess-btn-text">Reject</span>
+                          <X size={13} strokeWidth={2.5} className="block shrink-0 m-0" />
+                          <span className="inline-flex items-center leading-none">Reject</span>
                         </button>
                       </>
                     ) : (

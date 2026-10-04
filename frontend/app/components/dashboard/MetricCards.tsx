@@ -36,79 +36,79 @@ export function MetricCards({
   const totalCount = totalTasksCount ?? 0;
 
   return (
-    <section className="metrics-grid [display:grid] [grid-template-columns:1.2fr_1fr_1fr_1fr] [gap:16px] [margin-bottom:20px]" aria-label="Metrik operasional">
-      <article className="metric-card [position:relative] [padding:18px_20px] [background:var(--panel-bg)] [border:1px_solid_var(--panel-border)] [border-radius:10px] [box-shadow:var(--shadow-panel)] [transition:all_0.15s_ease]">
-        <div className="metric-top [display:flex] [justify-content:space-between] [align-items:center] [gap:8px] [color:var(--ink-muted)] [font-size:10px] [font-weight:700] [letter-spacing:0.7px] [font-family:var(--font-mono)] [text-transform:uppercase]">
+    <section className="metrics-grid grid grid-cols-[1.2fr_1fr_1fr_1fr] gap-[16px] mb-[20px] max-[1240px]:grid-cols-2" aria-label="Metrik operasional">
+      <article className="metric-card relative p-[18px_20px] bg-[var(--panel-bg)] border border-[var(--panel-border)] rounded-[10px] shadow-[var(--shadow-panel)] transition-all duration-150 hover:border-[var(--accent-blue-border)]">
+        <div className="metric-top flex justify-between items-center gap-[8px] text-[var(--ink-muted)] text-[10px] font-bold tracking-[0.7px] font-mono uppercase">
           <span>CHECKPOINT SUCCESS RATE</span>
           <Badge tone={successRate >= 90 ? "success" : "warning"}>{successRate}% Compliant</Badge>
         </div>
-        <div className="metric-number [margin-top:10px] [color:var(--ink-primary)] [font-size:32px] [font-weight:700] [letter-spacing:-1px] [line-height:1]">
-          {successRate}<span className="[margin-left:2px] [color:var(--ink-muted)] [font-size:16px] [font-weight:600]">%</span>
+        <div className="metric-number mt-[10px] text-[var(--ink-primary)] text-[32px] font-bold tracking-[-1px] leading-none">
+          {successRate}<span className="ml-[2px] text-[var(--ink-muted)] text-[16px] font-semibold">%</span>
         </div>
-        <p className="[margin:8px_0_10px] [color:var(--ink-secondary)] [font-size:11.5px] [line-height:1.4]">{checkpointPassed} dari {checkpointTotal} pemeriksaan monitoring terjadwal selesai dengan baik.</p>
-        <div className="progress-line [height:5px] [overflow:hidden] [border-radius:99px] [background:var(--line)]">
-          <i className="[display:block] [height:100%] [border-radius:inherit] [background:var(--green)]" style={{ width: `${Math.min(100, Math.max(0, successRate))}%` }} />
+        <p className="my-[8px_10px] text-[var(--ink-secondary)] text-[11.5px] leading-[1.4]">{checkpointPassed} dari {checkpointTotal} pemeriksaan monitoring terjadwal selesai dengan baik.</p>
+        <div className="progress-line h-[5px] overflow-hidden rounded-full bg-[var(--line)]">
+          <i className="block h-full rounded-[inherit] bg-[var(--green)]" style={{ width: `${Math.min(100, Math.max(0, successRate))}%` }} />
         </div>
       </article>
 
-      <article className="metric-card [position:relative] [padding:18px_20px] [background:var(--panel-bg)] [border:1px_solid_var(--panel-border)] [border-radius:10px] [box-shadow:var(--shadow-panel)] [transition:all_0.15s_ease]">
-        <div className="metric-top [display:flex] [justify-content:space-between] [align-items:center] [gap:8px] [color:var(--ink-muted)] [font-size:10px] [font-weight:700] [letter-spacing:0.7px] [font-family:var(--font-mono)] [text-transform:uppercase]">
+      <article className="metric-card relative p-[18px_20px] bg-[var(--panel-bg)] border border-[var(--panel-border)] rounded-[10px] shadow-[var(--shadow-panel)] transition-all duration-150 hover:border-[var(--accent-blue-border)]">
+        <div className="metric-top flex justify-between items-center gap-[8px] text-[var(--ink-muted)] text-[10px] font-bold tracking-[0.7px] font-mono uppercase">
           <span>OPEN TICKETS</span>
-          <button className="[padding:0] [color:var(--accent-blue)] [background:none]! [font-size:11px]! [font-weight:600]" onClick={onGoToTickets}>Lihat queue →</button>
+          <button className="p-0 text-[var(--accent-blue)] bg-transparent text-[11px] font-semibold hover:underline" onClick={onGoToTickets}>Lihat queue →</button>
         </div>
-        <div className="metric-number [margin-top:10px] [color:var(--ink-primary)] [font-size:32px] [font-weight:700] [letter-spacing:-1px] [line-height:1]">{open}</div>
-        <p className="[margin:8px_0_10px] [color:var(--ink-secondary)] [font-size:11.5px] [line-height:1.4]">
+        <div className="metric-number mt-[10px] text-[var(--ink-primary)] text-[32px] font-bold tracking-[-1px] leading-none">{open}</div>
+        <p className="my-[8px_10px] text-[var(--ink-secondary)] text-[11.5px] leading-[1.4]">
           {open} ticket dalam tahap penanganan aktif, {closedToday} ticket selesai hari ini.
         </p>
-        <div className="metric-foot [display:flex] [align-items:center] [gap:7px] [margin-top:14px] [color:var(--ink-secondary)] [font-size:11px]">
+        <div className="metric-foot flex items-center gap-[7px] mt-[14px] text-[var(--ink-secondary)] text-[11px]">
           <Badge tone={open > 0 ? "warning" : "success"}>{open} Active</Badge>
-          <span className="[white-space:nowrap] [overflow:hidden] [text-overflow:ellipsis]">{closedToday} Closed today</span>
+          <span className="whitespace-nowrap overflow-hidden text-ellipsis">{closedToday} Closed today</span>
         </div>
       </article>
 
-      <article className="metric-card [position:relative] [padding:18px_20px] [background:var(--panel-bg)] [border:1px_solid_var(--panel-border)] [border-radius:10px] [box-shadow:var(--shadow-panel)] [transition:all_0.15s_ease]">
-        <div className="metric-top [display:flex] [justify-content:space-between] [align-items:center] [gap:8px] [color:var(--ink-muted)] [font-size:10px] [font-weight:700] [letter-spacing:0.7px] [font-family:var(--font-mono)] [text-transform:uppercase]">
+      <article className="metric-card relative p-[18px_20px] bg-[var(--panel-bg)] border border-[var(--panel-border)] rounded-[10px] shadow-[var(--shadow-panel)] transition-all duration-150 hover:border-[var(--accent-blue-border)]">
+        <div className="metric-top flex justify-between items-center gap-[8px] text-[var(--ink-muted)] text-[10px] font-bold tracking-[0.7px] font-mono uppercase">
           <span>NEEDS ATTENTION</span>
           {onGoToNotifications && (
-            <button className="[padding:0] [color:var(--accent-blue)] [background:none]! [font-size:11px]! [font-weight:600]" onClick={onGoToNotifications}>Lihat notifikasi →</button>
+            <button className="p-0 text-[var(--accent-blue)] bg-transparent text-[11px] font-semibold hover:underline" onClick={onGoToNotifications}>Lihat notifikasi →</button>
           )}
         </div>
-        <div className="metric-number [margin-top:10px] [color:var(--ink-primary)] [font-size:32px] [font-weight:700] [letter-spacing:-1px] [line-height:1]">{attentionCount}</div>
-        <p className="[margin:8px_0_10px] [color:var(--ink-secondary)] [font-size:11.5px] [line-height:1.4]">{attentionCount} anomali atau tugas ad-hoc yang memerlukan tindak lanjut.</p>
-        <div className="metric-foot [display:flex] [align-items:center] [gap:7px] [margin-top:14px] [color:var(--ink-secondary)] [font-size:11px]">
+        <div className="metric-number mt-[10px] text-[var(--ink-primary)] text-[32px] font-bold tracking-[-1px] leading-none">{attentionCount}</div>
+        <p className="my-[8px_10px] text-[var(--ink-secondary)] text-[11.5px] leading-[1.4]">{attentionCount} anomali atau tugas ad-hoc yang memerlukan tindak lanjut.</p>
+        <div className="metric-foot flex items-center gap-[7px] mt-[14px] text-[var(--ink-secondary)] text-[11px]">
           <Badge tone={attentionCount > 0 ? "warning" : "success"}>
             {attentionCount > 0 ? "Action Required" : "Nominal"}
           </Badge>
-          <span className="[white-space:nowrap] [overflow:hidden] [text-overflow:ellipsis]">{attentionCount} anomali monitoring</span>
+          <span className="whitespace-nowrap overflow-hidden text-ellipsis">{attentionCount} anomali monitoring</span>
         </div>
       </article>
 
-      <article className="metric-card [position:relative] [padding:18px_20px] [background:var(--panel-bg)] [border:1px_solid_var(--panel-border)] [border-radius:10px] [box-shadow:var(--shadow-panel)] [transition:all_0.15s_ease]">
-        <div className="metric-top [display:flex] [justify-content:space-between] [align-items:center] [gap:8px] [color:var(--ink-muted)] [font-size:10px] [font-weight:700] [letter-spacing:0.7px] [font-family:var(--font-mono)] [text-transform:uppercase]">
+      <article className="metric-card relative p-[18px_20px] bg-[var(--panel-bg)] border border-[var(--panel-border)] rounded-[10px] shadow-[var(--shadow-panel)] transition-all duration-150 hover:border-[var(--accent-blue-border)]">
+        <div className="metric-top flex justify-between items-center gap-[8px] text-[var(--ink-muted)] text-[10px] font-bold tracking-[0.7px] font-mono uppercase">
           <span>TUGAS SAAT INI</span>
           {onGoToTasks && (
-            <button className="[padding:0] [color:var(--accent-blue)] [background:none]! [font-size:11px]! [font-weight:600]" onClick={onGoToTasks}>Lihat tugas →</button>
+            <button className="p-0 text-[var(--accent-blue)] bg-transparent text-[11px] font-semibold hover:underline" onClick={onGoToTasks}>Lihat tugas →</button>
           )}
         </div>
-        <div className="metric-number [margin-top:10px] [color:var(--ink-primary)] [font-size:32px] [font-weight:700] [letter-spacing:-1px] [line-height:1]">
+        <div className="metric-number mt-[10px] text-[var(--ink-primary)] text-[32px] font-bold tracking-[-1px] leading-none">
           {pendingCount}
           {totalCount > 0 && (
-            <span className="[margin-left:5px] [color:var(--ink-muted)] [font-size:15px] [font-weight:500]">
+            <span className="ml-[5px] text-[var(--ink-muted)] text-[15px] font-medium">
               / {totalCount}
             </span>
           )}
         </div>
-        <p className="[margin:8px_0_10px] [color:var(--ink-secondary)] [font-size:11.5px] [line-height:1.4]">
+        <p className="my-[8px_10px] text-[var(--ink-secondary)] text-[11.5px] leading-[1.4]">
           {pendingCount > 0
             ? `${pendingCount} tugas operasional shift saat ini perlu dikerjakan & diselesaikan.`
             : `Seluruh ${totalCount > 0 ? `${totalCount} ` : ""}tugas operasional shift saat ini telah selesai dikerjakan.`}
         </p>
-        <div className="metric-foot [display:flex] [align-items:center] [gap:7px] [margin-top:14px] [color:var(--ink-secondary)] [font-size:11px]">
+        <div className="metric-foot flex items-center gap-[7px] mt-[14px] text-[var(--ink-secondary)] text-[11px]">
           <Badge tone={pendingCount > 0 ? "warning" : "success"}>
             {pendingCount > 0 ? `${pendingCount} Perlu Dikerjakan` : "Semua Selesai"}
           </Badge>
           <span
-            className="[white-space:nowrap] [overflow:hidden] [text-overflow:ellipsis]"
+            className="whitespace-nowrap overflow-hidden text-ellipsis"
             title={
               pendingCount > 0 && currentTaskTitle
                 ? `Tugas: ${currentTaskTitle}`

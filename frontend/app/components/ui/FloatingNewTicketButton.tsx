@@ -44,11 +44,11 @@ export function FloatingNewTicketButton({ onClick, isOpen = false }: FloatingNew
   return (
     <button
       type="button"
-      className={`fab-new-ticket [position:fixed] [bottom:28px] [right:28px] [z-index:90] [display:inline-flex] [align-items:center] [justify-content:center] [gap:0] [height:48px] [min-width:48px] [border:1px_solid_rgba(255,_255,_255,_0.16)]! [border-radius:9999px] [cursor:pointer] [background:linear-gradient(135deg,_#6366f1_0%,_#7c3aed_100%)]! [color:#ffffff] [font-family:var(--font-primary,_'Plus_Jakarta_Sans',_sans-serif)]! [font-size:13.5px]! [font-weight:700] [letter-spacing:0.02em] [box-shadow:0_4px_14px_rgba(0,_0,_0,_0.28),_0_1px_3px_rgba(0,_0,_0,_0.15)] [will-change:right,_transform,_padding] [transition:right_0.35s_cubic-bezier(0.16,_1,_0.3,_1),_transform_0.2s_cubic-bezier(0.16,_1,_0.3,_1),_padding_0.3s_cubic-bezier(0.16,_1,_0.3,_1),_background_0.2s_ease,_box-shadow_0.2s_ease] [overflow:hidden] [white-space:nowrap] ${
-        isExpanded ? "fab-expanded [padding:0_18px_0_14px]" : "[padding:0_14px]"
-      } ${isHovered ? "fab-hovered" : ""} ${
+      className={`fab-new-ticket group fixed bottom-[28px] right-[28px] z-[90] inline-flex items-center justify-center gap-0 h-[48px] min-w-[48px] border border-[rgba(255,255,255,0.16)] rounded-[9999px] cursor-pointer bg-[linear-gradient(135deg,#6366f1_0%,#7c3aed_100%)] text-[#ffffff] font-['Plus_Jakarta_Sans',sans-serif] text-[13.5px] font-bold tracking-[0.02em] [box-shadow:0_4px_14px_rgba(0,0,0,0.28),_0_1px_3px_rgba(0,0,0,0.15)] [will-change:right,_transform,_padding] [transition:right_0.35s_cubic-bezier(0.16,_1,_0.3,_1),_transform_0.2s_cubic-bezier(0.16,_1,_0.3,_1),_padding_0.3s_cubic-bezier(0.16,_1,_0.3,_1),_background_0.2s_ease,_box-shadow_0.2s_ease] overflow-hidden whitespace-nowrap hover:gap-[8px] hover:p-[0_18px_0_14px] hover:[transform:translateY(-2px)] hover:bg-[linear-gradient(135deg,#6d70f5_0%,#8b5cf6_100%)] hover:[box-shadow:0_6px_18px_rgba(0,0,0,0.35),_0_2px_6px_rgba(0,0,0,0.2)] active:[transform:translateY(0)_scale(0.97)] active:[box-shadow:0_2px_8px_rgba(0,0,0,0.25)] [.shift-panel-is-open_&]:right-[328px] [.shift-panel-is-open_&]:[transition:right_0.35s_cubic-bezier(0.16,_1,_0.3,_1)] max-[940px]:[.shift-panel-is-open_&]:right-[328px] max-[940px]:[.shift-panel-is-open_&]:[transform:none] max-[940px]:[.shift-panel-is-open_&]:opacity-0 max-[940px]:[.shift-panel-is-open_&]:pointer-events-none max-[940px]:h-[46px] max-[940px]:min-w-[46px] max-[940px]:p-[0_14px] max-[940px]:bottom-[20px] max-[940px]:right-[20px] max-[660px]:h-[46px] max-[660px]:min-w-[46px] max-[660px]:p-0 max-[660px]:justify-center max-[660px]:bottom-[16px] max-[660px]:right-[16px] max-[660px]:rounded-[50%] max-[660px]:gap-0 ${
+        isExpanded ? "fab-expanded gap-[8px] p-[0_18px_0_14px] [transform:translateY(-2px)] bg-[linear-gradient(135deg,#6d70f5_0%,#8b5cf6_100%)] [box-shadow:0_6px_18px_rgba(0,0,0,0.35),_0_2px_6px_rgba(0,0,0,0.2)]" : "p-[0_14px]"
+      } ${isHovered ? "fab-hovered gap-[8px] p-[0_18px_0_14px] [transform:translateY(-2px)] bg-[linear-gradient(135deg,#6d70f5_0%,#8b5cf6_100%)] [box-shadow:0_6px_18px_rgba(0,0,0,0.35),_0_2px_6px_rgba(0,0,0,0.2)]" : ""} ${
         isOpen
-          ? "fab-modal-open [box-shadow:0_0_0_3px_rgba(99,_102,_241,_0.4),_0_6px_20px_rgba(0,_0,_0,_0.35)]!"
+          ? "fab-modal-open [box-shadow:0_0_0_3px_rgba(99,102,241,0.4),_0_6px_20px_rgba(0,0,0,0.35)]"
           : ""
       }`}
       onClick={onClick}
@@ -57,14 +57,14 @@ export function FloatingNewTicketButton({ onClick, isOpen = false }: FloatingNew
       aria-label="Buat tiket baru (Ctrl+N)"
       title="New Ticket (Ctrl+N)"
     >
-      <span className="fab-icon-wrap [display:flex] [align-items:center] [justify-content:center] [width:20px] [height:20px] [flex-shrink:0] [transition:transform_0.3s_cubic-bezier(0.34,_1.56,_0.64,_1)]">
+      <span className="fab-icon-wrap flex items-center justify-center w-[20px] h-[20px] shrink-0 [transition:transform_0.3s_cubic-bezier(0.34,_1.56,_0.64,_1)] group-hover:[transform:rotate(90deg)] [.fab-hovered_&]:[transform:rotate(90deg)]">
         <Plus size={20} strokeWidth={2.5} />
       </span>
       <span
-        className={`fab-label [display:inline-block] [overflow:hidden] [white-space:nowrap] [font-size:13.5px] [font-weight:700] [letter-spacing:0.02em] [color:#ffffff] [line-height:1] [transition:max-width_0.35s_cubic-bezier(0.16,_1,_0.3,_1),_opacity_0.25s_ease,_margin-left_0.35s_ease] [@media(max-width:660px)]:[display:none] ${
+        className={`fab-label inline-block overflow-hidden whitespace-nowrap text-[13.5px] font-bold tracking-[0.02em] text-[#ffffff] leading-none [transition:max-width_0.35s_cubic-bezier(0.16,_1,_0.3,_1),_opacity_0.25s_ease,_margin-left_0.35s_ease] group-hover:max-w-[120px] group-hover:opacity-100 group-hover:ml-[8px] max-[660px]:hidden ${
           isExpanded
-            ? "fab-label-visible [max-width:120px] [opacity:1] [margin-left:8px]"
-            : "[max-width:0] [opacity:0] [margin-left:0]"
+            ? "fab-label-visible max-w-[120px] opacity-100 ml-[8px]"
+            : "max-w-0 opacity-0 ml-0"
         }`}
       >
         New Ticket

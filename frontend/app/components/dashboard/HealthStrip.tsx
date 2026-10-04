@@ -209,7 +209,7 @@ export function HealthStrip({
   const counterLabel = totalItems === 0 ? "0 dari 0" : `${startIdx}–${endIdx} dari ${totalItems}`;
 
   return (
-    <section className="health-strip health-strip-roomy health-strip-two-rows" aria-label="Kesehatan layanan terpantau">
+    <section className="health-strip health-strip-roomy health-strip-two-rows flex flex-col gap-[20px] p-[16px_20px]" aria-label="Kesehatan layanan terpantau">
       {/* ── Row 1 (Top Row): Title + Badge + Filter Tabs (Left) & Pagination Controls (Right) ── */}
       <div className="health-strip-row-top">
         <div className="health-top-left">

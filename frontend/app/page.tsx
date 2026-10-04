@@ -34,6 +34,7 @@ const ReportsView = lazy(() => import("@/app/components/views/ReportsView").then
 const TeamRosterView = lazy(() => import("@/app/components/views/TeamRosterView").then((module) => ({ default: module.TeamRosterView })));
 const ProfileView = lazy(() => import("@/app/components/views/ProfileView").then((module) => ({ default: module.ProfileView })));
 const NotificationsView = lazy(() => import("@/app/components/views/NotificationsView").then((module) => ({ default: module.NotificationsView })));
+const RunbooksView = lazy(() => import("@/app/components/views/RunbooksView").then((module) => ({ default: module.RunbooksView })));
 import {
   NotificationProvider,
   useNotifications,
@@ -130,6 +131,7 @@ export function Dashboard({ initialNav = "Dashboard" }: { initialNav?: string })
     if (activeNav === "Team Roster" || activeNav === "Team" || activeNav === "Roster") return "team-roster";
     if (activeNav === "Profile" || activeNav === "Profil" || activeNav === "Profil Pengguna") return "profile";
     if (activeNav === "Notifications" || activeNav === "Notifikasi") return "notifications";
+    if (activeNav === "Runbooks") return "runbooks";
     return activeNav.toLowerCase();
   }, [activeNav]);
 
@@ -229,7 +231,7 @@ export function Dashboard({ initialNav = "Dashboard" }: { initialNav?: string })
         onToggleCollapse={() => setSidebarCollapsed((prev) => !prev)}
       />
 
-      <section className="workspace">
+      <section className="workspace flex-auto min-w-0 flex flex-col min-h-screen will-change-[margin-left] [transition:margin-left_0.35s_cubic-bezier(0.16,_1,_0.3,_1)] [overflow-x:clip] ml-[250px] [.sidebar-is-collapsed_&]:ml-[68px] [.shift-panel-is-open_&]:mr-0 max-[940px]:ml-0 max-[940px]:w-full">
         <Topbar
           activeNav={activeNav}
           onOpenSearch={() => setSearchOpen(true)}
@@ -239,7 +241,7 @@ export function Dashboard({ initialNav = "Dashboard" }: { initialNav?: string })
           onOpenHandover={() => handover.openActive()}
         />
 
-        <div className="page-content">
+        <div className="page-content max-w-[1600px] w-full mx-auto pt-[28px] px-[32px] pb-[44px] [contain:layout_style] max-[1240px]:px-[22px] max-[660px]:pt-[18px] max-[660px]:px-[16px] max-[660px]:pb-[36px]">
           <div key={pageKey} className="page-view-enter">
             <Suspense fallback={<DashboardViewSkeleton />}>
               {(activeNav === "Dashboard" || activeNav === "Overview" || activeNav === "Utama") && (
@@ -284,6 +286,10 @@ export function Dashboard({ initialNav = "Dashboard" }: { initialNav?: string })
 
               {(activeNav === "Notifications" || activeNav === "Notifikasi") && (
                 <NotificationsView />
+              )}
+
+              {activeNav === "Runbooks" && (
+                <RunbooksView />
               )}
             </Suspense>
           </div>

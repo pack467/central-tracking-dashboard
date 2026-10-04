@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { EmptyState } from "@/app/components/ui/EmptyState";
 import { ConfirmDialog } from "@/app/components/ui/ConfirmDialog";
+import { PaginationBar } from "@/app/components/ui/PaginationBar";
 import { useToast } from "@/app/components/ui/Toast";
 import { Avatar } from "@/app/components/ui/Avatar";
 import { formatHandoverDate, initials, isOpenTicket } from "@/app/lib/data";
@@ -31,6 +32,12 @@ import {
 
 import { getShiftType } from "@/app/lib/shifts";
 
+const SHIFT_TAG_STYLES: Record<string, string> = {
+  pagi: "text-[#fb923c] bg-[rgba(249,115,22,0.15)] border border-[rgba(249,115,22,0.35)] shadow-[0_1px_2px_rgba(249,115,22,0.08)]",
+  malam: "text-[#c084fc] bg-[rgba(192,132,252,0.15)] border border-[rgba(192,132,252,0.35)] shadow-[0_1px_2px_rgba(192,132,252,0.08)]",
+  subuh: "text-[#38bdf8] bg-[rgba(56,189,248,0.15)] border border-[rgba(56,189,248,0.35)] shadow-[0_1px_2px_rgba(56,189,248,0.08)]",
+};
+
 export function getShiftTagMeta(shiftName: string) {
   const type = getShiftType(shiftName);
   let icon = null;
@@ -40,7 +47,7 @@ export function getShiftTagMeta(shiftName: string) {
 
   return {
     key: type,
-    className: `shift-tag-${type}`,
+    className: SHIFT_TAG_STYLES[type] || "text-[var(--accent-blue)] bg-[var(--accent-blue-soft)] border border-[var(--accent-blue-border)]",
     icon,
   };
 }
@@ -227,70 +234,70 @@ export function ShiftLogView({ workflow }: { workflow: HandoverWorkflow }) {
 
   return (
     <>
-      <section className="page-heading">
+      <section className="page-heading flex justify-between items-end mb-[22px] max-[660px]:flex-col max-[660px]:items-start max-[660px]:gap-[12px] max-[640px]:mb-0">
         <div>
-          <div className="eyebrow">
+          <div className="flex items-center gap-[8px] text-[var(--ink-muted)] text-[10px] tracking-[1px] font-bold font-mono uppercase">
             <span className="live-dot live-dot-pulse" /> SHIFT LOG
           </div>
-          <h1>Shift Log</h1>
+          <h1 className="m-[6px_0_4px] text-[var(--ink-primary)] text-[24px] leading-[1.2] tracking-[-0.4px] font-bold">Shift Log</h1>
         </div>
       </section>
 
       {/* Top summary stat cards */}
-      <section className="shift-log-stats-row" aria-label="Ringkasan statistik log shift">
+      <section className="grid grid-cols-4 gap-[12px] w-full mb-[18px] max-[960px]:grid-cols-2 max-[520px]:grid-cols-1" aria-label="Ringkasan statistik log shift">
         {/* Card a: Total Shift Selesai */}
-        <div className="shift-log-stat-card">
-          <span className="shift-log-stat-icon is-completed">
+        <div className="group flex items-center gap-[12px] p-[10px_14px] min-h-[54px] h-full box-border bg-[var(--panel-bg)] border border-[var(--panel-border)] rounded-[8px] transition-[border-color,background-color] duration-150 ease-out hover:border-[var(--line)] hover:bg-[rgba(30,41,59,0.45)]">
+          <span className="inline-grid place-items-center w-[34px] h-[34px] rounded-[8px] shrink-0 transition-transform duration-150 ease-out group-hover:scale-[1.06] bg-[rgba(16,185,129,0.12)] text-[#34d399] border border-[rgba(16,185,129,0.3)]">
             <CheckCircle2 size={17} />
           </span>
-          <div className="shift-log-stat-meta">
-            <span className="shift-log-stat-val">{stats.completedShiftsCount}</span>
-            <span className="shift-log-stat-lbl">Total Shift Selesai</span>
+          <div className="flex flex-col min-w-0">
+            <span className="text-[17px] font-extrabold leading-[1.2] text-[var(--ink-primary)] font-mono">{stats.completedShiftsCount}</span>
+            <span className="text-[11px] text-[var(--ink-muted)] font-medium whitespace-nowrap overflow-hidden text-ellipsis">Total Shift Selesai</span>
           </div>
         </div>
 
         {/* Card b: Jumlah Temuan */}
-        <div className="shift-log-stat-card">
-          <span className="shift-log-stat-icon is-findings">
+        <div className="group flex items-center gap-[12px] p-[10px_14px] min-h-[54px] h-full box-border bg-[var(--panel-bg)] border border-[var(--panel-border)] rounded-[8px] transition-[border-color,background-color] duration-150 ease-out hover:border-[var(--line)] hover:bg-[rgba(30,41,59,0.45)]">
+          <span className="inline-grid place-items-center w-[34px] h-[34px] rounded-[8px] shrink-0 transition-transform duration-150 ease-out group-hover:scale-[1.06] bg-[rgba(245,158,11,0.12)] text-[#fbbf24] border border-[rgba(245,158,11,0.3)]">
             <AlertTriangle size={17} />
           </span>
-          <div className="shift-log-stat-meta">
-            <span className="shift-log-stat-val">{stats.totalFindings}</span>
-            <span className="shift-log-stat-lbl">Jumlah Temuan</span>
+          <div className="flex flex-col min-w-0">
+            <span className="text-[17px] font-extrabold leading-[1.2] text-[var(--ink-primary)] font-mono">{stats.totalFindings}</span>
+            <span className="text-[11px] text-[var(--ink-muted)] font-medium whitespace-nowrap overflow-hidden text-ellipsis">Jumlah Temuan</span>
           </div>
         </div>
 
         {/* Card c: Total Tiket Selesai */}
-        <div className="shift-log-stat-card">
-          <span className="shift-log-stat-icon is-tickets-closed">
+        <div className="group flex items-center gap-[12px] p-[10px_14px] min-h-[54px] h-full box-border bg-[var(--panel-bg)] border border-[var(--panel-border)] rounded-[8px] transition-[border-color,background-color] duration-150 ease-out hover:border-[var(--line)] hover:bg-[rgba(30,41,59,0.45)]">
+          <span className="inline-grid place-items-center w-[34px] h-[34px] rounded-[8px] shrink-0 transition-transform duration-150 ease-out group-hover:scale-[1.06] bg-[rgba(56,189,248,0.12)] text-[#38bdf8] border border-[rgba(56,189,248,0.3)]">
             <TicketCheck size={17} />
           </span>
-          <div className="shift-log-stat-meta">
-            <span className="shift-log-stat-val">{stats.closedTicketsCount}</span>
-            <span className="shift-log-stat-lbl">Total Tiket Selesai</span>
+          <div className="flex flex-col min-w-0">
+            <span className="text-[17px] font-extrabold leading-[1.2] text-[var(--ink-primary)] font-mono">{stats.closedTicketsCount}</span>
+            <span className="text-[11px] text-[var(--ink-muted)] font-medium whitespace-nowrap overflow-hidden text-ellipsis">Total Tiket Selesai</span>
           </div>
         </div>
 
         {/* Card d: Total Tugas Dikerjakan */}
-        <div className="shift-log-stat-card">
-          <span className="shift-log-stat-icon is-tasks-unique">
+        <div className="group flex items-center gap-[12px] p-[10px_14px] min-h-[54px] h-full box-border bg-[var(--panel-bg)] border border-[var(--panel-border)] rounded-[8px] transition-[border-color,background-color] duration-150 ease-out hover:border-[var(--line)] hover:bg-[rgba(30,41,59,0.45)]">
+          <span className="inline-grid place-items-center w-[34px] h-[34px] rounded-[8px] shrink-0 transition-transform duration-150 ease-out group-hover:scale-[1.06] bg-[rgba(168,85,247,0.12)] text-[#c084fc] border border-[rgba(168,85,247,0.3)]">
             <ClipboardList size={17} />
           </span>
-          <div className="shift-log-stat-meta">
-            <span className="shift-log-stat-val">{stats.totalUniqueTasks}</span>
-            <span className="shift-log-stat-lbl">Total Tugas Dikerjakan</span>
+          <div className="flex flex-col min-w-0">
+            <span className="text-[17px] font-extrabold leading-[1.2] text-[var(--ink-primary)] font-mono">{stats.totalUniqueTasks}</span>
+            <span className="text-[11px] text-[var(--ink-muted)] font-medium whitespace-nowrap overflow-hidden text-ellipsis">Total Tugas Dikerjakan</span>
           </div>
         </div>
       </section>
 
-      <article className="panel view-panel shift-log-panel">
+      <article className="panel view-panel overflow-visible mb-[20px] bg-[var(--panel-bg)] border border-[var(--panel-border)] rounded-[10px] shadow-[var(--shadow-panel)]">
         <HandoverHistoryControls workflow={workflow} />
 
-        <div className="shift-log-body">
+        <div className="p-[16px_18px_20px]">
           {loading ? (
-            <div className="log-loading">Memuat riwayat handover…</div>
+            <div className="p-[48px_16px] text-center text-[var(--ink-muted)] text-[13px]">Memuat riwayat handover…</div>
           ) : visibleRecords.length ? (
-            <ol className="shift-timeline">
+            <ol className="relative m-0 p-[20px_20px_24px_36px] list-none before:content-[''] before:absolute before:top-[14px] before:bottom-[14px] before:left-[13px] before:w-[2px] before:rounded-[99px] before:bg-[linear-gradient(180deg,rgba(56,189,248,0.5),rgba(148,163,184,0.2)_90%)]">
               {paginatedRecords.map((record) => {
                 const content = parseContent(record);
                 const total = content?.tasks.length ?? 0;
@@ -302,20 +309,30 @@ export function ShiftLogView({ workflow }: { workflow: HandoverWorkflow }) {
                 const isEditable = Boolean(content && canEditHandover(content, workflow.actor));
 
                 return (
-                  <li className="timeline-item" key={record.id}>
+                  <li className="relative mb-[16px] last:mb-0" key={record.id}>
                     {/* Polished timeline marker node */}
                     <span
-                      className={`timeline-marker ${isAccepted ? "marker-accepted" : "marker-pending"}`}
+                      className={`absolute top-[12px] left-[-36px] grid place-items-center w-[28px] h-[28px] rounded-[50%] transition-all duration-200 ease-out z-[2] max-[640px]:top-[10px] max-[640px]:left-[-28px] max-[640px]:w-[24px] max-[640px]:h-[24px] ${
+                        isAccepted
+                          ? "border-2 border-[#10b981] text-[#34d399] bg-[rgba(16,185,129,0.12)] shadow-[0_0_10px_rgba(16,185,129,0.2)]"
+                          : "border-2 border-[#f59e0b] text-[#fbbf24] bg-[rgba(245,158,11,0.12)] shadow-[0_0_10px_rgba(245,158,11,0.2)]"
+                      }`}
                       title={isAccepted ? "Handover Selesai Diterima" : "Menunggu Penerimaan"}
                     >
                       {isAccepted ? <CheckCircle2 size={15} /> : <Clock size={15} />}
                     </span>
 
-                    <article className="timeline-card">
-                      <header className="timeline-head">
-                        <div className="timeline-head-left">
-                          <div className="timeline-status-row">
-                            <span className={`timeline-status-pill ${isAccepted ? "status-accepted" : "status-pending"}`}>
+                    <article className="p-[16px] border border-[var(--panel-border)] rounded-[10px] bg-[var(--panel-bg)] shadow-[0_2px_8px_rgba(0,0,0,0.15)] transition-[border-color,background-color] duration-180 ease-out hover:border-[var(--accent-blue-border)] hover:bg-[var(--panel-bg-hover)]">
+                      <header className="flex justify-between items-start gap-[12px] mb-[8px] pb-[8px] border-b border-[rgba(255,255,255,0.06)] max-[640px]:flex-col max-[640px]:items-start">
+                        <div className="flex flex-col gap-[4px] min-w-0">
+                          <div className="flex items-center gap-[8px] flex-wrap">
+                            <span
+                              className={`inline-flex items-center gap-[4px] p-[2px_8px] rounded-[99px] text-[10.5px] font-bold tracking-[0.2px] select-none ${
+                                isAccepted
+                                  ? "bg-[rgba(16,185,129,0.16)] border border-[rgba(16,185,129,0.35)] text-[#4ade80]"
+                                  : "bg-[rgba(245,158,11,0.16)] border border-[rgba(245,158,11,0.35)] text-[#fbbf24]"
+                              }`}
+                            >
                               {isAccepted ? (
                                 <>
                                   <CheckCircle2 size={12} />
@@ -328,18 +345,18 @@ export function ShiftLogView({ workflow }: { workflow: HandoverWorkflow }) {
                                 </>
                               )}
                             </span>
-                            <span className="timeline-date-chip">
+                            <span className="inline-flex items-center gap-[4px] text-[11px] text-[var(--ink-muted)] font-mono font-medium">
                               <Calendar size={12} />
                               {formatHandoverDate(record.handoverDate)}
                             </span>
                           </div>
-                          <h3 className="timeline-title">{record.title}</h3>
+                          <h3 className="m-[2px_0_0] text-[13.5px] font-bold text-[var(--ink-primary)] leading-[1.3]">{record.title}</h3>
                         </div>
 
-                        <div className="timeline-actions">
+                        <div className="flex items-center gap-[6px] shrink-0 max-[640px]:self-start">
                           <button
                             type="button"
-                            className="timeline-action-btn timeline-btn-open"
+                            className="inline-flex items-center gap-[5px] p-[5px_10px] rounded-[6px] text-[11px] font-semibold cursor-pointer border border-[rgba(56,189,248,0.35)] bg-[rgba(56,189,248,0.12)] text-[#38bdf8] transition-all duration-150 ease-out select-none hover:bg-[rgba(56,189,248,0.22)] hover:border-[#38bdf8] hover:text-white hover:shadow-[0_0_10px_rgba(56,189,248,0.25)] disabled:opacity-40 disabled:cursor-not-allowed"
                             disabled={workflow.busy}
                             onClick={() => void onOpenRecord(record)}
                           >
@@ -348,7 +365,7 @@ export function ShiftLogView({ workflow }: { workflow: HandoverWorkflow }) {
                           </button>
                           <button
                             type="button"
-                            className="timeline-action-btn timeline-btn-delete"
+                            className="inline-flex items-center gap-[5px] p-[5px_10px] rounded-[6px] text-[11px] font-semibold cursor-pointer border border-[rgba(239,68,68,0.28)] bg-[rgba(239,68,68,0.08)] text-[#f87171] transition-all duration-150 ease-out select-none enabled:hover:bg-[rgba(239,68,68,0.18)] enabled:hover:border-[rgba(239,68,68,0.5)] enabled:hover:text-[#ef4444] enabled:hover:shadow-[0_0_8px_rgba(239,68,68,0.25)] disabled:opacity-35 disabled:cursor-not-allowed disabled:bg-transparent disabled:border-transparent disabled:text-[var(--ink-muted)]"
                             disabled={workflow.busy || !isEditable}
                             title={
                               !isEditable
@@ -373,54 +390,54 @@ export function ShiftLogView({ workflow }: { workflow: HandoverWorkflow }) {
                             const TargetShiftIcon = targetShiftMeta.icon;
 
                             return (
-                              <div className="timeline-flow-container">
-                                <div className="shift-flow-card shift-flow-source">
-                                  <div className="shift-flow-role">
-                                    <span className="shift-role-badge">DARI</span>
+                              <div className="flex items-center flex-wrap gap-[8px_10px] m-[6px_0_10px] p-0 bg-transparent border-0 max-[640px]:flex-col max-[640px]:items-stretch max-[640px]:gap-[6px]">
+                                <div className="inline-flex items-center gap-[8px] flex-[0_0_auto] min-w-0 max-[640px]:w-full max-[640px]:flex-wrap max-[640px]:gap-[6px]">
+                                  <div className="inline-flex items-center gap-[6px] shrink-0">
+                                    <span className="inline-flex items-center h-[26px] text-[9.5px] font-extrabold font-mono tracking-[0.6px] text-[var(--ink-muted)] leading-none select-none">DARI</span>
                                     <span
-                                      className={`shift-name-tag ${sourceShiftMeta.className}`}
+                                      className={`inline-flex items-center justify-center gap-[5px] h-[26px] box-border text-[11.5px] font-bold p-[0_10px] rounded-[999px] leading-none transition-all duration-150 ease-out select-none ${sourceShiftMeta.className}`}
                                       data-shift={sourceShiftMeta.key}
                                       title={`Shift asal: ${content.sourceShift}`}
                                     >
                                       {SourceShiftIcon && (
-                                        <SourceShiftIcon size={12} className="shift-tag-icon" aria-hidden="true" />
+                                        <SourceShiftIcon size={12} className="shrink-0" aria-hidden="true" />
                                       )}
-                                      <span className="shift-tag-label">{content.sourceShift}</span>
+                                      <span className="whitespace-nowrap">{content.sourceShift}</span>
                                     </span>
                                   </div>
-                                  <div className="shift-flow-people">
+                                  <div className="inline-flex items-center gap-[6px] flex-wrap min-w-0">
                                     {parsePicNames(content.sourcePic).map((person) => (
-                                      <span className="shift-person-pill" key={person} title={person}>
-                                        <Avatar size="sm" name={person} className="shift-person-avatar" />
-                                        <span className="shift-person-name">{person}</span>
+                                      <span className="inline-flex items-center h-[26px] box-border gap-[6px] p-[0_9px_0_2px] rounded-[999px] bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] leading-none" key={person} title={person}>
+                                        <Avatar size="sm" name={person} className="shrink-0" />
+                                        <span className="inline-flex items-center text-[11.5px] font-semibold text-[var(--ink-primary)] leading-none whitespace-nowrap">{person}</span>
                                       </span>
                                     ))}
                                   </div>
                                 </div>
 
-                                <div className="timeline-flow-arrow" title="Diserahkan kepada">
+                                <div className="inline-flex items-center justify-center w-[26px] h-[26px] box-border rounded-[50%] bg-[rgba(56,189,248,0.1)] text-[#38bdf8] border border-[rgba(56,189,248,0.25)] shrink-0 m-[0_2px] max-[640px]:self-center max-[640px]:m-0 max-[640px]:rotate-90" title="Diserahkan kepada">
                                   <ArrowRight size={13} />
                                 </div>
 
-                                <div className="shift-flow-card shift-flow-target">
-                                  <div className="shift-flow-role">
-                                    <span className="shift-role-badge">KEPADA</span>
+                                <div className="inline-flex items-center gap-[8px] flex-[0_0_auto] min-w-0 max-[640px]:w-full max-[640px]:flex-wrap max-[640px]:gap-[6px]">
+                                  <div className="inline-flex items-center gap-[6px] shrink-0">
+                                    <span className="inline-flex items-center h-[26px] text-[9.5px] font-extrabold font-mono tracking-[0.6px] text-[var(--ink-muted)] leading-none select-none">KEPADA</span>
                                     <span
-                                      className={`shift-name-tag ${targetShiftMeta.className}`}
+                                      className={`inline-flex items-center justify-center gap-[5px] h-[26px] box-border text-[11.5px] font-bold p-[0_10px] rounded-[999px] leading-none transition-all duration-150 ease-out select-none ${targetShiftMeta.className}`}
                                       data-shift={targetShiftMeta.key}
                                       title={`Shift penerima: ${content.targetShift}`}
                                     >
                                       {TargetShiftIcon && (
-                                        <TargetShiftIcon size={12} className="shift-tag-icon" aria-hidden="true" />
+                                        <TargetShiftIcon size={12} className="shrink-0" aria-hidden="true" />
                                       )}
-                                      <span className="shift-tag-label">{content.targetShift}</span>
+                                      <span className="whitespace-nowrap">{content.targetShift}</span>
                                     </span>
                                   </div>
-                                  <div className="shift-flow-people">
+                                  <div className="inline-flex items-center gap-[6px] flex-wrap min-w-0">
                                     {parsePicNames(content.targetPic).map((person) => (
-                                      <span className="shift-person-pill" key={person} title={person}>
-                                        <Avatar size="sm" name={person} className="shift-person-avatar" />
-                                        <span className="shift-person-name">{person}</span>
+                                      <span className="inline-flex items-center h-[26px] box-border gap-[6px] p-[0_9px_0_2px] rounded-[999px] bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] leading-none" key={person} title={person}>
+                                        <Avatar size="sm" name={person} className="shrink-0" />
+                                        <span className="inline-flex items-center text-[11.5px] font-semibold text-[var(--ink-primary)] leading-none whitespace-nowrap">{person}</span>
                                       </span>
                                     ))}
                                   </div>
@@ -430,47 +447,49 @@ export function ShiftLogView({ workflow }: { workflow: HandoverWorkflow }) {
                           })()}
 
                           {/* Bottom Progress & Stat Badges */}
-                          <div className="timeline-bottom-row">
-                            <div className="timeline-progress-section">
-                              <div className="timeline-task-breakdown">
-                                <span className="breakdown-item breakdown-done" title="Tugas selesai pada shift ini">
-                                  <strong className="breakdown-num">{done}</strong> Selesai
+                          <div className="flex items-center justify-between gap-[12px] flex-wrap pt-[8px] border-t border-[rgba(255,255,255,0.05)] max-[640px]:flex-col max-[640px]:items-start max-[640px]:gap-[8px]">
+                            <div className="inline-flex items-center gap-[8px] flex-wrap flex-[0_1_auto] max-[640px]:w-full max-[640px]:items-start">
+                              <div className="inline-flex items-center gap-[6px] text-[11.5px] whitespace-nowrap max-[640px]:w-full max-[640px]:flex-wrap max-[640px]:gap-[4px_6px] max-[640px]:whitespace-normal max-[640px]:leading-[1.35]">
+                                <span className="inline-flex items-center gap-[3px]" title="Tugas selesai pada shift ini">
+                                  <strong className="font-bold text-[#34d399]">{done}</strong> Selesai
                                 </span>
-                                <span className="breakdown-dot">·</span>
-                                <span className="breakdown-item breakdown-new" title="Tugas baru ditambahkan pada shift ini">
-                                  <strong className="breakdown-num">{newCount}</strong> Baru Ditambahkan
+                                <span className="text-[var(--ink-muted)] text-[12px] select-none max-[640px]:hidden">·</span>
+                                <span className="inline-flex items-center gap-[3px]" title="Tugas baru ditambahkan pada shift ini">
+                                  <strong className="font-bold text-[#38bdf8]">{newCount}</strong> Baru Ditambahkan
                                 </span>
-                                <span className="breakdown-dot">·</span>
-                                <span className="breakdown-item breakdown-transition" title="Transisi jumlah tugas dari shift sebelumnya ke shift ini">
-                                  <strong className="breakdown-num">{prevTasks}</strong> Tugas Sebelumnya
-                                  <span className="breakdown-arrow">→</span>
-                                  <strong className="breakdown-num">{currTasks}</strong> Tugas Selanjutnya
+                                <span className="text-[var(--ink-muted)] text-[12px] select-none max-[640px]:hidden">·</span>
+                                <span className="inline-flex items-center gap-[3px] max-[640px]:basis-full" title="Transisi jumlah tugas dari shift sebelumnya ke shift ini">
+                                  <strong className="font-bold text-[var(--ink-primary)]">{prevTasks}</strong> Tugas Sebelumnya
+                                  <span className="inline-block mx-[2px] text-[var(--ink-muted)] text-[10px]">→</span>
+                                  <strong className="font-bold text-[var(--ink-primary)]">{currTasks}</strong> Tugas Selanjutnya
                                 </span>
                               </div>
                               {content.acceptance && (
-                                <span className="timeline-accepted-note">
+                                <span className="text-[10.5px] text-[#34d399] font-medium whitespace-nowrap inline-flex items-center gap-[3px]">
                                   ✓ Diterima oleh {content.acceptance.actor.name}
                                 </span>
                               )}
                             </div>
 
-                            <div className="timeline-badges-section">
+                            <div className="inline-flex items-center gap-[6px] flex-wrap ml-auto max-[640px]:ml-0">
                               <span
-                                className={`timeline-stat-badge ${
-                                  content.findings.length > 0 ? "badge-warning" : "badge-neutral"
+                                className={`inline-flex items-center gap-[4px] p-[2.5px_7px] rounded-[5px] text-[10.5px] font-semibold select-none border ${
+                                  content.findings.length > 0
+                                    ? "bg-[rgba(245,158,11,0.12)] border-[rgba(245,158,11,0.3)] text-[#fbbf24]"
+                                    : "bg-[rgba(148,163,184,0.08)] border-[rgba(148,163,184,0.2)] text-[#94a3b8]"
                                 }`}
                               >
                                 <AlertTriangle size={12} />
                                 {content.findings.length} Temuan
                               </span>
 
-                              <span className="timeline-stat-badge badge-tasks">
+                              <span className="inline-flex items-center gap-[4px] p-[2.5px_7px] rounded-[5px] text-[10.5px] font-semibold select-none bg-[rgba(56,189,248,0.12)] border border-[rgba(56,189,248,0.3)] text-[#38bdf8]">
                                 <CheckSquare size={12} />
                                 {total} Tugas
                               </span>
 
                               {Boolean(content.openTickets && content.openTickets.length > 0) && (
-                                <span className="timeline-stat-badge badge-tickets">
+                                <span className="inline-flex items-center gap-[4px] p-[2.5px_7px] rounded-[5px] text-[10.5px] font-semibold select-none bg-[rgba(168,85,247,0.12)] border border-[rgba(168,85,247,0.3)] text-[#c084fc]">
                                   <TicketIcon size={12} />
                                   {content.openTickets!.length} Tiket Open
                                 </span>
@@ -479,7 +498,7 @@ export function ShiftLogView({ workflow }: { workflow: HandoverWorkflow }) {
                           </div>
                         </>
                       ) : (
-                        <p className="timeline-meta" style={{ margin: "8px 0 0", color: "var(--red)" }}>
+                        <p className="flex flex-wrap justify-between gap-[8px] my-[8px_0] text-[var(--red)] text-[11px]">
                           Konten catatan tidak dapat dibaca atau rusak.
                         </p>
                       )}
@@ -504,72 +523,24 @@ export function ShiftLogView({ workflow }: { workflow: HandoverWorkflow }) {
 
           {/* Pagination Bar */}
           {visibleRecords.length > 0 && (
-            <div className="roster-pagination-bar shift-log-pagination-bar">
-              <div className="roster-pagination-left">
-                <div className="roster-rows-per-page">
-                  <span className="roster-pagination-label">Rows per page:</span>
-                  <select
-                    className="roster-filter-select roster-page-size-select"
-                    value={pageSize}
-                    onChange={(e) => {
-                      setPageSize(Number(e.target.value));
-                      setCurrentPage(1);
-                    }}
-                    aria-label="Jumlah catatan per halaman"
-                  >
-                    <option value="10">10</option>
-                    <option value="30">30</option>
-                    <option value="50">50</option>
-                    <option value="100">100</option>
-                  </select>
-                </div>
-
-                <span className="roster-pagination-info">
-                  Menampilkan <strong>{totalCount === 0 ? 0 : startIdx + 1}–{endIdx}</strong> dari <strong>{totalCount}</strong> catatan
-                </span>
-              </div>
-
-              <div className="roster-pagination-actions">
-                <button
-                  type="button"
-                  className="roster-page-btn roster-page-nav"
-                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                  disabled={safeCurrentPage <= 1}
-                  aria-label="Halaman sebelumnya"
-                >
-                  Prev
-                </button>
-
-                <div className="roster-page-numbers">
-                  {pageNumbers.map((p, idx) =>
-                    p === "..." ? (
-                      <span key={`ellipsis-${idx}`} className="roster-page-ellipsis">…</span>
-                    ) : (
-                      <button
-                        key={p}
-                        type="button"
-                        className={`roster-page-btn roster-page-num ${p === safeCurrentPage ? "active" : ""}`}
-                        onClick={() => setCurrentPage(Number(p))}
-                        aria-label={`Halaman ${p}`}
-                        aria-current={p === safeCurrentPage ? "page" : undefined}
-                      >
-                        {p}
-                      </button>
-                    )
-                  )}
-                </div>
-
-                <button
-                  type="button"
-                  className="roster-page-btn roster-page-nav"
-                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                  disabled={safeCurrentPage >= totalPages || totalPages <= 1}
-                  aria-label="Halaman berikutnya"
-                >
-                  Next
-                </button>
-              </div>
-            </div>
+            <PaginationBar
+              pageSize={pageSize}
+              onPageSizeChange={(newSize) => {
+                setPageSize(newSize);
+                setCurrentPage(1);
+              }}
+              currentPage={safeCurrentPage}
+              onPageChange={setCurrentPage}
+              totalCount={totalCount}
+              startIdx={startIdx}
+              endIdx={endIdx}
+              totalPages={totalPages}
+              pageNumbers={pageNumbers}
+              pageSizeOptions={[10, 30, 50, 100]}
+              itemLabel="catatan"
+              className="rounded-b-[10px] mt-[12px]"
+              selectAriaLabel="Jumlah catatan per halaman"
+            />
           )}
         </div>
       </article>

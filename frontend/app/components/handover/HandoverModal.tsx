@@ -107,6 +107,14 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
     ? record.monitoringCheckpoints
     : fallbackCheckpoints;
 
+  const getTabButtonClass = (tabKey: "tasks" | "findings" | "monitoring" | "notes" | "tickets") =>
+    `p-[7px_12px] rounded-[6px] text-[12px] transition-all duration-150 ease-in-out cursor-pointer border ${
+      activeTab === tabKey
+        ? "text-[var(--accent-blue)] bg-[var(--accent-blue-soft)] border-[var(--accent-blue-border)] font-bold"
+        : "text-[var(--ink-muted)] bg-transparent border-transparent font-semibold hover:text-[var(--ink-primary)] hover:bg-[var(--panel-bg-hover)]"
+    }`;
+
+
   return (
     <Modal
       open={open}
@@ -115,28 +123,34 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
       variant="wide"
       width={740}
     >
-      <header className={`handover-modal-header ${isReadOnly ? "handover-modal-header-readonly" : "handover-modal-header-active"}`}>
+      <header
+        className={`flex justify-between gap-[24px] max-[660px]:gap-[12px] p-[22px_24px_20px] max-[660px]:p-[17px_16px_15px] ${
+          isReadOnly
+            ? "bg-[linear-gradient(135deg,rgba(148,163,184,0.09),transparent_75%)] border-b border-b-[rgba(148,163,184,0.2)]"
+            : "bg-[linear-gradient(135deg,rgba(59,130,246,0.12),transparent_70%)] border-b border-b-[rgba(59,130,246,0.25)]"
+        }`}
+      >
         <div>
           {/* Mode Badges */}
           {!isReadOnly ? (
-            <div className="handover-modal-kicker handover-kicker-active">
-              <span className="handover-badge-pill handover-badge-active">
-                <span className="live-dot live-dot-pulse" />
+            <div className="flex items-center gap-[7px] text-[var(--accent-blue)] font-mono text-[10px] font-bold tracking-[0.75px]">
+              <span className="inline-flex items-center gap-[6px] p-[4px_10px] rounded-[99px] text-[10.5px] font-extrabold tracking-[0.6px] uppercase bg-[rgba(59,130,246,0.16)] text-[#60a5fa] border border-[rgba(96,165,250,0.38)] shadow-[0_0_12px_rgba(59,130,246,0.15)]">
+                <span className="inline-block w-[6px] h-[6px] min-w-[6px] min-h-[6px] rounded-[50%] bg-[#60a5fa] shadow-[0_0_8px_#60a5fa] shrink-0" />
                 MODE KONFIRMASI AKTIF
               </span>
             </div>
           ) : (
-            <div className="handover-modal-kicker handover-kicker-readonly">
-              <span className="handover-badge-pill handover-badge-readonly">
+            <div className="flex items-center gap-[7px] text-[var(--accent-blue)] font-mono text-[10px] font-bold tracking-[0.75px]">
+              <span className="inline-flex items-center gap-[6px] p-[4px_10px] rounded-[99px] text-[10.5px] font-extrabold tracking-[0.6px] uppercase bg-[rgba(148,163,184,0.12)] text-[#94a3b8] border border-[rgba(148,163,184,0.28)]">
                 <Lock size={12} strokeWidth={2.4} aria-hidden="true" />
                 RIWAYAT HANDOVER — HANYA BACA
               </span>
             </div>
           )}
 
-          <h2>
+          <h2 className="m-[7px_0_3px] text-[var(--ink-primary)] text-[20px] max-[660px]:text-[17px] leading-[1.25] tracking-[-0.35px]">
             {active ? (
-              <>Shift {record.sourceShift} <span>→</span> {record.targetShift}</>
+              <>Shift {record.sourceShift} <span className="text-[var(--accent-blue)]">→</span> {record.targetShift}</>
             ) : (
               "Catatan Handover"
             )}
@@ -144,24 +158,32 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
 
           {/* Subtitles */}
           {!isReadOnly ? (
-            <p className="handover-record-date handover-record-date-active">
+            <p className="max-w-[640px] m-0 text-[11.5px] text-[var(--ink-secondary)]">
               Handover ini masih menunggu konfirmasi dari shift penerima · Revisi {active?.revision ?? 1}
             </p>
           ) : (
-            <p className="handover-record-date handover-record-date-readonly">
+            <p className="max-w-[640px] m-0 text-[11.5px] text-[var(--ink-secondary)]">
               Diselesaikan pada {completionDateStr} · Diterima oleh {record.acceptance?.actor.name || record.targetPic}
             </p>
           )}
         </div>
 
-        <div className="handover-header-actions">
+        <div className="flex items-start gap-[8px] max-[660px]:gap-[5px] shrink-0">
           {!isReadOnly && active && canEditHandover(record, actor) && (
-            <button className="handover-new-trigger" disabled={busy} onClick={workflow.edit}>
+            <button
+              className="inline-flex items-center justify-center min-h-[32px] p-[0_10px] max-[660px]:min-w-[76px] max-[660px]:p-[0_9px] max-[660px]:text-[10px] whitespace-nowrap leading-none shrink-0 box-border text-[var(--accent-blue)] border border-[var(--accent-blue-border)] rounded-[7px] bg-[var(--accent-blue-soft)] text-[10.5px] font-bold hover:text-white hover:border-[var(--accent-blue)] hover:bg-[var(--accent-blue)] cursor-pointer transition-all duration-150"
+              disabled={busy}
+              onClick={workflow.edit}
+            >
               Edit Catatan
             </button>
           )}
           {!isReadOnly && (
-            <button className="handover-new-trigger" disabled={busy} onClick={() => workflow.openWizard("create")}>
+            <button
+              className="inline-flex items-center justify-center min-h-[32px] p-[0_10px] max-[660px]:min-w-[76px] max-[660px]:p-[0_9px] max-[660px]:text-[10px] whitespace-nowrap leading-none shrink-0 box-border text-[var(--accent-blue)] border border-[var(--accent-blue-border)] rounded-[7px] bg-[var(--accent-blue-soft)] text-[10.5px] font-bold hover:text-white hover:border-[var(--accent-blue)] hover:bg-[var(--accent-blue)] cursor-pointer transition-all duration-150"
+              disabled={busy}
+              onClick={() => workflow.openWizard("create")}
+            >
               ＋ Buat Baru
             </button>
           )}
@@ -169,18 +191,18 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
         </div>
       </header>
 
-      <div className="handover-modal-scroll">
+      <div className="flex-1 min-h-0 overflow-y-auto p-[18px_24px_22px] max-[660px]:p-[14px_16px_18px]">
         {/* Read-Only Explanatory Microcopy Banner */}
         {isReadOnly && (
-          <div className="handover-readonly-notice [display:flex] [align-items:center] [gap:8px] [padding:10px_14px] [margin-bottom:16px] [background:rgba(148,_163,_184,_0.08)] [border:1px_solid_rgba(148,_163,_184,_0.2)] [border-radius:8px] [font-size:12px] [color:var(--ink-secondary)] [line-height:1.4]" role="note">
-            <Lock size={14} className="handover-readonly-notice-icon [color:#94a3b8] [flex-shrink:0]" aria-hidden="true" />
+          <div className="flex items-center gap-[8px] p-[10px_14px] mb-[16px] bg-[rgba(148,163,184,0.08)] border border-[rgba(148,163,184,0.2)] rounded-[8px] text-[12px] text-[var(--ink-secondary)] leading-[1.4]" role="note">
+            <Lock size={14} className="shrink-0 text-[#94a3b8]" aria-hidden="true" />
             <span>Tampilan ini menampilkan catatan handover yang telah selesai dan tidak dapat diubah lagi.</span>
           </div>
         )}
 
         {/* Empty state fallback */}
         {!active && records.length === 0 && (
-          <div className="handover-empty-note">
+          <div className="p-[12px] text-[var(--ink-muted)] border border-dashed border-[var(--panel-border)] rounded-[8px] bg-[var(--bg)] text-[10.5px]">
             {workflow.error ? "Catatan belum dapat dibaca. Coba muat ulang." : "Belum ada catatan tersimpan. Buat handover untuk memulai serah terima."}
           </div>
         )}
@@ -188,34 +210,34 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
         {(active || records.length > 0) && (
           <>
             {/* Sender & Receiver Summary Block */}
-            <div className="handover-summary-card">
-              <div className="handover-flow-info">
-                <div className="handover-flow-party">
-                  <span>
+            <div className="mb-[16px] max-[660px]:mb-[14px] p-[14px_16px] max-[660px]:p-[14px] bg-[var(--panel-bg)] border border-[var(--panel-border)] rounded-[10px]">
+              <div className="flex items-center justify-between gap-[12px] mb-[12px] max-[660px]:grid max-[660px]:grid-cols-1 max-[660px]:items-stretch max-[660px]:gap-[8px]">
+                <div className="flex flex-col gap-[2px] max-[660px]:min-w-0">
+                  <span className="inline-flex items-center gap-[6px] text-[9.5px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.5px]">
                     SENDER{" "}
-                    <span className={`shift-name-tag ${getShiftTagClass(record.sourceShift)}`}>
+                    <span className={`shift-name-tag ${getShiftTagClass(record.sourceShift)} text-[9.5px] leading-[9.5px] gap-[6px]`}>
                       {record.sourceShift}
                     </span>
                   </span>
-                  <strong>{record.sourcePic}</strong>
+                  <strong className="text-[13px] max-[660px]:text-[12.5px] text-[var(--ink-primary)] font-bold max-[660px]:leading-[1.35] max-[660px]:[overflow-wrap:anywhere]">{record.sourcePic}</strong>
                 </div>
-                <div className="handover-flow-arrow" aria-hidden="true">
+                <div className="text-[var(--accent-blue)] text-[18px] font-extrabold max-[660px]:grid max-[660px]:place-items-center max-[660px]:self-center max-[660px]:w-[24px] max-[660px]:h-[20px] max-[660px]:rotate-90" aria-hidden="true">
                   <ArrowRight size={16} />
                 </div>
-                <div className="handover-flow-party">
-                  <span>
+                <div className="flex flex-col gap-[2px] max-[660px]:min-w-0">
+                  <span className="inline-flex items-center gap-[6px] text-[9.5px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.5px]">
                     RECEIVER{" "}
-                    <span className={`shift-name-tag ${getShiftTagClass(record.targetShift)}`}>
+                    <span className={`shift-name-tag ${getShiftTagClass(record.targetShift)} text-[9.5px] leading-[9.5px] gap-[6px]`}>
                       {record.targetShift}
                     </span>
                   </span>
-                  <strong>{record.targetPic}</strong>
+                  <strong className="text-[13px] max-[660px]:text-[12.5px] text-[var(--ink-primary)] font-bold max-[660px]:leading-[1.35] max-[660px]:[overflow-wrap:anywhere]">{record.targetPic}</strong>
                 </div>
               </div>
 
-              <p className="handover-acceptance-status">
+              <p className="text-[var(--ink-secondary)] m-[8px_0] max-[660px]:m-[10px_0] max-[660px]:text-[12px] max-[660px]:leading-[1.5]">
                 {isReadOnly ? (
-                  <span className="handover-completed-text">
+                  <span className="text-[var(--green)] font-medium">
                     <CheckCircle2 size={13} style={{ display: "inline-block", verticalAlign: "middle", marginRight: "5px", color: "var(--green)" }} />
                     Handover telah diserahkan dan diterima oleh {record.acceptance?.actor.name || record.targetPic}.
                   </span>
@@ -228,32 +250,32 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
 
               {/* In Active mode: Progress bar. In Read-only mode: Static final summary line */}
               {!isReadOnly ? (
-                <div className="handover-progress-strip [display:flex] [flex-direction:column] [gap:6px] [padding-top:10px] [border-top:1px_solid_var(--line)]">
-                  <div className="handover-progress-text [display:flex] [justify-content:space-between] [align-items:center] [font-size:11.5px] [color:var(--ink-secondary)]">
+                <div className="flex flex-col gap-[6px] pt-[10px] border-t border-[var(--line)]">
+                  <div className="flex justify-between items-center text-[11.5px] text-[var(--ink-secondary)]">
                     <span>Progres Peninjauan Tugas</span>
-                    <strong className="[color:var(--ink-primary)] [font-family:var(--font-mono)]">
+                    <strong className="text-[var(--ink-primary)] font-mono">
                       {completedTasksCount} dari {tasks.length} Tugas Ditandai Lanjut ({progressPercent}%)
                     </strong>
                   </div>
-                  <div className="handover-progress-bar-bg [height:6px] [background:var(--line)] [border-radius:99px] [overflow:hidden]" role="progressbar" aria-valuenow={progressPercent} aria-valuemin={0} aria-valuemax={100}>
-                    <div className="handover-progress-bar-fill [height:100%] [background:var(--accent-blue)] [border-radius:99px] [transition:width_0.3s_ease]" style={{ width: `${progressPercent}%` }} />
+                  <div className="h-[6px] bg-[var(--line)] rounded-[99px] overflow-hidden" role="progressbar" aria-valuenow={progressPercent} aria-valuemin={0} aria-valuemax={100}>
+                    <div className="h-full bg-[var(--accent-blue)] rounded-[99px] transition-[width] duration-300 ease-out" style={{ width: `${progressPercent}%` }} />
                   </div>
                 </div>
               ) : (
-                <div className="handover-readonly-summary-line [display:flex] [align-items:center] [justify-content:space-between] [gap:12px] [padding-top:10px] [border-top:1px_solid_var(--line)]">
-                  <div className="handover-readonly-summary-text [display:flex] [align-items:center] [gap:7px] [font-size:12px] [color:var(--ink-primary)]">
+                <div className="flex items-center justify-between gap-[12px] pt-[10px] border-t border-[var(--line)]">
+                  <div className="flex items-center gap-[7px] text-[12px] text-[var(--ink-primary)]">
                     <CheckCircle2 size={15} style={{ color: "var(--green)" }} />
                     <strong>{completedTasksCount} dari {tasks.length} tugas dikonfirmasi untuk dilanjutkan</strong>
                   </div>
-                  <span className="handover-readonly-closed-tag [display:inline-flex] [align-items:center] [padding:3px_8px] [border-radius:99px] [font-size:10px] [font-weight:700] [text-transform:uppercase] [letter-spacing:0.5px] [background:rgba(148,_163,_184,_0.14)] [color:#94a3b8] [border:1px_solid_rgba(148,_163,_184,_0.25)]">Arsip Permanen</span>
+                  <span className="inline-flex items-center p-[3px_8px] rounded-[99px] text-[10px] font-bold uppercase tracking-[0.5px] bg-[rgba(148,163,184,0.14)] text-[#94a3b8] border border-[rgba(148,163,184,0.25)]">Arsip Permanen</span>
                 </div>
               )}
             </div>
 
             {/* Navigation Tabs */}
-            <div className="handover-nav-tabs" role="tablist">
+            <div className="flex gap-[4px] mb-[14px] border-b border-[var(--line)] pb-[8px]" role="tablist">
               <button
-                className={activeTab === "tasks" ? "active" : ""}
+                className={getTabButtonClass("tasks")}
                 onClick={() => setActiveTab("tasks")}
                 role="tab"
                 aria-selected={activeTab === "tasks"}
@@ -261,7 +283,7 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
                 <IconTasks /> Daftar Tugas ({tasks.length})
               </button>
               <button
-                className={activeTab === "notes" ? "active" : ""}
+                className={getTabButtonClass("notes")}
                 onClick={() => setActiveTab("notes")}
                 role="tab"
                 aria-selected={activeTab === "notes"}
@@ -270,7 +292,7 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
                 Catatan Shift {hasNote ? "(1)" : ""}
               </button>
               <button
-                className={activeTab === "findings" ? "active" : ""}
+                className={getTabButtonClass("findings")}
                 onClick={() => setActiveTab("findings")}
                 role="tab"
                 aria-selected={activeTab === "findings"}
@@ -278,7 +300,7 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
                 <IconFindings /> Temuan &amp; Isu ({record.findings.length})
               </button>
               <button
-                className={activeTab === "monitoring" ? "active" : ""}
+                className={getTabButtonClass("monitoring")}
                 onClick={() => setActiveTab("monitoring")}
                 role="tab"
                 aria-selected={activeTab === "monitoring"}
@@ -286,7 +308,7 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
                 <IconMonitoring /> Status Monitoring ({record.monitoredProjects.length})
               </button>
               <button
-                className={activeTab === "tickets" ? "active" : ""}
+                className={getTabButtonClass("tickets")}
                 onClick={() => setActiveTab("tickets")}
                 role="tab"
                 aria-selected={activeTab === "tickets"}
@@ -298,15 +320,15 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
 
             {/* TAB 1: DAFTAR TUGAS */}
             {activeTab === "tasks" && (
-              <div className="handover-tab-content">
-                <div className="handover-task-intro" role="note">
+              <div className="flex flex-col gap-[10px]">
+                <div className="flex items-center gap-[8px] p-[8px_12px] mb-[12px] rounded-[var(--radius-sm,_6px)] bg-[rgba(59,130,246,0.08)] border border-[rgba(59,130,246,0.2)]" role="note">
                   <Info size={14} style={{ color: "#60a5fa", flexShrink: 0 }} aria-hidden="true" />
-                  <p className="handover-task-subtitle">
+                  <p className="m-0 text-[11.5px] leading-[1.45] text-[#93c5fd] font-medium">
                     Tandai &quot;Done&quot; untuk tugas yang sudah ditinjau dan tetap berlaku, atau &quot;Delete&quot; untuk tugas yang sudah tidak diperlukan.
                   </p>
                 </div>
 
-                <div className="handover-filters" aria-label="Filter status tugas">
+                <div className="flex gap-[5px] overflow-x-auto mb-[9px] pb-[1px]" aria-label="Filter status tugas">
                   {([
                     ["all", "All"],
                     ["repeat", "Routine"],
@@ -315,7 +337,11 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
                   ] as Array<["all" | typeof filter, string]>).map(([value, label]) => (
                     <button
                       key={value}
-                      className={filter === value ? "active" : ""}
+                      className={`shrink-0 p-[5px_8px] rounded-[5px] text-[10px] font-semibold border transition-all duration-150 cursor-pointer ${
+                        filter === value
+                          ? "text-[var(--accent-blue)] border-[var(--accent-blue-border)] bg-[var(--accent-blue-soft)]"
+                          : "text-[var(--ink-secondary)] border-[var(--panel-border)] bg-[var(--panel-bg)] hover:text-[var(--accent-blue)] hover:border-[var(--accent-blue-border)] hover:bg-[var(--accent-blue-soft)]"
+                      }`}
                       onClick={() => setFilter(value)}
                     >
                       {label}
@@ -323,22 +349,26 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
                   ))}
                 </div>
 
-                <div className="handover-task-list">
+                <div className="grid gap-[7px]">
                   {visibleTasks.map((task) => (
                     <article
-                      className={`handover-task-card ${isReadOnly ? "handover-task-card-readonly" : ""}`}
+                      className={`flex items-start gap-[12px] p-[12px_14px] bg-[var(--panel-bg)] border border-[var(--panel-border)] rounded-[8px] transition-all duration-150 ${
+                        isReadOnly
+                          ? "cursor-default hover:bg-[var(--panel-bg)] hover:border-[var(--panel-border)]"
+                          : "hover:border-[rgba(255,255,255,0.16)] hover:bg-[var(--panel-bg-hover)]"
+                      }`}
                       key={task.id}
                     >
-                      <div className="handover-task-body">
-                        <div className="handover-task-head">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-[8px] mb-[2px]">
                           <ProjectMark name={task.project} />
-                          <strong>{task.title}</strong>
+                          <strong className="text-[12.5px] text-[var(--ink-primary)] font-bold">{task.title}</strong>
                         </div>
-                        <p>{task.detail}</p>
+                        <p className="m-[3px_0_0] text-[11.5px] text-[var(--ink-secondary)] leading-[1.4]">{task.detail}</p>
 
                         {/* Read-Only: Rich Historical Confirmation Details */}
                         {isReadOnly && (
-                          <div className="handover-task-audit-line">
+                          <div className="flex items-center gap-[5px] mt-[6px] text-[11px] text-[var(--ink-muted)] leading-[1.3] [&_strong]:text-[var(--ink-secondary)] [&_strong]:font-semibold">
                             <UserCheck size={12} />
                             <span>
                               {task.completed ? (
@@ -354,17 +384,21 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
                         )}
                       </div>
 
-                      <div className="handover-task-right">
-                        <div className="handover-task-badges">
+                      <div className="flex flex-col items-end gap-[8px] shrink-0">
+                        <div className="flex items-center gap-[6px] flex-wrap justify-end">
                           <TaskStatusBadge state={task.state} />
                           <TaskPriorityBadge priority={task.priority} />
                         </div>
 
                         {!isReadOnly ? (
-                          <div className="handover-task-actions">
+                          <div className="flex items-center gap-[6px]">
                             <button
                               type="button"
-                              className={`handover-task-action-btn handover-done-btn ${task.completed ? "is-done" : ""}`}
+                              className={`inline-flex items-center justify-center gap-[5px] min-h-[28px] p-[4px_11px] rounded-[6px] text-[11px] font-bold tracking-[0.2px] cursor-pointer transition-all duration-150 select-none box-border disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none border ${
+                                task.completed
+                                  ? "bg-[#10b981] border-[#10b981] text-white shadow-[0_0_10px_rgba(16,185,129,0.45)] hover:not-disabled:bg-[#059669] hover:not-disabled:border-[#059669]"
+                                  : "bg-[rgba(16,185,129,0.12)] border-[rgba(16,185,129,0.4)] text-[#34d399] hover:not-disabled:bg-[rgba(16,185,129,0.25)] hover:not-disabled:border-[#10b981] hover:not-disabled:text-white"
+                              }`}
                               onClick={() => onToggleTask(task.id)}
                               disabled={busy || !isReceiver || Boolean(record.acceptance)}
                               title={task.completed ? "Batal tandai Done" : "Tandai tugas ini Done (tetap berlaku dan dilanjutkan)"}
@@ -376,7 +410,7 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
                             </button>
                             <button
                               type="button"
-                              className="handover-task-action-btn handover-delete-btn"
+                              className="inline-flex items-center justify-center gap-[5px] min-h-[28px] p-[4px_11px] rounded-[6px] text-[11px] font-bold tracking-[0.2px] cursor-pointer transition-all duration-150 select-none box-border disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none border bg-[rgba(239,68,68,0.1)] border-[rgba(239,68,68,0.3)] text-[#f87171] hover:not-disabled:bg-[rgba(239,68,68,0.25)] hover:not-disabled:border-[#ef4444] hover:not-disabled:text-white"
                               onClick={() => setTaskToDelete(task)}
                               disabled={busy || !isReceiver || Boolean(record.acceptance)}
                               title="Hapus tugas dari handover"
@@ -388,7 +422,7 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
                           </div>
                         ) : (
                           task.completed && (
-                            <span className="handover-static-done-badge">
+                            <span className="inline-flex items-center gap-[4px] p-[3px_9px] rounded-[99px] text-[11px] font-bold bg-[rgba(16,185,129,0.16)] border border-[rgba(16,185,129,0.35)] text-[#4ade80] cursor-default select-none">
                               <Check size={12} strokeWidth={2.5} /> Done
                             </span>
                           )
@@ -398,7 +432,9 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
                   ))}
 
                   {visibleTasks.length === 0 && (
-                    <div className="handover-empty-note">Tidak ada tugas pada filter ini.</div>
+                    <div className="p-[12px] text-[var(--ink-muted)] border border-dashed border-[var(--panel-border)] rounded-[8px] bg-[var(--bg)] text-[10.5px]">
+                      Tidak ada tugas pada filter ini.
+                    </div>
                   )}
                 </div>
               </div>
@@ -406,39 +442,39 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
 
             {/* TAB 2: CATATAN SHIFT */}
             {activeTab === "notes" && (
-              <div className="handover-tab-content">
+              <div className="flex flex-col gap-[10px]">
                 {/* 1. Outgoing Shift Note (Sender) */}
                 {noteContent ? (
-                  <div className="handover-shift-note-card">
-                    <div className="handover-shift-note-header">
-                      <div className="handover-shift-note-author">
+                  <div className="p-[16px_18px] bg-[var(--panel-bg)] border border-[var(--panel-border)] rounded-[10px] flex flex-col gap-[12px]">
+                    <div className="flex justify-between items-center border-b border-[var(--line)] pb-[12px]">
+                      <div className="flex items-center gap-[12px]">
                         <Avatar
                           size="md"
                           name={senderName}
                           shape="rounded"
-                          className="handover-shift-note-avatar"
+                          className="w-[36px] h-[36px] rounded-[8px] bg-[var(--accent-blue-soft)] text-[var(--accent-blue)] border border-[var(--accent-blue-border)] grid place-items-center text-[13px] font-bold shrink-0"
                         />
                         <div>
-                          <strong className="handover-shift-note-name">{noteAttribution}</strong>
-                          <span className="handover-shift-note-kicker">Pesan dari shift pengirim</span>
+                          <strong className="block text-[13px] font-bold text-[var(--ink-primary)]">{noteAttribution}</strong>
+                          <span className="block text-[11px] text-[var(--ink-muted)] mt-[1px]">Pesan dari shift pengirim</span>
                         </div>
                       </div>
                     </div>
-                    <div className="handover-shift-note-body">
+                    <div className="text-[13px] leading-[1.65] text-[var(--ink-secondary)] whitespace-pre-wrap [word-break:break-word] bg-[var(--bg)] border border-[var(--line)] rounded-[8px] p-[14px_16px]">
                       {noteContent}
                     </div>
                   </div>
                 ) : (
-                  <div className="handover-empty-note">
+                  <div className="p-[12px] text-[var(--ink-muted)] border border-dashed border-[var(--panel-border)] rounded-[8px] bg-[var(--bg)] text-[10.5px]">
                     Tidak ada catatan tambahan dari shift sebelumnya.
                   </div>
                 )}
 
                 {/* 2. Receiver Acceptance Note (Canonical single location) */}
                 {!isReadOnly && isReceiver && !record.acceptance && (
-                  <div className="handover-receiver-note-box">
-                    <label className="handover-receipt-note" style={{ margin: 0 }}>
-                      <span style={{ fontWeight: 600, fontSize: "12px", color: "var(--ink-primary)", display: "block", marginBottom: "6px" }}>
+                  <div className="mt-[10px] p-[14px_16px] bg-[var(--panel-bg)] border border-[var(--panel-border)] rounded-[8px]">
+                    <label className="flex flex-col gap-[8px] m-0">
+                      <span className="font-semibold text-[12px] text-[var(--ink-primary)] block mb-[6px]">
                         Catatan Penerimaan Akhir (Opsional)
                       </span>
                       <textarea
@@ -447,10 +483,11 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
                         value={acceptanceNote}
                         onChange={(event) => setAcceptanceNote(event.target.value)}
                         placeholder="Hasil pemeriksaan penerima sebelum menerima serah terima"
+                        className="w-full bg-[var(--panel-bg)] text-[var(--ink-primary)] border border-[var(--line)] rounded-[6px] p-[8px_12px] text-[13px] focus:outline-none focus:border-[var(--accent-blue)] resize-y"
                       />
                     </label>
                     {actor && (
-                      <p className="handover-record-date" style={{ margin: "6px 0 0", fontSize: "11px" }}>
+                      <p className="text-[var(--ink-secondary)] text-[11px] mt-[6px] mb-0">
                         Akun {actor.local ? "simulasi lokal" : "aktif"}: {actor.name}
                       </p>
                     )}
@@ -459,14 +496,14 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
 
                 {/* When in active mode but viewer is not the designated receiver */}
                 {!isReadOnly && !isReceiver && !record.acceptance && actor && (
-                  <p className="handover-record-date" style={{ margin: "8px 0 0" }}>
+                  <p className="text-[var(--ink-secondary)] mt-[8px] mb-0">
                     Akun {actor.local ? "simulasi lokal" : "aktif"}: {actor.name}. Checklist dan penerimaan menunggu akun penerima yang dituju ({record.targetPic}).
                   </p>
                 )}
 
                 {/* In Read-Only Mode: Display confirmed acceptance note if exists */}
                 {isReadOnly && record.validationNote && record.validationNote !== "Menunggu validasi shift penerima." && (
-                  <div className="handover-validation-box" style={{ marginTop: "6px" }}>
+                  <div className="p-[10px_12px] bg-[var(--green-soft)] border border-[var(--green-border)] rounded-[6px] text-[12px] text-[var(--green)] mt-[6px]">
                     <strong>
                       <Check size={13} style={{ display: "inline-block", verticalAlign: "middle", marginRight: "3px" }} />
                       Catatan Penerimaan Shift {record.targetShift}:
@@ -479,31 +516,37 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
 
             {/* TAB 3: TEMUAN & ISU */}
             {activeTab === "findings" && (
-              <div className="handover-tab-content">
+              <div className="flex flex-col gap-[10px]">
                 {record.findings.length ? (
-                  <div className="handover-finding-grid">
+                  <div className="grid gap-[10px]">
                     {record.findings.map((finding, index) => (
-                      <article className="handover-finding-card" key={`${finding.title}-${index}`}>
-                        <div className="handover-finding-head">
-                          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                      <article className="p-[12px_14px] bg-[var(--orange-soft)] border border-[var(--orange-border)] rounded-[8px]" key={`${finding.title}-${index}`}>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-[6px]">
                             <ProjectMark name={finding.project || "NOC"} />
-                            <strong>{finding.project || "NOC"}</strong>
+                            <strong className="text-[12.5px] font-bold text-[var(--ink-primary)]">{finding.project || "NOC"}</strong>
                           </div>
-                          <span className={`handover-status handover-status-${finding.state}`}>
+                          <span
+                            className={`inline-flex items-center justify-center shrink-0 min-h-[21px] p-[3px_7px] border border-transparent rounded-[5px] font-mono text-[8.5px] font-bold leading-[1.1] text-center ${
+                              finding.state === "waiting"
+                                ? "text-[var(--orange)] border-[var(--orange-border)] bg-[var(--orange-soft)]"
+                                : "text-[var(--purple)] border-[var(--purple-border)] bg-[var(--purple-soft)]"
+                            }`}
+                          >
                             {finding.state === "waiting" ? "Dipantau" : "On Follow Up"}
                           </span>
                         </div>
-                        <h4 style={{ margin: "8px 0 4px", fontSize: "13px", color: "var(--ink-primary)" }}>
+                        <h4 className="m-[8px_0_4px] text-[13px] text-[var(--ink-primary)] font-semibold">
                           {finding.title || "Temuan tanpa judul"}
                         </h4>
-                        <p style={{ margin: 0, fontSize: "11.5px", color: "var(--ink-secondary)", lineHeight: 1.4 }}>
+                        <p className="m-0 text-[11.5px] text-[var(--ink-secondary)] leading-[1.4]">
                           {finding.detail || "Belum ada rincian."}
                         </p>
                       </article>
                     ))}
                   </div>
                 ) : (
-                  <div className="handover-empty-note">
+                  <div className="p-[12px] text-[var(--ink-muted)] border border-dashed border-[var(--panel-border)] rounded-[8px] bg-[var(--bg)] text-[10.5px]">
                     Tidak ada temuan khusus yang memerlukan tindak lanjut pada shift ini.
                   </div>
                 )}
@@ -512,97 +555,79 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
 
             {/* TAB 4: STATUS MONITORING */}
             {activeTab === "monitoring" && (
-              <div className="handover-tab-content">
-                <div className="handover-monitoring-summary-box">
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
-                    <strong>Penanggung Jawab: {record.monitoringOwner}</strong>
+              <div className="flex flex-col gap-[10px]">
+                <div className="p-[14px_16px] bg-[var(--panel-bg)] border border-[var(--panel-border)] rounded-[8px]">
+                  <div className="flex justify-between items-center mb-[8px]">
+                    <strong className="text-[12.5px] font-bold text-[var(--ink-primary)]">Penanggung Jawab: {record.monitoringOwner}</strong>
                     <Badge tone={record.acceptance ? "success" : "warning"}>
                       {record.acceptance ? "Diterima & Diverifikasi" : "Menunggu penerimaan"}
                     </Badge>
                   </div>
-                  <p style={{ margin: "0 0 12px", fontSize: "12px", color: "var(--ink-secondary)" }}>
+                  <p className="m-[0_0_12px] text-[12px] text-[var(--ink-secondary)]">
                     {record.monitoringSummary}
                   </p>
 
-                  <span
-                    style={{
-                      fontSize: "11px",
-                      fontWeight: "700",
-                      color: "var(--ink-muted)",
-                      textTransform: "uppercase",
-                      display: "block",
-                      marginBottom: "6px",
-                    }}
-                  >
+                  <span className="text-[11px] font-bold text-[var(--ink-muted)] uppercase block mb-[6px]">
                     Proyek yang Dimonitor ({record.monitoredProjects.length})
                   </span>
-                  <div className="handover-project-chips [display:flex] [flex-wrap:wrap] [gap:6px] [margin-bottom:12px]">
+                  <div className="flex flex-wrap gap-[6px] mb-[12px]">
                     {record.monitoredProjects.map((project) => (
-                      <span key={project} className="handover-project-chip [display:inline-flex] [align-items:center] [gap:5px] [padding:3px_8px] [border-radius:6px] [background:var(--bg)] [border:1px_solid_var(--line)] [font-size:11px] [font-weight:600] [color:var(--ink-primary)]">
+                      <span key={project} className="inline-flex items-center gap-[5px] p-[3px_8px] rounded-[6px] bg-[var(--bg)] border border-[var(--line)] text-[11px] font-semibold text-[var(--ink-primary)]">
                         <ProjectMark name={project} /> {project}
                       </span>
                     ))}
                   </div>
                   {!record.monitoredProjects.length && (
-                    <p style={{ fontSize: "11.5px", color: "var(--ink-muted)" }}>
+                    <p className="text-[11.5px] text-[var(--ink-muted)]">
                       Tidak ada proyek yang dinyatakan termonitor pada catatan ini.
                     </p>
                   )}
 
                   {/* Monitored Checkpoints Results with Plain Static OK/NOK Badges in Read-Only Mode */}
-                  <div style={{ marginTop: "16px", marginBottom: "12px" }}>
-                    <span
-                      style={{
-                        fontSize: "11px",
-                        fontWeight: "700",
-                        color: "var(--ink-muted)",
-                        textTransform: "uppercase",
-                        display: "block",
-                        marginBottom: "8px",
-                      }}
-                    >
+                  <div className="mt-[16px] mb-[12px]">
+                    <span className="text-[11px] font-bold text-[var(--ink-muted)] uppercase block mb-[8px]">
                       Hasil Checkpoint Monitoring Shift ({checkpoints.length})
                     </span>
 
-                    <div className="handover-checkpoint-results-list [display:flex] [flex-direction:column] [gap:6px]">
+                    <div className="flex flex-col gap-[6px]">
                       {checkpoints.map((cp, idx) => (
-                        <div className="handover-checkpoint-result-row [display:flex] [align-items:center] [justify-content:space-between] [gap:12px] [padding:8px_12px] [background:var(--bg)] [border:1px_solid_var(--line)] [border-radius:6px]" key={`${cp.time}-${cp.project}-${idx}`}>
-                          <div className="handover-checkpoint-result-left [display:flex] [align-items:center] [gap:10px] [min-width:0]">
-                            <span className="handover-checkpoint-time [font-family:var(--font-mono)] [font-size:11px] [font-weight:700] [color:var(--ink-muted)]">{cp.time}</span>
+                        <div className="flex items-center justify-between gap-[12px] p-[8px_12px] bg-[var(--bg)] border border-[var(--line)] rounded-[6px]" key={`${cp.time}-${cp.project}-${idx}`}>
+                          <div className="flex items-center gap-[10px] min-w-0">
+                            <span className="font-mono text-[11px] font-bold text-[var(--ink-muted)]">{cp.time}</span>
                             <ProjectMark name={cp.project} />
-                            <div className="handover-checkpoint-meta [display:flex] [flex-direction:column] [min-width:0]">
-                              <strong className="[font-size:12px] [color:var(--ink-primary)] [font-weight:600] [white-space:nowrap] [overflow:hidden] [text-overflow:ellipsis]">{cp.task}</strong>
-                              {cp.note && <small className="[font-size:11px] [color:var(--ink-muted)]">{cp.note}</small>}
+                            <div className="flex flex-col min-w-0">
+                              <strong className="text-[12px] text-[var(--ink-primary)] font-semibold whitespace-nowrap overflow-hidden text-ellipsis">{cp.task}</strong>
+                              {cp.note && <small className="text-[11px] text-[var(--ink-muted)]">{cp.note}</small>}
                             </div>
                           </div>
 
                           {/* Static non-clickable status label in Read-Only mode */}
-                          {isReadOnly ? (
-                            <span className={`handover-verdict-pill verdict-${cp.verdict}`}>
-                              {cp.verdict.toUpperCase()}
-                            </span>
-                          ) : (
-                            <span className={`handover-verdict-pill verdict-${cp.verdict}`}>
-                              {cp.verdict.toUpperCase()}
-                            </span>
-                          )}
+                          <span
+                            className={`inline-flex items-center justify-center min-w-[44px] p-[3px_8px] rounded-[4px] text-[10.5px] font-extrabold tracking-[0.5px] cursor-default select-none pointer-events-none shrink-0 border ${
+                              cp.verdict === "ok"
+                                ? "bg-[rgba(34,197,94,0.16)] text-[#4ade80] border-[rgba(74,222,128,0.32)]"
+                                : "bg-[rgba(239,68,68,0.16)] text-[#f87171] border-[rgba(248,113,113,0.32)]"
+                            }`}
+                          >
+                            {cp.verdict.toUpperCase()}
+                          </span>
                         </div>
                       ))}
                     </div>
                   </div>
 
                   {/* Exceptions */}
-                  <div className="handover-exceptions">
+                  <div className="grid gap-[12px] my-[16px]">
                     {(record.monitoringExceptions ?? []).map((exception) => (
-                      <article className="handover-finding-card" key={exception.project}>
-                        <strong>{exception.project} — Tidak Dimonitor</strong>
-                        <p>{exception.reason || "Alasan belum dicatat."}</p>
+                      <article className="p-[12px_14px] bg-[var(--orange-soft)] border border-[var(--orange-border)] rounded-[8px]" key={exception.project}>
+                        <strong className="text-[12.5px] font-bold text-[var(--ink-primary)] block">{exception.project} — Tidak Dimonitor</strong>
+                        <p className="mt-[4px] mb-0 text-[11.5px] text-[var(--ink-secondary)] leading-[1.4]">{exception.reason || "Alasan belum dicatat."}</p>
                       </article>
                     ))}
                   </div>
 
                   {record.validationNote && (
-                    <div className="handover-validation-box">
+                    <div className="p-[10px_12px] bg-[var(--green-soft)] border border-[var(--green-border)] rounded-[6px] text-[12px] text-[var(--green)]">
                       <strong>
                         <Check size={13} style={{ display: "inline-block", verticalAlign: "middle", marginRight: "3px" }} />
                         Catatan Shift {record.targetShift}:
@@ -616,13 +641,13 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
 
             {/* TAB 5: TIKET YANG MASIH OPEN */}
             {activeTab === "tickets" && (
-              <div className="handover-tab-content">
+              <div className="flex flex-col gap-[10px]">
                 {openTicketsList.length ? (
-                  <div className="handover-ticket-list">
+                  <div className="flex flex-col gap-[8px]">
                     {openTicketsList.map((ticket) => (
                       <div
                         key={ticket.id}
-                        className="handover-ticket-card"
+                        className="flex flex-col gap-[8px] p-[12px_14px] bg-[var(--panel-bg)] border border-[var(--panel-border)] rounded-[8px] cursor-pointer transition-all duration-150 hover:bg-[var(--panel-bg-hover)] hover:border-[var(--accent-blue-border)] hover:-translate-y-[1px]"
                         onClick={() => onSelectTicket?.(ticket)}
                         role="button"
                         tabIndex={0}
@@ -634,15 +659,15 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
                           }
                         }}
                       >
-                        <div className="handover-ticket-card-header">
-                          <div className="handover-ticket-card-left">
-                            <span className="handover-ticket-id">#{ticket.id}</span>
-                            <span className="handover-ticket-project">
+                        <div className="flex justify-between items-center gap-[8px]">
+                          <div className="flex items-center gap-[8px]">
+                            <span className="font-mono text-[11px] font-bold text-[var(--accent-blue)]">#{ticket.id}</span>
+                            <span className="inline-flex items-center gap-[4px] text-[11px] font-semibold text-[var(--ink-muted)]">
                               <ProjectMark name={ticket.project} />
                               <span>{ticket.project}</span>
                             </span>
                           </div>
-                          <div className="handover-ticket-badges">
+                          <div className="flex items-center gap-[6px]">
                             <Badge tone={severityTone(ticket.severity || ticket.priority || "neutral")}>
                               {ticket.priority || ticket.severity || "Normal"}
                             </Badge>
@@ -651,14 +676,14 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
                             </Badge>
                           </div>
                         </div>
-                        <h4 className="handover-ticket-subject">
+                        <h4 className="text-[13px] font-semibold text-[var(--ink-primary)] leading-[1.4] m-0">
                           {ticket.subject}
                         </h4>
-                        <div className="handover-ticket-footer">
-                          <span className="handover-ticket-owner">
+                        <div className="flex justify-between items-center text-[11px] text-[var(--ink-muted)] border-t border-[var(--line)] pt-[8px] mt-[2px]">
+                          <span className="text-[11px] text-[var(--ink-muted)] [&_strong]:text-[var(--ink-secondary)]">
                             PIC: <strong>{ticket.owner || "Belum ditugaskan"}</strong>
                           </span>
-                          <span className="handover-ticket-link">
+                          <span className="text-[var(--accent-blue)] font-semibold inline-flex items-center gap-[3px] text-[11px]">
                             Lihat detail ticket <span>→</span>
                           </span>
                         </div>
@@ -666,7 +691,7 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
                     ))}
                   </div>
                 ) : (
-                  <div className="handover-ticket-empty-positive">
+                  <div className="p-[28px_20px] bg-[var(--green-soft)] border border-[var(--green-border)] rounded-[10px] text-center flex flex-col items-center gap-[6px] [&_strong]:text-[14px] [&_strong]:text-[var(--green)] [&_p]:m-0 [&_p]:text-[12px] [&_p]:text-[var(--ink-secondary)]">
                     <CheckCircle2 size={26} style={{ color: "var(--green)", marginBottom: "4px" }} />
                     <strong>Tidak ada tiket yang masih terbuka</strong>
                     <p>Tidak ada tiket yang masih terbuka pada saat handover ini diselesaikan.</p>
@@ -681,14 +706,14 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
       {/* FOOTER */}
       {!isReadOnly ? (
         /* Active Confirmation Mode Footer: Shows Done tasks count vs remaining + Secondary Tutup + Primary Blue "Konfirmasi Handover" */
-        <footer className="handover-modal-footer">
-          <span>
+        <footer className="flex items-center justify-between gap-[16px] p-[14px_24px] border-t border-[var(--line)] bg-[var(--bg)] max-[660px]:items-stretch max-[660px]:flex-col max-[660px]:gap-[10px] max-[660px]:p-[12px_16px]">
+          <span className="text-[10.5px] text-[var(--ink-secondary)]">
             {tasks.filter((task) => task.completed).length} dari {tasks.length} tugas ditandai Done
             {tasks.filter((task) => !task.completed).length > 0
               ? ` (${tasks.filter((task) => !task.completed).length} belum ditinjau)`
               : " — Siap dikonfirmasi"}
           </span>
-          <div className="handover-footer-actions">
+          <div className="flex gap-[8px] shrink-0 max-[660px]:grid max-[660px]:grid-cols-2 [&_.button]:max-[660px]:w-full [&_.button]:max-[660px]:min-w-0 [&_.button]:max-[660px]:px-[8px] [&_.button]:max-[660px]:text-[10.5px]">
             <button className="button button-secondary" onClick={onClose} disabled={busy}>
               Tutup
             </button>
@@ -704,12 +729,12 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
         </footer>
       ) : (
         /* Read-Only History Mode Footer: ONLY a single secondary "Tutup" button! No blue button. */
-        <footer className="handover-modal-footer handover-modal-footer-readonly">
-          <div className="handover-readonly-footer-status">
+        <footer className="flex items-center justify-between gap-[16px] p-[14px_24px] border-t border-[var(--line)] bg-[var(--bg)] max-[660px]:items-stretch max-[660px]:flex-col max-[660px]:gap-[10px] max-[660px]:p-[12px_16px]">
+          <div className="flex items-center gap-[6px] text-[11.5px] text-[var(--ink-muted)]">
             <Lock size={13} aria-hidden="true" />
             <span>Arsip historis terkunci — seluruh data serah terima shift telah tercatat permanen.</span>
           </div>
-          <div>
+          <div className="shrink-0 max-[660px]:w-full [&_.button]:max-[660px]:w-full [&_.button]:max-[660px]:min-w-0 [&_.button]:max-[660px]:px-[8px] [&_.button]:max-[660px]:text-[10.5px]">
             <button className="button button-secondary" onClick={onClose}>
               Tutup
             </button>

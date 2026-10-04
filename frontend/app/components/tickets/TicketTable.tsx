@@ -4,7 +4,6 @@ import { Badge } from "@/app/components/ui/Badge";
 import { EmptyState } from "@/app/components/ui/EmptyState";
 import { ProjectMark } from "@/app/components/ui/ProjectMark";
 import { Avatar } from "@/app/components/ui/Avatar";
-import { initials } from "@/app/lib/data";
 import type { Ticket, Tone } from "@/app/lib/types";
 
 interface TicketTableProps {
@@ -53,92 +52,103 @@ export function TicketTable({
 
   return (
     <div
-      className={`ticket-table-container [width:100%] [overflow-x:auto] [-webkit-overflow-scrolling:touch] ${showEscalationDetails ? "ticket-table-escalation" : ""}`}
+      className="w-full overflow-x-auto [-webkit-overflow-scrolling:touch]"
       role="table"
       aria-label="Daftar ticket"
     >
       {/* Table Header (Desktop) */}
-      <div className="ticket-header [display:grid] [grid-template-columns:minmax(240px,_2.2fr)_minmax(95px,_0.9fr)_minmax(150px,_1.4fr)_85px_95px_75px] [gap:12px] [align-items:center] [padding:0_20px] [height:38px] [color:var(--ink-muted)] [font-size:9.5px] [font-weight:700] [font-family:var(--font-mono)] [letter-spacing:0.8px] [border-bottom:1px_solid_var(--line)] [min-width:780px]" role="row">
-        <span className="th-ticket [overflow:hidden] [text-overflow:ellipsis] [white-space:nowrap]">TICKET &amp; TYPE</span>
-        <span className="th-project [overflow:hidden] [text-overflow:ellipsis] [white-space:nowrap]">PROJECT</span>
-        <span className="th-assignee [overflow:hidden] [text-overflow:ellipsis] [white-space:nowrap]">ASSIGNEE</span>
-        {showEscalationDetails && <span className="th-escalation [overflow:hidden] [text-overflow:ellipsis] [white-space:nowrap]">ESCALATED TO</span>}
-        <span className="th-priority [overflow:hidden] [text-overflow:ellipsis] [white-space:nowrap]">SEVERITY</span>
-        <span className="th-status [overflow:hidden] [text-overflow:ellipsis] [white-space:nowrap]">STATUS</span>
-        <span className="th-created [overflow:hidden] [text-overflow:ellipsis] [white-space:nowrap]">CREATED</span>
+      <div
+        className={`grid ${
+          showEscalationDetails
+            ? "grid-cols-[minmax(220px,2.2fr)_minmax(80px,0.7fr)_minmax(150px,1.3fr)_minmax(160px,1.4fr)_80px_90px_70px] min-w-[860px]"
+            : "grid-cols-[minmax(240px,2.2fr)_minmax(95px,0.9fr)_minmax(150px,1.4fr)_85px_95px_75px] min-w-[780px]"
+        } gap-3 items-center px-5 h-[38px] text-[#94a3b8] text-[9.5px] font-bold font-mono tracking-[0.8px] border-b border-[#334155] max-[769px]:hidden`}
+        role="row"
+      >
+        <span className="overflow-hidden text-ellipsis whitespace-nowrap">TICKET &amp; TYPE</span>
+        <span className="overflow-hidden text-ellipsis whitespace-nowrap">PROJECT</span>
+        <span className="overflow-hidden text-ellipsis whitespace-nowrap">ASSIGNEE</span>
+        {showEscalationDetails && <span className="overflow-hidden text-ellipsis whitespace-nowrap">ESCALATED TO</span>}
+        <span className="overflow-hidden text-ellipsis whitespace-nowrap">SEVERITY</span>
+        <span className="overflow-hidden text-ellipsis whitespace-nowrap">STATUS</span>
+        <span className="overflow-hidden text-ellipsis whitespace-nowrap">CREATED</span>
       </div>
 
       {/* Table Rows (Desktop) & Cards (Mobile) */}
-      <div className="ticket-rows-wrap">
+      <div>
         {rows.map((ticket) => {
           const typeLabel = ticket.type || ticket.category || "Incident";
 
           return (
             <button
               type="button"
-              className="ticket-row [display:grid] [grid-template-columns:minmax(240px,_2.2fr)_minmax(95px,_0.9fr)_minmax(150px,_1.4fr)_85px_95px_75px] [gap:12px] [align-items:center] [width:100%] [min-height:56px] [padding:10px_20px] [border:none] [border-bottom:1px_solid_var(--line)] [background:transparent] [text-align:left] [cursor:pointer] [transition:background_0.15s_ease] [min-width:780px]"
+              className={`grid ${
+                showEscalationDetails
+                  ? "grid-cols-[minmax(220px,2.2fr)_minmax(80px,0.7fr)_minmax(150px,1.3fr)_minmax(160px,1.4fr)_80px_90px_70px] min-w-[860px]"
+                  : "grid-cols-[minmax(240px,2.2fr)_minmax(95px,0.9fr)_minmax(150px,1.4fr)_85px_95px_75px] min-w-[780px]"
+              } gap-3 items-center w-full min-h-[56px] my-1 rounded-lg px-5 py-2.5 border-0 border-b border-[#334155] last:border-b-0 bg-transparent text-left cursor-pointer transition-colors duration-150 hover:bg-[#243044] text-[#cbd5e1] max-[769px]:flex max-[769px]:flex-col max-[769px]:items-start max-[769px]:gap-2 max-[769px]:min-w-0 max-[769px]:w-[calc(100%-28px)] max-[769px]:p-[14px_16px] max-[769px]:m-[10px_14px] max-[769px]:bg-[#1e293b] max-[769px]:border max-[769px]:border-[#334155] max-[769px]:rounded-[10px]`}
               role="row"
               onClick={() => onSelect(ticket)}
               key={ticket.id}
               aria-label={`Buka detail ticket ${ticket.subject}`}
             >
               {/* Ticket Code, Subject & Type Tag */}
-              <div className="ticket-cell ticket-cell-subject [min-width:0] [overflow:hidden]">
-                <div className="ticket-title-line [display:flex] [align-items:center] [gap:8px] [margin-bottom:3px] [flex-wrap:wrap] [min-width:0]">
-                  <span className="ticket-code [font-family:var(--font-mono)] [font-size:10.5px] [font-weight:600] [color:var(--accent-blue)] [flex-shrink:0]">#{ticket.id}</span>
-                  <span className="ticket-type-tag [display:inline-flex] [align-items:center] [padding:1.5px_6px] [border-radius:4px] [border:1px_solid_var(--line)] [background:rgba(148,_163,_184,_0.08)] [color:var(--ink-secondary)] [font-size:9px] [font-weight:600] [font-family:var(--font-mono)] [letter-spacing:0.3px] [text-transform:uppercase] [flex-shrink:0]">{typeLabel}</span>
+              <div className="min-w-0 overflow-hidden max-[769px]:flex max-[769px]:flex-col max-[769px]:items-start max-[769px]:gap-1 max-[769px]:w-full max-[769px]:pb-1.5 max-[769px]:border-b max-[769px]:border-[#334155]">
+                <div className="flex items-center gap-2 mb-[3px] flex-wrap min-w-0">
+                  <span className="font-mono text-[10.5px] font-semibold text-[#38bdf8] shrink-0">#{ticket.id}</span>
+                  <span className="inline-flex items-center px-1.5 py-[1.5px] rounded-[4px] border border-[#334155] bg-[rgba(148,163,184,0.08)] text-[#cbd5e1] text-[9.5px] font-semibold font-mono tracking-[0.2px] uppercase shrink-0">{typeLabel}</span>
                 </div>
-                <strong className="ticket-subject-text [display:block] [font-size:12.5px] [font-weight:600] [color:var(--ink-primary)] [line-height:1.35] [overflow:hidden] [text-overflow:ellipsis] [white-space:nowrap] [min-width:0]" title={ticket.subject}>{ticket.subject}</strong>
+                <strong className="block text-[12.5px] font-semibold text-[#f8fafc] leading-[1.35] overflow-hidden text-ellipsis whitespace-nowrap min-w-0 max-[769px]:whitespace-normal" title={ticket.subject}>{ticket.subject}</strong>
               </div>
 
               {/* Project */}
-              <div className="ticket-cell ticket-cell-project [min-width:0] [overflow:hidden]">
-                <span className="ticket-cell-label [display:none]">Project:</span>
-                <span className="ticket-project-wrap [display:inline-flex] [align-items:center] [gap:7px] [font-size:11.5px] [color:var(--ink-primary)] [min-width:0] [max-width:100%]">
+              <div className="min-w-0 overflow-hidden max-[769px]:flex max-[769px]:items-center max-[769px]:w-full">
+                <span className="hidden max-[769px]:inline-block text-[10.5px] font-semibold text-[#94a3b8] font-mono min-w-[80px] shrink-0">Project:</span>
+                <span className="inline-flex items-center gap-[7px] text-[11.5px] text-[#f8fafc] min-w-0 max-w-full">
                   <ProjectMark name={ticket.project} />
-                  <span>{ticket.project}</span>
+                  <span className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">{ticket.project}</span>
                 </span>
               </div>
 
               {/* Assignee */}
-              <div className="ticket-cell ticket-cell-owner [min-width:0] [overflow:hidden]" title={ticket.owner ? `Assignee: ${ticket.owner}` : "Unassigned"}>
-                <span className="ticket-cell-label [display:none]">Assignee:</span>
-                <span className="ticket-owner-wrap [display:inline-flex] [align-items:center] [gap:7px] [font-size:11.5px] [color:var(--ink-primary)] [min-width:0] [max-width:100%]">
-                  <Avatar size="sm" name={ticket.owner || "Unassigned"} className="mini-avatar" />
-                  <span className="owner-name [min-width:0] [overflow:hidden] [text-overflow:ellipsis] [white-space:nowrap]">{ticket.owner || "Unassigned"}</span>
+              <div className="min-w-0 overflow-hidden max-[769px]:flex max-[769px]:items-center max-[769px]:w-full" title={ticket.owner ? `Assignee: ${ticket.owner}` : "Unassigned"}>
+                <span className="hidden max-[769px]:inline-block text-[10.5px] font-semibold text-[#94a3b8] font-mono min-w-[80px] shrink-0">Assignee:</span>
+                <span className="inline-flex items-center gap-[7px] text-[11.5px] text-[#f8fafc] min-w-0 max-w-full">
+                  <Avatar size="sm" name={ticket.owner || "Unassigned"} className="shrink-0" />
+                  <span className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">{ticket.owner || "Unassigned"}</span>
                 </span>
               </div>
 
               {/* Escalation Level & Escalated To (Conditional) */}
               {showEscalationDetails && (
                 <div
-                  className="ticket-cell ticket-cell-escalation [min-width:0] [overflow:hidden]"
+                  className="min-w-0 overflow-hidden max-[769px]:flex max-[769px]:items-center max-[769px]:w-full"
                   title={ticket.escalatedTo ? `Eskalasi ke: ${ticket.escalatedTo} (${ticket.escalationLevel || "Level 2"})` : undefined}
                 >
-                  <span className="ticket-cell-label [display:none]">Escalated To:</span>
-                  <div className="escalation-target-wrap [display:flex] [flex-direction:column] [min-width:0] [max-width:100%]">
-                    <strong className="escalated-person [font-weight:600] [color:var(--ink-primary)] [min-width:0] [overflow:hidden] [text-overflow:ellipsis] [white-space:nowrap]">{ticket.escalatedTo || "L2 Support"}</strong>
-                    <small className="escalated-tier [font-size:9.5px] [color:var(--ink-muted)] [font-family:var(--font-mono)] [min-width:0] [overflow:hidden] [text-overflow:ellipsis] [white-space:nowrap]">{ticket.escalationLevel || "Level 2"}</small>
+                  <span className="hidden max-[769px]:inline-block text-[10.5px] font-semibold text-[#94a3b8] font-mono min-w-[80px] shrink-0">Escalated To:</span>
+                  <div className="flex flex-col min-w-0 max-w-full">
+                    <strong className="font-semibold text-[#f8fafc] text-[11px] min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">{ticket.escalatedTo || "L2 Support"}</strong>
+                    <small className="text-[9.5px] text-[#94a3b8] font-mono min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">{ticket.escalationLevel || "Level 2"}</small>
                   </div>
                 </div>
               )}
 
               {/* Priority / Severity */}
-              <div className="ticket-cell ticket-cell-priority [min-width:0] [overflow:hidden]">
-                <span className="ticket-cell-label [display:none]">Severity:</span>
+              <div className="min-w-0 overflow-hidden max-[769px]:flex max-[769px]:items-center max-[769px]:w-full">
+                <span className="hidden max-[769px]:inline-block text-[10.5px] font-semibold text-[#94a3b8] font-mono min-w-[80px] shrink-0">Severity:</span>
                 <Badge tone={severityTone(ticket.severity)}>{ticket.severity}</Badge>
               </div>
 
               {/* Status */}
-              <div className="ticket-cell ticket-cell-status [min-width:0] [overflow:hidden]">
-                <span className="ticket-cell-label [display:none]">Status:</span>
+              <div className="min-w-0 overflow-hidden max-[769px]:flex max-[769px]:items-center max-[769px]:w-full">
+                <span className="hidden max-[769px]:inline-block text-[10.5px] font-semibold text-[#94a3b8] font-mono min-w-[80px] shrink-0">Status:</span>
                 <Badge tone={statusTone(ticket.status)}>{ticket.status}</Badge>
               </div>
 
               {/* Created Time & Date */}
-              <div className="ticket-cell ticket-cell-time [min-width:0] [overflow:hidden]">
-                <span className="created-time [font-size:11px] [font-family:var(--font-mono)] [color:var(--ink-primary)] [display:block]">{ticket.created}</span>
-                {ticket.date && <small className="created-date [font-size:9.5px] [font-family:var(--font-mono)] [color:var(--ink-muted)] [display:block]">{ticket.date}</small>}
+              <div className="min-w-0 overflow-hidden max-[769px]:flex max-[769px]:items-center max-[769px]:gap-2 max-[769px]:w-full">
+                <span className="text-[11px] font-mono text-[#f8fafc] block">{ticket.created}</span>
+                {ticket.date && <small className="text-[9.5px] font-mono text-[#94a3b8] block">{ticket.date}</small>}
               </div>
             </button>
           );

@@ -127,7 +127,6 @@ export function RosterShiftCoverage({
           strokeDasharray={`${circumference} ${circumference}`}
           strokeDashoffset={0}
           strokeLinecap="butt"
-          className="donut-segment"
           transform={`rotate(-90 ${cx} ${cy})`}
         />
       );
@@ -159,7 +158,6 @@ export function RosterShiftCoverage({
           strokeDasharray={strokeDasharray}
           strokeDashoffset={strokeDashoffset}
           strokeLinecap="round"
-          className="donut-segment"
           transform={`rotate(-90 ${cx} ${cy})`}
         />
       );
@@ -186,16 +184,16 @@ export function RosterShiftCoverage({
 
   return (
     <article
-      className="panel shift-coverage-card roster-coverage-panel [display:flex]! [flex-direction:column]! [height:100%] [box-sizing:border-box]! [padding:0]! [overflow:hidden]!"
+      className="panel flex flex-col h-full box-border p-0 overflow-hidden bg-[var(--panel-bg)] border border-[var(--panel-border)] rounded-[10px] shadow-[var(--shadow-panel)]"
       style={matchedHeight ? { height: `${matchedHeight}px` } : undefined}
     >
       {/* ── Header: Title, Subtitle, Shift Badge ── */}
-      <div className="shift-coverage-header">
-        <h2 className="panel-title shift-coverage-title">Status Kehadiran Anggota</h2>
-        <span className="shift-coverage-subtitle">Ketersediaan Pegawai</span>
-        <div className="shift-coverage-badge-row">
+      <div className="flex flex-col items-center text-center p-[16px_20px_14px] border-b border-[var(--line)] bg-[var(--panel-bg)]">
+        <h2 className="m-0 text-[var(--ink-primary)] text-[15px] font-bold leading-[1.2] justify-center text-center">Status Kehadiran Anggota</h2>
+        <span className="block mt-[3px] text-[var(--ink-secondary)] text-[11.5px] font-medium leading-[1.2] text-center">Ketersediaan Pegawai</span>
+        <div className="flex items-center justify-center mt-[8px]">
           <div
-            className={`topbar-shift-badge ${activeShift.badgeClass}`}
+            className={`topbar-shift-badge inline-flex items-center gap-[6px] px-[12px] py-[4px] rounded-[999px] text-[11px] leading-[1.2] shadow-[0_1px_3px_rgba(0,0,0,0.25)] ${activeShift.badgeClass}`}
             title={`Shift Aktif: ${activeShift.name}`}
             aria-label={`Shift aktif ${activeShift.name}`}
           >
@@ -208,10 +206,10 @@ export function RosterShiftCoverage({
       </div>
 
       {/* ── Donut Chart (Overview shape & styling) ── */}
-      <div className="shift-coverage-donut-section">
-        <div className="donut-chart-wrap shift-coverage-donut-wrap">
+      <div className="flex justify-center items-center my-[14px_12px]">
+        <div className="w-[124px] h-[124px] relative">
           <svg
-            className="donut-svg"
+            className="w-full h-full overflow-visible pointer-events-none"
             viewBox="0 0 120 120"
             aria-label={`Distribusi status roster: ${counts.onDuty} On Duty, ${counts.online} Online, ${counts.offline} Offline`}
           >
@@ -263,42 +261,42 @@ export function RosterShiftCoverage({
 
             {renderDonutSlices()}
           </svg>
-          <div className="donut-center-content">
-            <span className="donut-total-num">{counts.total}</span>
-            <span className="donut-total-label">TOTAL</span>
+          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+            <span className="text-[26px] font-extrabold font-mono text-white leading-none">{counts.total}</span>
+            <span className="text-[9px] font-bold font-mono tracking-[1.5px] text-[var(--ink-muted)] mt-[4px]">TOTAL</span>
           </div>
         </div>
       </div>
 
       {/* ── 3-State Stats Summary Row (On Duty · Online · Offline) ── */}
-      <div className="shift-coverage-stats-row" aria-label="Ringkasan status roster">
+      <div className="flex flex-wrap items-center justify-center gap-[8px] mt-[6px] mx-[16px] mb-0" aria-label="Ringkasan status roster">
         <span
-          className="coverage-stat-pill coverage-stat-on-duty"
+          className="inline-flex items-center gap-[6px] px-[10px] py-[4px] h-[24px] box-border rounded-[999px] text-[11px] font-semibold leading-none select-none whitespace-nowrap text-[#4ade80] bg-[rgba(34,197,94,0.1)] border border-[rgba(34,197,94,0.25)]"
           title="Jumlah anggota On Duty"
         >
-          <span className="coverage-stat-dot dot-bertugas" aria-hidden="true" />
-          <span className="coverage-stat-text">{counts.onDuty} On Duty</span>
+          <span className="w-[6px] h-[6px] rounded-[50%] bg-[#22c55e] shadow-[0_0_5px_rgba(34,197,94,0.6)]" aria-hidden="true" />
+          <span>{counts.onDuty} On Duty</span>
         </span>
         <span
-          className="coverage-stat-pill coverage-stat-online"
+          className="inline-flex items-center gap-[6px] px-[10px] py-[4px] h-[24px] box-border rounded-[999px] text-[11px] font-semibold leading-none select-none whitespace-nowrap text-[#38bdf8] bg-[rgba(56,189,248,0.1)] border border-[rgba(56,189,248,0.25)]"
           title="Jumlah anggota Online"
         >
-          <span className="coverage-stat-dot dot-standby" aria-hidden="true" />
-          <span className="coverage-stat-text">{counts.online} Online</span>
+          <span className="w-[6px] h-[6px] rounded-[50%] bg-[#38bdf8] shadow-[0_0_5px_rgba(56,189,248,0.6)]" aria-hidden="true" />
+          <span>{counts.online} Online</span>
         </span>
         <span
-          className="coverage-stat-pill coverage-stat-offline"
+          className="inline-flex items-center gap-[6px] px-[10px] py-[4px] h-[24px] box-border rounded-[999px] text-[11px] font-semibold leading-none select-none whitespace-nowrap text-[#94a3b8] bg-[rgba(148,163,184,0.08)] border border-[rgba(148,163,184,0.2)]"
           title="Jumlah anggota Offline"
         >
-          <span className="coverage-stat-dot dot-offline" aria-hidden="true" />
-          <span className="coverage-stat-text">{counts.offline} Offline</span>
+          <span className="w-[6px] h-[6px] rounded-[50%] bg-[#64748b]" aria-hidden="true" />
+          <span>{counts.offline} Offline</span>
         </span>
       </div>
 
       {/* ── Status Filter Tabs: On Duty, Online, Offline ── */}
-      <div className="roster-filter-tabs-wrapper">
+      <div className="p-[10px_12px_6px] border-t border-[var(--line)] mt-[12px] w-full box-border">
         <div
-          className="filter-tabs roster-filter-tabs"
+          className="filter-tabs grid grid-cols-[repeat(4,minmax(0,1fr))] gap-[4px] p-[3px] rounded-[7px] bg-[var(--bg)] border border-[var(--line)] w-full box-border"
           role="tablist"
           aria-label="Filter status anggota roster"
         >
@@ -313,21 +311,29 @@ export function RosterShiftCoverage({
               type="button"
               role="tab"
               aria-selected={activeTab === tab.id}
-              className={activeTab === tab.id ? "selected" : ""}
+              className={`min-w-0 p-[6px_3px] rounded-[5px] text-[10.5px] font-semibold inline-flex items-center justify-center gap-[4px] whitespace-nowrap cursor-pointer transition-all duration-150 border ${
+                activeTab === tab.id
+                  ? "text-[var(--accent-blue)] bg-[var(--panel-bg)] border-[rgba(96,165,250,0.25)] shadow-[var(--shadow-sm)]"
+                  : "text-[var(--ink-muted)] bg-transparent border-transparent hover:text-[var(--ink-primary)] hover:bg-[rgba(255,255,255,0.04)]"
+              }`}
               onClick={() => setActiveTab(tab.id)}
             >
-              <span className="tab-label">{tab.label}</span>
-              <span className="tab-count-badge">{tab.count}</span>
+              <span>{tab.label}</span>
+              <span className={`inline-flex items-center justify-center min-w-[16px] h-[16px] px-[4px] rounded-[99px] text-[9.5px] font-mono font-bold shrink-0 ${
+                activeTab === tab.id
+                  ? "bg-[rgba(96,165,250,0.2)] text-[var(--accent-blue)]"
+                  : "bg-[rgba(148,163,184,0.18)] text-inherit"
+              }`}>{tab.count}</span>
             </button>
           ))}
         </div>
       </div>
 
       {/* ── Scrollable Member List ── */}
-      <div className="coverage-team shift-coverage-team-list roster-coverage-team-list [padding:8px_16px_16px]! [flex:1_1_0px]! [min-height:0]! [max-height:none]! [overflow-y:auto]! [scrollbar-width:thin]! [scrollbar-color:rgba(56,_189,_248,_0.25)_transparent]!">
+      <div className="p-[8px_16px_16px] flex-1 min-h-0 overflow-y-auto [scrollbar-width:thin] [scrollbar-color:rgba(56,189,248,0.25)_transparent] [&::-webkit-scrollbar]:w-[4px] [&::-webkit-scrollbar-track]:bg-[rgba(148,163,184,0.05)] [&::-webkit-scrollbar-track]:rounded-[4px] [&::-webkit-scrollbar-thumb]:bg-[rgba(56,189,248,0.25)] [&::-webkit-scrollbar-thumb]:rounded-[4px] [&::-webkit-scrollbar-thumb:hover]:bg-[rgba(56,189,248,0.45)]">
         {filteredMembers.length === 0 ? (
-          <div className="roster-empty-container">
-            <div className="roster-empty-state">
+          <div className="flex items-center justify-center min-h-[120px]">
+            <div className="p-[24px_16px] text-center text-[var(--ink-muted)] text-[11.5px] leading-[1.4]">
               <p>Tidak ada anggota {activeTab.toLowerCase()} saat ini.</p>
             </div>
           </div>
@@ -350,30 +356,30 @@ export function RosterShiftCoverage({
               <button
                 key={member.id}
                 type="button"
-                className="roster-member-row"
+                className="flex items-center justify-between w-full gap-[12px] p-[8px] m-0 text-[var(--ink-primary)] text-left bg-transparent border-0 border-b border-[var(--line)] last:border-b-0 cursor-pointer rounded-[6px] transition-colors duration-150 box-border hover:bg-[rgba(148,163,184,0.08)]"
                 onClick={() => handleSelectMember(member)}
                 title={`Buka detail profil ${member.name}`}
               >
-                <div className="roster-member-left">
+                <div className="flex items-center gap-[10px] flex-1 min-w-0">
                   <div
                     className="coverage-avatar-ring-wrapper"
                     style={ringStyle as React.CSSProperties}
                     title={`${member.name} (${indicatorLabel})`}
                   >
-                    <Avatar size="sm" name={member.name} className="shift-coverage-avatar" />
+                    <Avatar size="sm" name={member.name} className="shrink-0" />
                     <span
                       className="roster-avatar-status-badge"
                       style={{ backgroundColor: ringColor }}
                     />
                   </div>
-                  <div className="roster-member-info">
-                    <span className="roster-member-name" title={member.name}>
+                  <div className="flex flex-col flex-1 min-w-0 gap-[2px]">
+                    <span className="text-[11.5px] font-semibold text-[var(--ink-primary)] whitespace-nowrap overflow-hidden text-ellipsis leading-[1.3]" title={member.name}>
                       {member.name}
                     </span>
-                    <small className="roster-member-role">{member.role}</small>
+                    <small className="text-[10px] text-[var(--ink-muted)] font-normal whitespace-nowrap overflow-hidden text-ellipsis mt-[1px] leading-[1.2]">{member.role}</small>
                   </div>
                 </div>
-                <div className="roster-member-right">
+                <div className="shrink-0 whitespace-nowrap flex items-center">
                   <StatusIndicator
                     status={indicatorStatus}
                     label={indicatorLabel}

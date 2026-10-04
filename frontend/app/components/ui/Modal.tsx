@@ -88,7 +88,9 @@ export function Modal({ open, onClose, label, width, variant = "centered", child
   if (!open) return null;
 
   const className =
-    variant === "wide" ? "handover-modal" : variant === "form" ? "handover-form-modal" : "ticket-modal";
+    variant === "wide" || variant === "form"
+      ? "flex flex-col w-[min(900px,calc(100vw-32px))] max-h-[calc(100vh-32px)] max-[660px]:w-full max-[660px]:max-h-[calc(100vh-20px)] max-[660px]:rounded-[11px] overflow-hidden text-[var(--ink-primary)] border border-[var(--panel-border)] rounded-[14px] bg-[var(--modal-bg)] shadow-[var(--shadow-elevated)] [&_button:disabled]:opacity-50 [&_button:disabled]:cursor-not-allowed"
+      : "ticket-modal";
   const ticketModalTailwindClass =
     variant === "centered"
       ? "[width:min(600px,_calc(100vw_-_32px))] [overflow:hidden] [border:1px_solid_var(--panel-border)] [border-radius:14px] [background:var(--modal-bg)] [box-shadow:var(--shadow-elevated)] [color:var(--ink-primary)] [padding:22px_24px]"
@@ -96,7 +98,7 @@ export function Modal({ open, onClose, label, width, variant = "centered", child
 
   return (
     <div
-      className="modal-backdrop anim-fade"
+      className="fixed inset-0 z-[100] grid place-items-center bg-[var(--modal-backdrop)] backdrop-blur-[4px] p-[16px] box-border anim-fade"
       role="presentation"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();

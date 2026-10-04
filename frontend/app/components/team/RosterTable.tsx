@@ -48,11 +48,11 @@ interface ScheduleStripProps {
 
 const ScheduleStrip = memo(function ScheduleStrip({ days }: ScheduleStripProps) {
   return (
-    <div className="roster-mini-days">
+    <div className="flex gap-[4px]">
       {days.map((dayEntry, idx) => (
         <div
           key={idx}
-          className="roster-mini-day [background:var(--roster-mini-day-bg)]! [color:var(--roster-mini-day-color)]! [border-color:var(--roster-mini-day-border)]!"
+          className="flex flex-col items-center justify-center w-[28px] h-[36px] rounded-[6px] border border-[var(--line)] text-center cursor-default [background:var(--roster-mini-day-bg)]! [color:var(--roster-mini-day-color)]! [border-color:var(--roster-mini-day-border)]!"
           style={{
             "--roster-mini-day-bg": dayEntry.style.bg,
             "--roster-mini-day-color": dayEntry.style.color,
@@ -60,8 +60,8 @@ const ScheduleStrip = memo(function ScheduleStrip({ days }: ScheduleStripProps) 
           } as React.CSSProperties}
           title={`${dayEntry.day} (${dayEntry.date}): ${dayEntry.shift} (${dayEntry.hours ?? "-"})`}
         >
-          <span className="roster-mini-day-label">{dayEntry.day}</span>
-          <span className="roster-mini-shift-code">
+          <span className="text-[8px] font-mono font-bold uppercase opacity-80 leading-none mb-[2px]">{dayEntry.day}</span>
+          <span className="text-[11px] font-extrabold leading-none">
             {dayEntry.shift === "Leave" ? "L" : dayEntry.shift === "Off" ? "—" : dayEntry.shift[0]}
           </span>
         </div>
@@ -87,9 +87,9 @@ const ActionMenu = memo(function ActionMenu({ member, onSelectMember, onEditMemb
   const close = useCallback(() => setOpen(false), []);
 
   return (
-    <div className="roster-action-menu-wrapper">
+    <div className="relative inline-flex justify-end">
       <button
-        className="icon-button roster-menu-btn"
+        className="icon-button w-[28px] h-[28px]"
         onClick={toggle}
         aria-label={`Aksi untuk ${member.name}`}
         aria-expanded={open}
@@ -100,22 +100,25 @@ const ActionMenu = memo(function ActionMenu({ member, onSelectMember, onEditMemb
 
       {open && (
         <>
-          <div className="roster-menu-backdrop" onClick={close} />
-          <div className="roster-action-dropdown anim-scale-up" role="menu">
+          <div className="fixed inset-0 z-[60]" onClick={close} />
+          <div className="absolute top-full right-0 z-[65] min-w-[190px] p-[5px] mt-[4px] border border-[var(--panel-border)] rounded-[9px] bg-[var(--modal-bg)] shadow-[var(--shadow-elevated)] flex flex-col gap-[2px] anim-scale-up" role="menu">
             <button
               role="menuitem"
+              className="flex items-center gap-[8px] w-full p-[8px_10px] rounded-[6px] bg-transparent text-[var(--ink-primary)] text-[11.5px] font-medium text-left transition-all duration-[0.12s] ease hover:bg-[var(--accent-blue-soft)] hover:text-[var(--accent-blue)]"
               onClick={() => { close(); onSelectMember(member); }}
             >
               <UserCheck size={14} /> Lihat Profil &amp; Jadwal
             </button>
             <button
               role="menuitem"
+              className="flex items-center gap-[8px] w-full p-[8px_10px] rounded-[6px] bg-transparent text-[var(--ink-primary)] text-[11.5px] font-medium text-left transition-all duration-[0.12s] ease hover:bg-[var(--accent-blue-soft)] hover:text-[var(--accent-blue)]"
               onClick={() => { close(); onRequestSwap(member); }}
             >
               <ArrowRightLeft size={14} /> Request Tukar Shift
             </button>
             <button
               role="menuitem"
+              className="flex items-center gap-[8px] w-full p-[8px_10px] rounded-[6px] bg-transparent text-[var(--ink-primary)] text-[11.5px] font-medium text-left transition-all duration-[0.12s] ease hover:bg-[var(--accent-blue-soft)] hover:text-[var(--accent-blue)]"
               onClick={() => { close(); onEditMember(member); }}
             >
               <Edit3 size={14} /> Edit Data Anggota
@@ -159,7 +162,7 @@ const RosterRow = memo(function RosterRow({
 
   return (
     <div
-      className={`roster-table-row${offsetTop !== undefined ? " [position:absolute]! [top:0]! [left:0]! [width:100%]! [transform:translateY(var(--roster-row-offset-y))]! [height:var(--roster-row-height)]! [will-change:transform]!" : ""}`}
+      className={`grid grid-cols-[minmax(210px,1.8fr)_minmax(180px,1.4fr)_110px_80px_minmax(220px,1.5fr)_50px] max-[1200px]:grid-cols-[minmax(190px,2fr)_minmax(160px,1.5fr)_100px_75px_44px] max-[760px]:grid-cols-[1fr_100px_44px] gap-[12px] items-center px-[20px] py-[8px] min-h-[68px] border-b border-[var(--line)] transition-colors duration-150 ease hover:bg-[var(--panel-bg-hover)]${offsetTop !== undefined ? " [position:absolute]! [top:0]! [left:0]! [width:100%]! [transform:translateY(var(--roster-row-offset-y))]! [height:var(--roster-row-height)]! [will-change:transform]!" : ""}`}
       role="row"
       style={
         offsetTop !== undefined
@@ -172,7 +175,7 @@ const RosterRow = memo(function RosterRow({
     >
       {/* 1. Member Column */}
       <div
-        className="roster-member-cell"
+        className="flex items-center gap-[12px] cursor-pointer min-w-0 hover:[&_strong]:text-[var(--accent-blue)]"
         onClick={() => onSelectMember(member)}
         role="button"
         tabIndex={0}
@@ -187,36 +190,36 @@ const RosterRow = memo(function RosterRow({
           <Avatar
             size="md"
             name={member.name}
-            className="roster-avatar"
+            className="w-[32px] h-[32px] text-[11px]"
           />
           <span
             className="roster-table-status-badge [background-color:var(--roster-status-ring-color)]!"
             style={{ "--roster-status-ring-color": ringColor } as React.CSSProperties}
           />
         </div>
-        <div className="roster-member-info">
-          <strong>{member.name}</strong>
-          <div className="roster-role-row">
-            <span className="roster-role-pill roster-role-pill-filled">
-              <Briefcase size={9} className="[display:inline]! [vertical-align:middle]! [margin-right:3px]!" />
+        <div className="min-w-0 flex flex-col gap-[2px] flex-1">
+          <strong className="text-[var(--ink-primary)] text-[13px] font-semibold truncate whitespace-nowrap transition-colors duration-150 ease">{member.name}</strong>
+          <div className="flex items-center gap-[6px]">
+            <span className="inline-flex items-center px-[7px] py-[2px] rounded-[99px] border border-[var(--panel-border)] bg-[var(--panel-bg)] text-[var(--ink-secondary)] text-[10px] font-semibold tracking-[0.1px]">
+              <Briefcase size={9} className="inline align-middle mr-[3px]" />
               {member.role}
             </span>
-            <span className="roster-emp-id">{member.employeeId}</span>
+            <span className="text-[9.5px] font-mono text-[var(--ink-muted)]">{member.employeeId}</span>
           </div>
         </div>
       </div>
 
       {/* 2. Shift Column */}
-      <div className="roster-shift-cell">
-        <span className="roster-shift-name">
-          <Clock size={11} className="[display:inline]! [vertical-align:middle]! [margin-right:4px]! [color:var(--accent-blue)]!" />
+      <div className="max-[760px]:hidden">
+        <span className="block text-[12px] font-semibold text-[var(--ink-primary)]">
+          <Clock size={11} className="inline align-middle mr-[4px] text-[var(--accent-blue)]" />
           {member.currentShift}
         </span>
-        <span className="roster-shift-sub">Standby Room / Console 01</span>
+        <span className="block text-[10px] text-[var(--ink-muted)] font-mono mt-[1px]">Standby Room / Console 01</span>
       </div>
 
       {/* 3. Status Badge */}
-      <div className="roster-status-cell">
+      <div className="flex items-center">
         {isCurrentUser ? (
           <Badge tone={userStatus === "Online" ? "success" : userStatus === "Busy" ? "critical" : userStatus === "On Break" ? "warning" : "info"}>
             <span
@@ -234,9 +237,9 @@ const RosterRow = memo(function RosterRow({
       </div>
 
       {/* 4. Contact Buttons */}
-      <div className="roster-contact-cell">
+      <div className="flex items-center gap-[6px] max-[760px]:hidden">
         <button
-          className="roster-contact-btn"
+          className="grid place-items-center w-[28px] h-[28px] rounded-[6px] border border-[var(--panel-border)] bg-[var(--panel-bg)] text-[var(--ink-secondary)] cursor-pointer transition-all duration-150 ease hover:text-[var(--accent-blue)] hover:border-[var(--accent-blue-border)] hover:bg-[var(--accent-blue-soft)]"
           onClick={() => onCopy(member.email, "Email")}
           title={`Salin email: ${member.email}`}
           aria-label={`Salin email ${member.name}`}
@@ -244,7 +247,7 @@ const RosterRow = memo(function RosterRow({
           <Mail size={13} strokeWidth={2} />
         </button>
         <button
-          className="roster-contact-btn"
+          className="grid place-items-center w-[28px] h-[28px] rounded-[6px] border border-[var(--panel-border)] bg-[var(--panel-bg)] text-[var(--ink-secondary)] cursor-pointer transition-all duration-150 ease hover:text-[var(--accent-blue)] hover:border-[var(--accent-blue-border)] hover:bg-[var(--accent-blue-soft)]"
           onClick={() => onCopy(member.phone, "Nomor HP")}
           title={`Salin nomor: ${member.phone}`}
           aria-label={`Salin telepon ${member.name}`}
@@ -254,12 +257,12 @@ const RosterRow = memo(function RosterRow({
       </div>
 
       {/* 5. Mini 7-day Schedule Strip — memoized */}
-      <div className="roster-schedule-strip-cell">
+      <div className="max-[1200px]:hidden">
         <ScheduleStrip days={scheduleDays} />
       </div>
 
       {/* 6. Action Menu — each row manages its own open state */}
-      <div className="roster-actions-cell">
+      <div className="flex justify-end">
         <ActionMenu
           member={member}
           onSelectMember={onSelectMember}
@@ -346,27 +349,27 @@ export function RosterTable({ members, onSelectMember, onEditMember, onRequestSw
   }, [totalPages, safeCurrentPage]);
 
   return (
-    <div className="roster-table-wrapper" role="table" aria-label="Tabel daftar tim dan jadwal shift">
+    <div className="overflow-x-auto [overscroll-behavior-x:contain]" role="table" aria-label="Tabel daftar tim dan jadwal shift">
       {/* Sticky header */}
-      <div className="roster-table-header" role="row">
+      <div className="grid grid-cols-[minmax(210px,1.8fr)_minmax(180px,1.4fr)_110px_80px_minmax(220px,1.5fr)_50px] max-[1200px]:grid-cols-[minmax(190px,2fr)_minmax(160px,1.5fr)_100px_75px_44px] max-[760px]:grid-cols-[1fr_100px_44px] gap-[12px] items-center px-[18px] h-[38px] text-[var(--ink-muted)] font-mono text-[9.5px] font-bold tracking-[0.8px] border-b border-[var(--line)]" role="row">
         <span>TEAM MEMBER</span>
-        <span>ASSIGNED SHIFT</span>
+        <span className="max-[760px]:hidden">ASSIGNED SHIFT</span>
         <span>STATUS</span>
-        <span>CONTACT</span>
-        <span className="roster-schedule-col-head">THIS WEEK&apos;S SCHEDULE</span>
-        <span className="[text-align:right]!">ACTIONS</span>
+        <span className="max-[760px]:hidden">CONTACT</span>
+        <span className="max-[1200px]:hidden">THIS WEEK&apos;S SCHEDULE</span>
+        <span className="text-right">ACTIONS</span>
       </div>
 
       {/* Table body */}
       <div
-        className="roster-table-body"
+        className="py-[var(--space-2,8px)]"
         aria-rowcount={totalCount}
       >
         {totalCount === 0 ? (
-          <div className="roster-empty-state">
-            <Calendar size={32} strokeWidth={1.5} className="[color:var(--ink-muted)]! [margin-bottom:8px]!" />
-            <strong>Tidak ada anggota tim yang sesuai</strong>
-            <p>Ubah kata kunci pencarian atau filter untuk menampilkan data roster.</p>
+          <div className="flex flex-col items-center justify-center p-[44px_20px] text-center">
+            <Calendar size={32} strokeWidth={1.5} className="text-[var(--ink-muted)] mb-[8px]" />
+            <strong className="text-[14px] text-[var(--ink-primary)] mb-[4px]">Tidak ada anggota tim yang sesuai</strong>
+            <p className="m-0 text-[12px] text-[var(--ink-muted)]">Ubah kata kunci pencarian atau filter untuk menampilkan data roster.</p>
           </div>
         ) : (
           paginatedMembers.map((member) => (
@@ -383,12 +386,12 @@ export function RosterTable({ members, onSelectMember, onEditMember, onRequestSw
       </div>
 
       {/* Pagination Footer */}
-      <div className="roster-pagination-bar">
-        <div className="roster-pagination-left">
-          <div className="roster-rows-per-page">
-            <span className="roster-pagination-label">Rows per page:</span>
+      <div className="flex items-center justify-between gap-[16px] p-[12px_18px] border-t border-[var(--line)] bg-[var(--panel-bg)] flex-wrap">
+        <div className="flex items-center gap-[16px] flex-wrap">
+          <div className="flex items-center gap-[8px]">
+            <span className="text-[11.5px] text-[var(--ink-muted)] font-medium whitespace-nowrap">Rows per page:</span>
             <select
-              className="roster-filter-select roster-page-size-select"
+              className="h-[30px] pl-[9px] pr-[24px] py-0 text-[11.5px] font-medium font-sans rounded-[6px] bg-[right_7px_center] bg-[var(--input-bg,#0f172a)] [color-scheme:dark] border border-[var(--panel-border)] cursor-pointer inline-flex items-center appearance-none -webkit-appearance-none transition-[border-color,box-shadow,background-color,color] duration-150 ease shrink-0 hover:border-[rgba(148,163,184,0.35)] focus:border-[var(--accent-blue)] focus:shadow-[0_0_0_3px_rgba(56,189,248,0.12)] focus:outline-none text-[var(--ink-primary)]"
               value={pageSize === "all" ? "all" : String(pageSize)}
               onChange={(e) => {
                 const val = e.target.value;
@@ -404,14 +407,14 @@ export function RosterTable({ members, onSelectMember, onEditMember, onRequestSw
             </select>
           </div>
 
-          <span className="roster-pagination-info">
-            Showing <strong>{totalCount === 0 ? 0 : startIdx + 1}–{endIdx}</strong> of <strong>{totalCount}</strong> members
+          <span className="text-[11.5px] text-[var(--ink-muted)] font-sans whitespace-nowrap">
+            Showing <strong className="text-[var(--ink-primary)] font-mono">{totalCount === 0 ? 0 : startIdx + 1}–{endIdx}</strong> of <strong className="text-[var(--ink-primary)] font-mono">{totalCount}</strong> members
           </span>
         </div>
 
-        <div className="roster-pagination-actions">
+        <div className="flex items-center gap-[5px]">
           <button
-            className="roster-page-btn roster-page-nav"
+            className="inline-flex items-center justify-center p-[4px_10px] rounded-[6px] text-[11px] font-semibold font-mono bg-[rgba(148,163,184,0.06)] border border-[rgba(148,163,184,0.15)] text-[var(--ink-secondary)] cursor-pointer transition-all duration-150 ease select-none hover:not-disabled:bg-[rgba(56,189,248,0.12)] hover:not-disabled:border-[rgba(56,189,248,0.35)] hover:not-disabled:text-[#38bdf8] disabled:opacity-35 disabled:cursor-not-allowed disabled:bg-[rgba(148,163,184,0.03)] disabled:border-[rgba(148,163,184,0.08)] disabled:text-[var(--ink-muted)]"
             onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
             disabled={safeCurrentPage <= 1}
             aria-label="Halaman sebelumnya"
@@ -419,14 +422,18 @@ export function RosterTable({ members, onSelectMember, onEditMember, onRequestSw
             Prev
           </button>
 
-          <div className="roster-page-numbers">
+          <div className="flex items-center gap-[3px]">
             {pageNumbers.map((p, idx) =>
               p === "..." ? (
-                <span key={`ellipsis-${idx}`} className="roster-page-ellipsis">…</span>
+                <span key={`ellipsis-${idx}`} className="px-[4px] py-0 text-[var(--ink-muted)] text-[12px]">…</span>
               ) : (
                 <button
                   key={p}
-                  className={`roster-page-btn roster-page-num ${p === safeCurrentPage ? "active" : ""}`}
+                  className={`inline-flex items-center justify-center min-w-[26px] h-[26px] p-0 rounded-[6px] text-[11px] font-semibold font-mono border cursor-pointer transition-all duration-150 ease select-none ${
+                    p === safeCurrentPage
+                      ? "bg-[rgba(56,189,248,0.18)] border-[rgba(56,189,248,0.5)] text-[#38bdf8] font-bold"
+                      : "bg-[rgba(148,163,184,0.06)] border-[rgba(148,163,184,0.15)] text-[var(--ink-secondary)] hover:bg-[rgba(56,189,248,0.12)] hover:border-[rgba(56,189,248,0.35)] hover:text-[#38bdf8]"
+                  }`}
                   onClick={() => setCurrentPage(Number(p))}
                   aria-label={`Halaman ${p}`}
                   aria-current={p === safeCurrentPage ? "page" : undefined}
@@ -438,7 +445,7 @@ export function RosterTable({ members, onSelectMember, onEditMember, onRequestSw
           </div>
 
           <button
-            className="roster-page-btn roster-page-nav"
+            className="inline-flex items-center justify-center p-[4px_10px] rounded-[6px] text-[11px] font-semibold font-mono bg-[rgba(148,163,184,0.06)] border border-[rgba(148,163,184,0.15)] text-[var(--ink-secondary)] cursor-pointer transition-all duration-150 ease select-none hover:not-disabled:bg-[rgba(56,189,248,0.12)] hover:not-disabled:border-[rgba(56,189,248,0.35)] hover:not-disabled:text-[#38bdf8] disabled:opacity-35 disabled:cursor-not-allowed disabled:bg-[rgba(148,163,184,0.03)] disabled:border-[rgba(148,163,184,0.08)] disabled:text-[var(--ink-muted)]"
             onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
             disabled={safeCurrentPage >= totalPages || totalPages <= 1}
             aria-label="Halaman berikutnya"

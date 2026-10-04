@@ -38,15 +38,31 @@ function HistorySection({ member }: { member: RosterMember }) {
   return (
     <div>
       {/* Header + toggle */}
-      <div className="[display:flex]! [justify-content:space-between]! [align-items:center]! [margin-bottom:10px]!">
-        <span className="roster-section-eyebrow [margin:0]!">
+      <div className="flex justify-between items-center mb-[10px]">
+        <span className="block text-[10px] font-mono font-bold tracking-[0.8px] text-[var(--ink-muted)] uppercase m-0">
           SHIFT &amp; ATTENDANCE HISTORY
         </span>
-        <div className="filter-tabs [scale:0.85]! [transform-origin:right_center]!">
-          <button className={mode === "list" ? "selected" : ""} onClick={() => setMode("list")}>
+        <div className="inline-flex items-center gap-[2px] h-[36px] box-border p-[3px] bg-[var(--surface,#0f172a)] border border-[var(--panel-border)] rounded-[8px] shrink-0 scale-[0.85] origin-right" aria-label="Toggle history view">
+          <button
+            type="button"
+            className={`inline-flex items-center justify-center h-[28px] px-[12px] text-[11.5px] font-semibold rounded-[6px] gap-[6px] border border-transparent cursor-pointer transition-[color,background-color] duration-150 ease ${
+              mode === "list"
+                ? "bg-[var(--accent-blue,#2563eb)] text-white shadow-[0_1px_3px_rgba(0,0,0,0.25)]"
+                : "bg-transparent text-[var(--ink-muted)] hover:text-[var(--ink-primary)] hover:bg-[rgba(148,163,184,0.08)]"
+            }`}
+            onClick={() => setMode("list")}
+          >
             List
           </button>
-          <button className={mode === "heatmap" ? "selected" : ""} onClick={() => setMode("heatmap")}>
+          <button
+            type="button"
+            className={`inline-flex items-center justify-center h-[28px] px-[12px] text-[11.5px] font-semibold rounded-[6px] gap-[6px] border border-transparent cursor-pointer transition-[color,background-color] duration-150 ease ${
+              mode === "heatmap"
+                ? "bg-[var(--accent-blue,#2563eb)] text-white shadow-[0_1px_3px_rgba(0,0,0,0.25)]"
+                : "bg-transparent text-[var(--ink-muted)] hover:text-[var(--ink-primary)] hover:bg-[rgba(148,163,184,0.08)]"
+            }`}
+            onClick={() => setMode("heatmap")}
+          >
             Monthly
           </button>
         </div>
@@ -54,20 +70,20 @@ function HistorySection({ member }: { member: RosterMember }) {
 
       {/* ── List view ── */}
       {mode === "list" && (
-        <div className="[display:grid]! [gap:8px]!">
+        <div className="grid gap-[8px]">
           {member.history.map((h, i) => (
             <div
               key={i}
-              className="[display:flex]! [justify-content:space-between]! [align-items:center]! [padding:10px_12px]! [background:rgba(127,_127,_127,_0.05)]! [border:1px_solid_var(--line)]! [border-radius:8px]! [font-size:12px]!"
+              className="flex justify-between items-center p-[10px_12px] bg-[rgba(127,127,127,0.05)] border border-[var(--line)] rounded-[8px] text-[12px]"
             >
-              <div className="[display:flex]! [gap:10px]! [align-items:center]!">
-                <span className="[font-family:var(--font-mono)]! [font-weight:700]! [color:var(--accent-blue)]! [flex-shrink:0]!">
-                  <Clock size={12} className="[display:inline]! [vertical-align:middle]! [margin-right:4px]!" />
+              <div className="flex gap-[10px] items-center">
+                <span className="font-mono font-bold text-[var(--accent-blue)] shrink-0">
+                  <Clock size={12} className="inline vertical-middle mr-[4px]" />
                   {h.date}
                 </span>
                 <div>
-                  <strong className="[display:block]! [color:var(--ink-primary)]! [font-size:12.5px]!">{h.shift}</strong>
-                  {h.note && <small className="[color:var(--ink-muted)]! [font-size:11px]!">{h.note}</small>}
+                  <strong className="block text-[var(--ink-primary)] text-[12.5px]">{h.shift}</strong>
+                  {h.note && <small className="text-[var(--ink-muted)] text-[11px]">{h.note}</small>}
                 </div>
               </div>
               <Badge tone={h.status === "Present" ? "success" : h.status === "Leave" ? "critical" : "warning"}>
@@ -80,19 +96,21 @@ function HistorySection({ member }: { member: RosterMember }) {
 
       {/* ── Monthly heatmap ── */}
       {mode === "heatmap" && (
-        <div className="member-heatmap-wrapper">
-          <p className="[margin:0_0_10px]! [font-size:11px]! [color:var(--ink-muted)]!">
-            <CalendarDays size={12} className="[display:inline]! [vertical-align:middle]! [margin-right:4px]!" />
+        <div className="mt-[4px]">
+          <p className="m-[0_0_10px] text-[11px] text-[var(--ink-muted)]">
+            <CalendarDays size={12} className="inline vertical-middle mr-[4px]" />
             August 2026 — shift pattern based on weekly schedule
           </p>
 
-          <div className="member-heatmap-dow">
-            {MONTH_DAYS.map((d) => <div key={d}>{d}</div>)}
+          <div className="grid grid-cols-[repeat(7,1fr)] gap-[3px] mb-[4px]">
+            {MONTH_DAYS.map((d) => (
+              <div key={d} className="text-center text-[9px] font-bold font-mono text-[var(--ink-muted)] uppercase py-[2px]">{d}</div>
+            ))}
           </div>
 
-          <div className="member-heatmap-grid">
+          <div className="grid grid-cols-[repeat(7,1fr)] gap-[3px]">
             {Array(firstDow).fill(null).map((_, i) => (
-              <div key={`e-${i}`} className="member-heatmap-cell member-heatmap-empty" />
+              <div key={`e-${i}`} className="aspect-square rounded-[5px] border border-transparent bg-transparent cursor-default" />
             ))}
             {days.map(({ day, shiftDay }) => {
               const shift = (shiftDay?.shift ?? "Off") as Parameters<typeof shiftColor>[0];
@@ -101,16 +119,20 @@ function HistorySection({ member }: { member: RosterMember }) {
               return (
                 <div
                   key={day}
-                  className={`member-heatmap-cell [background:var(--member-heatmap-cell-bg)]! [border-color:var(--member-heatmap-cell-border)]! [color:var(--member-heatmap-cell-color)]! ${isToday ? "member-heatmap-today" : ""}`}
+                  className={`aspect-square rounded-[5px] flex flex-col items-center justify-center cursor-default ${
+                    isToday
+                      ? "border-2 border-[var(--accent-blue)]"
+                      : "border border-[var(--line)]"
+                  }`}
                   style={{
-                    "--member-heatmap-cell-bg": sc.bg,
-                    "--member-heatmap-cell-border": isToday ? "var(--accent-blue)" : sc.border,
-                    "--member-heatmap-cell-color": sc.color,
-                  } as React.CSSProperties}
+                    backgroundColor: sc.bg,
+                    borderColor: isToday ? "var(--accent-blue)" : sc.border,
+                    color: sc.color,
+                  }}
                   title={`${day} Aug — ${shift}${shiftDay?.hours ? ` (${shiftDay.hours})` : ""}`}
                 >
-                  <span className="heatmap-day-num">{day}</span>
-                  <span className="heatmap-shift-code">
+                  <span className="text-[8px] font-mono font-bold leading-none opacity-75">{day}</span>
+                  <span className="text-[10px] font-extrabold leading-none mt-[1px]">
                     {shift === "Off" ? "—" : shift === "Leave" ? "L" : shift[0]}
                   </span>
                 </div>
@@ -118,17 +140,17 @@ function HistorySection({ member }: { member: RosterMember }) {
             })}
           </div>
 
-          <div className="member-heatmap-legend">
+          <div className="flex gap-[10px] flex-wrap mt-[8px] pt-[8px] border-t border-[var(--line)]">
             {(["Subuh", "Pagi", "Malam", "Leave", "Off"] as const).map((shift) => {
               const sc = shiftColor(shift);
               return (
-                <span key={shift} className="legend-item">
+                <span key={shift} className="inline-flex items-center gap-[6px] text-[10.5px]">
                   <i
-                    className="[background:var(--member-heatmap-legend-bg)]! [border-color:var(--member-heatmap-legend-border)]!"
+                    className="block w-[12px] h-[12px] rounded-[3px] border border-[var(--line)]"
                     style={{
-                      "--member-heatmap-legend-bg": sc.bg,
-                      "--member-heatmap-legend-border": sc.border,
-                    } as React.CSSProperties}
+                      backgroundColor: sc.bg,
+                      borderColor: sc.border,
+                    }}
                   />
                   {shift}
                 </span>
@@ -243,7 +265,7 @@ export function MemberDetailDrawer({
 
           {/* Attendance stats */}
           <div className="[margin-bottom:24px]!">
-            <span className="roster-section-eyebrow">ATTENDANCE &amp; PERFORMANCE</span>
+            <span className="block text-[10px] font-mono font-bold tracking-[0.8px] text-[var(--ink-muted)] uppercase mb-[8px]">ATTENDANCE &amp; PERFORMANCE</span>
             <div className="metrics-grid [grid-template-columns:repeat(3,_1fr)]! [gap:10px]! [margin-top:8px]!">
               <div className="metric-card [padding:12px]!">
                 <span className="metric-title [font-size:9px]!">ON-TIME RATE</span>
@@ -266,7 +288,7 @@ export function MemberDetailDrawer({
           {/* Current shift & status switcher */}
           <div className="[margin-bottom:24px]! [padding:14px]! [background:var(--panel-bg)]! [border:1px_solid_var(--panel-border)]! [border-radius:10px]!">
             <div className="[display:flex]! [justify-content:space-between]! [align-items:center]! [margin-bottom:8px]!">
-              <span className="roster-section-eyebrow [margin:0]!">CURRENT ASSIGNED SHIFT</span>
+              <span className="block text-[10px] font-mono font-bold tracking-[0.8px] text-[var(--ink-muted)] uppercase m-0">CURRENT ASSIGNED SHIFT</span>
               <Badge tone="info">
                 <Clock size={11} className="[display:inline]! [vertical-align:middle]! [margin-right:3px]!" />
                 {member.currentShift}

@@ -27,32 +27,32 @@ const DEFAULT_NOC_SHIFTERS = [
 ];
 
 const HISTORY_CONTROLS_CLASS =
-  "[display:flex] [align-items:flex-end] [gap:12px] [padding:12px_18px] [margin:0] [background:rgba(15,_23,_42,_0.45)] [border-bottom:1px_solid_var(--line)] [box-sizing:border-box] max-[768px]:[flex-wrap:wrap] max-[768px]:[gap:10px] max-[768px]:[padding:10px_14px]";
-const HISTORY_CONTROL_ITEM_CLASS = "[display:flex] [flex-direction:column] [min-width:0]";
-const HISTORY_DATE_ITEM_CLASS = "[flex:0_0_220px] [min-width:190px] max-[768px]:[flex:1_1_210px]";
-const HISTORY_SHIFT_ITEM_CLASS = "[flex:0_0_190px] [min-width:160px] max-[768px]:[flex:1_1_160px]";
-const HISTORY_SEARCH_ITEM_CLASS = "[flex:1_1_260px] [min-width:210px] max-[768px]:[flex:1_1_200px]";
-const HISTORY_CONTROL_LABEL_CLASS = "[display:flex] [flex-direction:column] [gap:5px] [width:100%]";
+  "flex items-end gap-[12px] p-[12px_18px] m-0 bg-[rgba(15,23,42,0.45)] border-b border-[var(--line)] box-border max-[768px]:flex-wrap max-[768px]:gap-[10px] max-[768px]:p-[10px_14px]";
+const HISTORY_CONTROL_ITEM_CLASS = "flex flex-col min-w-0";
+const HISTORY_DATE_ITEM_CLASS = "flex-[0_0_220px] min-w-[190px] max-[768px]:flex-[1_1_210px]";
+const HISTORY_SHIFT_ITEM_CLASS = "flex-[0_0_190px] min-w-[160px] max-[768px]:flex-[1_1_160px]";
+const HISTORY_SEARCH_ITEM_CLASS = "flex-[1_1_260px] min-w-[210px] max-[768px]:flex-[1_1_200px]";
+const HISTORY_CONTROL_LABEL_CLASS = "flex flex-col gap-[5px] w-full";
 const HISTORY_CONTROL_LABEL_TEXT_CLASS =
-  "[font-size:10.5px] [font-weight:700] [letter-spacing:0.4px] [color:var(--ink-secondary)] [text-transform:uppercase] [line-height:1]";
-const HISTORY_SHIFT_SELECT_WRAP_CLASS = "[position:relative] [display:flex] [align-items:center] [width:100%]";
+  "text-[10.5px] font-bold tracking-[0.4px] text-[var(--ink-secondary)] uppercase leading-none";
+const HISTORY_SHIFT_SELECT_WRAP_CLASS = "relative flex items-center w-full";
 const HISTORY_SHIFT_SELECT_CLASS =
-  "[width:100%] [height:38px] [padding:8px_30px_8px_32px] [font-size:12px]! [background:var(--input-bg)] [border:1px_solid_var(--panel-border)] [border-radius:7px] [color:var(--ink-primary)] [appearance:none] [cursor:pointer] [transition:all_0.15s_ease] [box-sizing:border-box] focus:[border-color:var(--accent-blue)] focus:[box-shadow:0_0_0_3px_var(--accent-blue-soft)] focus:[outline:none]!";
+  "w-full h-[38px] p-[8px_30px_8px_32px] text-[12px] bg-[var(--input-bg)] border border-[var(--panel-border)] rounded-[7px] text-[var(--ink-primary)] appearance-none cursor-pointer transition-all duration-150 ease-out box-border focus:border-[var(--accent-blue)] focus:shadow-[0_0_0_3px_var(--accent-blue-soft)] focus:outline-none";
 const HISTORY_SHIFT_OPTGROUP_CLASS =
-  "[background:var(--panel-bg)] [color:var(--ink-muted)] [font-size:11px] [font-weight:700]";
-const HISTORY_SHIFT_OPTION_CLASS = "[background:var(--panel-bg)] [color:var(--ink-primary)] [font-size:12px] [padding:4px]";
+  "bg-[var(--panel-bg)] text-[var(--ink-muted)] text-[11px] font-bold";
+const HISTORY_SHIFT_OPTION_CLASS = "bg-[var(--panel-bg)] text-[var(--ink-primary)] text-[12px] p-[4px]";
 const HISTORY_ACTIONS_CLASS =
-  "[display:inline-flex] [align-items:center] [gap:8px] [flex-shrink:0] [margin-left:auto] max-[768px]:[margin-left:0] max-[768px]:[width:100%] max-[768px]:[justify-content:flex-end]";
+  "inline-flex items-center gap-[8px] shrink-0 ml-auto max-[768px]:ml-0 max-[768px]:w-full max-[768px]:justify-end";
 const HISTORY_ACTION_BUTTON_CLASS =
-  "[display:inline-flex] [align-items:center] [justify-content:center] [gap:6px]! [height:38px]! [font-size:12px]! [font-weight:600] [border-radius:7px] [cursor:pointer] [white-space:nowrap] [box-sizing:border-box]";
+  "inline-flex items-center justify-center gap-[6px] h-[38px] text-[12px] font-semibold rounded-[7px] cursor-pointer whitespace-nowrap box-border";
 const HISTORY_RESET_BUTTON_CLASS =
-  "[padding:0_12px]! [background:transparent] [border:1px_solid_var(--panel-border)]! [color:var(--ink-muted)] [&:hover]:[border-color:var(--line)]! [&:hover]:[color:var(--ink-primary)] [&:hover]:[background:rgba(255,_255,_255,_0.05)]!";
-const HISTORY_ERROR_CLASS = "[flex-basis:100%] [width:100%] [margin:4px_0_0] [color:var(--red)] [font-size:11.5px]";
+  "px-[12px] bg-transparent border border-[var(--panel-border)] text-[var(--ink-muted)] hover:border-[var(--line)] hover:text-[var(--ink-primary)] hover:bg-[rgba(255,255,255,0.05)]";
+const HISTORY_ERROR_CLASS = "basis-full w-full m-[4px_0_0] text-[var(--red)] text-[11.5px]";
 const HISTORY_MORE_CLASS =
-  "[display:flex] [align-items:center] [justify-content:space-between] [gap:12px] [padding-top:14px] [margin-top:14px] [border-top:1px_solid_var(--line)] [flex-wrap:wrap]";
-const HISTORY_MORE_INFO_CLASS = "[display:flex] [align-items:center] [gap:6px] [font-size:11.5px] [color:var(--ink-secondary)]";
+  "flex items-center justify-between gap-[12px] pt-[14px] mt-[14px] border-t border-[var(--line)] flex-wrap";
+const HISTORY_MORE_INFO_CLASS = "flex items-center gap-[6px] text-[11.5px] text-[var(--ink-secondary)]";
 const HISTORY_LOAD_MORE_BUTTON_CLASS =
-  "[display:inline-flex] [align-items:center] [gap:5px]! [padding:6px_14px]! [font-size:11.5px]! [font-weight:700]! [cursor:pointer]";
+  "inline-flex items-center gap-[5px] p-[6px_14px] text-[11.5px] font-bold cursor-pointer";
 
 /**
  * Multi-Select Dropdown Filter for Shifter (PIC)
@@ -145,14 +145,14 @@ function ShifterMultiSelect({
   }, [selectedList]);
 
   return (
-    <div className="[position:relative] [width:100%]" ref={containerRef}>
+    <div className="relative w-full" ref={containerRef}>
       {/* Trigger Box */}
       <div
-        className={`[display:flex] [align-items:center] [justify-content:space-between] [gap:8px] [width:100%] [height:38px] [padding:0_10px_0_11px] [background:var(--input-bg)] [border:1px_solid_var(--panel-border)] [border-radius:7px] [font-size:12px] [cursor:pointer] [user-select:none] [transition:all_0.15s_ease] [box-sizing:border-box] hover:[border-color:var(--accent-blue-border)] hover:[background:rgba(15,_23,_42,_0.9)] ${
+        className={`flex items-center justify-between gap-[8px] w-full h-[38px] p-[0_10px_0_11px] bg-[var(--input-bg)] border border-[var(--panel-border)] rounded-[7px] text-[12px] cursor-pointer select-none transition-all duration-150 ease-out box-border hover:border-[var(--accent-blue-border)] hover:bg-[rgba(15,23,42,0.9)] ${
           selectedList.length > 0
-            ? "[border-color:rgba(56,_189,_248,_0.4)]! [background-color:rgba(56,_189,_248,_0.08)]! [color:var(--accent-blue,_#38bdf8)]! [font-weight:600]!"
-            : "[color:var(--ink-primary)]"
-        } ${isOpen ? "[border-color:var(--accent-blue)]! [box-shadow:0_0_0_3px_var(--accent-blue-soft)]!" : ""}`}
+            ? "border-[rgba(56,189,248,0.4)] bg-[rgba(56,189,248,0.08)] text-[var(--accent-blue,#38bdf8)] font-semibold"
+            : "text-[var(--ink-primary)]"
+        } ${isOpen ? "border-[var(--accent-blue)] shadow-[0_0_0_3px_var(--accent-blue-soft)]" : ""}`}
         onClick={() => setIsOpen((prev) => !prev)}
         role="button"
         tabIndex={0}
@@ -165,32 +165,32 @@ function ShifterMultiSelect({
           }
         }}
       >
-        <div className="[display:flex] [align-items:center] [gap:8px] [min-width:0] [flex:1]">
+        <div className="flex items-center gap-[8px] min-w-0 flex-1">
           <Users
             size={14}
-            className={`[flex-shrink:0] [transition:color_0.15s_ease] ${
-              selectedList.length > 0 ? "[color:var(--accent-blue,_#38bdf8)]!" : "[color:var(--ink-muted)]"
+            className={`shrink-0 transition-colors duration-150 ease-out ${
+              selectedList.length > 0 ? "text-[var(--accent-blue,#38bdf8)]" : "text-[var(--ink-muted)]"
             }`}
           />
           <span
-            className={`[white-space:nowrap] [overflow:hidden] [text-overflow:ellipsis] [flex:1] [min-width:0] ${
-              selectedList.length === 0 ? "[color:var(--ink-muted)] [font-weight:400]" : ""
+            className={`whitespace-nowrap overflow-hidden text-ellipsis flex-1 min-w-0 ${
+              selectedList.length === 0 ? "text-[var(--ink-muted)] font-normal" : ""
             }`}
           >
             {label}
           </span>
           {selectedList.length > 1 && (
-            <span className="[display:inline-flex] [align-items:center] [justify-content:center] [padding:1px_6px] [border-radius:10px] [background:rgba(56,_189,_248,_0.2)] [color:#38bdf8] [font-size:10.5px] [font-weight:700] [flex-shrink:0]">
+            <span className="inline-flex items-center justify-center p-[1px_6px] rounded-[10px] bg-[rgba(56,189,248,0.2)] text-[#38bdf8] text-[10.5px] font-bold shrink-0">
               {selectedList.length}
             </span>
           )}
         </div>
 
-        <div className="[display:flex] [align-items:center] [gap:6px] [flex-shrink:0]">
+        <div className="flex items-center gap-[6px] shrink-0">
           {selectedList.length > 0 && (
             <button
               type="button"
-              className="[display:inline-flex]! [align-items:center]! [justify-content:center]! [width:18px]! [height:18px]! [border-radius:4px]! [background:transparent]! [border:none]! [color:var(--ink-muted)]! [cursor:pointer]! [transition:all_0.12s_ease]! hover:[background:rgba(255,_255,_255,_0.1)]! hover:[color:#ffffff]!"
+              className="inline-flex items-center justify-center w-[18px] h-[18px] rounded-[4px] bg-transparent border-0 text-[var(--ink-muted)] cursor-pointer transition-all duration-120 ease-out hover:bg-[rgba(255,255,255,0.1)] hover:text-white"
               title="Hapus filter Shifter"
               onClick={(e) => {
                 e.stopPropagation();
@@ -202,9 +202,9 @@ function ShifterMultiSelect({
           )}
           <ChevronDown
             size={14}
-            className={`[pointer-events:none] [transition:transform_0.2s_ease,_color_0.15s_ease] ${
-              isOpen ? "[transform:rotate(180deg)]" : ""
-            } ${selectedList.length > 0 ? "[color:var(--accent-blue,_#38bdf8)]!" : "[color:var(--ink-muted)]"}`}
+            className={`pointer-events-none transition-[transform,color] duration-150 ease-out ${
+              isOpen ? "rotate-180" : ""
+            } ${selectedList.length > 0 ? "text-[var(--accent-blue,#38bdf8)]" : "text-[var(--ink-muted)]"}`}
             aria-hidden="true"
           />
         </div>
@@ -213,16 +213,16 @@ function ShifterMultiSelect({
       {/* Floating Multi-Select Popover */}
       {isOpen && (
         <div
-          className="[position:absolute] [top:calc(100%_+_6px)] [left:0] [z-index:9999] [width:100%] [min-width:280px] [max-width:360px] [background:#131b2e] [border:1px_solid_var(--line)] [border-radius:9px] [box-shadow:0_12px_30px_rgba(0,_0,_0,_0.6),_0_4px_12px_rgba(0,_0,_0,_0.4)] [padding:10px] [display:flex] [flex-direction:column] [gap:8px] [animation:datepicker-fade-in_0.15s_ease-out]"
+          className="absolute top-[calc(100%+6px)] left-0 z-[9999] w-full min-w-[280px] max-w-[360px] bg-[#131b2e] border border-[var(--line)] rounded-[9px] shadow-[0_12px_30px_rgba(0,0,0,0.6),0_4px_12px_rgba(0,0,0,0.4)] p-[10px] flex flex-col gap-[8px] animate-[datepicker-fade-in_0.15s_ease-out]"
           role="dialog"
           aria-label="Filter Shifter PIC"
         >
           {/* Popover Quick Search */}
-          <div className="[position:relative] [display:flex] [align-items:center] [width:100%]">
-            <Search size={13} className="[position:absolute] [left:9px] [color:var(--ink-muted)] [pointer-events:none]" />
+          <div className="relative flex items-center w-full">
+            <Search size={13} className="absolute left-[9px] text-[var(--ink-muted)] pointer-events-none" />
             <input
               type="text"
-              className="[width:100%] [height:32px] [padding:6px_26px_6px_28px]! [font-size:11.5px]! [background:var(--input-bg)] [border:1px_solid_var(--panel-border)] [border-radius:6px] [color:var(--ink-primary)] [box-sizing:border-box] focus:[border-color:var(--accent-blue)] focus:[outline:none]!"
+              className="w-full h-[32px] p-[6px_26px_6px_28px] text-[11.5px] bg-[var(--input-bg)] border border-[var(--panel-border)] rounded-[6px] text-[var(--ink-primary)] box-border focus:border-[var(--accent-blue)] focus:outline-none"
               placeholder="Cari shifter..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -231,7 +231,7 @@ function ShifterMultiSelect({
             {query && (
               <button
                 type="button"
-                className="[position:absolute] [right:6px] [display:inline-grid] [place-items:center] [width:16px] [height:16px] [background:transparent] [border:none] [color:var(--ink-muted)] [cursor:pointer] hover:[color:#ffffff]!"
+                className="absolute right-[6px] inline-grid place-items-center w-[16px] h-[16px] bg-transparent border-0 text-[var(--ink-muted)] cursor-pointer hover:text-white"
                 onClick={() => setQuery("")}
               >
                 <X size={11} />
@@ -240,22 +240,22 @@ function ShifterMultiSelect({
           </div>
 
           {/* Quick Select Actions */}
-          <div className="[display:flex] [align-items:center] [justify-content:space-between] [padding:0_2px] [font-size:11px]">
-            <span className="[color:var(--ink-secondary)] [font-weight:600]">
+          <div className="flex items-center justify-between p-[0_2px] text-[11px]">
+            <span className="text-[var(--ink-secondary)] font-semibold">
               {selectedList.length > 0 ? `${selectedList.length} terpilih` : "Pilih satu atau lebih"}
             </span>
-            <div className="[display:flex] [align-items:center] [gap:8px]">
+            <div className="flex items-center gap-[8px]">
               <button
                 type="button"
-                className="[background:none] [border:none] [padding:0] [color:var(--accent-blue,_#38bdf8)] [font-size:11px] [font-weight:600] [cursor:pointer] hover:[text-decoration:underline]!"
+                className="bg-transparent border-0 p-0 text-[var(--accent-blue,#38bdf8)] text-[11px] font-semibold cursor-pointer hover:underline"
                 onClick={selectAll}
               >
                 Pilih Semua
               </button>
-              <span className="[color:var(--panel-border)]">·</span>
+              <span className="text-[var(--panel-border)]">·</span>
               <button
                 type="button"
-                className="[background:none] [border:none] [padding:0] [color:var(--ink-muted)] [font-size:11px] [cursor:pointer] hover:[color:#f87171]! hover:[text-decoration:underline]!"
+                className="bg-transparent border-0 p-0 text-[var(--ink-muted)] text-[11px] cursor-pointer hover:text-[#f87171] hover:underline"
                 onClick={clearAll}
               >
                 Reset
@@ -264,9 +264,9 @@ function ShifterMultiSelect({
           </div>
 
           {/* Shifter List with Checkboxes */}
-          <div className="[max-height:220px] [overflow-y:auto] [display:flex] [flex-direction:column] [gap:2px] [padding-right:2px]">
+          <div className="max-h-[220px] overflow-y-auto flex flex-col gap-[2px] pr-[2px]">
             {filteredShifters.length === 0 ? (
-              <div className="[padding:16px] [text-align:center] [color:var(--ink-muted)] [font-size:11.5px]">
+              <div className="p-[16px] text-center text-[var(--ink-muted)] text-[11.5px]">
                 Tidak ada shifter ditemukan.
               </div>
             ) : (
@@ -276,33 +276,33 @@ function ShifterMultiSelect({
                 return (
                   <div
                     key={name}
-                    className={`[display:flex] [align-items:center] [gap:9px] [padding:6px_8px] [border-radius:6px] [cursor:pointer] [transition:background_0.12s_ease] ${
+                    className={`flex items-center gap-[9px] p-[6px_8px] rounded-[6px] cursor-pointer transition-colors duration-120 ease-out ${
                       isSelected
-                        ? "[background:rgba(56,_189,_248,_0.1)]! hover:[background:rgba(56,_189,_248,_0.15)]!"
-                        : "hover:[background:rgba(255,_255,_255,_0.05)]"
+                        ? "bg-[rgba(56,189,248,0.1)] hover:bg-[rgba(56,189,248,0.15)]"
+                        : "hover:bg-[rgba(255,255,255,0.05)]"
                     }`}
                     onClick={() => toggle(name)}
                   >
                     {/* Custom Checkbox */}
                     <div
-                      className={`[display:inline-flex] [align-items:center] [justify-content:center] [width:16px] [height:16px] [border-radius:4px] [transition:all_0.12s_ease] [flex-shrink:0] ${
+                      className={`inline-flex items-center justify-center w-[16px] h-[16px] rounded-[4px] transition-all duration-120 ease-out shrink-0 ${
                         isSelected
-                          ? "[background:var(--accent-blue,_#38bdf8)]! [border:1px_solid_var(--accent-blue,_#38bdf8)]!"
-                          : "[background:rgba(15,_23,_42,_0.6)] [border:1px_solid_var(--panel-border)]"
+                          ? "bg-[var(--accent-blue,#38bdf8)] border border-[var(--accent-blue,#38bdf8)]"
+                          : "bg-[rgba(15,23,42,0.6)] border border-[var(--panel-border)]"
                       }`}
                     >
-                      {isSelected && <Check size={11} className="[color:#0f172a] [stroke-width:3]" />}
+                      {isSelected && <Check size={11} className="text-[#0f172a] [stroke-width:3]" />}
                     </div>
 
                     {/* Initials Avatar */}
-                    <div className="[display:inline-flex] [align-items:center] [justify-content:center] [width:22px] [height:22px] [border-radius:50%] [background:rgba(255,_255,_255,_0.08)] [color:var(--ink-secondary)] [font-size:10px] [font-weight:700] [flex-shrink:0]">
+                    <div className="inline-flex items-center justify-center w-[22px] h-[22px] rounded-full bg-[rgba(255,255,255,0.08)] text-[var(--ink-secondary)] text-[10px] font-bold shrink-0">
                       {userInitials}
                     </div>
 
                     {/* Name */}
                     <span
-                      className={`[font-size:12px] [line-height:1.2] [flex:1] [min-width:0] [white-space:nowrap] [overflow:hidden] [text-overflow:ellipsis] ${
-                        isSelected ? "[color:var(--accent-blue,_#38bdf8)] [font-weight:600]" : "[color:var(--ink-primary)]"
+                      className={`text-[12px] leading-[1.2] flex-1 min-w-0 whitespace-nowrap overflow-hidden text-ellipsis ${
+                        isSelected ? "text-[var(--accent-blue,#38bdf8)] font-semibold" : "text-[var(--ink-primary)]"
                       }`}
                     >
                       {name}
@@ -314,10 +314,10 @@ function ShifterMultiSelect({
           </div>
 
           {/* Footer Bar */}
-          <div className="[display:flex] [align-items:center] [justify-content:flex-end] [padding-top:6px] [border-top:1px_solid_var(--line)]">
+          <div className="flex items-center justify-end pt-[6px] border-t border-[var(--line)]">
             <button
               type="button"
-              className="button button-primary [height:28px]! [padding:0_12px]! [font-size:11.5px]! [font-weight:600]! [border-radius:6px]!"
+              className="button button-primary h-[28px] px-[12px] text-[11.5px] font-semibold rounded-[6px]"
               onClick={() => setIsOpen(false)}
             >
               Selesai
@@ -338,7 +338,7 @@ export function HandoverHistoryControls({ workflow }: { workflow: HandoverWorkfl
       <div className={`${HISTORY_CONTROL_ITEM_CLASS} ${HISTORY_DATE_ITEM_CLASS}`}>
         <div className={HISTORY_CONTROL_LABEL_CLASS}>
           <span className={HISTORY_CONTROL_LABEL_TEXT_CLASS}>Tanggal</span>
-          <div className="[width:100%]">
+          <div className="w-full">
             <DatePicker
               value={workflow.filters.date}
               onChange={(date) => workflow.setFilters((prev) => ({ ...prev, date }))}
@@ -349,7 +349,7 @@ export function HandoverHistoryControls({ workflow }: { workflow: HandoverWorkfl
               aria-label="Filter rentang tanggal serah terima"
               className={
                 workflow.filters.date
-                  ? "[&_.custom-datepicker-trigger]:[border-color:rgba(56,_189,_248,_0.4)]! [&_.custom-datepicker-trigger]:[background-color:rgba(56,_189,_248,_0.08)]! [&_.custom-datepicker-trigger]:[color:var(--accent-blue,_#38bdf8)]! [&_.custom-datepicker-trigger]:[font-weight:600]!"
+                  ? "[&_.custom-datepicker-trigger]:border-[rgba(56,189,248,0.4)] [&_.custom-datepicker-trigger]:bg-[rgba(56,189,248,0.08)] [&_.custom-datepicker-trigger]:text-[var(--accent-blue,#38bdf8)] [&_.custom-datepicker-trigger]:font-semibold"
                   : ""
               }
             />
@@ -364,15 +364,15 @@ export function HandoverHistoryControls({ workflow }: { workflow: HandoverWorkfl
           <div className={HISTORY_SHIFT_SELECT_WRAP_CLASS}>
             <Clock
               size={14}
-              className={`[position:absolute] [left:10px] [pointer-events:none] [z-index:1] [transition:color_0.15s_ease] ${
-                workflow.filters.shift ? "[color:var(--accent-blue,_#38bdf8)]!" : "[color:var(--ink-muted)]"
+              className={`absolute left-[10px] pointer-events-none z-1 transition-colors duration-150 ease-out ${
+                workflow.filters.shift ? "text-[var(--accent-blue,#38bdf8)]" : "text-[var(--ink-muted)]"
               }`}
               aria-hidden="true"
             />
             <select
               className={`${HISTORY_SHIFT_SELECT_CLASS} ${
                 workflow.filters.shift
-                  ? "[border-color:rgba(56,_189,_248,_0.4)]! [background-color:rgba(56,_189,_248,_0.08)]! [color:var(--accent-blue,_#38bdf8)]! [font-weight:600]!"
+                  ? "border-[rgba(56,189,248,0.4)] bg-[rgba(56,189,248,0.08)] text-[var(--accent-blue,#38bdf8)] font-semibold"
                   : ""
               }`}
               value={workflow.filters.shift}
@@ -407,8 +407,8 @@ export function HandoverHistoryControls({ workflow }: { workflow: HandoverWorkfl
             </select>
             <ChevronDown
               size={14}
-              className={`[position:absolute] [right:11px] [pointer-events:none] [z-index:1] [transition:color_0.15s_ease] ${
-                workflow.filters.shift ? "[color:var(--accent-blue,_#38bdf8)]!" : "[color:var(--ink-muted)]"
+              className={`absolute right-[11px] pointer-events-none z-1 transition-colors duration-150 ease-out ${
+                workflow.filters.shift ? "text-[var(--accent-blue,#38bdf8)]" : "text-[var(--ink-muted)]"
               }`}
               aria-hidden="true"
             />

@@ -274,3 +274,80 @@ export interface ShiftSwapRequest {
   status: "Pending" | "Approved" | "Rejected";
   createdAt: string;
 }
+
+/* ── Runbooks Types ── */
+
+export type SopCategory = "Monitoring" | "Incident" | "Handover" | "Maintenance" | "General";
+
+export interface SopStep {
+  order: number;
+  instruction: string;
+}
+
+export type SopAttachmentType = "pdf" | "word" | "video" | "report" | "sheet" | "doc" | "link";
+
+export interface SopAttachment {
+  id: string;
+  title: string;
+  url: string;
+  type: SopAttachmentType;
+  format?: string;
+  description?: string;
+}
+
+export interface SopEntry {
+  id: string;
+  title: string;
+  category: SopCategory;
+  project?: string;
+  description?: string;
+  steps?: SopStep[];
+  attachments?: SopAttachment[];
+  externalLinks?: { label: string; url: string }[];
+  updatedAt: string;
+  updatedBy: string;
+}
+
+export type CredentialCategory = "Website" | "VPN" | "SSH" | "API";
+
+export interface CredentialEntry {
+  id: string;
+  label: string;
+  category: CredentialCategory;
+  project?: string;
+  url?: string;
+  host?: string;
+  port?: string;
+  username: string;
+  password: string;
+  protocol?: string;
+  notes?: string;
+  expiresAt?: string;
+}
+
+export type LinkCategory = "Dashboard" | "Ticketing" | "Internal" | "Vendor";
+
+export interface QuickLink {
+  id: string;
+  label: string;
+  url: string;
+  category: LinkCategory;
+  project?: string;
+  description?: string;
+  icon?: string;
+}
+
+export type EscalationLevel = "L1" | "L2" | "L3" | "Vendor";
+
+export interface EscalationContact {
+  id: string;
+  project: string;
+  level: EscalationLevel;
+  name: string;
+  role: string;
+  phone?: string;
+  email?: string;
+  channel?: string;
+  responseTarget: string;
+  notes?: string;
+}

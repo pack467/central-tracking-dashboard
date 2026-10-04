@@ -12,9 +12,9 @@ export interface ProjectSelectProps {
 }
 
 const PROJECT_OPTIONS = ["NOC", ...STANDARD_MONITORED_PROJECTS, "EPC Tools"];
-const PROJECT_SELECT_CONTAINER_CLASS = "[display:block] [width:100%]";
+const PROJECT_SELECT_CONTAINER_CLASS = "block w-full";
 const PROJECT_SELECT_INPUT_CLASS =
-  "[width:100%] [min-height:42px] [border-radius:7px] [padding:10px_12px] [font-size:13px] [background:var(--input-bg)] [border:1px_solid_var(--panel-border)] [color:var(--ink-primary)] [outline:none] [transition:border-color_0.15s_ease,_box-shadow_0.15s_ease] focus:[border-color:var(--accent-blue)] focus:[box-shadow:0_0_0_3px_var(--accent-blue-soft)]";
+  "w-full min-h-[42px] rounded-[7px] p-[10px_12px] text-[13px] bg-[var(--input-bg)] border border-[var(--panel-border)] text-[var(--ink-primary)] outline-none transition-[border-color,box-shadow] duration-150 focus:border-[var(--accent-blue)] focus:shadow-[0_0_0_3px_var(--accent-blue-soft)]";
 
 export function ProjectSelect({
   value,
@@ -27,12 +27,12 @@ export function ProjectSelect({
   const selectId = id || generatedId;
 
   return (
-    <div className={`${PROJECT_SELECT_CONTAINER_CLASS} project-select-container ${className}`}>
+    <div className={`${PROJECT_SELECT_CONTAINER_CLASS} ${className}`}>
       <input
         id={selectId}
         type="text"
         list={`${selectId}-options`}
-        className={`${PROJECT_SELECT_INPUT_CLASS} project-select-input`}
+        className={PROJECT_SELECT_INPUT_CLASS}
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
