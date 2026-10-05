@@ -14,6 +14,7 @@ import { AuthModule } from './auth/auth.module.js';
 import { AuthGuard } from './auth/auth.guard.js';
 import { RolesGuard } from './auth/roles.guard.js';
 import { HealthModule } from './health/health.module.js';
+import { TicketsModule } from './tickets/tickets.module.js';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { HealthModule } from './health/health.module.js';
     MetricsModule,
     AuthModule,
     HealthModule,
+    TicketsModule,
   ],
   controllers: [AppController],
   providers: [

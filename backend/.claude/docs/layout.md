@@ -21,9 +21,11 @@ backend/
 │   │   ├── filters/global-exception.filter.ts
 │   │   ├── logger/logger.module.ts
 │   │   ├── middleware/request-id.middleware.ts
-│   │   └── pipes/parse-bigint.pipe.ts
+│   │   ├── pipes/parse-bigint.pipe.ts
+│   │   └── validators/bigint-id.ts   @BigIntId() + toBigInt() for BigInt id fields in DTOs
 │   ├── health/                     /health (app + DB) and /ready (app only), terminus
 │   ├── metrics/                    MetricsModule + public MetricsController (/metrics)
+│   ├── tickets/                    TicketsModule: /tickets, categories/ (/ticket-categories), severities/ (/ticket-severities)
 │   ├── prisma/prisma.module.ts     @Global, provides + exports PrismaService
 │   ├── prisma/prisma.service.ts    PrismaClient with PrismaPg adapter, schema ctd_config
 │   ├── users/                      CRUD (controller/service/dto); entities/user.entity.ts = Swagger response shape

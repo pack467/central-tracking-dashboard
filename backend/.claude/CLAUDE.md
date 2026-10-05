@@ -31,6 +31,7 @@ Each topic lives in its own file under `.claude/docs/`, imported here so it load
 | `docs/api-docs.md` | Swagger UI at `/docs`, CLI plugin, how to document new routes |
 | `docs/health.md` | `/`, `/health` (app + DB), `/ready` (app only) |
 | `docs/users.md` | `/users` routes, DTO, role-escalation rules |
+| `docs/tickets.md` | `/tickets` (list, filters, summary, CRUD), ticket categories and severities, permissions and status rules |
 | `docs/data-model.md` | Prisma schema: tables, fields, relations, enums |
 | `docs/seed-and-import.md` | Reference data, `seed.ts`, ticket CSV import, export script |
 | `docs/testing.md` | Unit and e2e tests |
@@ -44,6 +45,7 @@ Each topic lives in its own file under `.claude/docs/`, imported here so it load
 @docs/api-docs.md
 @docs/health.md
 @docs/users.md
+@docs/tickets.md
 @docs/data-model.md
 @docs/seed-and-import.md
 @docs/testing.md
