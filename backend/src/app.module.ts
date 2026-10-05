@@ -13,6 +13,7 @@ import { PrismaModule } from './prisma/prisma.module.js';
 import { AuthModule } from './auth/auth.module.js';
 import { AuthGuard } from './auth/auth.guard.js';
 import { RolesGuard } from './auth/roles.guard.js';
+import { HealthModule } from './health/health.module.js';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { RolesGuard } from './auth/roles.guard.js';
     UsersModule,
     MetricsModule,
     AuthModule,
+    HealthModule,
   ],
   controllers: [AppController],
   providers: [

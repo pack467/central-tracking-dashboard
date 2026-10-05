@@ -10,6 +10,8 @@
 | Validation | `class-validator` + `class-transformer` (global `ValidationPipe`) |
 | Logging | `nestjs-pino` / `pino`, plus `pino-pretty` outside production |
 | Metrics | `@willsoto/nestjs-prometheus` exposes `GET /metrics` |
+| API docs | `@nestjs/swagger` 12: Swagger UI at `/docs`, plus its Nest CLI plugin (see `api-docs.md`) |
+| Health checks | `@nestjs/terminus` 12 (see `health.md`) |
 | Auth | `@nestjs/jwt` (HS256 Bearer tokens), native `bcrypt@6` (cost 12), `@nestjs/throttler` |
 | Tests | Vitest 4 (`globals: true`), `vite-tsconfig-paths`, `@nestjs/testing`, `supertest` |
 | Lint / format | oxlint (`--type-aware`, via `oxlint-tsgolint`), Prettier (single quotes, trailing commas) |
@@ -17,4 +19,4 @@
 | Scripts runner | `tsx` (seed and scripts) |
 | Deploy tooling | `@nestjs/mau` is installed (`npm run deploy` → `nest deploy`) |
 
-`package.json` `allowScripts` allows install scripts only for `@prisma/engines@7.10.0`, `prisma@7.10.0` and `bcrypt@6.0.0`. npm 11 enforces this, and approvals are pinned to exact versions. `esbuild@0.28.2` (used by tsx and Vitest) is deliberately not approved; it works without its postinstall script, which only prints a warning.
+`package.json` `allowScripts` allows install scripts only for `@prisma/engines@7.10.0`, `prisma@7.10.0` and `bcrypt@6.0.0`. npm 11 enforces this, and approvals are pinned to exact versions. Deliberately not approved: `esbuild@0.28.2` (used by tsx and Vitest; works without its postinstall script) and `@scarf/scarf@1.4.0` (download-analytics postinstall pulled in by Swagger UI; blocking it just disables the tracking). npm prints a warning for both on install.

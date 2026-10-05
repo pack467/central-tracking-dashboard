@@ -5,7 +5,7 @@ backend/
 ├── src/
 │   ├── main.ts                     bootstrap (top-level await)
 │   ├── app.module.ts               root module, global guards, RequestIdMiddleware on '*'
-│   ├── app.controller.ts / app.service.ts   GET / → "Hello World!" (@Public)
+│   ├── app.controller.ts / app.service.ts   GET / → API info + links (@Public)
 │   ├── auth/
 │   │   ├── auth.module.ts          JwtModule.registerAsync (exports JwtModule)
 │   │   ├── auth.controller.ts      /auth/login, /auth/me, /auth/password
@@ -14,17 +14,19 @@ backend/
 │   │   ├── roles.guard.ts          @Roles check (global)
 │   │   ├── auth.types.ts           RoleName, JwtPayload, AuthUser, AuthRequest
 │   │   ├── decorators/             @Public, @Roles, @CurrentUser
-│   │   └── dto/                    LoginDto, ChangePasswordDto
+│   │   └── dto/                    LoginDto, LoginResponseDto, ChangePasswordDto
 │   ├── common/
 │   │   ├── bigint-json.ts          BigInt.prototype.toJSON → string
+│   │   ├── swagger.ts              isSwaggerEnabled() (shared by main.ts and GET /)
 │   │   ├── filters/global-exception.filter.ts
 │   │   ├── logger/logger.module.ts
 │   │   ├── middleware/request-id.middleware.ts
 │   │   └── pipes/parse-bigint.pipe.ts
+│   ├── health/                     /health (app + DB) and /ready (app only), terminus
 │   ├── metrics/                    MetricsModule + public MetricsController (/metrics)
 │   ├── prisma/prisma.module.ts     @Global, provides + exports PrismaService
 │   ├── prisma/prisma.service.ts    PrismaClient with PrismaPg adapter, schema ctd_config
-│   ├── users/                      CRUD (controller/service/dto/entity)
+│   ├── users/                      CRUD (controller/service/dto); entities/user.entity.ts = Swagger response shape
 │   └── generated/prisma/           generated client (gitignored)
 ├── prisma/
 │   ├── schema.prisma
@@ -37,8 +39,9 @@ backend/
 │   └── import-tickets-report.txt   output of the last import run
 ├── test/app.e2e-spec.ts
 ├── prisma7.config.ts               Prisma config (CLI loads it: "Loaded Prisma config from prisma7.config.ts")
+├── nest-cli.json                  includes the @nestjs/swagger build plugin
 ├── vitest.config.ts / vitest.config.e2e.ts
-├── .env.example, .oxlintrc.json, .prettierrc, nest-cli.json, tsconfig*.json
+├── .env.example, .oxlintrc.json, .prettierrc, tsconfig*.json
 ├── README.md                       stock Nest boilerplate (outdated script names)
 ├── README!.md                      original placeholder plan (Indonesian)
 ├── .claude/CLAUDE.md + docs/*.md   these project notes (CLAUDE.md is the index, imports docs/)

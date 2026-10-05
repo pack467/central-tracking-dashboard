@@ -9,6 +9,6 @@
 - **RolesGuard** (global): `@Roles('SUPER_ADMIN', ...)` restricts a route; anything else returns 403. With no `@Roles`, any authenticated user is allowed.
 - **Decorators:** `@Public()`, `@Roles(...RoleName[])` and `@CurrentUser()`. `RoleName` is `'SUPER_ADMIN' | 'ADMIN' | 'TEAM_LEAD' | 'AGENT' | 'VIEWER'`.
 - **Login safety:** unknown user, wrong password, inactive user and null password all return the same `401 Invalid credentials`. When the user doesn't exist, bcrypt compares against a fixed `DUMMY_HASH` so the response time doesn't reveal which accounts exist.
-- **Public routes:** `GET /` (`AppController`), `POST /auth/login` and `/metrics`. **Every new route is protected by default.**
+- **Public routes:** `GET /` (`AppController`), `GET /health`, `GET /ready`, `POST /auth/login` and `/metrics`. **Every new route is protected by default.**
 - **Rate limiting:** `@nestjs/throttler` tracks per client IP. Behind a reverse proxy, every client looks like the proxy's IP unless Express `trust proxy` is set.
 - **bcrypt:** this is native `bcrypt@6`. It needs `"bcrypt@6.0.0": true` in `package.json` `allowScripts` because npm 11 enforces install-script approval. **When bcrypt is upgraded, re-approve it** (`npm install-scripts approve bcrypt`).

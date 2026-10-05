@@ -4,7 +4,7 @@ import request from 'supertest';
 import { App } from 'supertest/types.js';
 import { AppModule } from './../src/app.module.js';
 
-describe('AppController (e2e)', () => {
+describe('App (e2e)', () => {
   let app: INestApplication<App>;
 
   beforeEach(async () => {
@@ -16,11 +16,29 @@ describe('AppController (e2e)', () => {
     await app.init();
   });
 
-  it('/ (GET)', () => {
+  it('/ (GET) returns API info without a token', () => {
     return request(app.getHttpServer())
       .get('/')
       .expect(200)
-      .expect('Hello World!');
+      .expect((res) => {
+        expect(res.body).toMatchObject({ health: '/health', ready: '/ready' });
+      });
+  });
+
+  it('/health (GET) reports the database as up', () => {
+    return request(app.getHttpServer())
+      .get('/health')
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.info.database.status).toBe('up');
+      });
+  });
+
+  it('/ready (GET) is ok without a token', () => {
+    return request(app.getHttpServer())
+      .get('/ready')
+      .expect(200)
+      .expect({ status: 'ok', info: {}, error: {}, details: {} });
   });
 
   afterEach(async () => {

@@ -45,14 +45,12 @@ export class GlobalExceptionFilter
       this.logger.warn(logContext, 'Request rejected');
     }
 
-    response.status(status).json({
-      statusCode: status,
-      message:
-        status >= 500
-          ? 'Internal server error'
-          : exception instanceof HttpException
-            ? exception.message
-            : 'Internal server error',
-    });
+    // 5xx bodies never include details (e.g. DB errors from a failed readiness check).
+    let message: string;
+    if (status === HttpStatus.SERVICE_UNAVAILABLE) message = 'Service unavailable';
+    else if (status >= 500 || !(exception instanceof HttpException)) message = 'Internal server error';
+    else message = exception.message;
+
+    response.status(status).json({ statusCode: status, message });
   }
 }

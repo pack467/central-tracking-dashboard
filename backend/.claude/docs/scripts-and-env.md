@@ -28,6 +28,7 @@ SEED_DEFAULT_PASSWORD=                     # optional; seed gives it to users wi
 JWT_SECRET=...   JWT_EXPIRES_IN=7d          # secret ≥ 32 chars or the app won't start
 CORS_ORIGIN=http://localhost:3001          # comma-separated list of allowed origins
 LOG_LEVEL=debug
+SWAGGER_ENABLED=                           # optional; /docs defaults to on unless NODE_ENV=production
 ```
 
 The schema is hardcoded as `'ctd_config'` in `PrismaService` (`DB_SCHEMA`) and in the seed, import and export scripts (`SCHEMA`). Keep them consistent with `DATABASE_URL`.
