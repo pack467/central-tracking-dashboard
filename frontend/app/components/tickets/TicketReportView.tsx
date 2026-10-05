@@ -1077,9 +1077,18 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
   const [todayPage, setTodayPage] = useState(1);
   const [todayPageSize, setTodayPageSize] = useState<number>(10);
 
+  const todayTicketListRef = useRef<HTMLDivElement>(null);
+
   const effectivePageSize = todayPageSize === 0 ? displayedTodayTickets.length || 1 : todayPageSize;
   const totalTodayPages = Math.max(1, Math.ceil(displayedTodayTickets.length / effectivePageSize));
   const currentTodayPage = Math.min(todayPage, totalTodayPages);
+
+  // Reset scroll to top when page, page size, or engineer filter changes
+  useEffect(() => {
+    if (todayTicketListRef.current) {
+      todayTicketListRef.current.scrollTop = 0;
+    }
+  }, [currentTodayPage, todayPageSize, selectedEngineerFilter]);
 
   const paginatedTodayTickets = useMemo(() => {
     if (todayPageSize === 0) return displayedTodayTickets;
@@ -1394,8 +1403,8 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
 
         <div className="grid grid-cols-[minmax(0,1fr)_410px] max-[1140px]:grid-cols-1 gap-[16px] items-stretch w-full ops-focus-grid">
           {/* Widget A — Today's Tickets Monitor (Tiket Hari Ini) */}
-          <article className={`${REPORT_PANEL_CARD} flex flex-col h-full ops-today-panel`}>
-            <div className={`${REPORT_PANEL_HEADING} report-panel-heading`}>
+          <article className={`${REPORT_PANEL_CARD} flex flex-col h-full min-h-0 max-h-[580px] max-[1140px]:max-h-[70dvh] max-[1140px]:h-[70dvh] ops-today-panel`}>
+            <div className={`${REPORT_PANEL_HEADING} report-panel-heading shrink-0`}>
               <div className="flex flex-col gap-[2px] chart-heading-left">
                 <div className={`${REPORT_PANEL_TITLE} panel-title`}>
                   <ListChecks size={15} className="text-sky-400" />
@@ -1419,10 +1428,13 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                 <span className="inline-flex px-[10px] py-[2px] rounded-[99px] text-[10px] font-bold text-[#38bdf8] bg-[rgba(56,189,248,0.12)] border border-[rgba(56,189,248,0.25)] whitespace-nowrap shrink-0 ops-count-badge">{displayedTodayTickets.length} tiket</span>
               </div>
             </div>
-            <div className="report-panel-body [padding:12px_16px]! flex flex-col flex-1 justify-between">
+            <div className="report-panel-body [padding:12px_16px]! flex flex-col flex-1 min-h-0 overflow-hidden">
               {paginatedTodayTickets.length > 0 ? (
                 <>
-                  <div className={`flex flex-col gap-[5px] flex-1 overflow-visible today-ticket-list ${todayPageSize > 10 || todayPageSize === 0 ? "has-scroll overflow-y-auto max-h-[540px] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden" : ""}`}>
+                  <div
+                    ref={todayTicketListRef}
+                    className="flex-1 min-h-0 overflow-y-auto overscroll-contain [overscroll-behavior:contain] pr-2 [scrollbar-gutter:stable] [scrollbar-width:thin] [scrollbar-color:#334155_transparent] [&::-webkit-scrollbar]:w-[6px] [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-700 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb:hover]:bg-slate-600 flex flex-col gap-[6px] today-ticket-list"
+                  >
                     {paginatedTodayTickets.map((ticket) => {
                       const projColor = PROJECT_COLORS[ticket.project] || "#94a3b8";
                       const sev = ticket.severity.toLowerCase();
@@ -1461,7 +1473,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                           : "Closed";
 
                       return (
-                        <div className="grid grid-cols-[88px_1fr_auto] items-center gap-[12px] p-[7px_12px] rounded-[8px] border border-[rgba(148,163,184,0.08)] bg-[rgba(148,163,184,0.03)] hover:bg-[rgba(148,163,184,0.08)] hover:border-[rgba(56,189,248,0.2)] transition-all duration-150 ease-[ease] today-ticket-row" key={ticket.id}>
+                        <div className="grid grid-cols-[88px_1fr_auto] items-center gap-[12px] p-[7px_12px] rounded-[8px] border border-[rgba(148,163,184,0.08)] bg-[rgba(148,163,184,0.03)] hover:bg-[rgba(148,163,184,0.08)] hover:border-[rgba(56,189,248,0.2)] transition-all duration-150 ease-[ease] shrink-0 today-ticket-row" key={ticket.id}>
                           <div className="flex flex-col gap-[2px] today-ticket-id-col">
                             <span className="font-mono text-[11px] font-bold text-[#f8fafc] today-ticket-id">#{ticket.id}</span>
                             <span className="text-[10px] font-semibold today-ticket-proj" style={{ color: projColor }}>
@@ -1489,7 +1501,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                   </div>
 
                   {/* Pagination & Page Size Controls */}
-                  <div className="flex items-center justify-between gap-[8px] mt-auto pt-[10px] [border-top:1px_solid_rgba(148,163,184,0.08)] today-pagination">
+                  <div className="flex items-center justify-between gap-[8px] shrink-0 pt-[10px] [border-top:1px_solid_rgba(148,163,184,0.08)] today-pagination">
                     <div className="flex items-center gap-[12px] flex-wrap today-pagination-left">
                       <span className="font-mono text-[11px] text-[#94a3b8] [&_strong]:text-[#f8fafc] [&_strong]:font-bold today-page-info">
                         Halaman <strong>{currentTodayPage}</strong> dari <strong>{totalTodayPages}</strong>
@@ -1598,7 +1610,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
           </article>
 
           {/* Right Column: Shift Notepad Memo & Monitoring Checklist (OK/NOK) */}
-          <div className="flex flex-col gap-[12px] h-full ops-right-column">
+          <div className="flex flex-col gap-[12px] h-[580px] max-[1140px]:h-auto ops-right-column">
             {/* Widget B — Shift Notepad / Memo */}
             <article className={`${REPORT_PANEL_CARD} shrink-0 ops-shift-panel`}>
               <div className={`${REPORT_PANEL_HEADING} report-panel-heading`}>

@@ -229,6 +229,7 @@ export function Dashboard({ initialNav = "Dashboard" }: { initialNav?: string })
         openTicketCount={openTicketCount}
         collapsed={sidebarCollapsed}
         onToggleCollapse={() => setSidebarCollapsed((prev) => !prev)}
+        shiftPanelOpen={shiftPanelOpen}
       />
 
       <section className="workspace flex-auto min-w-0 flex flex-col min-h-screen will-change-[margin-left] [transition:margin-left_0.35s_cubic-bezier(0.16,_1,_0.3,_1)] [overflow-x:clip] ml-[250px] [.sidebar-is-collapsed_&]:ml-[68px] [.shift-panel-is-open_&]:mr-0 max-[940px]:ml-0 max-[940px]:w-full">
