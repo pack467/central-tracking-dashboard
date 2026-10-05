@@ -2,14 +2,19 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { UsersService } from './users.service.js';
 import { CreateUserDto } from './dto/create-user.dto.js';
 import { UpdateUserDto } from './dto/update-user.dto.js';
+import { ParseBigIntPipe } from '../common/pipes/parse-bigint.pipe.js';
+import { Roles } from '../auth/decorators/roles.decorator.js';
+import { CurrentUser } from '../auth/decorators/current-user.decorator.js';
+import type { AuthUser } from '../auth/auth.types.js';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  @Roles('SUPER_ADMIN', 'ADMIN')
+  create(@Body() createUserDto: CreateUserDto, @CurrentUser() actor: AuthUser) {
+    return this.usersService.create(createUserDto, actor);
   }
 
   @Get()
@@ -18,17 +23,23 @@ export class UsersController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
+  findOne(@Param('id', ParseBigIntPipe) id: bigint) {
+    return this.usersService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
+  @Roles('SUPER_ADMIN', 'ADMIN')
+  update(
+    @Param('id', ParseBigIntPipe) id: bigint,
+    @Body() updateUserDto: UpdateUserDto,
+    @CurrentUser() actor: AuthUser,
+  ) {
+    return this.usersService.update(id, updateUserDto, actor);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
+  @Roles('SUPER_ADMIN', 'ADMIN')
+  remove(@Param('id', ParseBigIntPipe) id: bigint, @CurrentUser() actor: AuthUser) {
+    return this.usersService.remove(id, actor);
   }
 }

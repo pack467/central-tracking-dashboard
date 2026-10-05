@@ -30,16 +30,20 @@ export class GlobalExceptionFilter
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
 
-    this.logger.error(
-      {
-        err: exception,
-        requestId: request.requestId,
-        method: request.method,
-        url: request.url,
-        statusCode: status,
-      },
-      'Unhandled exception',
-    );
+    const logContext = {
+      err: exception,
+      requestId: request.requestId,
+      method: request.method,
+      url: request.url,
+      statusCode: status,
+    };
+
+    // 4xx (bad input, failed auth, rate limits) are client errors, not server faults.
+    if (status >= 500) {
+      this.logger.error(logContext, 'Unhandled exception');
+    } else {
+      this.logger.warn(logContext, 'Request rejected');
+    }
 
     response.status(status).json({
       statusCode: status,

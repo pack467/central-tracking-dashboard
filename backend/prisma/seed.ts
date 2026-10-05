@@ -3,6 +3,8 @@
 // Run: npx prisma db seed
 import 'dotenv/config';
 import { existsSync, readFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import bcrypt from 'bcrypt';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '../src/generated/prisma/client.js';
 
@@ -33,23 +35,19 @@ async function resetSequence(table: string) {
   );
 }
 
-async function seed(table: string, upsert: (r: Row) => Promise<unknown>, hasSequence = true) {
+async function seed(table: string, upsert: (r: Row) => Promise<unknown>) {
   const rows = load(table);
   for (const r of rows) await upsert(r);
-  if (hasSequence) await resetSequence(table);
+  await resetSequence(table);
   console.log(`${table.padEnd(20)} ${rows.length} rows`);
 }
 
 async function main() {
   // Order matters: parents before children (FKs).
-  await seed(
-    'user_role',
-    (r) => {
-      const data = { id: id(r.id), name: r.name, privilege: r.privilege ?? null, info: r.info };
-      return prisma.userRole.upsert({ where: { id: data.id }, update: data, create: data });
-    },
-    false, // user_role.id has no autoincrement
-  );
+  await seed('user_role', (r) => {
+    const data = { id: id(r.id), name: r.name, privilege: r.privilege ?? null, info: r.info };
+    return prisma.userRole.upsert({ where: { id: data.id }, update: data, create: data });
+  });
 
   await seed('users', (r) => {
     const data = {
@@ -59,12 +57,15 @@ async function main() {
       email: r.email,
       role_id: big(r.role_id),
       is_active: bool(r.is_active, true),
-      password: r.password ?? null, // must already be a hash (e.g. $2b$...), never plaintext
       photo_url: r.photo_url ?? null,
       department: r.department ?? null,
+      // Only written when the JSON has one, so re-seeding never wipes passwords set in the app.
+      // Must already be a hash (e.g. $2b$...), never plaintext.
+      ...(r.password && { password: r.password }),
     };
     return prisma.user.upsert({ where: { id: data.id }, update: data, create: data });
   });
+  await setDefaultPasswords();
 
   await seed('tenants', (r) => {
     const data = { id: id(r.id), name: r.name, detail_info: r.detail_info };
@@ -90,6 +91,8 @@ async function main() {
     const data = { id: id(r.id), code_name: r.code_name, name: r.name };
     return prisma.ticketSeverity.upsert({ where: { id: data.id }, update: data, create: data });
   });
+
+  await runImportTickets();
 }
 
 main()
@@ -98,3 +101,33 @@ main()
     process.exitCode = 1;
   })
   .finally(() => prisma.$disconnect());
+
+// Gives users without a password a starting one, so they can log in and change it.
+// Never touches users that already have a password.
+async function setDefaultPasswords() {
+  const plain = process.env.SEED_DEFAULT_PASSWORD;
+  if (!plain) {
+    console.log('SEED_DEFAULT_PASSWORD not set; users without a password cannot log in');
+    return;
+  }
+  if (plain.length < 8) throw new Error('SEED_DEFAULT_PASSWORD must be at least 8 characters');
+  const { count } = await prisma.user.updateMany({
+    where: { password: null },
+    data: { password: await bcrypt.hash(plain, 12) },
+  });
+  console.log(`${'default passwords'.padEnd(20)} ${count} users`);
+}
+
+async function runImportTickets() {
+  console.log('\n--- Running ticket import ---');
+  const result = spawnSync('npx', ['tsx', 'scripts/import-tickets.ts'], {
+    cwd: process.cwd(),
+    stdio: 'inherit',
+    shell: true,
+    env: process.env,
+  });
+  if (result.status !== 0) {
+    throw new Error(`import-tickets.ts exited with code ${result.status}`);
+  }
+  console.log('--- Ticket import complete ---\n');
+}

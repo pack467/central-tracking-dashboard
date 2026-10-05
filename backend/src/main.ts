@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module.js';
 import { Logger } from 'nestjs-pino';
-import { ValidationPipe } from '@nestjs/common/pipes/index.js';
+import { ValidationPipe } from '@nestjs/common';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter.js';
 
 
@@ -26,6 +26,10 @@ async function bootstrap() {
     new GlobalExceptionFilter(logger),
   );
   
+  app.enableCors({
+    origin: (process.env.CORS_ORIGIN ?? '').split(',').map((o) => o.trim()).filter(Boolean),
+  });
+
   app.enableShutdownHooks();
   
   await app.listen(process.env.PORT ?? 3000);

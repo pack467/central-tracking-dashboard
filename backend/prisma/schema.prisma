@@ -35,7 +35,7 @@ model User {
 }
 
 model UserRole {
-  id         BigInt   @id
+  id         BigInt   @id @default(autoincrement())
   name       String   @db.VarChar(500)
   privilege  String?
   info       String?  @db.VarChar(500)

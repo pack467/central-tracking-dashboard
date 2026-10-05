@@ -22,19 +22,22 @@
     "test:e2e": "vitest run --config ./vitest.config.e2e.ts",
     "db:guard": "node -r dotenv/config -e \"const u=process.env.DATABASE_URL||'';if(!/localhost|127.0.0.1|nonprod/.test(u)){console.error('db:reset refused: DATABASE_URL is not a local or nonprod database');process.exit(1)}\"",
     "db:clean-migrations": "node -e \"require('fs').rmSync('prisma/migrations',{recursive:true,force:true})\"",
-    "db:reset": "npm run db:guard && npm run db:clean-migrations && prisma format && prisma migrate reset --force && prisma migrate dev --name init && prisma generate && prisma db seed && npx tsx scripts/import-tickets.ts",
+    "db:reset": "npm run db:guard && npm run db:clean-migrations && prisma format && prisma migrate reset --force && prisma migrate dev --name init && prisma generate && prisma db seed",
     "db:fresh": "npm run db:guard && prisma migrate reset --force && prisma generate && prisma db seed"
   },
   "dependencies": {
     "@nestjs/common": "^12.0.1",
     "@nestjs/config": "^12.0.1",
     "@nestjs/core": "^12.0.1",
+    "@nestjs/jwt": "^12.0.2",
     "@nestjs/mapped-types": "*",
     "@nestjs/platform-express": "^12.0.1",
+    "@nestjs/throttler": "^6.7.1",
     "@prisma/adapter-pg": "^7.10.0",
     "@prisma/client": "^7.10.0",
     "@prometheus-io/client": "^0.16.1",
     "@willsoto/nestjs-prometheus": "^6.1.1",
+    "bcrypt": "^6.0.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
     "nestjs-pino": "^5.2.1",
@@ -48,6 +51,7 @@
     "@nestjs/mau": "^0.2.6",
     "@nestjs/schematics": "^12.0.0",
     "@nestjs/testing": "^12.0.1",
+    "@types/bcrypt": "^6.0.0",
     "@types/express": "^5.0.0",
     "@types/node": "^24.0.0",
     "@types/supertest": "^7.0.0",
@@ -68,6 +72,7 @@
   },
   "allowScripts": {
     "@prisma/engines@7.10.0": true,
-    "prisma@7.10.0": true
+    "prisma@7.10.0": true,
+    "bcrypt@6.0.0": true
   }
 }
