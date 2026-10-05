@@ -7,195 +7,277 @@ datasource db {
   provider = "postgresql"
 }
 
-model clients {
-  id          BigInt        @id @default(autoincrement())
-  name        String?       @db.VarChar(255)
+// ─────────────────────────────────────────────
+// Users & roles
+// ─────────────────────────────────────────────
+
+model User {
+  id         BigInt   @id @default(autoincrement())
+  name       String?  @db.VarChar(255)
+  nik        String?  @unique @db.VarChar(255)
+  email      String?  @unique @db.VarChar(255)
+  role_id    BigInt?
+  is_active  Boolean  @default(true)
+  password   String?  @db.VarChar(100)
+  photo_url  String?  @db.VarChar(500)
+  department String?  @db.VarChar(255)
+  created_at DateTime @default(now()) @db.Timestamp(6)
+  updated_at DateTime @default(now()) @updatedAt @db.Timestamp(6)
+
+  role                  UserRole?        @relation(fields: [role_id], references: [id], onUpdate: NoAction)
+  acknowledgedHandovers Handover[]       @relation("HandoverAcknowledgedBy")
+  updatedHandovers      Handover[]       @relation("HandoverUpdatedBy")
+  routineMeetings       RoutineMeeting[]
+  routineReports        RoutineReport[]
+  ticketLogs            TicketLog[]
+
+  @@map("users")
+}
+
+model UserRole {
+  id         BigInt   @id
+  name       String   @db.VarChar(500)
+  privilege  String?
+  info       String?  @db.VarChar(500)
+  created_at DateTime @default(now()) @db.Timestamp(6)
+  updated_at DateTime @default(now()) @updatedAt @db.Timestamp(6)
+
+  users User[]
+
+  @@map("user_role")
+}
+
+// ─────────────────────────────────────────────
+// Organisation
+// ─────────────────────────────────────────────
+
+model Tenant {
+  id          BigInt   @id @default(autoincrement())
+  name        String?  @db.VarChar(255)
   detail_info String?
-  ticket_logs ticket_logs[]
+  created_at  DateTime @default(now()) @db.Timestamp(6)
+  updated_at  DateTime @default(now()) @updatedAt @db.Timestamp(6)
+
+  projects            Project[]
+  monitoringLogs      MonitoringLog[]
+  monitoringTemplates MonitoringTemplate[]
+  ticketLogs          TicketLog[]
+
+  @@map("tenants")
 }
 
-/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
-model handover {
-  id                                        BigInt                  @id @default(autoincrement())
-  updated_user_id                           BigInt?
-  acknowledge_user_id                       BigInt?
-  project_id                                BigInt?
-  content                                   String?
-  status                                    routine_status_enum?    @default(Open)
-  category                                  handover_category_enum?
-  updated_at                                DateTime?               @default(now()) @db.Timestamp(6)
-  is_repeatable                             String?                 @db.Bit(1)
-  users_handover_acknowledge_user_idTousers User?                   @relation("handover_acknowledge_user_idTousers", fields: [acknowledge_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  projects                                  projects?               @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  users_handover_updated_user_idTousers     User?                   @relation("handover_updated_user_idTousers", fields: [updated_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+model Project {
+  id          BigInt   @id @default(autoincrement())
+  name        String?  @db.VarChar(255)
+  tenant_id   BigInt?
+  code_prefix String?  @db.VarChar(100)
+  created_at  DateTime @default(now()) @db.Timestamp(6)
+  updated_at  DateTime @default(now()) @updatedAt @db.Timestamp(6)
+
+  tenant              Tenant?              @relation(fields: [tenant_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  handovers           Handover[]
+  monitoringLogs      MonitoringLog[]
+  monitoringTemplates MonitoringTemplate[]
+  routineMeetings     RoutineMeeting[]
+  routineReports      RoutineReport[]
+  ticketLogs          TicketLog[]
+
+  @@map("projects")
 }
 
-/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
-model monitoring_logs {
-  id                     BigInt    @id @default(autoincrement())
-  project_id             BigInt?
-  tenant_id              BigInt?
-  log_date               DateTime? @db.Date
-  checkpoint_time        DateTime? @db.Time(6)
-  checkpoint_description String?   @db.VarChar(255)
-  result_note            String?
-  projects               projects? @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  tenants                tenants?  @relation(fields: [tenant_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+model Client {
+  id          BigInt   @id @default(autoincrement())
+  name        String?  @db.VarChar(255)
+  detail_info String?
+  created_at  DateTime @default(now()) @db.Timestamp(6)
+  updated_at  DateTime @default(now()) @updatedAt @db.Timestamp(6)
+
+  ticketLogs TicketLog[]
+
+  @@map("clients")
 }
 
-/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
-model monitoring_template {
-  id                     BigInt    @id @default(autoincrement())
-  project_id             BigInt?
-  tenant_id              BigInt?
-  log_date               DateTime? @db.Date
-  checkpoint_time        DateTime? @db.Time(6)
-  checkpoint_description String?   @db.VarChar(255)
-  result_note            String?
-  is_temporary           String?   @db.Bit(1)
-  projects               projects? @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  tenants                tenants?  @relation(fields: [tenant_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-}
+// ─────────────────────────────────────────────
+// Tickets
+// ─────────────────────────────────────────────
 
-/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
-model projects {
-  id                  BigInt                @id @default(autoincrement())
-  name                String?               @db.VarChar(255)
-  tenant_id           BigInt?
-  code_prefix         String?               @db.VarChar(100)
-  handover            handover[]
-  monitoring_logs     monitoring_logs[]
-  monitoring_template monitoring_template[]
-  tenants             tenants?              @relation(fields: [tenant_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  routine_meetings    routine_meetings[]
-  routine_reports     routine_reports[]
-  ticket_logs         ticket_logs[]
-}
-
-model requesters {
-  id   BigInt  @id @default(autoincrement())
-  name String? @db.VarChar(255)
-  code String? @db.VarChar(100)
-}
-
-/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
-model routine_meetings {
-  id                  BigInt               @id @default(autoincrement())
-  project_id          BigInt?
-  pic_user_id         BigInt?
-  meeting_name        String?              @db.VarChar(255)
-  start_at            DateTime?            @db.Timestamp(6)
-  target_completed_at DateTime?            @db.Timestamp(6)
-  status_update       String?              @db.VarChar(500)
-  meeting_room_url    String?
-  status              routine_status_enum? @default(Open)
-  is_temporary        Boolean?             @default(false)
-  users               User?                @relation(fields: [pic_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  projects            projects?            @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-}
-
-/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
-model routine_reports {
-  id                  BigInt               @id @default(autoincrement())
-  project_id          BigInt?
-  pic_user_id         BigInt?
-  report_name         String?              @db.VarChar(255)
-  start_at            DateTime?            @db.Timestamp(6)
-  target_completed_at DateTime?            @db.Timestamp(6)
-  status_update       String?              @db.VarChar(500)
-  doc_url             String?
-  status              routine_status_enum? @default(Open)
-  users               User?                @relation(fields: [pic_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  projects            projects?            @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-}
-
-model tenants {
-  id                  BigInt                @id(map: "tenant_pkey") @default(autoincrement())
-  name                String?               @db.VarChar(255)
-  detail_info         String?
-  monitoring_logs     monitoring_logs[]
-  monitoring_template monitoring_template[]
-  projects            projects[]
-  ticket_logs         ticket_logs[]
-}
-
-model ticket_categories {
-  id          BigInt        @id @default(autoincrement())
-  name        String?       @db.VarChar(255)
-  description String?
-  ticket_logs ticket_logs[]
-}
-
-/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
-model ticket_logs {
-  id                    BigInt              @id @default(autoincrement())
-  third_party_ticket_id String?             @unique(map: "ticket_logs_clickup_ticket_number_key") @db.VarChar(100)
+model TicketLog {
+  id                    BigInt        @id @default(autoincrement())
+  third_party_ticket_id String?       @db.VarChar(100)
   project_id            BigInt?
   client_id             BigInt?
   tenant_id             BigInt?
   user_id               BigInt?
   severity_id           BigInt?
   category_id           BigInt?
-  subject               String?             @db.VarChar(500)
+  requester             String?       @db.VarChar(100)
+  subject               String?       @db.VarChar(500)
   description           String?
-  status                ticket_status_enum? @default(Open)
-  created_at            DateTime?           @default(now()) @db.Timestamp(6)
-  closed_at             DateTime?           @db.Timestamp(6)
-  ticket_categories     ticket_categories?  @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  clients               clients?            @relation(fields: [client_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  projects              projects?           @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  ticket_severities     ticket_severities?  @relation(fields: [severity_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  tenants               tenants?            @relation(fields: [tenant_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  users                 User                @relation(fields: [id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "ticket_logs_user_id_fkey")
+  status                TicketStatus? @default(Open)
+  closed_at             DateTime?     @db.Timestamp(6)
+  open_at               DateTime?     @db.Timestamp(6)
+  created_at            DateTime      @default(now()) @db.Timestamp(6)
+  updated_at            DateTime      @default(now()) @updatedAt @db.Timestamp(6)
+
+  project  Project?        @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  client   Client?         @relation(fields: [client_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  tenant   Tenant?         @relation(fields: [tenant_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  user     User?           @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  severity TicketSeverity? @relation(fields: [severity_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  category TicketCategory? @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("ticket_logs")
 }
 
-model ticket_severities {
-  id          BigInt        @id @default(autoincrement())
-  code_name   String?       @db.VarChar(50)
-  name        String?       @db.VarChar(100)
-  ticket_logs ticket_logs[]
+model TicketCategory {
+  id          BigInt   @id @default(autoincrement())
+  name        String?  @db.VarChar(255)
+  description String?
+  created_at  DateTime @default(now()) @db.Timestamp(6)
+  updated_at  DateTime @default(now()) @updatedAt @db.Timestamp(6)
+
+  ticketLogs TicketLog[]
+
+  @@map("ticket_categories")
 }
 
-model user_role {
-  id   BigInt  @id
-  name String  @db.VarChar(500)
-  info String? @db.VarChar(255)
+model TicketSeverity {
+  id         BigInt   @id @default(autoincrement())
+  code_name  String?  @db.VarChar(50)
+  name       String?  @db.VarChar(100)
+  created_at DateTime @default(now()) @db.Timestamp(6)
+  updated_at DateTime @default(now()) @updatedAt @db.Timestamp(6)
+
+  ticketLogs TicketLog[]
+
+  @@map("ticket_severities")
 }
 
-model User {
-  id                                           BigInt             @id @default(autoincrement())
-  name                                         String?            @db.VarChar(255)
-  nik                                          String?            @unique @db.VarChar(255)
-  email                                        String?            @unique @db.VarChar(255)
-  role                                         BigInt?
-  is_active                                    String?            @db.Bit(1)
-  handover_handover_acknowledge_user_idTousers handover[]         @relation("handover_acknowledge_user_idTousers")
-  handover_handover_updated_user_idTousers     handover[]         @relation("handover_updated_user_idTousers")
-  routine_meetings                             routine_meetings[]
-  routine_reports                              routine_reports[]
-  ticket_logs                                  ticket_logs?
+// ─────────────────────────────────────────────
+// Routine operations
+// ─────────────────────────────────────────────
 
-  @@map("users")
+model Handover {
+  id                  BigInt            @id @default(autoincrement())
+  updated_user_id     BigInt?
+  acknowledge_user_id BigInt?
+  project_id          BigInt?
+  content             String?
+  status              RoutineStatus?    @default(Open)
+  category            HandoverCategory?
+  is_repeatable       Boolean           @default(false)
+  created_at          DateTime          @default(now()) @db.Timestamp(6)
+  updated_at          DateTime          @default(now()) @updatedAt @db.Timestamp(6)
+
+  updatedBy      User?    @relation("HandoverUpdatedBy", fields: [updated_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  acknowledgedBy User?    @relation("HandoverAcknowledgedBy", fields: [acknowledge_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  project        Project? @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("handover")
 }
 
-enum handover_category_enum {
+model RoutineMeeting {
+  id                  BigInt         @id @default(autoincrement())
+  project_id          BigInt?
+  pic_user_id         BigInt?
+  meeting_name        String?        @db.VarChar(255)
+  start_at            DateTime?      @db.Timestamp(6)
+  target_completed_at DateTime?      @db.Timestamp(6)
+  status_update       String?        @db.VarChar(500)
+  meeting_room_url    String?
+  status              RoutineStatus? @default(Open)
+  is_temporary        Boolean        @default(false)
+  created_at          DateTime       @default(now()) @db.Timestamp(6)
+  updated_at          DateTime       @default(now()) @updatedAt @db.Timestamp(6)
+
+  pic     User?    @relation(fields: [pic_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  project Project? @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("routine_meetings")
+}
+
+model RoutineReport {
+  id                  BigInt         @id @default(autoincrement())
+  project_id          BigInt?
+  pic_user_id         BigInt?
+  report_name         String?        @db.VarChar(255)
+  start_at            DateTime?      @db.Timestamp(6)
+  target_completed_at DateTime?      @db.Timestamp(6)
+  status_update       String?        @db.VarChar(500)
+  doc_url             String?
+  status              RoutineStatus? @default(Open)
+  created_at          DateTime       @default(now()) @db.Timestamp(6)
+  updated_at          DateTime       @default(now()) @updatedAt @db.Timestamp(6)
+
+  pic     User?    @relation(fields: [pic_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  project Project? @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("routine_reports")
+}
+
+model MonitoringLog {
+  id                     BigInt    @id @default(autoincrement())
+  project_id             BigInt?
+  tenant_id              BigInt?
+  log_date               DateTime? @db.Date
+  checkpoint_time        DateTime? @db.Time(6)
+  checkpoint_description String?   @db.VarChar(255)
+  result_note            String?
+  created_at             DateTime  @default(now()) @db.Timestamp(6)
+  updated_at             DateTime  @default(now()) @updatedAt @db.Timestamp(6)
+
+  project Project? @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  tenant  Tenant?  @relation(fields: [tenant_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("monitoring_logs")
+}
+
+model MonitoringTemplate {
+  id                     BigInt    @id @default(autoincrement())
+  project_id             BigInt?
+  tenant_id              BigInt?
+  log_date               DateTime? @db.Date
+  checkpoint_time        DateTime? @db.Time(6)
+  checkpoint_description String?   @db.VarChar(255)
+  result_note            String?
+  is_temporary           Boolean   @default(false)
+  created_at             DateTime  @default(now()) @db.Timestamp(6)
+  updated_at             DateTime  @default(now()) @updatedAt @db.Timestamp(6)
+
+  project Project? @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  tenant  Tenant?  @relation(fields: [tenant_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("monitoring_template")
+}
+
+// ─────────────────────────────────────────────
+// Enums
+// ─────────────────────────────────────────────
+
+enum HandoverCategory {
   Note
   Task
   Monitoring
+
+  @@map("handover_category_enum")
 }
 
-enum routine_status_enum {
+enum RoutineStatus {
   Open
   Closed
   ReOpen
   Pending
+
+  @@map("routine_status_enum")
 }
 
-enum ticket_status_enum {
+enum TicketStatus {
   Open
   Closed
   Activity
   Meeting
   Pending
   ReOpen
+
+  @@map("ticket_status_enum")
 }

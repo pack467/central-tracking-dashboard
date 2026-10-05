@@ -1,0 +1,222 @@
+[
+  {
+    "id": "1",
+    "name": "Agnes Yolanda Siahaan",
+    "nik": "2025-8007",
+    "email": "agnes.siahaan@hutabyte.com",
+    "role_id": "4",
+    "is_active": "1",
+    "password": null,
+    "photo_url": null,
+    "department": null
+  },
+  {
+    "id": "2",
+    "name": "Natanael Tambun",
+    "nik": "2025-8003",
+    "email": "natanael.tambun@hutabyte.com",
+    "role_id": "4",
+    "is_active": "1",
+    "password": null,
+    "photo_url": null,
+    "department": null
+  },
+  {
+    "id": "3",
+    "name": "Pangondion Kurniawan Naibaho",
+    "nik": "2025-8004",
+    "email": "pangondion.kurniawan@hutabyte.com",
+    "role_id": "1",
+    "is_active": "1",
+    "password": null,
+    "photo_url": null,
+    "department": null
+  },
+  {
+    "id": "4",
+    "name": "Ade Yuri F. Damanik",
+    "nik": "2025-8017",
+    "email": "ade.damanik@hutabyte.com",
+    "role_id": "2",
+    "is_active": "1",
+    "password": null,
+    "photo_url": null,
+    "department": null
+  },
+  {
+    "id": "5",
+    "name": "Muhammad Ihsanul Arifin",
+    "nik": "2026-8018",
+    "email": "ihsanul.arifin@hutabyte.com",
+    "role_id": "1",
+    "is_active": "1",
+    "password": null,
+    "photo_url": null,
+    "department": null
+  },
+  {
+    "id": "6",
+    "name": "Mhd. Galih Khairi",
+    "nik": "2026-8022",
+    "email": "galih.khairi@hutabyte.com",
+    "role_id": "1",
+    "is_active": "1",
+    "password": null,
+    "photo_url": null,
+    "department": null
+  },
+  {
+    "id": "7",
+    "name": "Kristina Marbun",
+    "nik": "2026-8024",
+    "email": "kristina.marbun@hutabyte.com",
+    "role_id": "4",
+    "is_active": "1",
+    "password": null,
+    "photo_url": null,
+    "department": null
+  },
+  {
+    "id": "8",
+    "name": "Pedro Marcel Hutagaol",
+    "nik": "2026-8023",
+    "email": "pedro.hutagaol@hutabyte.com",
+    "role_id": "4",
+    "is_active": "1",
+    "password": null,
+    "photo_url": null,
+    "department": null
+  },
+  {
+    "id": "9",
+    "name": "Andri Agung Exaudi Sigiro",
+    "nik": "2026-8026",
+    "email": "andri.sigiro@hutabyte.com",
+    "role_id": "4",
+    "is_active": "1",
+    "password": null,
+    "photo_url": null,
+    "department": null
+  },
+  {
+    "id": "10",
+    "name": "Dimas Yudistira",
+    "nik": "2026-8027",
+    "email": "dimas.yudistira@hutabyte.com",
+    "role_id": "1",
+    "is_active": "1",
+    "password": null,
+    "photo_url": null,
+    "department": null
+  },
+  {
+    "id": "11",
+    "name": "Tennov Pakpahan",
+    "nik": "2026-8028",
+    "email": "tennov.pakpahan@hutabyte.com",
+    "role_id": "4",
+    "is_active": "1",
+    "password": null,
+    "photo_url": null,
+    "department": null
+  },
+  {
+    "id": "12",
+    "name": "Samuel Siagian",
+    "nik": "2026-8012",
+    "email": "samuel.siagian@hutabyte.com",
+    "role_id": "4",
+    "is_active": "0",
+    "password": null,
+    "photo_url": null,
+    "department": null
+  },
+  {
+    "id": "13",
+    "name": "Ruth Marelisa Hutagalung",
+    "nik": "2026-8016",
+    "email": "ruth.hutagalung@hutabyte.com",
+    "role_id": "4",
+    "is_active": "0",
+    "password": null,
+    "photo_url": null,
+    "department": null
+  },
+  {
+    "id": "14",
+    "name": "Kartini Florensya Gurning",
+    "nik": "2024-8002",
+    "email": "kartini.gurning@hutabyte.com",
+    "role_id": "4",
+    "is_active": "1",
+    "password": null,
+    "photo_url": null,
+    "department": null
+  },
+  {
+    "id": "15",
+    "name": "Renette Ersti",
+    "nik": "2025-8013",
+    "email": "renette.ersti@hutabyte.com",
+    "role_id": "3",
+    "is_active": "1",
+    "password": null,
+    "photo_url": null,
+    "department": null
+  },
+  {
+    "id": "16",
+    "name": "Tahan Julianus Nadeak",
+    "nik": "2025-8009",
+    "email": "tahan.nadeak@hutabyte.com",
+    "role_id": "3",
+    "is_active": "1",
+    "password": null,
+    "photo_url": null,
+    "department": null
+  },
+  {
+    "id": "17",
+    "name": "Nicholas Bima Nooka Putra",
+    "nik": "2026-8025",
+    "email": "nicholas.bima@hutabyte.com",
+    "role_id": "3",
+    "is_active": "1",
+    "password": null,
+    "photo_url": null,
+    "department": null
+  },
+  {
+    "id": "18",
+    "name": "Yuha Azhari Simbolon",
+    "nik": "2025-8008",
+    "email": "yuha.simbolon@hutabyte.com",
+    "role_id": "3",
+    "is_active": "1",
+    "password": null,
+    "photo_url": null,
+    "department": null
+  },
+  {
+    "id": "19",
+    "name": "Naek Benhoven Butarbutar",
+    "nik": "2025-8005",
+    "email": "naek.butarbutar@hutabyte.com",
+    "role_id": "4",
+    "is_active": "0",
+    "password": null,
+    "photo_url": null,
+    "department": null
+  },
+  {
+    "id": "20",
+    "name": "Kevin Manatar Oloan Situmorang",
+    "nik": "2024-5001",
+    "email": "kevin.situmorang@hutabyte.com",
+    "role_id": "5",
+    "is_active": "1",
+    "password": null,
+    "photo_url": null,
+    "department": null
+  }
+]

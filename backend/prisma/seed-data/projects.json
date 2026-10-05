@@ -1,0 +1,68 @@
+[
+  {
+    "id": "1",
+    "name": "Single Mediation",
+    "tenant_id": "1",
+    "code_prefix": "SM"
+  },
+  {
+    "id": "2",
+    "name": "Message Broker",
+    "tenant_id": "1",
+    "code_prefix": "MB"
+  },
+  {
+    "id": "3",
+    "name": "Enterprise Product Catalog - Core",
+    "tenant_id": "1",
+    "code_prefix": "EPC"
+  },
+  {
+    "id": "4",
+    "name": "Enterprise Product Catalog - Tools",
+    "tenant_id": "1",
+    "code_prefix": "EPC Tools"
+  },
+  {
+    "id": "5",
+    "name": "ERICA",
+    "tenant_id": "1",
+    "code_prefix": "EPC Tools"
+  },
+  {
+    "id": "6",
+    "name": "Umbrella SIEM",
+    "tenant_id": "1",
+    "code_prefix": "USIEM"
+  },
+  {
+    "id": "7",
+    "name": "Unified Network Mediation",
+    "tenant_id": "1",
+    "code_prefix": "UNEM"
+  },
+  {
+    "id": "8",
+    "name": "APH Mediation",
+    "tenant_id": "1",
+    "code_prefix": "APH"
+  },
+  {
+    "id": "9",
+    "name": "B2B Surveillance",
+    "tenant_id": "1",
+    "code_prefix": "B2B"
+  },
+  {
+    "id": "10",
+    "name": "Device Management",
+    "tenant_id": "2",
+    "code_prefix": "DM"
+  },
+  {
+    "id": "11",
+    "name": "ALINA-CDR-LUADR",
+    "tenant_id": "1",
+    "code_prefix": "CDR-LUADR"
+  }
+]

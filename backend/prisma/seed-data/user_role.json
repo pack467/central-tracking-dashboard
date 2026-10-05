@@ -1,0 +1,32 @@
+[
+  {
+    "id": "1",
+    "name": "SUPER_ADMIN",
+    "privilege": null,
+    "info": null
+  },
+  {
+    "id": "2",
+    "name": "ADMIN",
+    "privilege": null,
+    "info": null
+  },
+  {
+    "id": "3",
+    "name": "TEAM_LEAD",
+    "privilege": null,
+    "info": null
+  },
+  {
+    "id": "4",
+    "name": "AGENT",
+    "privilege": null,
+    "info": null
+  },
+  {
+    "id": "5",
+    "name": "VIEWER",
+    "privilege": null,
+    "info": null
+  }
+]

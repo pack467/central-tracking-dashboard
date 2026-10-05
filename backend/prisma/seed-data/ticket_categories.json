@@ -1,0 +1,37 @@
+[
+  {
+    "id": "1",
+    "name": "Ad-hoc Request",
+    "description": "Kategori tiket untuk mengelola permintaan khusus atau tugas tambahan non-rutin yang bersifat mendadak."
+  },
+  {
+    "id": "2",
+    "name": "Escalation Handling",
+    "description": "Kategori tiket untuk menangani masalah kompleks yang membutuhkan penanganan tingkat lanjut, keahlian spesialis, atau keterlibatan manajemen."
+  },
+  {
+    "id": "3",
+    "name": "Incident & Issue Handling",
+    "description": "Kategori tiket untuk merespons dan memulihkan gangguan teknis atau kegagalan sistem agar layanan IT dapat kembali beroperasi secara normal."
+  },
+  {
+    "id": "4",
+    "name": "Validate End-to-End Process Flow",
+    "description": "Kategori tiket untuk menguji dan memastikan seluruh tahapan alur proses bisnis maupun teknis berjalan lancar tanpa hambatan dari awal hingga akhir."
+  },
+  {
+    "id": "5",
+    "name": "Knowledge Management & Documentation",
+    "description": "Kategori tiket untuk membuat, memperbarui, dan mengelola dokumen teknis, SOP, serta basis pengetahuan operasional IT."
+  },
+  {
+    "id": "6",
+    "name": "Monitoring VM, Platform & Services",
+    "description": "Kategori tiket untuk memantau status kesehatan, ketersediaan, dan performa mesin virtual, platform, serta layanan IT secara berkala maupun real-time."
+  },
+  {
+    "id": "7",
+    "name": "Others",
+    "description": "Others"
+  }
+]
