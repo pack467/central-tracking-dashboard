@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import Link from "next/link";
 import {
   LayoutDashboard,
   Ticket,
@@ -29,6 +30,8 @@ import { Avatar } from "@/app/components/ui/Avatar";
 import { useToast } from "@/app/components/ui/Toast";
 import { useActiveShift } from "@/app/hooks/useLiveClock";
 import { useUserStatus } from "@/app/hooks/useUserStatus";
+import { useAuth } from "@/app/lib/auth";
+import { initials } from "@/app/lib/data";
 
 export interface NavItemConfig {
   icon: LucideIcon;
@@ -112,10 +115,20 @@ interface SidebarProps {
   openTicketCount: number;
   collapsed?: boolean;
   onToggleCollapse?: () => void;
+  shiftPanelOpen?: boolean;
 }
 
-export function Sidebar({ activeNav, onNavigate, onPrepareHandover, openTicketCount, collapsed = false, onToggleCollapse }: SidebarProps) {
+export function Sidebar({
+  activeNav,
+  onNavigate,
+  onPrepareHandover,
+  openTicketCount,
+  collapsed = false,
+  onToggleCollapse,
+  shiftPanelOpen = false,
+}: SidebarProps) {
   const notify = useToast();
+  const { user, logout } = useAuth();
   const activeShift = useActiveShift();
   const lastActionTimeRef = useRef<Record<string, number>>({});
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
@@ -384,14 +397,23 @@ export function Sidebar({ activeNav, onNavigate, onPrepareHandover, openTicketCo
                 }
               }}
             >
-              <Avatar size="md" initials="GK" shape="circle" className="profile-avatar grid place-items-center !w-full !h-full !min-w-full !min-h-full rounded-full bg-[var(--avatar-bg,#3a3a3e)] text-[var(--avatar-text,#f8fafc)] font-bold text-[11px] font-['JetBrains_Mono',monospace] ![box-shadow:none] border border-[rgba(148,163,184,0.22)] grayscale shrink-0 box-border m-0 outline-none" />
+              <Avatar
+                size="md"
+                name={user?.name ?? "Mhd. Galih Khairi"}
+                initials={initials(user?.name ?? "Galih Khairi")}
+                color={user?.avatarBg}
+                shape="circle"
+                className="profile-avatar grid place-items-center !w-full !h-full !min-w-full !min-h-full rounded-full bg-[var(--avatar-bg,#3a3a3e)] text-[var(--avatar-text,#f8fafc)] font-bold text-[11px] font-['JetBrains_Mono',monospace] ![box-shadow:none] border border-[rgba(148,163,184,0.22)] shrink-0 box-border m-0 outline-none"
+              />
               <span
                 className="profile-status-badge absolute -bottom-[1px] -right-[1px] w-[8px] h-[8px] rounded-full border-[1.5px] border-[#090d16] [box-shadow:0_1px_2px_rgba(0,0,0,0.5)] transition-[background-color] duration-250 ease-out z-[2] pointer-events-none"
                 style={{ backgroundColor: currentStatusConfig.color }}
               />
             </div>
             <span className={`profile-info min-w-0 flex-1 ${collapsed ? "hidden" : "flex flex-col"}`}>
-              <strong className="block text-[12.5px] font-semibold text-[#ffffff] whitespace-nowrap overflow-hidden text-ellipsis leading-[1.25]">Galih Khairi</strong>
+              <strong className="block text-[12.5px] font-semibold text-[#ffffff] whitespace-nowrap overflow-hidden text-ellipsis leading-[1.25]">
+                {user?.name ?? "Galih Khairi"}
+              </strong>
               <small className="profile-status-row flex items-center gap-[5px] text-[10.5px] mt-[2px] text-[#94a3b8] whitespace-nowrap overflow-hidden text-ellipsis leading-[1.2]">
                 <span
                   className="profile-status-indicator-dot w-[6px] h-[6px] rounded-full shrink-0 transition-[background-color] duration-250 ease-out"
@@ -404,7 +426,7 @@ export function Sidebar({ activeNav, onNavigate, onPrepareHandover, openTicketCo
                   {userStatus}
                 </span>
                 <span className="profile-status-sep text-[#64748b] opacity-70">·</span>
-                <span>Operator NOC</span>
+                <span>{user?.role ?? "Operator NOC"}</span>
               </small>
             </span>
           </button>
@@ -448,9 +470,15 @@ export function Sidebar({ activeNav, onNavigate, onPrepareHandover, openTicketCo
               aria-label="Menu Opsi Profil dan Status"
             >
               <div className="profile-dropdown-header p-[6px_8px_8px] [border-bottom:1px_solid_var(--line)] mb-[4px]">
-                <span className="profile-dropdown-operator-label block text-[9.5px] text-[var(--ink-muted)] font-['JetBrains_Mono',monospace] font-bold tracking-[0.6px]">OPERATOR NOC</span>
-                <strong className="profile-dropdown-operator-name block text-[13px] text-[var(--ink-primary)] font-semibold mt-[2px]">Galih Khairi</strong>
-                <span className="profile-dropdown-operator-emp block text-[11px] text-[var(--accent-blue)] font-['JetBrains_Mono',monospace] mt-[1px]">EMP-1048 · Console</span>
+                <span className="profile-dropdown-operator-label block text-[9.5px] text-[var(--ink-muted)] font-['JetBrains_Mono',monospace] font-bold tracking-[0.6px]">
+                  {user?.role ? user.role.toUpperCase() : "OPERATOR NOC"}
+                </span>
+                <strong className="profile-dropdown-operator-name block text-[13px] text-[var(--ink-primary)] font-semibold mt-[2px]">
+                  {user?.name ?? "Galih Khairi"}
+                </strong>
+                <span className="profile-dropdown-operator-emp block text-[11px] text-[var(--accent-blue)] font-['JetBrains_Mono',monospace] mt-[1px]">
+                  {user?.employeeId ?? "EMP-1001"} · Console
+                </span>
               </div>
 
               {/* Status Presence Selector */}
@@ -550,6 +578,16 @@ export function Sidebar({ activeNav, onNavigate, onPrepareHandover, openTicketCo
                 <span>Preferensi &amp; Notifikasi</span>
               </button>
 
+              <Link
+                href="/team"
+                role="menuitem"
+                className="profile-dropdown-item flex items-center gap-[9px] w-full p-[7px_9px] rounded-[6px] bg-transparent border-none text-[var(--ink-primary)] text-[12px] font-[var(--font-sans)] font-medium text-left cursor-pointer [transition:background-color_0.12s,_color_0.12s] box-border hover:bg-[var(--accent-blue-soft)] hover:text-[var(--accent-blue)] [&_svg]:shrink-0 [&_svg]:text-[var(--ink-muted)] [&_svg]:[transition:color_0.12s] hover:[&_svg]:text-[var(--accent-blue)]"
+                onClick={() => setProfileMenuOpen(false)}
+              >
+                <Users size={14} />
+                <span>Our Team</span>
+              </Link>
+
               <div className="profile-dropdown-divider h-[1px] bg-[var(--line)] my-[4px]" />
 
               <button
@@ -558,10 +596,14 @@ export function Sidebar({ activeNav, onNavigate, onPrepareHandover, openTicketCo
                 className="profile-dropdown-item danger flex items-center gap-[9px] w-full p-[7px_9px] rounded-[6px] bg-transparent border-none text-[var(--ink-primary)] text-[12px] font-[var(--font-sans)] font-medium text-left cursor-pointer transition-[background-color,color] duration-120 box-border hover:bg-[var(--red-soft)] hover:text-[var(--red)] [&_svg]:shrink-0 [&_svg]:text-[var(--ink-muted)] [&_svg]:transition-colors [&_svg]:duration-120 hover:[&_svg]:text-[var(--red)]"
                 onClick={() => {
                   setProfileMenuOpen(false);
-                  notify.info("Sesi Operator NOC aktif. Gunakan serah terima shift (Handover) untuk pergantian konsol.", {
+                  logout();
+                  notify.info("Sesi konsol telah ditutup. Mengalihkan ke halaman login...", {
                     id: "logout-session-hint",
-                    duration: 4000,
+                    duration: 3000,
                   });
+                  setTimeout(() => {
+                    window.location.href = "/login";
+                  }, 400);
                 }}
               >
                 <LogOut size={14} />
@@ -578,14 +620,21 @@ export function Sidebar({ activeNav, onNavigate, onPrepareHandover, openTicketCo
       {onToggleCollapse && (
         <button
           type="button"
+          disabled={shiftPanelOpen}
+          tabIndex={shiftPanelOpen ? -1 : 0}
+          aria-disabled={shiftPanelOpen}
           className={`sidebar-toggle-tab fixed top-1/2 [transform:translateY(-50%)] z-[80] flex flex-col items-center gap-[6px] py-[12px] px-[6px] rounded-r-[10px] cursor-pointer bg-[var(--panel-bg,#1e293b)] border border-[var(--line,rgba(255,255,255,0.08))] [border-left:none] text-[var(--ink-muted,#94a3b8)] font-['Plus_Jakarta_Sans',sans-serif] text-[10px] font-semibold will-change-[left] [box-shadow:2px_0_12px_rgba(0,_0,_0,_0.15)] hover:bg-[var(--panel-bg-hover,#283548)] hover:text-[var(--ink-primary,#e2e8f0)] hover:pl-[10px] focus-visible:outline-2 focus-visible:outline-[var(--accent,#6366f1)] focus-visible:outline-offset-2 ${
             collapsed
               ? "sidebar-toggle-tab-collapsed left-[68px] [transition:left_0.35s_cubic-bezier(0.16,_1,_0.3,_1)]"
               : "left-[250px] [transition:left_0.35s_cubic-bezier(0.16,_1,_0.3,_1),_background_0.2s_ease,_color_0.2s_ease,_border-color_0.2s_ease,_padding-left_0.2s_ease]"
+          } ${
+            shiftPanelOpen
+              ? "!z-[20] !pointer-events-none !cursor-default select-none"
+              : "[.shift-panel-is-open_&]:!z-[20] [.shift-panel-is-open_&]:!pointer-events-none [.shift-panel-is-open_&]:!cursor-default [.shift-panel-is-open_&]:select-none"
           }`}
-          onClick={onToggleCollapse}
+          onClick={shiftPanelOpen ? undefined : onToggleCollapse}
           aria-label={collapsed ? "Lebarkan sidebar" : "Ciutkan sidebar"}
-          title={collapsed ? "Lebarkan sidebar" : "Ciutkan sidebar"}
+          title={shiftPanelOpen ? undefined : (collapsed ? "Lebarkan sidebar" : "Ciutkan sidebar")}
         >
           <PanelLeft size={16} strokeWidth={2} />
           {collapsed ? (

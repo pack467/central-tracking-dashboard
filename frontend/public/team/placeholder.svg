@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <defs>
+    <linearGradient id="bgDef" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#334155" />
+      <stop offset="60%" stop-color="#1e293b" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+    <linearGradient id="borderDef" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#64748b" stop-opacity="0.7" />
+      <stop offset="100%" stop-color="#334155" stop-opacity="0.2" />
+    </linearGradient>
+  </defs>
+  <!-- Rounded-square card avatar -->
+  <rect x="8" y="8" width="240" height="240" rx="40" fill="url(#bgDef)" />
+  <rect x="10" y="10" width="236" height="236" rx="38" fill="none" stroke="url(#borderDef)" stroke-width="2.5" />
+  <circle cx="128" cy="98" r="44" fill="#94a3b8" opacity="0.9" />
+  <path d="M56 206 C56 160 90 148 128 148 C166 148 200 160 200 206 Z" fill="#94a3b8" opacity="0.9" />
+</svg>

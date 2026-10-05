@@ -23,12 +23,57 @@ export interface AuthUser {
 export const DEFAULT_OPERATOR: AuthUser = {
   id: "op-1",
   name: "Mhd. Galih Khairi",
-  employeeId: "NOC-2024-001",
+  employeeId: "EMP-1001",
   role: "Operator NOC",
-  email: "galih.khairi@company.internal",
+  email: "galih.khairi@company.id",
   avatarBg: "#2563eb",
   shift: "Malam",
 };
+
+export interface PresetOperator extends AuthUser {
+  title: string;
+  badge: string;
+  demoPassword: string;
+}
+
+export const PRESET_OPERATORS: PresetOperator[] = [
+  {
+    id: "op-1",
+    name: "Mhd. Galih Khairi",
+    employeeId: "EMP-1001",
+    role: "Operator NOC",
+    email: "galih.khairi@company.id",
+    avatarBg: "#2563eb",
+    shift: "Malam",
+    title: "Konsol Utama NOC",
+    badge: "Shift Malam",
+    demoPassword: "password123",
+  },
+  {
+    id: "op-2",
+    name: "Pangondion Kurniawan",
+    employeeId: "EMP-1002",
+    role: "Shift Lead",
+    email: "pangondion.k@company.id",
+    avatarBg: "#7c3aed",
+    shift: "Malam",
+    title: "Lead Operasional & Eskalasi",
+    badge: "Shift Lead",
+    demoPassword: "password123",
+  },
+  {
+    id: "op-3",
+    name: "Agnes Siahaan",
+    employeeId: "EMP-1003",
+    role: "Operator NOC",
+    email: "agnes.siahaan@company.id",
+    avatarBg: "#059669",
+    shift: "Subuh",
+    title: "Incident Response",
+    badge: "Shift Subuh",
+    demoPassword: "password123",
+  },
+];
 
 interface AuthContextValue {
   user: AuthUser | null;
@@ -43,6 +88,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 const TOKEN_STORAGE_KEY = "ctd.auth_token";
 const USER_STORAGE_KEY = "ctd.auth_user";
+const LOGGED_OUT_KEY = "ctd.is_logged_out";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(DEFAULT_OPERATOR);
@@ -50,14 +96,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     try {
+      const isExplicitlyLoggedOut = localStorage.getItem(LOGGED_OUT_KEY) === "true";
       const storedToken = localStorage.getItem(TOKEN_STORAGE_KEY);
       const storedUser = localStorage.getItem(USER_STORAGE_KEY);
 
-      if (storedToken && storedUser) {
+      if (storedToken && storedUser && !isExplicitlyLoggedOut) {
         const parsedUser = JSON.parse(storedUser);
         setToken(storedToken);
         setUser(parsedUser);
         api.setToken(storedToken);
+      } else if (isExplicitlyLoggedOut) {
+        setUser(null);
+        setToken(null);
       } else {
         // Default to the built-in active session for local ops
         setUser(DEFAULT_OPERATOR);
@@ -72,6 +122,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(newUser);
     api.setToken(newToken);
     try {
+      localStorage.removeItem(LOGGED_OUT_KEY);
       localStorage.setItem(TOKEN_STORAGE_KEY, newToken);
       localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(newUser));
     } catch {
@@ -84,6 +135,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
     api.setToken(null);
     try {
+      localStorage.setItem(LOGGED_OUT_KEY, "true");
       localStorage.removeItem(TOKEN_STORAGE_KEY);
       localStorage.removeItem(USER_STORAGE_KEY);
     } catch {
