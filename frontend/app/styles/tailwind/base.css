@@ -75,6 +75,13 @@
   @apply [display:flex];
 }
 
+/* When Shift Coverage Panel is open, disable & place sidebar toggle tab behind backdrop */
+.shift-panel-is-open .sidebar-toggle-tab {
+  @apply [pointer-events:none];
+  @apply [z-index:20];
+  @apply [cursor:default];
+}
+
 /* ═══════════════════════════════════════════════
    BUTTONS (Shared base buttons across modals & views)
 ═══════════════════════════════════════════════ */
