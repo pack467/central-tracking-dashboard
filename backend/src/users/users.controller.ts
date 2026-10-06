@@ -87,6 +87,26 @@ export class UsersController {
     return this.usersService.update(id, updateUserDto, actor);
   }
 
+  @Patch(':id')
+  @Can(PERMISSIONS.USERS_MANAGE)
+  @ApiOperation({
+    summary: 'Deactivate a user',
+    description:
+      'Requires users.manage. Without users.manage.all you can only deactivate users with fewer permissions than you. Nobody can deactivate their own account.',
+  })
+  @ApiParam(ID_PARAM)
+  @ApiOkResponse({ type: User })
+  @ApiBadRequestResponse({ description: 'Invalid id' })
+  @ApiForbiddenResponse({ description: 'Missing users.manage, target not below you, or deactivating yourself' })
+  @ApiNotFoundResponse({ description: 'No user with that id' })
+  @ApiConflictResponse({ description: 'The user is still referenced by tickets, handovers or other records' })
+  deactivate(
+    @Param('id', ParseBigIntPipe) id: bigint,
+    @CurrentUser() actor: AuthUser
+  ) {
+    return this.usersService.update(id, { is_active: false }, actor);
+  }
+
   @Delete(':id')
   @Can(PERMISSIONS.USERS_MANAGE)
   @ApiOperation({
