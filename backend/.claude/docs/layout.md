@@ -11,10 +11,11 @@ backend/
 │   │   ├── auth.controller.ts      /auth/login, /auth/me, /auth/password
 │   │   ├── auth.service.ts         login, changePassword
 │   │   ├── auth.guard.ts           JWT verify + DB user check (global)
-│   │   ├── roles.guard.ts          @Roles check (global)
-│   │   ├── auth.types.ts           RoleName, JwtPayload, AuthUser, AuthRequest
-│   │   ├── decorators/             @Public, @Roles, @CurrentUser
-│   │   └── dto/                    LoginDto, LoginResponseDto, ChangePasswordDto
+│   │   ├── permissions.ts          PERMISSIONS, DEFAULT_ROLE_PERMISSIONS, parse/serialize helpers
+│   │   ├── permissions.guard.ts    @Can check (global)
+│   │   ├── auth.types.ts           JwtPayload, AuthUser (id, role, permissions), AuthRequest
+│   │   ├── decorators/             @Public, @Can, @CurrentUser
+│   │   └── dto/                    LoginDto, LoginResponseDto, MeResponseDto, ChangePasswordDto
 │   ├── common/
 │   │   ├── bigint-json.ts          BigInt.prototype.toJSON → string
 │   │   ├── swagger.ts              isSwaggerEnabled() (shared by main.ts and GET /)

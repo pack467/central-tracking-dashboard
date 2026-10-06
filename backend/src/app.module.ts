@@ -12,7 +12,7 @@ import { MetricsModule } from './metrics/metrics.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
 import { AuthModule } from './auth/auth.module.js';
 import { AuthGuard } from './auth/auth.guard.js';
-import { RolesGuard } from './auth/roles.guard.js';
+import { PermissionsGuard } from './auth/permissions.guard.js';
 import { HealthModule } from './health/health.module.js';
 import { TicketsModule } from './tickets/tickets.module.js';
 
@@ -34,10 +34,10 @@ import { TicketsModule } from './tickets/tickets.module.js';
   controllers: [AppController],
   providers: [
     AppService,
-    // Global guards run in this order: rate limit, authenticate, check roles.
+    // Global guards run in this order: rate limit, authenticate, check permissions.
     { provide: APP_GUARD, useClass: ThrottlerGuard },
     { provide: APP_GUARD, useClass: AuthGuard },
-    { provide: APP_GUARD, useClass: RolesGuard },
+    { provide: APP_GUARD, useClass: PermissionsGuard },
   ],
 })
 export class AppModule {

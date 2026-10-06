@@ -17,7 +17,7 @@ import { AuthService } from './auth.service.js';
         }
         return {
           secret,
-          signOptions: { expiresIn: config.get('JWT_EXPIRES_IN', '7d') },
+          signOptions: { expiresIn: config.get('JWT_EXPIRES_IN', '12h') },
           verifyOptions: { algorithms: ['HS256'] },
         };
       },

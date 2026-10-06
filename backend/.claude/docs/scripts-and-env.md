@@ -25,7 +25,7 @@
 NODE_ENV=development   PORT=3000   APP_NAME=nestjs-app   APP_URL=http://localhost:3000
 DATABASE_URL="postgresql://...?schema=ctd_config"
 SEED_DEFAULT_PASSWORD=                     # optional; seed gives it to users with no password
-JWT_SECRET=...   JWT_EXPIRES_IN=7d          # secret ≥ 32 chars or the app won't start
+JWT_SECRET=...   JWT_EXPIRES_IN=12h         # secret ≥ 32 chars or the app won't start
 CORS_ORIGIN=http://localhost:3001          # comma-separated list of allowed origins
 LOG_LEVEL=debug
 SWAGGER_ENABLED=                           # optional; /docs defaults to on unless NODE_ENV=production

@@ -17,7 +17,8 @@ import { CreateUserDto } from './dto/create-user.dto.js';
 import { UpdateUserDto } from './dto/update-user.dto.js';
 import { User } from './entities/user.entity.js';
 import { ParseBigIntPipe } from '../common/pipes/parse-bigint.pipe.js';
-import { Roles } from '../auth/decorators/roles.decorator.js';
+import { Can } from '../auth/decorators/can.decorator.js';
+import { PERMISSIONS } from '../auth/permissions.js';
 import { CurrentUser } from '../auth/decorators/current-user.decorator.js';
 import type { AuthUser } from '../auth/auth.types.js';
 
@@ -31,28 +32,33 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  @Roles('SUPER_ADMIN', 'ADMIN')
+  @Can(PERMISSIONS.USERS_MANAGE)
   @ApiOperation({
     summary: 'Create a user',
-    description: 'SUPER_ADMIN or ADMIN. Only a SUPER_ADMIN can assign the SUPER_ADMIN or ADMIN role.',
+    description:
+      'Requires users.manage. You can only assign a role with fewer permissions than your own, unless you have users.manage.all.',
   })
   @ApiCreatedResponse({ type: User })
   @ApiBadRequestResponse({ description: 'Invalid body' })
-  @ApiForbiddenResponse({ description: 'Not allowed for your role' })
+  @ApiForbiddenResponse({ description: 'Missing users.manage, or the role is not below yours' })
   @ApiConflictResponse({ description: 'Email or NIK already in use, or role_id does not exist' })
   create(@Body() createUserDto: CreateUserDto, @CurrentUser() actor: AuthUser) {
     return this.usersService.create(createUserDto, actor);
   }
 
   @Get()
-  @ApiOperation({ summary: 'List all users' })
+  @Can(PERMISSIONS.USERS_READ)
+  @ApiOperation({ summary: 'List all users', description: 'Requires users.read.' })
+  @ApiForbiddenResponse({ description: 'Missing users.read' })
   @ApiOkResponse({ type: [User] })
   findAll() {
     return this.usersService.findAll();
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Get a user' })
+  @Can(PERMISSIONS.USERS_READ)
+  @ApiOperation({ summary: 'Get a user', description: 'Requires users.read.' })
+  @ApiForbiddenResponse({ description: 'Missing users.read' })
   @ApiParam(ID_PARAM)
   @ApiOkResponse({ type: User })
   @ApiNotFoundResponse({ description: 'No user with that id' })
@@ -61,16 +67,16 @@ export class UsersController {
   }
 
   @Patch(':id')
-  @Roles('SUPER_ADMIN', 'ADMIN')
+  @Can(PERMISSIONS.USERS_MANAGE)
   @ApiOperation({
     summary: 'Update a user',
     description:
-      'SUPER_ADMIN or ADMIN. An ADMIN cannot change their own role, assign SUPER_ADMIN/ADMIN, or modify other admins or super admins. Nobody can deactivate their own account.',
+      'Requires users.manage. Without users.manage.all you can only modify users (and assign roles) with fewer permissions than you, and cannot change your own role. Nobody can deactivate their own account.',
   })
   @ApiParam(ID_PARAM)
   @ApiOkResponse({ type: User })
   @ApiBadRequestResponse({ description: 'Invalid body or id' })
-  @ApiForbiddenResponse({ description: 'Not allowed for your role, or a self-action that is blocked' })
+  @ApiForbiddenResponse({ description: 'Missing users.manage, target or role not below yours, or a blocked self-action' })
   @ApiNotFoundResponse({ description: 'No user with that id' })
   @ApiConflictResponse({ description: 'Email or NIK already in use, or role_id does not exist' })
   update(
@@ -82,14 +88,15 @@ export class UsersController {
   }
 
   @Delete(':id')
-  @Roles('SUPER_ADMIN', 'ADMIN')
+  @Can(PERMISSIONS.USERS_MANAGE)
   @ApiOperation({
     summary: 'Delete a user',
-    description: 'SUPER_ADMIN or ADMIN. An ADMIN cannot delete admins or super admins. Nobody can delete their own account.',
+    description:
+      'Requires users.manage. Without users.manage.all you can only delete users with fewer permissions than you. Nobody can delete their own account.',
   })
   @ApiParam(ID_PARAM)
   @ApiOkResponse({ type: User, description: 'The deleted user' })
-  @ApiForbiddenResponse({ description: 'Not allowed for your role, or deleting yourself' })
+  @ApiForbiddenResponse({ description: 'Missing users.manage, target not below you, or deleting yourself' })
   @ApiNotFoundResponse({ description: 'No user with that id' })
   @ApiConflictResponse({ description: 'The user is still referenced by tickets, handovers or other records' })
   remove(@Param('id', ParseBigIntPipe) id: bigint, @CurrentUser() actor: AuthUser) {

@@ -11,7 +11,7 @@ This file covers only `backend/`. Do not read, reference, or modify `../frontend
 - Any script that writes explicit ids must reset the sequence afterwards.
 - Destructive DB scripts must go through `db:guard`. Never run `db:reset`/`db:fresh` against a production `DATABASE_URL`.
 - `password` must only ever hold a hash, never plaintext. Any user query that returns data to a client uses `omit: { password: true }`.
-- New routes are protected by default. Add `@Public()` only on purpose, and use `@Roles(...)` for writes.
+- New routes are protected by default. Add `@Public()` only on purpose, and guard them with `@Can(PERMISSIONS.X)`. Never check role names in access logic; see `docs/permissions.md`.
 - Document every new route for Swagger (tag, summary, response type, error responses, `@ApiBearerAuth()`); see `docs/api-docs.md`.
 - Take `:id` params with `ParseBigIntPipe` and pass them to Prisma as `bigint`. Never use `+id`.
 - Commit style: Conventional Commits with a scope, e.g. `feat(backend): ...` or `feat(backend - users): ...`.
@@ -28,6 +28,7 @@ Each topic lives in its own file under `.claude/docs/`, imported here so it load
 | `docs/scripts-and-env.md` | npm scripts (incl. `db:*`), `.env` variables |
 | `docs/runtime.md` | Bootstrap, AppModule, global guards, middleware, error filter, logging, metrics, Prisma service |
 | `docs/auth.md` | JWT login, guards, decorators, rate limits, bcrypt |
+| `docs/permissions.md` | Permission-based access: `@Can`, permission list, role defaults, hierarchy rule, seeding |
 | `docs/api-docs.md` | Swagger UI at `/docs`, CLI plugin, how to document new routes |
 | `docs/health.md` | `/`, `/health` (app + DB), `/ready` (app only) |
 | `docs/users.md` | `/users` routes, DTO, role-escalation rules |
@@ -42,6 +43,7 @@ Each topic lives in its own file under `.claude/docs/`, imported here so it load
 @docs/scripts-and-env.md
 @docs/runtime.md
 @docs/auth.md
+@docs/permissions.md
 @docs/api-docs.md
 @docs/health.md
 @docs/users.md

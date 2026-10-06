@@ -4,6 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service.js';
 import { IS_PUBLIC_KEY } from './decorators/public.decorator.js';
 import type { AuthRequest, JwtPayload } from './auth.types.js';
+import { parsePermissions } from './permissions.js';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -38,7 +39,11 @@ export class AuthGuard implements CanActivate {
     const user = await this.users.findAuthUser(BigInt(payload.sub));
     if (!user?.is_active) throw new UnauthorizedException();
 
-    request.user = { id: user.id, role: user.role?.name ?? null };
+    request.user = {
+      id: user.id,
+      role: user.role?.name ?? null,
+      permissions: parsePermissions(user.role?.privilege),
+    };
     return true;
   }
 }

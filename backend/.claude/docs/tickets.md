@@ -4,20 +4,16 @@ One `TicketsModule` with three controllers: tickets (`ticket_logs` table), ticke
 
 ## Routes and permissions
 
-| Route | Who | Notes |
-|---|---|---|
-| `GET /tickets` | any logged-in user | paginated list with filters, search, sort |
-| `GET /tickets/summary` | any logged-in user | count per status; same filters as the list |
-| `GET /tickets/:id` | any logged-in user | 404 if missing |
-| `POST /tickets` | SUPER_ADMIN, ADMIN, TEAM_LEAD, AGENT | AGENT can only assign to themselves |
-| `PATCH /tickets/:id` | SUPER_ADMIN, ADMIN, TEAM_LEAD (any ticket); AGENT (only tickets assigned to them, can't reassign) | |
-| `DELETE /tickets/:id` | SUPER_ADMIN, ADMIN | hard delete |
-| `GET /ticket-categories`, `GET /ticket-categories/:id` | any logged-in user | |
-| `POST/PATCH/DELETE /ticket-categories[/:id]` | SUPER_ADMIN, ADMIN | |
-| `GET /ticket-severities`, `GET /ticket-severities/:id` | any logged-in user | |
-| `POST/PATCH/DELETE /ticket-severities[/:id]` | SUPER_ADMIN, ADMIN | |
+| Route | Permission | Default roles | Notes |
+|---|---|---|---|
+| `GET /tickets`, `/tickets/summary`, `/tickets/:id` | `tickets.read` | all | |
+| `POST /tickets` | `tickets.write` | AGENT and up | assigning to someone else (or none) also needs `tickets.write.any` |
+| `PATCH /tickets/:id` | `tickets.write` | AGENT and up | without `tickets.write.any`: only tickets assigned to you, no reassigning |
+| `DELETE /tickets/:id` | `tickets.delete` | ADMIN, SUPER_ADMIN | hard delete |
+| `GET /ticket-categories[/:id]`, `GET /ticket-severities[/:id]` | `tickets.read` | all | |
+| `POST/PATCH/DELETE` on categories and severities | `ticket-lookups.manage` | ADMIN, SUPER_ADMIN | |
 
-VIEWER is read-only everywhere. These permissions were chosen by Claude (2026-10-06) under the user's "do it your way"; change them if the team wants different rules.
+The permission split and role defaults were chosen by Claude (2026-10-06) under the user's "do it your way". Change them per role in `user_role.privilege` (see `permissions.md`).
 
 ## List: `GET /tickets`
 

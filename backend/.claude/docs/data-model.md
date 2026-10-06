@@ -11,7 +11,7 @@ Conventions:
 | Model → table | Fields (besides id/timestamps) | Relations |
 |---|---|---|
 | `User` → `users` | name(255), nik(255, unique), email(255, unique), role_id, is_active (default true), password(100, must be a hash, e.g. bcrypt `$2b$`), photo_url(500), department(255) | role → UserRole; handovers as `HandoverUpdatedBy` / `HandoverAcknowledgedBy`; routineMeetings, routineReports (as PIC); ticketLogs |
-| `UserRole` → `user_role` | name(500, **required**), privilege(text), info(500) | users |
+| `UserRole` → `user_role` | name(500, **required**), privilege(text: JSON array of permissions, see `permissions.md`), info(500) | users |
 | `Tenant` → `tenants` | name(255), detail_info(text) | projects, monitoringLogs, monitoringTemplates, ticketLogs |
 | `Project` → `projects` | name(255), tenant_id, code_prefix(100) | tenant; handovers, monitoring*, routine*, ticketLogs |
 | `Client` → `clients` | name(255), detail_info(text) | ticketLogs |

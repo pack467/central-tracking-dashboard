@@ -10,7 +10,7 @@ import {
 } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { UsersService } from '../users/users.service.js';
-import { User } from '../users/entities/user.entity.js';
+import { MeResponseDto } from './dto/me-response.dto.js';
 import { AuthService } from './auth.service.js';
 import { LoginDto } from './dto/login.dto.js';
 import { LoginResponseDto } from './dto/login-response.dto.js';
@@ -41,11 +41,12 @@ export class AuthController {
 
   @Get('me')
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Get the logged-in user' })
-  @ApiOkResponse({ type: User })
+  @ApiOperation({ summary: 'Get the logged-in user, with their role and permissions' })
+  @ApiOkResponse({ type: MeResponseDto })
   @ApiUnauthorizedResponse({ description: 'Missing, invalid or expired token, or the user is inactive' })
-  me(@CurrentUser() user: AuthUser) {
-    return this.users.findOne(user.id);
+  async me(@CurrentUser() user: AuthUser): Promise<MeResponseDto> {
+    const profile = await this.users.findOne(user.id);
+    return { ...profile, role: user.role, permissions: [...user.permissions].sort() } as unknown as MeResponseDto;
   }
 
   @Throttle({ default: { limit: 5, ttl: 60_000 } })

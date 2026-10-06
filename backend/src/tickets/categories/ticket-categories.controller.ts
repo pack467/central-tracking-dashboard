@@ -12,7 +12,8 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { ParseBigIntPipe } from '../../common/pipes/parse-bigint.pipe.js';
-import { Roles } from '../../auth/decorators/roles.decorator.js';
+import { Can } from '../../auth/decorators/can.decorator.js';
+import { PERMISSIONS } from '../../auth/permissions.js';
 import { TicketCategoriesService } from './ticket-categories.service.js';
 import {
   CreateTicketCategoryDto,
@@ -30,14 +31,18 @@ export class TicketCategoriesController {
   constructor(private readonly categories: TicketCategoriesService) {}
 
   @Get()
-  @ApiOperation({ summary: 'List ticket categories' })
+  @Can(PERMISSIONS.TICKETS_READ)
+  @ApiOperation({ summary: 'List ticket categories', description: 'Requires tickets.read.' })
+  @ApiForbiddenResponse({ description: 'Missing tickets.read' })
   @ApiOkResponse({ type: [TicketCategory] })
   findAll() {
     return this.categories.findAll();
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Get a ticket category' })
+  @Can(PERMISSIONS.TICKETS_READ)
+  @ApiOperation({ summary: 'Get a ticket category', description: 'Requires tickets.read.' })
+  @ApiForbiddenResponse({ description: 'Missing tickets.read' })
   @ApiParam(ID_PARAM)
   @ApiOkResponse({ type: TicketCategory })
   @ApiNotFoundResponse({ description: 'No category with that id' })
@@ -46,21 +51,21 @@ export class TicketCategoriesController {
   }
 
   @Post()
-  @Roles('SUPER_ADMIN', 'ADMIN')
-  @ApiOperation({ summary: 'Create a ticket category', description: 'SUPER_ADMIN or ADMIN.' })
+  @Can(PERMISSIONS.TICKET_LOOKUPS_MANAGE)
+  @ApiOperation({ summary: 'Create a ticket category', description: 'Requires ticket-lookups.manage.' })
   @ApiCreatedResponse({ type: TicketCategory })
-  @ApiForbiddenResponse({ description: 'Not allowed for your role' })
+  @ApiForbiddenResponse({ description: 'Missing ticket-lookups.manage' })
   @ApiConflictResponse({ description: 'Name already in use' })
   create(@Body() dto: CreateTicketCategoryDto) {
     return this.categories.create(dto);
   }
 
   @Patch(':id')
-  @Roles('SUPER_ADMIN', 'ADMIN')
-  @ApiOperation({ summary: 'Update a ticket category', description: 'SUPER_ADMIN or ADMIN.' })
+  @Can(PERMISSIONS.TICKET_LOOKUPS_MANAGE)
+  @ApiOperation({ summary: 'Update a ticket category', description: 'Requires ticket-lookups.manage.' })
   @ApiParam(ID_PARAM)
   @ApiOkResponse({ type: TicketCategory })
-  @ApiForbiddenResponse({ description: 'Not allowed for your role' })
+  @ApiForbiddenResponse({ description: 'Missing ticket-lookups.manage' })
   @ApiNotFoundResponse({ description: 'No category with that id' })
   @ApiConflictResponse({ description: 'Name already in use' })
   update(@Param('id', ParseBigIntPipe) id: bigint, @Body() dto: UpdateTicketCategoryDto) {
@@ -68,11 +73,11 @@ export class TicketCategoriesController {
   }
 
   @Delete(':id')
-  @Roles('SUPER_ADMIN', 'ADMIN')
-  @ApiOperation({ summary: 'Delete a ticket category', description: 'SUPER_ADMIN or ADMIN. Refused while any ticket uses it.' })
+  @Can(PERMISSIONS.TICKET_LOOKUPS_MANAGE)
+  @ApiOperation({ summary: 'Delete a ticket category', description: 'Requires ticket-lookups.manage. Refused while any ticket uses it.' })
   @ApiParam(ID_PARAM)
   @ApiOkResponse({ type: TicketCategory, description: 'The deleted category' })
-  @ApiForbiddenResponse({ description: 'Not allowed for your role' })
+  @ApiForbiddenResponse({ description: 'Missing ticket-lookups.manage' })
   @ApiNotFoundResponse({ description: 'No category with that id' })
   @ApiConflictResponse({ description: 'Still used by tickets' })
   remove(@Param('id', ParseBigIntPipe) id: bigint) {

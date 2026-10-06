@@ -7,7 +7,13 @@ import {
 import bcrypt from 'bcrypt';
 import { Prisma } from '../generated/prisma/client.js';
 import { PrismaService } from '../prisma/prisma.service.js';
-import type { AuthUser, RoleName } from '../auth/auth.types.js';
+import type { AuthUser } from '../auth/auth.types.js';
+import {
+  isStrictSubset,
+  parsePermissions,
+  PERMISSIONS,
+  type Permission,
+} from '../auth/permissions.js';
 import { CreateUserDto } from './dto/create-user.dto.js';
 import { UpdateUserDto } from './dto/update-user.dto.js';
 
@@ -16,10 +22,12 @@ export const BCRYPT_ROUNDS = 12;
 // The password hash must never leave the service.
 const omitPassword = { password: true } as const;
 
-// Roles an ADMIN can neither assign nor manage.
-const PRIVILEGED_ROLES: readonly RoleName[] = ['SUPER_ADMIN', 'ADMIN'];
-const isPrivileged = (role: string | null | undefined) =>
-  !!role && (PRIVILEGED_ROLES as readonly string[]).includes(role);
+// Without users.manage.all you can only manage users, and hand out roles,
+// that are strictly less powerful than you: their permissions are a proper
+// subset of yours. So nobody can promote themselves or touch a peer or superior.
+const outranks = (actor: AuthUser, permissions: ReadonlySet<Permission>) =>
+  actor.permissions.has(PERMISSIONS.USERS_MANAGE_ALL) ||
+  isStrictSubset(permissions, actor.permissions);
 
 @Injectable()
 export class UsersService {
@@ -53,13 +61,11 @@ export class UsersService {
     if (isSelf && is_active === false) {
       throw new ForbiddenException('You cannot deactivate your own account');
     }
-    if (actor.role === 'ADMIN') {
-      if (!isSelf && isPrivileged(target.role?.name)) {
-        throw new ForbiddenException('Admins cannot modify other admins or super admins');
-      }
-      if (isSelf && roleChanges) {
-        throw new ForbiddenException('You cannot change your own role');
-      }
+    if (!isSelf && !outranks(actor, parsePermissions(target.role?.privilege))) {
+      throw new ForbiddenException('You can only modify users whose role has fewer permissions than yours');
+    }
+    if (isSelf && roleChanges && !actor.permissions.has(PERMISSIONS.USERS_MANAGE_ALL)) {
+      throw new ForbiddenException('You cannot change your own role');
     }
     if (roleChanges) await this.assertCanAssignRole(actor, role_id);
 
@@ -74,8 +80,8 @@ export class UsersService {
     if (target.id === actor.id) {
       throw new ForbiddenException('You cannot delete your own account');
     }
-    if (actor.role === 'ADMIN' && isPrivileged(target.role?.name)) {
-      throw new ForbiddenException('Admins cannot delete admins or super admins');
+    if (!outranks(actor, parsePermissions(target.role?.privilege))) {
+      throw new ForbiddenException('You can only delete users whose role has fewer permissions than yours');
     }
     return this.handleConstraintErrors(() =>
       this.prisma.user.delete({ where: { id }, omit: omitPassword }),
@@ -94,7 +100,7 @@ export class UsersService {
   findAuthUser(id: bigint) {
     return this.prisma.user.findUnique({
       where: { id },
-      select: { id: true, is_active: true, role: { select: { name: true } } },
+      select: { id: true, is_active: true, role: { select: { name: true, privilege: true } } },
     });
   }
 
@@ -114,23 +120,22 @@ export class UsersService {
   private async findTarget(id: bigint) {
     const user = await this.prisma.user.findUnique({
       where: { id },
-      select: { id: true, role_id: true, role: { select: { name: true } } },
+      select: { id: true, role_id: true, role: { select: { privilege: true } } },
     });
     if (!user) throw new NotFoundException(`User #${id} not found`);
     return user;
   }
 
-  // Only super admins can hand out the SUPER_ADMIN or ADMIN role. Checked by
-  // role name, not id, so it holds even if role ids change.
   private async assertCanAssignRole(actor: AuthUser, roleId: string | null | undefined) {
-    if (actor.role === 'SUPER_ADMIN' || roleId === undefined || roleId === null) return;
+    if (roleId === undefined || roleId === null) return;
+    if (actor.permissions.has(PERMISSIONS.USERS_MANAGE_ALL)) return;
     const role = await this.prisma.userRole.findUnique({
       where: { id: BigInt(roleId) },
-      select: { name: true },
+      select: { privilege: true },
     });
     // A missing role is left to the foreign key, which returns 409.
-    if (isPrivileged(role?.name)) {
-      throw new ForbiddenException('Only super admins can assign the SUPER_ADMIN or ADMIN role');
+    if (role && !outranks(actor, parsePermissions(role.privilege))) {
+      throw new ForbiddenException('You can only assign roles with fewer permissions than your own');
     }
   }
 

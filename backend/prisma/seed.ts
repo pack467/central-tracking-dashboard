@@ -7,6 +7,7 @@ import { spawnSync } from 'node:child_process';
 import bcrypt from 'bcrypt';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '../src/generated/prisma/client.js';
+import { DEFAULT_ROLE_PERMISSIONS, serializePermissions } from '../src/auth/permissions.js';
 
 const SCHEMA = 'ctd_config';
 
@@ -45,9 +46,16 @@ async function seed(table: string, upsert: (r: Row) => Promise<unknown>) {
 async function main() {
   // Order matters: parents before children (FKs).
   await seed('user_role', (r) => {
-    const data = { id: id(r.id), name: r.name, privilege: r.privilege ?? null, info: r.info };
+    const data = {
+      id: id(r.id),
+      name: r.name,
+      info: r.info,
+      // Only written when the JSON has one, so re-seeding never wipes permissions edited later.
+      ...(r.privilege && { privilege: r.privilege }),
+    };
     return prisma.userRole.upsert({ where: { id: data.id }, update: data, create: data });
   });
+  await setDefaultRolePermissions();
 
   await seed('users', (r) => {
     const data = {
@@ -101,6 +109,20 @@ main()
     process.exitCode = 1;
   })
   .finally(() => prisma.$disconnect());
+
+// Gives the built-in roles their default permissions (src/auth/permissions.ts)
+// where privilege is still empty. Never overwrites permissions already set.
+async function setDefaultRolePermissions() {
+  let updated = 0;
+  for (const [name, permissions] of Object.entries(DEFAULT_ROLE_PERMISSIONS)) {
+    const { count } = await prisma.userRole.updateMany({
+      where: { name, OR: [{ privilege: null }, { privilege: '' }] },
+      data: { privilege: serializePermissions(permissions) },
+    });
+    updated += count;
+  }
+  console.log(`${'role permissions'.padEnd(20)} ${updated} roles`);
+}
 
 // Gives users without a password a starting one, so they can log in and change it.
 // Never touches users that already have a password.

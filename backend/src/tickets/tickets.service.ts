@@ -8,6 +8,7 @@ import { Prisma } from '../generated/prisma/client.js';
 import { TicketStatus } from '../generated/prisma/enums.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import type { AuthUser } from '../auth/auth.types.js';
+import { PERMISSIONS } from '../auth/permissions.js';
 import { toBigInt } from '../common/validators/bigint-id.js';
 import { CreateTicketDto } from './dto/create-ticket.dto.js';
 import { UpdateTicketDto } from './dto/update-ticket.dto.js';
@@ -23,9 +24,9 @@ const ticketInclude = {
   category: { select: { id: true, name: true } },
 } satisfies Prisma.TicketLogInclude;
 
-// These roles work on any ticket; an AGENT only on tickets assigned to them.
-const MANAGE_ANY_ROLES: readonly string[] = ['SUPER_ADMIN', 'ADMIN', 'TEAM_LEAD'];
-const canManageAny = (actor: AuthUser) => !!actor.role && MANAGE_ANY_ROLES.includes(actor.role);
+// With tickets.write.any you work on any ticket and pick any assignee;
+// without it, only on tickets assigned to you.
+const canManageAny = (actor: AuthUser) => actor.permissions.has(PERMISSIONS.TICKETS_WRITE_ANY);
 
 @Injectable()
 export class TicketsService {
@@ -79,7 +80,7 @@ export class TicketsService {
   async create(dto: CreateTicketDto, actor: AuthUser) {
     const userId = dto.user_id === undefined ? actor.id : toBigInt(dto.user_id)!;
     if (!canManageAny(actor) && userId !== actor.id) {
-      throw new ForbiddenException('Agents can only create tickets assigned to themselves');
+      throw new ForbiddenException('Without tickets.write.any you can only create tickets assigned to yourself');
     }
 
     const projectId = BigInt(dto.project_id);
@@ -130,11 +131,11 @@ export class TicketsService {
 
     const manageAny = canManageAny(actor);
     if (!manageAny && ticket.user_id !== actor.id) {
-      throw new ForbiddenException('Agents can only update tickets assigned to them');
+      throw new ForbiddenException('Without tickets.write.any you can only update tickets assigned to you');
     }
     const userId = toBigInt(dto.user_id);
     if (!manageAny && userId !== undefined && userId !== actor.id) {
-      throw new ForbiddenException('Agents cannot reassign tickets');
+      throw new ForbiddenException('Without tickets.write.any you cannot reassign tickets');
     }
     if ((dto.project_id as string | null | undefined) === null) {
       throw new BadRequestException('project_id cannot be cleared');
