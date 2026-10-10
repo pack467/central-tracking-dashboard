@@ -2,6 +2,8 @@ import { ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { PermissionsGuard } from './permissions.guard.js';
 import type { Permission } from './permissions.js';
+import { TICKETS_READ, TICKETS_WRITE } from '../tickets/tickets.permissions.js';
+import { USERS_READ } from '../users/users.permissions.js';
 
 describe('PermissionsGuard', () => {
   const reflector = { getAllAndOverride: vi.fn() };
@@ -24,16 +26,16 @@ describe('PermissionsGuard', () => {
   });
 
   it('allows a user holding every required permission', () => {
-    reflector.getAllAndOverride.mockReturnValue(['tickets.read', 'tickets.write']);
-    expect(guard.canActivate(contextFor(['tickets.write', 'tickets.read', 'users.read']))).toBe(true);
+    reflector.getAllAndOverride.mockReturnValue([TICKETS_READ, TICKETS_WRITE]);
+    expect(guard.canActivate(contextFor([TICKETS_WRITE, TICKETS_READ, USERS_READ]))).toBe(true);
   });
 
   it.each([
-    ['one of two missing', ['tickets.read']],
+    ['one of two missing', [TICKETS_READ]],
     ['none', []],
     ['no user on the request', undefined],
   ])('denies when %s', (_case, permissions) => {
-    reflector.getAllAndOverride.mockReturnValue(['tickets.read', 'tickets.write']);
+    reflector.getAllAndOverride.mockReturnValue([TICKETS_READ, TICKETS_WRITE]);
     expect(guard.canActivate(contextFor(permissions as Permission[] | undefined))).toBe(false);
   });
 });

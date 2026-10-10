@@ -1,73 +1,63 @@
-// Every permission the code checks. Which role has which permissions is data:
-// stored per role in user_role.privilege (a Postgres text[]). Adding a permission
-// here does nothing until a route checks it and roles are granted it.
-export const PERMISSIONS = {
-  /** Read tickets, categories and severities. */
-  TICKETS_READ: 'tickets.read',
-  /** Create tickets, and update tickets assigned to you. */
-  TICKETS_WRITE: 'tickets.write',
-  /** Update any ticket and choose any assignee (needs tickets.write too). */
-  TICKETS_WRITE_ANY: 'tickets.write.any',
-  TICKETS_DELETE: 'tickets.delete',
-  /** Create, update and delete ticket categories and severities. */
-  TICKET_LOOKUPS_MANAGE: 'ticket-lookups.manage',
-  USERS_READ: 'users.read',
-  /** Create, update and delete users with fewer permissions than you. */
-  USERS_MANAGE: 'users.manage',
-  /** Manage any user and assign any role, including peers and higher. */
-  USERS_MANAGE_ALL: 'users.manage.all',
-  /** Reserved for the roles endpoint (not built yet). */
-  ROLES_MANAGE: 'roles.manage',
-} as const;
+// Permissions are declared where they're used: each module has a
+// *.permissions.ts calling definePermission(). Declaring one registers it here,
+// and at startup PermissionSyncService writes the registry to the `permissions`
+// table. Which role has which permission is data (`role_permissions`), managed
+// through /roles. There is no central list to edit.
 
-export type Permission = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
+declare const permissionBrand: unique symbol;
 
-export const ALL_PERMISSIONS: readonly Permission[] = Object.values(PERMISSIONS);
+// Only definePermission() produces this type, so @Can('tickets.delte') with a
+// raw (possibly misspelled) string does not compile.
+export type Permission = string & { readonly [permissionBrand]: true };
 
-// Stored instead of a list to grant every permission, including ones added to
-// PERMISSIONS later (it's expanded when read, never matched literally).
-export const ALL = '*';
-
-// What user_role.privilege may contain: permissions, or the wildcard.
-export type GrantedPermission = Permission | typeof ALL;
-
-const P = PERMISSIONS;
-const VIEWER: Permission[] = [P.TICKETS_READ, P.USERS_READ];
-const AGENT: Permission[] = [...VIEWER, P.TICKETS_WRITE];
-const TEAM_LEAD: Permission[] = [...AGENT, P.TICKETS_WRITE_ANY];
-const ADMIN: Permission[] = [...TEAM_LEAD, P.TICKETS_DELETE, P.TICKET_LOOKUPS_MANAGE, P.USERS_MANAGE];
-const SUPER_ADMIN: GrantedPermission[] = [ALL];
-
-// Starting permissions for the seeded roles, matching the access they had
-// under role-name checks. The seed writes these only where privilege is still
-// empty, so permissions edited later are never overwritten.
-export const DEFAULT_ROLE_PERMISSIONS: Record<string, GrantedPermission[]> = {
-  SUPER_ADMIN,
-  ADMIN,
-  TEAM_LEAD,
-  AGENT,
-  VIEWER,
-};
-
-const isPermission = (value: unknown): value is Permission =>
-  typeof value === 'string' && (ALL_PERMISSIONS as readonly string[]).includes(value);
-
-// Granted entries → the permissions they give: "*" expands to every permission
-// in PERMISSIONS; unknown entries are dropped.
-export function resolvePermissions(granted: Iterable<unknown>): Set<Permission> {
-  const list = [...granted];
-  if (list.includes(ALL)) return new Set(ALL_PERMISSIONS);
-  return new Set(list.filter(isPermission));
+export interface PermissionDefinition {
+  key: Permission;
+  description: string;
 }
 
-// user_role.privilege (text[]) → permissions. Missing, empty or unknown
-// entries grant nothing (fail closed).
-export const parsePermissions = (privilege: readonly string[] | null | undefined): Set<Permission> =>
-  resolvePermissions(privilege ?? []);
+// Granting "*" grants every permission, including ones defined later. It is
+// expanded when read, never checked literally, and can't be defined.
+export const ALL = '*';
+export const ALL_DESCRIPTION = 'Every permission, including ones added in the future';
 
-// Permissions as stored in user_role.privilege: unique and sorted.
-export const toStoredPermissions = (permissions: Iterable<GrantedPermission>): string[] =>
-  [...new Set(permissions)].sort();
+const KEY_FORMAT = /^[a-z][a-z0-9-]*(\.[a-z0-9-]+)+$/; // e.g. tickets.write.any
+
+const registry = new Map<string, PermissionDefinition>();
+
+export function definePermission(key: string, description: string): Permission {
+  if (!KEY_FORMAT.test(key)) {
+    throw new Error(`Invalid permission key "${key}": use dotted lowercase, e.g. "reports.export"`);
+  }
+  const existing = registry.get(key);
+  if (existing) {
+    if (existing.description !== description) throw new Error(`Permission "${key}" is defined twice`);
+    return existing.key;
+  }
+  const definition = { key: key as Permission, description };
+  registry.set(key, definition);
+  return definition.key;
+}
+
+export const definedPermissions = (): PermissionDefinition[] =>
+  [...registry.values()].sort((a, b) => a.key.localeCompare(b.key));
+
+export const isDefinedPermission = (key: string): key is Permission => registry.has(key);
+
+// Granted keys → the permissions they give. "*" expands to every defined
+// permission; keys the code doesn't define (obsolete, unknown) give nothing.
+export function resolvePermissions(granted: Iterable<string>): Set<Permission> {
+  const keys = [...granted];
+  if (keys.includes(ALL)) return new Set(definedPermissions().map((d) => d.key));
+  return new Set(keys.filter(isDefinedPermission));
+}
+
+// A role's granted keys (from role_permissions) → permissions. Missing or
+// empty grants nothing (fail closed).
+export const parsePermissions = (keys: readonly string[] | null | undefined): Set<Permission> =>
+  resolvePermissions(keys ?? []);
+
+// Keys as stored and returned: unique and sorted.
+export const toStoredPermissions = (keys: Iterable<string>): string[] => [...new Set(keys)].sort();
 
 // True when every permission in `inner` is in `outer` and `outer` has at least
 // one more: "strictly less powerful than". Used so a user can only manage or

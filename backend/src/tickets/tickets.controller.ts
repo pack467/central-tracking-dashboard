@@ -13,7 +13,7 @@ import {
 } from '@nestjs/swagger';
 import { ParseBigIntPipe } from '../common/pipes/parse-bigint.pipe.js';
 import { Can } from '../auth/decorators/can.decorator.js';
-import { PERMISSIONS } from '../auth/permissions.js';
+import { TICKETS_DELETE, TICKETS_READ, TICKETS_WRITE } from './tickets.permissions.js';
 import { CurrentUser } from '../auth/decorators/current-user.decorator.js';
 import type { AuthUser } from '../auth/auth.types.js';
 import { TicketsService } from './tickets.service.js';
@@ -32,7 +32,7 @@ export class TicketsController {
   constructor(private readonly tickets: TicketsService) {}
 
   @Get()
-  @Can(PERMISSIONS.TICKETS_READ)
+  @Can(TICKETS_READ)
   @ApiOperation({
     summary: 'List tickets',
     description: 'Paginated, with filters and search. Requires tickets.read.',
@@ -46,7 +46,7 @@ export class TicketsController {
 
   // Declared before ':id' so "summary" isn't read as an id.
   @Get('summary')
-  @Can(PERMISSIONS.TICKETS_READ)
+  @Can(TICKETS_READ)
   @ApiOperation({
     summary: 'Count tickets per status',
     description: 'Takes the same filters as the list. Requires tickets.read.',
@@ -58,7 +58,7 @@ export class TicketsController {
   }
 
   @Get(':id')
-  @Can(PERMISSIONS.TICKETS_READ)
+  @Can(TICKETS_READ)
   @ApiOperation({ summary: 'Get a ticket', description: 'Requires tickets.read.' })
   @ApiForbiddenResponse({ description: 'Missing tickets.read' })
   @ApiParam(ID_PARAM)
@@ -69,7 +69,7 @@ export class TicketsController {
   }
 
   @Post()
-  @Can(PERMISSIONS.TICKETS_WRITE)
+  @Can(TICKETS_WRITE)
   @ApiOperation({
     summary: 'Create a ticket',
     description:
@@ -83,7 +83,7 @@ export class TicketsController {
   }
 
   @Patch(':id')
-  @Can(PERMISSIONS.TICKETS_WRITE)
+  @Can(TICKETS_WRITE)
   @ApiOperation({
     summary: 'Update a ticket',
     description:
@@ -103,7 +103,7 @@ export class TicketsController {
   }
 
   @Delete(':id')
-  @Can(PERMISSIONS.TICKETS_DELETE)
+  @Can(TICKETS_DELETE)
   @ApiOperation({ summary: 'Delete a ticket', description: 'Requires tickets.delete.' })
   @ApiParam(ID_PARAM)
   @ApiOkResponse({ type: Ticket, description: 'The deleted ticket' })

@@ -4,27 +4,31 @@ import bcrypt from 'bcrypt';
 import { Prisma } from '../generated/prisma/client.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import type { AuthUser } from '../auth/auth.types.js';
-import { DEFAULT_ROLE_PERMISSIONS, resolvePermissions, toStoredPermissions } from '../auth/permissions.js';
+import { resolvePermissions } from '../auth/permissions.js';
+import { seededKeys, seededPermissions } from '../../test/helpers/seeded-roles.js';
 import { UsersService } from './users.service.js';
 
 // Role ids as seeded (1 SUPER_ADMIN … 5 VIEWER) with their default permissions,
 // plus two custom roles a future roles endpoint could create.
 const ROLE_PRIVILEGES: Record<string, string[]> = {
-  '1': toStoredPermissions(DEFAULT_ROLE_PERMISSIONS.SUPER_ADMIN),
-  '2': toStoredPermissions(DEFAULT_ROLE_PERMISSIONS.ADMIN),
-  '3': toStoredPermissions(DEFAULT_ROLE_PERMISSIONS.TEAM_LEAD),
-  '4': toStoredPermissions(DEFAULT_ROLE_PERMISSIONS.AGENT),
-  '5': toStoredPermissions(DEFAULT_ROLE_PERMISSIONS.VIEWER),
+  '1': seededKeys('SUPER_ADMIN'),
+  '2': seededKeys('ADMIN'),
+  '3': seededKeys('TEAM_LEAD'),
+  '4': seededKeys('AGENT'),
+  '5': seededKeys('VIEWER'),
   // Below ADMIN: a subset of its permissions.
-  '6': toStoredPermissions(['tickets.read', 'tickets.write', 'tickets.delete']),
+  '6': ['tickets.delete', 'tickets.read', 'tickets.write'],
   // Not below ADMIN: has users.manage.all, which ADMIN lacks.
-  '7': toStoredPermissions(['tickets.read', 'users.manage.all']),
+  '7': ['tickets.read', 'users.manage.all'],
 };
+
+// A role's grants as Prisma returns them through grantedKeysSelect.
+const grants = (keys: string[]) => ({ permissions: keys.map((permission_key) => ({ permission_key })) });
 
 const withDefaults = (id: bigint, role: string): AuthUser => ({
   id,
   role,
-  permissions: resolvePermissions(DEFAULT_ROLE_PERMISSIONS[role]),
+  permissions: seededPermissions(role),
 });
 const superAdmin = withDefaults(100n, 'SUPER_ADMIN');
 const admin = withDefaults(200n, 'ADMIN');
@@ -33,7 +37,7 @@ const admin = withDefaults(200n, 'ADMIN');
 const userWithRole = (id: bigint, roleId: number | null) => ({
   id,
   role_id: roleId === null ? null : BigInt(roleId),
-  role: roleId === null ? null : { privilege: ROLE_PRIVILEGES[String(roleId)] },
+  role: roleId === null ? null : grants(ROLE_PRIVILEGES[String(roleId)]),
 });
 
 describe('UsersService', () => {
@@ -52,8 +56,8 @@ describe('UsersService', () => {
   beforeEach(async () => {
     vi.resetAllMocks();
     prisma.userRole.findUnique.mockImplementation(({ where }) => {
-      const privilege = ROLE_PRIVILEGES[where.id.toString()];
-      return Promise.resolve(privilege ? { privilege } : null);
+      const keys = ROLE_PRIVILEGES[where.id.toString()];
+      return Promise.resolve(keys ? grants(keys) : null);
     });
     prisma.user.create.mockResolvedValue({ id: 1n });
     prisma.user.update.mockResolvedValue({ id: 1n });
@@ -223,13 +227,13 @@ describe('UsersService', () => {
       });
 
       it('treats a role with unreadable permissions as having none (manageable by an ADMIN)', async () => {
-        prisma.user.findUnique.mockResolvedValue({ id: 7n, role_id: 8n, role: { privilege: ['bogus.permission'] } });
+        prisma.user.findUnique.mockResolvedValue({ id: 7n, role_id: 8n, role: grants(['bogus.permission']) });
         await service.update(7n, { name: 'x' }, admin);
         expect(prisma.user.update).toHaveBeenCalled();
       });
 
       it('lets a user without users.manage.all manage nobody above them, whatever their role is called', async () => {
-        const manager = { id: 300n, role: 'ADMIN', permissions: new Set(['users.manage', 'users.read'] as const) };
+        const manager: AuthUser = { id: 300n, role: 'ADMIN', permissions: resolvePermissions(['users.manage', 'users.read']) };
         prisma.user.findUnique.mockResolvedValue(userWithRole(5n, 4)); // an AGENT has tickets.* perms the actor lacks
         await expect(service.update(5n, { name: 'x' }, manager)).rejects.toBeInstanceOf(ForbiddenException);
       });

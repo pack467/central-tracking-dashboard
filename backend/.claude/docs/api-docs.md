@@ -12,5 +12,5 @@
   - each controller has `@ApiTags('<group>')`
   - each route has `@ApiOperation({ summary })`, `@Api<Status>Response(...)` for each status it can return, and `@ApiParam` for `:id` (typed as a string of digits)
   - protected routes get `@ApiBearerAuth()`
-- **Tags in use:** `app` (`GET /`), `auth`, `users`, `tickets`, `ticket-categories`, `ticket-severities`, `health` and `metrics`. Terminus's `@HealthCheck()` decorator documents the 200/503 health responses.
+- **Tags in use:** `app` (`GET /`), `auth`, `users`, `roles`, `permissions`, `tickets`, `ticket-categories`, `ticket-severities`, `health` and `metrics`. Terminus's `@HealthCheck()` decorator documents the 200/503 health responses.
 - **When adding a route:** give it a tag, summary, response type and error responses, plus `@ApiBearerAuth()` unless it's `@Public()`. Then check it at `/docs`.

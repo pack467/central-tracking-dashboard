@@ -8,7 +8,7 @@ import { Prisma } from '../generated/prisma/client.js';
 import { TicketStatus } from '../generated/prisma/enums.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import type { AuthUser } from '../auth/auth.types.js';
-import { PERMISSIONS } from '../auth/permissions.js';
+import { TICKETS_WRITE_ANY } from './tickets.permissions.js';
 import { toBigInt } from '../common/validators/bigint-id.js';
 import { CreateTicketDto } from './dto/create-ticket.dto.js';
 import { UpdateTicketDto } from './dto/update-ticket.dto.js';
@@ -26,7 +26,7 @@ const ticketInclude = {
 
 // With tickets.write.any you work on any ticket and pick any assignee;
 // without it, only on tickets assigned to you.
-const canManageAny = (actor: AuthUser) => actor.permissions.has(PERMISSIONS.TICKETS_WRITE_ANY);
+const canManageAny = (actor: AuthUser) => actor.permissions.has(TICKETS_WRITE_ANY);
 
 @Injectable()
 export class TicketsService {

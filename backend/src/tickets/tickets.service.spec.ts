@@ -2,11 +2,11 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import type { AuthUser } from '../auth/auth.types.js';
-import { DEFAULT_ROLE_PERMISSIONS, resolvePermissions } from '../auth/permissions.js';
+import { seededPermissions } from '../../test/helpers/seeded-roles.js';
 import { TicketsService } from './tickets.service.js';
 
-const lead: AuthUser = { id: 10n, role: 'TEAM_LEAD', permissions: resolvePermissions(DEFAULT_ROLE_PERMISSIONS.TEAM_LEAD) };
-const agent: AuthUser = { id: 20n, role: 'AGENT', permissions: resolvePermissions(DEFAULT_ROLE_PERMISSIONS.AGENT) };
+const lead: AuthUser = { id: 10n, role: 'TEAM_LEAD', permissions: seededPermissions('TEAM_LEAD') };
+const agent: AuthUser = { id: 20n, role: 'AGENT', permissions: seededPermissions('AGENT') };
 
 describe('TicketsService', () => {
   let service: TicketsService;

@@ -2,31 +2,54 @@
   {
     "id": "1",
     "name": "SUPER_ADMIN",
-    "privilege": null,
-    "info": null
+    "info": null,
+    "permissions": [
+      "*"
+    ]
   },
   {
     "id": "2",
     "name": "ADMIN",
-    "privilege": null,
-    "info": null
+    "info": null,
+    "permissions": [
+      "roles.read",
+      "ticket-lookups.manage",
+      "tickets.delete",
+      "tickets.read",
+      "tickets.write",
+      "tickets.write.any",
+      "users.manage",
+      "users.read"
+    ]
   },
   {
     "id": "3",
     "name": "TEAM_LEAD",
-    "privilege": null,
-    "info": null
+    "info": null,
+    "permissions": [
+      "tickets.read",
+      "tickets.write",
+      "tickets.write.any",
+      "users.read"
+    ]
   },
   {
     "id": "4",
     "name": "AGENT",
-    "privilege": null,
-    "info": null
+    "info": null,
+    "permissions": [
+      "tickets.read",
+      "tickets.write",
+      "users.read"
+    ]
   },
   {
     "id": "5",
     "name": "VIEWER",
-    "privilege": null,
-    "info": null
+    "info": null,
+    "permissions": [
+      "tickets.read",
+      "users.read"
+    ]
   }
 ]

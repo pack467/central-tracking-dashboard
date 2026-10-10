@@ -6,12 +6,14 @@ Conventions:
 - Columns are snake_case. Models are PascalCase and mapped to snake_case tables with `@@map`.
 - Every table has `created_at` and `updated_at` as `Timestamp(6)`, default `now()`, and `updated_at` uses `@updatedAt`.
 - Almost every column is nullable. FKs use `onDelete: NoAction, onUpdate: NoAction`. The exception is `users.role_id`, which only sets `onUpdate: NoAction`, so its delete rule defaults to `ON DELETE SET NULL` in the migration.
-- The only unique indexes are `users.nik` and `users.email`. There are no other indexes, including none on FK columns.
+- Unique indexes: `users.nik` and `users.email`. Other indexes: `role_permissions.permission_key`. There are none on the other FK columns.
 
 | Model → table | Fields (besides id/timestamps) | Relations |
 |---|---|---|
 | `User` → `users` | name(255), nik(255, unique), email(255, unique), role_id, is_active (default true), password(100, must be a hash, e.g. bcrypt `$2b$`), photo_url(500), department(255) | role → UserRole; handovers as `HandoverUpdatedBy` / `HandoverAcknowledgedBy`; routineMeetings, routineReports (as PIC); ticketLogs |
-| `UserRole` → `user_role` | name(500, **required**), privilege(`text[]` of permissions, default `{}`, see `permissions.md`), info(500) | users |
+| `UserRole` → `user_role` | name(500, **required**), info(500) | users; permissions (RolePermission) |
+| `Permission` → `permissions` | **key**(100, PK), description(text), obsolete_at, timestamps | roles (RolePermission) |
+| `RolePermission` → `role_permissions` | **PK (role_id, permission_key)**, created_at; index on permission_key | role → UserRole (**ON DELETE CASCADE**), permission → Permission (**ON DELETE RESTRICT**, ON UPDATE CASCADE). See `permissions.md`. |
 | `Tenant` → `tenants` | name(255), detail_info(text) | projects, monitoringLogs, monitoringTemplates, ticketLogs |
 | `Project` → `projects` | name(255), tenant_id, code_prefix(100) | tenant; handovers, monitoring*, routine*, ticketLogs |
 | `Client` → `clients` | name(255), detail_info(text) | ticketLogs |

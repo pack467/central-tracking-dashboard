@@ -4,6 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service.js';
 import { AuthGuard } from './auth.guard.js';
 import type { AuthRequest } from './auth.types.js';
+import '../tickets/tickets.permissions.js'; // registers tickets.read
 
 describe('AuthGuard', () => {
   const jwt = new JwtService({ secret: 'test-secret-that-is-at-least-32-chars!' });
@@ -49,7 +50,7 @@ describe('AuthGuard', () => {
   });
 
   it('rejects a valid token for an inactive user', async () => {
-    users.findAuthUser.mockResolvedValue({ id: 1n, is_active: false, role: { name: 'ADMIN', privilege: ['tickets.read', 'bogus.permission'] } });
+    users.findAuthUser.mockResolvedValue({ id: 1n, is_active: false, role: { name: 'ADMIN', permissions: [{ permission_key: 'tickets.read' }, { permission_key: 'bogus.permission' }] } });
     const token = await jwt.signAsync({ sub: '1' });
     await expect(guard.canActivate(contextFor(bearer(token)))).rejects.toBeInstanceOf(
       UnauthorizedException,
@@ -57,12 +58,12 @@ describe('AuthGuard', () => {
   });
 
   it('attaches the user with the role and permissions loaded from the DB', async () => {
-    users.findAuthUser.mockResolvedValue({ id: 1n, is_active: true, role: { name: 'ADMIN', privilege: ['tickets.read', 'bogus.permission'] } });
+    users.findAuthUser.mockResolvedValue({ id: 1n, is_active: true, role: { name: 'ADMIN', permissions: [{ permission_key: 'tickets.read' }, { permission_key: 'bogus.permission' }] } });
     const request = bearer(await jwt.signAsync({ sub: '1' })) as Partial<AuthRequest>;
 
     await expect(guard.canActivate(contextFor(request))).resolves.toBe(true);
     expect(users.findAuthUser).toHaveBeenCalledWith(1n);
-    // Unknown entries in privilege are ignored (fail closed).
+    // Keys the code doesn't define are ignored (fail closed).
     expect(request.user).toEqual({ id: 1n, role: 'ADMIN', permissions: new Set(['tickets.read']) });
   });
 });

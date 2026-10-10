@@ -13,7 +13,7 @@ One `TicketsModule` with three controllers: tickets (`ticket_logs` table), ticke
 | `GET /ticket-categories[/:id]`, `GET /ticket-severities[/:id]` | `tickets.read` | all | |
 | `POST/PATCH/DELETE` on categories and severities | `ticket-lookups.manage` | ADMIN, SUPER_ADMIN | |
 
-The permission split and role defaults were chosen by Claude (2026-10-06) under the user's "do it your way". Change them per role in `user_role.privilege` (see `permissions.md`).
+The permission split and role defaults were chosen by Claude (2026-10-06) under the user's "do it your way". Change them per role through `/roles` (see `roles.md`); the permissions are declared in `src/tickets/tickets.permissions.ts`.
 
 ## List: `GET /tickets`
 

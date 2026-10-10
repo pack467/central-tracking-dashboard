@@ -1,48 +1,68 @@
 # Permissions (access control)
 
-Access is **permission-based** (switched from role-name checks on 2026-10-06). The code checks permissions, never role names. Which role has which permissions is **data**, stored per role in the database, so a future roles endpoint can create roles or change their access without a deploy.
+Access is **permission-based**: code checks permissions, never role names. Since 2026-10-10 the permission catalogue and the role→permission grants live in the **database**, and **there is no central list in code**: each module declares its own permissions next to the code that uses them.
 
-## Pieces
+## How a permission exists
 
-- **`src/auth/permissions.ts`:**
-  - `PERMISSIONS`: the only list of permissions the code knows. The `Permission` type and `ALL_PERMISSIONS` derive from it.
-  - `DEFAULT_ROLE_PERMISSIONS`: the starting permissions for the five seeded roles.
-  - Helpers: `parsePermissions()`, `toStoredPermissions()` (unique and sorted, as stored), `resolvePermissions()` and `isStrictSubset()`.
-- **Storage:** `user_role.privilege` is a **Postgres `text[]`** (Prisma `String[] @default([])`; it was a JSON string in TEXT until 2026-10-10), e.g. `{tickets.read,users.read}`, or `{*}` (the `ALL` wildcard) for **every** permission. Prisma returns it as `string[]`, so no parsing is needed, and it can be queried natively (`privilege: { has: 'users.manage' }`, or `'x' = ANY(privilege)` in SQL). `*` is expanded when read (`resolvePermissions`), so a role with it automatically gets permissions added to `PERMISSIONS` later. It only counts as an exact whole entry: `tickets.*` or `'* '` grant nothing. `parsePermissions` **fails closed**: null (the column is nullable in Postgres), `[]` and unknown entries (matching is exact and case-sensitive) grant nothing. `*` anywhere in the array grants everything.
-- **`AuthGuard`** already loads the user and role on every request. It now also reads `role.privilege` and sets `request.user = { id, role (name, display only), permissions: Set<Permission> }`. Permission changes therefore apply on the next request.
-- **`@Can(...permissions)`** (`auth/decorators/can.decorator.ts`) requires **all** listed permissions, and **`PermissionsGuard`** (global, runs after `AuthGuard`) enforces it with a 403. A route without `@Can` is open to any logged-in user. `@Can` also adds `x-required-permissions` to the route in the OpenAPI doc. Describe the 403 yourself with `@ApiForbiddenResponse`.
-- **`GET /auth/me`** returns the user plus `role` and a sorted `permissions` array (`MeResponseDto`), so clients can show or hide actions. The server still enforces everything.
+1. **Declared in its module** with `definePermission(key, description)` in that module's `*.permissions.ts`:
+   - `src/tickets/tickets.permissions.ts`: `TICKETS_READ`, `TICKETS_WRITE`, `TICKETS_WRITE_ANY`, `TICKETS_DELETE`, `TICKET_LOOKUPS_MANAGE`
+   - `src/users/users.permissions.ts`: `USERS_READ`, `USERS_MANAGE`, `USERS_MANAGE_ALL`
+   - `src/roles/roles.permissions.ts`: `ROLES_READ`, `ROLES_MANAGE`
+2. **Used** on a route with `@Can(TICKETS_DELETE)`, or in a service with `actor.permissions.has(TICKETS_WRITE_ANY)`.
+3. **Registered** in the `permissions` table at app startup by `PermissionsService.sync()` (`OnApplicationBootstrap`).
+4. **Granted** to roles through the API (`/roles`, see `roles.md`); stored as rows in `role_permissions`.
 
-## Permissions and defaults
+`definePermission()` returns a **branded `Permission` type**, so `@Can('tickets.delte')` with a raw string doesn't compile: routes must use the exported constants. Keys must be dotted lowercase (`reports.export`, `tickets.write.any`); `*` and malformed keys throw at load time. Defining the same key twice with different descriptions throws, since that means two modules are claiming it.
 
-| Permission | Allows | VIEWER | AGENT | TEAM_LEAD | ADMIN | SUPER_ADMIN |
-|---|---|:-:|:-:|:-:|:-:|:-:|
-| `tickets.read` | read tickets, summary, categories, severities | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `users.read` | read users | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `tickets.write` | create tickets; update tickets assigned to you | | ✓ | ✓ | ✓ | ✓ |
-| `tickets.write.any` | update **any** ticket, pick any assignee or none | | | ✓ | ✓ | ✓ |
-| `tickets.delete` | delete tickets | | | | ✓ | ✓ |
-| `ticket-lookups.manage` | create/update/delete categories and severities | | | | ✓ | ✓ |
-| `users.manage` | create/update/delete users **below you** | | | | ✓ | ✓ |
-| `users.manage.all` | manage **any** user and assign **any** role (no hierarchy limit) | | | | | ✓ |
-| `roles.manage` | reserved for the roles endpoint (not built yet) | | | | | ✓ |
+## Adding a permission (e.g. `reports.export`)
 
-SUPER_ADMIN is stored as `["*"]` (since 2026-10-06, at the user's request), so its ✓ column means "everything, including future permissions". The other roles list their permissions explicitly.
+1. In the feature's own `reports.permissions.ts`: `export const REPORTS_EXPORT = definePermission('reports.export', 'Export ticket reports');`
+2. Use it: `@Can(REPORTS_EXPORT)` plus `@ApiForbiddenResponse({ description: 'Missing reports.export' })`.
+3. Deploy. On startup it appears in the `permissions` table and in `GET /permissions`. SUPER_ADMIN has it immediately through `*`.
+4. Grant it to other roles via `POST /roles/:id/permissions/reports.export` (or `PUT /roles/:id/permissions`). No code change is needed for this step.
+5. Optionally add it to `prisma/seed-data/user_role.json` so fresh databases grant it by default. Keep the seeded roles strictly nested (a test checks this).
 
-The defaults reproduce exactly what each role could do under the old role-name checks, and the roles nest strictly: VIEWER ⊂ AGENT ⊂ TEAM_LEAD ⊂ ADMIN ⊂ SUPER_ADMIN (tested in `permissions.spec.ts`).
+**Never** compare `actor.role` (the name) in access logic, and never check for `'*'` in code; it's already expanded in `actor.permissions`.
+
+## Database
+
+| Table | Columns | Notes |
+|---|---|---|
+| `permissions` | `key` VARCHAR(100) **PK**, `description` TEXT?, `obsolete_at` TIMESTAMP?, `created_at`, `updated_at` | The catalogue. Includes the `*` row. |
+| `role_permissions` | `role_id` → `user_role.id` (**ON DELETE CASCADE**), `permission_key` → `permissions.key` (**ON DELETE RESTRICT**, ON UPDATE CASCADE), `created_at`; **PK (role_id, permission_key)**; index on `permission_key` | Which role has which permission. The FK means a grant for a non-existent key is impossible. |
+
+`user_role` no longer has a `privilege` column (it held a JSON string, then a `text[]`; replaced by `role_permissions` on 2026-10-10, with the nonprod DB rebuilt via `db:reset`).
+
+## Startup sync (`src/permissions/permissions.service.ts`)
+
+On every boot it makes the `permissions` table match the code (the registry plus `*`):
+- **adds** keys the code defines, with the code's description (`createMany … skipDuplicates`, safe if several instances start at once);
+- **fills a description only where it's empty**: rows created by the seed get one, but **a description edited via the API is never overwritten**;
+- **marks keys the code no longer defines as obsolete** (`obsolete_at`, logged as a warning). It **never deletes** them; existing grants stay but give nothing. Remove them deliberately.
+- **un-marks** an obsolete key when the code defines it again.
+
+It logs e.g. `Permissions synced: 11 defined, 2 added, 9 described, 0 restored, 0 marked obsolete`. Note that the developer's `nest start --watch` dev server also runs it whenever it restarts.
+
+## Runtime
+
+- `src/auth/permissions.ts`: the registry (`definePermission`, `definedPermissions`, `isDefinedPermission`), `ALL` (`*`), `resolvePermissions` (expands `*` to every defined key; drops keys the code doesn't define, so obsolete/unknown keys **fail closed**), `parsePermissions`, `toStoredPermissions` (unique and sorted) and `isStrictSubset`.
+- `src/auth/role-permissions.ts`: `grantedKeysSelect` (spread into a Prisma `role: { select }`) and `grantedKeys(role)`, so every reader of grants does it the same way.
+- `AuthGuard` loads the user, role and grants in its one per-request query and sets `request.user = { id, role (name, display only), permissions: Set<Permission> }`. Grant changes therefore apply on the next request.
+- `@Can(...permissions)` requires **all** of them, enforced by the global `PermissionsGuard` (403). It also adds `x-required-permissions` to the OpenAPI doc. Without `@Can`, any logged-in user is allowed.
+- `GET /auth/me` returns `role` and the effective `permissions` (sorted, `*` expanded) for clients to show or hide actions.
+
+## Current permissions and seeded defaults
+
+| Permission | VIEWER | AGENT | TEAM_LEAD | ADMIN | SUPER_ADMIN |
+|---|:-:|:-:|:-:|:-:|:-:|
+| `tickets.read`, `users.read` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `tickets.write` | | ✓ | ✓ | ✓ | ✓ |
+| `tickets.write.any` | | | ✓ | ✓ | ✓ |
+| `tickets.delete`, `ticket-lookups.manage`, `users.manage`, `roles.read` | | | | ✓ | ✓ |
+| `users.manage.all`, `roles.manage` | | | | | ✓ |
+
+SUPER_ADMIN is granted `*` (one row), so it automatically has every future permission. Defaults come from `prisma/seed-data/user_role.json` (`permissions` arrays). The seed creates any referenced keys (no description; the startup sync fills it), then grants them **only to roles that have no grants yet**, so re-seeding never overwrites changes made through the API. Live grants: SUPER_ADMIN 1, ADMIN 8, TEAM_LEAD 4, AGENT 3, VIEWER 2 (18 rows).
 
 ## Hierarchy rule for users ("below you")
 
-Without `users.manage.all`, you can only **edit, deactivate, reset the password of, or delete** a user, and only **assign** a role, whose permissions are a **strict subset** of yours (`isStrictSubset`). You also can't change your own role. That's how "an ADMIN can't touch another ADMIN or a SUPER_ADMIN, or promote anyone to ADMIN" now works, without naming roles. It also holds for custom roles: an ADMIN can assign a custom role made of their own permissions, but not one with `users.manage.all`. A user with no role, or a role with no (or only unknown) permissions, counts as having none, so they're below anyone who has some. Nobody, SUPER_ADMIN included, can deactivate or delete their own account.
-
-## Seeding
-
-`prisma db seed` (`setDefaultRolePermissions()`) writes `DEFAULT_ROLE_PERMISSIONS` to roles with those names **only where `privilege` is empty** (`{ isEmpty: true }`). The `user_role` upsert only writes `privilege` if the JSON row has a non-empty array. So re-seeding never overwrites permissions changed later. The nonprod DB was rebuilt with `db:reset` on 2026-10-10 for the `text[]` change, so every role holds its default permissions (SUPER_ADMIN `{*}`).
-
-## Adding a permission or route
-
-1. Add the permission to `PERMISSIONS` (with a doc comment).
-2. Put it on the route: `@Can(PERMISSIONS.X)` plus `@ApiForbiddenResponse({ description: 'Missing x' })`.
-3. Grant it. SUPER_ADMIN (`*`) has it automatically. For other roles, add it to `DEFAULT_ROLE_PERMISSIONS`. **Existing databases don't pick it up from the seed** (their `privilege` isn't empty), so add it to the stored arrays with a one-off update, or later through the roles endpoint. Keep the defaults strictly nested.
-4. Never compare `actor.role` (the name) in access logic; use `actor.permissions.has(...)`. Never check for `'*'` in code either; it's already expanded in `actor.permissions`.
-5. **When the roles endpoint is built:** only someone who has `*` themselves should be able to grant `*`. The strict-subset rule already blocks everyone else, because `*` resolves to more than they have.
+Without `users.manage.all`, you can only edit, deactivate, reset the password of, or delete a user, and only assign a role, whose effective permissions are a **strict subset** of yours (`isStrictSubset`). You can't change your own role either. A user with no role, or a role with no (or only unknown/obsolete) permissions, counts as having none. Nobody, SUPER_ADMIN included, can deactivate or delete their own account.

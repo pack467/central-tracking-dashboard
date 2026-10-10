@@ -4,7 +4,7 @@
 
 Ids are strings in the JSON because pg returns BIGINT as a string. Booleans came from `BIT(1)` as `'0'`/`'1'`.
 
-- **user_role (5):** 1 SUPER_ADMIN, 2 ADMIN, 3 TEAM_LEAD, 4 AGENT, 5 VIEWER (privilege and info are null in the JSON; the seed fills privilege with the default permissions from `src/auth/permissions.ts`)
+- **user_role (5):** 1 SUPER_ADMIN, 2 ADMIN, 3 TEAM_LEAD, 4 AGENT, 5 VIEWER with a `permissions` array each (the default grants: SUPER_ADMIN `["*"]`, ADMIN 8, TEAM_LEAD 4, AGENT 3, VIEWER 2). This file is the source of the defaults; `test/helpers/seeded-roles.ts` reads it so tests check the real data.
 - **users (20):** all emails are `@hutabyte.com`, NIK format `YYYY-NNNN`, `password` and `department` all null. Roles: SUPER_ADMIN ids 3, 5, 6, 10; ADMIN id 4; TEAM_LEAD ids 15–18; VIEWER id 20; the rest are AGENT. Inactive users (`is_active '0'`): ids 12, 13, 19.
 - **tenants (2):** 1 Telkomsel, 2 Lintasarta
 - **clients (2):** 1 Tritronik, 2 IoTera
@@ -16,6 +16,7 @@ Ids are strings in the JSON because pg returns BIGINT as a string. Booleans came
 
 ## seed.ts
 
+- **Role permissions:** after `user_role`, `setDefaultRolePermissions()` creates every key referenced in the JSON in `permissions` (no description; the app's startup sync fills it), then inserts the role's grants into `role_permissions` **only if that role has none yet**. Re-seeding never overwrites grants changed through the API.
 - Idempotent: `upsert` by id. Order is parents → children: user_role, users, tenants, projects, clients, ticket_categories, ticket_severities. After that it calls `runImportTickets()`, which `spawnSync`s `npx tsx scripts/import-tickets.ts` with `shell: true` and throws on a non-zero exit.
 - It loads `prisma/seed-data/<table>.json` and silently treats a missing file as `[]`.
 - Helpers: `id()` → BigInt, `big()` → BigInt|null, and `bool(v, fallback)` (true for `'1'` or `true`).

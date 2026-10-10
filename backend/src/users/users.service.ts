@@ -8,14 +8,11 @@ import bcrypt from 'bcrypt';
 import { Prisma } from '../generated/prisma/client.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import type { AuthUser } from '../auth/auth.types.js';
-import {
-  isStrictSubset,
-  parsePermissions,
-  PERMISSIONS,
-  type Permission,
-} from '../auth/permissions.js';
+import { isStrictSubset, parsePermissions, type Permission } from '../auth/permissions.js';
+import { USERS_MANAGE_ALL } from './users.permissions.js';
 import { CreateUserDto } from './dto/create-user.dto.js';
 import { UpdateUserDto } from './dto/update-user.dto.js';
+import { grantedKeys, grantedKeysSelect } from '../auth/role-permissions.js';
 
 export const BCRYPT_ROUNDS = 12;
 
@@ -26,7 +23,7 @@ const omitPassword = { password: true } as const;
 // that are strictly less powerful than you: their permissions are a proper
 // subset of yours. So nobody can promote themselves or touch a peer or superior.
 const outranks = (actor: AuthUser, permissions: ReadonlySet<Permission>) =>
-  actor.permissions.has(PERMISSIONS.USERS_MANAGE_ALL) ||
+  actor.permissions.has(USERS_MANAGE_ALL) ||
   isStrictSubset(permissions, actor.permissions);
 
 @Injectable()
@@ -61,10 +58,10 @@ export class UsersService {
     if (isSelf && is_active === false) {
       throw new ForbiddenException('You cannot deactivate your own account');
     }
-    if (!isSelf && !outranks(actor, parsePermissions(target.role?.privilege))) {
+    if (!isSelf && !outranks(actor, parsePermissions(grantedKeys(target.role)))) {
       throw new ForbiddenException('You can only modify users whose role has fewer permissions than yours');
     }
-    if (isSelf && roleChanges && !actor.permissions.has(PERMISSIONS.USERS_MANAGE_ALL)) {
+    if (isSelf && roleChanges && !actor.permissions.has(USERS_MANAGE_ALL)) {
       throw new ForbiddenException('You cannot change your own role');
     }
     if (roleChanges) await this.assertCanAssignRole(actor, role_id);
@@ -80,7 +77,7 @@ export class UsersService {
     if (target.id === actor.id) {
       throw new ForbiddenException('You cannot delete your own account');
     }
-    if (!outranks(actor, parsePermissions(target.role?.privilege))) {
+    if (!outranks(actor, parsePermissions(grantedKeys(target.role)))) {
       throw new ForbiddenException('You can only delete users whose role has fewer permissions than yours');
     }
     return this.handleConstraintErrors(() =>
@@ -100,7 +97,7 @@ export class UsersService {
   findAuthUser(id: bigint) {
     return this.prisma.user.findUnique({
       where: { id },
-      select: { id: true, is_active: true, role: { select: { name: true, privilege: true } } },
+      select: { id: true, is_active: true, role: { select: { name: true, ...grantedKeysSelect } } },
     });
   }
 
@@ -120,7 +117,7 @@ export class UsersService {
   private async findTarget(id: bigint) {
     const user = await this.prisma.user.findUnique({
       where: { id },
-      select: { id: true, role_id: true, role: { select: { privilege: true } } },
+      select: { id: true, role_id: true, role: { select: grantedKeysSelect } },
     });
     if (!user) throw new NotFoundException(`User #${id} not found`);
     return user;
@@ -128,13 +125,13 @@ export class UsersService {
 
   private async assertCanAssignRole(actor: AuthUser, roleId: string | null | undefined) {
     if (roleId === undefined || roleId === null) return;
-    if (actor.permissions.has(PERMISSIONS.USERS_MANAGE_ALL)) return;
+    if (actor.permissions.has(USERS_MANAGE_ALL)) return;
     const role = await this.prisma.userRole.findUnique({
       where: { id: BigInt(roleId) },
-      select: { privilege: true },
+      select: grantedKeysSelect,
     });
     // A missing role is left to the foreign key, which returns 409.
-    if (role && !outranks(actor, parsePermissions(role.privilege))) {
+    if (role && !outranks(actor, parsePermissions(grantedKeys(role)))) {
       throw new ForbiddenException('You can only assign roles with fewer permissions than your own');
     }
   }

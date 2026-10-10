@@ -5,6 +5,7 @@ import { UsersService } from '../users/users.service.js';
 import { IS_PUBLIC_KEY } from './decorators/public.decorator.js';
 import type { AuthRequest, JwtPayload } from './auth.types.js';
 import { parsePermissions } from './permissions.js';
+import { grantedKeys } from './role-permissions.js';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -42,7 +43,7 @@ export class AuthGuard implements CanActivate {
     request.user = {
       id: user.id,
       role: user.role?.name ?? null,
-      permissions: parsePermissions(user.role?.privilege),
+      permissions: parsePermissions(grantedKeys(user.role)),
     };
     return true;
   }

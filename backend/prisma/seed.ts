@@ -7,7 +7,6 @@ import { spawnSync } from 'node:child_process';
 import bcrypt from 'bcrypt';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '../src/generated/prisma/client.js';
-import { DEFAULT_ROLE_PERMISSIONS, toStoredPermissions } from '../src/auth/permissions.js';
 
 const SCHEMA = 'ctd_config';
 
@@ -46,13 +45,8 @@ async function seed(table: string, upsert: (r: Row) => Promise<unknown>) {
 async function main() {
   // Order matters: parents before children (FKs).
   await seed('user_role', (r) => {
-    const data = {
-      id: id(r.id),
-      name: r.name,
-      info: r.info,
-      // Only written when the JSON has one, so re-seeding never wipes permissions edited later.
-      ...(Array.isArray(r.privilege) && r.privilege.length > 0 && { privilege: r.privilege as string[] }),
-    };
+    // Permissions are seeded separately (role_permissions), below.
+    const data = { id: id(r.id), name: r.name, info: r.info };
     return prisma.userRole.upsert({ where: { id: data.id }, update: data, create: data });
   });
   await setDefaultRolePermissions();
@@ -110,18 +104,27 @@ main()
   })
   .finally(() => prisma.$disconnect());
 
-// Gives the built-in roles their default permissions (src/auth/permissions.ts)
-// where privilege is still empty ([]). Never overwrites permissions already set.
+// Gives each role in user_role.json its `permissions`, but only if the role has
+// no grants yet, so re-seeding never overwrites permissions changed via /roles.
+// Permission keys are created first (role_permissions has an FK to them); their
+// descriptions are filled in by the app's startup sync, which reads the code.
 async function setDefaultRolePermissions() {
-  let updated = 0;
-  for (const [name, permissions] of Object.entries(DEFAULT_ROLE_PERMISSIONS)) {
-    const { count } = await prisma.userRole.updateMany({
-      where: { name, privilege: { isEmpty: true } },
-      data: { privilege: toStoredPermissions(permissions) },
+  const roles = load('user_role');
+  const keys = [...new Set(roles.flatMap((r) => (Array.isArray(r.permissions) ? r.permissions : [])))];
+  await prisma.permission.createMany({ data: keys.map((key) => ({ key })), skipDuplicates: true });
+
+  let seeded = 0;
+  for (const r of roles) {
+    if (!Array.isArray(r.permissions) || !r.permissions.length) continue;
+    const role_id = id(r.id);
+    if (await prisma.rolePermission.count({ where: { role_id } })) continue;
+    const { count } = await prisma.rolePermission.createMany({
+      data: (r.permissions as string[]).map((permission_key) => ({ role_id, permission_key })),
+      skipDuplicates: true,
     });
-    updated += count;
+    seeded += count;
   }
-  console.log(`${'role permissions'.padEnd(20)} ${updated} roles`);
+  console.log(`${'role permissions'.padEnd(20)} ${seeded} grants (${keys.length} keys)`);
 }
 
 // Gives users without a password a starting one, so they can log in and change it.

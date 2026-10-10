@@ -15,6 +15,8 @@ import { AuthGuard } from './auth/auth.guard.js';
 import { PermissionsGuard } from './auth/permissions.guard.js';
 import { HealthModule } from './health/health.module.js';
 import { TicketsModule } from './tickets/tickets.module.js';
+import { RolesModule } from './roles/roles.module.js';
+import { PermissionsModule } from './permissions/permissions.module.js';
 
 @Module({
   imports: [
@@ -30,6 +32,8 @@ import { TicketsModule } from './tickets/tickets.module.js';
     AuthModule,
     HealthModule,
     TicketsModule,
+    RolesModule,
+    PermissionsModule,
   ],
   controllers: [AppController],
   providers: [

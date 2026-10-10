@@ -13,7 +13,7 @@ import {
 } from '@nestjs/swagger';
 import { ParseBigIntPipe } from '../../common/pipes/parse-bigint.pipe.js';
 import { Can } from '../../auth/decorators/can.decorator.js';
-import { PERMISSIONS } from '../../auth/permissions.js';
+import { TICKETS_READ, TICKET_LOOKUPS_MANAGE } from '../tickets.permissions.js';
 import { TicketCategoriesService } from './ticket-categories.service.js';
 import {
   CreateTicketCategoryDto,
@@ -31,7 +31,7 @@ export class TicketCategoriesController {
   constructor(private readonly categories: TicketCategoriesService) {}
 
   @Get()
-  @Can(PERMISSIONS.TICKETS_READ)
+  @Can(TICKETS_READ)
   @ApiOperation({ summary: 'List ticket categories', description: 'Requires tickets.read.' })
   @ApiForbiddenResponse({ description: 'Missing tickets.read' })
   @ApiOkResponse({ type: [TicketCategory] })
@@ -40,7 +40,7 @@ export class TicketCategoriesController {
   }
 
   @Get(':id')
-  @Can(PERMISSIONS.TICKETS_READ)
+  @Can(TICKETS_READ)
   @ApiOperation({ summary: 'Get a ticket category', description: 'Requires tickets.read.' })
   @ApiForbiddenResponse({ description: 'Missing tickets.read' })
   @ApiParam(ID_PARAM)
@@ -51,7 +51,7 @@ export class TicketCategoriesController {
   }
 
   @Post()
-  @Can(PERMISSIONS.TICKET_LOOKUPS_MANAGE)
+  @Can(TICKET_LOOKUPS_MANAGE)
   @ApiOperation({ summary: 'Create a ticket category', description: 'Requires ticket-lookups.manage.' })
   @ApiCreatedResponse({ type: TicketCategory })
   @ApiForbiddenResponse({ description: 'Missing ticket-lookups.manage' })
@@ -61,7 +61,7 @@ export class TicketCategoriesController {
   }
 
   @Patch(':id')
-  @Can(PERMISSIONS.TICKET_LOOKUPS_MANAGE)
+  @Can(TICKET_LOOKUPS_MANAGE)
   @ApiOperation({ summary: 'Update a ticket category', description: 'Requires ticket-lookups.manage.' })
   @ApiParam(ID_PARAM)
   @ApiOkResponse({ type: TicketCategory })
@@ -73,7 +73,7 @@ export class TicketCategoriesController {
   }
 
   @Delete(':id')
-  @Can(PERMISSIONS.TICKET_LOOKUPS_MANAGE)
+  @Can(TICKET_LOOKUPS_MANAGE)
   @ApiOperation({ summary: 'Delete a ticket category', description: 'Requires ticket-lookups.manage. Refused while any ticket uses it.' })
   @ApiParam(ID_PARAM)
   @ApiOkResponse({ type: TicketCategory, description: 'The deleted category' })

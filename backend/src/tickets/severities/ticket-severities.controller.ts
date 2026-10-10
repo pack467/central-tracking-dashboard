@@ -13,7 +13,7 @@ import {
 } from '@nestjs/swagger';
 import { ParseBigIntPipe } from '../../common/pipes/parse-bigint.pipe.js';
 import { Can } from '../../auth/decorators/can.decorator.js';
-import { PERMISSIONS } from '../../auth/permissions.js';
+import { TICKETS_READ, TICKET_LOOKUPS_MANAGE } from '../tickets.permissions.js';
 import { TicketSeveritiesService } from './ticket-severities.service.js';
 import {
   CreateTicketSeverityDto,
@@ -31,7 +31,7 @@ export class TicketSeveritiesController {
   constructor(private readonly severities: TicketSeveritiesService) {}
 
   @Get()
-  @Can(PERMISSIONS.TICKETS_READ)
+  @Can(TICKETS_READ)
   @ApiOperation({ summary: 'List ticket severities', description: 'Requires tickets.read.' })
   @ApiForbiddenResponse({ description: 'Missing tickets.read' })
   @ApiOkResponse({ type: [TicketSeverity] })
@@ -40,7 +40,7 @@ export class TicketSeveritiesController {
   }
 
   @Get(':id')
-  @Can(PERMISSIONS.TICKETS_READ)
+  @Can(TICKETS_READ)
   @ApiOperation({ summary: 'Get a ticket severity', description: 'Requires tickets.read.' })
   @ApiForbiddenResponse({ description: 'Missing tickets.read' })
   @ApiParam(ID_PARAM)
@@ -51,7 +51,7 @@ export class TicketSeveritiesController {
   }
 
   @Post()
-  @Can(PERMISSIONS.TICKET_LOOKUPS_MANAGE)
+  @Can(TICKET_LOOKUPS_MANAGE)
   @ApiOperation({ summary: 'Create a ticket severity', description: 'Requires ticket-lookups.manage.' })
   @ApiCreatedResponse({ type: TicketSeverity })
   @ApiForbiddenResponse({ description: 'Missing ticket-lookups.manage' })
@@ -61,7 +61,7 @@ export class TicketSeveritiesController {
   }
 
   @Patch(':id')
-  @Can(PERMISSIONS.TICKET_LOOKUPS_MANAGE)
+  @Can(TICKET_LOOKUPS_MANAGE)
   @ApiOperation({ summary: 'Update a ticket severity', description: 'Requires ticket-lookups.manage.' })
   @ApiParam(ID_PARAM)
   @ApiOkResponse({ type: TicketSeverity })
@@ -73,7 +73,7 @@ export class TicketSeveritiesController {
   }
 
   @Delete(':id')
-  @Can(PERMISSIONS.TICKET_LOOKUPS_MANAGE)
+  @Can(TICKET_LOOKUPS_MANAGE)
   @ApiOperation({ summary: 'Delete a ticket severity', description: 'Requires ticket-lookups.manage. Refused while any ticket uses it.' })
   @ApiParam(ID_PARAM)
   @ApiOkResponse({ type: TicketSeverity, description: 'The deleted severity' })

@@ -18,7 +18,7 @@ import { UpdateUserDto } from './dto/update-user.dto.js';
 import { User } from './entities/user.entity.js';
 import { ParseBigIntPipe } from '../common/pipes/parse-bigint.pipe.js';
 import { Can } from '../auth/decorators/can.decorator.js';
-import { PERMISSIONS } from '../auth/permissions.js';
+import { USERS_MANAGE, USERS_READ } from './users.permissions.js';
 import { CurrentUser } from '../auth/decorators/current-user.decorator.js';
 import type { AuthUser } from '../auth/auth.types.js';
 
@@ -32,7 +32,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  @Can(PERMISSIONS.USERS_MANAGE)
+  @Can(USERS_MANAGE)
   @ApiOperation({
     summary: 'Create a user',
     description:
@@ -47,7 +47,7 @@ export class UsersController {
   }
 
   @Get()
-  @Can(PERMISSIONS.USERS_READ)
+  @Can(USERS_READ)
   @ApiOperation({ summary: 'List all users', description: 'Requires users.read.' })
   @ApiForbiddenResponse({ description: 'Missing users.read' })
   @ApiOkResponse({ type: [User] })
@@ -56,7 +56,7 @@ export class UsersController {
   }
 
   @Get(':id')
-  @Can(PERMISSIONS.USERS_READ)
+  @Can(USERS_READ)
   @ApiOperation({ summary: 'Get a user', description: 'Requires users.read.' })
   @ApiForbiddenResponse({ description: 'Missing users.read' })
   @ApiParam(ID_PARAM)
@@ -67,7 +67,7 @@ export class UsersController {
   }
 
   @Patch(':id')
-  @Can(PERMISSIONS.USERS_MANAGE)
+  @Can(USERS_MANAGE)
   @ApiOperation({
     summary: 'Update a user',
     description:
@@ -88,7 +88,7 @@ export class UsersController {
   }
 
   @Delete(':id')
-  @Can(PERMISSIONS.USERS_MANAGE)
+  @Can(USERS_MANAGE)
   @ApiOperation({
     summary: 'Delete a user',
     description:
