@@ -4,21 +4,21 @@ import bcrypt from 'bcrypt';
 import { Prisma } from '../generated/prisma/client.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import type { AuthUser } from '../auth/auth.types.js';
-import { DEFAULT_ROLE_PERMISSIONS, resolvePermissions, serializePermissions } from '../auth/permissions.js';
+import { DEFAULT_ROLE_PERMISSIONS, resolvePermissions, toStoredPermissions } from '../auth/permissions.js';
 import { UsersService } from './users.service.js';
 
 // Role ids as seeded (1 SUPER_ADMIN … 5 VIEWER) with their default permissions,
 // plus two custom roles a future roles endpoint could create.
-const ROLE_PRIVILEGES: Record<string, string> = {
-  '1': serializePermissions(DEFAULT_ROLE_PERMISSIONS.SUPER_ADMIN),
-  '2': serializePermissions(DEFAULT_ROLE_PERMISSIONS.ADMIN),
-  '3': serializePermissions(DEFAULT_ROLE_PERMISSIONS.TEAM_LEAD),
-  '4': serializePermissions(DEFAULT_ROLE_PERMISSIONS.AGENT),
-  '5': serializePermissions(DEFAULT_ROLE_PERMISSIONS.VIEWER),
+const ROLE_PRIVILEGES: Record<string, string[]> = {
+  '1': toStoredPermissions(DEFAULT_ROLE_PERMISSIONS.SUPER_ADMIN),
+  '2': toStoredPermissions(DEFAULT_ROLE_PERMISSIONS.ADMIN),
+  '3': toStoredPermissions(DEFAULT_ROLE_PERMISSIONS.TEAM_LEAD),
+  '4': toStoredPermissions(DEFAULT_ROLE_PERMISSIONS.AGENT),
+  '5': toStoredPermissions(DEFAULT_ROLE_PERMISSIONS.VIEWER),
   // Below ADMIN: a subset of its permissions.
-  '6': serializePermissions(['tickets.read', 'tickets.write', 'tickets.delete']),
+  '6': toStoredPermissions(['tickets.read', 'tickets.write', 'tickets.delete']),
   // Not below ADMIN: has users.manage.all, which ADMIN lacks.
-  '7': serializePermissions(['tickets.read', 'users.manage.all']),
+  '7': toStoredPermissions(['tickets.read', 'users.manage.all']),
 };
 
 const withDefaults = (id: bigint, role: string): AuthUser => ({
@@ -223,7 +223,7 @@ describe('UsersService', () => {
       });
 
       it('treats a role with unreadable permissions as having none (manageable by an ADMIN)', async () => {
-        prisma.user.findUnique.mockResolvedValue({ id: 7n, role_id: 8n, role: { privilege: 'not json' } });
+        prisma.user.findUnique.mockResolvedValue({ id: 7n, role_id: 8n, role: { privilege: ['bogus.permission'] } });
         await service.update(7n, { name: 'x' }, admin);
         expect(prisma.user.update).toHaveBeenCalled();
       });

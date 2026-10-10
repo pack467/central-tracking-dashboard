@@ -4,7 +4,7 @@ import {
   isStrictSubset,
   resolvePermissions,
   parsePermissions,
-  serializePermissions,
+  toStoredPermissions,
   type Permission,
 } from './permissions.js';
 
@@ -26,14 +26,14 @@ describe('permissions', () => {
   });
 
   it('expands "*" to every permission, whatever else is listed', () => {
-    expect(parsePermissions('["*"]')).toEqual(new Set(ALL_PERMISSIONS));
-    expect(parsePermissions('["tickets.read","*","bogus"]')).toEqual(new Set(ALL_PERMISSIONS));
-    expect(serializePermissions(['*'])).toBe('["*"]');
+    expect(parsePermissions(['*'])).toEqual(new Set(ALL_PERMISSIONS));
+    expect(parsePermissions(['tickets.read', '*', 'bogus'])).toEqual(new Set(ALL_PERMISSIONS));
+    expect(toStoredPermissions(['*'])).toEqual(['*']);
   });
 
   it('only treats "*" as a wildcard when it is a whole entry', () => {
-    expect(parsePermissions('["tickets.*"]')).toEqual(new Set());
-    expect(parsePermissions('"*"')).toEqual(new Set()); // not an array
+    expect(parsePermissions(['tickets.*'])).toEqual(new Set());
+    expect(parsePermissions(['* '])).toEqual(new Set()); // not exactly "*"
   });
 
   it('matches the access the roles had before permissions', () => {
@@ -49,23 +49,22 @@ describe('permissions', () => {
   });
 
   it('round-trips through the privilege column, sorted and without duplicates', () => {
-    const stored = serializePermissions(['users.read', 'tickets.read', 'users.read']);
-    expect(stored).toBe('["tickets.read","users.read"]');
+    const stored = toStoredPermissions(['users.read', 'tickets.read', 'users.read']);
+    expect(stored).toEqual(['tickets.read', 'users.read']);
     expect(parsePermissions(stored)).toEqual(new Set(['tickets.read', 'users.read']));
   });
 
   it.each([
     ['null', null],
-    ['empty', ''],
-    ['invalid JSON', '{not json'],
-    ['not an array', '{"tickets.read":true}'],
-    ['legacy free text', 'full access'],
+    ['undefined', undefined],
+    ['empty', []],
+    ['only unknown entries', ['full access', 'tickets']],
   ])('grants nothing for %s privilege', (_case, privilege) => {
     expect(parsePermissions(privilege)).toEqual(new Set());
   });
 
-  it('drops unknown or non-string entries', () => {
-    expect(parsePermissions('["tickets.read", "everything", 42, null]')).toEqual(new Set(['tickets.read']));
+  it('drops unknown entries (matching is exact and case-sensitive)', () => {
+    expect(parsePermissions(['tickets.read', 'everything', 'TICKETS.READ'])).toEqual(new Set(['tickets.read']));
   });
 
   it('isStrictSubset needs a proper subset', () => {

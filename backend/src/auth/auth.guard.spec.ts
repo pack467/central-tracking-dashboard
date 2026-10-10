@@ -49,7 +49,7 @@ describe('AuthGuard', () => {
   });
 
   it('rejects a valid token for an inactive user', async () => {
-    users.findAuthUser.mockResolvedValue({ id: 1n, is_active: false, role: { name: 'ADMIN', privilege: '["tickets.read","bogus.permission"]' } });
+    users.findAuthUser.mockResolvedValue({ id: 1n, is_active: false, role: { name: 'ADMIN', privilege: ['tickets.read', 'bogus.permission'] } });
     const token = await jwt.signAsync({ sub: '1' });
     await expect(guard.canActivate(contextFor(bearer(token)))).rejects.toBeInstanceOf(
       UnauthorizedException,
@@ -57,7 +57,7 @@ describe('AuthGuard', () => {
   });
 
   it('attaches the user with the role and permissions loaded from the DB', async () => {
-    users.findAuthUser.mockResolvedValue({ id: 1n, is_active: true, role: { name: 'ADMIN', privilege: '["tickets.read","bogus.permission"]' } });
+    users.findAuthUser.mockResolvedValue({ id: 1n, is_active: true, role: { name: 'ADMIN', privilege: ['tickets.read', 'bogus.permission'] } });
     const request = bearer(await jwt.signAsync({ sub: '1' })) as Partial<AuthRequest>;
 
     await expect(guard.canActivate(contextFor(request))).resolves.toBe(true);

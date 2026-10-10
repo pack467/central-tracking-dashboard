@@ -11,7 +11,7 @@
   - **Without `users.manage.all`** (e.g. ADMIN): you can only edit, deactivate, reset the password of, or delete users whose role's permissions are a **strict subset** of yours, and only assign such roles. You can't change your own role, even downward (resending the same `role_id` is fine). With the defaults this means an ADMIN can't touch another ADMIN or a SUPER_ADMIN, or hand out ADMIN/SUPER_ADMIN, but fully manages TEAM_LEAD, AGENT and VIEWER users, and edits their own profile and password.
   - **With `users.manage.all`** (SUPER_ADMIN): no hierarchy limits, only the self-rules below.
   - **Everyone:** cannot deactivate (`is_active: false`) or delete **their own** account, so nobody can lock themselves out.
-  - A non-existent `role_id` passes the check and is rejected by the FK as 409. A role with unreadable permissions counts as having none.
+  - A non-existent `role_id` passes the check and is rejected by the FK as 409. Unknown entries in a role's permissions are ignored; a role with none (or only unknown ones) counts as having no permissions.
 - Prisma error `P2002` (duplicate email or NIK) → 409. `P2003` (missing role, or a user that other records still reference on delete) → 409. `findOne` → 404 `User #id not found`.
 - Auth-only helpers: `findForLogin(identifier)` (by email **or** NIK, includes the hash), `findAuthUser(id)` (is_active, role name and privilege), `findPasswordHash(id)` and `setPassword(id, plain)`.
 - `entities/user.entity.ts` (`User`) is the documented response shape (no password); see `api-docs.md`.

@@ -4,7 +4,7 @@
 
 Ids are strings in the JSON because pg returns BIGINT as a string. Booleans came from `BIT(1)` as `'0'`/`'1'`.
 
-- **user_role (5):** 1 SUPER_ADMIN, 2 ADMIN, 3 TEAM_LEAD, 4 AGENT, 5 VIEWER (privilege and info are null in the JSON; the seed fills privilege with the default permissions)
+- **user_role (5):** 1 SUPER_ADMIN, 2 ADMIN, 3 TEAM_LEAD, 4 AGENT, 5 VIEWER (privilege and info are null in the JSON; the seed fills privilege with the default permissions from `src/auth/permissions.ts`)
 - **users (20):** all emails are `@hutabyte.com`, NIK format `YYYY-NNNN`, `password` and `department` all null. Roles: SUPER_ADMIN ids 3, 5, 6, 10; ADMIN id 4; TEAM_LEAD ids 15–18; VIEWER id 20; the rest are AGENT. Inactive users (`is_active '0'`): ids 12, 13, 19.
 - **tenants (2):** 1 Telkomsel, 2 Lintasarta
 - **clients (2):** 1 Tritronik, 2 IoTera

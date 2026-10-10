@@ -33,7 +33,7 @@ backend/
 │   └── generated/prisma/           generated client (gitignored)
 ├── prisma/
 │   ├── schema.prisma
-│   ├── migrations/20261005131605_init/migration.sql  (+ migration_lock.toml, postgresql)
+│   ├── migrations/20261010085044_init/migration.sql  (+ migration_lock.toml, postgresql)
 │   ├── seed.ts                     reference-data seeder (+ runs ticket import)
 │   └── seed-data/                  *.json reference data + ticket_logs.csv
 ├── scripts/

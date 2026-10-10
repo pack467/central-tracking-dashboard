@@ -1,5 +1,5 @@
 // Every permission the code checks. Which role has which permissions is data:
-// stored per role as a JSON array in user_role.privilege. Adding a permission
+// stored per role in user_role.privilege (a Postgres text[]). Adding a permission
 // here does nothing until a route checks it and roles are granted it.
 export const PERMISSIONS = {
   /** Read tickets, categories and severities. */
@@ -60,20 +60,14 @@ export function resolvePermissions(granted: Iterable<unknown>): Set<Permission> 
   return new Set(list.filter(isPermission));
 }
 
-// user_role.privilege → permissions. Null, invalid JSON, a non-array or
-// unknown entries grant nothing (fail closed).
-export function parsePermissions(privilege: string | null | undefined): Set<Permission> {
-  if (!privilege) return new Set();
-  try {
-    const parsed: unknown = JSON.parse(privilege);
-    return Array.isArray(parsed) ? resolvePermissions(parsed) : new Set();
-  } catch {
-    return new Set();
-  }
-}
+// user_role.privilege (text[]) → permissions. Missing, empty or unknown
+// entries grant nothing (fail closed).
+export const parsePermissions = (privilege: readonly string[] | null | undefined): Set<Permission> =>
+  resolvePermissions(privilege ?? []);
 
-export const serializePermissions = (permissions: Iterable<GrantedPermission>) =>
-  JSON.stringify([...new Set(permissions)].sort());
+// Permissions as stored in user_role.privilege: unique and sorted.
+export const toStoredPermissions = (permissions: Iterable<GrantedPermission>): string[] =>
+  [...new Set(permissions)].sort();
 
 // True when every permission in `inner` is in `outer` and `outer` has at least
 // one more: "strictly less powerful than". Used so a user can only manage or
