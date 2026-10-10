@@ -2,7 +2,7 @@
   {
     "id": "1",
     "name": "SUPER_ADMIN",
-    "info": null,
+    "description": null,
     "permissions": [
       "*"
     ]
@@ -10,7 +10,7 @@
   {
     "id": "2",
     "name": "ADMIN",
-    "info": null,
+    "description": null,
     "permissions": [
       "roles.read",
       "ticket-lookups.manage",
@@ -25,7 +25,7 @@
   {
     "id": "3",
     "name": "TEAM_LEAD",
-    "info": null,
+    "description": null,
     "permissions": [
       "tickets.read",
       "tickets.write",
@@ -36,7 +36,7 @@
   {
     "id": "4",
     "name": "AGENT",
-    "info": null,
+    "description": null,
     "permissions": [
       "tickets.read",
       "tickets.write",
@@ -46,7 +46,7 @@
   {
     "id": "5",
     "name": "VIEWER",
-    "info": null,
+    "description": null,
     "permissions": [
       "tickets.read",
       "users.read"

@@ -125,6 +125,12 @@ function validate(): Valid[] {
     const closedAt = date('closed_at');
     if (!row.open_at) problems.push('open_at is empty');
 
+    // Required columns in ticket_logs.
+    const projectId = big('project_id');
+    if (!row.project_id) problems.push('project_id is empty');
+    const subject = text('subject', 500);
+    if (!row.subject) problems.push('subject is empty');
+
     // duplicates inside the file
     if (id !== null) {
       const prev = seenIds.get(id.toString());
@@ -140,13 +146,13 @@ function validate(): Valid[] {
     const data: Prisma.TicketLogCreateManyInput = {
       id: id ?? 0n,
       third_party_ticket_id: thirdParty,
-      project_id: big('project_id'),
+      project_id: projectId ?? 0n, // rows without one are rejected above
       client_id: big('client_id'),
       tenant_id: big('tenant_id'),
       user_id: big('user_id'),
       severity_id: big('severity_id'),
       category_id: big('category_id'),
-      subject: text('subject', 500),
+      subject: subject ?? '', // rows without one are rejected above
       description: text('description'),
       status: status ?? 'Open',
       open_at: openAt ?? undefined,

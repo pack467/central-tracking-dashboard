@@ -17,6 +17,8 @@ export class CreateUserDto {
   @MaxLength(255)
   name: string;
 
+  // Stored lowercase (and the column is citext), so login can match it exactly.
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim().toLowerCase() : value))
   @IsEmail()
   @MaxLength(255)
   email: string;

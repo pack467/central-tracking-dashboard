@@ -15,7 +15,7 @@ export class CreateTicketSeverityDto {
   name: string;
 }
 
-export class UpdateTicketSeverityDto extends PartialType(CreateTicketSeverityDto) {}
+export class UpdateTicketSeverityDto extends PartialType(CreateTicketSeverityDto, { skipNullProperties: false }) {}
 
 // Response shape, for documentation only.
 export class TicketSeverity {

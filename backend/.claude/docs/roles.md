@@ -8,10 +8,10 @@ A role is a name plus a set of granted permissions (rows in `role_permissions`; 
 |---|---|---|
 | `GET /permissions` | `roles.read` | The catalogue: `[{ key, description, obsolete, obsolete_at, roles: [{id, name}], created_at, updated_at }]`, including `*`. `roles` lists direct grants only (not through `*`). |
 | `PATCH /permissions/:key` | `roles.manage` | `{ description }`. Keys themselves come from code and can't be created or renamed through the API. 404 for an unknown key. |
-| `GET /roles` | `roles.read` | All roles: `{ id, name, info, permissions (granted keys as stored, may be ["*"] or include obsolete keys), effective_permissions ("*" expanded, obsolete dropped), user_count, created_at, updated_at }` |
+| `GET /roles` | `roles.read` | All roles: `{ id, name, description, permissions (granted keys as stored, may be ["*"] or include obsolete keys), effective_permissions ("*" expanded, obsolete dropped), user_count, created_at, updated_at }` |
 | `GET /roles/:id` | `roles.read` | 404 if missing |
-| `POST /roles` | `roles.manage` | `{ name, info?, permissions }` → 201 |
-| `PATCH /roles/:id` | `roles.manage` | Any of `name`, `info`, `permissions` (`permissions` replaces the whole set) |
+| `POST /roles` | `roles.manage` | `{ name, description?, permissions }` → 201 |
+| `PATCH /roles/:id` | `roles.manage` | Any of `name`, `description`, `permissions` (`permissions` replaces the whole set) |
 | `PUT /roles/:id/permissions` | `roles.manage` | `{ permissions }`: replace the whole set (a checkbox editor's "save") |
 | `POST /roles/:id/permissions/:key` | `roles.manage` | Grant one. Idempotent: no change if already granted. |
 | `DELETE /roles/:id/permissions/:key` | `roles.manage` | Revoke one. Idempotent: no change if not granted. |

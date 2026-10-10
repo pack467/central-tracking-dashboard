@@ -46,7 +46,7 @@ async function main() {
   // Order matters: parents before children (FKs).
   await seed('user_role', (r) => {
     // Permissions are seeded separately (role_permissions), below.
-    const data = { id: id(r.id), name: r.name, info: r.info };
+    const data = { id: id(r.id), name: r.name, description: r.description ?? null };
     return prisma.userRole.upsert({ where: { id: data.id }, update: data, create: data });
   });
   await setDefaultRolePermissions();
@@ -56,7 +56,7 @@ async function main() {
       id: id(r.id),
       name: r.name,
       nik: r.nik,
-      email: r.email,
+      email: String(r.email).trim().toLowerCase(), // stored lowercase; login lowercases too
       role_id: big(r.role_id),
       is_active: bool(r.is_active, true),
       photo_url: r.photo_url ?? null,
@@ -75,7 +75,7 @@ async function main() {
   });
 
   await seed('projects', (r) => {
-    const data = { id: id(r.id), name: r.name, tenant_id: big(r.tenant_id), code_prefix: r.code_prefix };
+    const data = { id: id(r.id), name: r.name, tenant_id: id(r.tenant_id), code_prefix: r.code_prefix };
     return prisma.project.upsert({ where: { id: data.id }, update: data, create: data });
   });
 

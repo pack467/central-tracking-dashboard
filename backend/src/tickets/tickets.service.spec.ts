@@ -77,13 +77,25 @@ describe('TicketsService', () => {
       const args = prisma.ticketLog.findMany.mock.calls[0][0];
       expect(args.skip).toBe(40);
       expect(args.take).toBe(20);
-      expect(args.orderBy).toEqual([{ open_at: { sort: 'desc', nulls: 'last' } }, { id: 'desc' }]);
+      expect(args.orderBy).toEqual([{ open_at: 'desc' }, { id: 'desc' }]);
       expect(args.where).toMatchObject({
         status: { in: ['Open', 'Pending'] },
         project_id: 3n,
         open_at: { gte: new Date('2026-01-01T00:00:00Z') },
       });
       expect(args.where.OR).toHaveLength(3);
+    });
+  });
+
+  describe('sorting', () => {
+    it('keeps tickets without closed_at last when sorting by it (the only nullable sort column)', async () => {
+      prisma.ticketLog.findMany.mockResolvedValue([]);
+      prisma.ticketLog.count.mockResolvedValue(0);
+      await service.findAll({ sort: 'closed_at', order: 'asc' });
+      expect(prisma.ticketLog.findMany.mock.calls[0][0].orderBy).toEqual([
+        { closed_at: { sort: 'asc', nulls: 'last' } },
+        { id: 'asc' },
+      ]);
     });
   });
 

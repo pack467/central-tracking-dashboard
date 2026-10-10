@@ -87,8 +87,10 @@ export class UsersService {
 
   // Auth only: includes the password hash.
   findForLogin(identifier: string) {
+    const value = identifier.trim();
     return this.prisma.user.findFirst({
-      where: { OR: [{ email: identifier }, { nik: identifier }] },
+      // Emails are stored lowercase, so compare lowercase: the login works however it's typed.
+      where: { OR: [{ email: value.toLowerCase() }, { nik: value }] },
       select: { id: true, password: true, is_active: true },
     });
   }

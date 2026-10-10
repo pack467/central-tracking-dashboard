@@ -35,11 +35,10 @@ export class TicketsService {
   async findAll(query: QueryTicketsDto) {
     const { page = 1, limit = 20, sort = 'open_at', order = 'desc' } = query;
     const where = this.buildWhere(query);
-    // open_at/closed_at can be null; keep those rows at the end either way.
+    // closed_at is the only sortable column that can be null; keep those rows
+    // last either way. (Prisma rejects `nulls` on NOT NULL columns.)
     const primary: Prisma.TicketLogOrderByWithRelationInput =
-      sort === 'open_at' || sort === 'closed_at'
-        ? { [sort]: { sort: order, nulls: 'last' } }
-        : { [sort]: order };
+      sort === 'closed_at' ? { closed_at: { sort: order, nulls: 'last' } } : { [sort]: order };
 
     const [data, total] = await this.prisma.$transaction([
       this.prisma.ticketLog.findMany({
@@ -160,7 +159,9 @@ export class TicketsService {
     for (const key of ['client_id', 'user_id', 'severity_id', 'category_id'] as const) {
       if (dto[key] !== undefined) data[key] = toBigInt(dto[key]);
     }
-    for (const key of ['subject', 'description', 'third_party_ticket_id', 'requester'] as const) {
+    // subject is required (null is rejected by UpdateTicketDto); the rest can be cleared.
+    if (dto.subject !== undefined) data.subject = dto.subject;
+    for (const key of ['description', 'third_party_ticket_id', 'requester'] as const) {
       if (dto[key] !== undefined) data[key] = dto[key];
     }
 

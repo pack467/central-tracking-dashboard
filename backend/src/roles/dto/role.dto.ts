@@ -32,16 +32,16 @@ export class CreateRoleDto extends SetRolePermissionsDto {
   @IsOptional()
   @IsString()
   @MaxLength(500)
-  info?: string | null;
+  description?: string | null;
 }
 
-export class UpdateRoleDto extends PartialType(CreateRoleDto) {}
+export class UpdateRoleDto extends PartialType(CreateRoleDto, { skipNullProperties: false }) {}
 
 // Response shape, for documentation only.
 export class Role {
   @ApiProperty({ example: '6' }) id: string;
   @ApiProperty({ example: 'SUPERVISOR' }) name: string;
-  @ApiProperty({ type: String, nullable: true }) info: string | null;
+  @ApiProperty({ type: String, nullable: true, example: 'Shift supervisors' }) description: string | null;
 
   @ApiProperty({ type: [String], description: 'Granted keys as stored; may be ["*"]', example: ['tickets.read', 'users.read'] })
   permissions: string[];

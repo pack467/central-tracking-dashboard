@@ -17,7 +17,7 @@ const withDetails = { ...grantedKeysSelect, _count: { select: { users: true } } 
 type RoleRow = {
   id: bigint;
   name: string;
-  info: string | null;
+  description: string | null;
   created_at: Date;
   updated_at: Date;
   permissions: { permission_key: string }[];
@@ -29,7 +29,7 @@ const toResponse = (role: RoleRow) => {
   return {
     id: role.id,
     name: role.name,
-    info: role.info,
+    description: role.description,
     permissions: keys,
     effective_permissions: [...resolvePermissions(keys)].sort(),
     user_count: role._count.users,
@@ -61,7 +61,7 @@ export class RolesService {
     const role = await this.prisma.userRole.create({
       data: {
         name: dto.name.trim(),
-        info: dto.info ?? null,
+        description: dto.description ?? null,
         permissions: { create: grantRows(dto.permissions) },
       },
       include: withDetails,
@@ -88,7 +88,7 @@ export class RolesService {
       where: { id },
       data: {
         ...(dto.name !== undefined && { name: dto.name.trim() }),
-        ...(dto.info !== undefined && { info: dto.info }),
+        ...(dto.description !== undefined && { description: dto.description }),
         // Replace the grants in the same statement (one transaction).
         ...(dto.permissions !== undefined && {
           permissions: { deleteMany: {}, create: grantRows(dto.permissions) },

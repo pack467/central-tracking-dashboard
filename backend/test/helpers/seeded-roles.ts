@@ -10,7 +10,7 @@ import '../../src/roles/roles.permissions.js';
 export interface SeedRole {
   id: string;
   name: string;
-  info: string | null;
+  description: string | null;
   permissions: string[];
 }
 

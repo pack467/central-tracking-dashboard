@@ -1,3 +1,6 @@
+-- CreateExtension
+CREATE EXTENSION IF NOT EXISTS "citext";
+
 -- CreateEnum
 CREATE TYPE "handover_category_enum" AS ENUM ('Note', 'Task', 'Monitoring');
 
@@ -10,16 +13,16 @@ CREATE TYPE "ticket_status_enum" AS ENUM ('Open', 'Closed', 'Activity', 'Meeting
 -- CreateTable
 CREATE TABLE "users" (
     "id" BIGSERIAL NOT NULL,
-    "name" VARCHAR(255),
+    "name" VARCHAR(255) NOT NULL,
     "nik" VARCHAR(255),
-    "email" VARCHAR(255),
+    "email" CITEXT NOT NULL,
     "role_id" BIGINT,
     "is_active" BOOLEAN NOT NULL DEFAULT true,
     "password" VARCHAR(100),
     "photo_url" VARCHAR(500),
     "department" VARCHAR(255),
-    "created_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "users_pkey" PRIMARY KEY ("id")
 );
@@ -27,10 +30,10 @@ CREATE TABLE "users" (
 -- CreateTable
 CREATE TABLE "user_role" (
     "id" BIGSERIAL NOT NULL,
-    "name" VARCHAR(500) NOT NULL,
-    "info" VARCHAR(500),
-    "created_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "name" CITEXT NOT NULL,
+    "description" VARCHAR(500),
+    "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "user_role_pkey" PRIMARY KEY ("id")
 );
@@ -39,9 +42,9 @@ CREATE TABLE "user_role" (
 CREATE TABLE "permissions" (
     "key" VARCHAR(100) NOT NULL,
     "description" TEXT,
-    "obsolete_at" TIMESTAMP(6),
-    "created_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "obsolete_at" TIMESTAMPTZ(6),
+    "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "permissions_pkey" PRIMARY KEY ("key")
 );
@@ -50,7 +53,7 @@ CREATE TABLE "permissions" (
 CREATE TABLE "role_permissions" (
     "role_id" BIGINT NOT NULL,
     "permission_key" VARCHAR(100) NOT NULL,
-    "created_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "role_permissions_pkey" PRIMARY KEY ("role_id","permission_key")
 );
@@ -58,10 +61,10 @@ CREATE TABLE "role_permissions" (
 -- CreateTable
 CREATE TABLE "tenants" (
     "id" BIGSERIAL NOT NULL,
-    "name" VARCHAR(255),
+    "name" VARCHAR(255) NOT NULL,
     "detail_info" TEXT,
-    "created_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "tenants_pkey" PRIMARY KEY ("id")
 );
@@ -69,11 +72,11 @@ CREATE TABLE "tenants" (
 -- CreateTable
 CREATE TABLE "projects" (
     "id" BIGSERIAL NOT NULL,
-    "name" VARCHAR(255),
-    "tenant_id" BIGINT,
+    "name" VARCHAR(255) NOT NULL,
+    "tenant_id" BIGINT NOT NULL,
     "code_prefix" VARCHAR(100),
-    "created_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "projects_pkey" PRIMARY KEY ("id")
 );
@@ -81,10 +84,10 @@ CREATE TABLE "projects" (
 -- CreateTable
 CREATE TABLE "clients" (
     "id" BIGSERIAL NOT NULL,
-    "name" VARCHAR(255),
+    "name" VARCHAR(255) NOT NULL,
     "detail_info" TEXT,
-    "created_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "clients_pkey" PRIMARY KEY ("id")
 );
@@ -93,20 +96,20 @@ CREATE TABLE "clients" (
 CREATE TABLE "ticket_logs" (
     "id" BIGSERIAL NOT NULL,
     "third_party_ticket_id" VARCHAR(100),
-    "project_id" BIGINT,
+    "project_id" BIGINT NOT NULL,
     "client_id" BIGINT,
     "tenant_id" BIGINT,
     "user_id" BIGINT,
     "severity_id" BIGINT,
     "category_id" BIGINT,
     "requester" VARCHAR(100),
-    "subject" VARCHAR(500),
+    "subject" VARCHAR(500) NOT NULL,
     "description" TEXT,
-    "status" "ticket_status_enum" DEFAULT 'Open',
-    "open_at" TIMESTAMP(6),
-    "closed_at" TIMESTAMP(6),
-    "created_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "status" "ticket_status_enum" NOT NULL DEFAULT 'Open',
+    "open_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "closed_at" TIMESTAMPTZ(6),
+    "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "ticket_logs_pkey" PRIMARY KEY ("id")
 );
@@ -114,10 +117,10 @@ CREATE TABLE "ticket_logs" (
 -- CreateTable
 CREATE TABLE "ticket_categories" (
     "id" BIGSERIAL NOT NULL,
-    "name" VARCHAR(255),
+    "name" CITEXT NOT NULL,
     "description" TEXT,
-    "created_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "ticket_categories_pkey" PRIMARY KEY ("id")
 );
@@ -125,10 +128,10 @@ CREATE TABLE "ticket_categories" (
 -- CreateTable
 CREATE TABLE "ticket_severities" (
     "id" BIGSERIAL NOT NULL,
-    "code_name" VARCHAR(50),
-    "name" VARCHAR(100),
-    "created_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "code_name" CITEXT NOT NULL,
+    "name" VARCHAR(100) NOT NULL,
+    "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "ticket_severities_pkey" PRIMARY KEY ("id")
 );
@@ -143,8 +146,8 @@ CREATE TABLE "handover" (
     "status" "routine_status_enum" DEFAULT 'Open',
     "category" "handover_category_enum",
     "is_repeatable" BOOLEAN NOT NULL DEFAULT false,
-    "created_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "handover_pkey" PRIMARY KEY ("id")
 );
@@ -155,14 +158,14 @@ CREATE TABLE "routine_meetings" (
     "project_id" BIGINT,
     "pic_user_id" BIGINT,
     "meeting_name" VARCHAR(255),
-    "start_at" TIMESTAMP(6),
-    "target_completed_at" TIMESTAMP(6),
+    "start_at" TIMESTAMPTZ(6),
+    "target_completed_at" TIMESTAMPTZ(6),
     "status_update" VARCHAR(500),
     "meeting_room_url" TEXT,
     "status" "routine_status_enum" DEFAULT 'Open',
     "is_temporary" BOOLEAN NOT NULL DEFAULT false,
-    "created_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "routine_meetings_pkey" PRIMARY KEY ("id")
 );
@@ -173,13 +176,13 @@ CREATE TABLE "routine_reports" (
     "project_id" BIGINT,
     "pic_user_id" BIGINT,
     "report_name" VARCHAR(255),
-    "start_at" TIMESTAMP(6),
-    "target_completed_at" TIMESTAMP(6),
+    "start_at" TIMESTAMPTZ(6),
+    "target_completed_at" TIMESTAMPTZ(6),
     "status_update" VARCHAR(500),
     "doc_url" TEXT,
     "status" "routine_status_enum" DEFAULT 'Open',
-    "created_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "routine_reports_pkey" PRIMARY KEY ("id")
 );
@@ -193,8 +196,8 @@ CREATE TABLE "monitoring_logs" (
     "checkpoint_time" TIME(6),
     "checkpoint_description" VARCHAR(255),
     "result_note" TEXT,
-    "created_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "monitoring_logs_pkey" PRIMARY KEY ("id")
 );
@@ -209,8 +212,8 @@ CREATE TABLE "monitoring_template" (
     "checkpoint_description" VARCHAR(255),
     "result_note" TEXT,
     "is_temporary" BOOLEAN NOT NULL DEFAULT false,
-    "created_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "monitoring_template_pkey" PRIMARY KEY ("id")
 );
@@ -222,7 +225,79 @@ CREATE UNIQUE INDEX "users_nik_key" ON "users"("nik");
 CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
 
 -- CreateIndex
+CREATE INDEX "users_role_id_idx" ON "users"("role_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "user_role_name_key" ON "user_role"("name");
+
+-- CreateIndex
 CREATE INDEX "role_permissions_permission_key_idx" ON "role_permissions"("permission_key");
+
+-- CreateIndex
+CREATE INDEX "projects_tenant_id_idx" ON "projects"("tenant_id");
+
+-- CreateIndex
+CREATE INDEX "ticket_logs_open_at_idx" ON "ticket_logs"("open_at" DESC);
+
+-- CreateIndex
+CREATE INDEX "ticket_logs_status_idx" ON "ticket_logs"("status");
+
+-- CreateIndex
+CREATE INDEX "ticket_logs_project_id_open_at_idx" ON "ticket_logs"("project_id", "open_at" DESC);
+
+-- CreateIndex
+CREATE INDEX "ticket_logs_user_id_idx" ON "ticket_logs"("user_id");
+
+-- CreateIndex
+CREATE INDEX "ticket_logs_tenant_id_idx" ON "ticket_logs"("tenant_id");
+
+-- CreateIndex
+CREATE INDEX "ticket_logs_client_id_idx" ON "ticket_logs"("client_id");
+
+-- CreateIndex
+CREATE INDEX "ticket_logs_severity_id_idx" ON "ticket_logs"("severity_id");
+
+-- CreateIndex
+CREATE INDEX "ticket_logs_category_id_idx" ON "ticket_logs"("category_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ticket_categories_name_key" ON "ticket_categories"("name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ticket_severities_code_name_key" ON "ticket_severities"("code_name");
+
+-- CreateIndex
+CREATE INDEX "handover_project_id_idx" ON "handover"("project_id");
+
+-- CreateIndex
+CREATE INDEX "handover_updated_user_id_idx" ON "handover"("updated_user_id");
+
+-- CreateIndex
+CREATE INDEX "handover_acknowledge_user_id_idx" ON "handover"("acknowledge_user_id");
+
+-- CreateIndex
+CREATE INDEX "routine_meetings_project_id_idx" ON "routine_meetings"("project_id");
+
+-- CreateIndex
+CREATE INDEX "routine_meetings_pic_user_id_idx" ON "routine_meetings"("pic_user_id");
+
+-- CreateIndex
+CREATE INDEX "routine_reports_project_id_idx" ON "routine_reports"("project_id");
+
+-- CreateIndex
+CREATE INDEX "routine_reports_pic_user_id_idx" ON "routine_reports"("pic_user_id");
+
+-- CreateIndex
+CREATE INDEX "monitoring_logs_project_id_log_date_idx" ON "monitoring_logs"("project_id", "log_date");
+
+-- CreateIndex
+CREATE INDEX "monitoring_logs_tenant_id_idx" ON "monitoring_logs"("tenant_id");
+
+-- CreateIndex
+CREATE INDEX "monitoring_template_project_id_idx" ON "monitoring_template"("project_id");
+
+-- CreateIndex
+CREATE INDEX "monitoring_template_tenant_id_idx" ON "monitoring_template"("tenant_id");
 
 -- AddForeignKey
 ALTER TABLE "users" ADD CONSTRAINT "users_role_id_fkey" FOREIGN KEY ("role_id") REFERENCES "user_role"("id") ON DELETE SET NULL ON UPDATE NO ACTION;

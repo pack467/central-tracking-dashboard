@@ -25,7 +25,7 @@ const manager = actor(20n, 9n, ['roles.manage', 'roles.read', 'tickets.read', 't
 const roleRow = (id: bigint, keys: string[], users = 0) => ({
   id,
   name: `ROLE_${id}`,
-  info: null,
+  description: null,
   created_at: new Date(),
   updated_at: new Date(),
   permissions: grants(keys),
@@ -176,7 +176,7 @@ describe('RolesService', () => {
     ])('stops modifying %s', async (_case, keys) => {
       as(manager);
       prisma.userRole.findUnique.mockResolvedValue(roleRow(1n, keys));
-      await expect(service.update(1n, { info: 'x' }, manager.user)).rejects.toBeInstanceOf(ForbiddenException);
+      await expect(service.update(1n, { description: 'x' }, manager.user)).rejects.toBeInstanceOf(ForbiddenException);
       expect(prisma.userRole.update).not.toHaveBeenCalled();
     });
 

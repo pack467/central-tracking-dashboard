@@ -13,7 +13,7 @@ export class CreateTicketCategoryDto {
   description?: string | null;
 }
 
-export class UpdateTicketCategoryDto extends PartialType(CreateTicketCategoryDto) {}
+export class UpdateTicketCategoryDto extends PartialType(CreateTicketCategoryDto, { skipNullProperties: false }) {}
 
 // Response shape, for documentation only.
 export class TicketCategory {

@@ -16,6 +16,7 @@ This file covers only `backend/`. Do not read, reference, or modify `../frontend
 - Take `:id` params with `ParseBigIntPipe` and pass them to Prisma as `bigint`. Never use `+id`.
 - Commit style: Conventional Commits with a scope, e.g. `feat(backend): ...` or `feat(backend - users): ...`.
 - When something changes, update the matching file in `docs/` below, not this index.
+- Don't document individual migration files or their names: during development the DB is rebuilt with `db:reset`, which regenerates them. Document the resulting schema (`docs/data-model.md`) instead.
 
 ## Docs
 
