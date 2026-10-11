@@ -39,6 +39,9 @@ Each topic lives in its own file under `.claude/docs/`, imported here so it load
 | `docs/seed-and-import.md` | Reference data, `seed.ts`, ticket CSV import, export script |
 | `docs/testing.md` | Unit and e2e tests |
 | `docs/known-issues.md` | Open problems and follow-ups |
+| `docs/todo-session-auth.md` | **Decided, not built yet:** switch to server-side sessions (`express-session`, httpOnly cookie, CSRF) so password changes and logout end sessions immediately |
+| `docs/todo-redis.md` | **Planned (not needed yet):** Redis use cases (BullMQ jobs for monitoring alerts, WebSockets, shared rate limits, tokens, caching), when to add it, infra and rollout |
+| `docs/todo-monitoring-live.md` | **Design agreed, not built yet:** live monitoring page (Socket.IO presence: who views/edits which slot, `log.saved` broadcasts, optimistic locking via `monitoring_logs.version`) |
 
 @docs/stack.md
 @docs/layout.md
@@ -55,3 +58,6 @@ Each topic lives in its own file under `.claude/docs/`, imported here so it load
 @docs/seed-and-import.md
 @docs/testing.md
 @docs/known-issues.md
+@docs/todo-session-auth.md
+@docs/todo-redis.md
+@docs/todo-monitoring-live.md
