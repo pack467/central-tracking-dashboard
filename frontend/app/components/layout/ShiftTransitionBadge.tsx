@@ -1,9 +1,11 @@
 "use client";
+import Link from "next/link";
+import { paths } from "@/app/lib/routes";
 
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight, ArrowRightLeft, CheckCircle2, ChevronDown, Clock, ExternalLink, Moon, Sun, Sunset, Users } from "lucide-react";
 import { useShiftTransition } from "@/app/hooks/useLiveClock";
-import type { ShiftInfo } from "@/app/lib/shifts";
+
 
 interface ShiftTransitionBadgeProps {
   onOpenHandover?: () => void;
@@ -62,13 +64,6 @@ export function ShiftTransitionBadge({ onOpenHandover, onNavigate }: ShiftTransi
       onOpenHandover();
     } else if (onNavigate) {
       onNavigate("Shift Log");
-    }
-  };
-
-  const handleOpenRoster = () => {
-    setIsOpen(false);
-    if (onNavigate) {
-      onNavigate("Team Roster");
     }
   };
 
@@ -271,14 +266,14 @@ export function ShiftTransitionBadge({ onOpenHandover, onNavigate }: ShiftTransi
               <ExternalLink size={13} />
               <span>Buka Catatan Serah Terima (Handover)</span>
             </button>
-            <button
-              type="button"
+            <Link href={paths.teamRoster}
+              
               className="transition-btn-secondary inline-flex items-center justify-center gap-[5px] p-[8px_12px] bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-[#e2e8f0] font-semibold text-[11px] rounded-[7px] cursor-pointer transition-all duration-150 hover:bg-[rgba(255,255,255,0.1)] hover:border-[rgba(255,255,255,0.2)] hover:text-[#ffffff]"
-              onClick={handleOpenRoster}
+              onClick={() => setIsOpen(false)}
             >
               <Users size={13} />
               <span>Lihat Jadwal Tim</span>
-            </button>
+            </Link>
           </div>
         </div>
       )}

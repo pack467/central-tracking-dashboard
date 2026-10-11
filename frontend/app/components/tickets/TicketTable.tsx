@@ -1,4 +1,7 @@
 "use client";
+import Link from "next/link";
+import { usePathname, useSearchParams } from "next/navigation";
+import { routes } from "@/app/lib/routes";
 
 import { Badge } from "@/app/components/ui/Badge";
 import { EmptyState } from "@/app/components/ui/EmptyState";
@@ -34,10 +37,11 @@ export function statusTone(status: string) {
 
 export function TicketTable({
   tickets,
-  onSelect,
   compact = false,
   showEscalationDetails = false,
 }: TicketTableProps) {
+  const pathname = usePathname();
+  const query = useSearchParams().toString();
   if (!tickets.length) {
     return (
       <EmptyState
@@ -80,15 +84,13 @@ export function TicketTable({
           const typeLabel = ticket.type || ticket.category || "Incident";
 
           return (
-            <button
-              type="button"
+            <Link href={routes.ticketFromList(ticket.id, pathname, query)} scroll={false}
               className={`grid ${
                 showEscalationDetails
                   ? "grid-cols-[minmax(220px,2.2fr)_minmax(80px,0.7fr)_minmax(150px,1.3fr)_minmax(160px,1.4fr)_80px_90px_70px] min-w-[860px]"
                   : "grid-cols-[minmax(240px,2.2fr)_minmax(95px,0.9fr)_minmax(150px,1.4fr)_85px_95px_75px] min-w-[780px]"
               } gap-3 items-center w-full min-h-[56px] my-1 rounded-lg px-5 py-2.5 border-0 border-b border-[#334155] last:border-b-0 bg-transparent text-left cursor-pointer transition-colors duration-150 hover:bg-[#243044] text-[#cbd5e1] max-[769px]:flex max-[769px]:flex-col max-[769px]:items-start max-[769px]:gap-2 max-[769px]:min-w-0 max-[769px]:w-[calc(100%-28px)] max-[769px]:p-[14px_16px] max-[769px]:m-[10px_14px] max-[769px]:bg-[#1e293b] max-[769px]:border max-[769px]:border-[#334155] max-[769px]:rounded-[10px]`}
               role="row"
-              onClick={() => onSelect(ticket)}
               key={ticket.id}
               aria-label={`Buka detail ticket ${ticket.subject}`}
             >
@@ -150,7 +152,7 @@ export function TicketTable({
                 <span className="text-[11px] font-mono text-[#f8fafc] block">{ticket.created}</span>
                 {ticket.date && <small className="text-[9.5px] font-mono text-[#94a3b8] block">{ticket.date}</small>}
               </div>
-            </button>
+            </Link>
           );
         })}
       </div>

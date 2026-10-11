@@ -1,30 +1,11 @@
 "use client";
+import { paths, isActivePath } from "@/app/lib/routes";
+import { usePathname } from "next/navigation";
 
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
-import {
-  LayoutDashboard,
-  Ticket,
-  Activity,
-  History,
-  BarChart2,
-  BookOpen,
-  Users,
-  User,
-  MoreHorizontal,
-  Edit3,
-  SlidersHorizontal,
-  LogOut,
-  Check,
-  ChevronLeft,
-  ChevronRight,
-  PanelLeft,
-  Sun,
-  Sunset,
-  Moon,
-  type LucideIcon,
-} from "lucide-react";
+import { BookOpen, Users, User, MoreHorizontal, Edit3, SlidersHorizontal, LogOut, Check, ChevronLeft, ChevronRight, PanelLeft, Sun, Sunset, Moon } from "lucide-react";
 import { BrandLogo } from "@/app/components/ui/BrandLogo";
 import { Avatar } from "@/app/components/ui/Avatar";
 import { useToast } from "@/app/components/ui/Toast";
@@ -33,28 +14,8 @@ import { useUserStatus } from "@/app/hooks/useUserStatus";
 import { useAuth } from "@/app/lib/auth";
 import { initials } from "@/app/lib/data";
 
-export interface NavItemConfig {
-  icon: LucideIcon;
-  label: string;
-}
-
-export const operationalNavItems: readonly NavItemConfig[] = [
-  { icon: LayoutDashboard, label: "Dashboard" },
-  { icon: Ticket, label: "Tickets" },
-  { icon: Activity, label: "Monitoring" },
-  { icon: History, label: "Shift Log" },
-] as const;
-
-export const managementNavItems: readonly NavItemConfig[] = [
-  { icon: BarChart2, label: "Reports" },
-  { icon: Users, label: "Team Roster" },
-] as const;
-
-export const navItems: readonly NavItemConfig[] = [
-  ...operationalNavItems,
-  ...managementNavItems,
-] as const;
-
+export { operationalNavItems, managementNavItems, navItems } from "@/app/lib/routes";
+import { navItems } from "@/app/lib/routes";
 export type UserPresenceStatus = "Online" | "AFK" | "On Break" | "Busy";
 
 export interface StatusConfig {
@@ -110,7 +71,6 @@ export const STATUS_OPTIONS: StatusConfig[] = [
 
 interface SidebarProps {
   activeNav: string;
-  onNavigate: (label: string) => void;
   onPrepareHandover: () => void;
   openTicketCount: number;
   collapsed?: boolean;
@@ -120,13 +80,13 @@ interface SidebarProps {
 
 export function Sidebar({
   activeNav,
-  onNavigate,
   onPrepareHandover,
   openTicketCount,
   collapsed = false,
   onToggleCollapse,
   shiftPanelOpen = false,
 }: SidebarProps) {
+  const pathname = usePathname();
   const notify = useToast();
   const { user, logout } = useAuth();
   const activeShift = useActiveShift();
@@ -204,15 +164,6 @@ export function Sidebar({
     fn();
   };
 
-  const isItemActive = (label: string) => {
-    if (activeNav === label) return true;
-    if ((activeNav === "Utama" || activeNav === "Overview" || activeNav === "Dashboard") && (label === "Dashboard" || label === "Overview")) return true;
-    if ((activeNav === "Ticket" || activeNav === "Tickets") && label === "Tickets") return true;
-    if ((activeNav === "Log shift" || activeNav === "Shift Log") && label === "Shift Log") return true;
-    if ((activeNav === "Laporan" || activeNav === "Reports") && label === "Reports") return true;
-    if (activeNav === "Team Roster" && label === "Team Roster") return true;
-    return false;
-  };
 
   return (
     <>
@@ -232,10 +183,10 @@ export function Sidebar({
       <nav className="nav-list grid gap-[2px]" aria-label="Navigasi Utama">
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = isItemActive(item.label);
+          const isActive = isActivePath(pathname, item.path);
 
           return (
-            <button
+            <Link href={item.path}
               className={`nav-item flex items-center text-left rounded-[8px] text-[13px] [transition:color_0.15s,_background_0.15s,_border-color_0.15s] overflow-hidden relative cursor-pointer hover:text-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] ${
                 collapsed
                   ? `w-[44px] h-[44px] p-0 m-[0_auto_2px] justify-center items-center gap-0 rounded-[10px] ${
@@ -246,18 +197,18 @@ export function Sidebar({
                     }`
               }`}
               key={item.label}
-              onClick={() => onNavigate(item.label)}
+              aria-current={isActive ? "page" : undefined}
               title={item.label}
             >
               <span className={`nav-icon inline-flex items-center justify-center w-[20px] h-[20px] shrink-0 text-currentColor [transition:color_0.15s] ${collapsed ? "m-[0_auto]" : ""}`} aria-hidden="true">
                 <Icon size={18} strokeWidth={1.8} aria-hidden="true" />
               </span>
               <span className={`nav-label whitespace-nowrap text-[13px] text-inherit ${collapsed ? "hidden" : ""}`}>{item.label}</span>
-            </button>
+            </Link>
           );
         })}
 
-        <button
+        <Link href={paths.runbooks}
           className={`nav-item flex items-center text-left rounded-[8px] text-[13px] [transition:color_0.15s,_background_0.15s,_border-color_0.15s] overflow-hidden relative cursor-pointer hover:text-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] ${
             collapsed
               ? `w-[44px] h-[44px] p-0 m-[0_auto_2px] justify-center items-center gap-0 rounded-[10px] ${
@@ -267,14 +218,14 @@ export function Sidebar({
                   activeNav === "Runbooks" ? "active text-[var(--sidebar-active-text)] bg-[var(--sidebar-active)] font-semibold border-l-[3px] border-l-[var(--sidebar-active-border)]" : "bg-transparent text-[var(--sidebar-muted)] font-medium"
                 }`
           }`}
-          onClick={() => onNavigate("Runbooks")}
+          aria-current={isActivePath(pathname, paths.runbooks) ? "page" : undefined}
           title="Runbooks"
         >
           <span className={`nav-icon inline-flex items-center justify-center w-[20px] h-[20px] shrink-0 text-currentColor [transition:color_0.15s] ${collapsed ? "m-[0_auto]" : ""}`} aria-hidden="true">
             <BookOpen size={18} strokeWidth={1.8} aria-hidden="true" />
           </span>
           <span className={`nav-label whitespace-nowrap text-[13px] text-inherit ${collapsed ? "hidden" : ""}`}>Runbooks</span>
-        </button>
+        </Link>
       </nav>
 
       <section
@@ -364,16 +315,11 @@ export function Sidebar({
               : "gap-[10px] p-[10px_12px] min-h-[56px] text-[#ffffff] rounded-[10px]"
           }`}
         >
-          <button
-            type="button"
+          <Link href={paths.profile}
             className={`profile-main-btn flex items-center p-0 m-0 bg-transparent border-none text-left cursor-pointer text-inherit font-inherit ${
               collapsed ? "justify-center w-full h-full gap-0 flex-none min-w-0" : "gap-[10px] flex-1 min-w-0"
             }`}
-            onClick={() => {
-              throttleAction("profile", () => {
-                onNavigate("Profile");
-              });
-            }}
+            aria-current={isActivePath(pathname, paths.profile) ? "page" : undefined}
             title="Buka Halaman Profil Pengguna"
             aria-label="Buka profil pengguna"
           >
@@ -401,7 +347,7 @@ export function Sidebar({
                 size="md"
                 name={user?.name ?? "Mhd. Galih Khairi"}
                 initials={initials(user?.name ?? "Galih Khairi")}
-                color={user?.avatarBg}
+                style={user?.avatarBg ? ({ "--avatar-bg": user.avatarBg } as React.CSSProperties) : undefined}
                 shape="circle"
                 className="profile-avatar grid place-items-center !w-full !h-full !min-w-full !min-h-full rounded-full bg-[var(--avatar-bg,#3a3a3e)] text-[var(--avatar-text,#f8fafc)] font-bold text-[11px] font-['JetBrains_Mono',monospace] ![box-shadow:none] border border-[rgba(148,163,184,0.22)] shrink-0 box-border m-0 outline-none"
               />
@@ -429,7 +375,7 @@ export function Sidebar({
                 <span>{user?.role ?? "Operator NOC"}</span>
               </small>
             </span>
-          </button>
+          </Link>
 
           <button
             ref={moreBtnRef}
@@ -539,47 +485,32 @@ export function Sidebar({
                 </div>
               </div>
 
-              <button
-                type="button"
+              <Link href={paths.profile} onClick={() => setProfileMenuOpen(false)}
                 role="menuitem"
                 className="profile-dropdown-item flex items-center gap-[9px] w-full p-[7px_9px] rounded-[6px] bg-transparent border-none text-[var(--ink-primary)] text-[12px] font-[var(--font-sans)] font-medium text-left cursor-pointer [transition:background-color_0.12s,_color_0.12s] box-border hover:bg-[var(--accent-blue-soft)] hover:text-[var(--accent-blue)] [&_svg]:shrink-0 [&_svg]:text-[var(--ink-muted)] [&_svg]:[transition:color_0.12s] hover:[&_svg]:text-[var(--accent-blue)]"
-                onClick={() => {
-                  setProfileMenuOpen(false);
-                  onNavigate("Profile");
-                }}
               >
                 <User size={14} />
                 <span>Lihat Profil</span>
-              </button>
+              </Link>
 
-              <button
-                type="button"
+              <Link href={paths.profile} onClick={() => setProfileMenuOpen(false)}
                 role="menuitem"
                 className="profile-dropdown-item flex items-center gap-[9px] w-full p-[7px_9px] rounded-[6px] bg-transparent border-none text-[var(--ink-primary)] text-[12px] font-[var(--font-sans)] font-medium text-left cursor-pointer [transition:background-color_0.12s,_color_0.12s] box-border hover:bg-[var(--accent-blue-soft)] hover:text-[var(--accent-blue)] [&_svg]:shrink-0 [&_svg]:text-[var(--ink-muted)] [&_svg]:[transition:color_0.12s] hover:[&_svg]:text-[var(--accent-blue)]"
-                onClick={() => {
-                  setProfileMenuOpen(false);
-                  onNavigate("Profile");
-                }}
               >
                 <Edit3 size={14} />
                 <span>Ubah Informasi</span>
-              </button>
+              </Link>
 
-              <button
-                type="button"
+              <Link href={paths.profile} onClick={() => setProfileMenuOpen(false)}
                 role="menuitem"
                 className="profile-dropdown-item flex items-center gap-[9px] w-full p-[7px_9px] rounded-[6px] bg-transparent border-none text-[var(--ink-primary)] text-[12px] font-[var(--font-sans)] font-medium text-left cursor-pointer [transition:background-color_0.12s,_color_0.12s] box-border hover:bg-[var(--accent-blue-soft)] hover:text-[var(--accent-blue)] [&_svg]:shrink-0 [&_svg]:text-[var(--ink-muted)] [&_svg]:[transition:color_0.12s] hover:[&_svg]:text-[var(--accent-blue)]"
-                onClick={() => {
-                  setProfileMenuOpen(false);
-                  onNavigate("Profile");
-                }}
               >
                 <SlidersHorizontal size={14} />
                 <span>Preferensi &amp; Notifikasi</span>
-              </button>
+              </Link>
 
               <Link
-                href="/team"
+                href={paths.team}
                 role="menuitem"
                 className="profile-dropdown-item flex items-center gap-[9px] w-full p-[7px_9px] rounded-[6px] bg-transparent border-none text-[var(--ink-primary)] text-[12px] font-[var(--font-sans)] font-medium text-left cursor-pointer [transition:background-color_0.12s,_color_0.12s] box-border hover:bg-[var(--accent-blue-soft)] hover:text-[var(--accent-blue)] [&_svg]:shrink-0 [&_svg]:text-[var(--ink-muted)] [&_svg]:[transition:color_0.12s] hover:[&_svg]:text-[var(--accent-blue)]"
                 onClick={() => setProfileMenuOpen(false)}
@@ -602,7 +533,7 @@ export function Sidebar({
                     duration: 3000,
                   });
                   setTimeout(() => {
-                    window.location.href = "/login";
+                    window.location.href = paths.login;
                   }, 400);
                 }}
               >

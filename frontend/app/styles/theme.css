@@ -225,6 +225,81 @@
   to { opacity: 1; }
 }
 
+@keyframes bootSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes bootLogoBreathe {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.92;
+  }
+  50% {
+    transform: scale(1.04);
+    opacity: 1;
+  }
+}
+
+@keyframes bootTileBreathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+}
+
+@keyframes bootTileShine {
+  0% { transform: translateX(-150%) skewX(-20deg); }
+  60% { transform: translateX(250%) skewX(-20deg); }
+  100% { transform: translateX(250%) skewX(-20deg); }
+}
+
+@keyframes bootGlowBreathe {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+@keyframes bootProgressBarSlide {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(263%); }
+}
+
+@keyframes statusDotPulse {
+  0%, 20% { opacity: 0.2; }
+  40% { opacity: 1; }
+  60%, 100% { opacity: 0.2; }
+}
+
+@keyframes skeletonShimmerTranslate {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes bootFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInDelayed {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes bootEmergencyFade {
+  from {
+    opacity: 0;
+    pointer-events: none;
+  }
+  to {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
 /*
  * Tailwind v4 token bridge. These aliases deliberately point at the existing
  * CSS variables so the legacy stylesheet remains the visual source of truth
@@ -249,6 +324,15 @@
   --animate-transition-popover-fade: transitionPopoverFade 0.18s cubic-bezier(0.16, 1, 0.3, 1);
   --animate-fab-entrance: fab-entrance 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both;
   --animate-shift-backdrop-in: shift-backdrop-in 0.25s ease;
+  --animate-boot-spin: bootSpin 1.6s linear infinite;
+  --animate-boot-logo-breathe: bootLogoBreathe 2.8s ease-in-out infinite;
+  --animate-boot-tile-breathe: bootTileBreathe 2.8s ease-in-out infinite;
+  --animate-boot-tile-shine: bootTileShine 2.8s ease-in-out infinite;
+  --animate-boot-glow-breathe: bootGlowBreathe 4s ease-in-out infinite;
+  --animate-boot-progress: bootProgressBarSlide 1.5s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+  --animate-boot-fade-up: bootFadeUp 0.45s ease-out forwards;
+  --animate-shimmer: skeletonShimmerTranslate 1.6s linear infinite;
+  --animate-fade-in-delayed: fadeInDelayed 0.25s ease-out 0.12s both;
   --breakpoint-3xl: 1920px;
   --breakpoint-4xl: 2560px;
 
@@ -320,3 +404,47 @@
   --spacing-dashboard-6: var(--space-6);
   --spacing-sticky-content-offset: var(--sticky-content-offset);
 }
+
+/* Lock document scrolling cleanly while splash is mounted in DOM */
+html:has(#ctd-app-splash),
+body:has(#ctd-app-splash) {
+  overflow: hidden !important;
+}
+
+/* Ensure RouteProgress bar or glow is never drawn while splash is active */
+html:has(#ctd-app-splash) #route-progress-bar {
+  display: none !important;
+}
+
+.status-dot-1 {
+  animation: statusDotPulse 1.4s infinite 0s;
+}
+.status-dot-2 {
+  animation: statusDotPulse 1.4s infinite 0.2s;
+}
+.status-dot-3 {
+  animation: statusDotPulse 1.4s infinite 0.4s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-boot-spin,
+  .animate-boot-logo-breathe,
+  .animate-boot-tile-breathe,
+  .animate-boot-tile-shine,
+  .animate-boot-glow-breathe,
+  .animate-boot-progress,
+  .animate-boot-fade-up,
+  .animate-shimmer,
+  .animate-fade-in-delayed {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .status-dot-1,
+  .status-dot-2,
+  .status-dot-3 {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+}
+

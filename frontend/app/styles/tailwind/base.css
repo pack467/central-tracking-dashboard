@@ -12,7 +12,7 @@
   }
 
   html {
-    @apply [min-width:320px];
+    @apply min-w-0;
     @apply [background-color:var(--bg)];
     @apply [color:var(--ink-primary)];
   }
@@ -56,17 +56,53 @@
   }
 
   /* Custom Scrollbar */
-  ::-webkit-scrollbar {
+  :not(html)::-webkit-scrollbar {
     @apply [width:6px];
     @apply [height:6px];
   }
-  ::-webkit-scrollbar-track {
+  :not(html)::-webkit-scrollbar-track {
     @apply [background:transparent];
   }
-  ::-webkit-scrollbar-thumb {
+  :not(html)::-webkit-scrollbar-thumb {
     @apply [background:#475569];
     @apply [border-radius:99px];
   }
+}
+
+/* Main page (root) scrollbar: slim, neutral gray, no blue effect. */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: #475569 transparent;
+}
+html::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+html::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+html::-webkit-scrollbar-thumb {
+  background: #475569;
+  border-radius: 99px;
+}
+html::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+/* Global Blue Scrollbar — outside @layer + !important so it overrides per-component utilities */
+/* The root (html) viewport scrollbar is intentionally left as the normal browser default. */
+:not(html) {
+  scrollbar-color: rgba(56, 189, 248, 0.25) transparent !important;
+}
+:not(html)::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, 0.25) !important;
+  border-radius: 99px;
+}
+:not(html)::-webkit-scrollbar-thumb:hover {
+  background: rgba(56, 189, 248, 0.45) !important;
+}
+:not(html)::-webkit-scrollbar-thumb:active {
+  background: rgba(56, 189, 248, 0.6) !important;
 }
 
 /* App Shell */

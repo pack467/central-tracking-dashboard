@@ -1,6 +1,12 @@
 "use client";
+import { paths } from "@/app/lib/routes";
 
-import { useEffect, useMemo, useState } from "react";
+
+import { useUrlQuery } from "@/app/hooks/useUrlQuery";
+import { shiftLogSchema } from "@/app/lib/query-state";
+
+
+import { useMemo, useState } from "react";
 import {
   Calendar,
   ArrowRight,
@@ -22,7 +28,7 @@ import { ConfirmDialog } from "@/app/components/ui/ConfirmDialog";
 import { PaginationBar } from "@/app/components/ui/PaginationBar";
 import { useToast } from "@/app/components/ui/Toast";
 import { Avatar } from "@/app/components/ui/Avatar";
-import { formatHandoverDate, initials, isOpenTicket } from "@/app/lib/data";
+import { formatHandoverDate, isOpenTicket } from "@/app/lib/data";
 import type { HandoverRecordData, StoredHandoverRecord } from "@/app/lib/types";
 import { canEditHandover, getTaskIdentity, isNewlyAddedTask, parseHandoverContent } from "@/app/lib/handover";
 import {
@@ -123,13 +129,14 @@ export function ShiftLogView({ workflow }: { workflow: HandoverWorkflow }) {
   const [deleting, setDeleting] = useState(false);
 
   // Pagination state (default: 10 rows per page)
-  const [pageSize, setPageSize] = useState<number>(10);
-  const [currentPage, setCurrentPage] = useState<number>(1);
+  const url = useUrlQuery(shiftLogSchema, paths.shiftLog);
+  const pageSize = url.values.size;
+  const setPageSize = url.field("size", "replace");
+  const currentPage = url.values.page;
+  const setCurrentPage = url.field("page", "push");
 
   // Reset pagination to page 1 whenever filters change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [workflow.filters.date, workflow.filters.shift, workflow.filters.pic]);
+
 
   const lineageMap = useMemo(() => buildShiftLineageMap(visibleRecords), [visibleRecords]);
 
@@ -527,7 +534,6 @@ export function ShiftLogView({ workflow }: { workflow: HandoverWorkflow }) {
               pageSize={pageSize}
               onPageSizeChange={(newSize) => {
                 setPageSize(newSize);
-                setCurrentPage(1);
               }}
               currentPage={safeCurrentPage}
               onPageChange={setCurrentPage}
@@ -561,4 +567,5 @@ export function ShiftLogView({ workflow }: { workflow: HandoverWorkflow }) {
     </>
   );
 }
+
 

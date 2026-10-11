@@ -17,7 +17,7 @@ test("Status ring wrapper is rendered across all profile surfaces", async () => 
   );
 
   // 2. Fetch Overview Page (/)
-  const overviewRes = await fetch("http://localhost:3000");
+  const overviewRes = await fetch("http://localhost:3000/dashboard");
   assert.equal(overviewRes.status, 200);
   const overviewHtml = await overviewRes.text();
 
@@ -81,4 +81,5 @@ test("Status ring wrapper is rendered across all profile surfaces", async () => 
     "layout.css no longer uses fractional inset: -1.5px that caused subpixel ring skewing"
   );
 });
+
 

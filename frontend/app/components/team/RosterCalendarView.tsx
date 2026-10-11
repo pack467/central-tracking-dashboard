@@ -1,6 +1,14 @@
 "use client";
+import { paths } from "@/app/lib/routes";
+import Link from "next/link";
+import { routes } from "@/app/lib/routes";
 
-import { useState, useMemo, useEffect } from "react";
+
+import { useUrlQuery } from "@/app/hooks/useUrlQuery";
+import { rosterSchema, weekStart, isoWeek } from "@/app/lib/query-state";
+
+
+import { useState, useMemo } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -8,8 +16,8 @@ import {
   Info,
   Clock,
 } from "lucide-react";
-import { initials } from "@/app/lib/data";
 import { Avatar } from "@/app/components/ui/Avatar";
+import { initials } from "@/app/lib/data";
 import { ModalCloseButton } from "@/app/components/ui/ModalCloseButton";
 import { shiftColor } from "@/app/components/team/RosterTable";
 import type { DayScheduleType, RosterMember } from "@/app/lib/types";
@@ -20,13 +28,63 @@ interface RosterCalendarViewProps {
 }
 
 /* ── helpers ─────────────────────────────────────────── */
-const SHIFT_LEGEND: { type: DayScheduleType; label: string; bg: string; border: string; color: string }[] = [
-  { type: "Subuh", label: "Subuh (00:00–08:30)", bg: "var(--accent-blue-soft)", border: "var(--accent-blue-border)", color: "var(--accent-blue)" },
-  { type: "Pagi", label: "Pagi (08:00–16:30)", bg: "var(--orange-soft)", border: "var(--orange-border)", color: "var(--orange)" },
-  { type: "Malam", label: "Malam (16:00–00:30)", bg: "var(--purple-soft)", border: "var(--purple-border)", color: "var(--purple)" },
-  { type: "Off", label: "Off Duty", bg: "var(--bg)", border: "var(--line)", color: "var(--ink-muted)" },
-  { type: "Leave", label: "Cuti / Leave", bg: "var(--red-soft)", border: "var(--red-border)", color: "var(--red)" },
-];
+export const SHIFT_STYLE_MAP: Record<
+  DayScheduleType,
+  {
+    badgeBg: string;
+    badgeBorder: string;
+    badgeText: string;
+    hoverBg: string;
+    swatchBg: string;
+    label: string;
+  }
+> = {
+  Subuh: {
+    badgeBg: "bg-[#38bdf8]/15",
+    badgeBorder: "border-[#38bdf8]/35",
+    badgeText: "text-[#38bdf8]",
+    hoverBg: "hover:bg-[#38bdf8]/25",
+    swatchBg: "bg-[#38bdf8]",
+    label: "Subuh (00:00–08:30)",
+  },
+  Pagi: {
+    badgeBg: "bg-[#fbbf24]/15",
+    badgeBorder: "border-[#fbbf24]/35",
+    badgeText: "text-[#fbbf24]",
+    hoverBg: "hover:bg-[#fbbf24]/25",
+    swatchBg: "bg-[#fbbf24]",
+    label: "Pagi (08:00–16:30)",
+  },
+  Malam: {
+    badgeBg: "bg-[#c084fc]/15",
+    badgeBorder: "border-[#c084fc]/35",
+    badgeText: "text-[#c084fc]",
+    hoverBg: "hover:bg-[#c084fc]/25",
+    swatchBg: "bg-[#c084fc]",
+    label: "Malam (16:00–00:30)",
+  },
+  Off: {
+    badgeBg: "bg-[#0f172a]/60",
+    badgeBorder: "border-[#334155]/60",
+    badgeText: "text-[#94a3b8]",
+    hoverBg: "hover:bg-[#1e293b]",
+    swatchBg: "bg-[#64748b]",
+    label: "Off Duty",
+  },
+  Leave: {
+    badgeBg: "bg-[#f87171]/15",
+    badgeBorder: "border-[#f87171]/35",
+    badgeText: "text-[#f87171]",
+    hoverBg: "hover:bg-[#f87171]/25",
+    swatchBg: "bg-[#f87171]",
+    label: "Cuti / Leave",
+  },
+};
+
+const SHIFT_LEGEND_KEYS: DayScheduleType[] = ["Subuh", "Pagi", "Malam", "Off", "Leave"];
+
+const CALENDAR_GRID_ROW =
+  "grid grid-cols-[148px_repeat(7,minmax(72px,1fr))] @[560px]:grid-cols-[200px_repeat(7,minmax(84px,1fr))] @[900px]:grid-cols-[232px_repeat(7,minmax(92px,1fr))]";
 
 /** Returns 0=Sun, 1=Mon, …, 6=Sat.  We display Mon-Sun so index 0 = Mon. */
 function buildMonthGrid(year: number, month: number) {
@@ -68,15 +126,22 @@ const MONTH_NAMES = [
 ];
 
 export function RosterCalendarView({ members, onSelectMember }: RosterCalendarViewProps) {
+  const url = useUrlQuery(rosterSchema, paths.teamRoster);
   // View mode: "weekly" | "monthly"
-  const [calMode, setCalMode] = useState<"weekly" | "monthly">("weekly");
+  const calMode = url.values.view === "monthly" ? "monthly" : "weekly";
+  const setCalMode = (mode: "weekly" | "monthly") => url.update({ view: mode, page: 1 }, "push");
 
   // Weekly state
-  const [weekOffset, setWeekOffset] = useState(0);
+  const weekOffset = Math.round((weekStart(url.values.week).getTime() - weekStart(rosterSchema.week.default).getTime()) / 604800000);
+  const setWeekOffset = (next: number | ((old: number) => number)) => {
+    const offset = typeof next === "function" ? next(weekOffset) : next;
+    url.update({ week: isoWeek(new Date(weekStart(rosterSchema.week.default).getTime() + offset * 604800000)) }, "push");
+  };
 
   // Monthly state – default to current month (Aug 2026 based on seed data)
   const today = new Date(2026, 7, 28); // Aug 28 2026
-  const [monthDate, setMonthDate] = useState(() => new Date(today.getFullYear(), today.getMonth(), 1));
+  const monthDate = useMemo(() => new Date(`${url.values.month}-01T12:00:00`), [url.values.month]);
+  const setMonthDate = (next: Date | ((old: Date) => Date)) => { const date = typeof next === "function" ? next(monthDate) : next; url.update({ month: `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}` }, "push"); };
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
 
   const monthGrid = useMemo(() => buildMonthGrid(monthDate.getFullYear(), monthDate.getMonth()), [monthDate]);
@@ -87,15 +152,10 @@ export function RosterCalendarView({ members, onSelectMember }: RosterCalendarVi
   const isCurrentMonth = monthDate.getFullYear() === todayYear && monthDate.getMonth() === todayMonth;
 
   // Weekly days (seed-based, fixed for demo)
-  const weekDays = [
-    { short: "Mon", date: "24 Aug", dow: 0, isToday: false },
-    { short: "Tue", date: "25 Aug", dow: 1, isToday: false },
-    { short: "Wed", date: "26 Aug", dow: 2, isToday: false },
-    { short: "Thu", date: "27 Aug", dow: 3, isToday: false },
-    { short: "Fri", date: "28 Aug", dow: 4, isToday: true },
-    { short: "Sat", date: "29 Aug", dow: 5, isToday: false },
-    { short: "Sun", date: "30 Aug", dow: 6, isToday: false },
-  ].map((d) => ({ ...d, isToday: weekOffset === 0 && d.isToday }));
+  const weekDays = Array.from({ length: 7 }, (_, dow) => {
+    const d = new Date(weekStart(url.values.week).getTime() + dow * 86400000);
+    return { short: DOW_LABELS[dow], date: d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", timeZone: "UTC" }), dow, isToday: d.toISOString().slice(0,10) === "2026-08-28" };
+  });
 
   // Members scheduled on a particular day-of-month
   const membersOnDay = useMemo(() => {
@@ -110,14 +170,10 @@ export function RosterCalendarView({ members, onSelectMember }: RosterCalendarVi
   const goToday = () => { setMonthDate(new Date(todayYear, todayMonth, 1)); setSelectedDay(todayDate); };
 
   // Weekly members pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState<number | "all">(10);
-
-  // Automatically reset to page 1 when the member dataset changes (due to search/filters)
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [members]);
-
+  const currentPage = url.values.page;
+  const setCurrentPage = url.field("page", "push");
+  const pageSize = url.values.size;
+  const setPageSize = url.field("size", "replace");
   const totalCount = members.length;
   const effectivePageSize = pageSize === "all" ? Math.max(1, totalCount) : pageSize;
   const totalPages = pageSize === "all" ? 1 : Math.max(1, Math.ceil(totalCount / effectivePageSize));
@@ -155,34 +211,34 @@ export function RosterCalendarView({ members, onSelectMember }: RosterCalendarVi
   }, [totalPages, safeCurrentPage]);
 
   return (
-    <div className="p-0">
+    <div className="@container p-0">
       {/* ── Top Bar ── */}
-      <div className="flex justify-between items-center gap-[14px] p-[14px_18px] border-b border-[var(--line)] bg-[var(--panel-bg)] flex-wrap">
-        <div className="flex items-center gap-[8px] text-[13px] text-[var(--ink-primary)]">
-          <CalendarIcon size={16} className="text-[var(--accent-blue)]" />
+      <div className="flex flex-col @[900px]:flex-row @[900px]:items-center justify-between gap-3 p-3.5 sm:p-4 border-b border-[#334155] bg-[#1e293b]">
+        <div className="flex flex-wrap items-center gap-2 text-[13px] text-[#f8fafc]">
+          <CalendarIcon size={16} className="text-[#38bdf8] shrink-0" />
           {calMode === "weekly" ? (
-            <>
-              <strong>Week 34 · 24 Aug – 30 Aug 2026</strong>
+            <div className="flex flex-wrap items-center gap-2">
+              <strong className="font-semibold text-[13.5px]">{url.values.week === rosterSchema.week.default ? "Week 34 · 24 Aug – 30 Aug 2026" : `Week ${Number(url.values.week.slice(-2))} · ${weekDays[0].date} – ${weekDays[6].date} ${url.values.week.slice(0,4)}`}</strong>
               {weekOffset === 0 && (
-                <span className="text-[9px] font-mono font-bold p-[2px_6px] rounded-[4px] bg-[var(--accent-blue-soft)] text-[var(--accent-blue)] border border-[var(--accent-blue-border)]">
+                <span className="text-[9.5px] font-mono font-bold px-2 py-0.5 rounded-[4px] bg-[#38bdf8]/15 text-[#38bdf8] border border-[#38bdf8]/30">
                   CURRENT WEEK
                 </span>
               )}
-            </>
+            </div>
           ) : (
             <strong>{MONTH_NAMES[monthDate.getMonth()]} {monthDate.getFullYear()}</strong>
           )}
         </div>
 
-        <div className="flex gap-[8px] items-center">
+        <div className="flex flex-wrap @[560px]:flex-nowrap items-center gap-2 w-full @[900px]:w-auto">
           {/* View mode toggle */}
-          <div className="inline-flex items-center gap-[2px] h-[36px] box-border p-[3px] bg-[var(--surface,#0f172a)] border border-[var(--panel-border)] rounded-[8px] shrink-0" aria-label="Switch calendar view">
+          <div className="inline-flex items-center gap-0.5 h-[36px] p-1 bg-[#0f172a] border border-[#334155] rounded-[8px] w-full @[560px]:w-auto justify-stretch shrink-0" aria-label="Switch calendar view">
             <button
               type="button"
-              className={`inline-flex items-center justify-center h-[28px] px-[12px] text-[11.5px] font-semibold rounded-[6px] gap-[6px] border border-transparent cursor-pointer transition-[color,background-color] duration-150 ease ${
+              className={`flex-1 @[560px]:flex-initial inline-flex items-center justify-center h-[28px] px-3 text-[11.5px] font-semibold rounded-[6px] gap-1.5 cursor-pointer transition-colors duration-150 ${
                 calMode === "weekly"
-                  ? "bg-[var(--accent-blue,#2563eb)] text-white shadow-[0_1px_3px_rgba(0,0,0,0.25)]"
-                  : "bg-transparent text-[var(--ink-muted)] hover:text-[var(--ink-primary)] hover:bg-[rgba(148,163,184,0.08)]"
+                  ? "bg-[#0284c7] text-white shadow-sm font-bold"
+                  : "bg-transparent text-[#94a3b8] hover:text-[#f8fafc] hover:bg-[#1e293b]"
               }`}
               onClick={() => setCalMode("weekly")}
             >
@@ -190,10 +246,10 @@ export function RosterCalendarView({ members, onSelectMember }: RosterCalendarVi
             </button>
             <button
               type="button"
-              className={`inline-flex items-center justify-center h-[28px] px-[12px] text-[11.5px] font-semibold rounded-[6px] gap-[6px] border border-transparent cursor-pointer transition-[color,background-color] duration-150 ease ${
+              className={`flex-1 @[560px]:flex-initial inline-flex items-center justify-center h-[28px] px-3 text-[11.5px] font-semibold rounded-[6px] gap-1.5 cursor-pointer transition-colors duration-150 ${
                 calMode === "monthly"
-                  ? "bg-[var(--accent-blue,#2563eb)] text-white shadow-[0_1px_3px_rgba(0,0,0,0.25)]"
-                  : "bg-transparent text-[var(--ink-muted)] hover:text-[var(--ink-primary)] hover:bg-[rgba(148,163,184,0.08)]"
+                  ? "bg-[#0284c7] text-white shadow-sm font-bold"
+                  : "bg-transparent text-[#94a3b8] hover:text-[#f8fafc] hover:bg-[#1e293b]"
               }`}
               onClick={() => setCalMode("monthly")}
             >
@@ -202,28 +258,56 @@ export function RosterCalendarView({ members, onSelectMember }: RosterCalendarVi
           </div>
 
           {/* Nav buttons */}
-          <div className="flex gap-[6px]">
+          <div className="grid grid-cols-3 @[560px]:flex gap-1.5 w-full @[560px]:w-auto shrink-0">
             {calMode === "weekly" ? (
               <>
-                <button className="button button-secondary px-[9px] py-[5px] text-[11px]" onClick={() => setWeekOffset((p) => p - 1)}>
-                  <ChevronLeft size={14} /> Prev
+                <button
+                  type="button"
+                  className="inline-flex items-center justify-center h-[36px] @[560px]:h-[32px] px-2.5 rounded-[6px] text-[11.5px] font-semibold text-[#cbd5e1] bg-[#0f172a] border border-[#334155] hover:bg-[#243044] hover:text-[#f8fafc] transition-colors cursor-pointer"
+                  onClick={() => setWeekOffset((p) => p - 1)}
+                >
+                  <ChevronLeft size={14} className="mr-0.5" /> Prev
                 </button>
-                <button className="button button-secondary px-[9px] py-[5px] text-[11px]" onClick={() => setWeekOffset(0)} disabled={weekOffset === 0}>
+                <button
+                  type="button"
+                  className="inline-flex items-center justify-center h-[36px] @[560px]:h-[32px] px-3 rounded-[6px] text-[11.5px] font-semibold text-[#cbd5e1] bg-[#0f172a] border border-[#334155] hover:bg-[#243044] hover:text-[#f8fafc] transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                  onClick={() => setWeekOffset(0)}
+                  disabled={weekOffset === 0}
+                >
                   Today
                 </button>
-                <button className="button button-secondary px-[9px] py-[5px] text-[11px]" onClick={() => setWeekOffset((p) => p + 1)}>
-                  Next <ChevronRight size={14} />
+                <button
+                  type="button"
+                  className="inline-flex items-center justify-center h-[36px] @[560px]:h-[32px] px-2.5 rounded-[6px] text-[11.5px] font-semibold text-[#cbd5e1] bg-[#0f172a] border border-[#334155] hover:bg-[#243044] hover:text-[#f8fafc] transition-colors cursor-pointer"
+                  onClick={() => setWeekOffset((p) => p + 1)}
+                >
+                  Next <ChevronRight size={14} className="ml-0.5" />
                 </button>
               </>
             ) : (
               <>
-                <button className="button button-secondary px-[9px] py-[5px] text-[11px]" onClick={prevMonth} aria-label="Bulan sebelumnya">
+                <button
+                  type="button"
+                  className="inline-flex items-center justify-center h-[36px] @[560px]:h-[32px] px-2.5 rounded-[6px] text-[11.5px] font-semibold text-[#cbd5e1] bg-[#0f172a] border border-[#334155] hover:bg-[#243044] hover:text-[#f8fafc] transition-colors cursor-pointer"
+                  onClick={prevMonth}
+                  aria-label="Bulan sebelumnya"
+                >
                   <ChevronLeft size={14} />
                 </button>
-                <button className="button button-secondary px-[9px] py-[5px] text-[11px]" onClick={goToday} disabled={isCurrentMonth}>
+                <button
+                  type="button"
+                  className="inline-flex items-center justify-center h-[36px] @[560px]:h-[32px] px-3 rounded-[6px] text-[11.5px] font-semibold text-[#cbd5e1] bg-[#0f172a] border border-[#334155] hover:bg-[#243044] hover:text-[#f8fafc] transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                  onClick={goToday}
+                  disabled={isCurrentMonth}
+                >
                   Today
                 </button>
-                <button className="button button-secondary px-[9px] py-[5px] text-[11px]" onClick={nextMonth} aria-label="Bulan berikutnya">
+                <button
+                  type="button"
+                  className="inline-flex items-center justify-center h-[36px] @[560px]:h-[32px] px-2.5 rounded-[6px] text-[11.5px] font-semibold text-[#cbd5e1] bg-[#0f172a] border border-[#334155] hover:bg-[#243044] hover:text-[#f8fafc] transition-colors cursor-pointer"
+                  onClick={nextMonth}
+                  aria-label="Bulan berikutnya"
+                >
                   <ChevronRight size={14} />
                 </button>
               </>
@@ -233,78 +317,108 @@ export function RosterCalendarView({ members, onSelectMember }: RosterCalendarVi
       </div>
 
       {/* ── Shift Legend (always visible) ── */}
-      <div className="flex items-center gap-[14px] p-[10px_18px] bg-[var(--bg)] border-b border-[var(--line)] text-[11px] text-[var(--ink-secondary)] flex-wrap">
-        <span className="flex items-center gap-[5px] font-bold text-[var(--ink-primary)] font-mono text-[10.5px]"><Info size={12} /> Shift:</span>
-        {SHIFT_LEGEND.map((l) => (
-          <span key={l.type} className="inline-flex items-center gap-[6px] text-[10.5px]">
-            <i
-              className="block w-[12px] h-[12px] rounded-[3px] border shrink-0"
-              style={{
-                backgroundColor: l.bg,
-                borderColor: l.border,
-              }}
-            />
-            {l.label}
-          </span>
-        ))}
+      <div className="flex items-center gap-x-4 gap-y-2 p-3 sm:px-4.5 bg-[#0f172a]/70 border-b border-[#334155] text-[11px] text-[#94a3b8] flex-wrap">
+        <span className="flex items-center gap-1.5 font-bold text-[#f8fafc] font-mono text-[10.5px]">
+          <Info size={13} className="text-[#38bdf8]" /> Shift:
+        </span>
+        {SHIFT_LEGEND_KEYS.map((type) => {
+          const item = SHIFT_STYLE_MAP[type];
+          return (
+            <span key={type} className="inline-flex items-center gap-1.5 text-[11px] font-medium text-[#cbd5e1]">
+              <i
+                className={`block w-3 h-3 rounded-[3px] border border-white/20 shrink-0 ${item.swatchBg} shadow-sm`}
+                aria-hidden="true"
+              />
+              {item.label}
+            </span>
+          );
+        })}
       </div>
 
       {/* ══ WEEKLY VIEW ══════════════════════════════════ */}
       {calMode === "weekly" && (
         <>
-          <div className="overflow-x-auto [overscroll-behavior-x:contain] py-[var(--space-2)]">
-            <div className="min-w-[820px]">
+          <div className="overflow-x-auto [overscroll-behavior-x:contain] [scrollbar-width:thin] [scrollbar-color:#334155_transparent] py-1">
+            <div className="min-w-full w-max">
               {/* Header */}
-              <div className="grid grid-cols-[200px_repeat(7,1fr)] border-b border-[var(--line)] bg-[var(--bg)] font-mono text-[10.5px]">
-                <div className="p-[10px_16px] font-bold text-[var(--ink-muted)] flex items-center">TEAM MEMBER</div>
+              <div className={`${CALENDAR_GRID_ROW} border-b border-[#334155] bg-[#0f172a] font-mono text-[10.5px]`}>
+                <div className="sticky left-0 z-20 bg-[#0f172a] border-r border-[#334155] px-3 py-2.5 sm:px-4 sm:py-3 font-bold text-[#94a3b8] flex items-center select-none">
+                  TEAM MEMBER
+                </div>
                 {weekDays.map((d, idx) => (
-                  <div key={idx} className={`p-[8px_10px] border-l border-[var(--line)] text-center flex flex-col items-center justify-center ${d.isToday ? "bg-[var(--accent-blue-soft)] text-[var(--accent-blue)]" : ""}`}>
-                    <strong>{d.short}</strong>
-                    <small>{d.date}</small>
-                    {d.isToday && <span className="text-[7.5px] font-extrabold p-[1px_4px] rounded-[3px] bg-[var(--accent-blue)] text-white mt-[2px]">TODAY</span>}
+                  <div
+                    key={idx}
+                    className={`p-2 border-l border-[#334155] text-center flex flex-col items-center justify-center select-none ${
+                      d.isToday ? "bg-[#38bdf8]/10 text-[#38bdf8] border-x border-[#38bdf8]/20" : ""
+                    } ${idx >= 5 ? "opacity-75" : ""}`}
+                  >
+                    <strong className={idx >= 5 ? "text-[#94a3b8]" : "text-[#f8fafc]"}>{d.short}</strong>
+                    <small className="text-[#94a3b8]">{d.date}</small>
+                    {d.isToday && (
+                      <span className="text-[7.5px] font-extrabold px-1.5 py-0.5 rounded-[3px] bg-[#38bdf8] text-[#0f172a] font-mono mt-0.5 shadow-sm">
+                        TODAY
+                      </span>
+                    )}
                   </div>
                 ))}
               </div>
 
               {/* Member rows */}
               {paginatedMembers.map((member) => (
-                <div className="grid grid-cols-[200px_repeat(7,1fr)] border-b border-[var(--line)]" key={member.id}>
-                  <div
-                    className="p-[var(--space-3)_var(--space-4)] flex items-center gap-[var(--space-3)] cursor-pointer hover:[&_strong]:text-[var(--accent-blue)]"
-                    onClick={() => onSelectMember(member)}
+                <div
+                  className={`${CALENDAR_GRID_ROW} border-b border-[#334155] group hover:bg-[#243044]/30 transition-colors duration-150`}
+                  key={member.id}
+                >
+                  {/* Kolom Anggota Sticky */}
+                  <Link href={routes.member(member.id, url.query)} scroll={false}
+                    className="sticky left-0 z-10 bg-[#1e293b] group-hover:bg-[#223046] transition-colors duration-150 border-r border-[#334155] px-3 py-2.5 sm:px-4 sm:py-3 min-h-[56px] flex items-center gap-2.5 sm:gap-3 cursor-pointer select-none"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        onSelectMember(member);
+                      }
+                    }}
                     role="button"
                     tabIndex={0}
-                    title={`View ${member.name}'s profile`}
+                    title={`Lihat profil ${member.name}`}
                   >
                     <Avatar
                       size="md"
                       name={member.name}
                       statusRing={member.status === "Active" ? "active" : member.status === "On Break" ? "break" : "off"}
-                      className="w-[32px] h-[32px] text-[11px]"
+                      className="w-8 h-8 text-[11px] shrink-0"
                     />
-                    <div className="flex flex-col gap-[2px] min-w-0 flex-1">
-                      <strong className="text-[var(--ink-primary)] text-[13px] font-semibold overflow-hidden text-ellipsis whitespace-nowrap transition-colors duration-150 ease">{member.name}</strong>
-                      <small className="text-[10px] text-[var(--ink-secondary)] font-medium">{member.role}</small>
+                    <div className="flex flex-col gap-0.5 min-w-0 flex-1">
+                      <strong
+                        className="text-[#f8fafc] text-[13px] font-semibold truncate transition-colors duration-150 group-hover:text-[#38bdf8] block"
+                        title={member.name}
+                      >
+                        {member.name}
+                      </strong>
+                      <small className="text-[11px] text-[#94a3b8] font-medium truncate block hidden @[560px]:block">
+                        {member.role}
+                      </small>
                     </div>
-                  </div>
+                  </Link>
 
+                  {/* 7 Kolom Hari */}
                   {member.weeklySchedule.map((dayEntry, idx) => {
-                    const colors = shiftColor(dayEntry.shift);
+                    const shiftStyle = SHIFT_STYLE_MAP[dayEntry.shift] ?? SHIFT_STYLE_MAP.Off;
                     const isToday = weekDays[idx]?.isToday;
                     return (
-                      <div key={idx} className={`p-[var(--space-2)] border-l border-[var(--line)] grid place-items-center ${isToday ? "bg-[color-mix(in_srgb,var(--accent-blue-soft)_30%,transparent)]" : ""}`}>
+                      <div
+                        key={idx}
+                        className={`p-1.5 border-l border-[#334155] flex items-center justify-center ${
+                          isToday ? "bg-[#38bdf8]/[0.04] border-x border-[#38bdf8]/15" : ""
+                        }`}
+                      >
                         <div
-                          className="w-full h-full min-h-[48px] rounded-[6px] border p-[6px_8px] flex flex-col justify-center text-center transition-[background-color,border-color] duration-150 ease cursor-default hover:bg-[var(--panel-bg-hover)] hover:border-[var(--panel-border)]"
-                          style={{
-                            backgroundColor: colors.bg,
-                            color: colors.color,
-                            borderColor: colors.border,
-                          }}
+                          className={`w-full h-full min-h-[44px] @[560px]:min-h-[48px] rounded-[6px] border p-1.5 flex flex-col justify-center text-center transition-colors duration-150 cursor-default select-none ${shiftStyle.badgeBg} ${shiftStyle.badgeBorder} ${shiftStyle.badgeText} ${shiftStyle.hoverBg}`}
                           title={`${member.name} — ${dayEntry.day}: ${dayEntry.shift} (${dayEntry.hours ?? "—"})`}
                         >
-                          <strong className="text-[11.5px] font-bold">{dayEntry.shift}</strong>
-                          <span className="text-[9.5px] font-mono opacity-85 mt-[1px]">
-                            <Clock size={9} className="inline mr-[2px] vertical-middle" />
+                          <strong className="text-[11.5px] font-bold leading-tight">{dayEntry.shift}</strong>
+                          <span className="text-[9.5px] font-mono opacity-85 mt-0.5 hidden @[560px]:inline-flex items-center justify-center">
+                            <Clock size={9} className="inline mr-1 shrink-0" />
                             {dayEntry.hours}
                           </span>
                         </div>
@@ -315,7 +429,7 @@ export function RosterCalendarView({ members, onSelectMember }: RosterCalendarVi
               ))}
 
               {totalCount === 0 && (
-                <div className="flex flex-col items-center justify-center p-[44px_20px] text-center text-[var(--ink-muted)] [grid-column:1_/_-1]!">
+                <div className="flex flex-col items-center justify-center p-12 text-center text-[#94a3b8] [grid-column:1_/_-1]!">
                   No team members match the current filter.
                 </div>
               )}
@@ -323,17 +437,16 @@ export function RosterCalendarView({ members, onSelectMember }: RosterCalendarVi
           </div>
 
           {/* Pagination Footer for Weekly Calendar */}
-          <div className="flex items-center justify-between gap-[16px] p-[12px_18px] border-t border-[var(--line)] bg-[var(--panel-bg)] flex-wrap">
-            <div className="flex items-center gap-[16px] flex-wrap">
-              <div className="flex items-center gap-[8px]">
-                <span className="text-[11.5px] text-[var(--ink-muted)] font-medium whitespace-nowrap">Rows per page:</span>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 sm:px-4.5 border-t border-[#334155] bg-[#1e293b]">
+            <div className="flex items-center justify-between sm:justify-start gap-4 flex-wrap">
+              <div className="flex items-center gap-2">
+                <span className="text-[11.5px] text-[#94a3b8] font-medium whitespace-nowrap">Rows per page:</span>
                 <select
-                  className="h-[30px] p-[0_24px_0_9px] text-[11.5px] rounded-[6px] bg-[position:right_7px_center] bg-[var(--input-bg,#0f172a)] [color-scheme:dark] border border-[var(--panel-border)] text-[var(--ink-primary)] cursor-pointer inline-flex items-center appearance-none -webkit-appearance-none"
+                  className="h-[30px] pl-2.5 pr-6 py-0 text-[11.5px] rounded-[6px] bg-[position:right_7px_center] bg-[#0f172a] [color-scheme:dark] border border-[#334155] text-[#f8fafc] cursor-pointer inline-flex items-center appearance-none -webkit-appearance-none focus:border-[#38bdf8] focus:outline-none"
                   value={pageSize === "all" ? "all" : String(pageSize)}
                   onChange={(e) => {
                     const val = e.target.value;
                     setPageSize(val === "all" ? "all" : Number(val));
-                    setCurrentPage(1);
                   }}
                   aria-label="Jumlah baris per halaman"
                 >
@@ -344,14 +457,15 @@ export function RosterCalendarView({ members, onSelectMember }: RosterCalendarVi
                 </select>
               </div>
 
-              <span className="text-[11.5px] text-[var(--ink-muted)] font-sans whitespace-nowrap">
-                Showing <strong className="text-[var(--ink-primary)] font-mono">{totalCount === 0 ? 0 : startIdx + 1}–{endIdx}</strong> of <strong className="text-[var(--ink-primary)] font-mono">{totalCount}</strong> members
+              <span className="text-[11.5px] text-[#94a3b8] font-sans whitespace-nowrap">
+                Showing <strong className="text-[#f8fafc] font-mono">{totalCount === 0 ? 0 : startIdx + 1}–{endIdx}</strong> of{" "}
+                <strong className="text-[#f8fafc] font-mono">{totalCount}</strong> members
               </span>
             </div>
 
-            <div className="flex items-center gap-[5px]">
+            <div className="flex items-center justify-between sm:justify-end gap-1.5 w-full sm:w-auto">
               <button
-                className="inline-flex items-center justify-center p-[4px_10px] rounded-[6px] text-[11px] font-semibold font-mono bg-[rgba(148,163,184,0.06)] border border-[rgba(148,163,184,0.15)] text-[var(--ink-secondary)] cursor-pointer transition-all duration-150 ease select-none hover:not-disabled:bg-[rgba(56,189,248,0.12)] hover:not-disabled:border-[rgba(56,189,248,0.35)] hover:not-disabled:text-[#38bdf8] disabled:opacity-35 disabled:cursor-not-allowed disabled:bg-[rgba(148,163,184,0.03)] disabled:border-[rgba(148,163,184,0.08)] disabled:text-[var(--ink-muted)]"
+                className="inline-flex items-center justify-center min-h-[36px] sm:min-h-0 h-[36px] sm:h-[28px] px-3 sm:px-2.5 rounded-[6px] text-[11px] font-semibold font-mono bg-[#0f172a] border border-[#334155] text-[#cbd5e1] cursor-pointer transition-colors duration-150 select-none hover:not-disabled:bg-[#243044] hover:not-disabled:border-[#475569] hover:not-disabled:text-[#38bdf8] disabled:opacity-35 disabled:cursor-not-allowed"
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                 disabled={safeCurrentPage <= 1}
                 aria-label="Halaman sebelumnya"
@@ -359,17 +473,17 @@ export function RosterCalendarView({ members, onSelectMember }: RosterCalendarVi
                 Prev
               </button>
 
-              <div className="flex items-center gap-[3px]">
+              <div className="flex items-center gap-1">
                 {pageNumbers.map((p, idx) =>
                   p === "..." ? (
-                    <span key={`ellipsis-${idx}`} className="px-[4px] text-[var(--ink-muted)] text-[12px]">…</span>
+                    <span key={`ellipsis-${idx}`} className="px-1 text-[#94a3b8] text-[12px]">…</span>
                   ) : (
                     <button
                       key={p}
-                      className={`inline-flex items-center justify-center min-w-[26px] h-[26px] p-0 rounded-[6px] text-[11px] font-mono cursor-pointer transition-all duration-150 ease select-none border ${
+                      className={`inline-flex items-center justify-center min-w-[32px] sm:min-w-[28px] min-h-[36px] sm:min-h-0 h-[36px] sm:h-[28px] px-1 rounded-[6px] text-[11px] font-mono cursor-pointer transition-colors duration-150 select-none border ${
                         p === safeCurrentPage
-                          ? "bg-[rgba(56,189,248,0.18)] border-[rgba(56,189,248,0.5)] text-[#38bdf8] font-bold"
-                          : "bg-[rgba(148,163,184,0.06)] border-[rgba(148,163,184,0.15)] text-[var(--ink-secondary)] font-semibold hover:bg-[rgba(56,189,248,0.12)] hover:border-[rgba(56,189,248,0.35)] hover:text-[#38bdf8]"
+                          ? "bg-[#38bdf8]/15 border-[#38bdf8]/50 text-[#38bdf8] font-bold shadow-sm"
+                          : "bg-[#0f172a] border-[#334155] text-[#cbd5e1] font-semibold hover:bg-[#243044] hover:border-[#475569] hover:text-[#38bdf8]"
                       }`}
                       onClick={() => setCurrentPage(Number(p))}
                       aria-label={`Halaman ${p}`}
@@ -382,7 +496,7 @@ export function RosterCalendarView({ members, onSelectMember }: RosterCalendarVi
               </div>
 
               <button
-                className="inline-flex items-center justify-center p-[4px_10px] rounded-[6px] text-[11px] font-semibold font-mono bg-[rgba(148,163,184,0.06)] border border-[rgba(148,163,184,0.15)] text-[var(--ink-secondary)] cursor-pointer transition-all duration-150 ease select-none hover:not-disabled:bg-[rgba(56,189,248,0.12)] hover:not-disabled:border-[rgba(56,189,248,0.35)] hover:not-disabled:text-[#38bdf8] disabled:opacity-35 disabled:cursor-not-allowed disabled:bg-[rgba(148,163,184,0.03)] disabled:border-[rgba(148,163,184,0.08)] disabled:text-[var(--ink-muted)]"
+                className="inline-flex items-center justify-center min-h-[36px] sm:min-h-0 h-[36px] sm:h-[28px] px-3 sm:px-2.5 rounded-[6px] text-[11px] font-semibold font-mono bg-[#0f172a] border border-[#334155] text-[#cbd5e1] cursor-pointer transition-colors duration-150 select-none hover:not-disabled:bg-[#243044] hover:not-disabled:border-[#475569] hover:not-disabled:text-[#38bdf8] disabled:opacity-35 disabled:cursor-not-allowed"
                 onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                 disabled={safeCurrentPage >= totalPages || totalPages <= 1}
                 aria-label="Halaman berikutnya"
@@ -481,6 +595,12 @@ export function RosterCalendarView({ members, onSelectMember }: RosterCalendarVi
                       key={member.id}
                       className="flex items-center gap-[10px] p-[10px_14px] border-b border-[var(--line)] last:border-b-0 cursor-pointer transition-colors duration-120 ease hover:bg-[var(--panel-bg-hover)]"
                       onClick={() => onSelectMember(member)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          onSelectMember(member);
+                        }
+                      }}
                       role="button"
                       tabIndex={0}
                       title={`Open ${member.name}'s profile`}
@@ -529,3 +649,4 @@ export function RosterCalendarView({ members, onSelectMember }: RosterCalendarVi
     </div>
   );
 }
+

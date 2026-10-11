@@ -77,6 +77,7 @@ export const PRESET_OPERATORS: PresetOperator[] = [
 
 interface AuthContextValue {
   user: AuthUser | null;
+  ready: boolean;
   isAuthenticated: boolean;
   token: string | null;
   login: (token: string, user: AuthUser) => void;
@@ -92,6 +93,7 @@ const LOGGED_OUT_KEY = "ctd.is_logged_out";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(DEFAULT_OPERATOR);
+  const [ready, setReady] = useState(false);
   const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
@@ -114,7 +116,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     } catch {
       setUser(DEFAULT_OPERATOR);
-    }
+    } finally { setReady(true); }
   }, []);
 
   const login = (newToken: string, newUser: AuthUser) => {
@@ -156,6 +158,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     <AuthContext.Provider
       value={{
         user,
+        ready,
         isAuthenticated: Boolean(user),
         token,
         login,

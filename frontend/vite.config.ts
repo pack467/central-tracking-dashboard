@@ -1,7 +1,9 @@
 import vinext from "vinext";
-import { defineConfig } from "vite";
+import { defineConfig, type ViteDevServer } from "vite";
 import hostingConfig from "./.openai/hosting.json";
 import { sites } from "./build/sites-vite-plugin";
+import { canonicalRoute } from "./app/lib/canonical-route";
+import { vinextNavigationCompat } from "./build/vinext-navigation-compat";
 
 const SITE_CREATOR_PLACEHOLDER_DATABASE_ID =
   "00000000-0000-4000-8000-000000000000";
@@ -46,10 +48,24 @@ export default defineConfig(async () => {
   return {
     server: {
       ...(isCodexSeatbeltSandbox ? { watch: { useFsEvents: false, usePolling: true } } : {}),
-      allowedHosts: true,
+      allowedHosts: true as const,
     },
     plugins: [
+      {
+        name: "ctd-canonical-navigation",
+        enforce: "pre",
+        configureServer(server: ViteDevServer) {
+          server.middlewares.use((request, response, next) => {
+            const canonical = canonicalRoute(new URL(request.url ?? "/", "http://localhost"));
+            if (!canonical) { next(); return; }
+            response.statusCode = canonical.status;
+            response.setHeader("Location", canonical.url.pathname + canonical.url.search);
+            response.end();
+          });
+        },
+      },
       vinext(),
+      vinextNavigationCompat(),
       sites(),
       cloudflare({
         viteEnvironment: { name: "rsc", childEnvironments: ["ssr"] },

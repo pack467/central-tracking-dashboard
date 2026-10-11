@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { paths, safeNext } from "@/app/lib/routes";
 import { ArrowLeft } from "lucide-react";
 
 interface TeamBackButtonProps {
@@ -25,7 +26,7 @@ export function TeamBackButton({ className = "" }: TeamBackButtonProps) {
   const handleBack = () => {
     // 1. Prioritaskan query param ?from= jika eksplisit disediakan (misal dari /login)
     if (fromParam) {
-      router.push(fromParam);
+      router.push(safeNext(fromParam, true));
       return;
     }
 
@@ -51,7 +52,7 @@ export function TeamBackButton({ className = "" }: TeamBackButtonProps) {
     }
 
     // 4. Fallback default ke dashboard utama jika dibuka langsung di tab baru
-    router.push("/");
+    router.push(paths.dashboard);
   };
 
   return (

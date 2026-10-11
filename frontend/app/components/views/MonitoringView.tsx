@@ -1,4 +1,8 @@
 "use client";
+import Link from "next/link";
+import { useUrlQuery } from "@/app/hooks/useUrlQuery";
+import { monitoringSchema } from "@/app/lib/query-state";
+import { paths, withQuery } from "@/app/lib/routes";
 
 import { useMemo, useState, useEffect, useRef, useCallback } from "react";
 import {
@@ -19,7 +23,7 @@ import {
   Grid,
   SlidersHorizontal,
 } from "lucide-react";
-import { MonitoringSchedule, rowKey, matchesProject } from "@/app/components/dashboard/MonitoringSchedule";
+import { MonitoringSchedule, rowKey, matchesProject, CLIENT_MONITORING_SYSTEMS } from "@/app/components/dashboard/MonitoringSchedule";
 import { MonitoringHistorySection } from "@/app/components/monitoring/MonitoringHistorySection";
 import { StatCard, type StatAccentColor } from "@/app/components/ui/StatCard";
 import { useActiveShift } from "@/app/hooks/useLiveClock";
@@ -31,6 +35,7 @@ interface MonitoringViewProps {
   assessments: Record<string, CheckpointAssessment>;
   onAssess: (key: string, verdict: "ok" | "nok" | "adequate" | "not-adequate" | null) => void;
   onRequestNote: (key: string) => void;
+  onUpdateNote?: (key: string, note: string) => void;
   onOpenGuide: () => void;
   currentHour: string;
 }
@@ -39,6 +44,7 @@ export function MonitoringView({
   assessments,
   onAssess,
   onRequestNote,
+  onUpdateNote,
   onOpenGuide,
   currentHour,
 }: MonitoringViewProps) {
@@ -46,13 +52,17 @@ export function MonitoringView({
   const schedule = useMemo(() => getClientMonitoringSchedule(activeClientId), [activeClientId]);
   const projects = useMemo(() => getClientProjects(activeClientId), [activeClientId]);
 
+  const schema = useMemo(() => monitoringSchema(projects.map(p => p.name), CLIENT_MONITORING_SYSTEMS[activeClientId] ?? CLIENT_MONITORING_SYSTEMS.tritronik), [projects, schedule]);
+  const url = useUrlQuery(schema, paths.monitoring);
   const activeShift = useActiveShift();
   const shiftAccent: StatAccentColor = activeShift.id === "subuh" ? "blue" : activeShift.id === "pagi" ? "amber" : "purple";
-  const [activeTab, setActiveTab] = useState<"live" | "history">("live");
-  const [selectedProject, setSelectedProject] = useState<string | null>(null);
+  const activeTab = url.pathname === paths.monitoringHistory ? "history" : "live";
+  const selectedProject = url.values.project || null;
+  const setSelectedProject = (value: string | null) => url.update({ project: value ?? "" });
 
   // Status filter for project cards: "all" | "urgent" | "healthy"
-  const [statusFilter, setStatusFilter] = useState<"all" | "urgent" | "healthy">("all");
+  const statusFilter = url.values.health;
+  const setStatusFilter = url.field("health", "replace");
   // Expanded mode (multi-row grid) vs carousel mode (single-row with scroll)
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -64,9 +74,7 @@ export function MonitoringView({
   const [visibleCardsCount, setVisibleCardsCount] = useState(4);
 
   // Auto-reset project filter when active client changes
-  useEffect(() => {
-    setSelectedProject(null);
-  }, [activeClientId]);
+
 
   // Assessed entries list
   const assessedEntries = useMemo(
@@ -288,16 +296,16 @@ export function MonitoringView({
 
       {/* ── Sub-Navigation Switcher (Monitoring Sekarang / Log Monitoring) ── */}
       <div className="flex items-center gap-2 mb-6 border-b border-[#334155] pb-3 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="tablist" aria-label="Navigasi view monitoring">
-        <button
-          type="button"
+        <Link
+
           role="tab"
           aria-selected={activeTab === "live"}
-          className={`inline-flex items-center gap-2 px-3.5 py-[7px] rounded-[8px] border text-[12px] font-semibold transition-all cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38bdf8] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0f172a] ${
+          className={`inline-flex items-center text-center gap-2 px-3.5 py-[7px] rounded-[8px] border text-[12px] font-semibold transition-all cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38bdf8] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0f172a] ${
             activeTab === "live"
               ? "bg-[#1e293b] border-[#334155] text-[#38bdf8] font-bold shadow-[0_1px_3px_rgba(0,0,0,0.2)]"
               : "border-transparent bg-transparent text-[#94a3b8] hover:bg-[#243044] hover:text-[#f8fafc]"
           }`}
-          onClick={() => setActiveTab("live")}
+          href={withQuery(paths.monitoring, url.query)} scroll={false}
         >
           <Activity size={14} className={activeTab === "live" ? "text-[#38bdf8]" : "text-[#94a3b8]"} />
           <span>Monitoring Sekarang</span>
@@ -310,18 +318,18 @@ export function MonitoringView({
           >
             {totalCheckpoints}
           </span>
-        </button>
+        </Link>
 
-        <button
-          type="button"
+        <Link
+
           role="tab"
           aria-selected={activeTab === "history"}
-          className={`inline-flex items-center gap-2 px-3.5 py-[7px] rounded-[8px] border text-[12px] font-semibold transition-all cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38bdf8] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0f172a] ${
+          className={`inline-flex items-center text-center gap-2 px-3.5 py-[7px] rounded-[8px] border text-[12px] font-semibold transition-all cursor-pointer select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38bdf8] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0f172a] ${
             activeTab === "history"
               ? "bg-[#1e293b] border-[#334155] text-[#38bdf8] font-bold shadow-[0_1px_3px_rgba(0,0,0,0.2)]"
               : "border-transparent bg-transparent text-[#94a3b8] hover:bg-[#243044] hover:text-[#f8fafc]"
           }`}
-          onClick={() => setActiveTab("history")}
+          href={withQuery(paths.monitoringHistory, url.query)} scroll={false}
         >
           <Clock size={14} className={activeTab === "history" ? "text-[#38bdf8]" : "text-[#94a3b8]"} />
           <span>Log Monitoring</span>
@@ -340,7 +348,7 @@ export function MonitoringView({
               {totalAssessed > 0 ? `${totalAssessed} Selesai` : "Log Riwayat"}
             </span>
           )}
-        </button>
+        </Link>
       </div>
 
       {activeTab === "live" && (
@@ -684,9 +692,14 @@ export function MonitoringView({
         assessments={assessments}
         onAssess={onAssess}
         onRequestNote={onRequestNote}
+        onUpdateNote={onUpdateNote}
         currentHour={currentHour}
         selectedProject={selectedProject}
         onSelectProject={setSelectedProject}
+        selectedSystem={url.values.system || null}
+        onSelectSystem={value => url.update({ system: value ?? "" })}
+        selectedStatus={url.values.status}
+        onSelectStatus={value => url.update({ status: value })}
       />
         </div>
       )}
@@ -703,3 +716,5 @@ export function MonitoringView({
     </>
   );
 }
+
+

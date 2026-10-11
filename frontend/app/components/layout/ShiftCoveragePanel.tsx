@@ -1,4 +1,7 @@
 "use client";
+import Link from "next/link";
+import { paths } from "@/app/lib/routes";
+
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Users, ChevronLeft, ChevronRight } from "lucide-react";
@@ -23,7 +26,6 @@ interface ShiftCoveragePanelProps {
 export function ShiftCoveragePanel({
   isOpen,
   onToggle,
-  onNavigateToRoster,
 }: ShiftCoveragePanelProps) {
   const activeShift = useActiveShift();
   const [activeTab, setActiveTab] = useState<FilterTabOption>("Semua");
@@ -194,23 +196,14 @@ export function ShiftCoveragePanel({
 
         {/* Panel Footer (Tetap menempel di bawah) */}
         <div className="shift-panel-footer shift-coverage-footer p-[12px_14px_14px] [border-top:1px_solid_var(--line,rgba(255,255,255,0.08))] shrink-0 box-border w-full bg-[var(--panel-bg,#1e293b)]">
-          <button
-            type="button"
+          <Link href={paths.teamRoster} onClick={() => { if (window.innerWidth <= 940) onToggle(); }}
             className="full-width-button flex items-center justify-center gap-[8px] w-full h-auto min-h-[38px] m-0 p-[10px_14px] box-border border border-[rgba(99,102,241,0.35)] rounded-[10px] cursor-pointer bg-[linear-gradient(135deg,rgba(99,102,241,0.22),rgba(139,92,246,0.16))] text-[#c7d2fe] font-['Plus_Jakarta_Sans',sans-serif] text-[12.5px] font-semibold text-center [transition:background_0.2s_ease,_border-color_0.2s_ease,_color_0.2s_ease] [box-shadow:none] [transform:none] hover:bg-[linear-gradient(135deg,rgba(99,102,241,0.32),rgba(139,92,246,0.25))] hover:text-[#ffffff] hover:border-[rgba(99,102,241,0.55)] active:bg-[rgba(99,102,241,0.28)]"
-            onClick={() => {
-              if (onNavigateToRoster) {
-                onNavigateToRoster();
-              }
-              if (typeof window !== "undefined" && window.innerWidth <= 940) {
-                onToggle();
-              }
-            }}
           >
             <span>Lihat jadwal shift roster</span>
             <span className="shift-panel-btn-arrow text-[14px] inline-block [transform:none]" aria-hidden="true">
               →
             </span>
-          </button>
+          </Link>
         </div>
       </aside>
     </>

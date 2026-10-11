@@ -1,6 +1,11 @@
 "use client";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useUrlQuery, useUrlSearch } from "@/app/hooks/useUrlQuery";
+import { ticketsSchema, serializeQuery } from "@/app/lib/query-state";
+import { paths, withQuery } from "@/app/lib/routes";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Ticket as TicketIcon,
   Activity,
@@ -86,22 +91,37 @@ const normalizePriority = (p: string) => {
 
 export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsViewProps) {
   const { activeClient } = useClient();
+  const schema = useMemo(() => ticketsSchema([...new Set(tickets.map(t => t.project))]), [tickets]);
+  const url = useUrlQuery(schema, paths.tickets);
+  const router = useRouter();
   // Main view tab (queue, escalations, report)
-  const [activeTab, setActiveTab] = useState<MainViewTab>("queue");
+  const activeTab: MainViewTab = url.pathname === paths.escalations || url.values.list === "escalations" ? "escalations" : "queue";
+  const setActiveTab = (tab: MainViewTab) => router.push(withQuery(tab === "escalations" ? paths.escalations : paths.tickets, url.query), { scroll: false });
 
   // Search & Filters
-  const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("All");
-  const [dateFilter, setDateFilter] = useState<string>("");
-  const [typeFilter, setTypeFilter] = useState<string>("All Types");
-  const [priorityFilter, setPriorityFilter] = useState<string>("All Severities");
-  const [projectFilter, setProjectFilter] = useState<string>("All Projects");
-  const [shiftFilter, setShiftFilter] = useState<string>("Semua Shift");
-  const [sort, setSort] = useState<string>("newest");
+  const searchDraft = useUrlSearch(url.values.q, url.field("q"));
+  const search = searchDraft.effective;
+  const setSearch = searchDraft.set;
+  const statusFilter: string = url.values.status;
+  const setStatusFilter = url.field("status", "replace");
+  const dateFilter = url.values.date;
+  const setDateFilter = url.field("date", "replace");
+  const typeFilter = url.values.type;
+  const setTypeFilter = url.field("type", "replace");
+  const priorityFilter: string = url.values.priority;
+  const setPriorityFilter = url.field("priority", "replace");
+  const projectFilter = url.values.project;
+  const setProjectFilter = url.field("project", "replace");
+  const shiftFilter: string = url.values.shift;
+  const setShiftFilter = url.field("shift", "replace");
+  const sort = url.values.sort;
+  const setSort = url.field("sort", "replace");
 
   // Pagination state (default: 10 rows per page)
-  const [pageSize, setPageSize] = useState<number>(10);
-  const [currentPage, setCurrentPage] = useState<number>(1);
+  const pageSize = url.values.size;
+  const setPageSize = url.field("size", "replace");
+  const currentPage = url.values.page;
+  const setCurrentPage = url.field("page", "push");
 
   // Mobile filter panel open/closed
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
@@ -112,14 +132,8 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
     [tickets],
   );
 
-  const handleTabChange = (tab: MainViewTab) => {
-    setActiveTab(tab);
-  };
-
   // Reset pagination to page 1 whenever any filter, search, sort, or tab changes
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [search, statusFilter, dateFilter, typeFilter, priorityFilter, projectFilter, shiftFilter, sort, activeTab]);
+
 
   // Filtered tickets
   const filteredTickets = useMemo(() => {
@@ -274,7 +288,6 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
     setPriorityFilter("All Severities");
     setProjectFilter("All Projects");
     setShiftFilter("Semua Shift");
-    setCurrentPage(1);
   };
 
   const selectedRangeLabel = useMemo(() => {
@@ -301,7 +314,6 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
               value={pageSize}
               onChange={(e) => {
                 setPageSize(Number(e.target.value));
-                setCurrentPage(1);
               }}
               aria-label="Jumlah tiket per halaman"
             >
@@ -450,8 +462,7 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
 
       {/* ── 2. Sub-Navigation Switcher (Daftar Tiket / Escalations / Ticket Report) ── */}
       <div className="flex gap-2 mb-4 border-b border-[#334155] pb-2.5" role="tablist" aria-label="Navigasi view tiket">
-        <button
-          type="button"
+        <Link href={withQuery(paths.tickets, serializeQuery(schema, { ...url.values, list: "queue" }))} scroll={false}
           role="tab"
           aria-selected={activeTab === "queue"}
           className={`inline-flex items-center gap-2 px-4 py-2 rounded-[8px] border text-[12.5px] cursor-pointer select-none transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38bdf8] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0f172a] ${
@@ -459,17 +470,16 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
               ? "border-[#334155] bg-[#1e293b] text-[#38bdf8] font-bold shadow-[0_1px_2px_0_rgba(0,0,0,0.2)]"
               : "border-transparent bg-transparent text-[#cbd5e1] hover:bg-[#243044] hover:text-[#f8fafc] font-semibold"
           }`}
-          onClick={() => handleTabChange("queue")}
+          
         >
           <Layers size={14} />
           <span>Daftar Tiket</span>
           <span className="inline-flex items-center px-1.5 py-[1px] rounded-full text-[10px] font-mono font-bold bg-[rgba(148,163,184,0.15)] text-[#94a3b8]">
             {tickets.length}
           </span>
-        </button>
+        </Link>
 
-        <button
-          type="button"
+        <Link href={withQuery(paths.escalations, serializeQuery(schema, { ...url.values, list: "queue" }))} scroll={false}
           role="tab"
           aria-selected={activeTab === "escalations"}
           className={`inline-flex items-center gap-2 px-4 py-2 rounded-[8px] border text-[12.5px] cursor-pointer select-none transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38bdf8] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0f172a] ${
@@ -477,7 +487,7 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
               ? "border-[#334155] bg-[#1e293b] text-[#38bdf8] font-bold shadow-[0_1px_2px_0_rgba(0,0,0,0.2)]"
               : "border-transparent bg-transparent text-[#cbd5e1] hover:bg-[#243044] hover:text-[#f8fafc] font-semibold"
           }`}
-          onClick={() => handleTabChange("escalations")}
+          
         >
           <ShieldAlert size={14} />
           <span>Escalations</span>
@@ -490,7 +500,7 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
           >
             {escalatedCount}
           </span>
-        </button>
+        </Link>
       </div>
 
       {/* ── 3. Main Content Panel ── */}
@@ -501,7 +511,7 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
           <div className="relative flex items-center flex-[1_1_200px] min-w-[160px] h-[34px] px-2.5 border border-[#334155] rounded-[8px] bg-[#0f172a] gap-2 transition-[border-color,box-shadow] duration-150 focus-within:border-[#38bdf8] focus-within:shadow-[0_0_0_3px_rgba(56,189,248,0.12)] max-[900px]:w-full max-[900px]:flex-none group/search">
             <Search size={14} className="text-[#94a3b8] group-focus-within/search:text-[#38bdf8] shrink-0 transition-colors duration-150" />
             <input
-              value={search}
+              value={searchDraft.input}
               onChange={(event) => setSearch(event.target.value)}
               placeholder="Cari ID, subjek, proyek, atau PIC…"
               aria-label="Cari tiket"
@@ -847,3 +857,4 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
     </div>
   );
 }
+

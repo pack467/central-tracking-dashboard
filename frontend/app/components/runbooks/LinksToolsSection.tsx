@@ -1,4 +1,7 @@
 "use client";
+import { paths } from "@/app/lib/routes";
+import { useUrlQuery } from "@/app/hooks/useUrlQuery";
+import { runbooksSchema } from "@/app/lib/query-state";
 
 import { useCallback, useMemo, useState } from "react";
 import {
@@ -59,7 +62,9 @@ interface LinksToolsSectionProps {
 }
 
 export function LinksToolsSection({ entries, search }: LinksToolsSectionProps) {
-  const [catFilter, setCatFilter] = useState<LinkCategory | "All">("All");
+  const url = useUrlQuery(runbooksSchema, paths.runbooks);
+  const catFilter = url.values.category;
+  const setCatFilter = url.field("category");
 
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = { All: entries.length };
@@ -221,3 +226,4 @@ function LinkCard({ link }: { link: QuickLink }) {
     </div>
   );
 }
+
