@@ -40,9 +40,9 @@ model User {
   routineReports        RoutineReport[]
   ticketLogs            TicketLog[]
 
-  monitoringCheckpointsCreated MonitoringCheckpoint[] @relation("MonitoringCheckpointCreatedBy")
-  monitoringChecksDone         MonitoringCheck[]      @relation("MonitoringCheckedBy")
-  monitoringChecksReviewed     MonitoringCheck[]      @relation("MonitoringReviewedBy")
+  monitoringTemplatesCreated MonitoringTemplate[] @relation("MonitoringTemplateCreatedBy")
+  monitoringLogsDone         MonitoringLog[]      @relation("MonitoringLogCheckedBy")
+  monitoringLogsReviewed     MonitoringLog[]      @relation("MonitoringLogReviewedBy")
 
   @@index([role_id])
   @@map("users")
@@ -115,12 +115,12 @@ model Project {
   created_at  DateTime @default(now()) @db.Timestamptz(6)
   updated_at  DateTime @default(now()) @updatedAt @db.Timestamptz(6)
 
-  tenant                Tenant                 @relation(fields: [tenant_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  handovers             Handover[]
-  monitoringCheckpoints MonitoringCheckpoint[]
-  routineMeetings       RoutineMeeting[]
-  routineReports        RoutineReport[]
-  ticketLogs            TicketLog[]
+  tenant              Tenant               @relation(fields: [tenant_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  handovers           Handover[]
+  monitoringTemplates MonitoringTemplate[]
+  routineMeetings     RoutineMeeting[]
+  routineReports      RoutineReport[]
+  ticketLogs          TicketLog[]
 
   @@index([tenant_id])
   @@map("projects")
@@ -133,8 +133,8 @@ model Client {
   created_at  DateTime @default(now()) @db.Timestamptz(6)
   updated_at  DateTime @default(now()) @updatedAt @db.Timestamptz(6)
 
-  ticketLogs            TicketLog[]
-  monitoringCheckpoints MonitoringCheckpoint[]
+  ticketLogs          TicketLog[]
+  monitoringTemplates MonitoringTemplate[]
 
   @@map("clients")
 }
@@ -168,7 +168,7 @@ model TicketLog {
   severity TicketSeverity? @relation(fields: [severity_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   category TicketCategory? @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  monitoringChecks MonitoringCheck[]
+  monitoringLogs MonitoringLog[]
 
   // The list's default sort, its filters and the status summary.
   @@index([open_at(sort: Desc)])
@@ -219,20 +219,20 @@ model Handover {
   status              RoutineStatus?    @default(Open)
   category            HandoverCategory?
   is_repeatable       Boolean           @default(false)
-  // For a Monitoring handover: the (usually NOK) check it hands over to the next shift.
-  monitoring_check_id BigInt?
+  // For a Monitoring handover: the (usually NOK) monitoring log it hands over to the next shift.
+  monitoring_log_id   BigInt?
   created_at          DateTime          @default(now()) @db.Timestamptz(6)
   updated_at          DateTime          @default(now()) @updatedAt @db.Timestamptz(6)
 
-  updatedBy       User?            @relation("HandoverUpdatedBy", fields: [updated_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  acknowledgedBy  User?            @relation("HandoverAcknowledgedBy", fields: [acknowledge_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  project         Project?         @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  monitoringCheck MonitoringCheck? @relation(fields: [monitoring_check_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  updatedBy      User?          @relation("HandoverUpdatedBy", fields: [updated_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  acknowledgedBy User?          @relation("HandoverAcknowledgedBy", fields: [acknowledge_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  project        Project?       @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  monitoringLog  MonitoringLog? @relation(fields: [monitoring_log_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([project_id])
   @@index([updated_user_id])
   @@index([acknowledge_user_id])
-  @@index([monitoring_check_id])
+  @@index([monitoring_log_id])
   @@map("handover")
 }
 
@@ -279,10 +279,10 @@ model RoutineReport {
   @@map("routine_reports")
 }
 
-// What to check and when, e.g. "check node lastcoll on smng232" for a project
-// at 09:00, 13:00 and 17:00 WIB every day. Replaces the old monitoring_template.
+// Monitoring template: what to check and when, e.g. "check node lastcoll on
+// smng232" for a project at 09:00, 13:00 and 17:00 WIB every day.
 // The tenant comes from the project (no tenant_id).
-model MonitoringCheckpoint {
+model MonitoringTemplate {
   id           BigInt    @id @default(autoincrement())
   project_id   BigInt
   name         String    @db.VarChar(255)
@@ -291,71 +291,71 @@ model MonitoringCheckpoint {
   // Local times of day, "HH:mm" (e.g. ["09:00","13:00","17:00"]), in `timezone`.
   times        String[]
   timezone     String    @default("Asia/Jakarta") @db.VarChar(64)
-  // Temporary checkpoints: limited by a date range, and/or switched off when
+  // Temporary templates: limited by a date range, and/or switched off when
   // the client no longer needs them.
   is_temporary Boolean   @default(false)
   active_from  DateTime? @db.Date // null: from creation
   active_until DateTime? @db.Date // null: open-ended
-  // Off = no longer scheduled; history is kept (never delete a checkpoint with checks).
+  // Off = no longer scheduled; history is kept (never delete a template with logs).
   is_active    Boolean   @default(true)
-  // The client who asked for it (e.g. a temporary, client-requested checkpoint).
+  // The client who asked for it (e.g. a temporary, client-requested template).
   client_id    BigInt?
   created_by   BigInt?
   created_at   DateTime  @default(now()) @db.Timestamptz(6)
   updated_at   DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
 
-  project   Project           @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  client    Client?           @relation(fields: [client_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  createdBy User?             @relation("MonitoringCheckpointCreatedBy", fields: [created_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  checks    MonitoringCheck[]
+  project   Project         @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  client    Client?         @relation(fields: [client_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  createdBy User?           @relation("MonitoringTemplateCreatedBy", fields: [created_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  logs      MonitoringLog[]
 
   @@index([project_id])
   @@index([is_active])
   @@index([client_id])
   @@index([created_by])
-  @@map("monitoring_checkpoints")
+  @@map("monitoring_templates")
 }
 
-// One check of a checkpoint at one scheduled time: done by an agent, reviewed by
-// a team lead. Replaces the old monitoring_logs. A slot with no row is "missed"
+// Monitoring log: one check of a template at one scheduled time, done by an
+// agent and optionally reviewed by a team lead. A slot with no row is "missed"
 // (computed, not stored).
-model MonitoringCheck {
-  id            BigInt           @id @default(autoincrement())
-  checkpoint_id BigInt
+model MonitoringLog {
+  id           BigInt           @id @default(autoincrement())
+  template_id  BigInt
   // The scheduled slot (e.g. today 09:00 WIB) as an exact instant.
-  scheduled_at  DateTime         @db.Timestamptz(6)
+  scheduled_at DateTime         @db.Timestamptz(6)
   // When the agent actually did it.
-  checked_at    DateTime         @default(now()) @db.Timestamptz(6)
-  checked_by    BigInt
-  result        MonitoringResult
+  checked_at   DateTime         @default(now()) @db.Timestamptz(6)
+  checked_by   BigInt
+  result       MonitoringResult
   // Required when result is NOK (enforced by the API, not the DB).
-  note          String?
+  note         String?
   // Optional image/screenshot link (e.g. for a NOK).
-  evidence_url  String?
+  evidence_url String?
   // Optional ticket raised for a NOK.
-  ticket_id     BigInt?
-  reviewed_by   BigInt?
-  reviewed_at   DateTime?        @db.Timestamptz(6)
-  review_note   String?
-  created_at    DateTime         @default(now()) @db.Timestamptz(6)
-  updated_at    DateTime         @default(now()) @updatedAt @db.Timestamptz(6)
+  ticket_id    BigInt?
+  reviewed_by  BigInt?
+  reviewed_at  DateTime?        @db.Timestamptz(6)
+  review_note  String?
+  created_at   DateTime         @default(now()) @db.Timestamptz(6)
+  updated_at   DateTime         @default(now()) @updatedAt @db.Timestamptz(6)
 
-  checkpoint MonitoringCheckpoint @relation(fields: [checkpoint_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  checker    User                 @relation("MonitoringCheckedBy", fields: [checked_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  reviewer   User?                @relation("MonitoringReviewedBy", fields: [reviewed_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  ticket     TicketLog?           @relation(fields: [ticket_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  handovers  Handover[]
+  template  MonitoringTemplate @relation(fields: [template_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  checker   User               @relation("MonitoringLogCheckedBy", fields: [checked_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  reviewer  User?              @relation("MonitoringLogReviewedBy", fields: [reviewed_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  ticket    TicketLog?         @relation(fields: [ticket_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  handovers Handover[]
 
-  // One check per slot; also serves "checks of a checkpoint by time".
-  @@unique([checkpoint_id, scheduled_at])
-  // Daily dashboards ("today's checks"), per-agent and per-reviewer lists,
+  // One log per slot; also serves "logs of a template by time".
+  @@unique([template_id, scheduled_at])
+  // Daily dashboards ("today's logs"), per-agent and per-reviewer lists,
   // and NOK counts.
   @@index([scheduled_at])
   @@index([checked_by])
   @@index([reviewed_by])
   @@index([result])
   @@index([ticket_id])
-  @@map("monitoring_checks")
+  @@map("monitoring_logs")
 }
 
 // ─────────────────────────────────────────────

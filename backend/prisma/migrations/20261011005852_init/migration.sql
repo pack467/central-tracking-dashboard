@@ -149,7 +149,7 @@ CREATE TABLE "handover" (
     "status" "routine_status_enum" DEFAULT 'Open',
     "category" "handover_category_enum",
     "is_repeatable" BOOLEAN NOT NULL DEFAULT false,
-    "monitoring_check_id" BIGINT,
+    "monitoring_log_id" BIGINT,
     "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -192,7 +192,7 @@ CREATE TABLE "routine_reports" (
 );
 
 -- CreateTable
-CREATE TABLE "monitoring_checkpoints" (
+CREATE TABLE "monitoring_templates" (
     "id" BIGSERIAL NOT NULL,
     "project_id" BIGINT NOT NULL,
     "name" VARCHAR(255) NOT NULL,
@@ -208,13 +208,13 @@ CREATE TABLE "monitoring_checkpoints" (
     "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "monitoring_checkpoints_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "monitoring_templates_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "monitoring_checks" (
+CREATE TABLE "monitoring_logs" (
     "id" BIGSERIAL NOT NULL,
-    "checkpoint_id" BIGINT NOT NULL,
+    "template_id" BIGINT NOT NULL,
     "scheduled_at" TIMESTAMPTZ(6) NOT NULL,
     "checked_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "checked_by" BIGINT NOT NULL,
@@ -228,7 +228,7 @@ CREATE TABLE "monitoring_checks" (
     "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "monitoring_checks_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "monitoring_logs_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -289,7 +289,7 @@ CREATE INDEX "handover_updated_user_id_idx" ON "handover"("updated_user_id");
 CREATE INDEX "handover_acknowledge_user_id_idx" ON "handover"("acknowledge_user_id");
 
 -- CreateIndex
-CREATE INDEX "handover_monitoring_check_id_idx" ON "handover"("monitoring_check_id");
+CREATE INDEX "handover_monitoring_log_id_idx" ON "handover"("monitoring_log_id");
 
 -- CreateIndex
 CREATE INDEX "routine_meetings_project_id_idx" ON "routine_meetings"("project_id");
@@ -304,34 +304,34 @@ CREATE INDEX "routine_reports_project_id_idx" ON "routine_reports"("project_id")
 CREATE INDEX "routine_reports_pic_user_id_idx" ON "routine_reports"("pic_user_id");
 
 -- CreateIndex
-CREATE INDEX "monitoring_checkpoints_project_id_idx" ON "monitoring_checkpoints"("project_id");
+CREATE INDEX "monitoring_templates_project_id_idx" ON "monitoring_templates"("project_id");
 
 -- CreateIndex
-CREATE INDEX "monitoring_checkpoints_is_active_idx" ON "monitoring_checkpoints"("is_active");
+CREATE INDEX "monitoring_templates_is_active_idx" ON "monitoring_templates"("is_active");
 
 -- CreateIndex
-CREATE INDEX "monitoring_checkpoints_client_id_idx" ON "monitoring_checkpoints"("client_id");
+CREATE INDEX "monitoring_templates_client_id_idx" ON "monitoring_templates"("client_id");
 
 -- CreateIndex
-CREATE INDEX "monitoring_checkpoints_created_by_idx" ON "monitoring_checkpoints"("created_by");
+CREATE INDEX "monitoring_templates_created_by_idx" ON "monitoring_templates"("created_by");
 
 -- CreateIndex
-CREATE INDEX "monitoring_checks_scheduled_at_idx" ON "monitoring_checks"("scheduled_at");
+CREATE INDEX "monitoring_logs_scheduled_at_idx" ON "monitoring_logs"("scheduled_at");
 
 -- CreateIndex
-CREATE INDEX "monitoring_checks_checked_by_idx" ON "monitoring_checks"("checked_by");
+CREATE INDEX "monitoring_logs_checked_by_idx" ON "monitoring_logs"("checked_by");
 
 -- CreateIndex
-CREATE INDEX "monitoring_checks_reviewed_by_idx" ON "monitoring_checks"("reviewed_by");
+CREATE INDEX "monitoring_logs_reviewed_by_idx" ON "monitoring_logs"("reviewed_by");
 
 -- CreateIndex
-CREATE INDEX "monitoring_checks_result_idx" ON "monitoring_checks"("result");
+CREATE INDEX "monitoring_logs_result_idx" ON "monitoring_logs"("result");
 
 -- CreateIndex
-CREATE INDEX "monitoring_checks_ticket_id_idx" ON "monitoring_checks"("ticket_id");
+CREATE INDEX "monitoring_logs_ticket_id_idx" ON "monitoring_logs"("ticket_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "monitoring_checks_checkpoint_id_scheduled_at_key" ON "monitoring_checks"("checkpoint_id", "scheduled_at");
+CREATE UNIQUE INDEX "monitoring_logs_template_id_scheduled_at_key" ON "monitoring_logs"("template_id", "scheduled_at");
 
 -- AddForeignKey
 ALTER TABLE "users" ADD CONSTRAINT "users_role_id_fkey" FOREIGN KEY ("role_id") REFERENCES "user_role"("id") ON DELETE SET NULL ON UPDATE NO ACTION;
@@ -373,7 +373,7 @@ ALTER TABLE "handover" ADD CONSTRAINT "handover_acknowledge_user_id_fkey" FOREIG
 ALTER TABLE "handover" ADD CONSTRAINT "handover_project_id_fkey" FOREIGN KEY ("project_id") REFERENCES "projects"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 -- AddForeignKey
-ALTER TABLE "handover" ADD CONSTRAINT "handover_monitoring_check_id_fkey" FOREIGN KEY ("monitoring_check_id") REFERENCES "monitoring_checks"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE "handover" ADD CONSTRAINT "handover_monitoring_log_id_fkey" FOREIGN KEY ("monitoring_log_id") REFERENCES "monitoring_logs"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 -- AddForeignKey
 ALTER TABLE "routine_meetings" ADD CONSTRAINT "routine_meetings_pic_user_id_fkey" FOREIGN KEY ("pic_user_id") REFERENCES "users"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
@@ -388,22 +388,22 @@ ALTER TABLE "routine_reports" ADD CONSTRAINT "routine_reports_pic_user_id_fkey" 
 ALTER TABLE "routine_reports" ADD CONSTRAINT "routine_reports_project_id_fkey" FOREIGN KEY ("project_id") REFERENCES "projects"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 -- AddForeignKey
-ALTER TABLE "monitoring_checkpoints" ADD CONSTRAINT "monitoring_checkpoints_project_id_fkey" FOREIGN KEY ("project_id") REFERENCES "projects"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE "monitoring_templates" ADD CONSTRAINT "monitoring_templates_project_id_fkey" FOREIGN KEY ("project_id") REFERENCES "projects"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 -- AddForeignKey
-ALTER TABLE "monitoring_checkpoints" ADD CONSTRAINT "monitoring_checkpoints_client_id_fkey" FOREIGN KEY ("client_id") REFERENCES "clients"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE "monitoring_templates" ADD CONSTRAINT "monitoring_templates_client_id_fkey" FOREIGN KEY ("client_id") REFERENCES "clients"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 -- AddForeignKey
-ALTER TABLE "monitoring_checkpoints" ADD CONSTRAINT "monitoring_checkpoints_created_by_fkey" FOREIGN KEY ("created_by") REFERENCES "users"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE "monitoring_templates" ADD CONSTRAINT "monitoring_templates_created_by_fkey" FOREIGN KEY ("created_by") REFERENCES "users"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 -- AddForeignKey
-ALTER TABLE "monitoring_checks" ADD CONSTRAINT "monitoring_checks_checkpoint_id_fkey" FOREIGN KEY ("checkpoint_id") REFERENCES "monitoring_checkpoints"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE "monitoring_logs" ADD CONSTRAINT "monitoring_logs_template_id_fkey" FOREIGN KEY ("template_id") REFERENCES "monitoring_templates"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 -- AddForeignKey
-ALTER TABLE "monitoring_checks" ADD CONSTRAINT "monitoring_checks_checked_by_fkey" FOREIGN KEY ("checked_by") REFERENCES "users"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE "monitoring_logs" ADD CONSTRAINT "monitoring_logs_checked_by_fkey" FOREIGN KEY ("checked_by") REFERENCES "users"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 -- AddForeignKey
-ALTER TABLE "monitoring_checks" ADD CONSTRAINT "monitoring_checks_reviewed_by_fkey" FOREIGN KEY ("reviewed_by") REFERENCES "users"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE "monitoring_logs" ADD CONSTRAINT "monitoring_logs_reviewed_by_fkey" FOREIGN KEY ("reviewed_by") REFERENCES "users"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 -- AddForeignKey
-ALTER TABLE "monitoring_checks" ADD CONSTRAINT "monitoring_checks_ticket_id_fkey" FOREIGN KEY ("ticket_id") REFERENCES "ticket_logs"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE "monitoring_logs" ADD CONSTRAINT "monitoring_logs_ticket_id_fkey" FOREIGN KEY ("ticket_id") REFERENCES "ticket_logs"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;

@@ -1,6 +1,6 @@
 # Backend — Central Tracking Dashboard
 
-NestJS + Prisma 7 + PostgreSQL API for the operations dashboard. It covers ticket logs, shift handovers, routine meetings and reports, and monitoring checkpoints, all organised by tenant and project. The data model and reference data were migrated from an older database that used the same `ctd_config` schema.
+NestJS + Prisma 7 + PostgreSQL API for the operations dashboard. It covers ticket logs, shift handovers, routine meetings and reports, and monitoring (templates and logs), all organised by tenant and project. The data model and reference data were migrated from an older database that used the same `ctd_config` schema.
 
 This file covers only `backend/`. Do not read, reference, or modify `../frontend`.
 
