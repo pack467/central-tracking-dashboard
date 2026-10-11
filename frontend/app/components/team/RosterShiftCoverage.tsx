@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useCallback, memo } from "react";
+import { useMemo, useState, useCallback } from "react";
 import { Avatar } from "@/app/components/ui/Avatar";
 import { StatusIndicator } from "@/app/components/ui/StatusIndicator";
 import { Moon, Sun, Sunset } from "lucide-react";

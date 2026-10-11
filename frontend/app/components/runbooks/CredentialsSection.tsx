@@ -1,4 +1,7 @@
 "use client";
+import { paths } from "@/app/lib/routes";
+import { useUrlQuery } from "@/app/hooks/useUrlQuery";
+import { runbooksSchema } from "@/app/lib/query-state";
 
 import { useCallback, useMemo, useState } from "react";
 import {
@@ -31,7 +34,9 @@ interface CredentialsSectionProps {
 }
 
 export function CredentialsSection({ entries, search }: CredentialsSectionProps) {
-  const [catFilter, setCatFilter] = useState<CredentialCategory | "All">("All");
+  const url = useUrlQuery(runbooksSchema, paths.runbooks);
+  const catFilter = url.values.category;
+  const setCatFilter = url.field("category");
 
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = { All: entries.length };
@@ -281,3 +286,4 @@ function CredentialCard({ cred }: { cred: CredentialEntry }) {
     </div>
   );
 }
+

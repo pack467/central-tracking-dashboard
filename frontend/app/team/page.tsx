@@ -1,3 +1,4 @@
+import { paths } from "@/app/lib/routes";
 import React from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -49,7 +50,7 @@ export default function TeamPage() {
       <header className="sticky top-0 z-30 w-full border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-md shrink-0">
         <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-4">
           <Link
-            href="/"
+            href={paths.dashboard}
             className="inline-flex items-center group transition-opacity hover:opacity-90 py-1"
             title="Kembali ke Dashboard Utama"
           >

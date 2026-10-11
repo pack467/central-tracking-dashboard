@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     ".next/**",
     "dist/**",
     "out/**",
+    ".wrangler/**",
+    "public/reports/pdf.worker.min.mjs",
     "build/**",
     "next-env.d.ts",
   ]),

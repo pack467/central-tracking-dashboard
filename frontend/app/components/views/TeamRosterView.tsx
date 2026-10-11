@@ -1,7 +1,13 @@
 "use client";
+import { DetailNotFound } from "@/app/components/routing/RouteEffects";
+
+import { useRouter } from "next/navigation";
+import { useUrlQuery, useUrlSearch } from "@/app/hooks/useUrlQuery";
+import { rosterSchema } from "@/app/lib/query-state";
+import { paths, routes, detailId } from "@/app/lib/routes";
 
 import { lazy, startTransition, Suspense, useCallback, useMemo, useState } from "react";
-import { UserPlus, ArrowRightLeft, Table, Calendar, Search, X, Users, Clock, Activity, ChevronDown } from "lucide-react";
+import { ArrowRightLeft, Table, Calendar, Search, X, Users, Clock, Activity, ChevronDown } from "lucide-react";
 import { RosterStatCards } from "@/app/components/team/RosterStatCards";
 import { RosterTable } from "@/app/components/team/RosterTable";
 import { seedSwapRequests } from "@/app/lib/data";
@@ -26,6 +32,8 @@ export function TeamRosterView({ members, onMembersChange: setMembers }: {
   members: RosterMember[];
   onMembersChange: React.Dispatch<React.SetStateAction<RosterMember[]>>;
 }) {
+  const url = useUrlQuery(rosterSchema, paths.teamRoster);
+  const router = useRouter();
   const activeShift = useActiveShift();
   const [swapRequests, setSwapRequests] = useState<ShiftSwapRequest[]>(seedSwapRequests);
 
@@ -38,14 +46,22 @@ export function TeamRosterView({ members, onMembersChange: setMembers }: {
   }, [members, activeShift]);
 
   // Filter & Search states
-  const [search, setSearch] = useState("");
-  const [roleFilter, setRoleFilter] = useState("All");
-  const [statusFilter, setStatusFilter] = useState("All");
-  const [shiftFilter, setShiftFilter] = useState("All");
-  const [viewMode, setViewMode] = useState<"table" | "calendar">("table");
+  const searchDraft = useUrlSearch(url.values.q, url.field("q"));
+  const search = searchDraft.effective;
+  const setSearch = searchDraft.set;
+  const roleFilter = url.values.role;
+  const setRoleFilter = url.field("role", "replace");
+  const statusFilter = url.values.status;
+  const setStatusFilter = url.field("status", "replace");
+  const shiftFilter = url.values.shift;
+  const setShiftFilter = url.field("shift", "replace");
+  const viewMode = url.values.view === "table" ? "table" : "calendar";
+  const setViewMode = (mode: "table" | "calendar") => url.update({ view: mode === "table" ? "table" : "weekly", page: 1 }, "push");
 
   // Modal / Drawer states
-  const [selectedMember, setSelectedMember] = useState<RosterMember | null>(null);
+  const selectedId = detailId(url.pathname, paths.teamRoster);
+  const selectedMember = derivedMembers.find(m => m.id.toLowerCase() === selectedId?.toLowerCase()) ?? null;
+  const closeMember = () => router.push(routes.teamRoster(url.query), { scroll: false });
   const [editingMember, setEditingMember] = useState<RosterMember | null>(null);
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [swapModalOpen, setSwapModalOpen] = useState(false);
@@ -62,8 +78,8 @@ export function TeamRosterView({ members, onMembersChange: setMembers }: {
 
   const openMemberDetail = useCallback((member: RosterMember) => {
     markOverlayLoaded("memberDetail");
-    setSelectedMember(member);
-  }, [markOverlayLoaded]);
+    router.push(routes.member(member.id, url.query), { scroll: false });
+  }, [markOverlayLoaded, router, url.query]);
 
   const openSwap = useCallback((member: RosterMember | null = null) => {
     markOverlayLoaded("swap");
@@ -110,7 +126,7 @@ export function TeamRosterView({ members, onMembersChange: setMembers }: {
       }
       return [savedMember, ...prev];
     });
-    setSelectedMember((prev) => (prev?.id === savedMember.id ? savedMember : prev));
+
   };
 
   const handleOpenSwapForMember = (member: RosterMember) => {
@@ -157,17 +173,18 @@ export function TeamRosterView({ members, onMembersChange: setMembers }: {
       />
 
       {/* 3. Main Roster Content (2 columns: Table/Calendar & Shift Coverage Widget) */}
-      <div className="block w-full mt-[20px]">
+      <div className="block w-full mt-[20px] pb-24 lg:pb-16">
         <div className="min-w-0 w-full flex flex-col gap-[20px]">
           <article className="mb-0 overflow-hidden bg-[var(--panel-bg)] border border-[var(--panel-border)] rounded-[10px] shadow-[var(--shadow-panel)]">
             {/* Toolbar: Search, Filters & View Toggle */}
             <div className="flex items-center gap-[10px] p-[12px_16px] border-b border-[var(--line)] flex-wrap bg-[var(--panel-bg)]">
-              <div className="group relative flex items-center flex-[1_1_200px] min-w-[170px] max-w-[280px] h-[36px] px-[10px] border border-[var(--panel-border)] rounded-[8px] bg-[var(--input-bg,#0f172a)] transition-[border-color,box-shadow] duration-150 ease gap-[8px] box-border focus-within:border-[var(--accent-blue)] focus-within:shadow-[0_0_0_3px_rgba(56,189,248,0.12)]">
+              {/* Search Field */}
+              <div className="group relative flex items-center w-full min-[900px]:w-auto min-[900px]:flex-[1_1_200px] min-[900px]:max-w-[280px] h-[40px] min-[900px]:h-[36px] px-[10px] border border-[var(--panel-border)] rounded-[8px] bg-[var(--input-bg,#0f172a)] transition-[border-color,box-shadow] duration-150 ease gap-[8px] box-border focus-within:border-[var(--accent-blue)] focus-within:shadow-[0_0_0_3px_rgba(56,189,248,0.12)]">
                 <Search size={14} className="text-[var(--ink-muted)] shrink-0 transition-colors duration-150 ease group-focus-within:text-[var(--accent-blue)]" />
                 <input
                   type="text"
                   placeholder="Cari nama, role, employee ID..."
-                  value={search}
+                  value={searchDraft.input}
                   onChange={(e) => setSearch(e.target.value)}
                   aria-label="Cari anggota tim"
                   className="flex-1 min-w-0 h-full border-none outline-none bg-transparent text-[var(--ink-primary)] text-[12px] font-sans placeholder:text-[var(--ink-muted)]"
@@ -179,12 +196,13 @@ export function TeamRosterView({ members, onMembersChange: setMembers }: {
                 )}
               </div>
 
-              <div className="flex items-center gap-[8px] flex-wrap">
+              {/* Filter Group */}
+              <div className="flex items-center gap-[8px] flex-wrap w-full min-[900px]:w-auto min-[900px]:flex-initial flex-1">
                 {/* Role Filter */}
-                <div className="group relative inline-flex items-center">
+                <div className="group relative inline-flex items-center w-full min-[560px]:flex-1 min-[560px]:min-w-[140px] min-[900px]:w-auto min-[900px]:flex-initial">
                   <Users size={13} className="absolute left-[10px] text-[var(--ink-muted,#94a3b8)] pointer-events-none flex items-center justify-center transition-colors duration-150 ease z-[1] group-hover:text-[var(--accent-blue,#38bdf8)] group-focus-within:text-[var(--accent-blue,#38bdf8)]" />
                   <select
-                    className={`h-[36px] box-border pl-[30px] pr-[28px] py-0 text-[var(--ink-primary)] border border-[var(--panel-border)] rounded-[8px] bg-[var(--input-bg,#0f172a)] text-[12px] font-medium font-sans cursor-pointer inline-flex items-center appearance-none -webkit-appearance-none transition-[border-color,box-shadow,background-color,color] duration-150 ease shrink-0 [color-scheme:dark] hover:border-[rgba(148,163,184,0.35)] focus:border-[var(--accent-blue)] focus:shadow-[0_0_0_3px_rgba(56,189,248,0.12)] focus:outline-none ${
+                    className={`w-full min-[900px]:w-auto h-[40px] min-[900px]:h-[36px] box-border pl-[30px] pr-[28px] py-0 text-[var(--ink-primary)] border border-[var(--panel-border)] rounded-[8px] bg-[var(--input-bg,#0f172a)] text-[12px] font-medium font-sans cursor-pointer inline-flex items-center appearance-none -webkit-appearance-none transition-[border-color,box-shadow,background-color,color] duration-150 ease shrink-0 [color-scheme:dark] hover:border-[rgba(148,163,184,0.35)] focus:border-[var(--accent-blue)] focus:shadow-[0_0_0_3px_rgba(56,189,248,0.12)] focus:outline-none ${
                       roleFilter !== "All"
                         ? "border-[rgba(56,189,248,0.4)] bg-[rgba(56,189,248,0.08)] text-[var(--accent-blue,#38bdf8)] font-semibold"
                         : ""
@@ -204,10 +222,10 @@ export function TeamRosterView({ members, onMembersChange: setMembers }: {
                 </div>
 
                 {/* Shift Filter */}
-                <div className="group relative inline-flex items-center">
+                <div className="group relative inline-flex items-center w-full min-[560px]:flex-1 min-[560px]:min-w-[140px] min-[900px]:w-auto min-[900px]:flex-initial">
                   <Clock size={13} className="absolute left-[10px] text-[var(--ink-muted,#94a3b8)] pointer-events-none flex items-center justify-center transition-colors duration-150 ease z-[1] group-hover:text-[var(--accent-blue,#38bdf8)] group-focus-within:text-[var(--accent-blue,#38bdf8)]" />
                   <select
-                    className={`h-[36px] box-border pl-[30px] pr-[28px] py-0 text-[var(--ink-primary)] border border-[var(--panel-border)] rounded-[8px] bg-[var(--input-bg,#0f172a)] text-[12px] font-medium font-sans cursor-pointer inline-flex items-center appearance-none -webkit-appearance-none transition-[border-color,box-shadow,background-color,color] duration-150 ease shrink-0 [color-scheme:dark] hover:border-[rgba(148,163,184,0.35)] focus:border-[var(--accent-blue)] focus:shadow-[0_0_0_3px_rgba(56,189,248,0.12)] focus:outline-none ${
+                    className={`w-full min-[900px]:w-auto h-[40px] min-[900px]:h-[36px] box-border pl-[30px] pr-[28px] py-0 text-[var(--ink-primary)] border border-[var(--panel-border)] rounded-[8px] bg-[var(--input-bg,#0f172a)] text-[12px] font-medium font-sans cursor-pointer inline-flex items-center appearance-none -webkit-appearance-none transition-[border-color,box-shadow,background-color,color] duration-150 ease shrink-0 [color-scheme:dark] hover:border-[rgba(148,163,184,0.35)] focus:border-[var(--accent-blue)] focus:shadow-[0_0_0_3px_rgba(56,189,248,0.12)] focus:outline-none ${
                       shiftFilter !== "All"
                         ? "border-[rgba(56,189,248,0.4)] bg-[rgba(56,189,248,0.08)] text-[var(--accent-blue,#38bdf8)] font-semibold"
                         : ""
@@ -225,10 +243,10 @@ export function TeamRosterView({ members, onMembersChange: setMembers }: {
                 </div>
 
                 {/* Status Filter */}
-                <div className="group relative inline-flex items-center">
+                <div className="group relative inline-flex items-center w-full min-[560px]:flex-1 min-[560px]:min-w-[140px] min-[900px]:w-auto min-[900px]:flex-initial">
                   <Activity size={13} className="absolute left-[10px] text-[var(--ink-muted,#94a3b8)] pointer-events-none flex items-center justify-center transition-colors duration-150 ease z-[1] group-hover:text-[var(--accent-blue,#38bdf8)] group-focus-within:text-[var(--accent-blue,#38bdf8)]" />
                   <select
-                    className={`h-[36px] box-border pl-[30px] pr-[28px] py-0 text-[var(--ink-primary)] border border-[var(--panel-border)] rounded-[8px] bg-[var(--input-bg,#0f172a)] text-[12px] font-medium font-sans cursor-pointer inline-flex items-center appearance-none -webkit-appearance-none transition-[border-color,box-shadow,background-color,color] duration-150 ease shrink-0 [color-scheme:dark] hover:border-[rgba(148,163,184,0.35)] focus:border-[var(--accent-blue)] focus:shadow-[0_0_0_3px_rgba(56,189,248,0.12)] focus:outline-none ${
+                    className={`w-full min-[900px]:w-auto h-[40px] min-[900px]:h-[36px] box-border pl-[30px] pr-[28px] py-0 text-[var(--ink-primary)] border border-[var(--panel-border)] rounded-[8px] bg-[var(--input-bg,#0f172a)] text-[12px] font-medium font-sans cursor-pointer inline-flex items-center appearance-none -webkit-appearance-none transition-[border-color,box-shadow,background-color,color] duration-150 ease shrink-0 [color-scheme:dark] hover:border-[rgba(148,163,184,0.35)] focus:border-[var(--accent-blue)] focus:shadow-[0_0_0_3px_rgba(56,189,248,0.12)] focus:outline-none ${
                       statusFilter !== "All"
                         ? "border-[rgba(56,189,248,0.4)] bg-[rgba(56,189,248,0.08)] text-[var(--accent-blue,#38bdf8)] font-semibold"
                         : ""
@@ -248,9 +266,9 @@ export function TeamRosterView({ members, onMembersChange: setMembers }: {
               </div>
 
               {/* View Mode Switcher */}
-              <div className="ml-auto inline-flex items-center gap-[2px] h-[36px] box-border p-[3px] bg-[var(--surface,#0f172a)] border border-[var(--panel-border)] rounded-[8px] shrink-0" aria-label="Pilihan tampilan roster">
+              <div className="w-full min-[560px]:w-auto min-[900px]:ml-auto grid grid-cols-2 min-[560px]:inline-flex items-center gap-[2px] h-[40px] min-[900px]:h-[36px] box-border p-[3px] bg-[var(--surface,#0f172a)] border border-[var(--panel-border)] rounded-[8px] shrink-0" aria-label="Pilihan tampilan roster">
                 <button
-                  className={`inline-flex items-center justify-center h-[28px] px-[12px] text-[11.5px] font-semibold rounded-[6px] gap-[6px] border border-transparent cursor-pointer transition-[color,background-color] duration-150 ease ${
+                  className={`inline-flex items-center justify-center flex-1 min-[560px]:flex-initial h-[32px] min-[900px]:h-[28px] px-[12px] text-[11.5px] font-semibold rounded-[6px] gap-[6px] border border-transparent cursor-pointer transition-[color,background-color] duration-150 ease ${
                     viewMode === "table"
                       ? "bg-[var(--accent-blue,#2563eb)] text-white shadow-[0_1px_3px_rgba(0,0,0,0.25)]"
                       : "bg-transparent text-[var(--ink-muted)] hover:text-[var(--ink-primary)] hover:bg-[rgba(148,163,184,0.08)]"
@@ -260,7 +278,7 @@ export function TeamRosterView({ members, onMembersChange: setMembers }: {
                   <Table size={13} /> Table
                 </button>
                 <button
-                  className={`inline-flex items-center justify-center h-[28px] px-[12px] text-[11.5px] font-semibold rounded-[6px] gap-[6px] border border-transparent cursor-pointer transition-[color,background-color] duration-150 ease ${
+                  className={`inline-flex items-center justify-center flex-1 min-[560px]:flex-initial h-[32px] min-[900px]:h-[28px] px-[12px] text-[11.5px] font-semibold rounded-[6px] gap-[6px] border border-transparent cursor-pointer transition-[color,background-color] duration-150 ease ${
                     viewMode === "calendar"
                       ? "bg-[var(--accent-blue,#2563eb)] text-white shadow-[0_1px_3px_rgba(0,0,0,0.25)]"
                       : "bg-transparent text-[var(--ink-muted)] hover:text-[var(--ink-primary)] hover:bg-[rgba(148,163,184,0.08)]"
@@ -291,12 +309,13 @@ export function TeamRosterView({ members, onMembersChange: setMembers }: {
         </div>
       </div>
 
+      {selectedId && !selectedMember && <DetailNotFound title="Anggota tidak ditemukan" href={routes.teamRoster(url.query)} />}
       {/* Drawers & modals load only when an operator opens them. */}
       <Suspense fallback={null}>
-        {loadedOverlays.memberDetail && (
+        {selectedMember && (
           <MemberDetailDrawer
             member={activeSelectedMember}
-            onClose={() => setSelectedMember(null)}
+            onClose={closeMember}
             onUpdateMember={handleSaveMember}
             onRequestSwap={handleOpenSwapForMember}
           />
@@ -325,3 +344,4 @@ export function TeamRosterView({ members, onMembersChange: setMembers }: {
     </>
   );
 }
+

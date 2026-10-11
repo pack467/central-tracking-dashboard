@@ -1,4 +1,7 @@
 "use client";
+import Link from "next/link";
+import { paths } from "@/app/lib/routes";
+
 
 import { useCallback, useEffect, useRef, useState, useMemo } from "react";
 import { ArrowRight } from "lucide-react";
@@ -7,13 +10,8 @@ import { Badge } from "@/app/components/ui/Badge";
 import { useNotifications } from "@/app/context/NotificationContext";
 import { useClient } from "@/app/context/ClientContext";
 
-interface NotificationDropdownProps {
-  buttonRef?: React.RefObject<HTMLButtonElement | null>;
-  onNavigate?: (label: string) => void;
-}
-
-export function NotificationDropdown({ onNavigate }: NotificationDropdownProps = {}) {
-  const { activeClient, activeClientId } = useClient();
+export function NotificationDropdown() {
+  const { activeClientId } = useClient();
   const { getClientNotifications, getClientUnreadCount, markAsRead, markAllAsRead, clearAll } = useNotifications();
   
   const notifications = useMemo(
@@ -122,13 +120,6 @@ export function NotificationDropdown({ onNavigate }: NotificationDropdownProps =
 
   const toggleOpen = () => {
     setIsOpen((prev) => !prev);
-  };
-
-  const handleViewAll = () => {
-    setIsOpen(false);
-    if (onNavigate) {
-      onNavigate("Notifikasi");
-    }
   };
 
   return (
@@ -249,14 +240,12 @@ export function NotificationDropdown({ onNavigate }: NotificationDropdownProps =
 
           {/* Footer Actions */}
           <div className="p-[10px_14px] border-t border-[var(--line)] bg-[var(--bg)] rounded-b-[14px] flex flex-col gap-[6px]">
-            <button
+            <Link href={paths.notifications} onClick={() => setIsOpen(false)}
               className="w-full h-[32px] inline-flex items-center justify-center gap-[6px] px-[12px] text-[11.5px] font-semibold text-[var(--accent-blue)] border border-[var(--accent-blue-border)] rounded-[7px] bg-[var(--accent-blue-soft)] cursor-pointer transition-all duration-150 hover:bg-[color-mix(in_srgb,var(--accent-blue-soft)_120%,var(--accent-blue)_25%)] hover:border-[var(--accent-blue)]"
-              onClick={handleViewAll}
-              type="button"
             >
               <span>Lihat Semua Notifikasi</span>
               <ArrowRight size={13} />
-            </button>
+            </Link>
             {notifications.length > 0 && (
               <button
                 className="w-full h-[28px] inline-flex items-center justify-center px-[12px] text-[11px] font-medium text-[var(--ink-secondary)] border border-transparent rounded-[6px] bg-transparent cursor-pointer transition-all duration-150 hover:text-[var(--red)] hover:border-[var(--red-border)] hover:bg-[var(--red-soft)]"

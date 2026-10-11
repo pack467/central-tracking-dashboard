@@ -14,13 +14,20 @@
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "db:generate": "drizzle-kit generate",
     "db:migrate:local": "wrangler d1 migrations apply site-creator-d1 --local --config wrangler.local.json",
-    "test:handover": "node --import ./tests/typescript-loader.mjs --test tests/handover.test.mjs"
+    "test:handover": "node --import ./tests/typescript-loader.mjs --test tests/handover.test.mjs",
+    "test:reports": "node --import ./tests/report-typescript-loader.mjs --test tests/weekly-report.test.mjs",
+    "typecheck": "tsc --noEmit",
+    "test:routing-query": "node --import ./tests/report-typescript-loader.mjs --test tests/routing-query.test.mjs",
+    "test:routing-browser": "node tests/routing-browser.mjs"
   },
   "dependencies": {
+    "@pdf-lib/fontkit": "1.1.1",
     "@tanstack/react-virtual": "^3.14.10",
     "drizzle-orm": "0.45.2",
     "framer-motion": "^14.0.0",
     "lucide-react": "^1.35.0",
+    "pdf-lib": "1.17.1",
+    "pdfjs-dist": "5.4.624",
     "react": "19.2.6",
     "react-dom": "19.2.6"
   },

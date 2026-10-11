@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
+import { AppSplash } from "@/app/components/ui/AppSplash";
+import { RouteProgress } from "@/app/components/ui/RouteProgress";
 import "./globals.css";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -12,7 +14,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     metadataBase,
-    title,
+    title: { default: title, template: "%s · Central Tracking Dashboard" },
+    robots: { index: false, follow: false },
     description,
     icons: {
       icon: "/hutabyte_icon_transparent.png",
@@ -45,10 +48,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="id" className="light">
+    <html lang="id" className="dark">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {/* Browser tab / address bar icon (hutabyte_icon_transparent) */}
+        <link rel="icon" type="image/png" href="/hutabyte_icon_transparent.png" />
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="shortcut icon" href="/hutabyte_icon_transparent.png" type="image/png" />
+        <link rel="apple-touch-icon" href="/hutabyte_icon_transparent.png" />
         {/* The App Router owns the document head; this keeps the existing font rendering while loading only used weights. */}
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link
@@ -56,7 +64,13 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased bg-[#0f172a] text-[#f8fafc]">
+        <AppSplash />
+        <RouteProgress />
+        <div id="app-root" className="w-full min-h-screen flex flex-col">
+          {children}
+        </div>
+      </body>
     </html>
   );
 }

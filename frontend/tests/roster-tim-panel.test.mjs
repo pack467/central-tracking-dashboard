@@ -94,7 +94,7 @@ test("tally calculation satisfies simplified labels summing to total with real o
 });
 
 test("rendered Overview page contains complete RosterTeamPanel with simplified labels and no truncation", async () => {
-  const res = await fetch("http://localhost:3000");
+  const res = await fetch("http://localhost:3000/dashboard");
   assert.equal(res.status, 200);
   const html = await res.text();
 
@@ -157,3 +157,4 @@ test("empty-state logic generates proper contextual messages with simplified lab
   assert.equal(getEmptyMessage("Out of Reach"), "Tidak ada anggota out of reach saat ini.");
   assert.equal(getEmptyMessage("Semua"), "Tidak ada anggota tim ditemukan.");
 });
+

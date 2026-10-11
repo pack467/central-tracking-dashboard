@@ -1,4 +1,11 @@
 "use client";
+import Link from "next/link";
+import { DetailNotFound } from "@/app/components/routing/RouteEffects";
+
+import { useRouter, useSearchParams } from "next/navigation";
+import { useUrlQuery } from "@/app/hooks/useUrlQuery";
+import { runbooksSchema } from "@/app/lib/query-state";
+import { paths, routes, withQuery, detailId } from "@/app/lib/routes";
 
 import { useCallback, useMemo, useState } from "react";
 import {
@@ -46,6 +53,7 @@ const ATTACHMENT_TYPE_CONFIG: Record<
 };
 
 interface SopSectionProps {
+  dataReady?: boolean;
   entries: SopEntry[];
   search: string;
   onAddAttachment?: (sopId: string, attachment: SopAttachment) => void;
@@ -54,12 +62,18 @@ interface SopSectionProps {
 
 export function SopSection({
   entries,
+  dataReady = true,
   search,
   onAddAttachment,
   onDeleteAttachment,
 }: SopSectionProps) {
-  const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [catFilter, setCatFilter] = useState<SopCategory | "All">("All");
+  const url = useUrlQuery(runbooksSchema, paths.runbooks);
+  const router = useRouter();
+  const routeId = detailId(url.pathname, paths.runbooks, ["credentials", "links", "escalation"]);
+  const expandedId = entries.find(e => e.id.toLowerCase() === routeId?.toLowerCase())?.id ?? null;
+  const setExpandedId = (next: string | null | ((old: string | null) => string | null)) => { const id = typeof next === "function" ? next(expandedId) : next; router.push(id ? routes.runbook(id, url.query) : withQuery(paths.runbooks, url.query), { scroll: false }); };
+  const catFilter = url.values.category;
+  const setCatFilter = url.field("category", "replace");
 
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = { All: entries.length };
@@ -93,13 +107,11 @@ export function SopSection({
     return result;
   }, [entries, catFilter, search]);
 
-  const toggle = useCallback(
-    (id: string) => setExpandedId((prev) => (prev === id ? null : id)),
-    [],
-  );
+  const toggle = (id: string) => setExpandedId(expandedId === id ? null : id);
 
   return (
     <div className="anim-tab-fade">
+      {dataReady && routeId && !expandedId && <DetailNotFound title="Runbook tidak ditemukan" href={withQuery(paths.runbooks, url.query)} />}
       {/* Category Filter Chips */}
       <div className="flex flex-wrap gap-[6px] mb-[14px]">
         <button
@@ -176,6 +188,7 @@ function SopCard({
   onAddAttachment?: (sopId: string, attachment: SopAttachment) => void;
   onDeleteAttachment?: (sopId: string, attachmentId: string) => void;
 }) {
+  const detailQuery = useSearchParams().toString();
   const [showAddForm, setShowAddForm] = useState(false);
   const notify = useToast();
 
@@ -224,9 +237,8 @@ function SopCard({
 
   return (
     <div className={`rounded-[8px] border bg-[var(--panel-bg)] mb-[10px] overflow-hidden transition-[border-color] duration-150 ${expanded ? "border-[var(--accent-blue-border)]" : "border-[var(--panel-border)] hover:border-[var(--accent-blue-border)]"}`}>
-      <div
+      <Link href={expanded ? withQuery(paths.runbooks, detailQuery) : routes.runbook(sop.id, detailQuery)} scroll={false}
         className="flex items-center justify-between gap-[12px] p-[13px_16px] cursor-pointer select-none hover:bg-[var(--panel-bg-hover)]"
-        onClick={onToggle}
         role="button"
         tabIndex={0}
         aria-expanded={expanded}
@@ -261,7 +273,7 @@ function SopCard({
             aria-hidden="true"
           />
         </div>
-      </div>
+      </Link>
 
       {expanded && (
         <div className="p-[16px] border-t border-[var(--line)] bg-[rgba(15,23,42,0.3)]">
@@ -557,3 +569,4 @@ function AttachmentItem({
     </div>
   );
 }
+

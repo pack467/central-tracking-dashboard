@@ -1,26 +1,10 @@
 "use client";
+import Link from "next/link";
+import { paths } from "@/app/lib/routes";
+
 
 import { useState, useMemo } from "react";
-import {
-  User,
-  Mail,
-  Phone,
-  Clock,
-  Calendar,
-  Briefcase,
-  Shield,
-  Layers,
-  CheckCircle2,
-  AlertTriangle,
-  History,
-  Edit3,
-  Copy,
-  Check,
-  Building2,
-  ArrowRightLeft,
-  X,
-  FileText,
-} from "lucide-react";
+import { User, Mail, Phone, Clock, Briefcase, Shield, History, Edit3, Copy, Check, Building2, ArrowRightLeft } from "lucide-react";
 import { Badge } from "@/app/components/ui/Badge";
 import { Avatar } from "@/app/components/ui/Avatar";
 import { Modal } from "@/app/components/ui/Modal";
@@ -29,21 +13,9 @@ import { useToast } from "@/app/components/ui/Toast";
 import { useActiveShift } from "@/app/hooks/useLiveClock";
 import { useClient } from "@/app/context/ClientContext";
 import { useUserStatus } from "@/app/hooks/useUserStatus";
-import {
-  initials,
-  seedRosterMembers,
-  seedTickets,
-  monitoringSchedule,
-  seedHistoricalAssessments,
-} from "@/app/lib/data";
+import { seedRosterMembers, seedTickets, monitoringSchedule, seedHistoricalAssessments } from "@/app/lib/data";
 import { computeScheduleColors, statusTone } from "@/app/components/team/RosterTable";
 import type { RosterMember } from "@/app/lib/types";
-
-interface ProfileViewProps {
-  onNavigateToShiftSwap?: () => void;
-  onNavigateToHandover?: () => void;
-  onNavigateToTickets?: () => void;
-}
 
 // Helper functions to determine semantic colors based on operational performance:
 // - Green (`var(--green)`): Optimal / Sesuai target / Positif
@@ -89,11 +61,7 @@ const getOvertimeColor = (timeStr: string) => {
   return val <= 20 ? "var(--green)" : val <= 50 ? "var(--orange)" : "var(--red)";
 };
 
-export function ProfileView({
-  onNavigateToShiftSwap,
-  onNavigateToHandover,
-  onNavigateToTickets,
-}: ProfileViewProps) {
+export function ProfileView() {
   const notify = useToast();
   const activeShift = useActiveShift();
   const { clients } = useClient();
@@ -626,22 +594,12 @@ export function ProfileView({
 
             {/* Shift Swap Option */}
             <div className="pt-[6px] [border-top:1px_solid_var(--line)]">
-              <button
-                type="button"
+              <Link href={paths.teamRoster}
                 className="button button-secondary w-full justify-center"
-                onClick={() => {
-                  if (onNavigateToShiftSwap) {
-                    onNavigateToShiftSwap();
-                  } else {
-                    notify.info("Buka halaman Team Roster untuk mengajukan permohonan tukar shift.", {
-                      id: "swap-hint",
-                    });
-                  }
-                }}
               >
                 <ArrowRightLeft size={13} />
                 <span>Pengajuan Tukar Shift</span>
-              </button>
+              </Link>
             </div>
           </section>
 
