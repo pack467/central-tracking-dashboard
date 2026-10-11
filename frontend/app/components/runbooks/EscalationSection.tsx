@@ -1,7 +1,10 @@
 "use client";
+import { paths } from "@/app/lib/routes";
+import { useUrlQuery } from "@/app/hooks/useUrlQuery";
+import { runbooksSchema } from "@/app/lib/query-state";
 
-import { useMemo, useState } from "react";
-import { Phone, Mail, MessageSquare, AlertCircle, ShieldAlert } from "lucide-react";
+import { useMemo } from "react";
+import { Phone, Mail, MessageSquare, ShieldAlert } from "lucide-react";
 import type { EscalationContact, EscalationLevel } from "@/app/lib/types";
 
 interface EscalationSectionProps {
@@ -23,7 +26,9 @@ function getInitials(name: string): string {
 }
 
 export function EscalationSection({ contacts, search }: EscalationSectionProps) {
-  const [projectFilter, setProjectFilter] = useState<string>("All");
+  const url = useUrlQuery(runbooksSchema, paths.runbooks);
+  const projectFilter = url.values.project;
+  const setProjectFilter = url.field("project");
 
   const projects = useMemo(
     () => [...new Set(contacts.map((c) => c.project))].sort(),
@@ -218,3 +223,4 @@ export function EscalationSection({ contacts, search }: EscalationSectionProps) 
     </div>
   );
 }
+

@@ -22,7 +22,7 @@ test("Shift coverage panel open state disables the left sidebar collapse toggle 
   assert.ok(sidebarContent.includes("!pointer-events-none"), "Sidebar toggle tab must disable pointer-events");
 
   // 3. Page.tsx passes shiftPanelOpen to Sidebar
-  const pagePath = resolve(frontendRoot, "app/page.tsx");
+  const pagePath = resolve(frontendRoot, "app/components/routing/AppShell.tsx");
   const pageContent = readFileSync(pagePath, "utf8");
   assert.ok(pageContent.includes("shiftPanelOpen={shiftPanelOpen}"), "page.tsx must pass shiftPanelOpen to Sidebar");
 
@@ -33,3 +33,4 @@ test("Shift coverage panel open state disables the left sidebar collapse toggle 
   assert.ok(baseCssContent.includes("[pointer-events:none]"), "base.css must apply pointer-events:none");
   assert.ok(baseCssContent.includes("[z-index:20]"), "base.css must apply z-index:20 behind backdrop");
 });
+

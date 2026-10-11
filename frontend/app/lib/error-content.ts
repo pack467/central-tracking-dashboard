@@ -1,3 +1,4 @@
+import { paths } from "@/app/lib/routes";
 export interface ErrorAction {
   label: string;
   /** Navigate to a fixed URL */
@@ -28,7 +29,7 @@ export const errorContent: Record<string, ErrorDetails> = {
   "401": {
     title: "Sesi telah berakhir",
     description: "Silakan masuk kembali untuk melanjutkan akses dashboard.",
-    primaryAction: { label: "Masuk Kembali", href: "/login" },
+    primaryAction: { label: "Masuk Kembali", href: paths.login },
     badge: "Unauthorized",
   },
   "403": {

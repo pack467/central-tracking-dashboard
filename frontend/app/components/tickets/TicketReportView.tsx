@@ -1,4 +1,7 @@
 "use client";
+import { paths } from "@/app/lib/routes";
+import { useUrlQuery } from "@/app/hooks/useUrlQuery";
+import { dashboardSchema } from "@/app/lib/query-state";
 
 import { useMemo, useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
@@ -352,6 +355,8 @@ const OPS_STATUS_PILL_STYLES = {
 export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: TicketReportViewProps) {
   const { activeClient } = useClient();
   const notify = useToast();
+  const schema = useMemo(() => dashboardSchema([...new Set(tickets.map(t => t.project))]), [tickets]);
+  const url = useUrlQuery(schema, paths.dashboard);
   const activeShift = useActiveShift();
   const { userStatus } = useUserStatus();
 
@@ -431,9 +436,15 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
 
   // Active hover and click selection states for charts
   const [hoveredDate, setHoveredDate] = useState<string | null>(null);
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [selectedChartTab, setSelectedChartTab] = useState<"stacked-project" | "trajectory">("stacked-project");
-  const [momSubView, setMomSubView] = useState<"trajectory" | "project">("trajectory");
+  const selectedDate = url.values.day || null;
+  const setSelectedDate = (next: string | null | ((previous: string | null) => string | null)) => {
+    const value = typeof next === "function" ? next(selectedDate) : next;
+    url.update({ day: value ?? "" });
+  };
+  const selectedChartTab = url.values.chart;
+  const setSelectedChartTab = url.field("chart", "push");
+  const momSubView = url.values.mom;
+  const setMomSubView = url.field("mom", "push");
   const [selectedMomItem, setSelectedMomItem] = useState<{
     type: "project" | "timeline";
     id: string;
@@ -467,15 +478,21 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
     percentX: number;
     percentY: number;
   } | null>(null);
-  const [activeShiftLineFilter, setActiveShiftLineFilter] = useState<"all" | "Subuh" | "Pagi" | "Malam">("all");
+  const activeShiftLineFilter = url.values.line;
+  const setActiveShiftLineFilter = url.field("line", "replace");
 
   // ── Analytics Filter State (controls all charts & reports below LIVE OPS VIEW) ──
-  const [analyticsDateFilter, setAnalyticsDateFilter] = useState<string>("");
-  const [analyticsProjectFilter, setAnalyticsProjectFilter] = useState<string>("All");
-  const [analyticsShiftFilter, setAnalyticsShiftFilter] = useState<string>("All");
+  const analyticsDateFilter = url.values.date;
+  const setAnalyticsDateFilter = url.field("date", "replace");
+  const analyticsProjectFilter = url.values.project;
+  const setAnalyticsProjectFilter = url.field("project", "replace");
+  const analyticsShiftFilter = url.values.shift;
+  const setAnalyticsShiftFilter = url.field("shift", "replace");
   const [analyticsSelectedShifters, setAnalyticsSelectedShifters] = useState<string[]>([]);
-  const [analyticsStatusFilter, setAnalyticsStatusFilter] = useState<string>("All");
-  const [analyticsSeverityFilter, setAnalyticsSeverityFilter] = useState<string>("All");
+  const analyticsStatusFilter: string = url.values.status;
+  const setAnalyticsStatusFilter = url.field("status", "replace");
+  const analyticsSeverityFilter = url.values.priority;
+  const setAnalyticsSeverityFilter = url.field("priority", "replace");
 
   const isAnyAnalyticsFilterActive = useMemo(() => {
     return (
@@ -1074,8 +1091,10 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
   }, [todayTickets, selectedEngineerFilter]);
 
   // Pagination for Today's Tickets
-  const [todayPage, setTodayPage] = useState(1);
-  const [todayPageSize, setTodayPageSize] = useState<number>(10);
+  const todayPage = url.values.page;
+  const setTodayPage = url.field("page", "push");
+  const todayPageSize = url.values.size;
+  const setTodayPageSize = url.field("size", "replace");
 
   const todayTicketListRef = useRef<HTMLDivElement>(null);
 
@@ -1418,7 +1437,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                     className="inline-flex items-center gap-[4px] p-[2px_8px] rounded-[6px] border border-[rgba(239,68,68,0.3)] bg-[rgba(239,68,68,0.1)] text-[#f87171] text-[10px] font-semibold cursor-pointer transition-all duration-150 ease-[ease] hover:bg-[rgba(239,68,68,0.2)] ops-filter-reset-btn"
                     onClick={() => {
                       setSelectedEngineerFilter(null);
-                      setTodayPage(1);
+                      url.update({ page: 1 });
                     }}
                     title="Hapus filter engineer"
                   >
@@ -1523,7 +1542,6 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                               }
                               onClick={() => {
                                 setTodayPageSize(size);
-                                setTodayPage(1);
                               }}
                               title={`Tampilkan ${size} tiket per halaman`}
                             >
@@ -1540,7 +1558,6 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                           }
                           onClick={() => {
                             setTodayPageSize(0);
-                            setTodayPage(1);
                           }}
                           title="Tampilkan semua tiket hari ini"
                         >
@@ -4196,3 +4213,5 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
     </div>
   );
 }
+
+

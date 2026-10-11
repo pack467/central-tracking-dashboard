@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Building2, ChevronDown, Check } from "lucide-react";
 import { useClient, ClientOrganization, ClientId } from "@/app/context/ClientContext";
 import { useToast } from "@/app/components/ui/Toast";

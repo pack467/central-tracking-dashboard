@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 test("Sidebar profile renders circular avatar, status ring wrapper, and status options", async () => {
-  const res = await fetch("http://localhost:3000");
+  const res = await fetch("http://localhost:3000/dashboard");
   assert.equal(res.status, 200);
   const html = await res.text();
 
@@ -52,3 +52,4 @@ test("Sidebar profile renders circular avatar, status ring wrapper, and status o
   assert.ok(!sidebarCode.includes(`USER_STATUS_CONFIG["Offline"]`), "Offline is removed from status options");
   assert.ok(sidebarCode.includes("Away From Keyboard"), "Contains AFK description (Away From Keyboard)");
 });
+

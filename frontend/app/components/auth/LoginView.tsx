@@ -1,8 +1,10 @@
 "use client";
+import { paths, routes, safeNext } from "@/app/lib/routes";
+
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
   User,
@@ -24,8 +26,9 @@ interface LoginViewProps {
 
 const easeOutCubic = [0.16, 1, 0.3, 1] as const;
 
-export function LoginView({ onSuccessRedirect = "/" }: LoginViewProps) {
+export function LoginView({ onSuccessRedirect = paths.dashboard }: LoginViewProps) {
   const router = useRouter();
+  const next = useSearchParams().get("next");
   const { login } = useAuth();
   const notify = useToast();
   const shouldReduceMotion = useReducedMotion();
@@ -53,10 +56,10 @@ export function LoginView({ onSuccessRedirect = "/" }: LoginViewProps) {
       // Progressive enhancement dengan View Transitions API jika didukung browser
       if (typeof document !== "undefined" && "startViewTransition" in document) {
         (document as unknown as { startViewTransition: (cb: () => void) => void }).startViewTransition(() => {
-          router.push("/team?from=/login");
+          router.push(routes.publicTeam());
         });
       } else {
-        router.push("/team?from=/login");
+        router.push(routes.publicTeam());
       }
     };
 
@@ -112,7 +115,7 @@ export function LoginView({ onSuccessRedirect = "/" }: LoginViewProps) {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: { duration: 0.4, delay: shouldReduceMotion ? 0 : 0.25, ease: "easeOut" },
+      transition: { duration: 0.4, delay: shouldReduceMotion ? 0 : 0.25, ease: "easeOut" as const },
     },
   };
 
@@ -120,7 +123,7 @@ export function LoginView({ onSuccessRedirect = "/" }: LoginViewProps) {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: { duration: 0.6, ease: "easeOut" },
+      transition: { duration: 0.6, ease: "easeOut" as const },
     },
   };
 
@@ -207,7 +210,7 @@ export function LoginView({ onSuccessRedirect = "/" }: LoginViewProps) {
       });
 
       setTimeout(() => {
-        window.location.href = onSuccessRedirect;
+        window.location.href = safeNext(next ?? onSuccessRedirect);
       }, 300);
     }, 500);
   };
@@ -320,7 +323,7 @@ export function LoginView({ onSuccessRedirect = "/" }: LoginViewProps) {
             transition={{ duration: 0.15 }}
           >
             <Link
-              href="/team?from=/login"
+              href={routes.publicTeam()}
               id="login-our-team-link"
               onClick={handleNavigateToTeam}
               title="Lihat Tim Pengembang"

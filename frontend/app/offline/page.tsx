@@ -3,6 +3,7 @@
 import { useSyncExternalStore, useEffect } from "react";
 import { ErrorState } from "@/app/components/ErrorState";
 import { errorContent } from "@/app/lib/error-content";
+import { paths } from "@/app/lib/routes";
 
 function subscribe(callback: () => void) {
   window.addEventListener("online", callback);
@@ -29,7 +30,7 @@ export default function OfflinePage() {
     if (isOnline) {
       // Jika jaringan pulih, arahkan kembali ke dashboard secara otomatis setelah jeda singkat
       const timer = setTimeout(() => {
-        window.location.href = "/";
+        window.location.href = paths.dashboard;
       }, 800);
       return () => clearTimeout(timer);
     }
@@ -38,7 +39,7 @@ export default function OfflinePage() {
   const handleRetry = () => {
     if (typeof window !== "undefined") {
       if (navigator.onLine) {
-        window.location.href = "/";
+        window.location.href = paths.dashboard;
       } else {
         window.location.reload();
       }

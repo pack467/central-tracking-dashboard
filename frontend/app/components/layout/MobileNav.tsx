@@ -1,4 +1,7 @@
 "use client";
+import Link from "next/link";
+import { paths, isActivePath } from "@/app/lib/routes";
+import { usePathname } from "next/navigation";
 
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
@@ -12,7 +15,6 @@ interface MobileNavProps {
   open: boolean;
   onClose: () => void;
   activeNav: string;
-  onNavigate: (label: string) => void;
   onPrepareHandover: () => void;
   handoverRecord: HandoverRecordData;
   openTicketCount?: number;
@@ -22,12 +24,12 @@ export function MobileNav({
   open,
   onClose,
   activeNav,
-  onNavigate,
   onPrepareHandover,
   handoverRecord,
   openTicketCount = 0,
 }: MobileNavProps) {
   const activeShift = useActiveShift();
+  const pathname = usePathname();
   const [userStatus, setUserStatus] = useState<UserPresenceStatus>("Online");
 
   useEffect(() => {
@@ -54,15 +56,6 @@ export function MobileNav({
 
   if (!open) return null;
 
-  const isItemActive = (label: string) => {
-    if (activeNav === label) return true;
-    if ((activeNav === "Utama" || activeNav === "Overview" || activeNav === "Dashboard") && (label === "Dashboard" || label === "Overview")) return true;
-    if ((activeNav === "Ticket" || activeNav === "Tickets") && label === "Tickets") return true;
-    if ((activeNav === "Log shift" || activeNav === "Shift Log") && label === "Shift Log") return true;
-    if ((activeNav === "Laporan" || activeNav === "Reports") && label === "Reports") return true;
-    if (activeNav === "Team Roster" && label === "Team Roster") return true;
-    return false;
-  };
 
   return (
     <div
@@ -84,16 +77,13 @@ export function MobileNav({
         <div className="nav-list">
           {navItems.map((item) => {
             const Icon = item.icon;
-            const isActive = isItemActive(item.label);
+            const isActive = isActivePath(pathname, item.path);
 
             return (
-              <button
+              <Link href={item.path} onClick={onClose}
                 key={item.label}
+                aria-current={isActive ? "page" : undefined}
                 className={`nav-item [min-height:44px] ${isActive ? "active" : ""}`}
-                onClick={() => {
-                  onNavigate(item.label);
-                  onClose();
-                }}
               >
                 <span className="nav-icon" aria-hidden="true">
                   <Icon size={18} strokeWidth={1.8} aria-hidden="true" />
@@ -102,23 +92,19 @@ export function MobileNav({
                 {item.label === "Tickets" && openTicketCount > 0 && (
                   <span className="nav-count nav-count-tickets" suppressHydrationWarning>{openTicketCount}</span>
                 )}
-              </button>
+              </Link>
             );
           })}
 
           {/* Runbooks — standalone nav item */}
-          <button
+          <Link aria-current={activeNav === "Runbooks" ? "page" : undefined} href={paths.runbooks} onClick={onClose}
             className={`nav-item [min-height:44px] ${activeNav === "Runbooks" ? "active" : ""}`}
-            onClick={() => {
-              onNavigate("Runbooks");
-              onClose();
-            }}
           >
             <span className="nav-icon" aria-hidden="true">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
             </span>
             <span>Runbooks</span>
-          </button>
+          </Link>
         </div>
 
         {/* ── Bottom Active Shift Card ── */}
@@ -138,13 +124,8 @@ export function MobileNav({
           </button>
         </section>
 
-        <button
-          type="button"
+        <Link href={paths.profile} onClick={onClose}
           className="profile"
-          onClick={() => {
-            onNavigate("Profile");
-            onClose();
-          }}
           title="Buka Profil Pengguna"
         >
           <div
@@ -172,7 +153,7 @@ export function MobileNav({
               <span>Operator NOC</span>
             </small>
           </span>
-        </button>
+        </Link>
       </div>
     </div>
   );

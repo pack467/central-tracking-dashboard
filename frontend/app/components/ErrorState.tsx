@@ -1,4 +1,5 @@
 "use client";
+import { paths } from "@/app/lib/routes";
 
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
@@ -45,7 +46,7 @@ export function ErrorState({
       if (window.history.length > 1) {
         window.history.back();
       } else {
-        window.location.href = "/";
+        window.location.href = paths.dashboard;
       }
       return;
     }
@@ -76,7 +77,7 @@ export function ErrorState({
       </div>
 
       <header className="es-header">
-        <Link href="/" title="Kembali ke Dashboard Utama" style={{ textDecoration: "none" }}>
+        <Link href={paths.dashboard} title="Kembali ke Dashboard Utama" style={{ textDecoration: "none" }}>
           <BrandLogo size={30} showText={true} compact={true} />
         </Link>
       </header>

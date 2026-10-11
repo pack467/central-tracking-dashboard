@@ -1,6 +1,12 @@
 "use client";
+import { paths } from "@/app/lib/routes";
+import Link from "next/link";
 
-import { lazy, startTransition, Suspense, useCallback, useMemo, useState } from "react";
+import { useUrlQuery, useUrlSearch } from "@/app/hooks/useUrlQuery";
+import { runbooksSchema } from "@/app/lib/query-state";
+import { withQuery, runbookPaths } from "@/app/lib/routes";
+
+import { lazy, Suspense, useCallback, useMemo } from "react";
 import {
   FileText,
   KeyRound,
@@ -45,18 +51,19 @@ interface TabItemConfig {
 }
 
 export function RunbooksView() {
-  const [activeTab, setActiveTab] = useState<RunbookTab>("sop");
-  const [search, setSearch] = useState("");
+  const url = useUrlQuery(runbooksSchema, paths.runbooks);
+  const activeTab = (Object.keys(runbookPaths) as RunbookTab[]).find(key => runbookPaths[key] === url.pathname) ?? "sop";
+  const searchDraft = useUrlSearch(url.values.q, url.field("q"));
+  const search = searchDraft.effective;
+  const setSearch = searchDraft.set;
 
   // Persisted data via localStorage
-  const [sopEntries, setSopEntries] = useLocalStorage<SopEntry[]>("ctd.runbooks.sop", seedSopEntries);
+  const [sopEntries, setSopEntries, sopReady] = useLocalStorage<SopEntry[]>("ctd.runbooks.sop", seedSopEntries);
   const [credentials] = useLocalStorage<CredentialEntry[]>("ctd.runbooks.creds", seedCredentials);
   const [quickLinks] = useLocalStorage<QuickLink[]>("ctd.runbooks.links", seedQuickLinks);
 
   // Tab switching with transition
-  const switchTab = useCallback((tab: RunbookTab) => {
-    startTransition(() => setActiveTab(tab));
-  }, []);
+
 
   const handleAddAttachment = useCallback(
     (sopId: string, attachment: SopAttachment) => {
@@ -147,7 +154,7 @@ export function RunbooksView() {
         <input
           type="text"
           placeholder="Cari SOP, ID server, kredensial, tools, atau PIC eskalasi..."
-          value={search}
+          value={searchDraft.input}
           onChange={(e) => setSearch(e.target.value)}
           aria-label="Cari di runbooks"
           className="w-full h-[42px] pl-[38px] pr-[85px] py-0 rounded-[8px] border border-[var(--panel-border)] bg-[var(--input-bg)] text-[var(--ink-primary)] text-[13px] transition-[border-color] duration-150 focus:outline-none focus:border-[var(--accent-blue)]"
@@ -173,9 +180,10 @@ export function RunbooksView() {
         {tabConfigs.map(({ key, label, icon: Icon, count }) => {
           const isActive = activeTab === key;
           return (
-            <button
+            <Link
               key={key}
-              type="button"
+              href={withQuery(runbookPaths[key], url.query)}
+              scroll={false}
               role="tab"
               aria-selected={isActive}
               className={`inline-flex items-center gap-[8px] px-[14px] py-[8px] rounded-[6px] border text-[12.5px] font-semibold cursor-pointer whitespace-nowrap transition-all duration-150 max-[520px]:px-[10px] max-[520px]:py-[6px] max-[520px]:text-[11.5px] ${
@@ -183,7 +191,7 @@ export function RunbooksView() {
                   ? "text-[var(--accent-blue)] bg-[var(--accent-blue-soft)] border-[var(--accent-blue-border)]"
                   : "border-transparent bg-transparent text-[var(--ink-muted)] hover:text-[var(--ink-primary)] hover:bg-[var(--panel-bg-hover)]"
               }`}
-              onClick={() => switchTab(key)}
+
             >
               <Icon size={15} aria-hidden="true" />
               <span>{label}</span>
@@ -196,7 +204,7 @@ export function RunbooksView() {
               >
                 {count}
               </span>
-            </button>
+            </Link>
           );
         })}
       </div>
@@ -206,6 +214,7 @@ export function RunbooksView() {
         {activeTab === "sop" && (
           <SopSection
             entries={sopEntries}
+            dataReady={sopReady}
             search={search}
             onAddAttachment={handleAddAttachment}
             onDeleteAttachment={handleDeleteAttachment}
@@ -220,3 +229,4 @@ export function RunbooksView() {
     </>
   );
 }
+

@@ -1,4 +1,6 @@
 "use client";
+import Link from "next/link";
+import { routes, pathForLabel } from "@/app/lib/routes";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Badge } from "@/app/components/ui/Badge";
@@ -182,12 +184,12 @@ function PaletteOverlay({
                   const globalIndex = results.indexOf(result);
                   const isActive = cursor === globalIndex;
                   return (
-                    <button
+                    <Link href={pathForLabel(result.navLabel ?? result.label)}
                       key={result.key}
                       className={`command-item command-item-nav [display:flex] [align-items:center] [gap:12px] [padding:9px_12px] [width:100%] [border-radius:8px] [border:1px_solid_transparent] [background:transparent] [text-align:left] [color:var(--ink-primary)] [cursor:pointer] [transition:background_0.15s_ease,_border-color_0.15s_ease,_transform_0.1s_ease] ${isActive ? "cursor-active" : ""}`}
-                      onClick={() => activate(result)}
+                      onClick={onClose}
                       onMouseEnter={() => setCursor(globalIndex)}
-                      type="button"
+                      
                       >
                       <span className="command-nav-icon-box [width:32px] [height:32px] [flex-shrink:0] [display:grid] [place-items:center] [border-radius:8px] [background:var(--accent-blue-soft)] [border:1px_solid_var(--accent-blue-border)] [color:var(--accent-blue)] [font-size:14px] [font-weight:600] [line-height:1] [transition:all_0.15s_ease]" aria-hidden="true">
                         <PaletteIcon icon={result.icon} />
@@ -199,7 +201,7 @@ function PaletteOverlay({
                       <span className="command-enter-indicator [opacity:0] [transform:translateX(-4px)] [transition:opacity_0.15s_ease,_transform_0.15s_ease] [flex-shrink:0]" aria-hidden="true">
                         <kbd className="[padding:2px_5px] [color:var(--accent-blue)] [border:1px_solid_var(--accent-blue-border)] [border-radius:4px] [background:var(--panel-bg)] [font-size:9.5px] [font-family:var(--font-mono)] [font-weight:700]">↵</kbd>
                       </span>
-                    </button>
+                    </Link>
                   );
                 })}
               </div>
@@ -217,12 +219,12 @@ function PaletteOverlay({
                   const globalIndex = results.indexOf(result);
                   const isActive = cursor === globalIndex;
                   return (
-                    <button
+                    <Link href={routes.ticket(result.ticket.id)}
                       key={result.key}
                       className={`command-item command-item-ticket [display:flex] [align-items:center] [gap:12px] [padding:9px_12px] [width:100%] [border-radius:8px] [border:1px_solid_transparent] [background:transparent] [text-align:left] [color:var(--ink-primary)] [cursor:pointer] [transition:background_0.15s_ease,_border-color_0.15s_ease,_transform_0.1s_ease] ${isActive ? "cursor-active" : ""}`}
-                      onClick={() => activate(result)}
+                      onClick={onClose}
                       onMouseEnter={() => setCursor(globalIndex)}
-                      type="button"
+                      
                     >
                       <div className="command-ticket-mark-wrapper">
                         <ProjectMark name={result.ticket.project} />
@@ -239,7 +241,7 @@ function PaletteOverlay({
                           <kbd className="[padding:2px_5px] [color:var(--accent-blue)] [border:1px_solid_var(--accent-blue-border)] [border-radius:4px] [background:var(--panel-bg)] [font-size:9.5px] [font-family:var(--font-mono)] [font-weight:700]">↵</kbd>
                         </span>
                       </div>
-                    </button>
+                    </Link>
                   );
                 })}
               </div>

@@ -1,6 +1,12 @@
 "use client";
+import { paths } from "@/app/lib/routes";
 
-import { useState, useMemo, useEffect } from "react";
+
+import { useUrlQuery, useUrlSearch } from "@/app/hooks/useUrlQuery";
+import { notificationsSchema } from "@/app/lib/query-state";
+
+
+import { useMemo } from "react";
 import {
   Bell,
   CheckCheck,
@@ -130,15 +136,24 @@ export function NotificationsView() {
   );
 
   // Filters and search state
-  const [search, setSearch] = useState("");
-  const [dateFilter, setDateFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"all" | "unread" | "read">("all");
-  const [categoryFilter, setCategoryFilter] = useState<string>("all");
-  const [sortBy, setSortBy] = useState<"newest" | "oldest" | "severity">("newest");
+  const url = useUrlQuery(notificationsSchema, paths.notifications);
+  const searchDraft = useUrlSearch(url.values.q, url.field("q"));
+  const search = searchDraft.effective;
+  const setSearch = searchDraft.set;
+  const dateFilter = url.values.date;
+  const setDateFilter = url.field("date", "replace");
+  const statusFilter = url.values.status;
+  const setStatusFilter = url.field("status", "replace");
+  const categoryFilter = url.values.category;
+  const setCategoryFilter = url.field("category", "replace");
+  const sortBy = url.values.sort;
+  const setSortBy = url.field("sort", "replace");
 
   // Pagination state
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const currentPage = url.values.page;
+  const setCurrentPage = url.field("page", "push");
+  const pageSize = url.values.size;
+  const setPageSize = url.field("size", "replace");
 
   // Available unique categories: standard purpose-based taxonomy + dynamic extras if any
   const categories = useMemo(() => {
@@ -183,9 +198,7 @@ export function NotificationsView() {
   }, [notifications, unreadCount]);
 
   // Reset pagination when filter changes
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [search, dateFilter, statusFilter, categoryFilter, sortBy, pageSize]);
+
 
   // Filtered & sorted notifications
   const filteredNotifications = useMemo(() => {
@@ -272,7 +285,6 @@ export function NotificationsView() {
     setStatusFilter("all");
     setCategoryFilter("all");
     setSortBy("newest");
-    setCurrentPage(1);
   };
 
   // Pagination page numbers
@@ -420,10 +432,9 @@ export function NotificationsView() {
             <input
               type="text"
               placeholder="Cari notifikasi, pesan, topik..."
-              value={search}
+              value={searchDraft.input}
               onChange={(e) => {
                 setSearch(e.target.value);
-                setCurrentPage(1);
               }}
               aria-label="Cari notifikasi"
               className="flex-1 bg-transparent [border:none] outline-none text-[var(--ink-primary)] text-[11.5px]"
@@ -433,7 +444,6 @@ export function NotificationsView() {
                 type="button"
                 onClick={() => {
                   setSearch("");
-                  setCurrentPage(1);
                 }}
                 className="bg-transparent [border:none] text-[var(--ink-muted)] cursor-pointer grid place-items-center"
                 aria-label="Hapus pencarian"
@@ -451,7 +461,6 @@ export function NotificationsView() {
                 value={dateFilter}
                 onChange={(val) => {
                   setDateFilter(val);
-                  setCurrentPage(1);
                 }}
                 placeholder="Semua Waktu"
                 align="left"
@@ -470,7 +479,6 @@ export function NotificationsView() {
                 }`}
                 onClick={() => {
                   setStatusFilter("all");
-                  setCurrentPage(1);
                 }}
               >
                 Semua
@@ -485,7 +493,6 @@ export function NotificationsView() {
                 }`}
                 onClick={() => {
                   setStatusFilter("unread");
-                  setCurrentPage(1);
                 }}
               >
                 Belum Dibaca
@@ -502,7 +509,6 @@ export function NotificationsView() {
                 }`}
                 onClick={() => {
                   setStatusFilter("read");
-                  setCurrentPage(1);
                 }}
               >
                 Sudah Dibaca
@@ -517,7 +523,6 @@ export function NotificationsView() {
                 value={categoryFilter}
                 onChange={(e) => {
                   setCategoryFilter(e.target.value);
-                  setCurrentPage(1);
                 }}
                 aria-label="Filter kategori notifikasi"
                 data-active={categoryFilter !== "all" ? "true" : undefined}
@@ -539,7 +544,6 @@ export function NotificationsView() {
                 value={sortBy}
                 onChange={(e) => {
                   setSortBy(e.target.value as "newest" | "oldest" | "severity");
-                  setCurrentPage(1);
                 }}
                 aria-label="Urutkan notifikasi"
                 data-active={sortBy !== "newest" ? "true" : undefined}
@@ -702,7 +706,6 @@ export function NotificationsView() {
             pageSize={pageSize}
             onPageSizeChange={(newSize) => {
               setPageSize(newSize);
-              setCurrentPage(1);
             }}
             currentPage={safeCurrentPage}
             onPageChange={setCurrentPage}
@@ -721,3 +724,5 @@ export function NotificationsView() {
     </div>
   );
 }
+
+

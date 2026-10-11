@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 test("Card 4 renders as TUGAS SAAT INI and has no checkpoint references", async () => {
-  const res = await fetch("http://localhost:3000");
+  const res = await fetch("http://localhost:3000/dashboard");
   assert.equal(res.status, 200);
   const html = await res.text();
 
@@ -31,7 +31,7 @@ test("Card 4 renders as TUGAS SAAT INI and has no checkpoint references", async 
 });
 
 test("Monitoring schedule contains scrollable schedule-body container and responsive height rules", async () => {
-  const res = await fetch("http://localhost:3000");
+  const res = await fetch("http://localhost:3000/dashboard");
   assert.equal(res.status, 200);
   const html = await res.text();
 
@@ -48,4 +48,5 @@ test("Monitoring schedule contains scrollable schedule-body container and respon
   assert.ok(css.includes(".dashboard-grid .schedule-body"), "Contains .dashboard-grid .schedule-body");
   assert.ok(css.includes(".dashboard-grid .schedule-row-wrapper"), "Contains .dashboard-grid .schedule-row-wrapper");
 });
+
 

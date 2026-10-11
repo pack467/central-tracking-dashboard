@@ -5,9 +5,9 @@ import test from "node:test";
 
 const frontendRoot = resolve(import.meta.dirname, "..");
 
-test("Layer 1: app/template.tsx exists with Framer Motion route enter animation", () => {
-  const templatePath = resolve(frontendRoot, "app/template.tsx");
-  assert.ok(existsSync(templatePath), "app/template.tsx must exist");
+test("Layer 1: app/(app)/template.tsx exists with Framer Motion route enter animation", () => {
+  const templatePath = resolve(frontendRoot, "app/(app)/template.tsx");
+  assert.ok(existsSync(templatePath), "app/(app)/template.tsx must exist");
 
   const content = readFileSync(templatePath, "utf8");
   assert.ok(content.includes('"use client"') || content.includes("'use client'"), "Must be a client component");
@@ -29,7 +29,7 @@ test("Layer 2: LoginView has exit micro-interaction on 'Our Team' button before 
   assert.ok(content.includes("useRouter"));
   assert.ok(content.includes("isNavigatingToTeam"));
   assert.ok(content.includes("handleNavigateToTeam"));
-  assert.ok(content.includes("/team?from=/login"));
+  assert.ok(content.includes("routes.publicTeam()"));
   assert.ok(content.includes("setTimeout"));
   assert.ok(content.includes("startViewTransition"));
   assert.ok(content.includes("whileHover"));
@@ -40,7 +40,7 @@ test("Server renders key pages (/login, /team, /) with status 200 and valid HTML
   const [loginRes, teamRes, homeRes] = await Promise.all([
     fetch("http://localhost:3000/login"),
     fetch("http://localhost:3000/team"),
-    fetch("http://localhost:3000/"),
+    fetch("http://localhost:3000/dashboard"),
   ]);
 
   assert.equal(loginRes.status, 200, "/login should return 200");
@@ -58,3 +58,4 @@ test("Server renders key pages (/login, /team, /) with status 200 and valid HTML
   const homeHtml = await homeRes.text();
   assert.ok(homeHtml.includes("app-shell"), "Home dashboard contains app-shell layout");
 });
+

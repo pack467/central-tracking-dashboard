@@ -87,7 +87,7 @@ function getCurrentHour(date: Date = new Date()) {
  * value can change. The visual clock still updates once per second in Topbar.
  */
 export function useCurrentHour() {
-  const [hour, setHour] = useState(() => getCurrentHour());
+  const [hour, setHour] = useState(() => getCurrentHour(new Date("2026-08-28T03:00:00Z")));
 
   useEffect(() => {
     let timeoutId: ReturnType<typeof setTimeout> | undefined;
@@ -109,7 +109,7 @@ export function useCurrentHour() {
 }
 
 export function useActiveShift() {
-  const [shift, setShift] = useState<ShiftInfo>(() => getShiftInfo(new Date()));
+  const [shift, setShift] = useState<ShiftInfo>(() => getShiftInfo(new Date("2026-08-28T03:00:00Z")));
 
   useEffect(() => {
     let timeoutId: ReturnType<typeof setTimeout> | undefined;
@@ -131,7 +131,7 @@ export function useActiveShift() {
 }
 
 export function useShiftTransition(): ShiftTransitionState {
-  const [transition, setTransition] = useState<ShiftTransitionState>(() => getShiftTransitionState(new Date()));
+  const [transition, setTransition] = useState<ShiftTransitionState>(() => getShiftTransitionState(new Date("2026-08-28T03:00:00Z")));
 
   useEffect(() => {
     const update = () => {

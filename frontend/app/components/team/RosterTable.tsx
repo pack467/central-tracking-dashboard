@@ -1,11 +1,20 @@
 "use client";
+import { paths } from "@/app/lib/routes";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { routes } from "@/app/lib/routes";
 
-import { memo, useCallback, useEffect, useMemo, useState } from "react";
+
+import { useUrlQuery } from "@/app/hooks/useUrlQuery";
+import { rosterSchema } from "@/app/lib/query-state";
+
+
+import { memo, useCallback, useMemo, useState } from "react";
 import { Mail, Phone, MoreVertical, Calendar, ArrowRightLeft, UserCheck, Edit3, Clock, Briefcase } from "lucide-react";
 import { Badge } from "@/app/components/ui/Badge";
 import { Avatar } from "@/app/components/ui/Avatar";
 import { useToast } from "@/app/components/ui/Toast";
-import { initials } from "@/app/lib/data";
+
 import { useUserStatus, getStatusRingStyle } from "@/app/hooks/useUserStatus";
 import type { DayScheduleType, RosterMember, Tone } from "@/app/lib/types";
 
@@ -152,6 +161,7 @@ const RosterRow = memo(function RosterRow({
   offsetTop,
 }: RosterRowProps) {
   // Pre-compute schedule colors once per this member's data object.
+  const memberQuery = useSearchParams().toString();
   const scheduleDays = useMemo(() => computeScheduleColors(member.weeklySchedule), [member.weeklySchedule]);
 
   const { userStatus } = useUserStatus();
@@ -174,9 +184,8 @@ const RosterRow = memo(function RosterRow({
       }
     >
       {/* 1. Member Column */}
-      <div
+      <Link href={routes.member(member.id, memberQuery)} scroll={false}
         className="flex items-center gap-[12px] cursor-pointer min-w-0 hover:[&_strong]:text-[var(--accent-blue)]"
-        onClick={() => onSelectMember(member)}
         role="button"
         tabIndex={0}
         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onSelectMember(member); } }}
@@ -207,7 +216,7 @@ const RosterRow = memo(function RosterRow({
             <span className="text-[9.5px] font-mono text-[var(--ink-muted)]">{member.employeeId}</span>
           </div>
         </div>
-      </div>
+      </Link>
 
       {/* 2. Shift Column */}
       <div className="max-[760px]:hidden">
@@ -294,15 +303,16 @@ interface RosterTableProps {
 }
 
 export function RosterTable({ members, onSelectMember, onEditMember, onRequestSwap }: RosterTableProps) {
+  const url = useUrlQuery(rosterSchema, paths.teamRoster);
   const notify = useToast();
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState<number | "all">(10);
+  const currentPage = url.values.page;
+  const setCurrentPage = url.field("page", "push");
+  const pageSize = url.values.size;
+  const setPageSize = url.field("size", "replace");
 
   // Automatically reset to page 1 when the member dataset changes (due to search/filters)
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [members]);
+
 
   const totalCount = members.length;
   const effectivePageSize = pageSize === "all" ? Math.max(1, totalCount) : pageSize;
@@ -386,17 +396,16 @@ export function RosterTable({ members, onSelectMember, onEditMember, onRequestSw
       </div>
 
       {/* Pagination Footer */}
-      <div className="flex items-center justify-between gap-[16px] p-[12px_18px] border-t border-[var(--line)] bg-[var(--panel-bg)] flex-wrap">
-        <div className="flex items-center gap-[16px] flex-wrap">
-          <div className="flex items-center gap-[8px]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 p-[12px_18px] border-t border-[var(--line)] bg-[var(--panel-bg)]">
+        <div className="flex items-center justify-between sm:justify-start gap-3 sm:gap-4 flex-wrap">
+          <div className="flex items-center gap-2">
             <span className="text-[11.5px] text-[var(--ink-muted)] font-medium whitespace-nowrap">Rows per page:</span>
             <select
-              className="h-[30px] pl-[9px] pr-[24px] py-0 text-[11.5px] font-medium font-sans rounded-[6px] bg-[right_7px_center] bg-[var(--input-bg,#0f172a)] [color-scheme:dark] border border-[var(--panel-border)] cursor-pointer inline-flex items-center appearance-none -webkit-appearance-none transition-[border-color,box-shadow,background-color,color] duration-150 ease shrink-0 hover:border-[rgba(148,163,184,0.35)] focus:border-[var(--accent-blue)] focus:shadow-[0_0_0_3px_rgba(56,189,248,0.12)] focus:outline-none text-[var(--ink-primary)]"
+              className="h-[34px] sm:h-[30px] pl-[9px] pr-[24px] py-0 text-[11.5px] font-medium font-sans rounded-[6px] bg-[right_7px_center] bg-[var(--input-bg,#0f172a)] [color-scheme:dark] border border-[var(--panel-border)] cursor-pointer inline-flex items-center appearance-none -webkit-appearance-none transition-[border-color,box-shadow,background-color,color] duration-150 ease shrink-0 hover:border-[rgba(148,163,184,0.35)] focus:border-[var(--accent-blue)] focus:shadow-[0_0_0_3px_rgba(56,189,248,0.12)] focus:outline-none text-[var(--ink-primary)]"
               value={pageSize === "all" ? "all" : String(pageSize)}
               onChange={(e) => {
                 const val = e.target.value;
                 setPageSize(val === "all" ? "all" : Number(val));
-                setCurrentPage(1);
               }}
               aria-label="Jumlah baris per halaman"
             >
@@ -412,9 +421,9 @@ export function RosterTable({ members, onSelectMember, onEditMember, onRequestSw
           </span>
         </div>
 
-        <div className="flex items-center gap-[5px]">
+        <div className="flex items-center justify-between sm:justify-end gap-[5px] w-full sm:w-auto">
           <button
-            className="inline-flex items-center justify-center p-[4px_10px] rounded-[6px] text-[11px] font-semibold font-mono bg-[rgba(148,163,184,0.06)] border border-[rgba(148,163,184,0.15)] text-[var(--ink-secondary)] cursor-pointer transition-all duration-150 ease select-none hover:not-disabled:bg-[rgba(56,189,248,0.12)] hover:not-disabled:border-[rgba(56,189,248,0.35)] hover:not-disabled:text-[#38bdf8] disabled:opacity-35 disabled:cursor-not-allowed disabled:bg-[rgba(148,163,184,0.03)] disabled:border-[rgba(148,163,184,0.08)] disabled:text-[var(--ink-muted)]"
+            className="inline-flex items-center justify-center min-h-[36px] sm:min-h-0 p-[6px_12px] sm:p-[4px_10px] rounded-[6px] text-[11px] font-semibold font-mono bg-[rgba(148,163,184,0.06)] border border-[rgba(148,163,184,0.15)] text-[var(--ink-secondary)] cursor-pointer transition-all duration-150 ease select-none hover:not-disabled:bg-[rgba(56,189,248,0.12)] hover:not-disabled:border-[rgba(56,189,248,0.35)] hover:not-disabled:text-[#38bdf8] disabled:opacity-35 disabled:cursor-not-allowed disabled:bg-[rgba(148,163,184,0.03)] disabled:border-[rgba(148,163,184,0.08)] disabled:text-[var(--ink-muted)]"
             onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
             disabled={safeCurrentPage <= 1}
             aria-label="Halaman sebelumnya"
@@ -429,7 +438,7 @@ export function RosterTable({ members, onSelectMember, onEditMember, onRequestSw
               ) : (
                 <button
                   key={p}
-                  className={`inline-flex items-center justify-center min-w-[26px] h-[26px] p-0 rounded-[6px] text-[11px] font-semibold font-mono border cursor-pointer transition-all duration-150 ease select-none ${
+                  className={`inline-flex items-center justify-center min-w-[32px] sm:min-w-[26px] h-[36px] sm:h-[26px] p-0 rounded-[6px] text-[11px] font-semibold font-mono border cursor-pointer transition-all duration-150 ease select-none ${
                     p === safeCurrentPage
                       ? "bg-[rgba(56,189,248,0.18)] border-[rgba(56,189,248,0.5)] text-[#38bdf8] font-bold"
                       : "bg-[rgba(148,163,184,0.06)] border-[rgba(148,163,184,0.15)] text-[var(--ink-secondary)] hover:bg-[rgba(56,189,248,0.12)] hover:border-[rgba(56,189,248,0.35)] hover:text-[#38bdf8]"
@@ -445,7 +454,7 @@ export function RosterTable({ members, onSelectMember, onEditMember, onRequestSw
           </div>
 
           <button
-            className="inline-flex items-center justify-center p-[4px_10px] rounded-[6px] text-[11px] font-semibold font-mono bg-[rgba(148,163,184,0.06)] border border-[rgba(148,163,184,0.15)] text-[var(--ink-secondary)] cursor-pointer transition-all duration-150 ease select-none hover:not-disabled:bg-[rgba(56,189,248,0.12)] hover:not-disabled:border-[rgba(56,189,248,0.35)] hover:not-disabled:text-[#38bdf8] disabled:opacity-35 disabled:cursor-not-allowed disabled:bg-[rgba(148,163,184,0.03)] disabled:border-[rgba(148,163,184,0.08)] disabled:text-[var(--ink-muted)]"
+            className="inline-flex items-center justify-center min-h-[36px] sm:min-h-0 p-[6px_12px] sm:p-[4px_10px] rounded-[6px] text-[11px] font-semibold font-mono bg-[rgba(148,163,184,0.06)] border border-[rgba(148,163,184,0.15)] text-[var(--ink-secondary)] cursor-pointer transition-all duration-150 ease select-none hover:not-disabled:bg-[rgba(56,189,248,0.12)] hover:not-disabled:border-[rgba(56,189,248,0.35)] hover:not-disabled:text-[#38bdf8] disabled:opacity-35 disabled:cursor-not-allowed disabled:bg-[rgba(148,163,184,0.03)] disabled:border-[rgba(148,163,184,0.08)] disabled:text-[var(--ink-muted)]"
             onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
             disabled={safeCurrentPage >= totalPages || totalPages <= 1}
             aria-label="Halaman berikutnya"
@@ -457,3 +466,4 @@ export function RosterTable({ members, onSelectMember, onEditMember, onRequestSw
     </div>
   );
 }
+

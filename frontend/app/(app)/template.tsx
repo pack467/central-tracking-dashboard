@@ -22,7 +22,7 @@ export default function Template({ children }: { children: React.ReactNode }) {
         duration: 0.35,
         ease: easeOutCubic,
       }}
-      className="w-full flex-1 flex flex-col min-h-screen"
+      className="w-full"
     >
       {children}
     </motion.div>

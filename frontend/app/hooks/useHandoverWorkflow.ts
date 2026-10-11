@@ -1,6 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useUrlQuery } from "@/app/hooks/useUrlQuery";
+import { shiftLogSchema } from "@/app/lib/query-state";
+import { paths } from "@/app/lib/routes";
 import { useToast } from "@/app/components/ui/Toast";
 import { createHandoverDraft, initialHandoverRecord } from "@/app/lib/data";
 import { buildDashboardHandoverDraft, HandoverError, parseHandoverContent, validateDraft } from "@/app/lib/handover";
@@ -37,7 +41,11 @@ export function useHandoverWorkflow(inputs: Inputs) {
   const [allTotal, setAllTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
-  const [filters, setFilters] = useState({ date: "", shift: "", pic: "" });
+  const [privateFilters, setPrivateFilters] = useState({ date: "", shift: "", pic: "" });
+  const pathname = usePathname();
+  const query = useUrlQuery(shiftLogSchema, pathname === paths.shiftLog);
+  const filters = useMemo(() => pathname === paths.shiftLog ? { date: query.values.date, shift: query.values.shift, pic: privateFilters.pic } : privateFilters, [pathname, query.values.date, query.values.shift, privateFilters]);
+  const setFilters = (value: typeof privateFilters | ((previous: typeof privateFilters) => typeof privateFilters)) => { const next = typeof value === "function" ? value(filters) : value; setPrivateFilters(next); if (pathname === paths.shiftLog) query.update({ date: next.date, shift: shiftLogSchema.shift.parse(next.shift.toLowerCase()), page: 1 }); };
   const listRequest = useRef(0);
   const [open, setOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"active" | "history">("history");

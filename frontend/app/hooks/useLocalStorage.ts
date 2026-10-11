@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 export function useLocalStorage<T>(key: string, initial: T) {
   const [value, setValue] = useState<T>(initial);
   const hydrated = useRef(false);
+  const [ready, setReady] = useState(false);
   const initialRef = useRef(initial);
   initialRef.current = initial;
 
@@ -43,6 +44,7 @@ export function useLocalStorage<T>(key: string, initial: T) {
         /* ignore corrupt entries */
       }
       hydrated.current = true;
+      setReady(true);
     };
     const interval = window.setTimeout(read, 0);
     return () => window.clearTimeout(interval);
@@ -57,5 +59,5 @@ export function useLocalStorage<T>(key: string, initial: T) {
     }
   }, [key, value]);
 
-  return [value, setValue] as const;
+  return [value, setValue, ready] as const;
 }

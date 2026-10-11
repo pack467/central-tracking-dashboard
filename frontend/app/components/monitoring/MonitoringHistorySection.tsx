@@ -1,6 +1,11 @@
 "use client";
+import { paths } from "@/app/lib/routes";
+import { useUrlQuery, useUrlSearch } from "@/app/hooks/useUrlQuery";
+import { monitoringSchema } from "@/app/lib/query-state";
+import { getClientProjects } from "@/app/lib/clientData";
+import { CLIENT_MONITORING_SYSTEMS } from "@/app/components/dashboard/MonitoringSchedule";
 
-import { useMemo, useState, useCallback, useEffect } from "react";
+import { useMemo, useCallback } from "react";
 import { Search, Download, User, X, Check } from "lucide-react";
 import { DatePicker } from "@/app/components/ui/DatePicker";
 import { ProjectMark } from "@/app/components/ui/ProjectMark";
@@ -16,8 +21,6 @@ interface MonitoringHistorySectionProps {
   todayEntries: MonitoringEntry[];
   todayAssessments: Record<string, CheckpointAssessment>;
 }
-
-type VerdictFilter = "all" | "ok" | "nok";
 
 const MONTH_NAMES_ID = [
   "Januari",
@@ -55,18 +58,24 @@ export function MonitoringHistorySection({ todayEntries, todayAssessments }: Mon
   const { activeClientId } = useClient();
   const seedHistorical = useMemo(() => getClientHistoricalAssessments(activeClientId), [activeClientId]);
   const notify = useToast();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [verdictFilter, setVerdictFilter] = useState<VerdictFilter>("all");
-  const [dateFilter, setDateFilter] = useState<string>("");
+  const schema = useMemo(() => monitoringSchema(getClientProjects(activeClientId).map(p => p.name), CLIENT_MONITORING_SYSTEMS[activeClientId] ?? CLIENT_MONITORING_SYSTEMS.tritronik), [activeClientId]);
+  const url = useUrlQuery(schema, paths.monitoring);
+  const searchDraft = useUrlSearch(url.values.q, url.field("q"));
+  const searchQuery = searchDraft.effective;
+  const setSearchQuery = searchDraft.set;
+  const verdictFilter = url.values.verdict;
+  const setVerdictFilter = url.field("verdict", "replace");
+  const dateFilter = url.values.date;
+  const setDateFilter = url.field("date", "replace");
 
   // Pagination state (default: 10 rows per page)
-  const [pageSize, setPageSize] = useState<number>(10);
-  const [currentPage, setCurrentPage] = useState<number>(1);
+  const pageSize = url.values.size;
+  const setPageSize = url.field("size", "replace");
+  const currentPage = url.values.page;
+  const setCurrentPage = url.field("page", "push");
 
   // Reset pagination to page 1 whenever any filter changes
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchQuery, verdictFilter, dateFilter, pageSize]);
+
 
   // Merge today's live assessments into the history list
   const allHistory = useMemo(() => {
@@ -283,7 +292,7 @@ export function MonitoringHistorySection({ todayEntries, todayAssessments }: Mon
             type="text"
             className="w-full h-[38px] pl-9 pr-8 bg-[#0f172a] border border-[#334155] rounded-[7px] text-[13px] text-[#f1f5f9] placeholder-[#64748b] transition-all focus-visible:border-[#38bdf8]/60 focus-visible:ring-2 focus-visible:ring-[#38bdf8]/25 focus-visible:outline-none"
             placeholder="Cari checkpoint, sistem, pemeriksa, atau catatan..."
-            value={searchQuery}
+            value={searchDraft.input}
             onChange={(e) => setSearchQuery(e.target.value)}
             aria-label="Cari riwayat checkpoint"
           />
@@ -446,7 +455,6 @@ export function MonitoringHistorySection({ todayEntries, todayAssessments }: Mon
             pageSize={pageSize}
             onPageSizeChange={(newSize) => {
               setPageSize(newSize);
-              setCurrentPage(1);
             }}
             currentPage={safeCurrentPage}
             onPageChange={setCurrentPage}
@@ -476,3 +484,4 @@ export function MonitoringHistorySection({ todayEntries, todayAssessments }: Mon
     </article>
   );
 }
+
