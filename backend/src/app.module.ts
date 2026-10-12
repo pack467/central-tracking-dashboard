@@ -15,6 +15,9 @@ import { AuthGuard } from './auth/auth.guard.js';
 import { PermissionsGuard } from './auth/permissions.guard.js';
 import { HealthModule } from './health/health.module.js';
 import { TicketsModule } from './tickets/tickets.module.js';
+import { MonitoringModule } from './monitoring/monitoring.module.js';
+import { MonitoringTemplateModule } from './monitoring-template/monitoring-template.module.js';
+import { MonitoringLogsModule } from './monitoring-logs/monitoring-logs.module.js';
 import { RolesModule } from './roles/roles.module.js';
 import { PermissionsModule } from './permissions/permissions.module.js';
 
@@ -32,6 +35,9 @@ import { PermissionsModule } from './permissions/permissions.module.js';
     AuthModule,
     HealthModule,
     TicketsModule,
+    MonitoringModule,
+    MonitoringTemplateModule,
+    MonitoringLogsModule,
     RolesModule,
     PermissionsModule,
   ],
