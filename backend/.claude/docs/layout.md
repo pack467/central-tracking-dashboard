@@ -7,22 +7,32 @@ backend/
 │   ├── app.module.ts               root module, global guards, RequestIdMiddleware on '*'
 │   ├── app.controller.ts / app.service.ts   GET / → API info + links (@Public)
 │   ├── auth/
-│   │   ├── auth.module.ts          JwtModule.registerAsync (exports JwtModule)
-│   │   ├── auth.controller.ts      /auth/login, /auth/me, /auth/password
-│   │   ├── auth.service.ts         login, changePassword
-│   │   ├── auth.guard.ts           JWT verify + DB user check (global)
+│   │   ├── auth.module.ts          imports UsersModule + SessionsModule, exports AuthService
+│   │   ├── auth.controller.ts      /auth/login, logout, logout-all, me, csrf, password, sessions[/:id]
+│   │   ├── auth.service.ts         verifyCredentials, loadUser, profile, changePassword
+│   │   ├── auth.guard.ts           session → DB user check (global)
+│   │   ├── csrf.guard.ts           X-CSRF-Token check on logged-in writes (global)
 │   │   ├── permissions.ts          registry: definePermission, ALL (*), resolve/parse helpers (no list)
 │   │   ├── role-permissions.ts     grantedKeysSelect / grantedKeys for reading role_permissions
 │   │   ├── permissions.guard.ts    @Can check (global)
-│   │   ├── auth.types.ts           JwtPayload, AuthUser (id, role, permissions), AuthRequest
+│   │   ├── auth.types.ts           AuthUser (id, role, permissions), AuthRequest
 │   │   ├── decorators/             @Public, @Can, @CurrentUser
-│   │   └── dto/                    LoginDto, LoginResponseDto, MeResponseDto, ChangePasswordDto
+│   │   └── dto/                    LoginDto, LoginResponseDto, MeResponseDto, ChangePasswordDto, CsrfTokenDto, SessionInfoDto
+│   ├── sessions/                   login sessions (see auth.md)
+│   │   ├── sessions.module.ts      exports SESSION_CONFIG, PrismaSessionStore, SessionsService
+│   │   ├── session.config.ts       SESSION_* env parsing, cookie names, shared cookie attributes
+│   │   ├── prisma-session.store.ts express-session store on user_sessions (+ hourly cleanup)
+│   │   ├── session.middleware.ts   express-session, applied in AppModule
+│   │   ├── sessions.service.ts     start/rotate/end sessions, list/revoke, CSRF token + cookies
+│   │   └── session.types.ts        SessionData fields (userId, csrfToken, loginAt, userAgent, ip)
 │   ├── common/
 │   │   ├── bigint-json.ts          BigInt.prototype.toJSON → string
+│   │   ├── http-env.ts             parseOrigins (CORS_ORIGIN), parseTrustProxy (TRUST_PROXY)
 │   │   ├── swagger.ts              isSwaggerEnabled() (shared by main.ts and GET /)
 │   │   ├── filters/global-exception.filter.ts
 │   │   ├── logger/logger.module.ts
 │   │   ├── middleware/request-id.middleware.ts
+│   │   ├── middleware/origin-check.middleware.ts   refuses cross-site writes (login CSRF)
 │   │   ├── pipes/parse-bigint.pipe.ts
 │   │   └── validators/bigint-id.ts   @BigIntId() + toBigInt() for BigInt id fields in DTOs
 │   ├── health/                     /health (app + DB) and /ready (app only), terminus
@@ -43,7 +53,7 @@ backend/
 │   ├── export-seed.ts              one-off: old DB → seed-data/*.json
 │   ├── import-tickets.ts           CSV → ticket_logs
 │   └── import-tickets-report.txt   output of the last import run
-├── test/app.e2e-spec.ts, test/helpers/seeded-roles.ts (tests read the real seed roles)
+├── test/app.e2e-spec.ts, test/auth-session.e2e-spec.ts, test/helpers/seeded-roles.ts (tests read the real seed roles)
 ├── prisma7.config.ts               Prisma config (CLI loads it: "Loaded Prisma config from prisma7.config.ts")
 ├── nest-cli.json                  includes the @nestjs/swagger build plugin
 ├── vitest.config.ts / vitest.config.e2e.ts

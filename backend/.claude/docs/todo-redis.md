@@ -33,7 +33,7 @@ Libraries: `@nestjs/bullmq` + `bullmq` (check versions against Nest 12 when addi
 - **Ticket CSV import** (`scripts/import-tickets.ts` logic) as a job behind an upload endpoint: progress reporting, no HTTP timeout, never two imports at once.
 - **Reports / exports:** generate Excel/CSV/PDF exports of tickets, monitoring and routine reports in the background; the user downloads them when ready. Scheduled routine reports (the `routine_reports` table) could be generated automatically.
 - **Notifications in general:** email, Teams/Telegram/Slack webhooks, all via a queue with retries and rate limiting per channel.
-- **Session cleanup** (once `todo-session-auth.md` is done): a nightly job deletes expired rows from `user_sessions`.
+- **Session cleanup:** already done in-process (`PrismaSessionStore` deletes expired `user_sessions` rows hourly, see `auth.md`); with BullMQ it could become a repeatable job that runs on one instance only.
 - **Housekeeping:** prune old `permissions` rows marked obsolete after review, archive old data, recompute statistics.
 
 ### 2. Real-time updates: WebSockets with the Redis adapter (Medium)
@@ -41,7 +41,7 @@ Libraries: `@nestjs/bullmq` + `bullmq` (check versions against Nest 12 when addi
 Libraries: `@nestjs/websockets` + `@nestjs/platform-socket.io` + `@socket.io/redis-adapter` (+ `ioredis`).
 - Push events to open dashboards instead of polling: `ticket.created` / `ticket.updated` (status changes), `monitoring.log.created` (especially **NOK**), `monitoring.slot.missed`, `handover.created` / `handover.acknowledged`.
 - **Rooms** per project and tenant, so a client only receives what it's allowed to see (check permissions when joining a room: `tickets.read`, etc.).
-- **Auth:** authenticate the socket with the same session cookie as HTTP (after `todo-session-auth.md`), and re-check the session periodically so revoked sessions get disconnected.
+- **Auth:** authenticate the socket with the same session cookie as HTTP (sessions are built, see `auth.md`), and re-check the session periodically so revoked sessions get disconnected.
 - **Why Redis:** with one instance, Socket.IO works without it. With 2+ instances, an event raised on instance A must reach clients connected to instance B; the Redis adapter broadcasts through pub/sub.
 - **Live monitoring page** (who is viewing/editing which slot): designed in `todo-monitoring-live.md`; runs without Redis on one instance, and its `PresenceStore` moves to Redis here when going multi-instance.
 - **Presence / who's on shift:** each connected agent sets a short-TTL key (`presence:user:{id}`), refreshed by heartbeat, so the dashboard can show who's online or on duty right now.
@@ -81,9 +81,9 @@ Libraries: `@nestjs/cache-manager` + `cache-manager` + `@keyv/redis`.
 
 ## What NOT to use Redis for
 
-- **Sessions:** decided to stay in **Postgres** (`user_sessions`, see `todo-session-auth.md`). The structured per-user queries (log out other devices, list devices) matter more than Redis' speed, and the guard queries Postgres per request anyway. (`connect-redis` keeps sessions as blobs, so per-user lookups would need extra index keys maintained by hand.)
+- **Sessions:** built in **Postgres** (`user_sessions`, see `auth.md`). The structured per-user queries (log out other devices, list devices) matter more than Redis' speed, and the guard queries Postgres per request anyway. (`connect-redis` keeps sessions as blobs, so per-user lookups would need extra index keys maintained by hand.)
 - **Primary data:** tickets, users, roles, monitoring and so on stay in Postgres. Redis holds only things that can be rebuilt or may expire (except queue data, see persistence below).
-- **Token denylist:** not needed once sessions exist (revoking = deleting the session row).
+- **Token denylist:** not needed: sessions exist, and revoking one deletes its row.
 - **Caching permissions by default:** see use case 5.
 
 ## Infrastructure and operations

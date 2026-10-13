@@ -3,6 +3,7 @@ import { ConflictException, ForbiddenException, NotFoundException } from '@nestj
 import bcrypt from 'bcrypt';
 import { Prisma } from '../generated/prisma/client.js';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { SessionsService } from '../sessions/sessions.service.js';
 import type { AuthUser } from '../auth/auth.types.js';
 import { resolvePermissions } from '../auth/permissions.js';
 import { seededKeys, seededPermissions } from '../../test/helpers/seeded-roles.js';
@@ -52,6 +53,7 @@ describe('UsersService', () => {
     },
     userRole: { findUnique: vi.fn() },
   };
+  const sessions = { revokeAll: vi.fn() };
 
   beforeEach(async () => {
     vi.resetAllMocks();
@@ -64,7 +66,11 @@ describe('UsersService', () => {
     prisma.user.delete.mockResolvedValue({ id: 1n });
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [UsersService, { provide: PrismaService, useValue: prisma }],
+      providers: [
+        UsersService,
+        { provide: PrismaService, useValue: prisma },
+        { provide: SessionsService, useValue: sessions },
+      ],
     }).compile();
 
     service = module.get<UsersService>(UsersService);
@@ -72,6 +78,37 @@ describe('UsersService', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+
+  describe('ending sessions', () => {
+    beforeEach(() => {
+      prisma.user.findUnique.mockResolvedValue(userWithRole(1n, 4));
+    });
+
+    it('logs a user out everywhere when their password is reset', async () => {
+      await service.update(1n, { password: 'new-pass-123' }, admin);
+      expect(sessions.revokeAll).toHaveBeenCalledWith(1n, 'password_reset');
+    });
+
+    it('logs a user out everywhere when they are deactivated', async () => {
+      await service.update(1n, { is_active: false }, admin);
+      expect(sessions.revokeAll).toHaveBeenCalledWith(1n, 'deactivated');
+    });
+
+    it('keeps sessions on other changes (role changes apply on the next request anyway)', async () => {
+      await service.update(1n, { name: 'B', role_id: '5', is_active: true }, admin);
+      expect(sessions.revokeAll).not.toHaveBeenCalled();
+    });
+
+    it('keeps sessions when the update fails', async () => {
+      prisma.user.update.mockRejectedValue(
+        new Prisma.PrismaClientKnownRequestError('dup', { code: 'P2002', clientVersion: 'test' }),
+      );
+      await expect(service.update(1n, { password: 'new-pass-123' }, admin)).rejects.toBeInstanceOf(
+        ConflictException,
+      );
+      expect(sessions.revokeAll).not.toHaveBeenCalled();
+    });
   });
 
   it('hashes the password, converts role_id to BigInt and omits the hash', async () => {

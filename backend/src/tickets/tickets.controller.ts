@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
-  ApiBearerAuth,
+  ApiCookieAuth,
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiNotFoundResponse,
@@ -25,8 +25,8 @@ import { Ticket, TicketPage, TicketSummary } from './entities/ticket.entity.js';
 const ID_PARAM = { name: 'id', type: String, example: '3650', description: 'Ticket id (digits only)' };
 
 @ApiTags('tickets')
-@ApiBearerAuth()
-@ApiUnauthorizedResponse({ description: 'Missing, invalid or expired token, or the user is inactive' })
+@ApiCookieAuth()
+@ApiUnauthorizedResponse({ description: 'Not logged in (no or expired session), or the user is inactive' })
 @Controller('tickets')
 export class TicketsController {
   constructor(private readonly tickets: TicketsService) {}

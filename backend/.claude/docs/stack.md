@@ -12,7 +12,7 @@
 | Metrics | `@willsoto/nestjs-prometheus` exposes `GET /metrics` |
 | API docs | `@nestjs/swagger` 12: Swagger UI at `/docs`, plus its Nest CLI plugin (see `api-docs.md`) |
 | Health checks | `@nestjs/terminus` 12 (see `health.md`) |
-| Auth | `@nestjs/jwt` (HS256 Bearer tokens), native `bcrypt@6` (cost 12), `@nestjs/throttler` |
+| Auth | `express-session` 1.19 (+ `@types/express-session`) with our own Prisma store: server-side sessions in an httpOnly cookie (replaced `@nestjs/jwt` on 2026-10-13); native `bcrypt@6` (cost 12); `@nestjs/throttler`. CSRF tokens are our own (session-bound), no library |
 | Tests | Vitest 4 (`globals: true`), `vite-tsconfig-paths`, `@nestjs/testing`, `supertest` |
 | Lint / format | oxlint (`--type-aware`, via `oxlint-tsgolint`), Prettier (single quotes, trailing commas) |
 | TS | TypeScript 6, target ES2023, `strict` but `strictPropertyInitialization: false`, decorators + metadata on |

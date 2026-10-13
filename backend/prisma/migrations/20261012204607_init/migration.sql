@@ -31,6 +31,21 @@ CREATE TABLE "users" (
 );
 
 -- CreateTable
+CREATE TABLE "user_sessions" (
+    "id" BIGSERIAL NOT NULL,
+    "sid" VARCHAR(128) NOT NULL,
+    "user_id" BIGINT NOT NULL,
+    "data" JSONB NOT NULL,
+    "user_agent" VARCHAR(500),
+    "ip" VARCHAR(64),
+    "expires_at" TIMESTAMPTZ(6) NOT NULL,
+    "last_used_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "user_sessions_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "user_role" (
     "id" BIGSERIAL NOT NULL,
     "name" CITEXT NOT NULL,
@@ -241,6 +256,15 @@ CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
 CREATE INDEX "users_role_id_idx" ON "users"("role_id");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "user_sessions_sid_key" ON "user_sessions"("sid");
+
+-- CreateIndex
+CREATE INDEX "user_sessions_user_id_idx" ON "user_sessions"("user_id");
+
+-- CreateIndex
+CREATE INDEX "user_sessions_expires_at_idx" ON "user_sessions"("expires_at");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "user_role_name_key" ON "user_role"("name");
 
 -- CreateIndex
@@ -335,6 +359,9 @@ CREATE UNIQUE INDEX "monitoring_logs_template_id_scheduled_at_key" ON "monitorin
 
 -- AddForeignKey
 ALTER TABLE "users" ADD CONSTRAINT "users_role_id_fkey" FOREIGN KEY ("role_id") REFERENCES "user_role"("id") ON DELETE SET NULL ON UPDATE NO ACTION;
+
+-- AddForeignKey
+ALTER TABLE "user_sessions" ADD CONSTRAINT "user_sessions_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE NO ACTION;
 
 -- AddForeignKey
 ALTER TABLE "role_permissions" ADD CONSTRAINT "role_permissions_role_id_fkey" FOREIGN KEY ("role_id") REFERENCES "user_role"("id") ON DELETE CASCADE ON UPDATE NO ACTION;

@@ -1,6 +1,6 @@
 # Tickets (`src/tickets/`)
 
-One `TicketsModule` with three controllers: tickets (`ticket_logs` table), ticket categories and ticket severities. All routes need a token.
+One `TicketsModule` with three controllers: tickets (`ticket_logs` table), ticket categories and ticket severities. All routes need a login (session cookie), and writes need the CSRF token (see `auth.md`).
 
 ## Routes and permissions
 

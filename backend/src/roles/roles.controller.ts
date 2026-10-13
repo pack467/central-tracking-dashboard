@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Put } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
-  ApiBearerAuth,
+  ApiCookieAuth,
   ApiConflictResponse,
   ApiCreatedResponse,
   ApiForbiddenResponse,
@@ -29,8 +29,8 @@ const WRITE_FORBIDDEN =
 // roles.manage (only SUPER_ADMIN by default, through "*"). The permission
 // catalogue itself is at /permissions.
 @ApiTags('roles')
-@ApiBearerAuth()
-@ApiUnauthorizedResponse({ description: 'Missing, invalid or expired token, or the user is inactive' })
+@ApiCookieAuth()
+@ApiUnauthorizedResponse({ description: 'Not logged in (no or expired session), or the user is inactive' })
 @Controller('roles')
 export class RolesController {
   constructor(private readonly roles: RolesService) {}

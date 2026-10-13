@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Param, Patch } from '@nestjs/common';
 import {
-  ApiBearerAuth,
+  ApiCookieAuth,
   ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -17,8 +17,8 @@ import { PermissionInfo, UpdatePermissionDto } from './dto/permission.dto.js';
 // The permission catalogue. Keys come from definePermission() in code and are
 // registered at startup; only descriptions are editable here.
 @ApiTags('permissions')
-@ApiBearerAuth()
-@ApiUnauthorizedResponse({ description: 'Missing, invalid or expired token, or the user is inactive' })
+@ApiCookieAuth()
+@ApiUnauthorizedResponse({ description: 'Not logged in (no or expired session), or the user is inactive' })
 @Controller('permissions')
 export class PermissionsController {
   constructor(private readonly permissions: PermissionsService) {}

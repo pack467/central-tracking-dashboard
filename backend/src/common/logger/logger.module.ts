@@ -23,6 +23,9 @@ import { LoggerModule as PinoLoggerModule } from 'nestjs-pino';
           paths: [
             'req.headers.authorization',
             'req.headers.cookie',
+            'req.headers["x-csrf-token"]',
+            // The response sets the session cookie at login.
+            'res.headers["set-cookie"]',
             'password',
             'token',
             'accessToken',

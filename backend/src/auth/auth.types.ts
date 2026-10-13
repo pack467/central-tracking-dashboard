@@ -1,9 +1,6 @@
 import type { Request } from 'express';
 import type { Permission } from './permissions.js';
-
-export interface JwtPayload {
-  sub: string; // user id (BigInt as string)
-}
+import '../sessions/session.types.js';
 
 // Attached to the request by AuthGuard. Loaded from the DB on every request,
 // so deactivation, role changes and permission changes take effect immediately.

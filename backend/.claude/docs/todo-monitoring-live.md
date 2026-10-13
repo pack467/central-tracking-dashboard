@@ -1,6 +1,6 @@
 # TODO: live monitoring page (presence + "who is editing what")
 
-**Status: design agreed, not started** (user, 2026-10-11). Depends on the monitoring REST API (not built yet) and, for socket login, on `todo-session-auth.md`. Nothing here is implemented.
+**Status: design agreed, not started** (user, 2026-10-11). Depends on the monitoring REST API (not built yet). Session auth, which the socket logs in with, is done (2026-10-13, `auth.md`). Nothing here is implemented.
 
 ## Goal
 
@@ -21,7 +21,7 @@ A Socket.IO gateway (`/monitoring` namespace) puts each viewer in a room per pro
 |---|---|---|
 | Real-time connection | **Socket.IO v4** via **`@nestjs/websockets` + `@nestjs/platform-socket.io`** (check versions against Nest 12 when adding) | Nest's official integration; reconnects, rooms, polling fallback, acknowledgements. Two-way, which presence needs |
 | Rooms | Namespace **`/monitoring`**, rooms **`monitoring:project:{projectId}:{date}`** (`date` = `YYYY-MM-DD`, local day) | Each client only receives events for the grid it's looking at |
-| Socket login | **The `express-session` cookie** (after `todo-session-auth.md`), shared with Socket.IO via `io.engine.use(sessionMiddleware)` | One login for HTTP and socket, no separate token. Session re-checked on heartbeat, so a revoked session disconnects the socket |
+| Socket login | **The `ctd.sid` session cookie** (built, see `auth.md`), loaded with the same `express-session` handler as HTTP (`io.engine.use(...)`; reuse `SessionMiddleware`'s options and `PrismaSessionStore`). The socket handshake also passes through the Origin rules | One login for HTTP and socket, no separate token. Session re-checked on heartbeat, so a revoked session disconnects the socket |
 | Socket permissions | A small **`WsAuthGuard`** reusing the module's permission constants: `MONITORING_READ` to join, `MONITORING_CHECK` to send `slot.focus` | `@Can`/`PermissionsGuard` are built for HTTP; same rules applied on sockets. Never check role names |
 | Message validation | **class-validator DTOs + `ValidationPipe`** on the gateway; errors as `WsException` | Same style as the REST DTOs |
 | Editing markers | **`PresenceService` with an in-memory `Map`** + a sweep timer for expiry | One instance → no Redis needed. Behind an interface (`PresenceStore`) so it can move to Redis without touching the gateway |
@@ -154,11 +154,9 @@ Shared with the monitoring REST API; names to confirm when that module is built:
 ## Suggested order
 
 1. **Monitoring REST API** (templates, logs, the day grid, `version` column, permissions).
-2. **Session auth** (`todo-session-auth.md`): the socket logs in with the session cookie.
+2. ~~Session auth~~: done 2026-10-13 (`auth.md`); the socket logs in with the session cookie.
 3. **Live layer** (this file): gateway, presence, `log.saved`.
 4. **Missed-slot events** with the scheduler (`todo-redis.md`, BullMQ).
-
-(If the live layer is wanted before session auth, the socket can temporarily authenticate with the JWT in `handshake.auth.token`, verified the same way as `AuthGuard`; it gets replaced by the cookie when sessions ship.)
 
 ## Decided (user, 2026-10-11)
 
@@ -172,5 +170,4 @@ Shared with the monitoring REST API; names to confirm when that module is built:
 1. **Timeouts:** 60 s heartbeat loss / 2 min idle OK?
 2. **Room granularity:** per project + day (as above), or per project only if the page shows several days?
 3. **Multiple editors on one slot:** warn only (as above), or block the second person in the UI?
-4. **Interim auth:** wait for session auth, or ship the live layer earlier on JWT?
-5. **Permission names** for monitoring (confirm with the REST API design).
+4. **Permission names** for monitoring (confirm with the REST API design).

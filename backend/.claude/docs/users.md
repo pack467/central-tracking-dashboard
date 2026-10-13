@@ -12,6 +12,7 @@
   - **With `users.manage.all`** (SUPER_ADMIN): no hierarchy limits, only the self-rules below.
   - **Everyone:** cannot deactivate (`is_active: false`) or delete **their own** account, so nobody can lock themselves out.
   - A non-existent `role_id` passes the check and is rejected by the FK as 409. Unknown entries in a role's permissions are ignored; a role with none (or only unknown ones) counts as having no permissions.
+- **Sessions:** after a successful update, a reset `password` or `is_active: false` **ends all of that user's sessions** (`SessionsService.revokeAll`, reasons `password_reset` / `deactivated`), so they're logged out everywhere on their next request. That includes yourself if you reset your own password here; `PATCH /auth/password` keeps your current session. A failed update ends nothing. Deleting a user removes their sessions by cascade. See `auth.md`.
 - Prisma error `P2002` (duplicate email or NIK) → 409. `P2003` (missing role, or a user that other records still reference on delete) → 409. `findOne` → 404 `User #id not found`.
 - Auth-only helpers: `findForLogin(identifier)` (by email **or** NIK, includes the hash), `findAuthUser(id)` (is_active, role name and its granted keys), `findPasswordHash(id)` and `setPassword(id, plain)`.
 - `entities/user.entity.ts` (`User`) is the documented response shape (no password); see `api-docs.md`.

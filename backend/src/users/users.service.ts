@@ -7,6 +7,7 @@ import {
 import bcrypt from 'bcrypt';
 import { Prisma } from '../generated/prisma/client.js';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { SessionsService } from '../sessions/sessions.service.js';
 import type { AuthUser } from '../auth/auth.types.js';
 import { isStrictSubset, parsePermissions, type Permission } from '../auth/permissions.js';
 import { USERS_MANAGE_ALL } from './users.permissions.js';
@@ -28,7 +29,10 @@ const outranks = (actor: AuthUser, permissions: ReadonlySet<Permission>) =>
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly sessions: SessionsService,
+  ) {}
 
   async create(createUserDto: CreateUserDto, actor: AuthUser) {
     await this.assertCanAssignRole(actor, createUserDto.role_id);
@@ -67,9 +71,16 @@ export class UsersService {
     if (roleChanges) await this.assertCanAssignRole(actor, role_id);
 
     const data = await this.toData(updateUserDto);
-    return this.handleConstraintErrors(() =>
+    const user = await this.handleConstraintErrors(() =>
       this.prisma.user.update({ where: { id }, data, omit: omitPassword }),
     );
+
+    // A reset password or a deactivation logs the user out everywhere (yourself
+    // included, if you reset your own password here; PATCH /auth/password keeps
+    // your current session).
+    if (updateUserDto.password !== undefined) await this.sessions.revokeAll(id, 'password_reset');
+    else if (is_active === false) await this.sessions.revokeAll(id, 'deactivated');
+    return user;
   }
 
   async remove(id: bigint, actor: AuthUser) {

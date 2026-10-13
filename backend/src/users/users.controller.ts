@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
-  ApiBearerAuth,
+  ApiCookieAuth,
   ApiConflictResponse,
   ApiCreatedResponse,
   ApiForbiddenResponse,
@@ -25,8 +25,8 @@ import type { AuthUser } from '../auth/auth.types.js';
 const ID_PARAM = { name: 'id', type: String, example: '10', description: 'User id (digits only)' };
 
 @ApiTags('users')
-@ApiBearerAuth()
-@ApiUnauthorizedResponse({ description: 'Missing, invalid or expired token, or the user is inactive' })
+@ApiCookieAuth()
+@ApiUnauthorizedResponse({ description: 'Not logged in (no or expired session), or the user is inactive' })
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}

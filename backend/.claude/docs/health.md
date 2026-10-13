@@ -1,6 +1,6 @@
 # Health, readiness and root route
 
-All three routes are `@Public()` and `@SkipThrottle()`, so probes need no token and are never rate-limited. They're independent: `/ready` is **not** under `/health`.
+All three routes are `@Public()` and `@SkipThrottle()`, so probes need no login and are never rate-limited. The session middleware skips `/health` and `/ready` (and `/metrics`), so probes never read the session table and `/ready` stays DB-free even when opened in a logged-in browser. They're independent: `/ready` is **not** under `/health`.
 
 | Route | Purpose | Checks | OK | Failing |
 |---|---|---|---|---|

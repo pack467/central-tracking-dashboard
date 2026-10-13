@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 import {
-  ApiBearerAuth,
+  ApiCookieAuth,
   ApiConflictResponse,
   ApiCreatedResponse,
   ApiForbiddenResponse,
@@ -24,8 +24,8 @@ import {
 const ID_PARAM = { name: 'id', type: String, example: '3', description: 'Category id (digits only)' };
 
 @ApiTags('ticket-categories')
-@ApiBearerAuth()
-@ApiUnauthorizedResponse({ description: 'Missing, invalid or expired token, or the user is inactive' })
+@ApiCookieAuth()
+@ApiUnauthorizedResponse({ description: 'Not logged in (no or expired session), or the user is inactive' })
 @Controller('ticket-categories')
 export class TicketCategoriesController {
   constructor(private readonly categories: TicketCategoriesService) {}
