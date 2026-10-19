@@ -308,36 +308,36 @@ model RoutineReport {
 // smng232" for a project at 09:00, 13:00 and 17:00 WIB every day.
 // The tenant comes from the project (no tenant_id).
 model MonitoringTemplate {
-  id           BigInt    @id @default(autoincrement())
-  project_id   BigInt
-  name         String    @db.VarChar(255)
+  id              BigInt    @id @default(autoincrement())
+  project_id      BigInt
+  name            String    @db.VarChar(255)
   // How to check and what counts as OK.
-  instructions String?
+  instructions    String?
   // Local times of day, "HH:mm" (e.g. ["09:00","13:00","17:00"]), in `timezone`.
-  times        String[]
-  timezone     String    @default("Asia/Jakarta") @db.VarChar(64)
+  times           String
+  timezone        String    @default("Asia/Jakarta") @db.VarChar(64)
   // Temporary templates: limited by a date range, and/or switched off when
   // the client no longer needs them.
-  is_temporary Boolean   @default(false)
-  active_from  DateTime? @db.Date // null: from creation
-  active_until DateTime? @db.Date // null: open-ended
+  is_temporary    Boolean   @default(false)
+  active_from     DateTime? @db.Date // null: from creation
+  active_until    DateTime? @db.Date // null: open-ended
   // Off = no longer scheduled; history is kept (never delete a template with logs).
-  is_active    Boolean   @default(true)
+  is_active       Boolean   @default(true)
   // The client who asked for it (e.g. a temporary, client-requested template).
-  client_id    BigInt?
-  created_by   BigInt?
-  created_at   DateTime  @default(now()) @db.Timestamptz(6)
-  updated_at   DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
+  client_id       BigInt?
+  user_creator_id BigInt?
+  created_at      DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at      DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
 
-  project   Project         @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  client    Client?         @relation(fields: [client_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  createdBy User?           @relation("MonitoringTemplateCreatedBy", fields: [created_by], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  logs      MonitoringLog[]
+  project     Project         @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  client      Client?         @relation(fields: [client_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  userCreator User?           @relation("MonitoringTemplateCreatedBy", fields: [user_creator_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  logs        MonitoringLog[]
 
   @@index([project_id])
   @@index([is_active])
   @@index([client_id])
-  @@index([created_by])
+  @@index([user_creator_id])
   @@map("monitoring_templates")
 }
 

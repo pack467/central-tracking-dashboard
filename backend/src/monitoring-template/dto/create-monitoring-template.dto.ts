@@ -64,8 +64,8 @@ export class CreateMonitoringTemplateDto {
 
   @IsNotEmpty()
   @IsString()
-  @Matches(/^[0-9]+$/, { message: 'created_by harus berupa angka' })
-  created_by?: string | null;
+  @Matches(/^[0-9]+$/, { message: 'user_creator_id harus berupa angka' })
+  user_creator_id?: string | null;
 
   @IsOptional()
   @IsISO8601()

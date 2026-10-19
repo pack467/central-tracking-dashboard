@@ -22,12 +22,12 @@ export class MonitoringTemplateFiltersDto {
   @Matches(/^[0-9]+$/, { message: 'project_id harus berupa angka' })
   project_id: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   @Matches(/^[0-9]+$/, { message: 'tenant_id harus berupa angka' })
   tenant_id?: string | null;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   name: string;
 
@@ -35,22 +35,22 @@ export class MonitoringTemplateFiltersDto {
   @IsString()
   instructions?: string | null;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   @Matches(/^([01]\d|2[0-3]):([0-5]\d)$/, {
     message: 'setiap item monitoring harus berformat HH:mm (contoh: 08:30)',
   })
   times: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   timezone: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsBoolean()
   is_temporary: boolean;
 
-  @IsNotEmpty()
+  @IsOptional()
   @Type(() => Date)
   @IsDate()
   active_from: Date;
@@ -60,19 +60,19 @@ export class MonitoringTemplateFiltersDto {
   @IsDate()
   active_until?: Date | null;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsBoolean()
   is_active: boolean;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   @Matches(/^[0-9]+$/, { message: 'client_id harus berupa angka' })
   client_id?: string | null;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
-  @Matches(/^[0-9]+$/, { message: 'created_by harus berupa angka' })
-  created_by?: string | null;
+  @Matches(/^[0-9]+$/, { message: 'user_creator_id harus berupa angka' })
+  user_creator_id?: string | null;
 
   @IsOptional()
   @IsISO8601()
@@ -96,6 +96,10 @@ export class QueryMonitoringTemplateDto extends MonitoringTemplateFiltersDto{
   @Min(1)
   @Max(100)
   limit?: number = 20;
+
+  @IsOptional()
+  @IsString()
+  project?: string;
 
   @IsOptional()
   @IsIn(MONITORING_SORT_FIELDS)

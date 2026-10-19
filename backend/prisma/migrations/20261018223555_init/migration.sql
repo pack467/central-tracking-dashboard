@@ -212,14 +212,14 @@ CREATE TABLE "monitoring_templates" (
     "project_id" BIGINT NOT NULL,
     "name" VARCHAR(255) NOT NULL,
     "instructions" TEXT,
-    "times" TEXT[],
+    "times" TEXT NOT NULL,
     "timezone" VARCHAR(64) NOT NULL DEFAULT 'Asia/Jakarta',
     "is_temporary" BOOLEAN NOT NULL DEFAULT false,
     "active_from" DATE,
     "active_until" DATE,
     "is_active" BOOLEAN NOT NULL DEFAULT true,
     "client_id" BIGINT,
-    "created_by" BIGINT,
+    "user_creator_id" BIGINT,
     "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -337,7 +337,7 @@ CREATE INDEX "monitoring_templates_is_active_idx" ON "monitoring_templates"("is_
 CREATE INDEX "monitoring_templates_client_id_idx" ON "monitoring_templates"("client_id");
 
 -- CreateIndex
-CREATE INDEX "monitoring_templates_created_by_idx" ON "monitoring_templates"("created_by");
+CREATE INDEX "monitoring_templates_user_creator_id_idx" ON "monitoring_templates"("user_creator_id");
 
 -- CreateIndex
 CREATE INDEX "monitoring_logs_scheduled_at_idx" ON "monitoring_logs"("scheduled_at");
@@ -421,7 +421,7 @@ ALTER TABLE "monitoring_templates" ADD CONSTRAINT "monitoring_templates_project_
 ALTER TABLE "monitoring_templates" ADD CONSTRAINT "monitoring_templates_client_id_fkey" FOREIGN KEY ("client_id") REFERENCES "clients"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 -- AddForeignKey
-ALTER TABLE "monitoring_templates" ADD CONSTRAINT "monitoring_templates_created_by_fkey" FOREIGN KEY ("created_by") REFERENCES "users"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE "monitoring_templates" ADD CONSTRAINT "monitoring_templates_user_creator_id_fkey" FOREIGN KEY ("user_creator_id") REFERENCES "users"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 -- AddForeignKey
 ALTER TABLE "monitoring_logs" ADD CONSTRAINT "monitoring_logs_template_id_fkey" FOREIGN KEY ("template_id") REFERENCES "monitoring_templates"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
