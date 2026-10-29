@@ -273,6 +273,38 @@
   100% { transform: translateX(100%); }
 }
 
+@keyframes skeletonPulseSoft {
+  0%, 100% { opacity: 0.88; }
+  50% { opacity: 1; }
+}
+
+@keyframes skeletonIndeterminateBar {
+  0% { transform: translateX(-100%); }
+  50% { transform: translateX(25%); }
+  100% { transform: translateX(125%); }
+}
+
+@keyframes skeletonBarScaleY {
+  0%, 100% { transform: scaleY(0.85); transform-origin: bottom; }
+  50% { transform: scaleY(1); transform-origin: bottom; }
+}
+
+@keyframes skeletonArcRotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes skeletonStaggerIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @keyframes bootFadeUp {
   from {
     opacity: 0;
@@ -331,7 +363,12 @@
   --animate-boot-glow-breathe: bootGlowBreathe 4s ease-in-out infinite;
   --animate-boot-progress: bootProgressBarSlide 1.5s cubic-bezier(0.65, 0, 0.35, 1) infinite;
   --animate-boot-fade-up: bootFadeUp 0.45s ease-out forwards;
-  --animate-shimmer: skeletonShimmerTranslate 1.6s linear infinite;
+  --animate-shimmer: skeletonShimmerTranslate 1.8s ease-in-out infinite;
+  --animate-skeleton-pulse: skeletonPulseSoft 1.8s ease-in-out infinite;
+  --animate-skeleton-bar-indeterminate: skeletonIndeterminateBar 1.6s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+  --animate-skeleton-bar-scale: skeletonBarScaleY 1.2s ease-in-out infinite;
+  --animate-skeleton-rotate: skeletonArcRotate 6s linear infinite;
+  --animate-skeleton-stagger-in: skeletonStaggerIn 0.22s ease-out forwards;
   --animate-fade-in-delayed: fadeInDelayed 0.25s ease-out 0.12s both;
   --breakpoint-3xl: 1920px;
   --breakpoint-4xl: 2560px;
@@ -411,6 +448,12 @@ body:has(#ctd-app-splash) {
   overflow: hidden !important;
 }
 
+/* Lock document scrolling cleanly while Panel Viewer is mounted in DOM */
+html:has([data-panel-viewer]),
+body:has([data-panel-viewer]) {
+  overflow: hidden;
+}
+
 /* Ensure RouteProgress bar or glow is never drawn while splash is active */
 html:has(#ctd-app-splash) #route-progress-bar {
   display: none !important;
@@ -435,6 +478,11 @@ html:has(#ctd-app-splash) #route-progress-bar {
   .animate-boot-progress,
   .animate-boot-fade-up,
   .animate-shimmer,
+  .animate-skeleton-pulse,
+  .animate-skeleton-bar-indeterminate,
+  .animate-skeleton-bar-scale,
+  .animate-skeleton-rotate,
+  .animate-skeleton-stagger-in,
   .animate-fade-in-delayed {
     animation: none !important;
     transition-duration: 0.01ms !important;

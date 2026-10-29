@@ -17,7 +17,7 @@ import {
   KeyRound,
   Users,
 } from "lucide-react";
-import { PRESET_OPERATORS, useAuth } from "@/app/lib/auth";
+import { PRESET_OPERATORS, getLocalTestOperator, useAuth } from "@/app/lib/auth";
 import { useToast } from "@/app/components/ui/Toast";
 
 interface LoginViewProps {
@@ -185,12 +185,46 @@ export function LoginView({ onSuccessRedirect = paths.dashboard }: LoginViewProp
     setLoading(true);
 
     setTimeout(() => {
+      // 1. Cek akun testing lokal jika ada (.env.local atau localStorage)
+      const localOp = getLocalTestOperator();
+      if (
+        localOp &&
+        (cleanId === localOp.email.toLowerCase() ||
+          cleanId === localOp.employeeId.toLowerCase() ||
+          cleanId === localOp.name.toLowerCase())
+      ) {
+        if (cleanPwd !== localOp.demoPassword) {
+          setLoading(false);
+          setErrorMsg("Kata sandi salah. Silakan periksa kembali.");
+          return;
+        }
+
+        const token = `ctd_token_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+        login(token, localOp);
+
+        notify.success(`Selamat datang, ${localOp.name}!`, {
+          duration: 2000,
+        });
+
+        setTimeout(() => {
+          window.location.href = safeNext(next ?? onSuccessRedirect);
+        }, 300);
+        return;
+      }
+
+      // 2. Operator preset sistem
       const matched = PRESET_OPERATORS.find(
         (op) =>
           op.email.toLowerCase() === cleanId ||
           op.employeeId.toLowerCase() === cleanId ||
           op.name.toLowerCase().includes(cleanId)
       );
+
+      if (matched && matched.demoPassword && cleanPwd !== matched.demoPassword) {
+        setLoading(false);
+        setErrorMsg("Kata sandi salah. Silakan periksa kembali.");
+        return;
+      }
 
       const targetUser = matched || {
         id: "custom-op",

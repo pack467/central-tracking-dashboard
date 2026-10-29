@@ -33,6 +33,9 @@ const eslintConfig = defineConfig([
       },
     },
     settings: {
+      "jsx-a11y": {
+        components: { Select: "select", MultiSelect: "select" },
+      },
       react: {
         version: "detect",
       },

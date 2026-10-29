@@ -3,16 +3,21 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { paths, routes, withQuery, pathForLabel, pageLabel, detailId } from "@/app/lib/routes";
 import { RouteEffects, AuthGuard, DetailNotFound } from "@/app/components/routing/RouteEffects";
-import { lazy, createContext, useContext, Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { lazy, useContext, Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { ShellContext } from "@/app/context/ShellContext";
 import { Sidebar } from "@/app/components/layout/Sidebar";
 import { Topbar } from "@/app/components/layout/Topbar";
+import { useMobileChrome } from "@/app/hooks/useMobileChrome";
+import { BottomNav } from "@/app/components/layout/BottomNav";
 
 import { FloatingNewTicketButton } from "@/app/components/ui/FloatingNewTicketButton";
 import { ShiftCoveragePanel } from "@/app/components/layout/ShiftCoveragePanel";
 import { ToastProvider, useToast } from "@/app/components/ui/Toast";
 import { useCurrentHour } from "@/app/hooks/useLiveClock";
 import { useLocalStorage } from "@/app/hooks/useLocalStorage";
-import { isOpenTicket, seedRosterMembers } from "@/app/lib/data";
+import { isOpenTicket } from "@/app/lib/data";
+import { usePeople, useRoles } from "@/app/hooks/useMasterData";
+import { peopleToRosterMembers } from "@/app/lib/people-roster";
 import type { CheckpointAssessment, RosterMember, Ticket } from "@/app/lib/types";
 import { AuthProvider } from "@/app/lib/auth";
 import { useHandoverWorkflow } from "@/app/hooks/useHandoverWorkflow";
@@ -77,7 +82,11 @@ function useShellState() {
   const [shiftPanelOpen, setShiftPanelOpen] = useLocalStorage<boolean>("ctd.shiftPanelOpen", false);
   const [sidebarCollapsed, setSidebarCollapsed] = useLocalStorage<boolean>("ctd.sidebarCollapsed", false);
 
-  const [members, setMembers] = useState<RosterMember[]>(seedRosterMembers);
+  // Active people from Master Data are the single source for the roster, handover receivers and every PIC picker.
+  const people = usePeople(), roles = useRoles();
+  const members = useMemo(() => peopleToRosterMembers(people, roles), [people, roles]);
+  // Attendance is derived from the live shift; identity is edited only in Master Data.
+  const setMembers = useCallback<React.Dispatch<React.SetStateAction<RosterMember[]>>>(() => undefined, []);
   
   const clientTickets = useMemo(
     () => getClientTickets(tickets, activeClientId),
@@ -192,7 +201,7 @@ function useShellState() {
   return { closeTicketUrl, activeNav, pageKey, tickets, setTickets, ticketsReady, clientTickets, assessments, handleAssess, setPendingNoteKey, handleUpdateNote, setGuideOpen, currentHour, handover, members, setMembers, selectTicket, openTicketCreate, handleNavigate, mobileNavOpen, setMobileNavOpen, shiftPanelOpen, setShiftPanelOpen, sidebarCollapsed, setSidebarCollapsed, openTicketCount, searchOpen, setSearchOpen, ticketModalOpen, setTicketModalOpen, loadedOverlays, activeClient, activeClientId, notify, addNotification, selectedTicketId, selectedTicket, closeTicket, pendingNoteKey, pendingEntry, setAssessments, guideOpen };
 }
 
-const ShellContext = createContext<ReturnType<typeof useShellState> | null>(null);
+export type AppShellState = ReturnType<typeof useShellState>;
 export function useAppData() {
   const context = useContext(ShellContext);
   if (!context) throw new Error("Page requires the persistent application shell");
@@ -200,6 +209,7 @@ export function useAppData() {
 }
 function DashboardShell({ children }: { children: React.ReactNode }) {
   const state = useShellState();
+  const mobileChrome = useMobileChrome();
   const { activeNav, setTickets, ticketsReady, clientTickets, setPendingNoteKey, setGuideOpen, handover, selectTicket, openTicketCreate, handleNavigate, mobileNavOpen, setMobileNavOpen, shiftPanelOpen, setShiftPanelOpen, sidebarCollapsed, setSidebarCollapsed, openTicketCount, searchOpen, setSearchOpen, ticketModalOpen, setTicketModalOpen, loadedOverlays, activeClient, activeClientId, notify, addNotification, selectedTicketId, selectedTicket, closeTicket, pendingNoteKey, pendingEntry, setAssessments, guideOpen } = state;
 
   return (
@@ -226,15 +236,17 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
           onOpenHandover={() => handover.openActive()}
         />
 
-        <div className="page-content max-w-[1600px] w-full mx-auto pt-[28px] px-[32px] pb-[44px] [contain:layout_style] max-[1240px]:px-[22px] max-[660px]:pt-[18px] max-[660px]:px-[16px] max-[660px]:pb-[36px]">
-          <div className="page-view-enter">
+        <div className="page-content max-w-[1600px] w-full mx-auto pt-[28px] px-[32px] pb-[44px] [contain:layout_style] max-[1240px]:px-[22px] max-[660px]:pt-[18px] max-[660px]:px-[16px] max-[660px]:pb-[36px] max-md:pt-3 min-[400px]:max-md:px-4 max-[400px]:px-3">
+          <div className="app-page-view w-full [animation:pageViewEnter_0.22s_cubic-bezier(0.16,_1,_0.3,_1)_both] will-change-[opacity,transform] [&>*]:scroll-mt-[76px] motion-reduce:animate-none">
             {children}
           </div>
+          <div aria-hidden="true" className="h-[calc(112px+var(--ctd-safe-bottom,env(safe-area-inset-bottom,0px)))] md:hidden [@media(max-height:499px)_and_(max-width:1023px)]:block" />
         </div>
       </section>
 
       {/* ── Floating Action Button: New Ticket (persists across all pages & viewport fixed) ── */}
-      <FloatingNewTicketButton onClick={openTicketCreate} isOpen={ticketModalOpen} />
+      <FloatingNewTicketButton onClick={openTicketCreate} isOpen={ticketModalOpen} scrollHidden={mobileChrome.scrollHidden} keyboardOpen={mobileChrome.keyboardOpen} onReveal={mobileChrome.revealFab} />
+      <BottomNav keyboardOpen={mobileChrome.keyboardOpen} openTicketCount={openTicketCount} onOpenHandover={() => handover.openActive()} />
 
       {/* ── Global Shift Coverage Panel (Discord-style right panel) ── */}
       <ShiftCoveragePanel

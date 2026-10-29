@@ -1,4 +1,8 @@
 "use client";
+import { MasterProjectName } from "@/app/components/ui/MasterProjectName";
+
+import { useMasterReferences } from "@/app/hooks/useMasterReferences";
+import { Select } from "@/app/components/ui/Select";
 import { paths } from "@/app/lib/routes";
 import Link from "next/link";
 
@@ -7,68 +11,22 @@ import { reportsSchema } from "@/app/lib/query-state";
 import { routes, reportPaths } from "@/app/lib/routes";
 
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
-import {
-  AlertCircle,
-  ArrowDownToLine,
-  ArrowLeft,
-  ArrowRight,
-  CheckCircle2,
-  ChevronDown,
-  ClipboardList,
-  FileCheck2,
-  FileText,
-  FolderKanban,
-  LoaderCircle,
-  MoreHorizontal,
-  RefreshCw,
-  Search,
-  ShieldCheck,
-  SlidersHorizontal,
-} from "lucide-react";
+import { AlertCircle, ArrowDownToLine, ArrowLeft, ArrowRight, CheckCircle2, ChevronDown, ClipboardList, FileCheck2, FileText, FolderKanban, LoaderCircle, MoreHorizontal, RefreshCw, Search, ShieldCheck, SlidersHorizontal } from "lucide-react";
 import { DatePicker } from "@/app/components/ui/DatePicker";
 import { StatCard } from "@/app/components/ui/StatCard";
 import { useToast } from "@/app/components/ui/Toast";
 import { useClient } from "@/app/context/ClientContext";
 import { getClientHistoricalAssessments, getClientMonitoringSchedule, getClientProjects } from "@/app/lib/clientData";
 import { useAuth } from "@/app/lib/auth";
-import {
-  reportDurationColumns,
-  REPORT_DURATION_NOTE,
-  REPORT_REFERENCE_URL,
-  addDays,
-  buildWeeklyReport,
-  downloadReportBlob,
-  formatDuration,
-  formatReportDate,
-  jakartaDate,
-  latestDataDate,
-  mergeReportMonitoring,
-  numericDate,
-  periodError,
-  reportCsv,
-  reportFilename,
-  ticketCategory,
-  ticketClosedDate,
-  ticketDate,
-  type ReportIdentity,
-  type ReportLogKind,
-  type ReportPeriod,
-} from "@/app/lib/weekly-report";
+import { reportDurationColumns, REPORT_DURATION_NOTE, REPORT_REFERENCE_URL, addDays, buildWeeklyReport, downloadReportBlob, formatDuration, formatReportDate, jakartaDate, latestDataDate, mergeReportMonitoring, numericDate, periodError, reportCsv, reportFilename, ticketCategory, ticketClosedDate, ticketDate, type ReportIdentity, type ReportLogKind, type ReportPeriod } from "@/app/lib/weekly-report";
 import type { CheckpointAssessment, Ticket } from "@/app/lib/types";
-import {
-  ReportDailyChart as DailyChart,
-  ReportDataTable as DataTable,
-  ReportEmptyState as EmptyReport,
-  ReportPanel as Panel,
-  ReportProjectChart as ProjectChart,
-} from "@/app/components/reports/ReportContent";
+import { ReportDailyChart as DailyChart, ReportDataTable as DataTable, ReportEmptyState as EmptyReport, ReportPanel as Panel, ReportProjectChart as ProjectChart } from "@/app/components/reports/ReportContent";
 import { ReportCsvExport } from "@/app/components/reports/ReportCsvExport";
 import { ReportSignatoryFields } from "@/app/components/reports/ReportSignatoryFields";
-import {
-  reportButtonClass,
-  reportInputClass,
-  reportPrimaryButtonClass,
-} from "@/app/components/reports/report-styles";
+import { reportButtonClass, reportInputClass, reportPrimaryButtonClass } from "@/app/components/reports/report-styles";
+import { useResource } from "@/app/hooks/useResource";
+import { reportsService } from "@/app/services/reports";
+import { PanelSkeletonWrapper, ReportsSkeleton } from "@/app/components/ui/skeleton";
 
 const ReportPdfPreview = lazy(() =>
   import("@/app/components/reports/ReportPdfPreview").then((module) => ({ default: module.ReportPdfPreview }))
@@ -83,8 +41,9 @@ interface ReportsViewProps {
 type ReportTab = "summary" | "tickets" | "monitoring" | "preview";
 
 export function ReportsView({ tickets, assessments }: ReportsViewProps) {
-  const { activeClient, activeClientId } = useClient();
+  const { activeClient, activeClientId, projects: masterProjects } = useClient();
   const { user } = useAuth();
+  const { projectLabel } = useMasterReferences();
   const notify = useToast();
 
   const historical = useMemo(() => getClientHistoricalAssessments(activeClientId), [activeClientId]);
@@ -92,18 +51,47 @@ export function ReportsView({ tickets, assessments }: ReportsViewProps) {
     () => latestDataDate(tickets, historical.filter((entry) => (entry.clientId || "tritronik") === activeClientId)),
     [tickets, historical, activeClientId]
   );
+
+  const {
+    data: fetchedReport,
+    isLoading,
+    isStale,
+    error,
+    refetch,
+  } = useResource(
+    `reports-view-${activeClientId}-${latest}`,
+    (signal) => reportsService.getWeeklyReport(addDays(latest, -6), latest, activeClientId, signal),
+    {
+      deps: [activeClientId, latest, masterProjects],
+    }
+  );
+
   const monitoring = useMemo(
     () => mergeReportMonitoring(historical, getClientMonitoringSchedule(activeClientId), assessments, activeClientId, "2026-08-31"),
     [historical, assessments, activeClientId]
   );
 
-  const schema = useMemo(() => reportsSchema(addDays(latest, -6), latest, [...new Set([...getClientProjects(activeClientId).map(p => p.name), ...tickets.map(t => t.project), ...monitoring.map(m => m.project)])]), [latest, activeClientId, tickets, monitoring]);
+  const configuredProjects = useMemo(() => {
+    const list = masterProjects.filter((p) => p.clientId === activeClientId && p.status === "active").map((p) => p.name);
+    if (list.length > 0) return list;
+    return getClientProjects(activeClientId).map((entry) => entry.name);
+  }, [activeClientId, masterProjects]);
+
+  const schema = useMemo(
+    () =>
+      reportsSchema(
+        addDays(latest, -6),
+        latest,
+        [...new Set([...configuredProjects, ...tickets.map((t) => t.project), ...monitoring.map((m) => m.project)])],
+      ),
+    [latest, configuredProjects, tickets, monitoring]
+  );
   const url = useUrlQuery(schema, paths.reports);
   const periodStart = url.values.range === "empty" ? "" : url.values.from;
   const periodEnd = url.values.range === "empty" ? "" : url.values.to;
   const period: ReportPeriod = { start: periodStart, end: periodEnd };
   const project = url.values.project;
-  const tab: ReportTab = (Object.keys(reportPaths) as ReportTab[]).find(key => reportPaths[key] === url.pathname) ?? "summary";
+  const tab: ReportTab = (Object.keys(reportPaths) as ReportTab[]).find((key) => reportPaths[key] === url.pathname) ?? "summary";
   const [showSettings, setShowSettings] = useState(false);
   const [author, setAuthor] = useState<string | null>(null);
   const [approver, setApprover] = useState("");
@@ -128,7 +116,6 @@ export function ReportsView({ tickets, assessments }: ReportsViewProps) {
   const setLogQuery = logSearch.set;
 
   const validation = periodError(period);
-  const configuredProjects = useMemo(() => getClientProjects(activeClientId).map((entry) => entry.name), [activeClientId]);
   const report = useMemo(
     () => buildWeeklyReport(tickets, monitoring, { start: periodStart, end: periodEnd }, activeClientId, project, configuredProjects),
     [tickets, monitoring, periodStart, periodEnd, activeClientId, project, configuredProjects]
@@ -269,7 +256,7 @@ export function ReportsView({ tickets, assessments }: ReportsViewProps) {
           referenceDate={latest}
           disabled={busy}
           aria-label="Filter rentang tanggal laporan"
-          className="w-full [&_[role='button']]:!h-[32px] sm:[&_[role='button']]:!h-[32px] max-sm:[&_[role='button']]:!h-[40px] [&_[role='button']]:!rounded-[7px] [&_[role='button']]:!border-[#334155] [&_[role='button']]:!bg-[#0f172a] hover:[&_[role='button']]:!border-[#64748b] hover:[&_[role='button']]:!bg-[#0f172a] [&_[role='button']]:!px-2.5 [&_[role='button']]:!text-[11.5px] [&_[role='button']]:!font-semibold font-mono"
+          className="w-full"
         />
       </div>
 
@@ -277,8 +264,8 @@ export function ReportsView({ tickets, assessments }: ReportsViewProps) {
       <div className="relative min-w-[165px] flex-1 sm:flex-initial">
         <label htmlFor="filter-project" className="sr-only">Proyek</label>
         <div className="relative flex items-center">
-          <FolderKanban size={13} className="absolute left-2.5 text-[#94a3b8] pointer-events-none z-10" />
-          <select
+          
+          <Select icon={<FolderKanban size={16}  />}
             id="filter-project"
             aria-label="Filter proyek laporan"
             value={project}
@@ -291,11 +278,11 @@ export function ReportsView({ tickets, assessments }: ReportsViewProps) {
             <option value="all">Semua proyek ({projectOptions.length})</option>
             {projectOptions.map((name) => (
               <option key={name} value={name}>
-                {name}
+                {projectLabel(name, activeClientId, true)}
               </option>
             ))}
-          </select>
-          <ChevronDown size={12} className="absolute right-2.5 text-[#94a3b8] pointer-events-none z-10" />
+          </Select>
+          
         </div>
       </div>
 
@@ -445,6 +432,15 @@ export function ReportsView({ tickets, assessments }: ReportsViewProps) {
         </div>
       </section>
 
+      <PanelSkeletonWrapper
+        isLoading={isLoading}
+        isStale={isStale}
+        error={error}
+        onRetry={refetch}
+        minHeight={620}
+        skeleton={<ReportsSkeleton />}
+        liveRegionText="Memuat analitik laporan..."
+      >
       {/* ── 2. KPI Metric Stat Cards (Aligned bottom badges) ── */}
       <section
         className="grid grid-cols-1 min-[560px]:grid-cols-2 min-[1100px]:grid-cols-4 gap-3 sm:gap-4 [&_.sc]:h-full [&_.sc]:flex [&_.sc]:flex-col [&_.sc-footer]:mt-auto"
@@ -575,7 +571,7 @@ export function ReportsView({ tickets, assessments }: ReportsViewProps) {
                         className="h-2 w-2 shrink-0 rounded-full"
                         style={{ backgroundColor: report.config.project_colors[row.project] ?? "#38bdf8" }}
                       />
-                      <span>{row.project}</span>
+                      <span><MasterProjectName value={row.project} historical /></span>
                     </span>,
                     formatDuration(row.averageMinutes),
                     row.slaPercent === null ? <span className="text-[#64748b]">—</span> : `${row.slaPercent}%`,
@@ -648,7 +644,7 @@ export function ReportsView({ tickets, assessments }: ReportsViewProps) {
                           className="h-2 w-2 shrink-0 rounded-full"
                           style={{ backgroundColor: report.config.project_colors[row.project] ?? "#38bdf8" }}
                         />
-                        <span>{row.project}</span>
+                        <span><MasterProjectName value={row.project} historical /></span>
                       </span>,
                       row.count,
                     ]),
@@ -717,7 +713,7 @@ export function ReportsView({ tickets, assessments }: ReportsViewProps) {
                             {ticket.subject}
                           </h3>
                           <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-[#94a3b8]">
-                            <span className="font-semibold text-[#cbd5e1]">{ticket.project}</span>
+                            <span className="font-semibold text-[#cbd5e1]"><MasterProjectName value={ticket.project} historical /></span>
                             <span>·</span>
                             <span>{ticket.owner}</span>
                             <span>·</span>
@@ -728,7 +724,7 @@ export function ReportsView({ tickets, assessments }: ReportsViewProps) {
                     : filteredMonitoring.slice(offset, offset + 10).map((entry) => (
                         <article key={entry.id} className="rounded-[10px] border border-[#334155] bg-[#0f172a]/70 p-3.5">
                           <div className="flex items-center justify-between gap-2">
-                            <span className="text-xs font-bold text-[#f8fafc]">{entry.project}</span>
+                            <span className="text-xs font-bold text-[#f8fafc]"><MasterProjectName value={entry.project} historical /></span>
                             <span
                               className={`inline-flex items-center px-2 py-0.5 rounded-full font-mono text-[10.5px] font-bold ${
                                 entry.verdict === "ok"
@@ -773,7 +769,7 @@ export function ReportsView({ tickets, assessments }: ReportsViewProps) {
                           <strong className="font-semibold leading-5 text-[#f8fafc]">{ticket.subject}</strong>
                           <p className="mt-1 text-[11px] leading-relaxed text-[#94a3b8]">{ticket.description || "—"}</p>
                         </div>,
-                        <span key="project" className="font-semibold text-[#f8fafc]">{ticket.project}</span>,
+                        <span key="project" className="font-semibold text-[#f8fafc]"><MasterProjectName value={ticket.project} historical /></span>,
                         <span key="closed" className="font-mono text-[11px] text-[#cbd5e1]">{ticketClosedDate(ticket)}</span>,
                         <span
                           key="status"
@@ -801,7 +797,7 @@ export function ReportsView({ tickets, assessments }: ReportsViewProps) {
                           <br />
                           {entry.time}
                         </div>,
-                        <span key="project" className="font-semibold text-[#f8fafc]">{entry.project}</span>,
+                        <span key="project" className="font-semibold text-[#f8fafc]"><MasterProjectName value={entry.project} historical /></span>,
                         <span key="owner" className="text-[11.5px] text-[#cbd5e1]">{entry.owner}</span>,
                         <div key="task" className="max-w-xs break-words text-[11.5px] text-[#cbd5e1]">{entry.task}</div>,
                         <div key="result" className="max-w-md break-words">
@@ -930,6 +926,7 @@ export function ReportsView({ tickets, assessments }: ReportsViewProps) {
           </Panel>
         )}
       </div>
+      </PanelSkeletonWrapper>
     </div>
   );
 }

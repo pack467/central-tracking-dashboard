@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useMemo, useRef, useState, useCallback } from "react";
-import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { Calendar as CalendarIcon, ChevronDown, ChevronLeft, ChevronRight, X } from "lucide-react";
 
 export interface DatePickerProps {
   value: string; // "YYYY-MM-DD" or "YYYY-MM-DD..YYYY-MM-DD" or ""
@@ -13,6 +13,8 @@ export interface DatePickerProps {
   disabled?: boolean;
   clearable?: boolean;
   showAllTimePreset?: boolean;
+  /** Range quick-presets are hidden for single-date pickers that must never receive a range. Default true. */
+  showPresets?: boolean;
   className?: string;
   id?: string;
   name?: string;
@@ -20,6 +22,7 @@ export interface DatePickerProps {
   "aria-label"?: string;
   min?: string;
   max?: string;
+  inlineCalendar?: boolean;
 }
 
 const MONTH_NAMES = [
@@ -108,10 +111,11 @@ function formatValueDisplay(value: string): string {
   return formatDisplayDate(value, true);
 }
 
-function formatFooterSummary(value: string): string {
-  if (!value) return "Pilih rentang tanggal";
+function formatFooterSummary(value: string, single = false): string {
+  const empty = single ? "Pilih tanggal" : "Pilih rentang tanggal";
+  if (!value) return empty;
   const display = formatValueDisplay(value);
-  if (!display) return "Pilih rentang tanggal";
+  if (!display) return empty;
   return `${display} dipilih`;
 }
 
@@ -125,6 +129,7 @@ export function DatePicker({
   disabled,
   clearable = false,
   showAllTimePreset = true,
+  showPresets = true,
   className = "",
   id,
   name,
@@ -132,6 +137,7 @@ export function DatePicker({
   "aria-label": ariaLabel,
   min,
   max,
+  inlineCalendar = false,
 }: DatePickerProps) {
   const generatedId = useId();
   const inputId = id || generatedId;
@@ -409,8 +415,8 @@ export function DatePicker({
     if (rangeStart !== null) {
       return "Pilih tanggal akhir...";
     }
-    return formatFooterSummary(value);
-  }, [rangeStart, value]);
+    return formatFooterSummary(value, mode === "single");
+  }, [rangeStart, value, mode]);
 
   return (
     <div className={`relative w-full supports-[anchor-name:--test]:[anchor-name:--dd-tanggal] ${className}`} ref={containerRef}>
@@ -426,10 +432,12 @@ export function DatePicker({
 
       {/* Visible Trigger Box */}
       <div
-        className={`group flex items-center justify-between w-full h-[38px] p-[0_10px_0_12px] bg-[var(--input-bg)] border rounded-[7px] text-[var(--ink-primary)] text-[12px] font-medium cursor-pointer transition-all duration-150 select-none box-border hover:border-[var(--accent-blue-border)] hover:bg-[rgba(15,23,42,0.9)] focus-visible:border-[var(--accent-blue)] focus-visible:shadow-[0_0_0_3px_var(--accent-blue-soft)] focus-visible:outline-none supports-[anchor-name:--test]:[anchor-name:--dd-tanggal] ${
+        data-datepicker-trigger
+        title={displayLabel || placeholder}
+        className={`[&.custom-datepicker-trigger[data-datepicker-trigger]]:h-[34px] [&.custom-datepicker-trigger[data-datepicker-trigger]]:px-3 [&.custom-datepicker-trigger[data-datepicker-trigger]]:gap-2 max-md:[&.custom-datepicker-trigger[data-datepicker-trigger]]:h-11 [@media(pointer:coarse)]:[&.custom-datepicker-trigger[data-datepicker-trigger]]:h-11 group flex items-center gap-2 w-full h-[34px] px-3 bg-[var(--input-bg)] border rounded-lg text-[var(--ink-primary)] text-[11.5px] font-normal cursor-pointer transition-colors duration-150 motion-reduce:transition-none select-none box-border max-md:h-11 [@media(pointer:coarse)]:h-11 hover:border-[rgba(56,189,248,0.3)] hover:bg-[rgba(15,23,42,0.95)] focus-visible:border-[#38bdf8] focus-visible:shadow-[0_0_0_2px_rgba(56,189,248,0.2)] focus-visible:outline-none supports-[anchor-name:--test]:[anchor-name:--dd-tanggal] date-picker-input-wrapper custom-datepicker-trigger ${
           isOpen
-            ? "border-[var(--accent-blue)] shadow-[0_0_0_3px_var(--accent-blue-soft)] outline-none"
-            : "border-[var(--panel-border)]"
+            ? "border-[#38bdf8] shadow-[0_0_0_2px_rgba(56,189,248,0.2)] outline-none"
+            : "border-[#334155]"
         } ${disabled ? "opacity-50 cursor-not-allowed pointer-events-none" : ""}`}
         onClick={() => {
           if (disabled) return;
@@ -456,19 +464,21 @@ export function DatePicker({
           }
         }}
       >
+        <CalendarIcon data-datepicker-icon size={16} aria-hidden="true" className={`static size-4 shrink-0 ${value ? "text-[#38bdf8]" : "text-[#94a3b8]"}`} />
         <span
-          className={`whitespace-nowrap overflow-hidden text-ellipsis flex-1 min-w-0 mr-[8px] leading-none tracking-[0.1px] ${
-            !displayLabel ? "text-[var(--ink-muted)]" : "text-[var(--ink-primary)]"
-          } ${isRange ? "text-[11.5px] font-semibold tracking-[-0.1px]" : ""}`}
+          data-datepicker-value
+          className={`whitespace-nowrap overflow-hidden text-ellipsis flex-1 min-w-0 leading-none tracking-[0.1px] text-[11.5px] font-normal ${
+            value ? "text-[#38bdf8]" : "text-[#cbd5e1]"
+          } ${isRange ? "tracking-[-0.05px]" : ""}`}
         >
           {displayLabel || placeholder}
         </span>
 
-        <div className="flex items-center gap-[6px] shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
           {clearable && value && !disabled && (
             <button
               type="button"
-              className="inline-flex items-center justify-center w-[20px] h-[20px] rounded-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] text-[var(--ink-muted)] cursor-pointer transition-all duration-150 shrink-0 hover:bg-[rgba(239,68,68,0.18)] hover:border-[rgba(239,68,68,0.35)] hover:text-[#f87171] hover:scale-[1.08]"
+              className="inline-flex items-center justify-center w-5 h-5 max-md:size-11 rounded-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] text-[var(--ink-muted)] cursor-pointer transition-colors duration-150 motion-reduce:transition-none shrink-0 hover:bg-[rgba(239,68,68,0.18)] hover:border-[rgba(239,68,68,0.35)] hover:text-[#f87171]"
               onClick={(e) => {
                 e.stopPropagation();
                 setRangeStart(null);
@@ -482,10 +492,12 @@ export function DatePicker({
             </button>
           )}
           <span
-            className="inline-flex items-center justify-center w-[20px] h-[20px] text-[var(--accent-blue)] transition-all duration-150 shrink-0 group-hover:text-[#7dd3fc] group-hover:scale-[1.08]"
+            className={`inline-flex size-4 items-center justify-center transition-transform duration-150 motion-reduce:transition-none shrink-0 ${isOpen ? "rotate-180" : ""} ${
+              value ? "text-[#38bdf8]" : "text-[#94a3b8]"
+            }`}
             aria-hidden="true"
           >
-            <CalendarIcon size={14} />
+            <ChevronDown data-datepicker-chevron size={16} />
           </span>
         </div>
       </div>
@@ -493,14 +505,14 @@ export function DatePicker({
       {/* Floating Dark-Theme Calendar Popup */}
       {isOpen && (
         <div
-          className={`absolute top-[calc(100%+6px)] left-0 z-[9999] w-[295px] max-w-[calc(100vw-32px)] bg-[#131b2e] border border-[var(--line)] rounded-[10px] shadow-[0_12px_30px_rgba(0,0,0,0.6),_0_4px_12px_rgba(0,0,0,0.4)] p-[14px] animate-[datepicker-fade-in_0.15s_ease-out] max-h-[calc(100dvh-32px)] overflow-y-auto overscroll-contain supports-[position-anchor:--test]:[position-anchor:--dd-tanggal] supports-[position-anchor:--test]:[top:anchor(bottom)] supports-[position-anchor:--test]:mt-1.5 supports-[position-anchor:--test]:[position-try-fallbacks:flip-block] ${
+          className={`${inlineCalendar ? "relative w-full mt-2 border border-slate-700 rounded-lg bg-slate-900 p-0 [&_button]:min-h-10 [&_.calendar-day-cell]:h-10 [&_button]:min-w-0 [&_button[title]]:min-w-10 [&_button]:text-[11px] [&_[role=toolbar]]:flex [&_[role=toolbar]]:overflow-x-auto [&_[role=toolbar]]:overscroll-x-contain [&_[role=toolbar]>button]:shrink-0 [&_[role=toolbar]>button]:px-3 [&_span]:text-[11px]" : "absolute top-[calc(100%+6px)] left-0 z-[9999] w-[295px] max-w-[calc(100vw-32px)] bg-[#131b2e] border border-[var(--line)] rounded-[10px] shadow-[0_12px_30px_rgba(0,0,0,0.6),_0_4px_12px_rgba(0,0,0,0.4)] p-[14px] animate-[datepicker-fade-in_0.15s_ease-out] max-h-[calc(100dvh-32px)] overflow-y-auto overscroll-contain supports-[position-anchor:--test]:[position-anchor:--dd-tanggal] supports-[position-anchor:--test]:[top:anchor(bottom)] supports-[position-anchor:--test]:mt-1.5 supports-[position-anchor:--test]:[position-try-fallbacks:flip-block]"} ${
             align === "right" ? "left-auto right-0" : ""
           }`}
           role="dialog"
-          aria-label="Pilih rentang tanggal"
+          aria-label={mode === "single" ? "Pilih tanggal" : "Pilih rentang tanggal"}
         >
           {/* Quick Presets Bar */}
-          <div
+          {showPresets && <div
             className="grid grid-cols-6 gap-[5px] mb-[12px] pb-[10px] border-b border-[var(--line)] [&>button:nth-child(n+4)]:col-span-3 [&[data-count='6']>button:nth-child(n+4)]:col-span-2"
             data-count={presets.length}
             role="toolbar"
@@ -523,7 +535,7 @@ export function DatePicker({
                 </button>
               );
             })}
-          </div>
+          </div>}
 
           {/* Header with Month/Year and navigation arrows */}
           <div className="flex items-center justify-between mb-[12px]">
@@ -563,9 +575,11 @@ export function DatePicker({
 
           {/* Days Grid */}
           <div className="grid grid-cols-7 gap-y-[3px]">
-            {calendarDays.map(({ ymd, dayNum, isCurrentMonth }) => {
+            {calendarDays.map(({ ymd, dayNum, isCurrentMonth }, dayIndex) => {
               const isDisabled = Boolean((min && ymd < min) || (max && ymd > max));
               const isToday = ymd === todayYMD;
+              const isRowStart = dayIndex % 7 === 0;
+              const isRowEnd = dayIndex % 7 === 6;
 
               let isRangeStart = false;
               let isRangeEnd = false;
@@ -617,40 +631,79 @@ export function DatePicker({
               }
 
               const isSelected = isRangeStart || isRangeEnd;
+              const isSingleDay = isRangeStart && isRangeEnd;
 
-              const classNames = [
-                "relative inline-grid place-items-center h-[32px] rounded-[6px] border border-transparent bg-transparent text-[#cbd5e1] text-[11.5px] font-medium cursor-pointer transition-colors duration-150 select-none hover:not-disabled:border-[rgba(56,189,248,0.4)] hover:not-disabled:z-[2] disabled:opacity-25 disabled:cursor-not-allowed",
-                isSelected
-                  ? "bg-[var(--accent-blue)] text-white font-bold shadow-[0_0_10px_rgba(56,189,248,0.4)] z-[3]"
-                  : isInRange
-                  ? isRangePreview
-                    ? "bg-[rgba(56,189,248,0.12)] text-[#f8fafc] rounded-none"
-                    : "bg-[rgba(56,189,248,0.2)] text-[#f1f5f9] font-semibold rounded-none"
-                  : !isCurrentMonth
-                  ? "text-[#475569]"
-                  : "hover:not-disabled:bg-[rgba(56,189,248,0.2)] hover:not-disabled:text-white",
-                isRangeStart && !isRangeEnd ? "rounded-r-none z-[3]" : "",
-                isRangeEnd && !isRangeStart ? "rounded-l-none z-[3]" : "",
-                isRangeStart && isRangeEnd ? "rounded-[6px]" : "",
-                isRangePreview && isRangeStart ? "rounded-l-[6px]" : "",
-                isRangePreview && isRangeEnd ? "rounded-r-[6px]" : "",
-                isToday ? "border-[var(--accent-blue-border)]" : "",
-                isToday && !isSelected && !isInRange && isCurrentMonth ? "text-[var(--accent-blue)] font-bold" : "",
+              // Ribbon geometry (continuous ribbon without grid gap)
+              let showRibbon = false;
+              let ribbonClasses = "";
+
+              if (!isSingleDay) {
+                const ribbonBg = isRangePreview
+                  ? "bg-[rgba(56,189,248,0.08)]"
+                  : "bg-[rgba(56,189,248,0.14)]";
+
+                if (isRangeStart && !isRangeEnd) {
+                  // Start date: ribbon only on right side
+                  showRibbon = true;
+                  const rightRound = isRowEnd ? "rounded-r-[6px]" : "";
+                  ribbonClasses = `left-1/2 right-0 ${rightRound} ${ribbonBg}`;
+                } else if (isRangeEnd && !isRangeStart) {
+                  // End date: ribbon only on left side
+                  showRibbon = true;
+                  const leftRound = isRowStart ? "rounded-l-[6px]" : "";
+                  ribbonClasses = `left-0 right-1/2 ${leftRound} ${ribbonBg}`;
+                } else if (isInRange) {
+                  // In-range date: ribbon spans full cell, rounded at row boundaries
+                  showRibbon = true;
+                  const leftRound = isRowStart ? "rounded-l-[6px]" : "";
+                  const rightRound = isRowEnd ? "rounded-r-[6px]" : "";
+                  ribbonClasses = `left-0 right-0 ${leftRound} ${rightRound} ${ribbonBg}`;
+                }
+              }
+
+              let buttonTheme = "";
+              if (isSelected) {
+                // Solid sky blue #38bdf8, dark slate text #0f172a, font-semibold, rounded-[6px], no glow
+                buttonTheme = "bg-[#38bdf8] text-[#0f172a] font-semibold";
+              } else if (isInRange) {
+                // In-range: ribbon shows through transparent button, text #f8fafc (dimmed #475569 if other month)
+                buttonTheme = `bg-transparent ${!isCurrentMonth ? "text-[#475569]" : "text-[#f8fafc]"} font-medium hover:not-disabled:bg-[#243044]/50`;
+              } else {
+                // Regular unselected day: hover panel #243044
+                buttonTheme = `bg-transparent ${!isCurrentMonth ? "text-[#475569]" : "text-[#cbd5e1]"} font-medium hover:not-disabled:bg-[#243044] hover:not-disabled:text-white`;
+              }
+
+              // Subtle today marker without overriding start/end/range
+              const todayRing = isToday && !isSelected && !isInRange
+                ? "ring-1 ring-inset ring-[#475569] text-[#38bdf8] font-bold"
+                : "";
+
+              const buttonClassNames = [
+                "relative z-10 w-full h-[32px] rounded-[6px] inline-grid place-items-center text-[11.5px] cursor-pointer select-none transition-colors duration-150 motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38bdf8] focus-visible:z-20 disabled:opacity-25 disabled:cursor-not-allowed",
+                buttonTheme,
+                todayRing,
               ]
                 .filter(Boolean)
                 .join(" ");
 
               return (
-                <button
-                  key={ymd}
-                  type="button"
-                  disabled={isDisabled}
-                  className={classNames}
-                  onMouseEnter={() => handleDayMouseEnter(ymd)}
-                  onClick={() => handleDayClick(ymd)}
-                >
-                  <span>{dayNum}</span>
-                </button>
+                <div key={ymd} className="calendar-day-cell relative w-full h-[32px]">
+                  {showRibbon && (
+                    <div
+                      aria-hidden="true"
+                      className={`absolute inset-y-0 ${ribbonClasses} pointer-events-none transition-colors duration-150 motion-reduce:transition-none`}
+                    />
+                  )}
+                  <button
+                    type="button"
+                    disabled={isDisabled}
+                    className={buttonClassNames}
+                    onMouseEnter={() => handleDayMouseEnter(ymd)}
+                    onClick={() => handleDayClick(ymd)}
+                  >
+                    <span>{dayNum}</span>
+                  </button>
+                </div>
               );
             })}
           </div>

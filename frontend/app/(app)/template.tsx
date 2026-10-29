@@ -10,7 +10,7 @@ export default function Template({ children }: { children: React.ReactNode }) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 8 }}
+      initial={{ opacity: 0, y: 8 }}
       animate={{
         opacity: 1,
         y: 0,
@@ -19,7 +19,7 @@ export default function Template({ children }: { children: React.ReactNode }) {
         },
       }}
       transition={{
-        duration: 0.35,
+        duration: shouldReduceMotion ? 0 : 0.35,
         ease: easeOutCubic,
       }}
       className="w-full"

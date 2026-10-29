@@ -1,19 +1,31 @@
 "use client";
+
+import { Select } from "@/app/components/ui/Select";
 import { DetailNotFound } from "@/app/components/routing/RouteEffects";
 
 import { useRouter } from "next/navigation";
 import { useUrlQuery, useUrlSearch } from "@/app/hooks/useUrlQuery";
-import { rosterSchema } from "@/app/lib/query-state";
+import { rosterSchema, slug } from "@/app/lib/query-state";
 import { paths, routes, detailId } from "@/app/lib/routes";
 
 import { lazy, startTransition, Suspense, useCallback, useMemo, useState } from "react";
-import { ArrowRightLeft, Table, Calendar, Search, X, Users, Clock, Activity, ChevronDown } from "lucide-react";
+import { ArrowRightLeft, Table, Calendar, Search, X, Users, Clock, Activity } from "lucide-react";
 import { RosterStatCards } from "@/app/components/team/RosterStatCards";
 import { RosterTable } from "@/app/components/team/RosterTable";
 import { seedSwapRequests } from "@/app/lib/data";
 import { useActiveShift } from "@/app/hooks/useLiveClock";
 import { getDerivedMemberStatus } from "@/app/lib/shifts";
 import type { RosterMember, ShiftSwapRequest } from "@/app/lib/types";
+import { useResource } from "@/app/hooks/useResource";
+import { usePeople, useRoles } from "@/app/hooks/useMasterData";
+import { peopleToRosterMembers } from "@/app/lib/people-roster";
+import { isMockMode } from "@/app/lib/config";
+import { useAuth } from "@/app/lib/auth";
+import { canMaster, masterRole } from "@/app/lib/permissions";
+import { useToast } from "@/app/components/ui/Toast";
+import type { Person } from "@/app/types/master-data";
+import { rosterService } from "@/app/services/roster";
+import { PanelSkeletonWrapper, TeamRosterSkeleton } from "@/app/components/ui/skeleton";
 
 const RosterCalendarView = lazy(() =>
   import("@/app/components/team/RosterCalendarView").then((module) => ({ default: module.RosterCalendarView })),
@@ -24,14 +36,42 @@ const ShiftSwapModal = lazy(() =>
 const MemberDetailDrawer = lazy(() =>
   import("@/app/components/team/MemberDetailDrawer").then((module) => ({ default: module.MemberDetailDrawer })),
 );
-const MemberCreateModal = lazy(() =>
-  import("@/app/components/team/MemberCreateModal").then((module) => ({ default: module.MemberCreateModal })),
+// The same person form as Master Data: people are owned by Master Data, the roster only schedules them.
+const PersonFormModal = lazy(() =>
+  import("@/app/components/master-data/PersonFormModal").then((module) => ({ default: module.PersonFormModal })),
 );
 
-export function TeamRosterView({ members, onMembersChange: setMembers }: {
+export function TeamRosterView({ members: propMembers, onMembersChange: setMembers }: {
   members: RosterMember[];
   onMembersChange: React.Dispatch<React.SetStateAction<RosterMember[]>>;
 }) {
+  const {
+    data: fetchedMembers,
+    isLoading,
+    isStale,
+    error,
+    refetch,
+  } = useResource(
+    "team-roster-members",
+    (signal) => rosterService.listMembers(signal),
+  );
+
+  const people = usePeople();
+  const roles = useRoles();
+  const notify = useToast();
+  const { user } = useAuth();
+  const access = masterRole(user || undefined);
+  const [includeInactive, setIncludeInactive] = useState(false);
+  const hasInactive = people.some((person) => person.status !== "active");
+  const liveMembers = useMemo(
+    () => peopleToRosterMembers(people, roles, includeInactive),
+    [people, roles, includeInactive],
+  );
+  // Mock mode reads people straight from Master Data (live: a new person appears at once); API mode keeps the fetched list.
+  const members = useMemo(
+    () => (isMockMode() ? (isLoading ? [] : liveMembers) : fetchedMembers ?? (isLoading ? [] : propMembers)),
+    [isLoading, liveMembers, fetchedMembers, propMembers],
+  );
   const url = useUrlQuery(rosterSchema, paths.teamRoster);
   const router = useRouter();
   const activeShift = useActiveShift();
@@ -62,7 +102,7 @@ export function TeamRosterView({ members, onMembersChange: setMembers }: {
   const selectedId = detailId(url.pathname, paths.teamRoster);
   const selectedMember = derivedMembers.find(m => m.id.toLowerCase() === selectedId?.toLowerCase()) ?? null;
   const closeMember = () => router.push(routes.teamRoster(url.query), { scroll: false });
-  const [editingMember, setEditingMember] = useState<RosterMember | null>(null);
+  const [editingPerson, setEditingPerson] = useState<Person | null>(null);
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [swapModalOpen, setSwapModalOpen] = useState(false);
   const [swapPreselectedMember, setSwapPreselectedMember] = useState<RosterMember | null>(null);
@@ -88,10 +128,18 @@ export function TeamRosterView({ members, onMembersChange: setMembers }: {
   }, [markOverlayLoaded]);
 
   const openMemberCreate = useCallback((member: RosterMember | null = null) => {
+    if (!canMaster(access, "person", member ? "update" : "create")) {
+      notify.info("Hanya Pengelola Master Data yang dapat mengubah personel.", { id: "member-permission" });
+      return;
+    }
     markOverlayLoaded("create");
-    setEditingMember(member);
+    setEditingPerson(member ? people.find((person) => person.id === member.id) ?? null : null);
     setCreateModalOpen(true);
-  }, [markOverlayLoaded]);
+  }, [access, markOverlayLoaded, notify, people]);
+
+  // Role filter value: the URL carries a slug, the Select works with the stable role key.
+  const roleFilterKey = roleFilter === "All" ? "All" : roles.find((role) => slug(role.key) === slug(String(roleFilter)))?.key ?? "All";
+  const visibleRoles = roles.filter((role) => role.active || derivedMembers.some((member) => (member.roleKey ?? member.role) === role.key));
 
   // Filtered members calculation using derived status
   const filteredMembers = useMemo(() => {
@@ -105,7 +153,7 @@ export function TeamRosterView({ members, onMembersChange: setMembers }: {
         m.email.toLowerCase().includes(needle) ||
         m.role.toLowerCase().includes(needle);
 
-      const matchRole = roleFilter === "All" || m.role === roleFilter;
+      const matchRole = roleFilterKey === "All" || (m.roleKey ?? m.role) === roleFilterKey;
       const matchStatus = statusFilter === "All" || m.status === statusFilter;
       const matchShift =
         shiftFilter === "All" ||
@@ -116,7 +164,7 @@ export function TeamRosterView({ members, onMembersChange: setMembers }: {
 
       return matchSearch && matchRole && matchStatus && matchShift;
     });
-  }, [derivedMembers, search, roleFilter, statusFilter, shiftFilter]);
+  }, [derivedMembers, search, roleFilterKey, statusFilter, shiftFilter]);
 
   const handleSaveMember = (savedMember: RosterMember) => {
     setMembers((prev) => {
@@ -153,18 +201,30 @@ export function TeamRosterView({ members, onMembersChange: setMembers }: {
 
         <div className="page-actions flex gap-[9px]">
           <button
-            className="button button-secondary button-swap-badge"
+            className="button button-secondary button-swap-badge disabled:opacity-50 disabled:cursor-not-allowed"
             onClick={() => setSwapModalOpen(true)}
             aria-label="Shift swap requests"
+            disabled={isLoading}
           >
             <ArrowRightLeft size={14} /> Shift Swaps ({swapRequests.filter((r) => r.status === "Pending").length})
           </button>
-          <button className="button button-primary" onClick={handleAddNewMember}>
-            <span>＋</span> Tambah Anggota
-          </button>
+          {canMaster(access, "person", "create") && (
+            <button className="button button-primary disabled:opacity-50 disabled:cursor-not-allowed" onClick={handleAddNewMember} disabled={isLoading}>
+              <span>＋</span> Tambah Anggota
+            </button>
+          )}
         </div>
       </section>
 
+      <PanelSkeletonWrapper
+        isLoading={isLoading}
+        isStale={isStale}
+        error={error}
+        onRetry={refetch}
+        minHeight={560}
+        skeleton={<TeamRosterSkeleton />}
+        liveRegionText="Memuat daftar anggota tim..."
+      >
       {/* 2. Top Summary Stat Cards */}
       <RosterStatCards
         members={derivedMembers}
@@ -179,7 +239,7 @@ export function TeamRosterView({ members, onMembersChange: setMembers }: {
             {/* Toolbar: Search, Filters & View Toggle */}
             <div className="flex items-center gap-[10px] p-[12px_16px] border-b border-[var(--line)] flex-wrap bg-[var(--panel-bg)]">
               {/* Search Field */}
-              <div className="group relative flex items-center w-full min-[900px]:w-auto min-[900px]:flex-[1_1_200px] min-[900px]:max-w-[280px] h-[40px] min-[900px]:h-[36px] px-[10px] border border-[var(--panel-border)] rounded-[8px] bg-[var(--input-bg,#0f172a)] transition-[border-color,box-shadow] duration-150 ease gap-[8px] box-border focus-within:border-[var(--accent-blue)] focus-within:shadow-[0_0_0_3px_rgba(56,189,248,0.12)]">
+              <div className="group relative flex items-center w-full min-[900px]:w-auto min-[900px]:flex-[1_1_200px] min-[900px]:max-w-[280px] h-[40px] min-[900px]:h-[36px] px-[10px] border border-[var(--panel-border)] rounded-[8px] bg-[var(--input-bg,#0f172a)] transition-[border-color,box-shadow] duration-150 ease gap-[8px] box-border focus-within:border-[rgba(56,189,248,0.4)] focus-within:bg-[#141f33] ">
                 <Search size={14} className="text-[var(--ink-muted)] shrink-0 transition-colors duration-150 ease group-focus-within:text-[var(--accent-blue)]" />
                 <input
                   type="text"
@@ -200,31 +260,29 @@ export function TeamRosterView({ members, onMembersChange: setMembers }: {
               <div className="flex items-center gap-[8px] flex-wrap w-full min-[900px]:w-auto min-[900px]:flex-initial flex-1">
                 {/* Role Filter */}
                 <div className="group relative inline-flex items-center w-full min-[560px]:flex-1 min-[560px]:min-w-[140px] min-[900px]:w-auto min-[900px]:flex-initial">
-                  <Users size={13} className="absolute left-[10px] text-[var(--ink-muted,#94a3b8)] pointer-events-none flex items-center justify-center transition-colors duration-150 ease z-[1] group-hover:text-[var(--accent-blue,#38bdf8)] group-focus-within:text-[var(--accent-blue,#38bdf8)]" />
-                  <select
+                  
+                  <Select icon={<Users size={16}  />}
                     className={`w-full min-[900px]:w-auto h-[40px] min-[900px]:h-[36px] box-border pl-[30px] pr-[28px] py-0 text-[var(--ink-primary)] border border-[var(--panel-border)] rounded-[8px] bg-[var(--input-bg,#0f172a)] text-[12px] font-medium font-sans cursor-pointer inline-flex items-center appearance-none -webkit-appearance-none transition-[border-color,box-shadow,background-color,color] duration-150 ease shrink-0 [color-scheme:dark] hover:border-[rgba(148,163,184,0.35)] focus:border-[var(--accent-blue)] focus:shadow-[0_0_0_3px_rgba(56,189,248,0.12)] focus:outline-none ${
-                      roleFilter !== "All"
+                      roleFilterKey !== "All"
                         ? "border-[rgba(56,189,248,0.4)] bg-[rgba(56,189,248,0.08)] text-[var(--accent-blue,#38bdf8)] font-semibold"
                         : ""
                     }`}
-                    value={roleFilter}
+                    value={roleFilterKey}
                     onChange={(e) => setRoleFilter(e.target.value)}
                     aria-label="Filter role"
                   >
                     <option value="All">All Roles ({derivedMembers.length})</option>
-                    <option value="Operator NOC">Operator NOC</option>
-                    <option value="Shift Lead">Shift Lead</option>
-                    <option value="Incident Coordinator">Incident Coordinator</option>
-                    <option value="L2 Specialist">L2 Specialist</option>
-                    <option value="Infrastructure Engineer">Infrastructure Engineer</option>
-                  </select>
-                  <ChevronDown size={13} className="absolute right-[10px] text-[var(--ink-muted,#94a3b8)] pointer-events-none flex items-center justify-center transition-colors duration-150 ease z-[1] group-hover:text-[var(--accent-blue,#38bdf8)] group-focus-within:text-[var(--accent-blue,#38bdf8)]" aria-hidden="true" />
+                    {visibleRoles.map((role) => (
+                      <option key={role.key} value={role.key}>{role.name}</option>
+                    ))}
+                  </Select>
+                  
                 </div>
 
                 {/* Shift Filter */}
                 <div className="group relative inline-flex items-center w-full min-[560px]:flex-1 min-[560px]:min-w-[140px] min-[900px]:w-auto min-[900px]:flex-initial">
-                  <Clock size={13} className="absolute left-[10px] text-[var(--ink-muted,#94a3b8)] pointer-events-none flex items-center justify-center transition-colors duration-150 ease z-[1] group-hover:text-[var(--accent-blue,#38bdf8)] group-focus-within:text-[var(--accent-blue,#38bdf8)]" />
-                  <select
+                  
+                  <Select icon={<Clock size={16}  />}
                     className={`w-full min-[900px]:w-auto h-[40px] min-[900px]:h-[36px] box-border pl-[30px] pr-[28px] py-0 text-[var(--ink-primary)] border border-[var(--panel-border)] rounded-[8px] bg-[var(--input-bg,#0f172a)] text-[12px] font-medium font-sans cursor-pointer inline-flex items-center appearance-none -webkit-appearance-none transition-[border-color,box-shadow,background-color,color] duration-150 ease shrink-0 [color-scheme:dark] hover:border-[rgba(148,163,184,0.35)] focus:border-[var(--accent-blue)] focus:shadow-[0_0_0_3px_rgba(56,189,248,0.12)] focus:outline-none ${
                       shiftFilter !== "All"
                         ? "border-[rgba(56,189,248,0.4)] bg-[rgba(56,189,248,0.08)] text-[var(--accent-blue,#38bdf8)] font-semibold"
@@ -238,14 +296,14 @@ export function TeamRosterView({ members, onMembersChange: setMembers }: {
                     <option value="Subuh">Shift Subuh</option>
                     <option value="Pagi">Shift Pagi</option>
                     <option value="Malam">Shift Malam</option>
-                  </select>
-                  <ChevronDown size={13} className="absolute right-[10px] text-[var(--ink-muted,#94a3b8)] pointer-events-none flex items-center justify-center transition-colors duration-150 ease z-[1] group-hover:text-[var(--accent-blue,#38bdf8)] group-focus-within:text-[var(--accent-blue,#38bdf8)]" aria-hidden="true" />
+                  </Select>
+                  
                 </div>
 
                 {/* Status Filter */}
                 <div className="group relative inline-flex items-center w-full min-[560px]:flex-1 min-[560px]:min-w-[140px] min-[900px]:w-auto min-[900px]:flex-initial">
-                  <Activity size={13} className="absolute left-[10px] text-[var(--ink-muted,#94a3b8)] pointer-events-none flex items-center justify-center transition-colors duration-150 ease z-[1] group-hover:text-[var(--accent-blue,#38bdf8)] group-focus-within:text-[var(--accent-blue,#38bdf8)]" />
-                  <select
+                  
+                  <Select icon={<Activity size={16}  />}
                     className={`w-full min-[900px]:w-auto h-[40px] min-[900px]:h-[36px] box-border pl-[30px] pr-[28px] py-0 text-[var(--ink-primary)] border border-[var(--panel-border)] rounded-[8px] bg-[var(--input-bg,#0f172a)] text-[12px] font-medium font-sans cursor-pointer inline-flex items-center appearance-none -webkit-appearance-none transition-[border-color,box-shadow,background-color,color] duration-150 ease shrink-0 [color-scheme:dark] hover:border-[rgba(148,163,184,0.35)] focus:border-[var(--accent-blue)] focus:shadow-[0_0_0_3px_rgba(56,189,248,0.12)] focus:outline-none ${
                       statusFilter !== "All"
                         ? "border-[rgba(56,189,248,0.4)] bg-[rgba(56,189,248,0.08)] text-[var(--accent-blue,#38bdf8)] font-semibold"
@@ -260,10 +318,23 @@ export function TeamRosterView({ members, onMembersChange: setMembers }: {
                     <option value="On Break">On Break</option>
                     <option value="Off Duty">Off Duty</option>
                     <option value="On Leave">On Leave</option>
-                  </select>
-                  <ChevronDown size={13} className="absolute right-[10px] text-[var(--ink-muted,#94a3b8)] pointer-events-none flex items-center justify-center transition-colors duration-150 ease z-[1] group-hover:text-[var(--accent-blue,#38bdf8)] group-focus-within:text-[var(--accent-blue,#38bdf8)]" aria-hidden="true" />
+                  </Select>
+                  
                 </div>
               </div>
+
+              {hasInactive && (
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={includeInactive}
+                  onClick={() => setIncludeInactive((value) => !value)}
+                  className={`inline-flex items-center gap-[8px] h-[40px] min-[900px]:h-[36px] px-[12px] rounded-[8px] border text-[12px] font-medium cursor-pointer transition-[border-color,background-color,color] duration-150 motion-reduce:transition-none shrink-0 ${includeInactive ? "border-[rgba(56,189,248,0.4)] bg-[rgba(56,189,248,0.08)] text-[var(--accent-blue,#38bdf8)] font-semibold" : "border-[var(--panel-border)] bg-[var(--input-bg,#0f172a)] text-[var(--ink-primary)] hover:border-[rgba(148,163,184,0.35)]"}`}
+                >
+                  <span aria-hidden="true" className={`size-[8px] rounded-full ${includeInactive ? "bg-[var(--accent-blue,#38bdf8)]" : "bg-[var(--ink-muted)]"}`} />
+                  Termasuk nonaktif
+                </button>
+              )}
 
               {/* View Mode Switcher */}
               <div className="w-full min-[560px]:w-auto min-[900px]:ml-auto grid grid-cols-2 min-[560px]:inline-flex items-center gap-[2px] h-[40px] min-[900px]:h-[36px] box-border p-[3px] bg-[var(--surface,#0f172a)] border border-[var(--panel-border)] rounded-[8px] shrink-0" aria-label="Pilihan tampilan roster">
@@ -308,6 +379,7 @@ export function TeamRosterView({ members, onMembersChange: setMembers }: {
           </article>
         </div>
       </div>
+      </PanelSkeletonWrapper>
 
       {selectedId && !selectedMember && <DetailNotFound title="Anggota tidak ditemukan" href={routes.teamRoster(url.query)} />}
       {/* Drawers & modals load only when an operator opens them. */}
@@ -332,12 +404,21 @@ export function TeamRosterView({ members, onMembersChange: setMembers }: {
           />
         )}
 
-        {loadedOverlays.create && (
-          <MemberCreateModal
-            open={createModalOpen}
+        {loadedOverlays.create && createModalOpen && (
+          <PersonFormModal
+            person={editingPerson ?? undefined}
+            roles={roles}
+            people={people}
             onClose={() => setCreateModalOpen(false)}
-            onSaveMember={handleSaveMember}
-            editingMember={editingMember}
+            onSaved={(person) => {
+              setCreateModalOpen(false);
+              notify.success(
+                editingPerson
+                  ? `Data anggota ${person.fullName} berhasil diperbarui.`
+                  : `Anggota tim baru ${person.fullName} ditambahkan ke roster.`,
+                { id: "member-save" },
+              );
+            }}
           />
         )}
       </Suspense>

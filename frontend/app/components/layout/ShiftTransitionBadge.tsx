@@ -4,6 +4,7 @@ import { paths } from "@/app/lib/routes";
 
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight, ArrowRightLeft, CheckCircle2, ChevronDown, Clock, ExternalLink, Moon, Sun, Sunset, Users } from "lucide-react";
+import { useMobileLayout } from "@/app/hooks/useMobileLayout";
 import { useShiftTransition } from "@/app/hooks/useLiveClock";
 
 
@@ -20,6 +21,7 @@ function getShiftIcon(id: string) {
 
 export function ShiftTransitionBadge({ onOpenHandover, onNavigate }: ShiftTransitionBadgeProps) {
   const transition = useShiftTransition();
+  const mobile = useMobileLayout();
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -77,14 +79,15 @@ export function ShiftTransitionBadge({ onOpenHandover, onNavigate }: ShiftTransi
     >
       <button
         type="button"
-        className={`shift-transition-pill inline-flex items-center gap-[12px] px-[12px] py-[5px] min-h-[38px] rounded-[8px] cursor-pointer select-none text-[#ffffff] transition-[background-color_0.18s_ease,border-color_0.18s_ease] shadow-none [&:hover_.transition-chevron]:text-[rgba(255,255,255,0.85)] ${
+        className={`app-transition-pill inline-flex max-lg:min-h-10 max-md:size-10 max-md:min-h-10 max-md:p-0 max-md:justify-center max-md:[&_.transition-info-stack]:hidden max-md:[&_.transition-badge-actions]:hidden items-center gap-[12px] px-[12px] py-[5px] min-h-[38px] rounded-[8px] cursor-pointer select-none text-[#ffffff] transition-[background-color_0.18s_ease,border-color_0.18s_ease] shadow-none [&:hover_.transition-chevron]:text-[rgba(255,255,255,0.85)] ${
           transition.isActive
             ? isOpen
               ? "active-window open border border-[#f59e0b] bg-[rgba(245,158,11,0.18)]"
               : "active-window border border-[rgba(245,158,11,0.32)] bg-[rgba(245,158,11,0.08)] hover:border-[rgba(245,158,11,0.55)] hover:bg-[rgba(245,158,11,0.14)]"
             : "upcoming-window border border-[rgba(56,189,248,0.3)] bg-[rgba(56,189,248,0.08)] hover:border-[rgba(56,189,248,0.55)] hover:bg-[rgba(56,189,248,0.14)]"
         }`}
-        onClick={() => setIsOpen((prev) => !prev)}
+        onClick={() => mobile ? handleOpenHandover() : setIsOpen((prev) => !prev)}
+        aria-label={`Transisi shift ${transition.label}`}
         aria-expanded={isOpen}
         aria-haspopup="dialog"
         title={
@@ -114,11 +117,11 @@ export function ShiftTransitionBadge({ onOpenHandover, onNavigate }: ShiftTransi
         {/* Clean 2-line textual hierarchy */}
         <div className="transition-info-stack flex flex-col items-start text-left leading-[1.15] min-w-0">
           <div className="transition-meta-row transition-meta-line flex items-center gap-[4px] max-[900px]:hidden">
-            <span className={`transition-kicker-label text-[8.5px] font-extrabold tracking-[0.6px] uppercase font-[var(--font-mono)] ${transition.isActive ? "text-[#fbbf24]" : "text-[#38bdf8]"}`}>
+            <span className={`transition-kicker-label text-[8.5px] max-lg:text-[11px] font-extrabold tracking-[0.6px] uppercase font-[var(--font-mono)] ${transition.isActive ? "text-[#fbbf24]" : "text-[#38bdf8]"}`}>
               {transition.isActive ? "TRANSISI SHIFT" : "MENUJU TRANSISI"}
             </span>
-            <span className="transition-meta-dot text-[rgba(255,255,255,0.35)] text-[9px]">·</span>
-            <span className="transition-time-range text-[9.5px] font-[var(--font-mono)] text-[rgba(255,255,255,0.7)] font-medium">{transition.windowStart}–{transition.windowEnd}</span>
+            <span className="transition-meta-dot text-[rgba(255,255,255,0.35)] text-[9px] max-lg:text-[11px]">·</span>
+            <span className="transition-time-range text-[9.5px] max-lg:text-[11px] font-[var(--font-mono)] text-[rgba(255,255,255,0.7)] font-medium">{transition.windowStart}–{transition.windowEnd}</span>
           </div>
 
           <div className="transition-flow-row transition-names-label flex items-center gap-[4px] mt-[1px] text-[11.5px] font-bold text-[#f8fafc] whitespace-nowrap max-[640px]:hidden">
@@ -130,7 +133,7 @@ export function ShiftTransitionBadge({ onOpenHandover, onNavigate }: ShiftTransi
 
         {/* Countdown Badge & Chevron */}
         <div className="transition-badge-actions inline-flex items-center gap-[8px] ml-auto shrink-0">
-          <span className={`transition-timer-badge inline-flex items-center justify-center h-[24px] min-w-[64px] px-[10px] rounded-[999px] text-[10.5px] font-bold font-[var(--font-mono)] leading-none tracking-[0.2px] text-center whitespace-nowrap box-border ${transition.isActive ? "bg-[rgba(245,158,11,0.18)] text-[#fbbf24] border border-[rgba(245,158,11,0.4)]" : "bg-[rgba(56,189,248,0.15)] text-[#38bdf8] border border-[rgba(56,189,248,0.4)]"}`}>
+          <span className={`transition-timer-badge inline-flex items-center justify-center h-[24px] min-w-[64px] px-[10px] rounded-[999px] text-[10.5px] max-lg:text-[11px] font-bold font-[var(--font-mono)] leading-none tracking-[0.2px] text-center whitespace-nowrap box-border ${transition.isActive ? "bg-[rgba(245,158,11,0.18)] text-[#fbbf24] border border-[rgba(245,158,11,0.4)]" : "bg-[rgba(56,189,248,0.15)] text-[#38bdf8] border border-[rgba(56,189,248,0.4)]"}`}>
             {transition.isActive
               ? `Sisa ${transition.minutesRemaining}m`
               : `dlm ${transition.minutesUntilStart}m`}
@@ -148,7 +151,7 @@ export function ShiftTransitionBadge({ onOpenHandover, onNavigate }: ShiftTransi
           {/* Popover Header */}
           <div className="transition-popover-header flex items-start justify-between gap-[10px] pb-[10px] border-b border-[rgba(255,255,255,0.08)]">
             <div className="transition-header-title-box flex flex-col gap-[2px]">
-              <span className="transition-header-kicker inline-flex items-center gap-[5px] text-[9.5px] font-extrabold tracking-[0.8px] text-[#fbbf24] uppercase font-[var(--font-mono)]">
+              <span className="transition-header-kicker inline-flex items-center gap-[5px] text-[9.5px] max-lg:text-[11px] font-extrabold tracking-[0.8px] text-[#fbbf24] uppercase font-[var(--font-mono)]">
                 <ArrowRightLeft size={13} />
                 <span>HANDOVER WINDOW</span>
               </span>
@@ -159,7 +162,7 @@ export function ShiftTransitionBadge({ onOpenHandover, onNavigate }: ShiftTransi
               </h4>
             </div>
             <span
-              className={`transition-status-pill text-[10px] font-bold px-[8px] py-[3px] rounded-[999px] whitespace-nowrap font-[var(--font-mono)] ${
+              className={`transition-status-pill text-[10px] max-lg:text-[11px] font-bold px-[8px] py-[3px] rounded-[999px] whitespace-nowrap font-[var(--font-mono)] ${
                 transition.isActive
                   ? "status-overlap-active bg-[rgba(245,158,11,0.2)] text-[#fbbf24] border border-[rgba(245,158,11,0.4)]"
                   : "status-upcoming bg-[rgba(56,189,248,0.15)] text-[#38bdf8] border border-[rgba(56,189,248,0.35)]"
@@ -171,7 +174,7 @@ export function ShiftTransitionBadge({ onOpenHandover, onNavigate }: ShiftTransi
 
           {/* Overlap Progress Meter */}
           <div className="transition-timeline-box flex flex-col gap-[6px] bg-[rgba(255,255,255,0.03)] p-[9px_11px] rounded-[8px] border border-[rgba(255,255,255,0.06)]">
-            <div className="transition-timeline-labels flex items-center justify-between text-[10px] font-[var(--font-mono)] text-[var(--ink-muted)]">
+            <div className="transition-timeline-labels flex items-center justify-between text-[10px] max-lg:text-[11px] font-[var(--font-mono)] text-[var(--ink-muted)]">
               <span className="timeline-start-time inline-flex items-center gap-[4px] text-[#cbd5e1] font-semibold">
                 <Clock size={11} /> {transition.windowStart} WIB
               </span>
@@ -203,12 +206,12 @@ export function ShiftTransitionBadge({ onOpenHandover, onNavigate }: ShiftTransi
                     : "border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.03)]"
             }`}>
               <div className="shift-card-header flex items-center justify-between mb-[4px]">
-                <span className="shift-card-role-tag text-[8px] font-extrabold tracking-[0.6px] text-[var(--ink-muted)] font-[var(--font-mono)]">SHIFT KELUAR</span>
+                <span className="shift-card-role-tag text-[8px] max-lg:text-[11px] font-extrabold tracking-[0.6px] text-[var(--ink-muted)] font-[var(--font-mono)]">SHIFT KELUAR</span>
                 <FromIcon size={14} className={`shift-card-icon ${transition.fromShift.id === "malam" ? "text-[#c084fc]" : transition.fromShift.id === "subuh" ? "text-[#38bdf8]" : "text-[#fbbf24]"}`} />
               </div>
               <strong className="shift-card-name text-[12px] font-bold text-[#ffffff]">{transition.fromShift.label}</strong>
-              <span className="shift-card-hours text-[9.5px] font-[var(--font-mono)] text-[#94a3b8] mt-[1px]">{transition.fromShift.period}</span>
-              <p className="shift-card-desc m-[6px_0_0] text-[9.5px] leading-[1.35] text-[var(--ink-muted)]">
+              <span className="shift-card-hours text-[9.5px] max-lg:text-[11px] font-[var(--font-mono)] text-[#94a3b8] mt-[1px]">{transition.fromShift.period}</span>
+              <p className="shift-card-desc m-[6px_0_0] text-[9.5px] max-lg:text-[11px] leading-[1.35] text-[var(--ink-muted)]">
                 Penyelesaian checklist monitoring, update tiket kendala, & transfer informasi operasional.
               </p>
             </div>
@@ -233,22 +236,22 @@ export function ShiftTransitionBadge({ onOpenHandover, onNavigate }: ShiftTransi
                     : "border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.03)]"
             }`}>
               <div className="shift-card-header flex items-center justify-between mb-[4px]">
-                <span className="shift-card-role-tag text-[8px] font-extrabold tracking-[0.6px] text-[var(--ink-muted)] font-[var(--font-mono)]">SHIFT MASUK</span>
+                <span className="shift-card-role-tag text-[8px] max-lg:text-[11px] font-extrabold tracking-[0.6px] text-[var(--ink-muted)] font-[var(--font-mono)]">SHIFT MASUK</span>
                 <ToIcon size={14} className={`shift-card-icon ${transition.toShift.id === "malam" ? "text-[#c084fc]" : transition.toShift.id === "subuh" ? "text-[#38bdf8]" : "text-[#fbbf24]"}`} />
               </div>
               <strong className="shift-card-name text-[12px] font-bold text-[#ffffff]">{transition.toShift.label}</strong>
-              <span className="shift-card-hours text-[9.5px] font-[var(--font-mono)] text-[#94a3b8] mt-[1px]">{transition.toShift.period}</span>
-              <p className="shift-card-desc m-[6px_0_0] text-[9.5px] leading-[1.35] text-[var(--ink-muted)]">
+              <span className="shift-card-hours text-[9.5px] max-lg:text-[11px] font-[var(--font-mono)] text-[#94a3b8] mt-[1px]">{transition.toShift.period}</span>
+              <p className="shift-card-desc m-[6px_0_0] text-[9.5px] max-lg:text-[11px] leading-[1.35] text-[var(--ink-muted)]">
                 Verifikasi checklist serah-terima, periksa tiket terbuka, & ambil alih pemantauan sistem.
               </p>
             </div>
           </div>
 
           {/* SOP Checklist / Note Hint */}
-          <div className="transition-hint-banner flex items-start gap-[8px] p-[8px_10px] rounded-[8px] bg-[rgba(56,189,248,0.06)] border border-[rgba(56,189,248,0.18)] text-[10.5px] leading-[1.4] text-[#cbd5e1]">
+          <div className="transition-hint-banner flex items-start gap-[8px] p-[8px_10px] rounded-[8px] bg-[rgba(56,189,248,0.06)] border border-[rgba(56,189,248,0.18)] text-[10.5px] max-lg:text-[11px] leading-[1.4] text-[#cbd5e1]">
             <CheckCircle2 size={14} className="hint-banner-icon text-[#38bdf8] shrink-0 mt-[2px]" />
             <div className="hint-banner-text">
-              <strong className="block text-[#38bdf8] text-[10.5px] mb-[2px]">SOP Temu Shift 30 Menit:</strong>
+              <strong className="block text-[#38bdf8] text-[10.5px] max-lg:text-[11px] mb-[2px]">SOP Temu Shift 30 Menit:</strong>
               <span>
                 Kedua PIC shift bertugas bersama selama {transition.windowPeriod} untuk memastikan
                 kesinambungan pemantauan tanpa kendala terlewat.

@@ -1,4 +1,5 @@
 "use client";
+import { MasterProjectName } from "@/app/components/ui/MasterProjectName";
 import { paths } from "@/app/lib/routes";
 import { useUrlQuery, useUrlSearch } from "@/app/hooks/useUrlQuery";
 import { monitoringSchema } from "@/app/lib/query-state";
@@ -412,7 +413,7 @@ export function MonitoringHistorySection({ todayEntries, todayAssessments }: Mon
                         <div className="[display:flex] [align-items:center] [gap:8px] [min-width:0] [@media(max-width:940px)]:[grid-area:project]">
                           <ProjectMark name={entry.project} />
                           <div className="[display:flex] [flex-direction:column] [min-width:0]">
-                            <strong className="[font-size:12px] [font-weight:700] [color:var(--ink-primary)]">{entry.project}</strong>
+                            <strong className="[font-size:12px] [font-weight:700] [color:var(--ink-primary)]"><MasterProjectName value={entry.project} historical /></strong>
                             <span className="[font-size:10.5px] [color:var(--ink-secondary)] [overflow:hidden] [text-overflow:ellipsis] [white-space:nowrap]">{entry.task}</span>
                           </div>
                         </div>

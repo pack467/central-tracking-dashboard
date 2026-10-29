@@ -169,10 +169,19 @@ export function HealthStrip({
       }
     };
 
+    let rafId: number | null = null;
+    const scheduleCalculate = () => {
+      if (rafId !== null) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(calculatePageSize);
+    };
+
     calculatePageSize();
-    const ro = new ResizeObserver(calculatePageSize);
+    const ro = new ResizeObserver(scheduleCalculate);
     ro.observe(el);
-    return () => ro.disconnect();
+    return () => {
+      if (rafId !== null) cancelAnimationFrame(rafId);
+      ro.disconnect();
+    };
   }, []);
 
   // 3. Carousel page index

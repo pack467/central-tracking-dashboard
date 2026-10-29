@@ -35,6 +35,7 @@ import {
   HandoverHistoryControls,
   type HandoverWorkflow,
 } from "@/app/components/handover/HandoverHistoryControls";
+import { PanelSkeletonWrapper, ShiftLogSkeleton } from "@/app/components/ui/skeleton";
 
 import { getShiftType } from "@/app/lib/shifts";
 
@@ -122,7 +123,7 @@ function parsePicNames(picString: string): string[] {
 }
 
 export function ShiftLogView({ workflow }: { workflow: HandoverWorkflow }) {
-  const { records, loading, openStored: onOpenRecord, remove: onDeleteRecord } = workflow;
+  const { records, loading, openStored: onOpenRecord, remove: onDeleteRecord, error, refresh } = workflow;
   const visibleRecords = records;
   const notify = useToast();
   const [pendingDelete, setPendingDelete] = useState<StoredHandoverRecord | null>(null);
@@ -250,6 +251,15 @@ export function ShiftLogView({ workflow }: { workflow: HandoverWorkflow }) {
         </div>
       </section>
 
+      <PanelSkeletonWrapper
+        isLoading={loading}
+        isStale={false}
+        error={error ? new Error(error) : null}
+        onRetry={refresh}
+        minHeight={520}
+        skeleton={<ShiftLogSkeleton />}
+        liveRegionText="Memuat catatan shift..."
+      >
       {/* Top summary stat cards */}
       <section className="grid grid-cols-4 gap-[12px] w-full mb-[18px] max-[960px]:grid-cols-2 max-[520px]:grid-cols-1" aria-label="Ringkasan statistik log shift">
         {/* Card a: Total Shift Selesai */}
@@ -550,6 +560,7 @@ export function ShiftLogView({ workflow }: { workflow: HandoverWorkflow }) {
           )}
         </div>
       </article>
+      </PanelSkeletonWrapper>
 
       <ConfirmDialog
         open={Boolean(pendingDelete)}

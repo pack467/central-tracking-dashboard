@@ -54,6 +54,17 @@ export interface TicketHistoryEntry {
   author: string;
 }
 
+export type TicketSeverity = "Critical" | "High" | "Medium" | "Low";
+
+export type TicketStatus =
+  | "Open"
+  | "Closed"
+  | "Activity"
+  | "Meeting"
+  | "Re-Open"
+  | "Pending"
+  | "RCA";
+
 export type TicketType =
   | "Incident"
   | "Ad-hoc Request"
@@ -67,6 +78,8 @@ export interface Ticket {
   id: string;
   subject: string;
   project: string;
+  projectId?: string;
+  systemId?: string;
   severity: string;
   priority?: string;
   category?: string;
@@ -78,7 +91,9 @@ export interface Ticket {
   isStillOpen?: boolean;
   owner: string;
   owners?: string[];
-  status: string;
+  /** Additive: Master Data person ids of the owners. The stored name text is never rewritten. */
+  ownerIds?: string[];
+  status: TicketStatus | string;
   created: string;
   description?: string;
   escalationLevel?: string;
@@ -226,7 +241,8 @@ export interface ProjectHealthEntry {
 }
 
 export type RosterMemberStatus = "Active" | "On Break" | "Off Duty" | "On Leave";
-export type RosterRole = "Operator NOC" | "Shift Lead" | "Incident Coordinator" | "L2 Specialist" | "Infrastructure Engineer";
+/** Display name of the member's Master Data role. The five seed names are historical; new roles are free text. */
+export type RosterRole = "Operator NOC" | "Shift Lead" | "Incident Coordinator" | "L2 Specialist" | "Infrastructure Engineer" | (string & {});
 export type DayScheduleType = "Subuh" | "Pagi" | "Malam" | "Off" | "Leave";
 
 export interface DayScheduleEntry {
@@ -240,6 +256,8 @@ export interface RosterMember {
   id: string;
   name: string;
   role: RosterRole;
+  /** Stable Master Data role key; filters and statistics compare this, never the display name. */
+  roleKey?: string;
   employeeId: string;
   email: string;
   phone: string;

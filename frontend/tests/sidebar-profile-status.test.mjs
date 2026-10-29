@@ -40,7 +40,8 @@ test("Sidebar profile renders circular avatar, status ring wrapper, and status o
   const sidebarCode = fs.readFileSync(path.resolve("app/components/layout/Sidebar.tsx"), "utf8");
 
   assert.ok(sidebarCode.includes("USER_STATUS_CONFIG"), "Sidebar has USER_STATUS_CONFIG");
-  assert.ok(sidebarCode.includes("profile-status-picker-section"), "Sidebar has status picker section");
+  assert.ok(!sidebarCode.includes("profile-status-picker-section"), "Sidebar status picker section is removed so users cannot manually pick status");
+  assert.ok(!sidebarCode.includes("profile-status-options-list"), "Sidebar status options list is removed");
 
   const requiredStatuses = ["Online", "Busy", "On Break", "AFK"];
   for (const status of requiredStatuses) {

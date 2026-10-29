@@ -1,4 +1,6 @@
 "use client";
+
+import { Select } from "@/app/components/ui/Select";
 import { paths } from "@/app/lib/routes";
 import Link from "next/link";
 import { routes } from "@/app/lib/routes";
@@ -9,13 +11,7 @@ import { rosterSchema, weekStart, isoWeek } from "@/app/lib/query-state";
 
 
 import { useState, useMemo } from "react";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Calendar as CalendarIcon,
-  Info,
-  Clock,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Info, Clock } from "lucide-react";
 import { Avatar } from "@/app/components/ui/Avatar";
 import { initials } from "@/app/lib/data";
 import { ModalCloseButton } from "@/app/components/ui/ModalCloseButton";
@@ -441,7 +437,7 @@ export function RosterCalendarView({ members, onSelectMember }: RosterCalendarVi
             <div className="flex items-center justify-between sm:justify-start gap-4 flex-wrap">
               <div className="flex items-center gap-2">
                 <span className="text-[11.5px] text-[#94a3b8] font-medium whitespace-nowrap">Rows per page:</span>
-                <select
+                <Select
                   className="h-[30px] pl-2.5 pr-6 py-0 text-[11.5px] rounded-[6px] bg-[position:right_7px_center] bg-[#0f172a] [color-scheme:dark] border border-[#334155] text-[#f8fafc] cursor-pointer inline-flex items-center appearance-none -webkit-appearance-none focus:border-[#38bdf8] focus:outline-none"
                   value={pageSize === "all" ? "all" : String(pageSize)}
                   onChange={(e) => {
@@ -454,7 +450,7 @@ export function RosterCalendarView({ members, onSelectMember }: RosterCalendarVi
                   <option value="25">25</option>
                   <option value="50">50</option>
                   <option value="all">All</option>
-                </select>
+                </Select>
               </div>
 
               <span className="text-[11.5px] text-[#94a3b8] font-sans whitespace-nowrap">

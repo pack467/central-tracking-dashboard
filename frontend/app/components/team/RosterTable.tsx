@@ -1,4 +1,6 @@
 "use client";
+
+import { Select } from "@/app/components/ui/Select";
 import { paths } from "@/app/lib/routes";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -400,7 +402,7 @@ export function RosterTable({ members, onSelectMember, onEditMember, onRequestSw
         <div className="flex items-center justify-between sm:justify-start gap-3 sm:gap-4 flex-wrap">
           <div className="flex items-center gap-2">
             <span className="text-[11.5px] text-[var(--ink-muted)] font-medium whitespace-nowrap">Rows per page:</span>
-            <select
+            <Select
               className="h-[34px] sm:h-[30px] pl-[9px] pr-[24px] py-0 text-[11.5px] font-medium font-sans rounded-[6px] bg-[right_7px_center] bg-[var(--input-bg,#0f172a)] [color-scheme:dark] border border-[var(--panel-border)] cursor-pointer inline-flex items-center appearance-none -webkit-appearance-none transition-[border-color,box-shadow,background-color,color] duration-150 ease shrink-0 hover:border-[rgba(148,163,184,0.35)] focus:border-[var(--accent-blue)] focus:shadow-[0_0_0_3px_rgba(56,189,248,0.12)] focus:outline-none text-[var(--ink-primary)]"
               value={pageSize === "all" ? "all" : String(pageSize)}
               onChange={(e) => {
@@ -413,7 +415,7 @@ export function RosterTable({ members, onSelectMember, onEditMember, onRequestSw
               <option value="25">25</option>
               <option value="50">50</option>
               <option value="all">All</option>
-            </select>
+            </Select>
           </div>
 
           <span className="text-[11.5px] text-[var(--ink-muted)] font-sans whitespace-nowrap">

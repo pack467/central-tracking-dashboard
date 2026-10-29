@@ -1,14 +1,7 @@
-import { useMemo, useState, useRef, useEffect } from "react";
-import {
-  AlertTriangle,
-  Check,
-  X,
-  ChevronDown,
-  Layers,
-  Server,
-  MessageSquare,
-  Pencil,
-} from "lucide-react";
+
+import { Select } from "@/app/components/ui/Select";
+import { useMemo, useState, useEffect } from "react";
+import { AlertTriangle, Check, X, Layers, Server, MessageSquare, Pencil } from "lucide-react";
 import { Badge } from "@/app/components/ui/Badge";
 import { ProjectMark } from "@/app/components/ui/ProjectMark";
 import { useToast } from "@/app/components/ui/Toast";
@@ -17,17 +10,10 @@ import { NotAdequateModal } from "@/app/components/dashboard/AssessmentModals";
 import { getOwnerRole } from "@/app/lib/data";
 import type { CheckpointAssessment, MonitoringEntry } from "@/app/lib/types";
 import { useClient } from "@/app/context/ClientContext";
-import { CLIENT_PROJECTS } from "@/app/lib/clientData";
+import { MasterProjectName } from "@/app/components/ui/MasterProjectName";
 
-export function matchesProject(entryProject: string, targetProject: string): boolean {
-  if (!entryProject || !targetProject) return false;
-  const ep = entryProject.toLowerCase().trim();
-  const tp = targetProject.toLowerCase().trim();
-  if (ep === tp) return true;
-  if (ep.startsWith(tp + "/") || ep.startsWith(tp + " ")) return true;
-  if (tp === "epc" && ep.startsWith("epc")) return true;
-  return false;
-}
+import { matchesLegacyProject as matchesProject } from "@/app/lib/master-data-model";
+export { matchesLegacyProject as matchesProject } from "@/app/lib/master-data-model";
 
 export function matchesSystem(text: string, system: string) {
   const aliases: Record<string, string[]> = {
@@ -60,163 +46,10 @@ interface ScheduleFilterDropdownProps {
   onSelect: (val: string | null) => void;
 }
 
-function ScheduleFilterDropdown({
-  id,
-  icon,
-  label,
-  allLabel,
-  totalCount,
-  selectedValue,
-  options,
-  onSelect,
-}: ScheduleFilterDropdownProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  // Close when clicking outside
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        setIsOpen(false);
-      }
-    }
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isOpen]);
-
-  // Close on Escape key
-  useEffect(() => {
-    function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape" && isOpen) {
-        setIsOpen(false);
-      }
-    }
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen]);
-
-  const activeOption = options.find((opt) => opt.name.toLowerCase() === selectedValue?.toLowerCase());
-  const displayLabel = selectedValue
-    ? `${selectedValue} (${activeOption?.count ?? 0})`
-    : `${allLabel} (${totalCount})`;
-
-  return (
-    <div
-      className={`relative inline-flex items-center ${
-        id === "schedule-project-filter"
-          ? "supports-[anchor-name:--test]:[anchor-name:--dd-proyek]"
-          : id === "schedule-system-filter"
-          ? "supports-[anchor-name:--test]:[anchor-name:--dd-sistem]"
-          : ""
-      }`}
-      ref={containerRef}
-      id={id}
-    >
-      <button
-        type="button"
-        className={`h-8 inline-flex items-center gap-1.5 px-2.5 rounded-[7px] text-[11.5px] font-semibold cursor-pointer transition-all user-select-none outline-none ${
-          id === "schedule-project-filter"
-            ? "supports-[anchor-name:--test]:[anchor-name:--dd-proyek]"
-            : id === "schedule-system-filter"
-            ? "supports-[anchor-name:--test]:[anchor-name:--dd-sistem]"
-            : ""
-        } ${
-          isOpen ? "border-[#38bdf8] shadow-[0_0_0_1px_#38bdf8]" : ""
-        } ${
-          selectedValue
-            ? "border border-[rgba(56,189,248,0.3)] bg-[rgba(56,189,248,0.12)] text-[#38bdf8]"
-            : "bg-[#0f172a] border border-[#334155] text-[#cbd5e1] hover:border-[#64748b] hover:text-[#f8fafc]"
-        }`}
-        onClick={() => setIsOpen((prev) => !prev)}
-        aria-haspopup="listbox"
-        aria-expanded={isOpen}
-        aria-label={`Filter ${label}: ${displayLabel}`}
-        title={`Filter ${label}: ${displayLabel}`}
-      >
-        <span className="grid place-items-center text-[#94a3b8]">{icon}</span>
-        <span className="truncate">{displayLabel}</span>
-        <ChevronDown size={12} className={`transition-transform duration-200 text-[#94a3b8] ${isOpen ? "rotate-180" : ""}`} />
-      </button>
-
-      {isOpen && (
-        <div
-          className={`absolute right-0 sm:left-0 sm:right-auto top-full mt-1.5 group-has-[.schedule-empty-state]/card:top-auto group-has-[.schedule-empty-state]/card:bottom-full group-has-[.schedule-empty-state]/card:mt-0 group-has-[.schedule-empty-state]/card:mb-1.5 z-50 min-w-[200px] max-w-[calc(100vw-32px)] rounded-[10px] bg-[#1e293b] border border-[#334155] shadow-[0_20px_40px_rgba(0,0,0,0.45)] animate-in fade-in zoom-in-95 duration-150 p-1.5 ${
-            id === "schedule-project-filter"
-              ? "supports-[position-anchor:--test]:[position-anchor:--dd-proyek] supports-[position-anchor:--test]:[top:anchor(bottom)] supports-[position-anchor:--test]:[position-try-fallbacks:flip-block]"
-              : id === "schedule-system-filter"
-              ? "supports-[position-anchor:--test]:[position-anchor:--dd-sistem] supports-[position-anchor:--test]:[top:anchor(bottom)] supports-[position-anchor:--test]:[position-try-fallbacks:flip-block]"
-              : ""
-          }`}
-          role="listbox"
-          aria-label={`Pilihan filter ${label}`}
-        >
-          <div className="px-2.5 py-1.5 mb-1 border-b border-[#334155]">
-            <span className="text-[10px] font-mono font-bold tracking-wider text-[#94a3b8] uppercase">
-              PILIH {label.toUpperCase()}
-            </span>
-          </div>
-
-          <div className="flex flex-col gap-0.5 max-h-[18rem] overflow-y-auto overscroll-contain [scrollbar-width:thin] [scrollbar-color:#334155_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#334155] [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-[#475569]">
-            {/* "Semua" Option */}
-            <button
-              type="button"
-              role="option"
-              aria-selected={!selectedValue}
-              className={`w-full flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-[6px] text-[11.5px] font-medium cursor-pointer transition-all ${
-                !selectedValue ? "bg-[rgba(56,189,248,0.12)] text-[#38bdf8] font-bold" : "text-[#cbd5e1] hover:text-[#f8fafc] hover:bg-[#243044]"
-              }`}
-              onClick={() => {
-                onSelect(null);
-                setIsOpen(false);
-              }}
-            >
-              <div className="flex-1 min-w-0 truncate text-left">
-                <span className="text-[11.5px] truncate">{allLabel}</span>
-              </div>
-              <span className="font-mono text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-white/10 text-[#94a3b8] shrink-0">
-                {totalCount}
-              </span>
-              {!selectedValue && <Check size={13} className="text-[#38bdf8] shrink-0" />}
-            </button>
-
-            <div className="h-px bg-[#334155] my-1" />
-
-            {/* Individual Options */}
-            {options.map((opt) => {
-              const isSelected = selectedValue?.toLowerCase() === opt.name.toLowerCase();
-              return (
-                <button
-                  key={opt.name}
-                  type="button"
-                  role="option"
-                  aria-selected={isSelected}
-                  className={`w-full flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-[6px] text-[11.5px] font-medium cursor-pointer transition-all ${
-                    isSelected ? "bg-[rgba(56,189,248,0.12)] text-[#38bdf8] font-bold" : "text-[#cbd5e1] hover:text-[#f8fafc] hover:bg-[#243044]"
-                  } ${opt.count === 0 ? "opacity-50" : ""}`}
-                  onClick={() => {
-                    onSelect(opt.name);
-                    setIsOpen(false);
-                  }}
-                >
-                  <div className="flex-1 min-w-0 truncate text-left">
-                    <span className="text-[11.5px] truncate">{opt.name}</span>
-                  </div>
-                  <span className={`font-mono text-[10px] font-semibold px-1.5 py-0.5 rounded-full shrink-0 ${opt.count === 0 ? "text-[#64748b]" : "bg-white/10 text-[#94a3b8]"}`}>
-                    {opt.count}
-                  </span>
-                  {isSelected && <Check size={13} className="text-[#38bdf8] shrink-0" />}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
-    </div>
-  );
+function ScheduleFilterDropdown({ id, icon, label, allLabel, totalCount, selectedValue, options, onSelect }: ScheduleFilterDropdownProps) {
+  const activeOption = options.find(option => option.name.toLowerCase() === selectedValue?.toLowerCase());
+  const displayLabel = selectedValue ? selectedValue + " (" + (activeOption?.count ?? 0) + ")" : allLabel + " (" + totalCount + ")";
+  return <Select id={id} label={label} aria-label={"Filter " + label + ": " + displayLabel} title={"Filter " + label + ": " + displayLabel} value={selectedValue ?? ""} onValueChange={value => onSelect(value || null)} icon={icon} renderValue={() => displayLabel} className="h-8 text-[11.5px] font-semibold" options={[{ value: "", label: allLabel, meta: totalCount }, ...options.map(option => ({ value: option.name, label: option.name, meta: option.count }))]} />;
 }
 
 interface MonitoringScheduleProps {
@@ -337,7 +170,7 @@ export function MonitoringSchedule({
   footer,
 }: MonitoringScheduleProps) {
   const notify = useToast();
-  const { activeClientId } = useClient();
+  const { activeClientId, projects: masterProjects } = useClient();
 
   const [localFilter, setLocalFilter] = useState<(typeof FILTERS)[number]>("Semua");
   const filter = selectedStatus ?? localFilter;
@@ -379,7 +212,7 @@ export function MonitoringSchedule({
 
   // Dynamic project options from active client's projects + any unmapped entries
   const projectOptions = useMemo(() => {
-    const definedProjects = (CLIENT_PROJECTS[activeClientId] || CLIENT_PROJECTS.tritronik).map((p) => p.name);
+    const definedProjects = masterProjects.filter(p => p.clientId === activeClientId && p.status === "active").map(p => p.name);
     const list: { name: string; count: number }[] = [];
     const seen = new Set<string>();
 
@@ -402,7 +235,7 @@ export function MonitoringSchedule({
     });
 
     return list;
-  }, [entries, activeClientId]);
+  }, [entries, activeClientId, masterProjects]);
 
   // Dynamic system options from active client's monitoring tools
   const systemOptions = useMemo(() => {
@@ -651,7 +484,7 @@ export function MonitoringSchedule({
                   </div>
                   <div className="flex flex-col justify-center min-w-0 flex-1 py-1">
                     <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
-                      <strong className="text-[12px] font-semibold text-[#f8fafc] truncate max-w-full">{item.project}</strong>
+                      <strong className="text-[12px] font-semibold text-[#f8fafc] truncate max-w-full"><MasterProjectName value={item.project} historical /></strong>
                       {item.tone === "warning" && (
                         <span className="text-[#fbbf24] shrink-0" title="Perlu perhatian khusus">
                           <AlertTriangle size={13} className="stroke-[2.3px]" />

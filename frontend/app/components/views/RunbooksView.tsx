@@ -27,6 +27,9 @@ import {
 } from "@/app/lib/runbooksData";
 import type { SopEntry, CredentialEntry, QuickLink, SopAttachment } from "@/app/lib/types";
 import { DashboardViewSkeleton } from "@/app/components/ui/LoadingSkeleton";
+import { useResource } from "@/app/hooks/useResource";
+import { runbooksService } from "@/app/services/runbooks";
+import { PanelSkeletonWrapper, RunbooksSkeleton } from "@/app/components/ui/skeleton";
 
 const SopSection = lazy(() =>
   import("@/app/components/runbooks/SopSection").then((m) => ({ default: m.SopSection })),
@@ -51,6 +54,17 @@ interface TabItemConfig {
 }
 
 export function RunbooksView() {
+  const {
+    data: fetchedRunbooks,
+    isLoading,
+    isStale,
+    error,
+    refetch,
+  } = useResource(
+    "runbooks-data",
+    (signal) => runbooksService.getAll(signal),
+  );
+
   const url = useUrlQuery(runbooksSchema, paths.runbooks);
   const activeTab = (Object.keys(runbookPaths) as RunbookTab[]).find(key => runbookPaths[key] === url.pathname) ?? "sop";
   const searchDraft = useUrlSearch(url.values.q, url.field("q"));
@@ -148,6 +162,15 @@ export function RunbooksView() {
         </div>
       </section>
 
+      <PanelSkeletonWrapper
+        isLoading={isLoading}
+        isStale={isStale}
+        error={error}
+        onRetry={refetch}
+        minHeight={520}
+        skeleton={<RunbooksSkeleton />}
+        liveRegionText="Memuat panduan operasional..."
+      >
       {/* ── Search Bar ── */}
       <div className="relative mb-[16px]">
         <Search size={15} className="absolute left-[12px] top-1/2 -translate-y-1/2 text-[var(--ink-muted)] pointer-events-none" aria-hidden="true" />
@@ -196,9 +219,9 @@ export function RunbooksView() {
               <Icon size={15} aria-hidden="true" />
               <span>{label}</span>
               <span
-                className={`inline-block px-[6px] py-[1px] rounded-[4px] text-[10px] font-mono font-bold transition-colors duration-150 ${
+                className={`inline-block ${isActive ? "px-[5px] py-0" : "px-[6px] py-[1px]"} rounded-[4px] text-[10px] font-mono font-bold transition-colors duration-150 ${
                   isActive
-                    ? "bg-[var(--accent-blue)] text-[#090d16]"
+                    ? "bg-[rgba(56,189,248,0.14)] border border-[#38bdf8]/40 text-[#38bdf8]"
                     : "bg-[rgba(255,255,255,0.06)] text-[var(--ink-secondary)]"
                 }`}
               >
@@ -226,6 +249,7 @@ export function RunbooksView() {
           <EscalationSection contacts={seedEscalationContacts} search={search} />
         )}
       </Suspense>
+      </PanelSkeletonWrapper>
     </>
   );
 }

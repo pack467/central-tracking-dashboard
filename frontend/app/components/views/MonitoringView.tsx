@@ -1,4 +1,5 @@
 "use client";
+import { MasterProjectName } from "@/app/components/ui/MasterProjectName";
 import Link from "next/link";
 import { useUrlQuery } from "@/app/hooks/useUrlQuery";
 import { monitoringSchema } from "@/app/lib/query-state";
@@ -30,6 +31,9 @@ import { useActiveShift } from "@/app/hooks/useLiveClock";
 import type { CheckpointAssessment } from "@/app/lib/types";
 import { useClient } from "@/app/context/ClientContext";
 import { getClientMonitoringSchedule, getClientProjects } from "@/app/lib/clientData";
+import { useResource } from "@/app/hooks/useResource";
+import { monitoringService } from "@/app/services/monitoring";
+import { PanelSkeletonWrapper, MonitoringScheduleSkeleton } from "@/app/components/ui/skeleton";
 
 interface MonitoringViewProps {
   assessments: Record<string, CheckpointAssessment>;
@@ -48,9 +52,37 @@ export function MonitoringView({
   onOpenGuide,
   currentHour,
 }: MonitoringViewProps) {
-  const { activeClient, activeClientId } = useClient();
-  const schedule = useMemo(() => getClientMonitoringSchedule(activeClientId), [activeClientId]);
-  const projects = useMemo(() => getClientProjects(activeClientId), [activeClientId]);
+  const { activeClient, activeClientId, projects: masterProjects } = useClient();
+  const defaultSchedule = useMemo(() => getClientMonitoringSchedule(activeClientId), [activeClientId]);
+  const defaultProjects = useMemo(() => {
+    const activeClientProjects = masterProjects.filter((p) => p.clientId === activeClientId && p.status === "active");
+    if (activeClientProjects.length > 0) {
+      return activeClientProjects.map((p) => ({
+        name: p.name,
+        detail: p.detail,
+        tone: (p.healthDefault === "degraded" ? "warning" : "neutral") as "warning" | "neutral",
+        clientId: p.clientId,
+      }));
+    }
+    return getClientProjects(activeClientId);
+  }, [activeClientId, masterProjects]);
+
+  const {
+    data: fetchedMonitoring,
+    isLoading,
+    isStale,
+    error,
+    refetch,
+  } = useResource(
+    `monitoring-view-${activeClientId}`,
+    (signal) => monitoringService.getMonitoringData(activeClientId, signal),
+    {
+      deps: [activeClientId, masterProjects],
+    }
+  );
+
+  const schedule = fetchedMonitoring?.schedule ?? defaultSchedule;
+  const projects = fetchedMonitoring?.projects ?? defaultProjects;
 
   const schema = useMemo(() => monitoringSchema(projects.map(p => p.name), CLIENT_MONITORING_SYSTEMS[activeClientId] ?? CLIENT_MONITORING_SYSTEMS.tritronik), [projects, schedule]);
   const url = useUrlQuery(schema, paths.monitoring);
@@ -177,7 +209,7 @@ export function MonitoringView({
     const { scrollLeft, scrollWidth, clientWidth } = el;
     // 2px tolerance for subpixel rounding
     setCanScrollLeft(scrollLeft > 2);
-    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 2);
+    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 2 && scrollWidth > clientWidth + 2);
 
     const firstCard = el.querySelector(".system-compact-card") as HTMLElement | null;
     const cardWidth = firstCard ? firstCard.offsetWidth + 12 : 258;
@@ -197,9 +229,13 @@ export function MonitoringView({
     window.addEventListener("resize", updateScrollState);
 
     let ro: ResizeObserver | null = null;
+    let roRafId: number | null = null;
     if (typeof ResizeObserver !== "undefined") {
       ro = new ResizeObserver(() => {
-        updateScrollState();
+        if (roRafId !== null) cancelAnimationFrame(roRafId);
+        roRafId = requestAnimationFrame(() => {
+          updateScrollState();
+        });
       });
       ro.observe(el);
       const firstCard = el.querySelector(".system-compact-card");
@@ -209,6 +245,7 @@ export function MonitoringView({
     }
 
     return () => {
+      if (roRafId !== null) cancelAnimationFrame(roRafId);
       el.removeEventListener("scroll", updateScrollState);
       window.removeEventListener("resize", updateScrollState);
       ro?.disconnect();
@@ -237,10 +274,14 @@ export function MonitoringView({
     const firstCard = el.querySelector(".system-compact-card") as HTMLElement | null;
     const cardStride = firstCard ? firstCard.offsetWidth + 12 : 258;
     const step = cardStride * Math.max(1, Math.min(3, visibleCardsCount));
-    el.scrollBy({
-      left: direction === "left" ? -step : step,
-      behavior: "smooth",
-    });
+    const maxLeft = Math.max(0, el.scrollWidth - el.clientWidth);
+    const target = Math.min(
+      maxLeft,
+      Math.max(0, el.scrollLeft + (direction === "left" ? -step : step)),
+    );
+    el.scrollTo({ left: target, behavior: "smooth" });
+    // Refresh button state once the smooth scroll settles (scroll events can be missed)
+    window.setTimeout(updateScrollState, 350);
   };
 
   // Project icon helper
@@ -351,6 +392,15 @@ export function MonitoringView({
         </Link>
       </div>
 
+      <PanelSkeletonWrapper
+        isLoading={isLoading}
+        isStale={isStale}
+        error={error}
+        onRetry={refetch}
+        minHeight={620}
+        skeleton={<MonitoringScheduleSkeleton />}
+        liveRegionText="Memuat jadwal monitoring..."
+      >
       {activeTab === "live" && (
         <div className="animate-in fade-in duration-200 pb-24 md:pb-5">
           {/* ── 1. Top Stat Cards (OK / NOK / Checkpoint Hari Ini / Jam Pemeriksaan) ── */}
@@ -592,7 +642,7 @@ export function MonitoringView({
                 className={
                   isExpanded
                     ? "grid grid-cols-[repeat(auto-fill,minmax(210px,1fr))] gap-3 px-0 pt-1 pb-3 w-full"
-                    : "flex flex-nowrap overflow-x-auto snap-x snap-proximity scroll-smooth gap-3 px-0 pt-1 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden w-full"
+                    : "flex flex-nowrap overflow-x-auto gap-3 px-0 pt-1 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden w-full"
                 }
               >
                 {displayStats.map(({ project, total, okCount, nokCount, hasNok }) => {
@@ -606,7 +656,7 @@ export function MonitoringView({
                         "system-compact-card flex flex-col gap-2 p-[13px_14px] rounded-[10px] border text-left cursor-pointer transition-all duration-200 select-none shadow-[0_2px_8px_rgba(0,0,0,0.18)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.28)] hover:-translate-y-[1px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38bdf8] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0f172a]",
                         isExpanded
                           ? "w-full"
-                          : "flex-[0_0_calc((100%-60px)/6)] min-w-[190px] max-[1560px]:flex-[0_0_calc((100%-48px)/5)] max-[1200px]:flex-[0_0_calc((100%-36px)/4)] max-[900px]:flex-[0_0_calc((100%-24px)/3)] max-[640px]:flex-[0_0_calc((100%-12px)/2)] max-[480px]:min-w-[155px] max-[380px]:min-w-[140px] shrink-0 snap-start box-border",
+                          : "flex-[0_0_calc((100%-60px)/6)] min-w-[190px] max-[1560px]:flex-[0_0_calc((100%-48px)/5)] max-[1200px]:flex-[0_0_calc((100%-36px)/4)] max-[900px]:flex-[0_0_calc((100%-24px)/3)] max-[640px]:flex-[0_0_calc((100%-12px)/2)] max-[480px]:min-w-[155px] max-[380px]:min-w-[140px] shrink-0 box-border",
                         isSelected
                           ? "!border-[#38bdf8] !bg-[rgba(56,189,248,0.12)] !shadow-[0_0_0_1px_#38bdf8]"
                           : "border-[#334155] bg-[#1e293b] hover:border-[rgba(56,189,248,0.3)] hover:bg-[#243044]",
@@ -627,7 +677,7 @@ export function MonitoringView({
                         <span className="inline-flex items-center justify-center text-[#cbd5e1]">
                           {getProjectIcon(project)}
                         </span>
-                        <span className="text-[12px] font-bold text-[#f8fafc] truncate">{project}</span>
+                        <span className="text-[12px] font-bold text-[#f8fafc] truncate"><MasterProjectName value={project} /></span>
                         {isSelected && (
                           <span className="ml-auto text-[9px] font-bold text-[#38bdf8] bg-[rgba(56,189,248,0.12)] border border-[rgba(56,189,248,0.3)] rounded-[4px] px-1.5 py-0.5 font-mono uppercase">
                             Active
@@ -713,6 +763,7 @@ export function MonitoringView({
           />
         </div>
       )}
+      </PanelSkeletonWrapper>
     </>
   );
 }

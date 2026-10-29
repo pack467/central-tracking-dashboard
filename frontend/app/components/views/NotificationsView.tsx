@@ -1,4 +1,6 @@
 "use client";
+
+import { Select } from "@/app/components/ui/Select";
 import { paths } from "@/app/lib/routes";
 
 
@@ -7,40 +9,10 @@ import { notificationsSchema } from "@/app/lib/query-state";
 
 
 import { useMemo } from "react";
-import {
-  Bell,
-  CheckCheck,
-  Trash2,
-  Plus,
-  RotateCcw,
-  Search,
-  X,
-  AlertTriangle,
-  AlertOctagon,
-  CheckCircle2,
-  Info,
-  Check,
-  Database,
-  Network,
-  ShieldCheck,
-  Ticket,
-  Layers,
-  Radio,
-  Zap,
-  Server,
-  Clock,
-  Timer,
-  Tag,
-  ArrowUpDown,
-  type LucideIcon,
-} from "lucide-react";
+import { Bell, CheckCheck, Trash2, Plus, RotateCcw, Search, X, AlertTriangle, AlertOctagon, CheckCircle2, Info, Check, Database, Network, ShieldCheck, Ticket, Layers, Radio, Zap, Server, Clock, Timer, Tag, ArrowUpDown, type LucideIcon } from "lucide-react";
 import { DatePicker } from "@/app/components/ui/DatePicker";
 import { PaginationBar } from "@/app/components/ui/PaginationBar";
-import {
-  useNotifications,
-  type NotificationItem,
-  NOTIFICATION_CATEGORIES,
-} from "@/app/context/NotificationContext";
+import { useNotifications, type NotificationItem, NOTIFICATION_CATEGORIES } from "@/app/context/NotificationContext";
 import { useClient } from "@/app/context/ClientContext";
 
 function getNotificationIcon(item: NotificationItem): LucideIcon {
@@ -427,7 +399,7 @@ export function NotificationsView() {
         {/* Toolbar & Filters */}
         <div className="flex flex-wrap items-center justify-between gap-[12px] p-[14px_18px] border-b border-[var(--line)] bg-[var(--panel-bg)] max-[1140px]:gap-[10px] max-[900px]:gap-[12px]">
           {/* Search Box */}
-          <div className="flex items-center gap-[8px] px-[10px] h-[34px] rounded-[8px] border border-[var(--panel-border)] bg-[var(--input-bg,#0f172a)] w-[270px] max-w-[320px] min-w-[180px] flex-[0_1_270px] box-border transition-[border-color,box-shadow] duration-150 ease-out focus-within:border-[var(--accent-blue)] focus-within:[box-shadow:0_0_0_3px_rgba(56,189,248,0.12)] max-[1140px]:w-[220px] max-[1140px]:flex-[0_1_220px] max-[900px]:w-full max-[900px]:max-w-full max-[900px]:flex-[1_1_100%] transform-none">
+          <div className="flex items-center gap-[8px] px-[10px] h-[34px] rounded-[8px] border border-[var(--panel-border)] bg-[var(--input-bg,#0f172a)] w-[270px] max-w-[320px] min-w-[180px] flex-[0_1_270px] box-border transition-[border-color,box-shadow] duration-150 ease-out focus-within:border-[rgba(56,189,248,0.4)] focus-within:bg-[#141f33]  max-[1140px]:w-[220px] max-[1140px]:flex-[0_1_220px] max-[900px]:w-full max-[900px]:max-w-full max-[900px]:flex-[1_1_100%] transform-none">
             <Search size={14} className="opacity-60" />
             <input
               type="text"
@@ -517,8 +489,8 @@ export function NotificationsView() {
 
             {/* Category Filter Dropdown */}
             <div className="relative inline-flex items-center shrink-0 max-[640px]:flex-[1_1_calc(50%-4px)] has-[select[data-active='true']]:[&>.select-icon]:text-[#38bdf8]">
-              <Tag size={13} className="select-icon absolute left-[10px] text-[var(--ink-muted)] pointer-events-none z-[1] transition-colors duration-150" />
-              <select
+              
+              <Select icon={<Tag size={16}  />}
                 className="h-[34px] px-[28px] rounded-[8px] border border-[var(--panel-border)] bg-[var(--input-bg,#0f172a)] text-[var(--ink-primary)] text-[11.5px] font-medium outline-none cursor-pointer box-border appearance-none bg-[url('data:image/svg+xml,%3Csvg_xmlns=%27http://www.w3.org/2000/svg%27_width=%2712%27_height=%2712%27_viewBox=%270_0_24_24%27_fill=%27none%27_stroke=%27%2364748b%27_stroke-width=%272.5%27_stroke-linecap=%27round%27_stroke-linejoin=%27round%27%3E%3Cpolyline_points=%276_9_12_15_18_9%27/%3E%3C/svg%3E')] bg-no-repeat bg-[right_9px_center] transition-[border-color,box-shadow,color] duration-150 ease-out hover:border-[rgba(148,163,184,0.35)] focus:border-[var(--accent-blue)] focus:[box-shadow:0_0_0_3px_rgba(56,189,248,0.12)] data-[active='true']:border-[rgba(56,189,248,0.4)] data-[active='true']:text-[#38bdf8] max-[640px]:w-full transform-none"
                 value={categoryFilter}
                 onChange={(e) => {
@@ -533,13 +505,13 @@ export function NotificationsView() {
                     {cat}
                   </option>
                 ))}
-              </select>
+              </Select>
             </div>
 
             {/* Sort Filter Dropdown */}
             <div className="relative inline-flex items-center shrink-0 max-[640px]:flex-[1_1_calc(50%-4px)] has-[select[data-active='true']]:[&>.select-icon]:text-[#38bdf8]">
-              <ArrowUpDown size={13} className="select-icon absolute left-[10px] text-[var(--ink-muted)] pointer-events-none z-[1] transition-colors duration-150" />
-              <select
+              
+              <Select icon={<ArrowUpDown size={16}  />}
                 className="h-[34px] px-[28px] rounded-[8px] border border-[var(--panel-border)] bg-[var(--input-bg,#0f172a)] text-[var(--ink-primary)] text-[11.5px] font-medium outline-none cursor-pointer box-border appearance-none bg-[url('data:image/svg+xml,%3Csvg_xmlns=%27http://www.w3.org/2000/svg%27_width=%2712%27_height=%2712%27_viewBox=%270_0_24_24%27_fill=%27none%27_stroke=%27%2364748b%27_stroke-width=%272.5%27_stroke-linecap=%27round%27_stroke-linejoin=%27round%27%3E%3Cpolyline_points=%276_9_12_15_18_9%27/%3E%3C/svg%3E')] bg-no-repeat bg-[right_9px_center] transition-[border-color,box-shadow,color] duration-150 ease-out hover:border-[rgba(148,163,184,0.35)] focus:border-[var(--accent-blue)] focus:[box-shadow:0_0_0_3px_rgba(56,189,248,0.12)] data-[active='true']:border-[rgba(56,189,248,0.4)] data-[active='true']:text-[#38bdf8] max-[640px]:w-full transform-none"
                 value={sortBy}
                 onChange={(e) => {
@@ -551,7 +523,7 @@ export function NotificationsView() {
                 <option value="newest">Terbaru (Newest)</option>
                 <option value="oldest">Terlama (Oldest)</option>
                 <option value="severity">Tingkat Keparahan</option>
-              </select>
+              </Select>
             </div>
 
             {/* Reset Filters Button */}

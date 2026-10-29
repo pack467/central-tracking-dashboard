@@ -75,6 +75,55 @@ export const PRESET_OPERATORS: PresetOperator[] = [
   },
 ];
 
+/**
+ * Mengambil akun testing lokal (hanya aktif di PC/lokal, tidak pernah di-push ke git)
+ * Sumber: .env.local (terabaikan git via .gitignore) atau localStorage browser.
+ */
+export function getLocalTestOperator(): PresetOperator | null {
+  const envEmail = process.env.NEXT_PUBLIC_LOCAL_TEST_EMAIL;
+  if (envEmail) {
+    return {
+      id: "op-local-test",
+      name: process.env.NEXT_PUBLIC_LOCAL_TEST_NAME || "Local Test Operator",
+      employeeId: process.env.NEXT_PUBLIC_LOCAL_TEST_EMPLOYEE_ID || "EMP-LOCAL",
+      role: process.env.NEXT_PUBLIC_LOCAL_TEST_ROLE || "Operator NOC",
+      email: envEmail,
+      avatarBg: "#2563eb",
+      shift: (process.env.NEXT_PUBLIC_LOCAL_TEST_SHIFT as "Subuh" | "Pagi" | "Malam") || "Malam",
+      title: "Akun Testing Lokal",
+      badge: "Testing Lokal",
+      demoPassword: process.env.NEXT_PUBLIC_LOCAL_TEST_PASSWORD || "",
+    };
+  }
+
+  if (typeof window !== "undefined") {
+    try {
+      const stored = localStorage.getItem("ctd.local_test_account");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed.email && parsed.password) {
+          return {
+            id: "op-local-test",
+            name: parsed.name || "Mhd. Galih Khairi",
+            employeeId: parsed.employeeId || "EMP-1001",
+            role: parsed.role || "Operator NOC",
+            email: parsed.email,
+            avatarBg: parsed.avatarBg || "#2563eb",
+            shift: parsed.shift || "Malam",
+            title: "Akun Testing Lokal",
+            badge: "Testing Lokal",
+            demoPassword: parsed.password,
+          };
+        }
+      }
+    } catch {
+      // Ignore parse error
+    }
+  }
+
+  return null;
+}
+
 interface AuthContextValue {
   user: AuthUser | null;
   ready: boolean;
@@ -111,11 +160,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(null);
         setToken(null);
       } else {
-        // Default to the built-in active session for local ops
-        setUser(DEFAULT_OPERATOR);
+        // Default to local testing operator if configured, otherwise built-in active session
+        const localOp = getLocalTestOperator();
+        setUser(localOp ?? DEFAULT_OPERATOR);
       }
     } catch {
-      setUser(DEFAULT_OPERATOR);
+      const localOp = getLocalTestOperator();
+      setUser(localOp ?? DEFAULT_OPERATOR);
     } finally { setReady(true); }
   }, []);
 

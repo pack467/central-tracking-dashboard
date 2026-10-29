@@ -1,42 +1,8 @@
 import React from "react";
+import { Skeleton as PremiumSkeleton, type SkeletonProps as PremiumSkeletonProps } from "./skeleton/Skeleton";
 
-interface SkeletonProps {
-  className?: string;
-  width?: string | number;
-  height?: string | number;
-  borderRadius?: string | number;
-  style?: React.CSSProperties;
-}
-
-/**
- * Primitif Skeleton dasar:
- * Latar #1e293b dengan lapisan gradien shimmer bergerak via transform translateX 1.6s
- */
-export function Skeleton({
-  className = "",
-  width,
-  height,
-  borderRadius,
-  style,
-}: SkeletonProps) {
-  return (
-    <div
-      className={`relative overflow-hidden bg-[#1e293b] rounded-[6px] shrink-0 ${className}`}
-      style={{
-        width: typeof width === "number" ? `${width}px` : width,
-        height: typeof height === "number" ? `${height}px` : height,
-        borderRadius: typeof borderRadius === "number" ? `${borderRadius}px` : borderRadius,
-        ...style,
-      }}
-      aria-hidden="true"
-    >
-      <div
-        className="absolute inset-0 -translate-x-full bg-[linear-gradient(90deg,transparent_0%,rgba(148,163,184,0.08)_50%,transparent_100%)] animate-shimmer pointer-events-none"
-        aria-hidden="true"
-      />
-    </div>
-  );
-}
+export type SkeletonProps = PremiumSkeletonProps;
+export const Skeleton = PremiumSkeleton;
 
 /**
  * Primitif Spinner:
@@ -224,9 +190,13 @@ export function DetailSkeleton() {
   );
 }
 
+import { DashboardSkeleton } from "./skeleton/DashboardSkeleton";
+export * from "./skeleton";
+
 /**
  * Backward-compatible wrapper untuk DashboardViewSkeleton
  */
 export function DashboardViewSkeleton() {
-  return <DashboardCardsSkeleton />;
+  return <DashboardSkeleton />;
 }
+

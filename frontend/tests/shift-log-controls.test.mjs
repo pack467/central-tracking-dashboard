@@ -23,7 +23,7 @@ test("HandoverHistoryControls contains Clock leading icon, ChevronDown, and Date
   // 3. Shift select has leading Clock icon and trailing ChevronDown
   assert.ok(content.includes("<Clock"), "Shift select has leading Clock icon");
   assert.ok(content.includes("<ChevronDown"), "Shift select has trailing ChevronDown arrow");
-  assert.ok(content.includes("[padding:8px_30px_8px_32px]"), "Shift select has padding for leading and trailing icons");
+  assert.ok(content.includes("p-[8px_30px_8px_32px]") || content.includes("[padding:8px_30px_8px_32px]"), "Shift select has padding for leading and trailing icons");
 
   // 4. Shifter PIC is a direct filter (ShifterMultiSelect) supporting multiple selections
   assert.ok(content.includes("<ShifterMultiSelect"), "Shifter PIC uses direct ShifterMultiSelect filter");
