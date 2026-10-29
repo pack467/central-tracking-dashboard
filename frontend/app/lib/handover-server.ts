@@ -1,52 +1,11 @@
 import { getHandoverDb } from "@/db";
-import type { HandoverActor, HandoverDraft, StoredHandoverRecord } from "./types";
+import type { HandoverDraft, StoredHandoverRecord } from "./types";
 import { HandoverError, validateDraft } from "./handover";
 
 export const noteColumns = "id, title, handover_date AS handoverDate, content, created_at AS createdAt, updated_at AS updatedAt, revision";
 
-export function handoverActor(request: Request): HandoverActor {
-  const id = request.headers.get("oai-authenticated-user-id");
-  const email = request.headers.get("oai-authenticated-user-email");
-  if (id && email) {
-    let name = email;
-    if (request.headers.get("oai-authenticated-user-full-name-encoding") === "percent-encoded-utf-8") {
-      try { name = decodeURIComponent(request.headers.get("oai-authenticated-user-full-name") || email); } catch { /* use email */ }
-    }
-    return { id, email: email.toLowerCase(), name };
-  }
-  // This simulated identity is used in development mode, including localhost, LAN, or tunnels (e.g. ngrok)
-  const url = new URL(request.url);
-  const forwardedHost = request.headers.get("x-forwarded-host") || "";
-  const host = request.headers.get("host") || "";
-  const isDevOrTunnel =
-    process.env.NODE_ENV === "development" ||
-    ["localhost", "127.0.0.1", "[::1]"].includes(url.hostname) ||
-    url.hostname.includes("ngrok") ||
-    forwardedHost.includes("ngrok") ||
-    host.includes("ngrok");
-
-  if (isDevOrTunnel) {
-    return { id: "local-operator", name: "Mhd. Galih Khairi", email: "galih.khairi@company.internal", local: true };
-  }
-  throw new HandoverError("Masuk dengan akun Anda untuk mengakses handover.", 401);
-}
-
-export function assertSameOrigin(request: Request) {
-  const origin = request.headers.get("origin");
-  if (!origin) return;
-  const requestUrl = new URL(request.url);
-  if (origin === requestUrl.origin) return;
-
-  const forwardedHost = request.headers.get("x-forwarded-host") || request.headers.get("host");
-  const forwardedProto = request.headers.get("x-forwarded-proto") || requestUrl.protocol.replace(":", "");
-  if (forwardedHost && (origin === `${forwardedProto}://${forwardedHost}` || origin.includes(forwardedHost))) return;
-
-  if (process.env.NODE_ENV === "development" || origin.includes("ngrok") || requestUrl.hostname.includes("ngrok")) {
-    return;
-  }
-
-  throw new HandoverError("Asal permintaan tidak diizinkan.", 403);
-}
+// identity and origin checks live in handover-auth.ts (testable without the database)
+export { assertSameOrigin, handoverActor } from "./handover-auth";
 
 export async function readHandoverBody(request: Request) {
   if (Number(request.headers.get("content-length")) > 100000) throw new HandoverError("Catatan terlalu panjang.", 413);
