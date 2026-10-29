@@ -147,7 +147,7 @@ function PaletteOverlay({
         aria-modal="true"
         aria-label="Cari dashboard atau lompat ke halaman"
       >
-        <div className="command-input [display:flex] [align-items:center] [gap:12px] [padding:16px_20px] [border-bottom:1px_solid_var(--line)] [background:var(--panel-bg)]">
+        <div className="command-input [display:flex] [align-items:center] [gap:12px] [padding:16px_20px] [border-bottom:1px_solid_var(--line)] [background:var(--panel-bg)] focus-within:[border-bottom-color:rgba(56,189,248,0.45)]">
           <span className="command-input-icon [color:var(--accent-blue)] [font-size:20px] [line-height:1] [display:grid] [place-items:center] [flex-shrink:0]" aria-hidden="true">⌕</span>
           <input
             ref={inputRef}
@@ -159,6 +159,7 @@ function PaletteOverlay({
             onKeyDown={onKeyDown}
             placeholder="Cari tiket, pemeriksaan sistem, atau lompat ke halaman…"
             aria-label="Kolom pencarian command palette"
+            data-focus-ring="none"
             className="[flex:1] [min-width:0] [color:var(--ink-primary)] [background:transparent] [border:0] [outline:0] [font-size:14px]! [font-family:var(--font-sans)]! [font-weight:500]"
           />
           <kbd

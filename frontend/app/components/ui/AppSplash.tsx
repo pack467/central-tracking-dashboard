@@ -212,7 +212,7 @@ export function AppSplash() {
           {/* ─── C. Teks Hierarki: Judul & Baris Merek ─── */}
           {/* Judul: 19px mobile / 26px desktop, font-bold, tracking-[-0.01em], jarak 28px ke cincin logo */}
           <h1
-            className="mt-[28px] text-[19px] sm:text-[26px] font-bold tracking-[-0.01em] text-[#f8fafc] leading-snug select-none animate-boot-fade-up max-w-[260px] sm:max-w-none text-center"
+            className="mt-[28px] text-[19px] sm:text-[26px] font-bold tracking-[-0.01em] text-[#f8fafc] leading-snug select-none animate-boot-fade-up max-w-[260px] max-sm:w-[260px] sm:max-w-none text-center"
             style={{ animationDelay: "80ms" }}
           >
             Central Tracking Dashboard
@@ -227,7 +227,7 @@ export function AppSplash() {
               aria-hidden="true"
               className="w-6 sm:w-8 h-[1px] bg-gradient-to-l from-[#334155] to-transparent shrink-0"
             />
-            <span className="text-[11.5px] font-mono uppercase tracking-[0.32em] text-[#38bdf8]/80 font-semibold leading-none">
+            <span className="text-[11.5px] font-mono uppercase tracking-[0.32em] text-[#38bdf8]/80 font-semibold leading-none max-sm:w-24 max-sm:text-center">
               HUTABYTE
             </span>
             <div
@@ -256,15 +256,15 @@ export function AppSplash() {
             </div>
 
             {/* Teks Status: 13px #94a3b8, tinggi pasti 20px, jarak 16px dari bar, cross-fade 200ms, animated 3 dots */}
-            <p className="mt-[16px] min-h-[20px] h-[20px] text-[13px] text-[#94a3b8] font-sans flex items-center justify-center leading-[20px] select-none m-0">
+            <p className="mt-[16px] min-h-[20px] h-[20px] max-sm:w-[260px] text-[13px] text-[#94a3b8] font-sans flex items-center justify-center leading-[20px] select-none m-0">
               <span
-                className={`transition-opacity duration-200 ${
+                className={`transition-opacity duration-200 max-sm:w-[220px] max-sm:text-center ${
                   isFadingText ? "opacity-0" : "opacity-100"
                 }`}
               >
                 {statusText}
               </span>
-              <span className="inline-flex tracking-[0.1em] ml-0.5" aria-hidden="true">
+              <span className="inline-flex tracking-[0.1em] ml-0.5 max-sm:[&>span]:w-1" aria-hidden="true">
                 <span className="status-dot-1">.</span>
                 <span className="status-dot-2">.</span>
                 <span className="status-dot-3">.</span>

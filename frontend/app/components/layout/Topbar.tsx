@@ -7,6 +7,7 @@ import { ClientSwitcher } from "@/app/components/layout/ClientSwitcher";
 import { ShiftTransitionBadge } from "@/app/components/layout/ShiftTransitionBadge";
 import { useLiveClock, useActiveShift } from "@/app/hooks/useLiveClock";
 import { useToast } from "@/app/components/ui/Toast";
+import { BrandLogo } from "@/app/components/ui/BrandLogo";
 
 interface TopbarProps {
   activeNav: string;
@@ -77,14 +78,15 @@ export function Topbar({
   const ShiftIcon = activeShift.id === "subuh" ? Moon : activeShift.id === "pagi" ? Sun : Sunset;
 
   return (
-    <header className="topbar h-[60px] px-[32px] flex items-center justify-between bg-[var(--topbar-bg)] [border-bottom:1px_solid_var(--line)] sticky top-0 z-[15]">
+    <header className="app-topbar h-[60px] px-[32px] flex items-center justify-between bg-[var(--topbar-bg)] [border-bottom:1px_solid_var(--line)] sticky top-0 z-[15] md:max-lg:[&_.timezone-pill-badge]:text-[11px] md:max-lg:[&_.topbar-refresh-button]:size-10 md:max-[940px]:h-[56px] md:max-[940px]:px-[14px] max-md:h-[calc(52px+var(--ctd-safe-top,env(safe-area-inset-top,0px)))] max-md:pt-[var(--ctd-safe-top,env(safe-area-inset-top,0px))] max-md:px-3 max-md:gap-2 print:hidden">
       <div className="breadcrumbs flex gap-[8px] items-center text-[var(--ink-muted)] text-[12px]">
-        <button className="hamburger-button" onClick={onOpenMobileNav} aria-label="Buka menu navigasi">
+        <span className="md:hidden"><BrandLogo size={20} showText={false} className="max-md:w-5" /></span>
+        <button className="hidden md:max-[940px]:grid md:max-[940px]:place-items-center md:max-[940px]:size-10" onClick={onOpenMobileNav} aria-label="Buka menu navigasi">
           <IconMenu />
         </button>
       </div>
 
-      <div className="topbar-actions flex items-center gap-[10px]">
+      <div className="app-topbar-actions flex items-center gap-[10px] max-md:gap-2 max-md:min-w-0 max-md:flex-1 max-md:justify-end">
         {/* Multi-tenant Client / Company Switcher */}
         <ClientSwitcher />
 
@@ -92,13 +94,13 @@ export function Topbar({
         <ShiftTransitionBadge onOpenHandover={onOpenHandover} onNavigate={onNavigate} />
 
         <div
-          className={`topbar-shift-badge ${activeShift.badgeClass} flex items-center gap-[7px] px-[10px] py-[4px] rounded-[7px] text-[11px] leading-[1.2] cursor-default transition-all duration-150 select-none max-[900px]:[&_small]:hidden max-[640px]:p-[4px_6px] ${SHIFT_THEME_CLASSES[activeShift.id] || ""}`}
+          className={`app-shift-badge flex items-center gap-[7px] px-[10px] py-[4px] rounded-[7px] text-[11px] leading-[1.2] cursor-default transition-all duration-150 select-none max-lg:[&_small]:hidden max-md:h-10 max-md:w-[72px] max-md:justify-center max-md:px-1.5 max-md:shrink-0 ${SHIFT_THEME_CLASSES[activeShift.id] || ""}`}
           title={`Shift Aktif: ${activeShift.name}`}
           aria-label={`Shift aktif ${activeShift.name}`}
         >
           <ShiftIcon size={13} className="shift-badge-icon shrink-0" />
             <span className="shift-badge-label flex flex-col">
-            <strong className="text-[11px] font-bold tracking-[0.2px]">{activeShift.label}</strong>
+            <strong className="text-[11px] font-bold tracking-[0.2px]"><span className="hidden md:inline">{activeShift.label}</span><span data-clock-ready={!!currentTime} className="md:hidden inline-block h-[14px] w-[38px] leading-[14px] text-center data-[clock-ready=false]:invisible">{activeShift.shortLabel}</span></strong>
             <small className="shift-badge-period text-[9.5px] font-['JetBrains_Mono',monospace] opacity-85 inline-flex items-center gap-1">
               <span>{activeShift.period.replace(/\s*WIB$/, "").trim()}</span>
               {" "}
@@ -108,14 +110,15 @@ export function Topbar({
         </div>
 
         {/* Live Clock & Date Badge */}
+        {!currentTime && <span aria-hidden="true" className="w-9 h-10 shrink-0 md:hidden" />}
         {currentTime && currentTime.time && (
           <div
-            className="live-clock-badge flex items-center gap-[7px] p-[5px_11px] bg-[var(--panel-bg)] border border-[var(--line)] rounded-[7px] text-[var(--accent-blue)] font-['JetBrains_Mono',monospace] text-[11.5px] font-semibold max-[640px]:hidden"
+            className="app-clock-badge flex items-center gap-[7px] p-[5px_11px] bg-[var(--panel-bg)] border border-[var(--line)] rounded-[7px] text-[var(--accent-blue)] font-['JetBrains_Mono',monospace] text-[11.5px] font-semibold max-md:w-9 max-md:justify-center max-md:border-0 max-md:p-0 max-md:gap-0 max-md:shrink-0 max-md:[&_.live-dot]:hidden max-md:[&_.live-clock-date]:hidden max-md:[&_.live-clock-divider]:hidden max-md:[&_.live-clock-icon]:hidden max-md:[&_.timezone-pill-badge]:hidden"
             suppressHydrationWarning
             title={`Waktu & Tanggal Sistem: ${currentTime.dateFull}, ${currentTime.timeWithZone}`}
             aria-label={`Waktu saat ini: ${currentTime.dateFull}, ${currentTime.timeWithZone}`}
           >
-            <span className="live-dot live-dot-pulse inline-block w-[7px] h-[7px] rounded-[99px] bg-[var(--green)]" aria-hidden="true" />
+            <span className="clock-status-dot live-dot-pulse inline-block w-[7px] h-[7px] rounded-[99px] bg-[var(--green)] max-md:hidden" aria-hidden="true" />
             <span className="live-clock-date">
               <span className="live-clock-date-long max-[900px]:hidden" suppressHydrationWarning>{currentTime.dateLong}</span>
               <span className="live-clock-date-short hidden max-[900px]:inline" suppressHydrationWarning>{currentTime.dateShort}</span>
@@ -123,7 +126,7 @@ export function Topbar({
             <span className="live-clock-divider" aria-hidden="true">·</span>
             <span className="live-clock-time-group inline-flex items-center gap-1">
               <Clock size={11} className="live-clock-icon" aria-hidden="true" />
-              <span className="inline-flex items-center tabular-nums leading-none tracking-[0.3px] live-clock-digits" suppressHydrationWarning>{currentTime.time}</span>
+              <span className="inline-flex items-center tabular-nums leading-none tracking-[0.3px] live-clock-digits" suppressHydrationWarning><span className="hidden md:inline">{currentTime.time}</span><span className="md:hidden">{currentTime.time.slice(0,5)}</span></span>
               {" "}
               <span className="inline-flex items-center justify-center text-[8.5px] font-bold leading-none p-[1.5px_4px] ml-[2px] text-[var(--ink-muted)] bg-[rgba(56,189,248,0.08)] border border-[rgba(56,189,248,0.2)] rounded-[4px] self-center -translate-y-[0.5px] font-mono uppercase box-border select-none timezone-pill-badge">WIB</span>
             </span>
@@ -134,7 +137,7 @@ export function Topbar({
         {/* Website Refresh Button (Placed to the right of theme button, icon-only) */}
         <button
           type="button"
-          className={`topbar-refresh-button w-[34px] h-[34px] grid place-items-center rounded-[7px] border border-[var(--panel-border)] bg-[var(--panel-bg)] text-[var(--ink-secondary)] cursor-pointer [transition:background_0.15s,_border-color_0.15s,_color_0.15s,_opacity_0.15s] enabled:hover:bg-[var(--accent-blue-soft)] enabled:hover:border-[var(--accent-blue-border)] enabled:hover:text-[var(--accent-blue)] disabled:border-[var(--accent-blue-border)] disabled:text-[var(--accent-blue)] disabled:bg-[var(--accent-blue-soft)] disabled:cursor-not-allowed ${isRefreshing ? "refreshing border-[var(--accent-blue-border)] text-[var(--accent-blue)] bg-[var(--accent-blue-soft)] cursor-not-allowed" : ""}`}
+          className={`topbar-refresh-button w-[34px] h-[34px] max-md:size-10 max-md:shrink-0 grid place-items-center rounded-[7px] border border-[var(--panel-border)] bg-[var(--panel-bg)] text-[var(--ink-secondary)] cursor-pointer [transition:background_0.15s,_border-color_0.15s,_color_0.15s,_opacity_0.15s] enabled:hover:bg-[var(--accent-blue-soft)] enabled:hover:border-[var(--accent-blue-border)] enabled:hover:text-[var(--accent-blue)] disabled:border-[var(--accent-blue-border)] disabled:text-[var(--accent-blue)] disabled:bg-[var(--accent-blue-soft)] disabled:cursor-not-allowed ${isRefreshing ? "refreshing border-[var(--accent-blue-border)] text-[var(--accent-blue)] bg-[var(--accent-blue-soft)] cursor-not-allowed" : ""}`}
           onClick={handleRefresh}
           disabled={isRefreshing}
           title={isRefreshing ? "Sedang menyinkronkan data..." : "Segarkan data & jadwal dashboard (Refresh)"}

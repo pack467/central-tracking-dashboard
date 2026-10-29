@@ -1,26 +1,17 @@
 "use client";
 
+import { useMasterReferences } from "@/app/hooks/useMasterReferences";
+import { TicketSystemSelect } from "./TicketSystemSelect";
+import { Select } from "@/app/components/ui/Select";
+
 import { useEffect, useState, useMemo } from "react";
-import {
-  X,
-  Zap,
-  Check,
-  Ticket,
-  FileText,
-  Layers,
-  AlertTriangle,
-  Activity,
-  Tag,
-  AlignLeft,
-  RefreshCw,
-  Clock,
-  CheckCircle2,
-  Users,
-} from "lucide-react";
+import { X, Zap, Check, Ticket, FileText, Layers, AlertTriangle, Activity, Tag, AlignLeft, RefreshCw, Clock, CheckCircle2, Users } from "lucide-react";
 import { Modal } from "@/app/components/ui/Modal";
 import { Badge } from "@/app/components/ui/Badge";
 import { TimePicker } from "@/app/components/ui/TimePicker";
 import { OwnerTagInput } from "@/app/components/tickets/OwnerTagInput";
+import { usePeople } from "@/app/hooks/useMasterData";
+import { ownerIdsFor } from "@/app/lib/ticket-owner";
 import { makeTicketId, nowClockLabel } from "@/app/lib/data";
 import { severityTone, statusTone } from "@/app/components/tickets/TicketTable";
 import { useAuth } from "@/app/lib/auth";
@@ -35,27 +26,28 @@ interface TicketCreateModalProps {
 }
 
 const PRIORITY_OPTIONS = ["Low", "Medium", "High", "Critical"];
-const STATUS_OPTIONS = ["Open", "Closed", "Active", "Meeting", "Re-Open", "Pending"] as const;
+const STATUS_OPTIONS = ["Open", "Closed", "Activity", "Meeting", "Re-Open", "Pending", "RCA"] as const;
 
-const CATEGORY_OPTIONS = [
-  "Ad-hoc Request",
-  "Escalation Handling",
-  "Incident & Issue Handling",
-  "Validate End-to-End Process Flow",
-  "Knowledge Management & Documentation",
-  "Monitoring VM, Platform & Services",
-];
+
 
 export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModalProps) {
   const { user } = useAuth();
-  const { activeClient, activeClientId } = useClient();
-  const clientSystems = useMemo(() => getClientSystems(activeClientId), [activeClientId]);
+  const { activeCategories, severityLabel, projectLabel, projectFor } = useMasterReferences();
+  const { activeClient, activeClientId, getProjectsForClient } = useClient();
+  const clientSystems = useMemo(() => {
+    const projs = getProjectsForClient(activeClientId, false).map((p) => p.name);
+    if (projs.length > 0) return projs;
+    return getClientSystems(activeClientId);
+  }, [activeClientId, getProjectsForClient]);
 
   const operatorName = user?.name || "Mhd. Galih Khairi";
   const [ticketCode, setTicketCode] = useState(() => makeTicketId());
   const [subject, setSubject] = useState("");
   const [owners, setOwners] = useState<string[]>(() => [operatorName]);
+  const people = usePeople();
+  const ownerIds = ownerIdsFor(owners, people);
   const [project, setProject] = useState(() => clientSystems[0] || "SM");
+  const [systemId, setSystemId] = useState("");
   const [severity, setSeverity] = useState("Low");
   const [status, setStatus] = useState<string>("Open");
   const [category, setCategory] = useState<string>("");
@@ -73,6 +65,7 @@ export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModal
   useEffect(() => {
     if (open) {
       const current = nowClockLabel();
+      setSystemId("");
       setTicketCode(makeTicketId());
       setRequestTime(current);
       setResponseTime(current);
@@ -85,6 +78,7 @@ export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModal
   }, [open, clientSystems, operatorName]);
 
   const reset = () => {
+    setSystemId("");
     setTicketCode(makeTicketId());
     setSubject("");
     setOwners([operatorName]);
@@ -116,7 +110,7 @@ export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModal
       setError("Subjek ticket wajib diisi agar tim operasional memahami konteks.");
       return;
     }
-    if (!category || category === "--") {
+    if (!category || !activeCategories.some(entry => entry.key === category)) {
       setError("Silakan pilih salah satu 'Category' yang sesuai.");
       return;
     }
@@ -124,6 +118,8 @@ export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModal
       setError("Status ticket wajib dipilih.");
       return;
     }
+
+    if (!clientSystems.includes(project)) { setError("Pilih proyek aktif."); return; }
 
     // Validation for Ad-hoc Request category
     if (category === "Ad-hoc Request") {
@@ -156,7 +152,11 @@ export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModal
       isStillOpen: isAdhoc ? isStillOpen : undefined,
       owner: primaryOwner,
       owners,
-      category: category || "Incident & Issue Handling",
+      ...(ownerIds.length ? { ownerIds } : {}),
+      category,
+      type: category,
+      projectId: projectFor(project, activeClientId)?.id,
+      systemId: systemId || undefined,
       status,
       created,
       description:
@@ -289,11 +289,11 @@ export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModal
                   PROJECT / SISTEM
                 </span>
               </div>
-              <select value={project} onChange={(event) => setProject(event.target.value)}>
+              <Select size="form" className="w-full" value={project} onChange={(event) => setProject(event.target.value)}>
                 {clientSystems.map((option) => (
-                  <option key={option} value={option}>{option}</option>
+                  <option key={option} value={option}>{projectLabel(option, activeClientId)}</option>
                 ))}
-              </select>
+              </Select>
             </label>
 
             <label>
@@ -304,11 +304,11 @@ export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModal
                 </span>
                 <Badge tone={severityTone(severity)}>{severity}</Badge>
               </div>
-              <select value={severity} onChange={(event) => setSeverity(event.target.value)}>
+              <Select size="form" className="w-full" value={severity} onChange={(event) => setSeverity(event.target.value)}>
                 {PRIORITY_OPTIONS.map((option) => (
-                  <option key={option} value={option}>{option}</option>
+                  <option key={option} value={option}>{severityLabel(option)}</option>
                 ))}
-              </select>
+              </Select>
             </label>
 
             <label>
@@ -319,7 +319,7 @@ export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModal
                 </span>
                 <Badge tone={statusTone(status)}>{status}</Badge>
               </div>
-              <select
+              <Select
                 value={status}
                 onChange={(event) => {
                   setStatus(event.target.value);
@@ -330,7 +330,7 @@ export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModal
                 {STATUS_OPTIONS.map((option) => (
                   <option key={option} value={option}>{option}</option>
                 ))}
-              </select>
+              </Select>
             </label>
           </div>
 
@@ -343,7 +343,7 @@ export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModal
               </span>
               <span className="ticket-required-hint">Wajib</span>
             </div>
-            <select
+            <Select
               value={category}
               onChange={(event) => {
                 setCategory(event.target.value);
@@ -352,13 +352,15 @@ export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModal
               className={category && category !== "--" ? "selected-category" : ""}
             >
               <option value="">-- Pilih Kategori Tiket --</option>
-              {CATEGORY_OPTIONS.map((option) => (
-                <option key={option} value={option}>
-                  {option}
+              {activeCategories.map((entry) => (
+                <option key={entry.key} value={entry.key}>
+                  {entry.name}
                 </option>
               ))}
-            </select>
+            </Select>
           </label>
+
+          <TicketSystemSelect project={project} organizationId={activeClientId} value={systemId} onChange={setSystemId} />
 
           {/* Conditional Fields for "Ad-hoc Request" */}
           {isAdhoc && (

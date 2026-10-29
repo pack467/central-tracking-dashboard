@@ -21,9 +21,11 @@ export function RosterStatCards({ members, swapRequests, onOpenSwaps }: RosterSt
   const onLeaveOrOff  = onLeaveCount + offDutyCount;
   const pendingSwaps  = swapRequests.filter((s) => s.status === "Pending").length;
 
-  const operatorCount    = members.filter((m) => m.role === "Operator NOC").length;
-  const leadCount        = members.filter((m) => m.role === "Shift Lead" || m.role === "Incident Coordinator").length;
-  const specialistCount  = members.filter((m) => m.role === "L2 Specialist" || m.role === "Infrastructure Engineer").length;
+  // Statistics compare the stable role key, so renaming a role's display name never changes the counts.
+  const roleOf = (m: RosterMember) => m.roleKey ?? m.role;
+  const operatorCount    = members.filter((m) => roleOf(m) === "Operator NOC").length;
+  const leadCount        = members.filter((m) => roleOf(m) === "Shift Lead" || roleOf(m) === "Incident Coordinator").length;
+  const specialistCount  = members.filter((m) => roleOf(m) === "L2 Specialist" || roleOf(m) === "Infrastructure Engineer").length;
 
   // Quorum: minimum required = 4
   const minQuorum  = 4;

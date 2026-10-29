@@ -1,6 +1,8 @@
 "use client";
 
-import React from "react";
+import { Select } from "@/app/components/ui/Select";
+
+
 
 export interface PaginationBarProps {
   pageSize: number;
@@ -44,7 +46,7 @@ export function PaginationBar({
           <span className="text-[11.5px] text-[var(--ink-muted)] font-medium whitespace-nowrap">
             Rows per page:
           </span>
-          <select
+          <Select
             className="h-[30px] px-[8px] text-[11.5px] rounded-[6px] bg-[var(--input-bg,#0f172a)] [color-scheme:dark] border border-[var(--panel-border)] text-[var(--ink-primary)] font-medium cursor-pointer transition-colors duration-150 hover:border-[rgba(148,163,184,0.35)] focus:border-[var(--accent-blue)] focus:outline-none"
             value={pageSize}
             onChange={(e) => onPageSizeChange(Number(e.target.value))}
@@ -55,7 +57,7 @@ export function PaginationBar({
                 {opt}
               </option>
             ))}
-          </select>
+          </Select>
         </div>
 
         <span className="text-[11.5px] text-[var(--ink-muted)] font-sans whitespace-nowrap [&_strong]:text-[var(--ink-primary)] [&_strong]:font-mono">

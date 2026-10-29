@@ -1,4 +1,7 @@
 "use client";
+import { useMasterReferences } from "@/app/hooks/useMasterReferences";
+import { usePeople } from "@/app/hooks/useMasterData";
+import { ownerNames } from "@/app/lib/ticket-owner";
 
 import { X, PlusCircle, MessageSquare, Headphones, CheckCircle2, Edit3, Clock, Tag, Zap } from "lucide-react";
 import { Badge } from "@/app/components/ui/Badge";
@@ -171,6 +174,8 @@ interface TicketDetailDrawerProps {
 
 export function TicketDetailDrawer({ ticket, onClose, onUpdate }: TicketDetailDrawerProps) {
   const notify = useToast();
+  const { categoryLabel } = useMasterReferences();
+  const people = usePeople();
   const { user } = useAuth();
   const operatorName = user?.name || "Operator NOC";
   const [confirmClose, setConfirmClose] = useState(false);
@@ -218,7 +223,9 @@ export function TicketDetailDrawer({ ticket, onClose, onUpdate }: TicketDetailDr
   const sevTone = severityTone(ticket.severity);
 
   const ownersList: string[] =
-    ticket.owners && ticket.owners.length > 0
+    ticket.ownerIds && ticket.ownerIds.length > 0
+      ? ownerNames(ticket, people)
+      : ticket.owners && ticket.owners.length > 0
       ? ticket.owners
       : ticket.owner
       ? ticket.owner
@@ -229,9 +236,9 @@ export function TicketDetailDrawer({ ticket, onClose, onUpdate }: TicketDetailDr
 
   const categoryDisplay =
     ticket.category && ticket.category !== "--"
-      ? ticket.category
+      ? categoryLabel(ticket.category)
       : ticket.type && ticket.type !== "--"
-      ? ticket.type
+      ? categoryLabel(ticket.type)
       : null;
 
   const hasAdhocTimeline = Boolean(

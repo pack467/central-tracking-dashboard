@@ -1,4 +1,7 @@
 "use client";
+
+import { useMasterReferences } from "@/app/hooks/useMasterReferences";
+import { Select } from "@/app/components/ui/Select";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useUrlQuery, useUrlSearch } from "@/app/hooks/useUrlQuery";
@@ -6,22 +9,7 @@ import { ticketsSchema, serializeQuery } from "@/app/lib/query-state";
 import { paths, withQuery } from "@/app/lib/routes";
 
 import { useMemo, useState } from "react";
-import {
-  Ticket as TicketIcon,
-  Activity,
-  CheckCircle2,
-  AlertTriangle,
-  Search,
-  X,
-  Layers,
-  SlidersHorizontal,
-  Tag,
-  BarChart2,
-  FolderOpen,
-  Clock,
-  ArrowUpDown,
-  ShieldAlert,
-} from "lucide-react";
+import { Ticket as TicketIcon, Activity, CheckCircle2, AlertTriangle, Search, X, Layers, SlidersHorizontal, Tag, BarChart2, FolderOpen, Clock, ArrowUpDown, ShieldAlert } from "lucide-react";
 import { TicketTable } from "@/app/components/tickets/TicketTable";
 import { StatCard } from "@/app/components/ui/StatCard";
 import { EmptyState } from "@/app/components/ui/EmptyState";
@@ -30,6 +18,9 @@ import type { Ticket } from "@/app/lib/types";
 import { getTodayWIB } from "@/app/lib/data";
 import { useClient } from "@/app/context/ClientContext";
 import { getTicketShift } from "@/app/components/views/OverviewView";
+import { useResource } from "@/app/hooks/useResource";
+import { ticketsService } from "@/app/services/tickets";
+import { PanelSkeletonWrapper, TicketsTableSkeleton } from "@/app/components/ui/skeleton";
 
 interface TicketsViewProps {
   tickets: Ticket[];
@@ -39,18 +30,9 @@ interface TicketsViewProps {
 
 type MainViewTab = "queue" | "escalations";
 
-const STATUS_OPTIONS = ["All", "Active", "Closed", "Pending", "Escalated"] as const;
+const STATUS_OPTIONS = ["All", "Open", "Closed", "Activity", "Meeting", "Re-Open", "Pending", "RCA"] as const;
 
-const TICKET_TYPES = [
-  "All Types",
-  "Incident",
-  "Ad-hoc Request",
-  "Change Request",
-  "Maintenance",
-  "Monitoring Alert",
-  "Escalation",
-  "Other",
-] as const;
+
 
 const PRIORITY_OPTIONS = ["All Severities", "Critical", "High", "Medium", "Low"] as const;
 
@@ -72,11 +54,14 @@ const priorityRank = (severity: string) => {
 };
 
 const normalizeStatus = (status: string) => {
-  const s = status.toLowerCase();
-  if (s === "aktivitas" || s === "activity" || s === "active" || s === "open") return "active";
+  const s = (status || "").toLowerCase().replace(/[\s_]+/g, "-");
+  if (s === "aktivitas" || s === "activity") return "activity";
   if (s === "ditutup" || s === "closed") return "closed";
   if (s === "menunggu" || s === "pending") return "pending";
-  if (s === "escalated" || s === "eskalasi" || s === "re-open") return "escalated";
+  if (s === "reopen" || s === "re-open") return "re-open";
+  if (s === "meeting") return "meeting";
+  if (s === "rca") return "rca";
+  if (s === "open" || s === "active") return "open";
   return s;
 };
 
@@ -89,9 +74,29 @@ const normalizePriority = (p: string) => {
   return s;
 };
 
-export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsViewProps) {
-  const { activeClient } = useClient();
-  const schema = useMemo(() => ticketsSchema([...new Set(tickets.map(t => t.project))]), [tickets]);
+export function TicketsView({ tickets: propTickets, onSelectTicket, onNewTicket }: TicketsViewProps) {
+  const { activeClient, activeClientId, projects: masterProjects } = useClient();
+  const { catalog, activeCategories, categories, categoryLabel, severityLabel, projectLabel } = useMasterReferences();
+
+  const {
+    data: fetchedTickets,
+    isLoading,
+    isStale,
+    error,
+    refetch,
+  } = useResource<Ticket[]>(
+    `tickets-view-${activeClientId}`,
+    (signal) => ticketsService.list({ clientId: activeClientId }, signal),
+    {
+      deps: [activeClientId, masterProjects],
+    }
+  );
+
+  const tickets = fetchedTickets ?? (isLoading ? [] : propTickets);
+  const categoryKeys = JSON.stringify([...new Set([...activeCategories.map(c => c.key), ...tickets.map(t => t.type || t.category || "Incident")])]);
+  const ticketTypes: string[] = ["All Types", ...JSON.parse(categoryKeys)];
+  const clientProjects = masterProjects.filter(p => p.clientId === activeClientId && p.status === "active").map(p => p.name);
+  const schema = ticketsSchema([...new Set([...clientProjects, ...tickets.map(t => t.project)])], JSON.parse(categoryKeys));
   const url = useUrlQuery(schema, paths.tickets);
   const router = useRouter();
   // Main view tab (queue, escalations, report)
@@ -127,10 +132,8 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
   // Dynamic project options
-  const projectOptions = useMemo(
-    () => ["All Projects", ...Array.from(new Set(tickets.map((ticket) => ticket.project))).filter((p) => p && p !== "L2")],
-    [tickets],
-  );
+  const newProjects = catalog.projects.filter(p => !p.legacy && p.organizationId === activeClientId && p.status === "active").map(p => p.legacyKey);
+  const projectOptions = ["All Projects", ...new Set([...tickets.map(ticket => ticket.project).filter(p => p && p !== "L2"), ...newProjects])];
 
   // Reset pagination to page 1 whenever any filter, search, sort, or tab changes
 
@@ -144,6 +147,8 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
       if (activeTab === "escalations") {
         const isEscalated =
           normalizeStatus(ticket.status) === "escalated" ||
+          normalizeStatus(ticket.status) === "re-open" ||
+          normalizeStatus(ticket.status) === "rca" ||
           ticket.type === "Escalation" ||
           ticket.category === "Escalation Handling";
         if (!isEscalated) return false;
@@ -164,7 +169,7 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
           if (end && ticketDate > end) return false;
         } else if (dateFilter === todayStr || dateFilter === "today") {
           // In queue view, show active tickets or tickets created today
-          const isToday = ticketDate === todayStr || normalizeStatus(ticket.status) === "active" || normalizeStatus(ticket.status) === "escalated" || normalizeStatus(ticket.status) === "pending";
+          const isToday = ticketDate === todayStr || normalizeStatus(ticket.status) !== "closed";
           if (!isToday) return false;
         } else {
           if (ticketDate !== dateFilter) return false;
@@ -253,7 +258,7 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
 
   // Overall metric counts (unfiltered context for stat cards)
   const totalCount = tickets.length;
-  const activeCount = tickets.filter((t) => normalizeStatus(t.status) === "active").length;
+  const activeCount = tickets.filter((t) => normalizeStatus(t.status) !== "closed").length;
   const closedCount = tickets.filter((t) => normalizeStatus(t.status) === "closed").length;
   const pendingCount = tickets.filter((t) => normalizeStatus(t.status) === "pending").length;
   const highPriorityCount = tickets.filter((t) => {
@@ -263,6 +268,8 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
   const escalatedCount = tickets.filter(
     (t) =>
       normalizeStatus(t.status) === "escalated" ||
+      normalizeStatus(t.status) === "re-open" ||
+      normalizeStatus(t.status) === "rca" ||
       t.type === "Escalation" ||
       t.category === "Escalation Handling",
   ).length;
@@ -309,7 +316,7 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
         <div className="flex items-center flex-wrap gap-4 max-[640px]:flex-col max-[640px]:items-start max-[640px]:gap-2">
           <div className="flex items-center gap-2">
             <span className="text-[11.5px] text-[#94a3b8] font-medium whitespace-nowrap">Rows per page:</span>
-            <select
+            <Select
               className="h-[30px] pl-[9px] pr-[24px] text-[11.5px] font-medium border border-[#334155] rounded-[6px] bg-[#0f172a] text-[#f8fafc] cursor-pointer outline-hidden [color-scheme:dark] transition-all duration-150 hover:border-[#94a3b8]/35 focus:border-[#38bdf8] focus:shadow-[0_0_0_3px_rgba(56,189,248,0.12)]"
               value={pageSize}
               onChange={(e) => {
@@ -321,7 +328,7 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
               <option value="30" className="bg-[#0f172a] text-[#f8fafc]">30</option>
               <option value="50" className="bg-[#0f172a] text-[#f8fafc]">50</option>
               <option value="100" className="bg-[#0f172a] text-[#f8fafc]">100</option>
-            </select>
+            </Select>
           </div>
 
           <span className="text-[11.5px] text-[#94a3b8] font-sans whitespace-nowrap">
@@ -401,14 +408,25 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
         <div className="flex gap-[9px]">
           <button
             type="button"
-            className="inline-flex items-center justify-center gap-[7px] h-[36px] px-[15px] rounded-[7px] text-[12px] font-semibold text-white bg-[#38bdf8] shadow-[0_1px_2px_0_rgba(0,0,0,0.2)] cursor-pointer hover:opacity-90 active:scale-[0.98] transition-all"
+            className="inline-flex items-center justify-center gap-[7px] h-[36px] px-[15px] rounded-[7px] text-[12px] font-semibold text-white bg-[#38bdf8] shadow-[0_1px_2px_0_rgba(0,0,0,0.2)] cursor-pointer hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             onClick={onNewTicket}
+            disabled={isLoading}
+            aria-disabled={isLoading}
           >
             <span>＋</span> New Ticket
           </button>
         </div>
       </section>
 
+      <PanelSkeletonWrapper
+        isLoading={isLoading}
+        isStale={isStale}
+        error={error}
+        onRetry={refetch}
+        minHeight={600}
+        skeleton={<TicketsTableSkeleton />}
+        liveRegionText="Memuat tiket..."
+      >
       {/* ── 1. Top Summary Stat Cards ── */}
       <section className="grid grid-cols-4 max-[1140px]:grid-cols-2 max-[640px]:grid-cols-2 gap-[14px] mb-[20px]" aria-label="Ringkasan statistik tiket">
         {/* Total Ticket */}
@@ -508,7 +526,7 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
         {/* Multi-Dimensional Filter Toolbar */}
         <div className="flex flex-wrap gap-2 items-center px-5 py-3.5 border-b border-[#334155] max-[900px]:flex-col max-[900px]:items-stretch">
           {/* Search Field */}
-          <div className="relative flex items-center flex-[1_1_200px] min-w-[160px] h-[34px] px-2.5 border border-[#334155] rounded-[8px] bg-[#0f172a] gap-2 transition-[border-color,box-shadow] duration-150 focus-within:border-[#38bdf8] focus-within:shadow-[0_0_0_3px_rgba(56,189,248,0.12)] max-[900px]:w-full max-[900px]:flex-none group/search">
+          <div className="relative flex items-center flex-[1_1_200px] min-w-[160px] h-[34px] px-2.5 border border-[#334155] rounded-[8px] bg-[#0f172a] gap-2 transition-[border-color,box-shadow] duration-150 focus-within:border-[rgba(56,189,248,0.4)] focus-within:bg-[#141f33]  max-[900px]:w-full max-[900px]:flex-none group/search">
             <Search size={14} className="text-[#94a3b8] group-focus-within/search:text-[#38bdf8] shrink-0 transition-colors duration-150" />
             <input
               value={searchDraft.input}
@@ -540,7 +558,7 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
             <SlidersHorizontal size={13} />
             Filters
             {hasActiveFilters && (
-              <span className="inline-flex items-center justify-center min-w-[16px] h-[16px] px-1 rounded-full bg-[#38bdf8] text-white text-[9.5px] font-mono font-bold leading-none">
+              <span className="inline-flex items-center justify-center min-w-[16px] h-[16px] px-1 rounded-full border border-sky-400/40 bg-sky-400/14 text-sky-400 text-[9.5px] font-mono font-bold leading-none">
                 {[
                   dateFilter !== "",
                   typeFilter !== "All Types",
@@ -567,26 +585,26 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
 
             {/* Ticket Type / Category Filter */}
             <div className="relative flex items-center group/select">
-              <Tag size={13} className="pointer-events-none absolute left-[9px] text-[#94a3b8] transition-colors duration-150 z-1 group-has-[select[data-active=true]]/select:text-[#38bdf8]" />
-              <select
+              
+              <Select icon={<Tag size={16}  />}
                 value={typeFilter}
                 onChange={(e) => setTypeFilter(e.target.value)}
                 aria-label="Filter kategori tiket"
                 data-active={typeFilter !== "All Types" ? "true" : undefined}
                 className="h-[34px] pl-7 pr-7 border border-[#334155] rounded-[8px] bg-[#0f172a] text-[#f8fafc] text-[11.5px] cursor-pointer appearance-none outline-hidden hover:border-[rgba(56,189,248,0.3)] focus:border-[#38bdf8] focus:shadow-[0_0_0_3px_rgba(56,189,248,0.12)] data-[active=true]:border-[#38bdf8] data-[active=true]:bg-[rgba(56,189,248,0.06)] data-[active=true]:text-[#38bdf8] data-[active=true]:font-semibold transition-[border-color,box-shadow,color,background-color] duration-150"
               >
-                {TICKET_TYPES.map((t) => (
+                {ticketTypes.map((t) => (
                   <option key={t} value={t}>
-                    {t}
+                    {categoryLabel(t)}{categories.some(c => c.key === t && !c.active) ? " (Arsip)" : ""}
                   </option>
                 ))}
-              </select>
+              </Select>
             </div>
 
             {/* Severity Filter */}
             <div className="relative flex items-center group/select">
-              <BarChart2 size={13} className="pointer-events-none absolute left-[9px] text-[#94a3b8] transition-colors duration-150 z-1 group-has-[select[data-active=true]]/select:text-[#38bdf8]" />
-              <select
+              
+              <Select icon={<BarChart2 size={16}  />}
                 value={priorityFilter}
                 onChange={(e) => setPriorityFilter(e.target.value)}
                 aria-label="Filter severity"
@@ -599,16 +617,16 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
               >
                 {PRIORITY_OPTIONS.map((p) => (
                   <option key={p} value={p}>
-                    {p}
+                    {severityLabel(p)}
                   </option>
                 ))}
-              </select>
+              </Select>
             </div>
 
             {/* Project Filter */}
             <div className="relative flex items-center group/select">
-              <FolderOpen size={13} className="pointer-events-none absolute left-[9px] text-[#94a3b8] transition-colors duration-150 z-1 group-has-[select[data-active=true]]/select:text-[#38bdf8]" />
-              <select
+              
+              <Select icon={<FolderOpen size={16}  />}
                 value={projectFilter}
                 onChange={(e) => setProjectFilter(e.target.value)}
                 aria-label="Filter proyek"
@@ -617,16 +635,16 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
               >
                 {projectOptions.map((proj) => (
                   <option key={proj} value={proj}>
-                    {proj}
+                    {projectLabel(proj, activeClientId, true)}
                   </option>
                 ))}
-              </select>
+              </Select>
             </div>
 
             {/* Shift Filter */}
             <div className="relative flex items-center group/select">
-              <Clock size={13} className="pointer-events-none absolute left-[9px] text-[#94a3b8] transition-colors duration-150 z-1 group-has-[select[data-active=true]]/select:text-[#38bdf8]" />
-              <select
+              
+              <Select icon={<Clock size={16}  />}
                 value={shiftFilter}
                 onChange={(e) => setShiftFilter(e.target.value)}
                 aria-label="Filter shift tiket"
@@ -638,7 +656,7 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
                     {s}
                   </option>
                 ))}
-              </select>
+              </Select>
             </div>
 
             {/* Sort Divider + Sort Control */}
@@ -646,8 +664,8 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
 
             {/* Sort Order */}
             <div className="relative flex items-center group/select">
-              <ArrowUpDown size={13} className="pointer-events-none absolute left-[9px] text-[#94a3b8] transition-colors duration-150 z-1" />
-              <select
+              
+              <Select icon={<ArrowUpDown size={16}  />}
                 value={sort}
                 onChange={(e) => setSort(e.target.value)}
                 aria-label="Urutkan tiket"
@@ -658,7 +676,7 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
                     {opt.label}
                   </option>
                 ))}
-              </select>
+              </Select>
             </div>
           </div>
         </div>
@@ -679,7 +697,7 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
                 }`}
                 onClick={() => setStatusFilter(option)}
               >
-                {option}
+                {option === "All" ? "Semua Status" : option}
               </button>
             ))}
           </div>
@@ -742,7 +760,7 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
             )}
             {typeFilter !== "All Types" && (
               <span className="inline-flex items-center gap-[5px] pl-[9px] pr-[7px] py-[3px] rounded-[6px] bg-[rgba(56,189,248,0.08)] border border-[rgba(56,189,248,0.25)] text-[#38bdf8] text-[11px] font-medium">
-                {typeFilter}
+                {categoryLabel(typeFilter)}
                 <button
                   type="button"
                   className="inline-grid place-items-center w-4 h-4 min-w-[16px] min-h-[16px] rounded-full border-0 bg-transparent text-current cursor-pointer opacity-70 hover:opacity-100 hover:bg-[rgba(248,113,113,0.2)] hover:text-[#f87171] transition-all p-0 m-0 leading-none"
@@ -854,6 +872,7 @@ export function TicketsView({ tickets, onSelectTicket, onNewTicket }: TicketsVie
           </div>
         )}
       </article>
+      </PanelSkeletonWrapper>
     </div>
   );
 }

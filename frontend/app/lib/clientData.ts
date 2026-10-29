@@ -1,3 +1,4 @@
+import { readMasterProjection } from "./master-data-model";
 import type {
   HandoverTask,
   HistoricalAssessmentEntry,
@@ -6,70 +7,17 @@ import type {
   Ticket,
 } from "./types";
 import { projects, monitoringSchedule, seedHistoricalAssessments, seedTickets, initialHandoverTasks } from "./data";
-import { ClientOrganization, CLIENT_ORGANIZATIONS } from "../context/ClientContext";
+import type { ClientOrganization } from "../types/master-data";
 
 export const EXTENDED_CLIENT_ORGANIZATIONS: readonly ClientOrganization[] = [
-  ...CLIENT_ORGANIZATIONS,
-  {
-    id: "mandiri",
-    name: "Bank Mandiri (Persero) Tbk",
-    shortName: "Bank Mandiri",
-    code: "BMRI",
-    tagline: "Core Banking, Livin' Financial Superapp & Wholesale Kopra",
-    avatarBg: "rgba(234, 179, 8, 0.16)",
-    avatarColor: "#facc15",
-    borderColor: "rgba(234, 179, 8, 0.35)",
-    tier: "Mission Critical",
-    systemsCount: 6,
-  },
-  {
-    id: "bca",
-    name: "PT Bank Central Asia Tbk",
-    shortName: "BCA",
-    code: "BCA",
-    tagline: "High-Volume Switcher, myBCA & Real-Time Settlement",
-    avatarBg: "rgba(59, 130, 246, 0.16)",
-    avatarColor: "#60a5fa",
-    borderColor: "rgba(59, 130, 246, 0.35)",
-    tier: "Dedicated SLA",
-    systemsCount: 8,
-  },
-  {
-    id: "indosat",
-    name: "Indosat Ooredoo Hutchison",
-    shortName: "Indosat",
-    code: "IOH",
-    tagline: "National 4G/5G Transport & Enterprise Data Services",
-    avatarBg: "rgba(244, 63, 94, 0.16)",
-    avatarColor: "#fb7185",
-    borderColor: "rgba(244, 63, 94, 0.35)",
-    tier: "Enterprise NOC",
-    systemsCount: 7,
-  },
-  {
-    id: "xl",
-    name: "PT XL Axiata Tbk",
-    shortName: "XL Axiata",
-    code: "XL",
-    tagline: "Mobile Convergence, Fiber Backbone & B2B Solutions",
-    avatarBg: "rgba(168, 85, 247, 0.16)",
-    avatarColor: "#c084fc",
-    borderColor: "rgba(168, 85, 247, 0.35)",
-    tier: "Dedicated SLA",
-    systemsCount: 7,
-  },
-  {
-    id: "pertamina",
-    name: "Pertamina Digital Enterprise",
-    shortName: "Pertamina",
-    code: "PERT",
-    tagline: "Industrial SCADA, Downstream Fuel IoT & Enterprise Cloud",
-    avatarBg: "rgba(20, 184, 166, 0.16)",
-    avatarColor: "#2dd4bf",
-    borderColor: "rgba(20, 184, 166, 0.35)",
-    tier: "Enterprise NOC",
-    systemsCount: 5,
-  },
+  { id: "tritronik", name: "PT Tritronik Solusindo", shortName: "Tritronik", code: "TRIT", tagline: "Internal Operations & Service Platform", avatarBg: "linear-gradient(135deg, #0284c7, #0369a1)", tier: "Enterprise NOC", status: "active", picName: "Mhd. Galih Khairi", picEmail: "galih.khairi@tritronik.com", picPhone: "+62 812-3456-7890", description: "Telecommunications & Digital Services Operations Platform", createdAt: "2026-10-15T00:00:00.000Z", updatedAt: "2026-10-15T00:00:00.000Z" },
+  { id: "bni", name: "PT Bank Negara Indonesia (Persero) Tbk", shortName: "BNI", code: "BNI", tagline: "Digital Banking & Enterprise Integration", avatarBg: "linear-gradient(135deg, #f97316, #ea580c)", tier: "Mission Critical", status: "active", picName: "Kristina Marbun", picEmail: "kristina.marbun@bni.co.id", picPhone: "+62 813-8899-1122", description: "Core Banking, Payment Switcher & OpenBanking API Network", createdAt: "2026-10-15T00:00:00.000Z", updatedAt: "2026-10-15T00:00:00.000Z" },
+  { id: "telkomsel", name: "PT Telekomunikasi Selular", shortName: "Telkomsel", code: "TSEL", tagline: "Mobile Telecommunication Network Operations", avatarBg: "linear-gradient(135deg, #ef4444, #dc2626)", tier: "Mission Critical", status: "active", picName: "Muhammad Ihsanul Arifin", picEmail: "ihsanul.arifin@telkomsel.co.id", picPhone: "+62 811-9988-7766", description: "OCS Billing, Core 5G Edge & Digital Subscriber Network Infrastructure", createdAt: "2026-10-15T00:00:00.000Z", updatedAt: "2026-10-15T00:00:00.000Z" },
+  { id: "mandiri", name: "PT Bank Mandiri (Persero) Tbk", shortName: "Bank Mandiri", code: "BMRI", tagline: "Wholesale & Digital Banking Services", avatarBg: "linear-gradient(135deg, #0284c7, #1e40af)", tier: "Mission Critical", status: "active", picName: "Agnes Siahaan", picEmail: "agnes.siahaan@bankmandiri.co.id", picPhone: "+62 812-7766-5544", description: "Core Banking, Livin' Financial Superapp & Wholesale Kopra", createdAt: "2026-10-15T00:00:00.000Z", updatedAt: "2026-10-15T00:00:00.000Z" },
+  { id: "bca", name: "PT Bank Central Asia Tbk", shortName: "BCA", code: "BCA", tagline: "Transaction Banking & Settlement Systems", avatarBg: "linear-gradient(135deg, #2563eb, #1d4ed8)", tier: "Mission Critical", status: "active", picName: "Pangondian Kurniawan", picEmail: "pangondian.k@bca.co.id", picPhone: "+62 815-4433-2211", description: "High-Volume Switcher, myBCA & Real-Time Settlement Network", createdAt: "2026-10-15T00:00:00.000Z", updatedAt: "2026-10-15T00:00:00.000Z" },
+  { id: "indosat", name: "PT Indosat Tbk", shortName: "Indosat Ooredoo Hutchison", code: "ISAT", tagline: "Mobile & Enterprise Network Operations", avatarBg: "linear-gradient(135deg, #eab308, #ca8a04)", tier: "Dedicated SLA", status: "active", picName: "Dimas Pratama", picEmail: "dimas.pratama@ioh.co.id", picPhone: "+62 816-1234-5678", description: "National 4G/5G Transport & Enterprise Data Services", createdAt: "2026-10-15T00:00:00.000Z", updatedAt: "2026-10-15T00:00:00.000Z" },
+  { id: "xl", name: "PT XL Axiata Tbk", shortName: "XL Axiata", code: "EXCL", tagline: "Convergence & Enterprise Network Services", avatarBg: "linear-gradient(135deg, #06b6d4, #0891b2)", tier: "Dedicated SLA", status: "active", picName: "Rian Hidayat", picEmail: "rian.hidayat@xl.co.id", picPhone: "+62 818-8765-4321", description: "Mobile Convergence, Fiber Backbone & B2B Solutions", createdAt: "2026-10-15T00:00:00.000Z", updatedAt: "2026-10-15T00:00:00.000Z" },
+  { id: "pertamina", name: "PT Pertamina Patra Niaga", shortName: "Pertamina Patra Niaga", code: "PERT", tagline: "Downstream Energy Distribution Monitoring", avatarBg: "linear-gradient(135deg, #10b981, #059669)", tier: "Dedicated SLA", status: "active", picName: "Budi Santoso", picEmail: "budi.santoso@pertamina.com", picPhone: "+62 811-3344-5566", description: "Industrial SCADA, Downstream Fuel IoT & Enterprise Cloud", createdAt: "2026-10-15T00:00:00.000Z", updatedAt: "2026-10-15T00:00:00.000Z" },
 ];
 
 export const CLIENT_PROJECTS: Record<string, ProjectHealthEntry[]> = {
@@ -621,17 +569,26 @@ export const ALL_COMBINED_SEED_TICKETS: Ticket[] = [
 
 export function getClientProjects(clientId?: string): ProjectHealthEntry[] {
   const cid = (clientId || "tritronik").toLowerCase();
-  return CLIENT_PROJECTS[cid] || CLIENT_PROJECTS.tritronik;
+  const master = readMasterProjection();
+  if (master && master.organizationStatuses[cid] !== "active") return [];
+  if (master) return master.projects.filter(p => p.clientId === cid && p.status === "active").map(p => {
+    const original = CLIENT_PROJECTS[cid]?.find(item => item.name === p.name);
+    return { name: p.name, status: original?.status || "Healthy", detail: p.detail, tone: original?.tone || "success", clientId: p.clientId };
+  });
+  return CLIENT_PROJECTS[cid] || [];
 }
-
 export function getClientSystems(clientId?: string): readonly string[] {
   const cid = (clientId || "tritronik").toLowerCase();
-  return CLIENT_SYSTEMS[cid] || CLIENT_SYSTEMS.tritronik;
+  const master = readMasterProjection();
+  if (master && master.organizationStatuses[cid] !== "active") return [];
+  // Legacy transaction values identify projects, despite the old helper's name.
+  if (master) return master.projects.filter(p => p.clientId === cid && p.status === "active").map(p => p.name);
+  return CLIENT_SYSTEMS[cid] || [];
 }
 
 export function getClientMonitoringSchedule(clientId?: string): MonitoringEntry[] {
   const cid = (clientId || "tritronik").toLowerCase();
-  return CLIENT_SCHEDULES[cid] || CLIENT_SCHEDULES.tritronik;
+  return CLIENT_SCHEDULES[cid] || [];
 }
 
 export function getClientHistoricalAssessments(clientId?: string): HistoricalAssessmentEntry[] {

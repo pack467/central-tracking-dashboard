@@ -1,4 +1,5 @@
 "use client";
+import { MasterProjectName } from "@/app/components/ui/MasterProjectName";
 
 import { useMemo, useState } from "react";
 import { ArrowRight, Check, CheckCircle2, FileText, Info, Lock, Ticket as TicketIcon, Trash2, UserCheck } from "lucide-react";
@@ -664,7 +665,7 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
                             <span className="font-mono text-[11px] font-bold text-[var(--accent-blue)]">#{ticket.id}</span>
                             <span className="inline-flex items-center gap-[4px] text-[11px] font-semibold text-[var(--ink-muted)]">
                               <ProjectMark name={ticket.project} />
-                              <span>{ticket.project}</span>
+                              <span><MasterProjectName value={ticket.project} historical /></span>
                             </span>
                           </div>
                           <div className="flex items-center gap-[6px]">

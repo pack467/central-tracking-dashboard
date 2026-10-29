@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
-import { BookOpen, Users, User, MoreHorizontal, Edit3, SlidersHorizontal, LogOut, Check, ChevronLeft, ChevronRight, PanelLeft, Sun, Sunset, Moon } from "lucide-react";
+import { BookOpen, Users, User, MoreHorizontal, Edit3, SlidersHorizontal, LogOut, ChevronLeft, ChevronRight, PanelLeft, Sun, Sunset, Moon } from "lucide-react";
 import { BrandLogo } from "@/app/components/ui/BrandLogo";
 import { Avatar } from "@/app/components/ui/Avatar";
 import { useToast } from "@/app/components/ui/Toast";
@@ -93,15 +93,7 @@ export function Sidebar({
   const lastActionTimeRef = useRef<Record<string, number>>({});
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const { userStatus, currentStatusConfig, setStatus } = useUserStatus();
-
-  const handleStatusChange = (status: UserPresenceStatus) => {
-    setStatus(status);
-    notify.success(`Status kehadiran: ${status}`, {
-      id: "user-status-toast",
-      duration: 2500,
-    });
-  };
+  const { userStatus, currentStatusConfig } = useUserStatus();
 
   const profileCardRef = useRef<HTMLDivElement>(null);
   const moreBtnRef = useRef<HTMLButtonElement>(null);
@@ -333,7 +325,7 @@ export function Sidebar({
                 e.stopPropagation();
                 toggleProfileMenu();
               }}
-              title={`Status: ${userStatus} (Klik untuk ubah status)`}
+              title={`Status: ${userStatus}`}
               role="button"
               tabIndex={0}
               onKeyDown={(e) => {
@@ -389,8 +381,8 @@ export function Sidebar({
               e.stopPropagation();
               toggleProfileMenu();
             }}
-            title="Menu opsi profil & status"
-            aria-label="Menu opsi profil dan status"
+            title="Menu opsi profil"
+            aria-label="Menu opsi profil"
             aria-haspopup="true"
             aria-expanded={profileMenuOpen}
           >
@@ -413,76 +405,35 @@ export function Sidebar({
                 bottom: `${menuPosition.bottom}px`,
               }}
               role="menu"
-              aria-label="Menu Opsi Profil dan Status"
+              aria-label="Menu Opsi Profil"
             >
               <div className="profile-dropdown-header p-[6px_8px_8px] [border-bottom:1px_solid_var(--line)] mb-[4px]">
-                <span className="profile-dropdown-operator-label block text-[9.5px] text-[var(--ink-muted)] font-['JetBrains_Mono',monospace] font-bold tracking-[0.6px]">
-                  {user?.role ? user.role.toUpperCase() : "OPERATOR NOC"}
-                </span>
+                <div className="flex items-center justify-between gap-[6px]">
+                  <span className="profile-dropdown-operator-label block text-[9.5px] text-[var(--ink-muted)] font-['JetBrains_Mono',monospace] font-bold tracking-[0.6px]">
+                    {user?.role ? user.role.toUpperCase() : "OPERATOR NOC"}
+                  </span>
+                  <span
+                    className="profile-status-pill-badge inline-flex items-center gap-[4.5px] text-[10px] font-semibold px-[6.5px] py-[1.5px] rounded-[9999px] border leading-[1.2]"
+                    style={{
+                      color: currentStatusConfig.color,
+                      backgroundColor: currentStatusConfig.badgeBg,
+                      borderColor: `${currentStatusConfig.color}40`,
+                    }}
+                    title={`Status: ${userStatus}`}
+                  >
+                    <span
+                      className="profile-status-pill-dot w-[5px] h-[5px] rounded-[50%] shrink-0"
+                      style={{ backgroundColor: currentStatusConfig.color }}
+                    />
+                    {userStatus}
+                  </span>
+                </div>
                 <strong className="profile-dropdown-operator-name block text-[13px] text-[var(--ink-primary)] font-semibold mt-[2px]">
                   {user?.name ?? "Galih Khairi"}
                 </strong>
                 <span className="profile-dropdown-operator-emp block text-[11px] text-[var(--accent-blue)] font-['JetBrains_Mono',monospace] mt-[1px]">
                   {user?.employeeId ?? "EMP-1001"} · Console
                 </span>
-              </div>
-
-              {/* Status Presence Selector */}
-              <div className="profile-status-picker-section p-[6px_6px_8px] mb-[4px] [border-bottom:1px_solid_var(--line)] flex flex-col gap-[6px]">
-                <div className="profile-status-picker-title flex items-center justify-between text-[9.5px] text-[var(--ink-muted)] font-['JetBrains_Mono',monospace] font-bold tracking-[0.5px] px-[4px]">
-                  <span>PILIH STATUS</span>
-                  <span
-                    className="profile-status-pill-badge inline-flex items-center gap-[4.5px] text-[10px] font-semibold px-[7px] py-[2px] rounded-[9999px] border leading-[1.2] [transition:all_0.2s_ease]"
-                    style={{
-                      color: currentStatusConfig.color,
-                      backgroundColor: currentStatusConfig.badgeBg,
-                      borderColor: `${currentStatusConfig.color}40`,
-                    }}
-                  >
-                    <span
-                      className="profile-status-pill-dot w-[5.5px] h-[5.5px] rounded-[50%] shrink-0"
-                      style={{ backgroundColor: currentStatusConfig.color }}
-                    />
-                    {userStatus}
-                  </span>
-                </div>
-
-                <div className="profile-status-options-list flex flex-col gap-[2px]" role="radiogroup" aria-label="Pilih Status Kehadiran">
-                  {STATUS_OPTIONS.map((opt) => {
-                    const isSelected = userStatus === opt.label;
-                    return (
-                      <button
-                        key={opt.key}
-                        type="button"
-                        role="radio"
-                        aria-checked={isSelected}
-                        className={`profile-status-option-btn flex items-center gap-[8px] w-full p-[6px_8px] rounded-[6px] border text-[11.5px] font-[var(--font-sans)] text-left cursor-pointer [transition:background-color_0.12s,_border-color_0.12s,_color_0.12s] box-border hover:bg-[rgba(255,255,255,0.05)] hover:text-[var(--ink-primary)] ${
-                          isSelected
-                            ? "selected bg-[rgba(255,255,255,0.08)] text-[#ffffff] border-[rgba(255,255,255,0.12)] font-semibold"
-                            : "bg-transparent border-transparent text-[var(--ink-secondary)] font-medium"
-                        }`}
-                        onClick={() => handleStatusChange(opt.label)}
-                        title={opt.desc}
-                      >
-                        <span
-                          className={`profile-status-option-bullet w-[7.5px] h-[7.5px] rounded-[50%] shrink-0 [transition:box-shadow_0.2s_ease] ${
-                            isSelected ? "[box-shadow:0_0_6px_var(--profile-status-option-color)]" : ""
-                          }`}
-                          style={{ "--profile-status-option-color": opt.color } as React.CSSProperties}
-                        />
-                        <span className="profile-status-option-label flex-1 min-w-0">{opt.label}</span>
-                        {isSelected && (
-                          <Check
-                            size={13}
-                            strokeWidth={2.5}
-                            className="ml-auto"
-                            style={{ color: opt.color }}
-                          />
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
               </div>
 
               <Link href={paths.profile} onClick={() => setProfileMenuOpen(false)}

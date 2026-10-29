@@ -282,8 +282,7 @@
 }
 
 /* Base form controls: strictly centered height and symmetrical padding */
-.ticket-modal input:not([type="checkbox"]),
-.ticket-modal select {
+.ticket-modal input:not([type="checkbox"]):not([data-select-value]) {
   @apply [width:100%];
   @apply [height:38px];
   @apply [padding:0_12px];
@@ -301,18 +300,6 @@
   @apply [display:block];
 }
 
-/* Select dropdowns: custom vertically-centered chevron matching left padding */
-.ticket-modal select {
-  @apply [padding:0_34px_0_12px];
-  @apply [appearance:none];
-  @apply [-webkit-appearance:none];
-  @apply [-moz-appearance:none];
-  @apply [background-image:url("data:image/svg+xml,%3Csvg_xmlns='http://www.w3.org/2000/svg'_width='14'_height='14'_viewBox='0_0_24_24'_fill='none'_stroke='%2394a3b8'_stroke-width='2.2'_stroke-linecap='round'_stroke-linejoin='round'%3E%3Cpolyline_points='6_9_12_15_18_9'/%3E%3C/svg%3E")];
-  @apply [background-repeat:no-repeat];
-  @apply [background-position:right_12px_center];
-  @apply [background-size:14px_14px];
-  @apply [cursor:pointer];
-}
 
 .ticket-modal textarea {
   @apply [width:100%];
@@ -332,10 +319,9 @@
   @apply [min-height:76px];
 }
 
-.ticket-modal input:focus,
-.ticket-modal textarea:focus,
-.ticket-modal select:focus {
-  @apply [border-color:var(--accent-blue)];
+.ticket-modal input:not([type="checkbox"]):not([data-select-value]):focus,
+.ticket-modal textarea:focus {
+  @apply [border-color:rgba(56,189,248,0.4)];
   @apply [box-shadow:none];
   @apply [outline:none];
 }
@@ -576,7 +562,7 @@
 
 .custom-timepicker-input:focus,
 .custom-timepicker-container:not(.is-disabled):focus-within .custom-timepicker-input {
-  @apply ![border-color:var(--accent-blue)];
+  @apply ![border-color:rgba(56,189,248,0.4)];
   @apply ![box-shadow:none];
   @apply ![outline:none];
 }

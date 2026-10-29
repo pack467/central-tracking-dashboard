@@ -1,14 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMasterReferences } from "@/app/hooks/useMasterReferences";
+import { TicketSystemSelect } from "./TicketSystemSelect";
+import { Select } from "@/app/components/ui/Select";
+
+import { useEffect, useState, useMemo } from "react";
 import { X, Check, Edit3 } from "lucide-react";
 import { Modal } from "@/app/components/ui/Modal";
 import { Badge } from "@/app/components/ui/Badge";
 import { severityTone, statusTone } from "@/app/components/tickets/TicketTable";
-import { nowClockLabel, seedRosterMembers } from "@/app/lib/data";
+import { nowClockLabel } from "@/app/lib/data";
+import { useActivePeople } from "@/app/hooks/useMasterData";
 import { useAuth } from "@/app/lib/auth";
 import { useToast } from "@/app/components/ui/Toast";
 import type { Ticket } from "@/app/lib/types";
+import { useClient } from "@/app/context/ClientContext";
 
 interface TicketEditModalProps {
   open: boolean;
@@ -17,32 +23,33 @@ interface TicketEditModalProps {
   onSave: (updated: Ticket) => void;
 }
 
-const PROJECT_OPTIONS = ["SM", "B2B", "USIEM", "MB", "EPC Tools", "DM", "UNEM", "APH"];
 const PRIORITY_OPTIONS = ["Low", "Medium", "High", "Critical"];
-const STATUS_OPTIONS = ["Open", "Active", "Closed", "Pending", "Meeting", "Escalated"] as const;
-const CATEGORY_OPTIONS = [
-  "Ad-hoc Request",
-  "Escalation Handling",
-  "Incident & Issue Handling",
-  "Validate End-to-End Process Flow",
-  "Knowledge Management & Documentation",
-  "Monitoring VM, Platform & Services",
-  "Change Request",
-  "Maintenance",
-  "Other",
-];
+const STATUS_OPTIONS = ["Open", "Closed", "Activity", "Meeting", "Re-Open", "Pending", "RCA"] as const;
+
 
 export function TicketEditModal({ open, ticket, onClose, onSave }: TicketEditModalProps) {
   const notify = useToast();
   const { user } = useAuth();
+  const { activeCategories, categoryLabel, severityLabel, projectLabel, projectFor } = useMasterReferences();
+  const { activeClientId, getProjectsForClient } = useClient();
   const operatorName = user?.name || "Operator NOC";
+
+  const projectOptions = useMemo(() => {
+    const list = getProjectsForClient(ticket?.clientId || activeClientId, false).map((p) => p.name);
+    if (ticket?.project && !list.includes(ticket.project)) {
+      return [ticket.project, ...list];
+    }
+    return list;
+  }, [activeClientId, getProjectsForClient, ticket]);
 
   const [subject, setSubject] = useState("");
   const [project, setProject] = useState("SM");
+  const [systemId, setSystemId] = useState("");
   const [severity, setSeverity] = useState("Low");
   const [status, setStatus] = useState<string>("Open");
   const [category, setCategory] = useState<string>("");
   const [owner, setOwner] = useState("");
+  const assignees = useActivePeople();
   const [description, setDescription] = useState("");
   const [error, setError] = useState("");
 
@@ -50,9 +57,10 @@ export function TicketEditModal({ open, ticket, onClose, onSave }: TicketEditMod
     if (ticket && open) {
       setSubject(ticket.subject);
       setProject(ticket.project);
+      setSystemId(ticket.systemId || "");
       setSeverity(ticket.severity);
       setStatus(ticket.status);
-      setCategory(ticket.category && ticket.category !== "--" ? ticket.category : "");
+      setCategory(ticket.type || (ticket.category && ticket.category !== "--" ? ticket.category : ""));
       setOwner(ticket.owner);
       setDescription(ticket.description || "");
       setError("");
@@ -72,9 +80,12 @@ export function TicketEditModal({ open, ticket, onClose, onSave }: TicketEditMod
       ...ticket,
       subject: trimmedSubject,
       project,
+      projectId: projectFor(project, ticket.clientId || activeClientId)?.id,
+      systemId: systemId || undefined,
       severity,
       status,
       category: category || undefined,
+      type: category || undefined,
       owner: owner.trim() || ticket.owner,
       owners: owner.trim() ? owner.trim().split(",").map((s) => s.trim()).filter(Boolean) : ticket.owners,
       description: description.trim(),
@@ -130,13 +141,13 @@ export function TicketEditModal({ open, ticket, onClose, onSave }: TicketEditMod
         <div className="three-inputs [grid-column:1_/_-1]!">
           <label>
             <span>PROYEK</span>
-            <select value={project} onChange={(event) => setProject(event.target.value)}>
-              {PROJECT_OPTIONS.map((opt) => (
+            <Select size="form" className="w-full" value={project} onChange={(event) => setProject(event.target.value)}>
+              {projectOptions.map((opt) => (
                 <option key={opt} value={opt}>
-                  {opt}
+                  {projectLabel(opt, ticket?.clientId || activeClientId, true)}
                 </option>
               ))}
-            </select>
+            </Select>
           </label>
 
           <label>
@@ -144,13 +155,13 @@ export function TicketEditModal({ open, ticket, onClose, onSave }: TicketEditMod
               <span>SEVERITY</span>
               <Badge tone={severityTone(severity)}>{severity}</Badge>
             </div>
-            <select value={severity} onChange={(event) => setSeverity(event.target.value)}>
+            <Select size="form" className="w-full" value={severity} onChange={(event) => setSeverity(event.target.value)}>
               {PRIORITY_OPTIONS.map((opt) => (
                 <option key={opt} value={opt}>
-                  {opt}
+                  {severityLabel(opt)}
                 </option>
               ))}
-            </select>
+            </Select>
           </label>
 
           <label>
@@ -158,13 +169,13 @@ export function TicketEditModal({ open, ticket, onClose, onSave }: TicketEditMod
               <span>STATUS</span>
               <Badge tone={statusTone(status)}>{status}</Badge>
             </div>
-            <select value={status} onChange={(event) => setStatus(event.target.value)}>
+            <Select size="form" className="w-full" value={status} onChange={(event) => setStatus(event.target.value)}>
               {STATUS_OPTIONS.map((opt) => (
                 <option key={opt} value={opt}>
                   {opt}
                 </option>
               ))}
-            </select>
+            </Select>
           </label>
         </div>
 
@@ -172,32 +183,20 @@ export function TicketEditModal({ open, ticket, onClose, onSave }: TicketEditMod
         <div className="[display:grid]! [grid-template-columns:1fr_1fr]! [gap:12px]! [grid-column:1_/_-1]!">
           <label>
             <span>PENANGGUNG JAWAB (ASSIGNEE)</span>
-            <input
-              type="text"
-              value={owner}
-              list="roster-assignees-list"
-              onChange={(e) => setOwner(e.target.value)}
-              placeholder="Nama penanggung jawab"
-            />
-            <datalist id="roster-assignees-list">
-              {seedRosterMembers.map((m) => (
-                <option key={m.id} value={m.name} />
-              ))}
-            </datalist>
+            <Select allowCustom value={owner} onValueChange={setOwner} label="Penanggung jawab" aria-label="Penanggung jawab (Assignee)" listboxId="roster-assignees-list" placeholder="Nama penanggung jawab" options={assignees.map(person => ({ value: person.fullName, label: person.fullName }))} size="form" className="w-full" />
           </label>
 
           <label>
             <span>KATEGORI</span>
-            <select value={category} onChange={(e) => setCategory(e.target.value)}>
+            <Select size="form" className="w-full" value={category} onChange={(e) => setCategory(e.target.value)}>
               <option value="">-- Tanpa Kategori --</option>
-              {CATEGORY_OPTIONS.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
-              ))}
-            </select>
+              {category && !activeCategories.some(c => c.key === category) && <option value={category}>{categoryLabel(category)} (Arsip)</option>}
+              {activeCategories.map(cat => <option key={cat.id} value={cat.key}>{cat.name}</option>)}
+            </Select>
           </label>
         </div>
+
+        <TicketSystemSelect project={project} organizationId={ticket?.clientId || activeClientId} value={systemId} onChange={setSystemId} originalId={ticket?.systemId} />
 
         {/* Row 4: Description */}
         <label className="[grid-column:1_/_-1]!">

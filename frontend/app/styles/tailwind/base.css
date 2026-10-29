@@ -30,19 +30,11 @@
     @apply [word-spacing:normal];
   }
 
-  button, input, textarea, select {
+  button, input, textarea {
     @apply [font-family:inherit];
     @apply [font-size:inherit];
   }
 
-  select {
-    @apply [color-scheme:dark];
-  }
-
-  select option {
-    @apply [background-color:#0f172a];
-    @apply [color:var(--ink-primary)];
-  }
 
   button {
     @apply [border:0];
@@ -50,7 +42,7 @@
     @apply [background:transparent];
   }
 
-  button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
+  button:focus-visible {
     @apply [outline:2px_solid_var(--accent-blue)];
     @apply [outline-offset:2px];
   }

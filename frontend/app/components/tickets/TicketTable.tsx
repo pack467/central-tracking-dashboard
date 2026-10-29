@@ -1,4 +1,6 @@
 "use client";
+import { useMasterReferences } from "@/app/hooks/useMasterReferences";
+import { useOwnerLabel } from "@/app/hooks/useMasterData";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { routes } from "@/app/lib/routes";
@@ -26,12 +28,14 @@ export function severityTone(severity: string): Tone {
 }
 
 export function statusTone(status: string) {
-  const normalized = status.toLowerCase();
+  const normalized = (status || "").toLowerCase().replace(/[\s_]+/g, "-");
   if (normalized === "closed" || normalized === "ditutup") return "success";
-  if (normalized === "activity" || normalized === "active" || normalized === "aktivitas" || normalized === "open") return "info";
+  if (normalized === "open") return "info";
+  if (normalized === "activity" || normalized === "active" || normalized === "aktivitas") return "info";
+  if (normalized === "meeting") return "teal";
   if (normalized === "pending" || normalized === "menunggu") return "warning";
-  if (normalized === "escalated" || normalized === "eskalasi" || normalized === "re-open") return "critical";
-  if (normalized === "meeting") return "info";
+  if (normalized === "re-open" || normalized === "reopen" || normalized === "escalated" || normalized === "eskalasi") return "critical";
+  if (normalized === "rca") return "orange";
   return "neutral";
 }
 
@@ -40,6 +44,8 @@ export function TicketTable({
   compact = false,
   showEscalationDetails = false,
 }: TicketTableProps) {
+  const { categoryLabel, projectLabel } = useMasterReferences();
+  const ownerLabel = useOwnerLabel();
   const pathname = usePathname();
   const query = useSearchParams().toString();
   if (!tickets.length) {
@@ -81,7 +87,7 @@ export function TicketTable({
       {/* Table Rows (Desktop) & Cards (Mobile) */}
       <div>
         {rows.map((ticket) => {
-          const typeLabel = ticket.type || ticket.category || "Incident";
+          const typeLabel = categoryLabel(ticket.type || ticket.category || "Incident");
 
           return (
             <Link href={routes.ticketFromList(ticket.id, pathname, query)} scroll={false}
@@ -108,16 +114,16 @@ export function TicketTable({
                 <span className="hidden max-[769px]:inline-block text-[10.5px] font-semibold text-[#94a3b8] font-mono min-w-[80px] shrink-0">Project:</span>
                 <span className="inline-flex items-center gap-[7px] text-[11.5px] text-[#f8fafc] min-w-0 max-w-full">
                   <ProjectMark name={ticket.project} />
-                  <span className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">{ticket.project}</span>
+                  <span className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">{projectLabel(ticket.projectId || ticket.project, ticket.clientId, true)}</span>
                 </span>
               </div>
 
               {/* Assignee */}
-              <div className="min-w-0 overflow-hidden max-[769px]:flex max-[769px]:items-center max-[769px]:w-full" title={ticket.owner ? `Assignee: ${ticket.owner}` : "Unassigned"}>
+              <div className="min-w-0 overflow-hidden max-[769px]:flex max-[769px]:items-center max-[769px]:w-full" title={ticket.owner ? `Assignee: ${ownerLabel(ticket)}` : "Unassigned"}>
                 <span className="hidden max-[769px]:inline-block text-[10.5px] font-semibold text-[#94a3b8] font-mono min-w-[80px] shrink-0">Assignee:</span>
                 <span className="inline-flex items-center gap-[7px] text-[11.5px] text-[#f8fafc] min-w-0 max-w-full">
-                  <Avatar size="sm" name={ticket.owner || "Unassigned"} className="shrink-0" />
-                  <span className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">{ticket.owner || "Unassigned"}</span>
+                  <Avatar size="sm" name={ownerLabel(ticket) || "Unassigned"} className="shrink-0" />
+                  <span className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">{ownerLabel(ticket) || "Unassigned"}</span>
                 </span>
               </div>
 

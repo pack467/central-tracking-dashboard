@@ -149,7 +149,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     <ToastContext.Provider value={notifier}>
       {children}
       <div
-        className="toast-stack [position:fixed] [right:20px] [bottom:20px] [z-index:60] [display:flex] [flex-direction:column] [gap:8px] [pointer-events:none]"
+        className="toast-stack max-md:bottom-[calc(132px+var(--ctd-safe-bottom,env(safe-area-inset-bottom,0px)))] max-md:[&_button]:min-h-10 max-md:[&_button]:min-w-10 [position:fixed] [right:20px] [bottom:20px] [z-index:120] [display:flex] [flex-direction:column] [gap:8px] [pointer-events:none]"
         aria-live="polite"
         role="status"
       >

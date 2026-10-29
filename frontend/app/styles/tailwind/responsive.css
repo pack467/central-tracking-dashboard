@@ -22,7 +22,6 @@
   .sidebar-is-collapsed .workspace { @apply [margin-left:68px]; }
   .metrics-grid { @apply [grid-template-columns:repeat(2,_1fr)]; }
   .dashboard-grid { @apply [grid-template-columns:minmax(0,_1fr)_285px]; }
-  .page-content { @apply [padding-left:22px]; @apply [padding-right:22px]; }
 }
 
 @media (max-width: 940px) {
@@ -87,7 +86,6 @@
   .side-column { @apply [grid-template-columns:1fr]; }
   .ticket-header, .ticket-row { @apply [grid-template-columns:1fr_85px_70px]; }
   .ticket-owner, .ticket-header > span:nth-child(3) { @apply [display:none]; }
-  .page-content { @apply [padding:18px_16px_36px]; }
   .health-intro { @apply [display:flex]; @apply [flex-wrap:wrap]; @apply [gap:4px]; @apply [padding-right:0]; @apply [border-right:0]; @apply [border-bottom:1px_solid_var(--line)]; @apply [padding-bottom:10px]; @apply [width:100%]; }
 }
 
@@ -121,9 +119,6 @@
   .ops-shift-badge { @apply [height:28px]; @apply [padding:0_10px]; }
 
   .report-panel-heading { @apply [padding:12px_14px]; @apply [gap:10px]; }
-  .primary-chart-panel .report-panel-body,
-  .velocity-panel-body,
-  .shift-traffic-panel-body { @apply [padding:12px]; }
   .primary-chart-panel .report-panel-body { @apply [gap:10px]; }
   .chart-heading-left { @apply [width:100%]; }
   .chart-tab-controls { @apply [width:100%]; }
@@ -162,7 +157,6 @@
   .shift-traffic-metric-sub { @apply [white-space:normal]; }
   .shift-traffic-chart-container { @apply [height:230px]; @apply [min-height:220px]; }
   .shift-traffic-chart-svg { @apply [min-height:220px]; }
-  .shift-traffic-peak-badge { @apply [display:none]; }
   .shift-traffic-filter-bar { @apply [padding-right:0]; }
 
   /* Keep compact dashboard controls readable instead of forcing a single clipped row. */

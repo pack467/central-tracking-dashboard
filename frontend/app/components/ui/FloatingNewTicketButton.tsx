@@ -6,9 +6,12 @@ import { Plus } from "lucide-react";
 interface FloatingNewTicketButtonProps {
   onClick: () => void;
   isOpen?: boolean;
+  scrollHidden?: boolean;
+  keyboardOpen?: boolean;
+  onReveal?: () => void;
 }
 
-export function FloatingNewTicketButton({ onClick, isOpen = false }: FloatingNewTicketButtonProps) {
+export function FloatingNewTicketButton({ onClick, isOpen = false, scrollHidden = false, keyboardOpen = false, onReveal }: FloatingNewTicketButtonProps) {
   const [mounted, setMounted] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
@@ -44,7 +47,10 @@ export function FloatingNewTicketButton({ onClick, isOpen = false }: FloatingNew
   return (
     <button
       type="button"
-      className={`fab-new-ticket group fixed bottom-[28px] right-[28px] z-[90] inline-flex items-center justify-center gap-0 h-[48px] min-w-[48px] border border-[rgba(255,255,255,0.16)] rounded-[9999px] cursor-pointer bg-[linear-gradient(135deg,#6366f1_0%,#7c3aed_100%)] text-[#ffffff] font-['Plus_Jakarta_Sans',sans-serif] text-[13.5px] font-bold tracking-[0.02em] [box-shadow:0_4px_14px_rgba(0,0,0,0.28),_0_1px_3px_rgba(0,0,0,0.15)] [will-change:right,_transform,_padding] [transition:right_0.35s_cubic-bezier(0.16,_1,_0.3,_1),_transform_0.2s_cubic-bezier(0.16,_1,_0.3,_1),_padding_0.3s_cubic-bezier(0.16,_1,_0.3,_1),_background_0.2s_ease,_box-shadow_0.2s_ease] overflow-hidden whitespace-nowrap hover:gap-[8px] hover:p-[0_18px_0_14px] hover:[transform:translateY(-2px)] hover:bg-[linear-gradient(135deg,#6d70f5_0%,#8b5cf6_100%)] hover:[box-shadow:0_6px_18px_rgba(0,0,0,0.35),_0_2px_6px_rgba(0,0,0,0.2)] active:[transform:translateY(0)_scale(0.97)] active:[box-shadow:0_2px_8px_rgba(0,0,0,0.25)] [.shift-panel-is-open_&]:right-[328px] [.shift-panel-is-open_&]:[transition:right_0.35s_cubic-bezier(0.16,_1,_0.3,_1)] max-[940px]:[.shift-panel-is-open_&]:right-[328px] max-[940px]:[.shift-panel-is-open_&]:[transform:none] max-[940px]:[.shift-panel-is-open_&]:opacity-0 max-[940px]:[.shift-panel-is-open_&]:pointer-events-none max-[940px]:h-[46px] max-[940px]:min-w-[46px] max-[940px]:p-[0_14px] max-[940px]:bottom-[20px] max-[940px]:right-[20px] max-[660px]:h-[46px] max-[660px]:min-w-[46px] max-[660px]:p-0 max-[660px]:justify-center max-[660px]:bottom-[16px] max-[660px]:right-[16px] max-[660px]:rounded-[50%] max-[660px]:gap-0 ${
+      data-scroll-hidden={scrollHidden}
+      data-keyboard-open={keyboardOpen}
+      onFocus={onReveal}
+      className={`fab-new-ticket group fixed bottom-[28px] right-[28px] z-[90] inline-flex items-center justify-center gap-0 h-[48px] min-w-[48px] border border-[rgba(255,255,255,0.16)] rounded-[9999px] cursor-pointer bg-[linear-gradient(135deg,#6366f1_0%,#7c3aed_100%)] text-[#ffffff] font-['Plus_Jakarta_Sans',sans-serif] text-[13.5px] font-bold tracking-[0.02em] [box-shadow:0_4px_14px_rgba(0,0,0,0.28),_0_1px_3px_rgba(0,0,0,0.15)] [will-change:right,_transform,_padding] [transition:right_0.35s_cubic-bezier(0.16,_1,_0.3,_1),_transform_0.2s_cubic-bezier(0.16,_1,_0.3,_1),_padding_0.3s_cubic-bezier(0.16,_1,_0.3,_1),_background_0.2s_ease,_box-shadow_0.2s_ease] overflow-hidden whitespace-nowrap hover:gap-[8px] hover:p-[0_18px_0_14px] hover:[transform:translateY(-2px)] hover:bg-[linear-gradient(135deg,#6d70f5_0%,#8b5cf6_100%)] hover:[box-shadow:0_6px_18px_rgba(0,0,0,0.35),_0_2px_6px_rgba(0,0,0,0.2)] active:[transform:translateY(0)_scale(0.97)] active:[box-shadow:0_2px_8px_rgba(0,0,0,0.25)] [.shift-panel-is-open_&]:right-[328px] [.shift-panel-is-open_&]:[transition:right_0.35s_cubic-bezier(0.16,_1,_0.3,_1)] max-[940px]:[.shift-panel-is-open_&]:right-[328px] max-[940px]:[.shift-panel-is-open_&]:[transform:none] max-[940px]:[.shift-panel-is-open_&]:opacity-0 max-[940px]:[.shift-panel-is-open_&]:pointer-events-none md:max-[940px]:h-[46px] md:max-[940px]:min-w-[46px] md:max-[940px]:p-[0_14px] md:max-[940px]:bottom-[20px] md:max-[940px]:right-[20px] max-md:bottom-[calc(68px+var(--ctd-safe-bottom,env(safe-area-inset-bottom,0px)))] max-md:right-3 max-md:size-[52px] max-md:min-w-[52px] max-md:p-0 max-md:gap-0 max-md:rounded-full motion-reduce:transition-none motion-reduce:[&.fab-new-ticket]:transition-none max-md:transition-[translate,opacity] max-md:duration-200 max-md:data-[scroll-hidden=true]:translate-y-4 max-md:data-[scroll-hidden=true]:opacity-0 max-md:data-[scroll-hidden=true]:pointer-events-none max-md:focus-visible:translate-y-0 max-md:focus-visible:opacity-100 max-md:focus-visible:pointer-events-auto max-lg:data-[keyboard-open=true]:invisible max-lg:data-[keyboard-open=true]:pointer-events-none [@media(max-height:499px)_and_(max-width:1023px)]:bottom-[calc(56px+env(safe-area-inset-bottom,0px))] [@media(max-height:499px)_and_(max-width:1023px)]:right-3 [@media(max-height:499px)_and_(max-width:1023px)]:data-[scroll-hidden=true]:opacity-0 [@media(max-height:499px)_and_(max-width:1023px)]:data-[scroll-hidden=true]:pointer-events-none ${
         isExpanded ? "fab-expanded gap-[8px] p-[0_18px_0_14px] [transform:translateY(-2px)] bg-[linear-gradient(135deg,#6d70f5_0%,#8b5cf6_100%)] [box-shadow:0_6px_18px_rgba(0,0,0,0.35),_0_2px_6px_rgba(0,0,0,0.2)]" : "p-[0_14px]"
       } ${isHovered ? "fab-hovered gap-[8px] p-[0_18px_0_14px] [transform:translateY(-2px)] bg-[linear-gradient(135deg,#6d70f5_0%,#8b5cf6_100%)] [box-shadow:0_6px_18px_rgba(0,0,0,0.35),_0_2px_6px_rgba(0,0,0,0.2)]" : ""} ${
         isOpen
@@ -52,7 +58,7 @@ export function FloatingNewTicketButton({ onClick, isOpen = false }: FloatingNew
           : ""
       }`}
       onClick={onClick}
-      onMouseEnter={() => setIsHovered(true)}
+      onMouseEnter={() => { if (window.matchMedia("(hover: hover)").matches) setIsHovered(true); }}
       onMouseLeave={() => setIsHovered(false)}
       aria-label="Buat tiket baru (Ctrl+N)"
       title="New Ticket (Ctrl+N)"
@@ -61,7 +67,7 @@ export function FloatingNewTicketButton({ onClick, isOpen = false }: FloatingNew
         <Plus size={20} strokeWidth={2.5} />
       </span>
       <span
-        className={`fab-label inline-block overflow-hidden whitespace-nowrap text-[13.5px] font-bold tracking-[0.02em] text-[#ffffff] leading-none [transition:max-width_0.35s_cubic-bezier(0.16,_1,_0.3,_1),_opacity_0.25s_ease,_margin-left_0.35s_ease] group-hover:max-w-[120px] group-hover:opacity-100 group-hover:ml-[8px] max-[660px]:hidden ${
+        className={`fab-label inline-block overflow-hidden whitespace-nowrap text-[13.5px] font-bold tracking-[0.02em] text-[#ffffff] leading-none [transition:max-width_0.35s_cubic-bezier(0.16,_1,_0.3,_1),_opacity_0.25s_ease,_margin-left_0.35s_ease] group-hover:max-w-[120px] group-hover:opacity-100 group-hover:ml-[8px] max-md:hidden ${
           isExpanded
             ? "fab-label-visible max-w-[120px] opacity-100 ml-[8px]"
             : "max-w-0 opacity-0 ml-0"

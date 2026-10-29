@@ -1,5 +1,7 @@
 "use client";
 
+import { Select } from "@/app/components/ui/Select";
+
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, LoaderCircle, ZoomIn } from "lucide-react";
 import type { PDFDocumentProxy } from "pdfjs-dist";
@@ -53,9 +55,20 @@ export function ReportPdfPreview({ url }: { url: string }) {
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
-    const observer = new ResizeObserver((entries) => setContainerWidth(entries[0].contentRect.width));
+    let rafId: number | null = null;
+    const observer = new ResizeObserver((entries) => {
+      if (rafId !== null) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        if (entries[0]) {
+          setContainerWidth(entries[0].contentRect.width);
+        }
+      });
+    });
     observer.observe(container);
-    return () => observer.disconnect();
+    return () => {
+      if (rafId !== null) cancelAnimationFrame(rafId);
+      observer.disconnect();
+    };
   }, []);
 
   useEffect(() => {
@@ -121,8 +134,8 @@ export function ReportPdfPreview({ url }: { url: string }) {
           </button>
         </div>
         <div className="flex items-center gap-2">
-          <ZoomIn size={14} className="text-[#94a3b8]" />
-          <select
+          
+          <Select icon={<ZoomIn size={16}  />}
             className={`${reportSelectClass} h-[34px] w-auto text-xs`}
             aria-label="Zoom pratinjau PDF"
             value={zoom}
@@ -131,7 +144,7 @@ export function ReportPdfPreview({ url }: { url: string }) {
             <option value="fit">Sesuaikan lebar</option>
             <option value="1">100%</option>
             <option value="1.5">150%</option>
-          </select>
+          </Select>
         </div>
       </div>
       {error && <p role="alert" className="px-5 py-4 text-xs font-medium text-[#f87171]">{error}</p>}

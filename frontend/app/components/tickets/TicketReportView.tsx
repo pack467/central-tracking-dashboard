@@ -1,46 +1,41 @@
 "use client";
+import { useMasterReferences } from "@/app/hooks/useMasterReferences";
+import { resolveCategoryColor } from "@/app/lib/category-colors";
+
+import { Select, MultiSelect } from "@/app/components/ui/Select";
+import { ResponsiveSheet } from "@/app/components/ui/BottomSheet";
+import { useMobileLayout, useCompactLayout } from "@/app/hooks/useMobileLayout";
+import { placeChartCallout, type ChartBox } from "@/app/lib/chart-layout";
+import { HorizontalScroll } from "@/app/components/ui/HorizontalScroll";
+import { useScrollEdges } from "@/app/hooks/useScrollEdges";
+import { useContainerDimensions } from "@/app/hooks/useContainerDimensions";
 import { paths } from "@/app/lib/routes";
 import { useUrlQuery } from "@/app/hooks/useUrlQuery";
-import { dashboardSchema } from "@/app/lib/query-state";
+import { useWholeRowViewport } from "@/app/hooks/useWholeRowViewport";
+import dynamic from "next/dynamic";
+import { dashboardSchema, type PanelId } from "@/app/lib/query-state";
+import { PanelViewButton } from "@/app/components/dashboard/PanelViewButton";
+import { TodayTicketRow } from "@/app/components/dashboard/TodayTicketRow";
+import { MemoCard } from "@/app/components/dashboard/MemoCard";
+import { CenteredEmptyState } from "@/app/components/ui/CenteredEmptyState";
+import { MemoModal } from "@/app/components/dashboard/MemoModal";
 
-import { useMemo, useState, useEffect, useRef } from "react";
+const PanelViewer = dynamic(
+  () =>
+    import("@/app/components/dashboard/panel-viewer/PanelViewer").then(
+      (m) => m.PanelViewer
+    ),
+  { ssr: false }
+);
+
+import { useResource } from "@/app/hooks/useResource";
+import { ticketsService } from "@/app/services/tickets";
+import { Skeleton, PanelSkeletonWrapper, DashboardLiveOpsCommandBarSkeleton, TodayTicketsSkeleton, ShiftMemoNotesSkeleton, MonitoringChecklistSkeleton, TicketVolumeChartSkeleton, StaffRecapSkeleton, CategoryDistributionSkeleton, SeverityDistributionSkeleton, ResolutionVelocitySkeleton, ShiftTrafficSkeleton } from "@/app/components/ui/skeleton";
+
+import { useMemo, useState, useEffect, useRef, useCallback } from "react";
+
 import { createPortal } from "react-dom";
-import {
-  Clock,
-  CheckCircle2,
-  AlertTriangle,
-  ShieldCheck,
-  Activity,
-  Layers,
-  TrendingDown,
-  TrendingUp,
-  Info,
-  Calendar,
-  Zap,
-  BarChart3,
-  ShieldAlert,
-  ListChecks,
-  Users,
-  User,
-  UserCheck,
-  Filter,
-  X,
-  ChevronDown,
-  ChevronRight,
-  ChevronLeft,
-  Eye,
-  Moon,
-  Sun,
-  Sunset,
-  StickyNote,
-  Copy,
-  Plus,
-  RotateCcw,
-  Check,
-  FolderKanban,
-  SlidersHorizontal,
-  Search,
-} from "lucide-react";
+import { Clock, CheckCircle2, AlertTriangle, ShieldCheck, Activity, Layers, TrendingUp, Calendar, Zap, BarChart3, ListChecks, Users, X, ChevronRight, ChevronLeft, Moon, Sun, Sunset, StickyNote, RotateCcw, Check, FolderKanban, SlidersHorizontal, ListFilter } from "lucide-react";
 import { useToast } from "@/app/components/ui/Toast";
 import { Avatar } from "@/app/components/ui/Avatar";
 import { ModalCloseButton } from "@/app/components/ui/ModalCloseButton";
@@ -70,16 +65,7 @@ const PROJECT_COLORS: Record<string, string> = {
   "UNEM": "#84cc16",     // Lime
 };
 
-const CATEGORY_COLORS = [
-  "#38bdf8", // Sky Blue
-  "#10b981", // Emerald
-  "#a855f7", // Purple
-  "#f59e0b", // Amber
-  "#06b6d4", // Cyan
-  "#f43f5e", // Rose
-  "#84cc16", // Lime
-  "#94a3b8", // Slate
-];
+
 
 const PRIORITY_COLORS = {
   Critical: "#ef4444",
@@ -88,15 +74,41 @@ const PRIORITY_COLORS = {
   Low: "#2dd4bf",
 };
 
+const SEVERITY_CARD_STYLES = {
+  Critical: {
+    borderLeft: "border-l-[#ef4444]",
+    dot: "bg-[#ef4444]",
+    bar: "bg-[#ef4444]",
+  },
+  High: {
+    borderLeft: "border-l-[#f97316]",
+    dot: "bg-[#f97316]",
+    bar: "bg-[#f97316]",
+  },
+  Medium: {
+    borderLeft: "border-l-[#f59e0b]",
+    dot: "bg-[#f59e0b]",
+    bar: "bg-[#f59e0b]",
+  },
+  Low: {
+    borderLeft: "border-l-[#2dd4bf]",
+    dot: "bg-[#2dd4bf]",
+    bar: "bg-[#2dd4bf]",
+  },
+} as const;
+
 // Reusable standard panel card and header utilities matching legacy dashboard specifications
 const REPORT_PANEL_CARD =
-  "bg-[var(--panel-bg)] border border-[var(--panel-border)] rounded-[12px] shadow-[var(--shadow-panel)] overflow-hidden flex flex-col";
+  "bg-[var(--panel-bg)] border border-[var(--panel-border)] rounded-[12px] shadow-[var(--shadow-panel)] overflow-hidden flex flex-col max-lg:min-w-0";
 
 const REPORT_PANEL_HEADING =
-  "flex justify-between items-center flex-wrap gap-[12px] max-[768px]:gap-[10px] p-[14px_20px] max-[768px]:p-[12px_14px] border-b border-[var(--line)]";
+  "flex justify-between items-center flex-wrap gap-[12px] max-[768px]:gap-[10px] p-[14px_20px] max-[768px]:p-[12px_14px] border-b border-[var(--line)] max-lg:h-[73px] max-lg:gap-2 max-lg:px-3.5 max-lg:py-3.5 max-lg:shrink-0";
 
 const REPORT_PANEL_TITLE =
-  "flex items-center gap-[8px] text-[14px] font-bold text-[var(--ink-primary)]";
+  "flex items-center gap-[8px] text-[14px] font-bold text-[var(--ink-primary)] max-lg:text-[15px] max-lg:font-semibold";
+
+const MOBILE_OPS_CARD = "max-lg:rounded-2xl max-lg:border-[#334155]/60 max-lg:bg-[#1e293b] max-lg:[&.ops-today-panel_[data-ops-body]]:p-0 max-lg:[&.ops-shift-panel_[data-ops-body]]:p-4 max-lg:[&.ops-engineer-panel_[data-ops-body]]:p-4";
+const MOBILE_OPS_HEADING = "max-lg:[&[data-ops-header]]:h-[77px] max-lg:[&[data-ops-header]]:min-h-[77px] max-lg:[&[data-ops-header]]:flex-nowrap max-lg:[&[data-ops-header]]:gap-3 max-lg:[&[data-ops-header]]:p-4 max-lg:[&[data-ops-header]]:border-[#334155]/50 max-lg:[&_[data-ops-title]]:gap-3 max-lg:[&_[data-ops-title]]:leading-5";
 
 // Helper for generating clean Y-axis ticks
 function computeYTicks(maxVal: number) {
@@ -144,11 +156,6 @@ function formatHeatmapDate(dateStr: string) {
   return { dayName: "", dateShort: dateStr.slice(5) };
 }
 
-const DEFAULT_SHIFT_MEMO = `• Pantau koneksi gateway B2B sekunder menjelang lonjakan transaksi pagi.
-• Antrean ActiveMQ broker #228 masih dalam batas investigasi failover.
-• Jadwal checklist checkpoint berikutnya pukul 06:30 WIB (USIEM & SM).
-• Status failover DR cluster standby normal tanpa kendala.`;
-
 interface MonitoringCheckItem {
   id: string;
   project: string;
@@ -167,6 +174,11 @@ const DEFAULT_MONITORING_ITEMS: MonitoringCheckItem[] = [
   { id: "mon-6", project: "DM", task: "Database replication sync & latency", status: "OK", time: "07:15" },
   { id: "mon-7", project: "MB", task: "Webhook payment endpoint availability", status: "NOK", time: "07:30", issueNote: "Latensi > 200ms" },
   { id: "mon-8", project: "APH", task: "Core switch spine DC Cikarang trunk", status: "OK", time: "07:45" },
+  { id: "mon-9", project: "UNEM", task: "Router edge peering Telkomsel link", status: "OK", time: "08:00" },
+  { id: "mon-10", project: "B2B", task: "API gateway ISO8583 response latency", status: "OK", time: "08:15" },
+  { id: "mon-11", project: "ActiveMQ", task: "Dead letter queue monitor & consumer", status: "OK", time: "08:30" },
+  { id: "mon-12", project: "USIEM", task: "Kafka event stream SIEM ingestion", status: "OK", time: "08:45" },
+  { id: "mon-13", project: "SM", task: "SMS gateway notification delivery rate", status: "OK", time: "09:00" },
 ];
 
 const STAFF_ROSTER = [
@@ -209,126 +221,13 @@ function getTicketShiftLocal(ticket: Ticket): "Subuh" | "Pagi" | "Malam" {
   return "Pagi";
 }
 
-function AnalyticsShifterMultiSelect({
-  selectedList,
-  onChange,
-  staffList,
-}: {
-  selectedList: string[];
-  onChange: (list: string[]) => void;
-  staffList: typeof STAFF_ROSTER;
-}) {
-  const [isOpen, setIsOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!isOpen) return;
-    const handleDown = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setIsOpen(false);
-    };
-    document.addEventListener("mousedown", handleDown);
-    document.addEventListener("keydown", handleKey);
-    return () => {
-      document.removeEventListener("mousedown", handleDown);
-      document.removeEventListener("keydown", handleKey);
-    };
-  }, [isOpen]);
-
-  const toggle = (name: string) => {
-    const exists = selectedList.includes(name);
-    const next = exists ? selectedList.filter((n) => n !== name) : [...selectedList, name];
-    onChange(next);
-  };
-
-  const selectAll = () => {
-    onChange(staffList.map((s) => s.name));
-  };
-
-  const clearAll = () => {
-    onChange([]);
-  };
-
-  const label = useMemo(() => {
-    if (selectedList.length === 0) return "Semua Shifter (14 Staf)";
-    if (selectedList.length === 1) {
-      const parts = selectedList[0].split(" ");
-      return parts.slice(0, 2).join(" ");
-    }
-    if (selectedList.length === 2) {
-      const p1 = selectedList[0].split(" ")[0];
-      const p2 = selectedList[1].split(" ")[0];
-      return `${p1}, ${p2}`;
-    }
-    return `${selectedList.length} Shifter Terpilih`;
-  }, [selectedList]);
-
-  return (
-    <div className="relative w-full" ref={containerRef}>
-      <div
-        className="relative flex items-center justify-between gap-[6px] w-full h-[34px] p-[0_10px_0_30px] bg-[rgba(15,23,42,0.85)] border border-[rgba(148,163,184,0.16)] rounded-[7px] text-[11.5px] text-[#f8fafc] cursor-pointer select-none [transition:all_0.15s_ease] overflow-hidden hover:border-[rgba(56,189,248,0.3)] hover:bg-[rgba(15,23,42,0.95)] data-[active=true]:border-[rgba(56,189,248,0.45)] data-[active=true]:bg-[rgba(56,189,248,0.08)] data-[active=true]:text-[#38bdf8] data-[active=true]:font-semibold analytics-shifter-trigger"
-        data-active={selectedList.length > 0 ? "true" : undefined}
-        onClick={() => setIsOpen((prev) => !prev)}
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            setIsOpen((prev) => !prev);
-          }
-        }}
-        title={selectedList.length > 0 ? selectedList.join(", ") : "Filter Shifter / PIC"}
-      >
-        <Users size={13} className="absolute left-[10px] text-[#94a3b8] pointer-events-none shrink-0 analytics-select-icon" />
-        <span className="whitespace-nowrap overflow-hidden text-ellipsis flex-1 min-w-0">
-          {label}
-        </span>
-        <ChevronDown size={12} className="absolute right-[10px] text-[#94a3b8] pointer-events-none shrink-0 opacity-70 analytics-select-arrow" />
-      </div>
-
-      {isOpen && (
-        <div className="absolute top-[calc(100%+4px)] left-0 w-[260px] bg-[#0f172a] border border-[rgba(148,163,184,0.2)] rounded-[8px] shadow-[0_10px_25px_rgba(0,0,0,0.5)] z-50 p-[6px] flex flex-col gap-[4px] analytics-shifter-popover">
-          <div className="flex items-center justify-between p-[4px_6px_6px] [border-bottom:1px_solid_rgba(148,163,184,0.1)] text-[10px] font-semibold text-[#94a3b8] analytics-shifter-header">
-            <span>Pilih Shifter ({selectedList.length}/{staffList.length})</span>
-            <div className="flex items-center gap-[8px]">
-              <button type="button" className="text-[#38bdf8] cursor-pointer text-[10px] bg-transparent border-none p-0 hover:underline analytics-shifter-action" onClick={selectAll}>
-                Pilih Semua
-              </button>
-              <span>·</span>
-              <button type="button" className="text-[#38bdf8] cursor-pointer text-[10px] bg-transparent border-none p-0 hover:underline analytics-shifter-action" onClick={clearAll}>
-                Hapus
-              </button>
-            </div>
-          </div>
-          <div className="flex flex-col gap-[2px] max-h-[210px] overflow-y-auto pr-[2px] analytics-shifter-list">
-            {staffList.map((staff) => {
-              const isSelected = selectedList.includes(staff.name);
-              return (
-                <label
-                  key={staff.name}
-                  className={`flex items-center gap-[8px] p-[5px_8px] rounded-[5px] text-[11px] cursor-pointer [transition:background_0.15s_ease] ${isSelected ? "bg-[rgba(56,189,248,0.14)] text-[#38bdf8] font-semibold is-selected" : "text-[#f8fafc] hover:bg-[rgba(56,189,248,0.08)]"} analytics-shifter-item`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={isSelected}
-                    onChange={() => toggle(staff.name)}
-                    className="w-[13px] h-[13px] rounded-[3px] accent-[#0284c7] cursor-pointer analytics-shifter-checkbox"
-                  />
-                  <span className="flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">
-                    {staff.name}
-                  </span>
-                </label>
-              );
-            })}
-          </div>
-        </div>
-      )}
-    </div>
-  );
+function AnalyticsShifterMultiSelect({ selectedList, onChange, staffList }: { selectedList: string[]; onChange: (list: string[]) => void; staffList: typeof STAFF_ROSTER }) {
+  return <MultiSelect label="Shifter (PIC)" aria-label="Filter Shifter / PIC" value={selectedList} onChange={onChange} options={staffList.map(staff => ({ value: staff.name, label: staff.name }))} icon={<Users size={16} />} className="analytics-shifter-trigger h-[34px] w-full text-[11.5px]" title={selectedList.length ? selectedList.join(", ") : "Filter Shifter / PIC"} formatValue={values => {
+    if (!values.length) return "Semua Shifter (14)";
+    if (values.length === 1) return values[0].split(" ").slice(0, 2).join(" ");
+    if (values.length === 2) return values[0].split(" ").slice(0, 2).map((part, index) => index ? part[0] + "." : part).join(" ") + " +1";
+    return values.length + " Shifter Terpilih";
+  }} />;
 }
 
 const SHIFT_BADGE_STYLES = {
@@ -338,67 +237,125 @@ const SHIFT_BADGE_STYLES = {
 } as const;
 
 const OPS_PRIORITY_PILL_STYLES = {
-  crit: "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] font-bold whitespace-nowrap bg-[rgba(239,68,68,0.15)] text-[#f87171] border border-[rgba(239,68,68,0.3)] priority-pill priority-pill-crit",
-  high: "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] font-bold whitespace-nowrap bg-[rgba(249,115,22,0.15)] text-[#fb923c] border border-[rgba(249,115,22,0.3)] priority-pill priority-pill-high",
-  med: "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] font-bold whitespace-nowrap bg-[rgba(245,158,11,0.15)] text-[#fbbf24] border border-[rgba(245,158,11,0.3)] priority-pill priority-pill-med",
-  low: "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] font-bold whitespace-nowrap bg-[rgba(45,212,191,0.15)] text-[#2dd4bf] border border-[rgba(45,212,191,0.3)] priority-pill priority-pill-low",
+  crit: "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] max-lg:text-[11px] font-bold whitespace-nowrap bg-[rgba(239,68,68,0.15)] text-[#f87171] border border-[rgba(239,68,68,0.3)] max-lg:h-[22px] max-lg:px-2 max-lg:py-0 max-lg:font-sans max-lg:font-semibold max-lg:leading-none max-lg:bg-[rgba(239,68,68,0.18)] max-lg:border-[rgba(239,68,68,0.5)] priority-pill priority-pill-crit",
+  high: "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] max-lg:text-[11px] font-bold whitespace-nowrap bg-[rgba(249,115,22,0.15)] text-[#fb923c] border border-[rgba(249,115,22,0.3)] max-lg:h-[22px] max-lg:px-2 max-lg:py-0 max-lg:font-sans max-lg:font-semibold max-lg:leading-none max-lg:bg-[rgba(249,115,22,0.18)] max-lg:border-[rgba(249,115,22,0.5)] priority-pill priority-pill-high",
+  med: "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] max-lg:text-[11px] font-bold whitespace-nowrap bg-[rgba(245,158,11,0.15)] text-[#fbbf24] border border-[rgba(245,158,11,0.3)] max-lg:h-[22px] max-lg:px-2 max-lg:py-0 max-lg:font-sans max-lg:font-semibold max-lg:leading-none max-lg:bg-[rgba(245,158,11,0.18)] max-lg:border-[rgba(245,158,11,0.5)] priority-pill priority-pill-med",
+  low: "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] max-lg:text-[11px] font-bold whitespace-nowrap bg-[rgba(45,212,191,0.15)] text-[#2dd4bf] border border-[rgba(45,212,191,0.3)] max-lg:h-[22px] max-lg:px-2 max-lg:py-0 max-lg:font-sans max-lg:font-semibold max-lg:leading-none max-lg:bg-[rgba(45,212,191,0.18)] max-lg:border-[rgba(45,212,191,0.5)] priority-pill priority-pill-low",
 } as const;
 
-const OPS_STATUS_PILL_STYLES = {
-  active: "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] font-bold whitespace-nowrap bg-[rgba(16,185,129,0.15)] text-[#34d399] border border-[rgba(16,185,129,0.25)] status-pill status-pill-active",
-  inprogress: "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] font-bold whitespace-nowrap bg-[rgba(56,189,248,0.15)] text-[#38bdf8] border border-[rgba(56,189,248,0.25)] status-pill status-pill-inprogress",
-  pending: "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] font-bold whitespace-nowrap bg-[rgba(245,158,11,0.15)] text-[#fbbf24] border border-[rgba(245,158,11,0.25)] status-pill status-pill-pending",
-  escalated: "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] font-bold whitespace-nowrap bg-[rgba(168,85,247,0.15)] text-[#c084fc] border border-[rgba(168,85,247,0.25)] status-pill status-pill-escalated",
-  closed: "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] font-bold whitespace-nowrap bg-[rgba(148,163,184,0.15)] text-[#cbd5e1] border border-[rgba(148,163,184,0.25)] status-pill status-pill-closed",
-} as const;
+const OPS_STATUS_PILL_STYLES: Record<string, string> = {
+  open: "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] max-lg:text-[11px] font-bold whitespace-nowrap bg-[rgba(56,189,248,0.15)] text-[#38bdf8] border border-[rgba(56,189,248,0.25)] max-lg:h-[22px] max-lg:px-2 max-lg:py-0 max-lg:font-sans max-lg:font-semibold max-lg:leading-none max-lg:bg-[rgba(56,189,248,0.18)] max-lg:border-[rgba(56,189,248,0.5)] status-pill status-pill-open",
+  active: "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] max-lg:text-[11px] font-bold whitespace-nowrap bg-[rgba(56,189,248,0.15)] text-[#38bdf8] border border-[rgba(56,189,248,0.25)] max-lg:h-[22px] max-lg:px-2 max-lg:py-0 max-lg:font-sans max-lg:font-semibold max-lg:leading-none max-lg:bg-[rgba(56,189,248,0.18)] max-lg:border-[rgba(56,189,248,0.5)] status-pill status-pill-active",
+  activity: "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] max-lg:text-[11px] font-bold whitespace-nowrap bg-[rgba(56,189,248,0.15)] text-[#38bdf8] border border-[rgba(56,189,248,0.25)] max-lg:h-[22px] max-lg:px-2 max-lg:py-0 max-lg:font-sans max-lg:font-semibold max-lg:leading-none max-lg:bg-[rgba(56,189,248,0.18)] max-lg:border-[rgba(56,189,248,0.5)] status-pill status-pill-activity",
+  meeting: "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] max-lg:text-[11px] font-bold whitespace-nowrap bg-[rgba(45,212,191,0.15)] text-[#2dd4bf] border border-[rgba(45,212,191,0.25)] max-lg:h-[22px] max-lg:px-2 max-lg:py-0 max-lg:font-sans max-lg:font-semibold max-lg:leading-none max-lg:bg-[rgba(45,212,191,0.18)] max-lg:border-[rgba(45,212,191,0.5)] status-pill status-pill-meeting",
+  "re-open": "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] max-lg:text-[11px] font-bold whitespace-nowrap bg-[rgba(248,113,113,0.15)] text-[#f87171] border border-[rgba(248,113,113,0.25)] max-lg:h-[22px] max-lg:px-2 max-lg:py-0 max-lg:font-sans max-lg:font-semibold max-lg:leading-none max-lg:bg-[rgba(248,113,113,0.18)] max-lg:border-[rgba(248,113,113,0.5)] status-pill status-pill-reopen",
+  pending: "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] max-lg:text-[11px] font-bold whitespace-nowrap bg-[rgba(245,158,11,0.15)] text-[#fbbf24] border border-[rgba(245,158,11,0.25)] max-lg:h-[22px] max-lg:px-2 max-lg:py-0 max-lg:font-sans max-lg:font-semibold max-lg:leading-none max-lg:bg-[rgba(245,158,11,0.18)] max-lg:border-[rgba(245,158,11,0.5)] status-pill status-pill-pending",
+  rca: "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] max-lg:text-[11px] font-bold whitespace-nowrap bg-[rgba(249,115,22,0.15)] text-[#fb923c] border border-[rgba(249,115,22,0.25)] max-lg:h-[22px] max-lg:px-2 max-lg:py-0 max-lg:font-sans max-lg:font-semibold max-lg:leading-none max-lg:bg-[rgba(249,115,22,0.18)] max-lg:border-[rgba(249,115,22,0.5)] status-pill status-pill-rca",
+  escalated: "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] max-lg:text-[11px] font-bold whitespace-nowrap bg-[rgba(168,85,247,0.15)] text-[#c084fc] border border-[rgba(168,85,247,0.25)] max-lg:h-[22px] max-lg:px-2 max-lg:py-0 max-lg:font-sans max-lg:font-semibold max-lg:leading-none max-lg:bg-[rgba(168,85,247,0.18)] max-lg:border-[rgba(168,85,247,0.5)] status-pill status-pill-escalated",
+  inprogress: "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] max-lg:text-[11px] font-bold whitespace-nowrap bg-[rgba(56,189,248,0.15)] text-[#38bdf8] border border-[rgba(56,189,248,0.25)] max-lg:h-[22px] max-lg:px-2 max-lg:py-0 max-lg:font-sans max-lg:font-semibold max-lg:leading-none max-lg:bg-[rgba(56,189,248,0.18)] max-lg:border-[rgba(56,189,248,0.5)] status-pill status-pill-inprogress",
+  closed: "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] max-lg:text-[11px] font-bold whitespace-nowrap bg-[rgba(148,163,184,0.15)] text-[#cbd5e1] border border-[rgba(148,163,184,0.25)] max-lg:h-[22px] max-lg:px-2 max-lg:py-0 max-lg:font-sans max-lg:font-semibold max-lg:leading-none max-lg:bg-[rgba(148,163,184,0.18)] max-lg:border-[rgba(148,163,184,0.5)] status-pill status-pill-closed",
+};
 
-export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: TicketReportViewProps) {
-  const { activeClient } = useClient();
+// The 10px minimum wins on narrow phones; dense ranges keep a 14px slot.
+function compactVolumeGeometry(count: number, available: number) {
+  const fits = count <= 31 && available >= count * 10 + 16;
+  const width = fits ? available : Math.max(available, count * 14 + 16);
+  const bar = Math.min(24, Math.max(10, (width - 16 - Math.max(0, count - 1) * 3) / Math.max(1, count)));
+  const step = count > 1 ? (width - 16 - bar) / (count - 1) : 0;
+  return { fits, width, bar, step, start: count > 1 ? 8 + bar / 2 : width / 2 };
+}
+
+export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToTickets }: TicketReportViewProps) {
+  const mobile = useCompactLayout();
+  const phone = useMobileLayout();
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [ticketsExpanded, setTicketsExpanded] = useState(false);
+  const [monitoringExpanded, setMonitoringExpanded] = useState(false);
+  const [staffExpanded, setStaffExpanded] = useState(false);
+  const toggleCompactPreview = (panel: HTMLElement | null, expanded: boolean, setExpanded: (value: boolean) => void) => {
+    setExpanded(!expanded);
+    if (expanded) requestAnimationFrame(() => panel?.scrollIntoView({ block: "start", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" }));
+  };
+  const [hiddenCardProjects, setHiddenCardProjects] = useState<Set<string>>(() => new Set());
+  const toggleCardProject = (project: string) => setHiddenCardProjects(previous => {
+    const next = new Set(previous);
+    if (next.has(project)) next.delete(project); else next.add(project);
+    return next;
+  });
+  const [distributionIndex, setDistributionIndex] = useState(0);
+  const distributionRef = useRef<HTMLDivElement>(null);
+  const [volumeChartRef, volumeSize] = useContainerDimensions<HTMLDivElement>();
+  const volumeFade = useScrollEdges(volumeChartRef, volumeSize.width);
+  const [velocityChartRef, velocitySize] = useContainerDimensions<HTMLDivElement>();
+  const [trafficChartRef, trafficSize] = useContainerDimensions<HTMLDivElement>();
+  const { activeClient, activeClientId } = useClient();
+  const { catalog, categoryLabel, severityLabel, projectLabel } = useMasterReferences();
   const notify = useToast();
-  const schema = useMemo(() => dashboardSchema([...new Set(tickets.map(t => t.project))]), [tickets]);
+
+  const {
+    data: fetchedTickets,
+    isLoading,
+    isStale,
+    error,
+    refetch,
+  } = useResource<Ticket[]>(
+    `dashboard-tickets-${activeClientId}`,
+    (signal) => ticketsService.list({ clientId: activeClientId }, signal),
+    {
+      deps: [activeClientId],
+    }
+  );
+
+  const tickets = fetchedTickets ?? (isLoading ? [] : propTickets);
+  const newProjectFilters = catalog.projects.filter(p => !p.legacy && p.organizationId === activeClientId && p.status === "active").map(p => p.legacyKey);
+  const schema = dashboardSchema([...new Set([...tickets.map(t => t.project), ...newProjectFilters])]);
   const url = useUrlQuery(schema, paths.dashboard);
+
   const activeShift = useActiveShift();
   const { userStatus } = useUserStatus();
 
-  // Memo & Catatan Shift (Notepad state)
-  const [shiftMemo, setShiftMemo] = useState<string>(DEFAULT_SHIFT_MEMO);
-  const [memoCopied, setMemoCopied] = useState(false);
+  // Memo Modal open state
+  const [memoModalOpen, setMemoModalOpen] = useState(false);
 
-  const handleMemoChange = (val: string) => {
-    setShiftMemo(val);
-    if (typeof window !== "undefined") {
-      localStorage.setItem("ctd_shift_notepad_memo", val);
-    }
-  };
+  // Panel Viewer state from URL
+  const activePanelId = (url.values.panel as PanelId) || null;
+  const viewerMode = (url.values.mode as "chart" | "table") || "chart";
 
-  const handleCopyMemo = () => {
-    if (typeof navigator !== "undefined") {
-      navigator.clipboard.writeText(shiftMemo);
-      setMemoCopied(true);
-      notify.success("Memo berhasil disalin ke clipboard!", { id: "memo-copied" });
-      setTimeout(() => setMemoCopied(false), 2000);
-    }
-  };
+  const handleOpenPanel = useCallback((id: PanelId) => {
+    url.update({ panel: id });
+  }, [url]);
 
-  const handleAddBullet = () => {
-    const next = shiftMemo.trimEnd() + (shiftMemo.trim() ? "\n• " : "• ");
-    handleMemoChange(next);
-  };
+  const handleClosePanel = useCallback(() => {
+    url.update({ panel: "", mode: "chart" });
+  }, [url]);
 
-  const handleResetMemo = () => {
-    handleMemoChange(DEFAULT_SHIFT_MEMO);
-    notify.info("Catatan memo dikembalikan ke default.", { id: "memo-reset" });
-  };
+  const handlePanelModeChange = useCallback((mode: "chart" | "table") => {
+    url.update({ mode });
+  }, [url]);
 
   // Monitoring Checklist (OK / NOK state)
   const [monitoringItems, setMonitoringItems] = useState<MonitoringCheckItem[]>(DEFAULT_MONITORING_ITEMS);
 
   useEffect(() => {
     try {
-      const savedMemo = localStorage.getItem("ctd_shift_notepad_memo");
-      if (savedMemo !== null) setShiftMemo(savedMemo);
       const savedMon = localStorage.getItem("ctd_shift_monitoring_checklist");
-      if (savedMon) setMonitoringItems(JSON.parse(savedMon));
+      if (savedMon) {
+        const parsed = JSON.parse(savedMon);
+        if (Array.isArray(parsed)) {
+          if (parsed.length >= DEFAULT_MONITORING_ITEMS.length) {
+            setMonitoringItems(parsed);
+          } else {
+            // Merge with default 13 items so any existing items preserve status, but all 13 are loaded
+            const savedMap = new Map(parsed.map((p: MonitoringCheckItem) => [p.id, p]));
+            const merged = DEFAULT_MONITORING_ITEMS.map((item) => {
+              const saved = savedMap.get(item.id);
+              return saved ? { ...item, status: saved.status, issueNote: saved.issueNote } : item;
+            });
+            setMonitoringItems(merged);
+            localStorage.setItem("ctd_shift_monitoring_checklist", JSON.stringify(merged));
+          }
+        }
+      }
     } catch {}
   }, []);
 
@@ -435,6 +392,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
   const nokCount = monitoringItems.filter((i) => i.status === "NOK").length;
 
   // Active hover and click selection states for charts
+  const [volumeTouch, setVolumeTouch] = useState<{ index: number; x: number } | null>(null);
   const [hoveredDate, setHoveredDate] = useState<string | null>(null);
   const selectedDate = url.values.day || null;
   const setSelectedDate = (next: string | null | ((previous: string | null) => string | null)) => {
@@ -512,6 +470,24 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
     analyticsSeverityFilter,
   ]);
 
+  const activeFilterChips = useMemo(() => {
+    const chips: { label: string; value: string }[] = [];
+    if (analyticsDateFilter) chips.push({ label: "Tanggal", value: analyticsDateFilter });
+    if (analyticsProjectFilter && analyticsProjectFilter !== "All") chips.push({ label: "Proyek", value: analyticsProjectFilter });
+    if (analyticsShiftFilter && analyticsShiftFilter !== "All") chips.push({ label: "Shift", value: analyticsShiftFilter });
+    if (analyticsSelectedShifters.length > 0) chips.push({ label: "PIC", value: `${analyticsSelectedShifters.length} dipilih` });
+    if (analyticsStatusFilter && analyticsStatusFilter !== "All") chips.push({ label: "Status", value: analyticsStatusFilter });
+    if (analyticsSeverityFilter && analyticsSeverityFilter !== "All") chips.push({ label: "Severity", value: analyticsSeverityFilter });
+    return chips;
+  }, [
+    analyticsDateFilter,
+    analyticsProjectFilter,
+    analyticsShiftFilter,
+    analyticsSelectedShifters,
+    analyticsStatusFilter,
+    analyticsSeverityFilter,
+  ]);
+
   const resetAllAnalyticsFilters = () => {
     setAnalyticsDateFilter("");
     setAnalyticsProjectFilter("All");
@@ -563,16 +539,14 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
 
       // 5. Status
       if (analyticsStatusFilter !== "All") {
-        const s = (t.status || "").toLowerCase();
+        const s = (t.status || "").toLowerCase().replace(/[\s_]+/g, "-");
         const target = analyticsStatusFilter.toLowerCase();
-        if (target === "active") {
-          if (s === "closed" || s === "ditutup") return false;
-        } else if (target === "closed") {
+        if (target === "closed") {
           if (s !== "closed" && s !== "ditutup") return false;
-        } else if (target === "pending") {
-          if (s !== "pending") return false;
-        } else if (target === "escalated") {
-          if (s !== "escalated") return false;
+        } else if (target === "re-open") {
+          if (s !== "re-open" && s !== "reopen") return false;
+        } else if (s !== target) {
+          return false;
         }
       }
 
@@ -603,7 +577,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
   const activeTickets = useMemo(
     () => analyticsTickets.filter((t) => {
       const s = t.status.toLowerCase();
-      return s === "active" || s === "aktivitas" || s === "open" || s === "pending" || s === "escalated";
+      return s !== "closed" && s !== "ditutup";
     }),
     [analyticsTickets]
   );
@@ -922,12 +896,19 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
   // 4. Breakdown by Category / Type
   const typeCounts = useMemo(() => {
     const counts: Record<string, number> = {};
-    for (const t of tickets) {
+    for (const t of analyticsTickets) {
       const type = t.type || t.category || "Incident";
       counts[type] = (counts[type] || 0) + 1;
     }
+    // No tickets match the filter: keep the known categories listed with 0 (0%)
+    if (analyticsTickets.length === 0) {
+      for (const t of tickets) {
+        const type = t.type || t.category || "Incident";
+        counts[type] = 0;
+      }
+    }
     return Object.entries(counts).sort((a, b) => b[1] - a[1]);
-  }, [tickets]);
+  }, [analyticsTickets, tickets]);
 
   // 5. Breakdown by Priority
   const priorityCounts = useMemo(() => {
@@ -937,7 +918,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
       Medium: 0,
       Low: 0,
     };
-    for (const t of tickets) {
+    for (const t of analyticsTickets) {
       const s = t.severity.toLowerCase();
       if (s === "critical" || s === "kritis") counts.Critical += 1;
       else if (s === "high" || s === "tinggi") counts.High += 1;
@@ -945,7 +926,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
       else counts.Low += 1;
     }
     return counts;
-  }, [tickets]);
+  }, [analyticsTickets]);
 
   // 5. Breakdown by Priority
 
@@ -1047,9 +1028,30 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
   const maxResTime = Math.max(70, ...volumeByDate.map((v) => v.avgResolution));
 
   // Compute Y-Ticks for main primary charts
-  const stackedYTicks = useMemo(() => computeYTicks(maxDayCreated), [maxDayCreated]);
+  const stackedYTicks = useMemo(() => {
+    if (!mobile) return computeYTicks(maxDayCreated);
+    const peak = Math.max(1, ...volumeByDate.map(day => Object.entries(day.projectCounts).reduce((sum, [project, count]) => sum + (hiddenCardProjects.has(project) ? 0 : count), 0)));
+    const yMax = Math.max(4, Math.ceil(peak * 1.1));
+    return { yMax, ticks: Array.from({ length: 5 }, (_, index) => Math.round(yMax * index / 4)) };
+  }, [mobile, maxDayCreated, volumeByDate, hiddenCardProjects]);
   const trajectoryYTicks = useMemo(() => computeYTicks(maxDayThroughput), [maxDayThroughput]);
   const resolutionYTicks = useMemo(() => computeYTicks(maxResTime), [maxResTime]);
+
+  useEffect(() => {
+    if (!mobile || !volumeChartRef.current) return;
+    if (selectedChartTab !== "stacked-project") { volumeChartRef.current.scrollLeft = volumeChartRef.current.scrollWidth; return; }
+    const geometry = compactVolumeGeometry(volumeByDate.length, volumeSize.width);
+    const peakIndex = volumeByDate.findIndex(day => day.created === maxDayCreated);
+    volumeChartRef.current.scrollLeft = geometry.fits ? 0 : Math.max(0, geometry.start + peakIndex * geometry.step - volumeSize.width / 2);
+  }, [mobile, volumeByDate, maxDayCreated, volumeSize.width, volumeChartRef, selectedChartTab]);
+
+  useEffect(() => {
+    if (!mobile || !volumeTouch) return;
+    const outside = (event: PointerEvent) => { if (!(event.target as Element).closest("[data-volume-plot]")) setVolumeTouch(null); };
+    const escape = (event: globalThis.KeyboardEvent) => { if (event.key === "Escape") setVolumeTouch(null); };
+    document.addEventListener("pointerdown", outside); document.addEventListener("keydown", escape);
+    return () => { document.removeEventListener("pointerdown", outside); document.removeEventListener("keydown", escape); };
+  }, [mobile, volumeTouch]);
 
   // ── Operational Focus Computations ──
 
@@ -1090,11 +1092,35 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
     );
   }, [todayTickets, selectedEngineerFilter]);
 
-  // Pagination for Today's Tickets
-  const todayPage = url.values.page;
-  const setTodayPage = url.field("page", "push");
-  const todayPageSize = url.values.size;
-  const setTodayPageSize = url.field("size", "replace");
+  // Pagination for Today's Tickets (reactive local state + synchronized URL query)
+  const [todayPage, setLocalTodayPage] = useState<number>(() => url.values.page || 1);
+  const [todayPageSize, setLocalTodayPageSize] = useState<number>(() => url.values.size !== undefined ? url.values.size : 10);
+
+  useEffect(() => {
+    if (url.values.page && url.values.page !== todayPage) {
+      setLocalTodayPage(url.values.page);
+    }
+  }, [url.values.page]);
+
+  useEffect(() => {
+    if (url.values.size !== undefined && url.values.size !== todayPageSize) {
+      setLocalTodayPageSize(url.values.size);
+    }
+  }, [url.values.size]);
+
+  const setTodayPage = useCallback((next: number | ((p: number) => number)) => {
+    setLocalTodayPage((prev) => {
+      const val = typeof next === "function" ? next(prev) : next;
+      url.update({ page: val }, "push");
+      return val;
+    });
+  }, [url]);
+
+  const setTodayPageSize = useCallback((size: number) => {
+    setLocalTodayPageSize(size);
+    setLocalTodayPage(1);
+    url.update({ size, page: 1 }, "replace");
+  }, [url]);
 
   const todayTicketListRef = useRef<HTMLDivElement>(null);
 
@@ -1108,6 +1134,11 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
       todayTicketListRef.current.scrollTop = 0;
     }
   }, [currentTodayPage, todayPageSize, selectedEngineerFilter]);
+
+  // Only show whole rows at rest (no half-cut row at the bottom of the scroll areas)
+  const monitoringListRef = useRef<HTMLDivElement>(null);
+  useWholeRowViewport(todayTicketListRef, [isLoading, isStale, currentTodayPage, todayPageSize, selectedEngineerFilter, displayedTodayTickets.length]);
+  useWholeRowViewport(monitoringListRef, [isLoading, isStale, monitoringItems.length]);
 
   const paginatedTodayTickets = useMemo(() => {
     if (todayPageSize === 0) return displayedTodayTickets;
@@ -1124,7 +1155,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
     const unclaimed = unshiftedTickets.length;
     const inProgress = shiftTickets.filter((t) => {
       const s = t.status.toLowerCase();
-      return s === "active" || s === "in-progress" || s === "aktivitas";
+      return s !== "pending";
     }).length;
     const pending = shiftTickets.filter((t) => t.status.toLowerCase() === "pending").length;
 
@@ -1183,28 +1214,40 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
   }
 
   const [selectedUserDetail, setSelectedUserDetail] = useState<UserSummaryData | null>(null);
+  const userModalRef = useRef<HTMLDivElement>(null);
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  // Lock body scroll and handle Escape key when modal is open
+  // The data attribute owns the scroll lock; lifecycle cleanup restores focus.
   useEffect(() => {
     if (selectedUserDetail) {
-      const prevOverflow = document.body.style.overflow;
-      document.body.style.overflow = "hidden";
+      const trigger = document.activeElement as HTMLElement | null;
+      const frame = requestAnimationFrame(() => userModalRef.current?.querySelector<HTMLElement>('button, [href]')?.focus({ preventScroll: true }));
+      const closeOnBack = () => setSelectedUserDetail(null);
 
       const handleKeyDown = (e: KeyboardEvent) => {
         if (e.key === "Escape") {
+          e.preventDefault();
           setSelectedUserDetail(null);
+        }
+        if (e.key === "Tab" && userModalRef.current) {
+          const items = [...userModalRef.current.querySelectorAll<HTMLElement>('button:not([disabled]), [href], input, select, textarea, [tabindex="0"]')].filter(el => el.checkVisibility());
+          const first = items[0], last = items[items.length - 1];
+          if (e.shiftKey && (document.activeElement === first || !userModalRef.current.contains(document.activeElement))) { e.preventDefault(); last?.focus(); }
+          else if (!e.shiftKey && (document.activeElement === last || !userModalRef.current.contains(document.activeElement))) { e.preventDefault(); first?.focus(); }
         }
       };
 
       window.addEventListener("keydown", handleKeyDown);
+      window.addEventListener("popstate", closeOnBack);
       return () => {
-        document.body.style.overflow = prevOverflow;
+        cancelAnimationFrame(frame);
+        window.removeEventListener("popstate", closeOnBack);
         window.removeEventListener("keydown", handleKeyDown);
+        trigger?.focus({ preventScroll: true });
       };
     }
   }, [selectedUserDetail]);
@@ -1349,7 +1392,8 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
     cx: number,
     cy: number,
     radius: number,
-    strokeWidth: number
+    strokeWidth: number,
+    gapAngle: number = 0
   ) => {
     const totalVal = data.reduce((acc, curr) => acc + curr.count, 0);
     if (totalVal === 0) {
@@ -1367,11 +1411,17 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
 
     const circumference = 2 * Math.PI * radius;
     let accumulatedAngle = 0;
+    const nonZeroCount = data.filter((item) => item.count > 0).length;
+    const effectiveGap = nonZeroCount > 1 ? gapAngle : 0;
+    const gapLength = (effectiveGap / 360) * circumference;
 
     return data.map((item, idx) => {
+      if (item.count === 0) return null;
       const slicePct = item.count / totalVal;
-      const strokeDasharray = `${slicePct * circumference} ${circumference}`;
-      const strokeDashoffset = -accumulatedAngle * circumference;
+      const totalSliceLength = slicePct * circumference;
+      const visibleLength = Math.max(0.5, totalSliceLength - gapLength);
+      const strokeDasharray = `${visibleLength} ${circumference}`;
+      const strokeDashoffset = -(accumulatedAngle * circumference + gapLength / 2);
       accumulatedAngle += slicePct;
 
       return (
@@ -1386,7 +1436,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
           strokeDasharray={strokeDasharray}
           strokeDashoffset={strokeDashoffset}
           strokeLinecap="round"
-          className="donut-segment [transition:stroke-width_0.2s_ease,opacity_0.2s_ease] hover:[stroke-width:19] hover:opacity-95"
+          className="donut-segment [transition:stroke-width_0.2s_ease,opacity_0.2s_ease] hover:[stroke-width:17] hover:opacity-95"
           transform={`rotate(-90 ${cx} ${cy})`}
         />
       );
@@ -1394,379 +1444,386 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
   };
 
   return (
-    <div className="p-0 flex flex-col gap-5 w-full ticket-report-container">
+    <div className="p-0 flex flex-col gap-5 w-full compact-ticket-report-container max-lg:gap-3 max-lg:[&_article]:scroll-mt-16 max-lg:text-[13px] max-lg:[&_[role=status]_span]:text-[11px] max-lg:[&_svg_text]:text-[11px] max-lg:[&_button:not(.monitoring-status-btn):not(.shift-filter-btn)]:min-h-11 max-lg:[&_button:not(.monitoring-status-btn):not(.shift-filter-btn)]:min-w-11 max-lg:[&_button]:touch-manipulation max-lg:[&_button]:shrink-0 max-lg:[&_.report-panel-body]:p-3.5 max-lg:[&_.report-panel-heading]:flex-nowrap max-lg:[&_.compact-chart-heading-left]:min-w-0 max-lg:[&_.compact-chart-heading-left]:flex-1 max-lg:[&_.panel-sub-count]:hidden max-lg:[&_small]:text-[11px] max-lg:[&_.ui-avatar]:[font-size:11px] max-lg:[&_.panel-title]:min-w-0 max-lg:[&_.panel-title]:whitespace-normal max-lg:[&_.panel-title]:text-[15px] max-lg:[&_.panel-title]:font-semibold max-lg:[&_.panel-title_svg]:shrink-0 max-lg:[&_.panel-view-action-btn]:h-11 max-lg:[&_.panel-view-action-btn]:min-h-11 max-lg:[&_.panel-view-action-btn_span]:inline motion-reduce:[&_*]:transition-none motion-reduce:[&_*]:animate-none">
       {/* ── Page Header ── */}
-      <section className="page-heading flex justify-between items-end mb-[22px] max-[660px]:flex-col max-[660px]:items-start max-[660px]:gap-[12px] max-[640px]:mb-0">
+      <section className="page-heading flex justify-between items-end mb-[22px] max-lg:mb-0 max-[660px]:flex-col max-[660px]:items-start max-[660px]:gap-[12px] max-[640px]:mb-0">
         <div>
-          <div className="eyebrow flex items-center gap-[8px] text-[var(--ink-muted)] text-[10px] tracking-[1px] font-bold font-mono uppercase">
+          <div className="eyebrow flex items-center gap-[8px] text-[var(--ink-muted)] text-[10px] max-lg:text-[11px] tracking-[1px] font-bold font-mono uppercase">
             <span className="inline-block w-[6px] h-[6px] min-w-[6px] min-h-[6px] rounded-[50%] bg-[#10b981] shrink-0 [animation:livePulse_1.8s_ease-in-out_infinite] live-dot live-dot-pulse" /> DASHBOARD · {activeClient.code}
           </div>
-          <h1 className="m-[6px_0_4px] text-[var(--ink-primary)] text-[24px] leading-[1.2] tracking-[-0.4px] font-bold">Dashboard</h1>
+          <h1 className="m-[6px_0_4px] text-[var(--ink-primary)] text-[24px] max-lg:text-[22px] leading-[1.2] tracking-[-0.4px] font-bold">Dashboard</h1>
         </div>
       </section>
 
       {/* className="ops-focus-section" */}
-      <div className="flex flex-col gap-[14px] bg-transparent border-none rounded-none p-0 ops-focus-section">
-        <div className="flex items-center justify-between gap-[12px] flex-wrap p-[2px_0_4px] ops-focus-header">
-          <div className="inline-flex items-center gap-[10px] leading-none ops-focus-header-left">
-            <span className="inline-flex items-center justify-center gap-[6px] h-[22px] px-[9px] bg-[rgba(16,185,129,0.14)] border border-[rgba(16,185,129,0.32)] rounded-[99px] text-[10px] font-extrabold text-[#10b981] tracking-[0.04em] whitespace-nowrap shrink-0 leading-none box-border ops-live-badge">
-              <span className="inline-block w-[6px] h-[6px] min-w-[6px] min-h-[6px] rounded-[50%] bg-[#10b981] shrink-0 [animation:livePulse_1.8s_ease-in-out_infinite] live-dot live-dot-pulse" />
-              LIVE OPS VIEW
+      <div className="flex flex-col gap-[14px] bg-transparent border-none rounded-none p-0 ops-focus-section max-lg:gap-3">
+        <PanelSkeletonWrapper
+          reserveLoading={mobile}
+          isLoading={isLoading}
+          isStale={isStale}
+          skeleton={<DashboardLiveOpsCommandBarSkeleton />}
+          liveRegionText="Memuat status live ops..."
+        >
+          <div className="flex items-center justify-between gap-[12px] flex-wrap p-[2px_0_4px] ops-focus-header max-lg:flex-wrap max-lg:gap-2 max-lg:p-0 max-lg:min-h-7">
+            <div className="inline-flex items-center gap-[10px] leading-none compact-ops-focus-header-left max-lg:shrink-0">
+              <span className="inline-flex items-center justify-center gap-[6px] h-[22px] px-[9px] bg-[rgba(16,185,129,0.14)] border border-[rgba(16,185,129,0.32)] rounded-[99px] text-[10px] max-lg:text-[11px] font-extrabold text-[#10b981] tracking-[0.04em] whitespace-nowrap shrink-0 leading-none box-border ops-live-badge">
+                <span className="inline-block w-[6px] h-[6px] min-w-[6px] min-h-[6px] rounded-[50%] bg-[#10b981] shrink-0 [animation:livePulse_1.8s_ease-in-out_infinite] live-dot live-dot-pulse" />
+                LIVE OPS VIEW
+              </span>
+              <span className="inline-flex items-center text-[14px] font-bold text-[#f8fafc] leading-none m-0 tracking-[-0.01em] compact-ops-section-title max-lg:hidden">Operational Focus — Pantauan Real-Time &amp; Koordinasi Shift</span>
+            </div>
+            <span className={`inline-flex items-center gap-[6px] h-[26px] px-[12px] border rounded-[6px] text-[11.5px] text-[#cbd5e1] whitespace-nowrap shrink-0 leading-none box-border [&_strong]:font-bold ops-shift-badge ${SHIFT_BADGE_STYLES[shiftWorkload.currentShift.toLowerCase() as keyof typeof SHIFT_BADGE_STYLES] || "bg-[rgba(99,102,241,0.12)] border-[rgba(99,102,241,0.25)] text-[#cbd5e1] [&_strong]:text-[#818cf8]"}`}>
+              Shift Aktif: <strong>Shift {shiftWorkload.currentShift}</strong>
             </span>
-            <span className="inline-flex items-center text-[14px] font-bold text-[#f8fafc] leading-none m-0 tracking-[-0.01em] ops-section-title">Operational Focus — Pantauan Real-Time &amp; Koordinasi Shift</span>
           </div>
-          <span className={`inline-flex items-center gap-[6px] h-[26px] px-[12px] border rounded-[6px] text-[11.5px] text-[#cbd5e1] whitespace-nowrap shrink-0 leading-none box-border [&_strong]:font-bold ops-shift-badge ${SHIFT_BADGE_STYLES[shiftWorkload.currentShift.toLowerCase() as keyof typeof SHIFT_BADGE_STYLES] || "bg-[rgba(99,102,241,0.12)] border-[rgba(99,102,241,0.25)] text-[#cbd5e1] [&_strong]:text-[#818cf8]"}`}>
-            Shift Aktif: <strong>Shift {shiftWorkload.currentShift}</strong>
-          </span>
-        </div>
+        </PanelSkeletonWrapper>
 
-        <div className="grid grid-cols-[minmax(0,1fr)_410px] max-[1140px]:grid-cols-1 gap-[16px] items-stretch w-full ops-focus-grid">
+        <div className="grid grid-cols-[minmax(0,1fr)_410px] max-[1140px]:grid-cols-1 gap-[16px] items-stretch w-full ops-focus-grid max-lg:gap-3 max-lg:grid-cols-1 max-lg:items-start">
           {/* Widget A — Today's Tickets Monitor (Tiket Hari Ini) */}
-          <article className={`${REPORT_PANEL_CARD} flex flex-col h-full min-h-0 max-h-[580px] max-[1140px]:max-h-[70dvh] max-[1140px]:h-[70dvh] ops-today-panel`}>
-            <div className={`${REPORT_PANEL_HEADING} report-panel-heading shrink-0`}>
-              <div className="flex flex-col gap-[2px] chart-heading-left">
-                <div className={`${REPORT_PANEL_TITLE} panel-title`}>
-                  <ListChecks size={15} className="text-sky-400" />
+          <article className={`${REPORT_PANEL_CARD} ${MOBILE_OPS_CARD} flex flex-col h-full min-h-[580px] max-h-[660px] max-[1140px]:max-h-none max-[1140px]:h-auto ops-today-panel max-lg:order-2 max-lg:min-h-0 max-lg:max-h-none`}>
+            <div data-ops-header className={`${REPORT_PANEL_HEADING} ${MOBILE_OPS_HEADING} shrink-0`}>
+              <div className="flex flex-col gap-[2px] compact-chart-heading-left">
+                <h2 data-ops-title className={`${REPORT_PANEL_TITLE} panel-title m-0`}>
+                  <span className="max-lg:inline-flex max-lg:size-8 max-lg:shrink-0 max-lg:items-center max-lg:justify-center max-lg:rounded-[10px] max-lg:bg-sky-400/12 lg:contents"><ListChecks size={15} className="text-sky-400 max-lg:size-4" /></span>
                   Tiket Hari Ini
-                </div>
+                </h2>
               </div>
-              <div className="flex items-center gap-[8px]">
+              <div className="flex items-center gap-[8px] max-lg:min-w-16 max-lg:justify-end">
                 {selectedEngineerFilter && (
                   <button
                     type="button"
-                    className="inline-flex items-center gap-[4px] p-[2px_8px] rounded-[6px] border border-[rgba(239,68,68,0.3)] bg-[rgba(239,68,68,0.1)] text-[#f87171] text-[10px] font-semibold cursor-pointer transition-all duration-150 ease-[ease] hover:bg-[rgba(239,68,68,0.2)] ops-filter-reset-btn"
+                    className="inline-flex items-center gap-[4px] p-[2px_8px] rounded-[6px] border border-[rgba(239,68,68,0.3)] bg-[rgba(239,68,68,0.1)] text-[#f87171] text-[10px] max-lg:text-[11px] font-semibold cursor-pointer transition-all duration-150 ease-[ease] hover:bg-[rgba(239,68,68,0.2)] ops-filter-reset-btn"
                     onClick={() => {
                       setSelectedEngineerFilter(null);
-                      url.update({ page: 1 });
+                      setTodayPage(1);
                     }}
                     title="Hapus filter engineer"
                   >
                     <X size={11} /> Reset Filter ({selectedEngineerFilter})
                   </button>
                 )}
-                <span className="inline-flex px-[10px] py-[2px] rounded-[99px] text-[10px] font-bold text-[#38bdf8] bg-[rgba(56,189,248,0.12)] border border-[rgba(56,189,248,0.25)] whitespace-nowrap shrink-0 ops-count-badge">{displayedTodayTickets.length} tiket</span>
+                {isLoading ? (
+                  <Skeleton width={56} height={20} borderRadius={99} tone="subtle" />
+                ) : (
+                  <span className="inline-flex px-[10px] py-[2px] rounded-[99px] text-[10px] max-lg:text-[11px] font-bold text-[#38bdf8] max-lg:text-[12px] max-lg:font-semibold bg-[rgba(56,189,248,0.12)] border border-[rgba(56,189,248,0.25)] whitespace-nowrap shrink-0 ops-count-badge">{displayedTodayTickets.length} tiket</span>
+                )}
               </div>
             </div>
-            <div className="report-panel-body [padding:12px_16px]! flex flex-col flex-1 min-h-0 overflow-hidden">
-              {paginatedTodayTickets.length > 0 ? (
-                <>
-                  <div
-                    ref={todayTicketListRef}
-                    className="flex-1 min-h-0 overflow-y-auto overscroll-contain [overscroll-behavior:contain] pr-2 [scrollbar-gutter:stable] [scrollbar-width:thin] [scrollbar-color:#334155_transparent] [&::-webkit-scrollbar]:w-[6px] [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-700 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb:hover]:bg-slate-600 flex flex-col gap-[6px] today-ticket-list"
-                  >
-                    {paginatedTodayTickets.map((ticket) => {
-                      const projColor = PROJECT_COLORS[ticket.project] || "#94a3b8";
-                      const sev = ticket.severity.toLowerCase();
-                      const priorityKey =
-                        sev === "critical" || sev === "kritis"
-                          ? "crit"
-                          : sev === "high" || sev === "tinggi"
-                          ? "high"
-                          : sev === "medium" || sev === "sedang"
-                          ? "med"
-                          : "low";
+            <div data-ops-body className="report-panel-body p-3 sm:p-4 flex flex-col flex-1 min-h-0">
+              <PanelSkeletonWrapper
+          reserveLoading={mobile}
+                isLoading={isLoading}
+                isStale={isStale}
+                error={error}
+                onRetry={refetch}
+                minHeight={mobile ? 647 : 520}
+                className="h-full"
+                loadingClassName="max-lg:flex-none max-lg:h-[647px] lg:min-h-[520px]"
+                skeleton={<TodayTicketsSkeleton />}
+                liveRegionText="Memuat tiket hari ini..."
+              >
+                {paginatedTodayTickets.length > 0 ? (
+                  <>
+                    <div
+                      ref={todayTicketListRef}
+                      role="list" aria-label="Tiket hari ini"
+                      className="flex-1 min-h-0 overflow-y-auto overscroll-contain pr-2 [scrollbar-gutter:stable] [scrollbar-width:thin] [scrollbar-color:#334155_transparent] [&::-webkit-scrollbar]:w-[6px] [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-700 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb:hover]:bg-slate-600 flex flex-col gap-[6px] today-ticket-list max-lg:gap-0 max-lg:flex-none max-lg:overflow-visible max-lg:pr-0 max-lg:[scrollbar-gutter:auto]"
+                    >
+                      {(mobile ? displayedTodayTickets : paginatedTodayTickets).map((ticket, ticketIndex) => {
+                        const projColor = PROJECT_COLORS[ticket.project] || "#94a3b8";
+                        const sev = ticket.severity.toLowerCase();
+                        const priorityKey =
+                          sev === "critical" || sev === "kritis"
+                            ? "crit"
+                            : sev === "high" || sev === "tinggi"
+                            ? "high"
+                            : sev === "medium" || sev === "sedang"
+                            ? "med"
+                            : "low";
 
-                      const st = ticket.status.toLowerCase();
-                      const statusKey =
-                        st === "active" || st === "open" || st === "aktivitas"
-                          ? "active"
-                          : st === "in progress" || st === "in-progress"
-                          ? "inprogress"
-                          : st === "pending"
-                          ? "pending"
-                          : st === "escalated"
-                          ? "escalated"
-                          : "closed";
+                        const st = (ticket.status || "").toLowerCase().replace(/[\s_]+/g, "-");
+                        const statusKey =
+                          st === "closed" || st === "ditutup"
+                            ? "closed"
+                            : st === "open"
+                            ? "open"
+                            : st === "activity" || st === "aktivitas"
+                            ? "activity"
+                            : st === "meeting"
+                            ? "meeting"
+                            : st === "re-open" || st === "reopen"
+                            ? "re-open"
+                            : st === "pending"
+                            ? "pending"
+                            : st === "rca"
+                            ? "rca"
+                            : st === "escalated"
+                            ? "escalated"
+                            : "open";
 
-                      const statusLabel =
-                        st === "active" || st === "aktivitas"
-                          ? "Active"
-                          : st === "open"
-                          ? "Open"
-                          : st === "in progress" || st === "in-progress"
-                          ? "In Progress"
-                          : st === "pending"
-                          ? "Pending"
-                          : st === "escalated"
-                          ? "Escalated"
-                          : "Closed";
+                        const statusLabel = ticket.status || "Open";
 
-                      return (
-                        <div className="grid grid-cols-[88px_1fr_auto] items-center gap-[12px] p-[7px_12px] rounded-[8px] border border-[rgba(148,163,184,0.08)] bg-[rgba(148,163,184,0.03)] hover:bg-[rgba(148,163,184,0.08)] hover:border-[rgba(56,189,248,0.2)] transition-all duration-150 ease-[ease] shrink-0 today-ticket-row" key={ticket.id}>
-                          <div className="flex flex-col gap-[2px] today-ticket-id-col">
-                            <span className="font-mono text-[11px] font-bold text-[#f8fafc] today-ticket-id">#{ticket.id}</span>
-                            <span className="text-[10px] font-semibold today-ticket-proj" style={{ color: projColor }}>
-                              ● {ticket.project}
-                            </span>
+                        return (
+                          <TodayTicketRow key={ticket.id} ticket={ticket} projectColor={projColor} priorityStyle={OPS_PRIORITY_PILL_STYLES[priorityKey]} statusStyle={OPS_STATUS_PILL_STYLES[statusKey]} statusLabel={statusLabel} mobile={mobile} previewVisible={ticketsExpanded || (mobile ? ticketIndex >= (currentTodayPage - 1) * effectivePageSize && ticketIndex < (currentTodayPage - 1) * effectivePageSize + 4 : ticketIndex < 4)} lastVisible={ticketsExpanded ? ticketIndex === displayedTodayTickets.length - 1 : mobile ? ticketIndex === Math.min(displayedTodayTickets.length - 1, (currentTodayPage - 1) * effectivePageSize + 3) : ticketIndex === Math.min(paginatedTodayTickets.length - 1, 3)} />
+                        );
+                      })}
+                    </div>
+
+                    <div className="flex flex-col gap-3 p-4 pt-0 lg:hidden [&_button]:min-h-11 [&_[data-select-trigger]]:h-11">
+                      {displayedTodayTickets.length > 4 && <button type="button" aria-expanded={ticketsExpanded} onClick={event => toggleCompactPreview(event.currentTarget.closest("article"), ticketsExpanded, setTicketsExpanded)} className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-slate-700 bg-[#243044] px-3 text-[13px] font-semibold text-slate-300 hover:bg-slate-700 active:bg-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400">{ticketsExpanded ? "Ringkas" : `Lihat semua (${displayedTodayTickets.length})`}<ChevronRight size={16} /></button>}
+                      <div className={ticketsExpanded ? "hidden" : "flex items-center justify-between gap-2 border-t border-slate-700/50 pt-3"}>
+                        <div className="inline-flex h-11 min-w-0 items-center gap-1">
+                          <button type="button" aria-label="Halaman tiket sebelumnya" disabled={currentTodayPage <= 1} onClick={() => setTodayPage(p => Math.max(1,p-1))} className="grid size-11 place-items-center rounded-lg border border-slate-700 disabled:opacity-30"><ChevronLeft size={16} /></button>
+                          <span className="grid h-11 min-w-11 place-items-center font-mono text-[12px] text-slate-300">{currentTodayPage} / {totalTodayPages}</span>
+                          <button type="button" aria-label="Halaman tiket berikutnya" disabled={currentTodayPage >= totalTodayPages} onClick={() => setTodayPage(p => Math.min(totalTodayPages,p+1))} className="grid size-11 place-items-center rounded-lg border border-slate-700 disabled:opacity-30"><ChevronRight size={16} /></button>
+                        </div>
+                        <Select label="Tampilkan" icon={<ListFilter size={16} />} aria-label="Jumlah tiket per halaman" value={todayPageSize} onChange={e => setTodayPageSize(Number(e.target.value))} className="h-11 w-[92px] min-w-[92px] max-w-[92px]"><option value={10}>10</option><option value={15}>15</option><option value={25}>25</option><option value={0}>Semua</option></Select>
+                      </div>
+                    </div>
+                    {/* Pagination & Page Size Controls */}
+                    <div className="flex items-center justify-between gap-[8px] shrink-0 pt-3 pb-1 border-t border-slate-700/50 compact-today-pagination max-lg:hidden">
+                      <div className="flex items-center gap-[12px] flex-wrap compact-today-pagination-left">
+                        <span className="font-mono text-[11px] text-[#94a3b8] [&_strong]:text-[#f8fafc] [&_strong]:font-bold compact-today-page-info">
+                          Halaman <strong>{currentTodayPage}</strong> dari <strong>{totalTodayPages}</strong>
+                          <span className="text-[#94a3b8] today-total-info"> ({displayedTodayTickets.length} tiket)</span>
+                        </span>
+
+                        <div className="inline-flex items-center gap-[3px] bg-[rgba(148,163,184,0.05)] p-[2px_4px] rounded-[6px] border border-[rgba(148,163,184,0.1)] compact-today-page-size-selector">
+                          <span className="text-[10px] max-lg:text-[11px] text-[#94a3b8] font-medium mr-[2px] pl-[2px] page-size-label">Tampilkan:</span>
+                          {[10, 15, 25].map((size) => {
+                            const isActive = todayPageSize === size;
+                            return (
+                              <button
+                                key={size}
+                                type="button"
+                                className={
+                                  isActive
+                                    ? "border-none p-[2px_6px] rounded-[4px] cursor-pointer text-[10px] max-lg:text-[11px] font-bold font-mono transition-all duration-150 ease-[ease] bg-[rgba(56,189,248,0.22)] text-[#38bdf8] page-size-btn active"
+                                    : "border-none p-[2px_6px] rounded-[4px] cursor-pointer text-[10px] max-lg:text-[11px] font-semibold font-mono transition-all duration-150 ease-[ease] bg-transparent text-[#cbd5e1] hover:bg-[rgba(56,189,248,0.12)] hover:text-[#38bdf8] page-size-btn"
+                                }
+                                onClick={() => {
+                                  setTodayPageSize(size);
+                                }}
+                                title={`Tampilkan ${size} tiket per halaman`}
+                              >
+                                {size}
+                              </button>
+                            );
+                          })}
+                          <button
+                            type="button"
+                            className={
+                              todayPageSize === 0
+                                ? "border-none p-[2px_6px] rounded-[4px] cursor-pointer text-[10px] max-lg:text-[11px] font-bold font-mono transition-all duration-150 ease-[ease] bg-[rgba(56,189,248,0.22)] text-[#38bdf8] page-size-btn active"
+                                : "border-none p-[2px_6px] rounded-[4px] cursor-pointer text-[10px] max-lg:text-[11px] font-semibold font-mono transition-all duration-150 ease-[ease] bg-transparent text-[#cbd5e1] hover:bg-[rgba(56,189,248,0.12)] hover:text-[#38bdf8] page-size-btn"
+                            }
+                            onClick={() => {
+                              setTodayPageSize(0);
+                            }}
+                            title="Tampilkan semua tiket hari ini"
+                          >
+                            Semua
+                          </button>
+                        </div>
+                      </div>
+
+                      {totalTodayPages > 1 && (
+                        <div className="flex items-center gap-[5px] compact-today-pagination-actions">
+                          <button
+                            type="button"
+                            className="inline-flex items-center justify-center gap-[3px] p-[3px_8px] rounded-[6px] text-[10.5px] max-lg:text-[11px] font-semibold font-mono bg-[rgba(148,163,184,0.06)] border border-[rgba(148,163,184,0.15)] text-[#cbd5e1] cursor-pointer transition-all duration-150 ease-[ease] select-none enabled:hover:bg-[rgba(56,189,248,0.12)] enabled:hover:border-[rgba(56,189,248,0.35)] enabled:hover:text-[#38bdf8] disabled:opacity-30 disabled:cursor-not-allowed disabled:bg-[rgba(148,163,184,0.03)] disabled:border-[rgba(148,163,184,0.08)] disabled:text-[#94a3b8] today-page-btn today-page-nav"
+                            onClick={() => setTodayPage((p) => Math.max(1, p - 1))}
+                            disabled={currentTodayPage <= 1}
+                            title="Halaman Sebelumnya"
+                          >
+                            <ChevronLeft size={13} />
+                            <span>Prev</span>
+                          </button>
+
+                          <div className="flex items-center gap-[3px] compact-today-page-numbers">
+                            {Array.from({ length: totalTodayPages }, (_, i) => i + 1).map((pageNum) => {
+                              const isCurrent = pageNum === currentTodayPage;
+                              return (
+                                <button
+                                  key={pageNum}
+                                  type="button"
+                                  className={
+                                    isCurrent
+                                      ? "inline-flex items-center justify-center gap-[3px] min-w-[24px] h-[24px] p-0 rounded-[6px] text-[10.5px] max-lg:text-[11px] font-bold font-mono cursor-pointer transition-all duration-150 ease-[ease] select-none bg-[rgba(56,189,248,0.18)] border border-[rgba(56,189,248,0.5)] text-[#38bdf8] today-page-btn today-page-num active"
+                                      : "inline-flex items-center justify-center gap-[3px] min-w-[24px] h-[24px] p-0 rounded-[6px] text-[10.5px] max-lg:text-[11px] font-semibold font-mono cursor-pointer transition-all duration-150 ease-[ease] select-none bg-[rgba(148,163,184,0.06)] border border-[rgba(148,163,184,0.15)] text-[#cbd5e1] hover:bg-[rgba(56,189,248,0.12)] hover:border-[rgba(56,189,248,0.35)] hover:text-[#38bdf8] today-page-btn today-page-num"
+                                  }
+                                  onClick={() => setTodayPage(pageNum)}
+                                >
+                                  {pageNum}
+                                </button>
+                              );
+                            })}
                           </div>
-                          <div className="flex flex-col gap-[2px] min-w-0 today-ticket-subject">
-                            <span className="text-[12px] font-semibold text-[#f8fafc] whitespace-nowrap overflow-hidden text-ellipsis today-ticket-title" title={ticket.subject}>{ticket.subject}</span>
-                            <div className="flex items-center gap-[8px] text-[10px] text-[#94a3b8] today-ticket-meta">
-                              <span className="text-[10px] text-[#94a3b8] today-ticket-type">{ticket.type || ticket.category || "Incident"}</span>
-                              {ticket.owner && (
-                                <span className="inline-flex items-center gap-[3px] text-[#cbd5e1] font-medium today-ticket-owner">
-                                  <User size={10} /> {ticket.owner}
-                                </span>
-                              )}
+
+                          <button
+                            type="button"
+                            className="inline-flex items-center justify-center gap-[3px] p-[3px_8px] rounded-[6px] text-[10.5px] max-lg:text-[11px] font-semibold font-mono bg-[rgba(148,163,184,0.06)] border border-[rgba(148,163,184,0.15)] text-[#cbd5e1] cursor-pointer transition-all duration-150 ease-[ease] select-none enabled:hover:bg-[rgba(56,189,248,0.12)] enabled:hover:border-[rgba(56,189,248,0.35)] enabled:hover:text-[#38bdf8] disabled:opacity-30 disabled:cursor-not-allowed disabled:bg-[rgba(148,163,184,0.03)] disabled:border-[rgba(148,163,184,0.08)] disabled:text-[#94a3b8] today-page-btn today-page-nav"
+                            onClick={() => setTodayPage((p) => Math.min(totalTodayPages, p + 1))}
+                            disabled={currentTodayPage >= totalTodayPages}
+                            title="Halaman Berikutnya"
+                          >
+                            <span>Next</span>
+                            <ChevronRight size={13} />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </>
+                ) : (
+                  <CenteredEmptyState
+                    className="flex-1 min-h-0 chart-empty-hint ops-empty-hint max-lg:h-[388.5px] max-lg:min-h-0 max-lg:flex-none"
+                    icon={<CheckCircle2 size={24} />}
+                    title={selectedEngineerFilter ? "Tidak ada tiket aktif" : "Tidak ada tiket hari ini"}
+                    description={selectedEngineerFilter ? `Tidak ada tiket aktif yang ditugaskan ke ${selectedEngineerFilter}.` : "Semua tenang untuk saat ini."}
+                  />
+                )}
+              </PanelSkeletonWrapper>
+            </div>
+          </article>
+
+          {/* Right Column: Shift Notepad Memo & Monitoring Checklist (OK/NOK) */}
+          <div className="flex flex-col gap-[12px] h-full min-h-[580px] max-h-[660px] max-[1140px]:min-h-0 max-[1140px]:h-auto ops-right-column max-lg:contents max-lg:min-h-0 max-lg:max-h-none">
+            {/* Widget B — Shift Notepad / Memo */}
+            <article className={`${REPORT_PANEL_CARD} ${MOBILE_OPS_CARD} shrink-0 ops-shift-panel flex flex-col max-lg:order-1 max-lg:[&.ops-shift-panel_.panel-view-action-btn]:size-11 max-lg:[&.ops-shift-panel_.panel-view-action-btn]:min-h-11 max-lg:[&.ops-shift-panel_.panel-view-action-btn]:min-w-11 max-lg:[&.ops-shift-panel_.panel-view-action-btn_span]:hidden max-lg:[&.ops-shift-panel_.panel-view-action-btn_svg]:size-4`}>
+              <div data-ops-header className={`${REPORT_PANEL_HEADING} ${MOBILE_OPS_HEADING} flex items-center justify-between`}>
+                <div className="flex flex-col gap-[2px] compact-chart-heading-left">
+                  <h2 data-ops-title className={`${REPORT_PANEL_TITLE} panel-title m-0`}>
+                    <span className="max-lg:inline-flex max-lg:size-8 max-lg:shrink-0 max-lg:items-center max-lg:justify-center max-lg:rounded-[10px] max-lg:bg-amber-400/12 lg:contents"><StickyNote size={14} className="text-amber-400 max-lg:size-4" /></span>
+                    Memo &amp; Catatan Shift
+                  </h2>
+                </div>
+                <PanelViewButton
+                  panelTitle="Memo & Catatan Shift"
+                  onClick={() => setMemoModalOpen(true)}
+                  disabled={isLoading}
+                />
+              </div>
+              <div data-ops-body className="flex flex-col flex-1 min-h-0 p-[10px_12px] report-panel-body">
+                <PanelSkeletonWrapper
+          reserveLoading={mobile}
+                  isLoading={isLoading}
+                  isStale={isStale}
+                  error={error}
+                  onRetry={refetch}
+                  minHeight={mobile ? 172 : 160}
+                  className="h-full"
+                  loadingClassName="max-lg:flex-none lg:min-h-[160px]"
+                skeleton={<ShiftMemoNotesSkeleton memo="" />}
+                  liveRegionText="Memuat memo catatan shift..."
+                >
+                  <div className="flex flex-col flex-1 min-h-0 p-[10px_12px] bg-[#0b1120] border border-[rgba(148,163,184,0.12)] rounded-[8px] relative box-border memo-notepad-wrap max-lg:p-0 max-lg:border-0 max-lg:bg-transparent">
+                    <MemoCard mobile={mobile} onOpen={() => setMemoModalOpen(true)} />
+                  </div>
+                </PanelSkeletonWrapper>
+              </div>
+            </article>
+
+            {/* Widget C — Monitoring Checklist (OK / NOK) */}
+            <article className={`${REPORT_PANEL_CARD} ${MOBILE_OPS_CARD} flex flex-col flex-1 min-h-[360px] max-h-[440px] max-[1140px]:max-h-none ops-engineer-panel max-lg:order-3 max-lg:min-h-0 max-lg:max-h-none`}>
+              <div data-ops-header className={`${REPORT_PANEL_HEADING} ${MOBILE_OPS_HEADING}`}>
+                <div className="flex flex-col gap-[2px] compact-chart-heading-left">
+                  <h2 data-ops-title className={`${REPORT_PANEL_TITLE} panel-title m-0`}>
+                    <span className="max-lg:inline-flex max-lg:size-8 max-lg:shrink-0 max-lg:items-center max-lg:justify-center max-lg:rounded-[10px] max-lg:bg-emerald-400/12 lg:contents"><ShieldCheck size={14} className="text-emerald-400 max-lg:size-4" /></span>
+                    List Monitoring Shift
+                  </h2>
+                </div>
+                <div className="flex items-center gap-[6px]">
+                  {isLoading ? (
+                    <>
+                      <Skeleton width={48} height={20} borderRadius={99} tone="subtle" />
+                      <Skeleton width={52} height={20} borderRadius={99} tone="subtle" />
+                    </>
+                  ) : (
+                    <>
+                      <span className="inline-flex items-center gap-[4px] p-[2px_8px] rounded-[99px] text-[10.5px] max-lg:text-[11px] font-bold bg-[rgba(16,185,129,0.14)] text-[#34d399] border border-[rgba(16,185,129,0.3)] mon-counter-badge ok max-lg:hidden">
+                        <Check size={10} strokeWidth={2.5} /> {okCount} OK
+                      </span>
+                      <span className="inline-flex items-center gap-[4px] p-[2px_8px] rounded-[99px] text-[10.5px] max-lg:text-[11px] font-bold bg-[rgba(244,63,94,0.15)] text-[#fb7185] border border-[rgba(244,63,94,0.35)] mon-counter-badge nok max-lg:hidden">
+                        <AlertTriangle size={10} strokeWidth={2.5} /> {nokCount} NOK
+                      </span>
+                    </>
+                  )}
+                </div>
+              </div>
+              <div data-ops-body className="report-panel-body p-3 sm:p-4 flex flex-col flex-1 min-h-0 justify-start">
+                <PanelSkeletonWrapper
+          reserveLoading={mobile}
+                  isLoading={isLoading}
+                  isStale={isStale}
+                  error={error}
+                  onRetry={refetch}
+                  minHeight={mobile ? 364 : 260}
+                  className="h-full"
+                  loadingClassName="max-lg:flex-none max-lg:h-[355.5px] lg:min-h-[260px]"
+                skeleton={<MonitoringChecklistSkeleton />}
+                  liveRegionText="Memuat checklist monitoring..."
+                >
+                  <div ref={monitoringListRef} role="list" aria-label="Checklist monitoring shift" className="flex flex-col gap-[7px] flex-1 min-h-0 overflow-y-auto max-h-[340px] pr-[6px] pb-2 [scrollbar-gutter:stable] [scrollbar-width:thin] [scrollbar-color:rgba(56,189,248,0.35)_transparent] [&::-webkit-scrollbar]:w-[6px] [&::-webkit-scrollbar-track]:bg-slate-800/20 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-600/70 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb:hover]:bg-sky-500/80 engineer-workload-list max-lg:flex-none max-lg:overflow-visible max-lg:max-h-none max-lg:pr-0 max-lg:[scrollbar-gutter:auto]">
+                    {monitoringItems.map((item, monitoringIndex) => {
+                      const isOk = item.status === "OK";
+                      return (
+                        <div
+                          key={item.id}
+                          role="listitem" aria-label={`${item.task}, ${item.status}`}
+                          className={`flex items-center justify-between gap-[10px] p-[7px_11px] rounded-[8px] shrink-0 cursor-default monitoring-check-card max-lg:p-0 max-lg:pl-1.5 max-lg:gap-2 ${!monitoringExpanded && monitoringIndex >= 5 ? "max-lg:hidden" : ""} ${
+                            isOk
+                              ? "bg-[rgba(255,255,255,0.025)] border border-[rgba(255,255,255,0.07)] hover:bg-[rgba(255,255,255,0.04)] hover:border-[rgba(255,255,255,0.12)]"
+                              : "bg-[rgba(244,63,94,0.05)] border border-[rgba(244,63,94,0.25)] border-l-[3.5px] max-lg:border-l-[3px] [&.is-nok.is-nok]:border-l-[#f43f5e] hover:bg-[rgba(244,63,94,0.08)] hover:border-[rgba(244,63,94,0.32)] is-nok"
+                          }`}
+                        >
+                          <div className="flex items-center gap-[10px] min-w-0 flex-1 monitoring-card-left">
+                            <span className="inline-flex items-center justify-center min-w-[62px] p-[2.5px_8px] rounded-[5px] text-[10px] max-lg:text-[11px] font-bold font-mono bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.09)] text-[#cbd5e1] shrink-0 whitespace-nowrap text-center monitoring-proj-tag max-lg:min-w-[48px] max-lg:px-1" title={item.project}>
+                              {item.project}
+                            </span>
+                            <div className="flex flex-col min-w-0 flex-1 gap-[1px] monitoring-card-content">
+                              <span className="text-[11.5px] font-medium text-[#f8fafc] whitespace-nowrap overflow-hidden text-ellipsis leading-[1.3] monitoring-task-text max-lg:text-[13px]" title={item.task}>
+                                {item.task}
+                              </span>
+
                             </div>
                           </div>
-                          <div className="flex items-center gap-[6px] shrink-0 today-ticket-badges">
-                            <span className={OPS_PRIORITY_PILL_STYLES[priorityKey]}>{ticket.severity}</span>
-                            <span className={OPS_STATUS_PILL_STYLES[statusKey]}>{statusLabel}</span>
-                          </div>
+                          <button
+                            type="button"
+                            onClick={() => toggleMonitoringStatus(item.id)}
+                            aria-label={`Status ${item.project}: ${item.task}, ${item.status}`}
+                            className={`inline-flex items-center justify-center gap-[5px] h-[24px] p-[0_9px] rounded-[6px] text-[10.5px] max-lg:text-[11px] font-bold font-mono cursor-default select-none shrink-0 tracking-[0.02em] monitoring-status-btn max-lg:h-11 max-lg:min-h-11 max-lg:w-14 max-lg:min-w-14 max-lg:px-1 ${
+                              isOk
+                                ? "bg-[rgba(16,185,129,0.12)] border border-[rgba(16,185,129,0.3)] text-[#34d399] btn-ok"
+                                : "bg-[rgba(244,63,94,0.14)] border border-[rgba(244,63,94,0.35)] text-[#fb7185] btn-nok"
+                            }`}
+                            title={`Status: ${item.status}`}
+                          >
+                            {isOk ? <Check size={11} strokeWidth={2.5} /> : <X size={11} strokeWidth={2.5} />}
+                            {item.status}
+                          </button>
                         </div>
                       );
                     })}
                   </div>
 
-                  {/* Pagination & Page Size Controls */}
-                  <div className="flex items-center justify-between gap-[8px] shrink-0 pt-[10px] [border-top:1px_solid_rgba(148,163,184,0.08)] today-pagination">
-                    <div className="flex items-center gap-[12px] flex-wrap today-pagination-left">
-                      <span className="font-mono text-[11px] text-[#94a3b8] [&_strong]:text-[#f8fafc] [&_strong]:font-bold today-page-info">
-                        Halaman <strong>{currentTodayPage}</strong> dari <strong>{totalTodayPages}</strong>
-                        <span className="text-[#94a3b8] today-total-info"> ({displayedTodayTickets.length} tiket)</span>
+                  <button type="button" aria-expanded={monitoringExpanded} onClick={event => toggleCompactPreview(event.currentTarget.closest("article"), monitoringExpanded, setMonitoringExpanded)} className="lg:hidden mt-2 min-h-11 w-full rounded-lg border border-slate-700 text-[13px] font-semibold text-sky-400">{monitoringExpanded ? "Ringkas" : `Lihat semua (${monitoringItems.length})`}</button>
+                  {/* Footer summary bar */}
+                  <div className="flex items-center justify-between mt-auto pt-3 pb-1 border-t border-slate-700/50 shrink-0 gap-[8px] compact-engineer-workload-footer max-lg:mt-2 max-lg:pt-2 max-lg:[&_.compact-engineer-workload-stats]:text-[11px]">
+                    <div className="flex items-center gap-[6px] text-[10.5px] max-lg:text-[11px] text-[#94a3b8] font-mono whitespace-nowrap shrink-0 [&_strong]:text-[#f8fafc] [&_strong]:font-bold compact-engineer-workload-stats">
+                      <span
+                        className="engineer-workload-stat-item"
+                        title={`${monitoringItems.length} dari 13 checkpoint shift telah diperiksa (${okCount} OK, ${nokCount} NOK)`}
+                      >
+                        <span className="hidden lg:inline">Total: <strong>{monitoringItems.length} dari 13 Checklist</strong></span><span className="lg:hidden">{okCount}/{monitoringItems.length} OK</span>
                       </span>
-
-                      <div className="inline-flex items-center gap-[3px] bg-[rgba(148,163,184,0.05)] p-[2px_4px] rounded-[6px] border border-[rgba(148,163,184,0.1)] today-page-size-selector">
-                        <span className="text-[10px] text-[#94a3b8] font-medium mr-[2px] pl-[2px] page-size-label">Tampilkan:</span>
-                        {[10, 15, 25].map((size) => {
-                          const isActive = todayPageSize === size;
-                          return (
-                            <button
-                              key={size}
-                              type="button"
-                              className={
-                                isActive
-                                  ? "border-none p-[2px_6px] rounded-[4px] cursor-pointer text-[10px] font-bold font-mono transition-all duration-150 ease-[ease] bg-[rgba(56,189,248,0.22)] text-[#38bdf8] page-size-btn active"
-                                  : "border-none p-[2px_6px] rounded-[4px] cursor-pointer text-[10px] font-semibold font-mono transition-all duration-150 ease-[ease] bg-transparent text-[#cbd5e1] hover:bg-[rgba(56,189,248,0.12)] hover:text-[#38bdf8] page-size-btn"
-                              }
-                              onClick={() => {
-                                setTodayPageSize(size);
-                              }}
-                              title={`Tampilkan ${size} tiket per halaman`}
-                            >
-                              {size}
-                            </button>
-                          );
-                        })}
-                        <button
-                          type="button"
-                          className={
-                            todayPageSize === 0
-                              ? "border-none p-[2px_6px] rounded-[4px] cursor-pointer text-[10px] font-bold font-mono transition-all duration-150 ease-[ease] bg-[rgba(56,189,248,0.22)] text-[#38bdf8] page-size-btn active"
-                              : "border-none p-[2px_6px] rounded-[4px] cursor-pointer text-[10px] font-semibold font-mono transition-all duration-150 ease-[ease] bg-transparent text-[#cbd5e1] hover:bg-[rgba(56,189,248,0.12)] hover:text-[#38bdf8] page-size-btn"
-                          }
-                          onClick={() => {
-                            setTodayPageSize(0);
-                          }}
-                          title="Tampilkan semua tiket hari ini"
-                        >
-                          Semua
-                        </button>
-                      </div>
                     </div>
-
-                    {totalTodayPages > 1 && (
-                      <div className="flex items-center gap-[5px] today-pagination-actions">
-                        <button
-                          type="button"
-                          className="inline-flex items-center justify-center gap-[3px] p-[3px_8px] rounded-[6px] text-[10.5px] font-semibold font-mono bg-[rgba(148,163,184,0.06)] border border-[rgba(148,163,184,0.15)] text-[#cbd5e1] cursor-pointer transition-all duration-150 ease-[ease] select-none enabled:hover:bg-[rgba(56,189,248,0.12)] enabled:hover:border-[rgba(56,189,248,0.35)] enabled:hover:text-[#38bdf8] disabled:opacity-30 disabled:cursor-not-allowed disabled:bg-[rgba(148,163,184,0.03)] disabled:border-[rgba(148,163,184,0.08)] disabled:text-[#94a3b8] today-page-btn today-page-nav"
-                          onClick={() => setTodayPage((p) => Math.max(1, p - 1))}
-                          disabled={currentTodayPage <= 1}
-                          title="Halaman Sebelumnya"
-                        >
-                          <ChevronLeft size={13} />
-                          <span>Prev</span>
-                        </button>
-
-                        <div className="flex items-center gap-[3px] today-page-numbers">
-                          {Array.from({ length: totalTodayPages }, (_, i) => i + 1).map((pageNum) => {
-                            const isCurrent = pageNum === currentTodayPage;
-                            return (
-                              <button
-                                key={pageNum}
-                                type="button"
-                                className={
-                                  isCurrent
-                                    ? "inline-flex items-center justify-center gap-[3px] min-w-[24px] h-[24px] p-0 rounded-[6px] text-[10.5px] font-bold font-mono cursor-pointer transition-all duration-150 ease-[ease] select-none bg-[rgba(56,189,248,0.18)] border border-[rgba(56,189,248,0.5)] text-[#38bdf8] today-page-btn today-page-num active"
-                                    : "inline-flex items-center justify-center gap-[3px] min-w-[24px] h-[24px] p-0 rounded-[6px] text-[10.5px] font-semibold font-mono cursor-pointer transition-all duration-150 ease-[ease] select-none bg-[rgba(148,163,184,0.06)] border border-[rgba(148,163,184,0.15)] text-[#cbd5e1] hover:bg-[rgba(56,189,248,0.12)] hover:border-[rgba(56,189,248,0.35)] hover:text-[#38bdf8] today-page-btn today-page-num"
-                                }
-                                onClick={() => setTodayPage(pageNum)}
-                              >
-                                {pageNum}
-                              </button>
-                            );
-                          })}
-                        </div>
-
-                        <button
-                          type="button"
-                          className="inline-flex items-center justify-center gap-[3px] p-[3px_8px] rounded-[6px] text-[10.5px] font-semibold font-mono bg-[rgba(148,163,184,0.06)] border border-[rgba(148,163,184,0.15)] text-[#cbd5e1] cursor-pointer transition-all duration-150 ease-[ease] select-none enabled:hover:bg-[rgba(56,189,248,0.12)] enabled:hover:border-[rgba(56,189,248,0.35)] enabled:hover:text-[#38bdf8] disabled:opacity-30 disabled:cursor-not-allowed disabled:bg-[rgba(148,163,184,0.03)] disabled:border-[rgba(148,163,184,0.08)] disabled:text-[#94a3b8] today-page-btn today-page-nav"
-                          onClick={() => setTodayPage((p) => Math.min(totalTodayPages, p + 1))}
-                          disabled={currentTodayPage >= totalTodayPages}
-                          title="Halaman Berikutnya"
-                        >
-                          <span>Next</span>
-                          <ChevronRight size={13} />
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </>
-              ) : (
-                <div className="flex items-center justify-center gap-[8px] p-[32px] text-center text-[#94a3b8] text-[12.5px] chart-empty-hint ops-empty-hint">
-                  <CheckCircle2 size={20} className="text-emerald-400" />
-                  <span>
-                    {selectedEngineerFilter
-                      ? `Tidak ada tiket aktif yang ditugaskan ke ${selectedEngineerFilter}.`
-                      : "Tidak ada tiket yang terdaftar untuk hari ini."}
-                  </span>
-                </div>
-              )}
-            </div>
-          </article>
-
-          {/* Right Column: Shift Notepad Memo & Monitoring Checklist (OK/NOK) */}
-          <div className="flex flex-col gap-[12px] h-[580px] max-[1140px]:h-auto ops-right-column">
-            {/* Widget B — Shift Notepad / Memo */}
-            <article className={`${REPORT_PANEL_CARD} shrink-0 ops-shift-panel`}>
-              <div className={`${REPORT_PANEL_HEADING} report-panel-heading`}>
-                <div className="flex flex-col gap-[2px] chart-heading-left">
-                  <div className={`${REPORT_PANEL_TITLE} panel-title`}>
-                    <StickyNote size={14} className="text-amber-400" />
-                    Memo &amp; Catatan Shift
-                  </div>
-                </div>
-                <div className="flex items-center gap-[6px]">
-                  <span className="inline-flex items-center gap-[5px] text-[10px] text-[#94a3b8] memo-autosave-tag" title="Catatan tersimpan otomatis di perangkat">
-                    <span className="w-[5px] h-[5px] rounded-[50%] bg-[#10b981] memo-live-dot" />
-                    Tersimpan
-                  </span>
-                  <button
-                    type="button"
-                    className="inline-flex items-center gap-[4px] p-[2px_8px] rounded-[4px] bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] text-[#cbd5e1] text-[10.5px] cursor-pointer transition-all duration-150 ease-[ease] hover:bg-[rgba(56,189,248,0.15)] hover:border-[rgba(56,189,248,0.3)] hover:text-[#38bdf8] memo-quick-btn"
-                    onClick={handleCopyMemo}
-                    title="Salin isi memo ke clipboard"
-                  >
-                    <Copy size={10} />
-                    {memoCopied ? "Tersalin!" : "Salin"}
-                  </button>
-                </div>
-              </div>
-              <div className="flex flex-col flex-1 justify-between p-[10px_12px] report-panel-body">
-                <div className="flex flex-col gap-[6px] p-[10px_12px] bg-[#0b1120] border border-[rgba(148,163,184,0.12)] rounded-[8px] relative box-border memo-notepad-wrap">
-                  <textarea
-                    className="w-full h-[96px] min-h-[96px] bg-transparent border-none [outline:none]! resize-none text-[#f1f5f9] text-[11.5px] leading-[24px] p-0 box-border bg-[linear-gradient(rgba(148,163,184,0.08)_1px,transparent_1px)] bg-[length:100%_24px] placeholder:text-[#94a3b8] placeholder:italic memo-notepad-textarea"
-                    placeholder="Tulis catatan operasional shift, instruksi serah terima, atau pengingat di sini..."
-                    value={shiftMemo}
-                    onChange={(e) => handleMemoChange(e.target.value)}
-                  />
-                  <div className="flex items-center justify-between pt-[6px] [border-top:1px_solid_rgba(148,163,184,0.08)] text-[10.5px] memo-notepad-footer">
-                    <div className="[display:flex] [align-items:center] [gap:6px]">
-                      <button
-                        type="button"
-                        className="inline-flex items-center gap-[4px] p-[2px_8px] rounded-[4px] bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] text-[#cbd5e1] text-[10.5px] cursor-pointer transition-all duration-150 ease-[ease] hover:bg-[rgba(56,189,248,0.15)] hover:border-[rgba(56,189,248,0.3)] hover:text-[#38bdf8] memo-quick-btn"
-                        onClick={handleAddBullet}
-                        title="Tambah butir catatan baru"
-                      >
-                        <Plus size={10} /> Poin Catatan
-                      </button>
-                      <button
-                        type="button"
-                        className="inline-flex items-center gap-[4px] p-[2px_8px] rounded-[4px] bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] text-[#cbd5e1] text-[10.5px] cursor-pointer transition-all duration-150 ease-[ease] hover:bg-[rgba(56,189,248,0.15)] hover:border-[rgba(56,189,248,0.3)] hover:text-[#38bdf8] memo-quick-btn"
-                        onClick={handleResetMemo}
-                        title="Kembalikan ke catatan awal"
-                      >
-                        <RotateCcw size={10} /> Reset
-                      </button>
+                    <div className="flex items-center gap-[6px] text-[10.5px] max-lg:text-[11px] text-[#94a3b8] font-mono whitespace-nowrap shrink-0 [&_strong]:text-[#f8fafc] [&_strong]:font-bold compact-engineer-workload-stats">
+                      <span className="engineer-workload-stat-item">
+                        <span className="hidden lg:inline">Rata-rata: </span><strong>{((okCount / (monitoringItems.length || 1)) * 100).toFixed(0)}%</strong> Kesiapan
+                      </span>
                     </div>
-                    <span className="[color:var(--ink-muted)] [font-size:10px]">
-                      {shiftMemo.split("\n").filter((l) => l.trim().length > 0).length} butir catatan
-                    </span>
                   </div>
-                </div>
-              </div>
-            </article>
-
-            {/* Widget C — Monitoring Checklist (OK / NOK) */}
-            <article className={`${REPORT_PANEL_CARD} flex flex-col flex-1 min-h-0 ops-engineer-panel`}>
-              <div className={`${REPORT_PANEL_HEADING} report-panel-heading`}>
-                <div className="flex flex-col gap-[2px] chart-heading-left">
-                  <div className={`${REPORT_PANEL_TITLE} panel-title`}>
-                    <ShieldCheck size={14} className="text-emerald-400" />
-                    List Monitoring Shift
-                  </div>
-                </div>
-                <div className="flex items-center gap-[6px]">
-                  <span className="inline-flex items-center gap-[4px] p-[2px_8px] rounded-[99px] text-[10.5px] font-bold bg-[rgba(16,185,129,0.14)] text-[#34d399] border border-[rgba(16,185,129,0.3)] mon-counter-badge ok">
-                    <Check size={10} strokeWidth={2.5} /> {okCount} OK
-                  </span>
-                  <span className="inline-flex items-center gap-[4px] p-[2px_8px] rounded-[99px] text-[10.5px] font-bold bg-[rgba(244,63,94,0.15)] text-[#fb7185] border border-[rgba(244,63,94,0.35)] mon-counter-badge nok">
-                    <AlertTriangle size={10} strokeWidth={2.5} /> {nokCount} NOK
-                  </span>
-                </div>
-              </div>
-              <div className="report-panel-body [padding:10px_12px]! [display:flex]! [flex-direction:column]! [flex:1]! [min-height:0]! justify-start">
-                <div className="flex flex-col gap-[7px] flex-[1_1_0%] min-h-0 overflow-y-auto pr-[4px] [scrollbar-width:thin] [scrollbar-color:rgba(56,189,248,0.25)_transparent] [&::-webkit-scrollbar]:w-[4px] [&::-webkit-scrollbar-track]:bg-[rgba(148,163,184,0.05)] [&::-webkit-scrollbar-track]:rounded-[4px] [&::-webkit-scrollbar-thumb]:bg-[rgba(56,189,248,0.25)] [&::-webkit-scrollbar-thumb]:rounded-[4px] [&::-webkit-scrollbar-thumb:hover]:bg-[rgba(56,189,248,0.45)] engineer-workload-list">
-                  {monitoringItems.map((item) => {
-                    const isOk = item.status === "OK";
-                    return (
-                      <div
-                        key={item.id}
-                        className={`flex items-center justify-between gap-[10px] p-[7px_11px] rounded-[8px] shrink-0 cursor-default monitoring-check-card ${
-                          isOk
-                            ? "bg-[rgba(255,255,255,0.025)] border border-[rgba(255,255,255,0.07)] hover:bg-[rgba(255,255,255,0.04)] hover:border-[rgba(255,255,255,0.12)]"
-                            : "bg-[rgba(244,63,94,0.05)] border border-[rgba(244,63,94,0.25)] border-l-[3.5px] border-l-[#f43f5e]! hover:bg-[rgba(244,63,94,0.08)] hover:border-[rgba(244,63,94,0.32)] is-nok"
-                        }`}
-                      >
-                        <div className="flex items-center gap-[10px] min-w-0 flex-1 monitoring-card-left">
-                          <span className="inline-flex items-center justify-center min-w-[62px] p-[2.5px_8px] rounded-[5px] text-[10px] font-bold font-mono bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.09)] text-[#cbd5e1] shrink-0 whitespace-nowrap text-center monitoring-proj-tag" title={item.project}>
-                            {item.project}
-                          </span>
-                          <div className="flex flex-col min-w-0 flex-1 gap-[1px] monitoring-card-content">
-                            <span className="text-[11.5px] font-medium text-[#f8fafc] whitespace-nowrap overflow-hidden text-ellipsis leading-[1.3] monitoring-task-text" title={item.task}>
-                              {item.task}
-                            </span>
-                            {!isOk && item.issueNote && (
-                              <div className="inline-flex items-center gap-[4px] text-[10px] font-semibold text-[#fb7185] leading-[1.2] mt-[1px] monitoring-issue-subline">
-                                <AlertTriangle size={10} className="text-rose-400" />
-                                <span>{item.issueNote}</span>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                        <span
-                          className={`inline-flex items-center justify-center gap-[5px] h-[24px] p-[0_9px] rounded-[6px] text-[10.5px] font-bold font-mono cursor-default select-none shrink-0 tracking-[0.02em] monitoring-status-btn ${
-                            isOk
-                              ? "bg-[rgba(16,185,129,0.12)] border border-[rgba(16,185,129,0.3)] text-[#34d399] btn-ok"
-                              : "bg-[rgba(244,63,94,0.14)] border border-[rgba(244,63,94,0.35)] text-[#fb7185] btn-nok"
-                          }`}
-                          title={`Status: ${item.status}`}
-                        >
-                          {isOk ? <Check size={11} strokeWidth={2.5} /> : <X size={11} strokeWidth={2.5} />}
-                          {item.status}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* Footer summary bar */}
-                <div className="flex items-center justify-between mt-auto pt-[10px] [border-top:1px_solid_rgba(148,163,184,0.08)] shrink-0 gap-[8px] engineer-workload-footer">
-                  <div className="flex items-center gap-[6px] text-[10.5px] text-[#94a3b8] font-mono whitespace-nowrap shrink-0 [&_strong]:text-[#f8fafc] [&_strong]:font-bold engineer-workload-stats">
-                    <span
-                      className="engineer-workload-stat-item"
-                      title={`${monitoringItems.length} dari 13 checkpoint shift telah diperiksa (${okCount} OK, ${nokCount} NOK)`}
-                    >
-                      Total: <strong>{monitoringItems.length} dari 13 Checklist</strong>
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-[6px] text-[10.5px] text-[#94a3b8] font-mono whitespace-nowrap shrink-0 [&_strong]:text-[#f8fafc] [&_strong]:font-bold engineer-workload-stats">
-                    <span className="engineer-workload-stat-item">
-                      Rata-rata: <strong>{((okCount / (monitoringItems.length || 1)) * 100).toFixed(0)}%</strong> Kesiapan
-                    </span>
-                  </div>
-                </div>
+                </PanelSkeletonWrapper>
               </div>
             </article>
           </div>
@@ -1775,22 +1832,27 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
 
       {/* ── ANALYTICS FILTER SECTION (Controls all charts & tables below, does NOT affect LIVE OPS VIEW) ── */}
       {/* className="analytics-filter-section" */}
-      <div className="flex flex-col gap-[12px] p-[14px_16px] bg-[rgba(15,23,42,0.65)] border border-[rgba(148,163,184,0.14)] rounded-[12px] [box-shadow:0_4px_16px_rgba(0,0,0,0.2)] [transition:all_0.2s_ease] my-[6px] hover:border-[rgba(56,189,248,0.25)] analytics-filter-section">
-        <div className="flex items-center justify-between gap-[12px] flex-wrap analytics-filter-header">
+      <div id="analytics-filter-section" className="flex flex-col gap-[12px] p-[14px_16px] bg-[var(--panel-bg)] border border-[var(--panel-border)] rounded-[12px] shadow-[var(--shadow-panel)] [transition:all_0.2s_ease] my-[6px] max-lg:my-0 hover:border-[rgba(56,189,248,0.25)] analytics-filter-section">
+        <div className="flex items-center justify-between gap-[12px] flex-wrap analytics-filter-header max-lg:flex-nowrap max-lg:gap-2">
           <div className="flex flex-col gap-[2px] analytics-filter-title-wrap">
             <div className="inline-flex items-center gap-[7px] text-[13px] font-bold text-[#f8fafc] analytics-filter-title">
               <SlidersHorizontal size={14} className="text-sky-400" />
-              <span>Filter Laporan &amp; Analitik Tiket</span>
+              <span className="hidden md:inline">Filter Laporan &amp; Analitik Tiket</span><span className="md:hidden">Filter</span>
             </div>
           </div>
           <div className="flex items-center gap-[8px] analytics-filter-header-right">
-            <span className="inline-flex items-center gap-[4px] p-[3px_10px] rounded-[99px] text-[11px] font-mono bg-[rgba(56,189,248,0.08)] border border-[rgba(56,189,248,0.22)] text-[#cbd5e1] [&_strong]:text-[#38bdf8] [&_strong]:font-bold analytics-filter-counter-badge">
-              Menampilkan <strong>{analyticsTickets.length}</strong> dari <strong>{tickets.length}</strong> Tiket
-            </span>
+            <button type="button" onClick={() => setFiltersOpen(true)} className="order-last md:hidden min-h-11 px-3 rounded-lg border border-sky-500/30 bg-sky-500/10 text-[12px] font-semibold text-sky-300">Ubah</button>
+            {isLoading ? (
+              <Skeleton width={140} height={22} borderRadius={99} tone="subtle" />
+            ) : (
+              <span className="inline-flex items-center gap-[4px] p-[3px_10px] rounded-[99px] text-[11px] font-mono bg-[rgba(56,189,248,0.08)] border border-[rgba(56,189,248,0.22)] text-[#cbd5e1] [&_strong]:text-[#38bdf8] [&_strong]:font-bold analytics-filter-counter-badge">
+                <span className="hidden md:inline">Menampilkan <strong>{analyticsTickets.length}</strong> dari <strong>{tickets.length}</strong> Tiket</span><span className="md:hidden"><strong>{analyticsTickets.length}</strong> tiket{activeFilterChips.length ? ` · ${activeFilterChips.length} filter` : ""}</span>
+              </span>
+            )}
             {isAnyAnalyticsFilterActive && (
               <button
                 type="button"
-                className="inline-flex items-center gap-[5px] p-[3px_9px] rounded-[6px] text-[11px] font-semibold text-[#f87171] bg-[rgba(239,68,68,0.1)] border border-[rgba(239,68,68,0.25)] cursor-pointer [transition:all_0.15s_ease] hover:bg-[rgba(239,68,68,0.2)] hover:border-[rgba(239,68,68,0.4)] analytics-filter-reset-action-btn"
+                className="inline-flex items-center gap-[5px] p-[3px_9px] rounded-[6px] text-[11px] font-semibold text-[#f87171] bg-[rgba(239,68,68,0.1)] border border-[rgba(239,68,68,0.25)] cursor-pointer [transition:all_0.15s_ease] hover:bg-[rgba(239,68,68,0.2)] hover:border-[rgba(239,68,68,0.4)] analytics-filter-reset-action-btn max-lg:hidden"
                 onClick={resetAllAnalyticsFilters}
                 title="Kembalikan semua filter ke default"
               >
@@ -1800,16 +1862,20 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
           </div>
         </div>
 
-        <div className="grid grid-cols-[minmax(210px,1.3fr)_repeat(auto-fit,minmax(140px,1fr))] max-[1024px]:grid-cols-2 max-[640px]:grid-cols-1 gap-[10px] items-end w-full analytics-filter-grid">
+        {activeFilterChips.length > 0 && <div aria-label="Filter aktif" className="flex gap-2 overflow-x-auto overscroll-x-contain md:hidden">{activeFilterChips.map(chip => <span key={chip.label} className="shrink-0 rounded-full border border-sky-500/25 bg-sky-500/10 px-2.5 py-1 text-[11px] text-sky-300">{chip.label}: {chip.value}</span>)}</div>}
+
+        <ResponsiveSheet open={filtersOpen} onClose={() => setFiltersOpen(false)} title="Filter analitik" dataSheetId="analytics-sheet" footer={<div className="grid grid-cols-2 gap-3"><button type="button" onClick={resetAllAnalyticsFilters} className="h-11 rounded-lg border border-slate-700 text-[13px] text-slate-200">Reset</button><button type="button" onClick={() => setFiltersOpen(false)} className="h-11 rounded-lg bg-sky-400 font-semibold text-[13px] text-slate-950">Terapkan</button></div>}>
+        <div className="grid grid-cols-[minmax(210px,1.3fr)_repeat(auto-fit,minmax(140px,1fr))] max-[1024px]:grid-cols-2 max-[640px]:grid-cols-1 gap-[10px] items-end w-full analytics-filter-grid max-lg:gap-3 max-lg:[&_[data-select-trigger]]:h-11 max-lg:[&_.analytics-shifter-trigger]:h-11 max-lg:[&_.date-picker-input-wrapper]:h-11 max-lg:[&_.analytics-shifter-popover]:static max-lg:[&_.analytics-shifter-popover]:w-full max-lg:[&_.analytics-shifter-item]:min-h-11 max-lg:[&_.analytics-shifter-action]:min-h-10 max-lg:[&_.analytics-shifter-action]:min-w-10">
           {/* 1. Date Range Picker */}
           <div className="flex flex-col gap-[4px] min-w-0 analytics-filter-field date-field">
-            <label className="text-[10.5px] font-semibold text-[#94a3b8] tracking-[0.02em] analytics-filter-label">Rentang Tanggal</label>
-            <div className="relative w-full [&_.date-picker-input-wrapper]:h-[34px] analytics-date-picker-wrap">
+            <label className="text-[10.5px] max-lg:text-[11px] font-semibold text-[#94a3b8] tracking-[0.02em] analytics-filter-label">Rentang Tanggal</label>
+            <div className="relative w-full lg:[&_.date-picker-input-wrapper]:h-[34px] lg:[&_[role='button']]:h-[34px] max-lg:[&_.date-picker-input-wrapper]:h-11 analytics-date-picker-wrap">
               <DatePicker
                 value={analyticsDateFilter}
                 onChange={setAnalyticsDateFilter}
                 placeholder="Pilih Rentang Tanggal"
                 showAllTimePreset={false}
+                inlineCalendar={phone}
                 aria-label="Filter tanggal analitik tiket"
               />
             </div>
@@ -1817,10 +1883,10 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
 
           {/* 2. Project Filter */}
           <div className="flex flex-col gap-[4px] min-w-0 analytics-filter-field">
-            <label className="text-[10.5px] font-semibold text-[#94a3b8] tracking-[0.02em] analytics-filter-label">Proyek</label>
+            <label className="text-[10.5px] max-lg:text-[11px] font-semibold text-[#94a3b8] tracking-[0.02em] analytics-filter-label">Proyek</label>
             <div className="relative flex items-center w-full analytics-select-wrap">
-              <FolderKanban size={13} className="absolute left-[10px] text-[#94a3b8] pointer-events-none shrink-0 analytics-select-icon" />
-              <select
+              
+              <Select icon={<FolderKanban size={16}  />}
                 value={analyticsProjectFilter}
                 onChange={(e) => setAnalyticsProjectFilter(e.target.value)}
                 aria-label="Filter proyek"
@@ -1828,20 +1894,20 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                 data-active={analyticsProjectFilter !== "All" ? "true" : undefined}
               >
                 <option value="All">Semua Proyek</option>
-                {allProjects.map((p) => (
-                  <option key={p} value={p}>{p}</option>
+                {[...new Set([...allProjects, ...newProjectFilters])].sort().map((p) => (
+                  <option key={p} value={p}>{projectLabel(p, activeClientId, true)}</option>
                 ))}
-              </select>
-              <ChevronDown size={12} className="absolute right-[10px] text-[#94a3b8] pointer-events-none shrink-0 opacity-70 analytics-select-arrow" />
+              </Select>
+              
             </div>
           </div>
 
           {/* 3. Shift Filter */}
           <div className="flex flex-col gap-[4px] min-w-0 analytics-filter-field">
-            <label className="text-[10.5px] font-semibold text-[#94a3b8] tracking-[0.02em] analytics-filter-label">Shift</label>
+            <label className="text-[10.5px] max-lg:text-[11px] font-semibold text-[#94a3b8] tracking-[0.02em] analytics-filter-label">Shift</label>
             <div className="relative flex items-center w-full analytics-select-wrap">
-              <Clock size={13} className="absolute left-[10px] text-[#94a3b8] pointer-events-none shrink-0 analytics-select-icon" />
-              <select
+              
+              <Select icon={<Clock size={16}  />}
                 value={analyticsShiftFilter}
                 onChange={(e) => setAnalyticsShiftFilter(e.target.value)}
                 aria-label="Filter shift"
@@ -1852,14 +1918,14 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                 <option value="Subuh">Shift Subuh (00:00–08:30)</option>
                 <option value="Pagi">Shift Pagi (08:00–16:30)</option>
                 <option value="Malam">Shift Malam (16:00–00:30)</option>
-              </select>
-              <ChevronDown size={12} className="absolute right-[10px] text-[#94a3b8] pointer-events-none shrink-0 opacity-70 analytics-select-arrow" />
+              </Select>
+              
             </div>
           </div>
 
           {/* 4. Shifter (PIC) Multi-Select */}
           <div className="flex flex-col gap-[4px] min-w-0 analytics-filter-field shifter-field">
-            <label className="text-[10.5px] font-semibold text-[#94a3b8] tracking-[0.02em] analytics-filter-label">Shifter (PIC)</label>
+            <label className="text-[10.5px] max-lg:text-[11px] font-semibold text-[#94a3b8] tracking-[0.02em] analytics-filter-label">Shifter (PIC)</label>
             <AnalyticsShifterMultiSelect
               selectedList={analyticsSelectedShifters}
               onChange={setAnalyticsSelectedShifters}
@@ -1869,32 +1935,41 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
 
           {/* 5. Status Filter */}
           <div className="flex flex-col gap-[4px] min-w-0 analytics-filter-field">
-            <label className="text-[10.5px] font-semibold text-[#94a3b8] tracking-[0.02em] analytics-filter-label">Status Tiket</label>
+            <label className="text-[10.5px] max-lg:text-[11px] font-semibold text-[#94a3b8] tracking-[0.02em] analytics-filter-label">Status Tiket</label>
             <div className="relative flex items-center w-full analytics-select-wrap">
-              <Activity size={13} className="absolute left-[10px] text-[#94a3b8] pointer-events-none shrink-0 analytics-select-icon" />
-              <select
-                value={analyticsStatusFilter}
+              
+              <Select icon={<Activity size={16}  />}
+                value={
+                  analyticsStatusFilter === "All"
+                    ? "All"
+                    : ["Open", "Closed", "Activity", "Meeting", "Re-Open", "Pending", "RCA"].find(
+                        (opt) => opt.toLowerCase() === analyticsStatusFilter.toLowerCase()
+                      ) || analyticsStatusFilter
+                }
                 onChange={(e) => setAnalyticsStatusFilter(e.target.value)}
                 aria-label="Filter status tiket"
                 className="w-full h-[34px] p-[0_28px_0_30px] bg-[rgba(15,23,42,0.85)] border border-[rgba(148,163,184,0.16)] rounded-[7px] text-[11.5px] text-[#f8fafc] [appearance:none] [-webkit-appearance:none] cursor-pointer [transition:all_0.15s_ease] [outline:none] whitespace-nowrap overflow-hidden text-ellipsis [color-scheme:dark] hover:border-[rgba(56,189,248,0.3)] hover:bg-[rgba(15,23,42,0.95)] focus:border-[#38bdf8] focus:shadow-[0_0_0_2px_rgba(56,189,248,0.2)] [&_option]:bg-[#0f172a] [&_option]:text-[#f8fafc] [&_option]:p-[6px_10px] data-[active=true]:border-[rgba(56,189,248,0.45)] data-[active=true]:bg-[rgba(56,189,248,0.08)] data-[active=true]:text-[#38bdf8] data-[active=true]:font-semibold analytics-select-input"
                 data-active={analyticsStatusFilter !== "All" ? "true" : undefined}
               >
                 <option value="All">Semua Status</option>
-                <option value="active">Aktif / Open / In-Progress</option>
-                <option value="closed">Closed / Ditutup</option>
-                <option value="pending">Pending</option>
-                <option value="escalated">Escalated</option>
-              </select>
-              <ChevronDown size={12} className="absolute right-[10px] text-[#94a3b8] pointer-events-none shrink-0 opacity-70 analytics-select-arrow" />
+                <option value="Open">Open</option>
+                <option value="Closed">Closed</option>
+                <option value="Activity">Activity</option>
+                <option value="Meeting">Meeting</option>
+                <option value="Re-Open">Re-Open</option>
+                <option value="Pending">Pending</option>
+                <option value="RCA">RCA</option>
+              </Select>
+              
             </div>
           </div>
 
           {/* 6. Severity Filter */}
           <div className="flex flex-col gap-[4px] min-w-0 analytics-filter-field">
-            <label className="text-[10.5px] font-semibold text-[#94a3b8] tracking-[0.02em] analytics-filter-label">Keparahan</label>
+            <label className="text-[10.5px] max-lg:text-[11px] font-semibold text-[#94a3b8] tracking-[0.02em] analytics-filter-label">Keparahan</label>
             <div className="relative flex items-center w-full analytics-select-wrap">
-              <AlertTriangle size={13} className="absolute left-[10px] text-[#94a3b8] pointer-events-none shrink-0 analytics-select-icon" />
-              <select
+              
+              <Select icon={<AlertTriangle size={16}  />}
                 value={analyticsSeverityFilter}
                 onChange={(e) => setAnalyticsSeverityFilter(e.target.value)}
                 aria-label="Filter keparahan"
@@ -1902,88 +1977,141 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                 data-active={analyticsSeverityFilter !== "All" ? "true" : undefined}
               >
                 <option value="All">Semua Severity</option>
-                <option value="Critical">Critical (Kritis)</option>
-                <option value="High">High (Tinggi)</option>
-                <option value="Medium">Medium (Sedang)</option>
-                <option value="Low">Low (Rendah)</option>
-              </select>
-              <ChevronDown size={12} className="absolute right-[10px] text-[#94a3b8] pointer-events-none shrink-0 opacity-70 analytics-select-arrow" />
+                <option value="Critical">{severityLabel("Critical")}</option>
+                <option value="High">{severityLabel("High")}</option>
+                <option value="Medium">{severityLabel("Medium")}</option>
+                <option value="Low">{severityLabel("Low")}</option>
+              </Select>
+              
             </div>
           </div>
         </div>
+        </ResponsiveSheet>
       </div>
 
 
       {/* ── 2. Primary Charts Section: Enhanced Stacked Bar per Project & Trajectory + Rekap Tiket per User ── */}
       {/* className="report-primary-chart-grid" */}
-      <div className="grid grid-cols-[minmax(0,1fr)_380px] max-[1140px]:grid-cols-1 gap-[16px] items-stretch w-full report-primary-chart-grid">
+      <div className="grid grid-cols-[minmax(0,1fr)_380px] max-[1140px]:grid-cols-1 gap-[16px] items-stretch w-full max-lg:items-start max-lg:gap-3 report-primary-chart-grid">
         {/* Left: Volume per Project / Trajectory Chart (Tabs) */}
-        <article className={`${REPORT_PANEL_CARD} flex flex-col h-full primary-chart-panel`}>
+        <article className={`${REPORT_PANEL_CARD} flex flex-col h-full min-h-[580px] max-lg:min-h-0 primary-chart-panel max-lg:[&.primary-chart-panel.primary-chart-panel_.panel-view-action-btn]:size-10 max-lg:[&.primary-chart-panel.primary-chart-panel_.panel-view-action-btn]:min-h-10 max-lg:[&.primary-chart-panel.primary-chart-panel_.panel-view-action-btn]:min-w-10 max-lg:[&.primary-chart-panel.primary-chart-panel_.panel-view-action-btn_span]:hidden`}>
           <div className={`${REPORT_PANEL_HEADING} report-panel-heading`}>
-            <div className="flex flex-col gap-[2px] chart-heading-left">
+            <div className="flex flex-col gap-[2px] compact-chart-heading-left">
               <div className="flex items-center gap-[8px] text-[14px] font-bold text-[var(--ink-primary)] panel-title">
-                {selectedChartTab === "stacked-project"
-                  ? "Ticket Volume per Project (Stacked by System)"
-                  : "Perbandingan Tiket: Bulan Lalu vs Bulan Ini (MoM)"}
+                <span className="hidden lg:inline">{selectedChartTab === "stacked-project" ? "Ticket Volume per Project (Stacked by System)" : "Perbandingan Tiket: Bulan Lalu vs Bulan Ini (MoM)"}</span><span className="lg:hidden">{selectedChartTab === "stacked-project" ? "Volume Tiket" : "Tiket MoM"}</span>
               </div>
             </div>
 
-            <div className="flex gap-[6px] bg-[rgba(15,23,42,0.4)] p-[3px] rounded-[8px] border border-[var(--line)] chart-tab-controls">
-              <button
-                type="button"
-                className={`inline-flex items-center gap-[6px] p-[5px_11px] rounded-[6px] text-[11.5px] border-none cursor-pointer [transition:all_0.15s_ease] ${
+            <div className="flex items-center gap-[8px]">
+              <div className="flex gap-[6px] bg-[rgba(15,23,42,0.4)] p-[3px] rounded-[8px] border border-[var(--line)] chart-tab-controls max-lg:gap-2 max-lg:p-0 max-lg:border-0 max-lg:bg-transparent">
+                <button
+                  type="button"
+                  className={`inline-flex items-center gap-[6px] p-[4px_10px] rounded-[6px] text-[11.5px] border border-transparent cursor-pointer [transition:all_0.15s_ease] ${
+                    selectedChartTab === "stacked-project"
+                      ? "bg-[rgba(56,189,248,0.14)] border-[#38bdf8]/40 text-[#38bdf8] font-bold active"
+                      : "bg-transparent text-[var(--ink-secondary)] font-semibold hover:text-[var(--ink-primary)]"
+                  } chart-tab-btn max-lg:px-2`}
+                  onClick={() => setSelectedChartTab("stacked-project")}
+                >
+                  <BarChart3 size={12} className="max-lg:hidden" /><span className="hidden lg:inline">Volume per Project</span><span className="lg:hidden">Vol</span>
+                </button>
+                <button
+                  type="button"
+                  className={`inline-flex items-center gap-[6px] p-[4px_10px] rounded-[6px] text-[11.5px] border border-transparent cursor-pointer [transition:all_0.15s_ease] ${
+                    selectedChartTab === "trajectory"
+                      ? "bg-[rgba(56,189,248,0.14)] border-[#38bdf8]/40 text-[#38bdf8] font-bold active"
+                      : "bg-transparent text-[var(--ink-secondary)] font-semibold hover:text-[var(--ink-primary)]"
+                  } chart-tab-btn max-lg:px-2`}
+                  onClick={() => setSelectedChartTab("trajectory")}
+                >
+                  <TrendingUp size={12} className="max-lg:hidden" /><span className="hidden lg:inline">Bulan Lalu vs Bulan Ini</span><span className="lg:hidden">MoM</span>
+                </button>
+              </div>
+              <PanelViewButton
+                panelTitle={
                   selectedChartTab === "stacked-project"
-                    ? "bg-[var(--accent-blue)] text-[#0f172a] font-bold active"
-                    : "bg-transparent text-[var(--ink-secondary)] font-semibold hover:text-[var(--ink-primary)]"
-                } chart-tab-btn`}
-                onClick={() => setSelectedChartTab("stacked-project")}
-              >
-                <BarChart3 size={12} /> Volume per Project
-              </button>
-              <button
-                type="button"
-                className={`inline-flex items-center gap-[6px] p-[5px_11px] rounded-[6px] text-[11.5px] border-none cursor-pointer [transition:all_0.15s_ease] ${
-                  selectedChartTab === "trajectory"
-                    ? "bg-[var(--accent-blue)] text-[#0f172a] font-bold active"
-                    : "bg-transparent text-[var(--ink-secondary)] font-semibold hover:text-[var(--ink-primary)]"
-                } chart-tab-btn`}
-                onClick={() => setSelectedChartTab("trajectory")}
-              >
-                <TrendingUp size={12} /> Bulan Lalu vs Bulan Ini
-              </button>
+                    ? "Ticket Volume per Project"
+                    : "Perbandingan Tiket: Bulan Lalu vs Bulan Ini"
+                }
+                onClick={() =>
+                  handleOpenPanel(
+                    selectedChartTab === "stacked-project"
+                      ? "ticket-volume"
+                      : "ticket-mom"
+                  )
+                }
+                ariaLabel={
+                  selectedChartTab === "stacked-project"
+                    ? "Perbesar panel Volume Tiket per Project"
+                    : "Perbesar panel Perbandingan Bulan Lalu vs Bulan Ini"
+                }
+                disabled={isLoading}
+              />
             </div>
           </div>
 
           <div className="flex flex-col flex-1 justify-start p-[16px_20px] gap-[12px] report-panel-body">
+            <PanelSkeletonWrapper
+          reserveLoading={mobile}
+              isLoading={isLoading}
+              isStale={isStale}
+              error={error}
+              onRetry={refetch}
+              minHeight={mobile ? 303 : 300}
+              className="h-full"
+              loadingClassName="max-lg:flex-none max-lg:h-[303px] lg:min-h-[300px]"
+                skeleton={<TicketVolumeChartSkeleton />}
+              liveRegionText="Memuat volume tiket..."
+            >
             {/* View A: Stacked Bar Chart per Project (Enhanced Sizing, Wide Bars, Distinct Gridlines & Y-Axis Scale) */}
             {selectedChartTab === "stacked-project" && (
-              <div className="flex flex-col flex-1 w-full justify-start gap-[12px] stacked-chart-container">
+              <div className="relative flex flex-col flex-1 w-full justify-start gap-[12px] stacked-chart-container">
                 {volumeByDate.length > 0 ? (
                   <>
+                    <div className="hidden h-4 shrink-0 items-center justify-between gap-2 whitespace-nowrap text-[11px] leading-4 text-slate-400 max-lg:flex">
+                      <span>Total {analyticsTickets.length} · Puncak {maxDayCreated} ({volumeByDate.find(day => day.created === maxDayCreated)?.date.slice(5)})</span>
+                      <span className="font-mono">{volumeByDate[0].date.slice(5)}–{volumeByDate.at(-1)?.date.slice(5)}</span>
+                    </div>
                     {(() => {
                       const n = volumeByDate.length;
-                      const svgViewBoxWidth = Math.max(760, n * 48 + 80);
-                      const startX = 55;
+                      const compact = compactVolumeGeometry(n, volumeSize.width);
+                      const svgViewBoxWidth = mobile ? compact.width : Math.max(760, n * 48 + 80);
+                      const startX = mobile ? 24 : 55;
                       const endX = svgViewBoxWidth - 30;
                       const totalSpan = endX - startX;
                       const maxStep = 54;
                       const minStep = 32;
-                      const stepX = n > 1 ? Math.min(maxStep, Math.max(minStep, totalSpan / (n - 1))) : 0;
-                      const barWidth = Math.min(44, Math.max(20, Math.round(stepX * 0.64)));
+                      const stepX = mobile ? compact.step : n > 1 ? Math.min(maxStep, Math.max(minStep, totalSpan / (n - 1))) : 0;
+                      const barWidth = mobile ? compact.bar : Math.min(44, Math.max(20, Math.round(stepX * 0.64)));
                       const usedWidth = n > 1 ? (n - 1) * stepX : barWidth;
-                      const actualStartX = n > 1 && (n - 1) * maxStep < totalSpan 
+                      const actualStartX = mobile ? compact.start : n > 1 && (n - 1) * maxStep < totalSpan 
                         ? Math.round(startX + (totalSpan - usedWidth) / 2) 
                         : startX;
 
-                      const viewBoxHeight = 270;
-                      const baselineY = 225;
-                      const topY = 22;
+                      const viewBoxHeight = mobile ? 220 : 270;
+                      const baselineY = mobile ? 184 : 225;
+                      const topY = mobile ? 16 : 22;
                       const chartHeight = baselineY - topY; // 203
 
                       return (
-                        <div className="w-full overflow-x-auto overflow-y-hidden flex-1 flex flex-col justify-start min-h-[270px] svg-barchart-wrap">
+                        <div data-volume-plot className="contents max-lg:block max-lg:relative max-lg:w-full max-lg:pl-9 max-lg:h-[220px]" onPointerDown={event => {
+                          if (!mobile) return;
+                          const box = event.currentTarget.getBoundingClientRect();
+                          const x = event.clientX - box.left - 36 + (volumeChartRef.current?.scrollLeft ?? 0);
+                          setVolumeTouch({ index: Math.max(0, Math.min(n - 1, Math.round((x - compact.start) / (compact.step || 1)))), x: Math.max(4, Math.min(box.width - Math.min(220, box.width - 8) - 4, event.clientX - box.left - 110)) });
+                        }} onPointerMove={event => {
+                          if (!mobile || !event.buttons) return;
+                          const box = event.currentTarget.getBoundingClientRect();
+                          const x = event.clientX - box.left - 36 + (volumeChartRef.current?.scrollLeft ?? 0);
+                          setVolumeTouch({ index: Math.max(0, Math.min(n - 1, Math.round((x - compact.start) / (compact.step || 1)))), x: Math.max(4, Math.min(box.width - Math.min(220, box.width - 8) - 4, event.clientX - box.left - 110)) });
+                        }}>
+                        {mobile && <svg aria-hidden="true" viewBox="0 0 36 220" className="hidden max-lg:block absolute left-0 top-0 h-[220px] w-9 text-slate-400">
+                          {stackedYTicks.ticks.map(tick => <text key={tick} x="30" y={184 - tick / stackedYTicks.yMax * 168 + 4} textAnchor="end" fill="currentColor" fontSize="11" fontFamily="var(--font-mono)">{tick}</text>)}
+                        </svg>}
+                        <div ref={volumeChartRef} aria-label="Volume tiket per tanggal; ketuk atau geser untuk rincian" className={"w-full overflow-x-auto overflow-y-hidden flex-1 flex flex-col justify-start min-h-[270px] compact-svg-barchart-wrap max-lg:min-h-[220px] max-lg:h-[220px] max-lg:flex-none max-lg:overscroll-x-contain max-lg:[scrollbar-width:none] max-lg:[&::-webkit-scrollbar]:hidden " + (compact.fits ? " max-lg:touch-pan-y " : " max-lg:touch-auto ") + volumeFade}>
                           <svg
-                            className="w-full h-full min-h-[270px] max-h-[390px] block report-bar-svg-lg"
+                            style={mobile ? { width: svgViewBoxWidth, height: 220, flexShrink: 0 } : undefined}
+                            className="w-full h-full min-h-[270px] max-h-[390px] block compact-report-bar-svg-lg max-lg:min-h-[220px] max-lg:h-[220px]"
                             viewBox={`0 0 ${svgViewBoxWidth} ${viewBoxHeight}`}
                             preserveAspectRatio="none"
                           >
@@ -1993,7 +2121,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                               return (
                                 <g key={`grid-stacked-${tick}`}>
                                   <line
-                                    x1="45"
+                                    x1={mobile ? 0 : 45}
                                     y1={yPos}
                                     x2={svgViewBoxWidth - 15}
                                     y2={yPos}
@@ -2001,7 +2129,8 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                                     strokeWidth="1"
                                     strokeDasharray={tick === 0 ? undefined : "4 4"}
                                   />
-                                  <text
+                                  {!mobile && <text
+                                    className="max-lg:hidden"
                                     x="38"
                                     y={yPos + 4}
                                     textAnchor="end"
@@ -2011,17 +2140,18 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                                     fontFamily="var(--font-mono)"
                                   >
                                     {tick}
-                                  </text>
+                                  </text>}
                                 </g>
                               );
                             })}
 
                             {/* Solid Floor Baseline */}
-                            <line x1="45" y1={baselineY} x2={svgViewBoxWidth - 15} y2={baselineY} stroke="var(--line)" strokeWidth="1.5" />
+                            <line x1={mobile ? 0 : 45} y1={baselineY} x2={svgViewBoxWidth - 15} y2={baselineY} stroke="var(--line)" strokeWidth="1.5" />
 
                             {/* Stacked Bars per Date */}
                             {volumeByDate.map((item, idx) => {
-                              const x = n > 1 ? Math.round(actualStartX + idx * stepX - barWidth / 2) : Math.round(svgViewBoxWidth / 2 - barWidth / 2);
+                              const visibleTotal = Object.entries(item.projectCounts).reduce((sum, [project, count]) => sum + (hiddenCardProjects.has(project) ? 0 : count), 0);
+                              const x = mobile ? actualStartX + idx * stepX - barWidth / 2 : n > 1 ? Math.round(actualStartX + idx * stepX - barWidth / 2) : Math.round(svgViewBoxWidth / 2 - barWidth / 2);
                               let currentY = baselineY;
 
                               const isSelected = selectedDate === item.date;
@@ -2032,6 +2162,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                                   key={item.date}
                                   role="button"
                                   tabIndex={0}
+                                  data-focus-ring="none"
                                   aria-label={`Rincian tiket tanggal ${item.date}`}
                                   onClick={() => setSelectedDate((prev) => (prev === item.date ? null : item.date))}
                                   onKeyDown={(e) => {
@@ -2042,9 +2173,9 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                                   }}
                                   onMouseEnter={() => setHoveredDate(item.date)}
                                   onMouseLeave={() => setHoveredDate(null)}
-                                  className={`stacked-bar-group [cursor:pointer]! [&_rect]:[transition:opacity_0.15s_ease,fill_0.15s_ease] [&_rect]:hover:opacity-100 ${isSelected ? "is-selected" : ""}`}
+                                  className={`max-lg:snap-center outline-none focus:outline-none focus-visible:brightness-125 stacked-bar-group [cursor:pointer]! [&_rect]:[transition:opacity_0.15s_ease,fill_0.15s_ease] [&_rect]:hover:opacity-100 ${isSelected ? "is-selected" : ""}`}
                                 >
-                                  <title>{`Klik untuk melihat rincian tiket tanggal ${item.date}`}</title>
+                                  <title>{`Klik untuk melihat rincian tiket tanggal ${item.date}`}</title>{mobile && <rect x={x - Math.max(0, stepX - barWidth) / 2} y={topY} width={Math.max(barWidth, stepX)} height={chartHeight + 24} fill="transparent" />}
 
                                   {/* Background selected highlight column */}
                                   {isSelected && (
@@ -2075,7 +2206,8 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
 
                                   {/* Stacked Project segments */}
                                   {Object.entries(item.projectCounts).map(([project, count]) => {
-                                    const segmentHeight = Math.max(5, Math.round((count / stackedYTicks.yMax) * chartHeight));
+                                    if (mobile && hiddenCardProjects.has(project)) return null;
+                                    const segmentHeight = mobile ? count / Math.max(1, visibleTotal) * Math.max(visibleTotal > 0 ? 3 : 0, visibleTotal / stackedYTicks.yMax * chartHeight) : Math.max(5, Math.round((count / stackedYTicks.yMax) * chartHeight));
                                     currentY -= segmentHeight;
                                     const color = PROJECT_COLORS[project] || "#94a3b8";
 
@@ -2090,14 +2222,14 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                                         rx={3}
                                         opacity={isSelected ? 1 : isHovered ? 0.95 : 0.9}
                                         stroke={isSelected ? "rgba(255, 255, 255, 0.4)" : "var(--panel-bg)"}
-                                        strokeWidth={isSelected ? "1" : "1.5"}
+                                        strokeWidth={mobile ? "0.5" : isSelected ? "1" : "1.5"}
                                       />
                                     );
                                   })}
 
                                   {/* Total count badge above bar */}
-                                  <text
-                                    x={x + barWidth / 2}
+                                  {(!mobile || idx === n - 1 || item.created === maxDayCreated) && <text
+                                    x={mobile ? Math.min(svgViewBoxWidth - 18, Math.max(18, x + barWidth / 2)) : x + barWidth / 2}
                                     y={currentY - 8}
                                     textAnchor="middle"
                                     fill={isSelected ? "#38bdf8" : "var(--ink-primary)"}
@@ -2105,21 +2237,21 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                                     fontWeight="800"
                                     fontFamily="var(--font-mono)"
                                   >
-                                    {item.created}
-                                  </text>
+                                    {mobile ? visibleTotal : item.created}
+                                  </text>}
 
                                   {/* Date label on X-axis */}
-                                  <text
-                                    x={x + barWidth / 2}
+                                  {(!mobile || idx % Math.max(1, Math.ceil(n / Math.max(2, Math.floor(volumeSize.width / 55)))) === 0 || idx === n - 1) && <text
+                                    x={mobile ? Math.min(svgViewBoxWidth - 20, Math.max(20, x + barWidth / 2)) : x + barWidth / 2}
                                     y={baselineY + 22}
                                     textAnchor="middle"
                                     fill={isSelected ? "var(--accent-blue)" : isHovered ? "var(--accent-blue)" : "var(--ink-primary)"}
-                                    fontSize="10.5"
+                                    fontSize={mobile ? "11" : "10.5"}
                                     fontWeight={isSelected ? "800" : isHovered ? "700" : "600"}
                                     fontFamily="var(--font-mono)"
                                   >
                                     {item.date.slice(5)}
-                                  </text>
+                                  </text>}
 
                                   {/* Selected indicator dot */}
                                   {isSelected && (
@@ -2135,22 +2267,27 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                             })}
                           </svg>
                         </div>
+                        {mobile && volumeTouch && volumeByDate[volumeTouch.index] && <div role="status" aria-live="polite" className="pointer-events-none absolute top-1 z-10 w-[220px] max-w-[calc(100%-8px)] rounded-lg border border-sky-400/40 bg-slate-900/95 p-2 text-[11px] leading-4 text-slate-200 shadow-lg" style={{ left: volumeTouch.x }}>
+                          <div className="font-semibold text-sky-300">{volumeByDate[volumeTouch.index].date} · Total {volumeByDate[volumeTouch.index].created}</div>
+                          <div>{Object.entries(volumeByDate[volumeTouch.index].projectCounts).slice(0, 3).map(([project, count]) => project + ": " + count).join(" · ")}</div>
+                        </div>}
+                        </div>
                       );
                     })()}
 
                     {/* Stacked Bar Legend */}
-                    <div className="flex items-center gap-[8px] flex-wrap pt-[10px] mt-0 [border-top:1px_solid_var(--line)] project-legend-pills">
+                    <HorizontalScroll className="flex items-center gap-[8px] flex-wrap pt-[10px] mt-0 [border-top:1px_solid_var(--line)] project-legend-pills max-lg:flex-nowrap max-lg:overflow-x-auto max-lg:overscroll-x-contain max-lg:[&_.project-legend-pill]:shrink-0">
                       <span className="text-[11px] font-bold font-mono text-[var(--ink-muted)] legend-pills-label">Sistem:</span>
                       {allProjects.map((proj) => (
-                        <div className="inline-flex items-center gap-[6px] p-[3px_9px] rounded-[6px] bg-[rgba(15,23,42,0.4)] border border-[var(--line)] text-[11.5px] text-[var(--ink-primary)] [transition:border-color_0.15s_ease,background_0.15s_ease] hover:border-[rgba(56,189,248,0.4)] hover:bg-[rgba(15,23,42,0.7)] project-legend-pill" key={proj}>
+                        <div role={mobile ? "button" : undefined} tabIndex={mobile ? 0 : undefined} aria-pressed={mobile ? !hiddenCardProjects.has(proj) : undefined} onClick={mobile ? () => toggleCardProject(proj) : undefined} onKeyDown={mobile ? event => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); toggleCardProject(proj); } } : undefined} className={`inline-flex items-center gap-[6px] p-[3px_9px] rounded-[6px] bg-[rgba(15,23,42,0.4)] border border-[var(--line)] text-[11.5px] text-[var(--ink-primary)] [transition:border-color_0.15s_ease,background_0.15s_ease] hover:border-[rgba(56,189,248,0.4)] hover:bg-[rgba(15,23,42,0.7)] project-legend-pill max-lg:h-8 max-lg:min-h-8 max-lg:min-w-8 max-lg:cursor-pointer ${mobile && hiddenCardProjects.has(proj) ? "opacity-40" : ""}`} key={proj}>
                           <span
                             className="w-[9px] h-[9px] rounded-[2.5px] inline-block shrink-0 legend-color-dot"
                             style={{ background: PROJECT_COLORS[proj] || "#94a3b8" }}
                           />
-                          <span className="legend-proj-name">{proj}</span>
+                          <span className="legend-proj-name">{projectLabel(proj, activeClientId)}</span>
                         </div>
                       ))}
-                    </div>
+                    </HorizontalScroll>
 
                     {/* Interactive Selected Detail Popover Card (muncul saat bar ditekan/diklik) */}
                     {selectedDate ? (
@@ -2183,7 +2320,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                                       className="w-[9px] h-[9px] rounded-[2.5px] inline-block shrink-0 legend-color-dot"
                                       style={{ background: PROJECT_COLORS[proj] || "#94a3b8" }}
                                     />
-                                    <strong>{proj}:</strong> {cnt} ({pct}%)
+                                    <strong>{projectLabel(proj, activeClientId)}:</strong> {cnt} ({pct}%)
                                   </span>
                                 );
                               })}
@@ -2194,7 +2331,10 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                     ) : null}
                   </>
                 ) : (
-                  <div className="p-[40px_0] text-center text-[var(--ink-muted)] text-[12px] chart-empty-hint">Tidak ada data volume pada rentang filter ini.</div>
+                  <div className="flex min-h-[270px] flex-col items-center justify-center gap-3 text-[13px] text-slate-400 chart-empty-hint max-lg:h-[303px] max-lg:min-h-[220px]">
+                    <BarChart3 size={24} className="text-slate-500" /><span>Tidak ada data</span>
+                    {isAnyAnalyticsFilterActive && <button type="button" onClick={resetAllAnalyticsFilters} className="min-h-11 rounded-lg border border-slate-600 bg-[#243044] px-3 font-semibold text-slate-200">Reset filter</button>}
+                  </div>
                 )}
               </div>
             )}
@@ -2204,7 +2344,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
               <div className="flex flex-col flex-1 w-full justify-start gap-[12px] mom-chart-container">
                 {/* Sub-view Mode Switcher & Period Indicators */}
                 <div className="flex items-center justify-between mb-[12px] p-[6px_12px] bg-[rgba(255,255,255,0.02)] rounded-[8px] border border-[rgba(255,255,255,0.06)] mom-subview-toggle-bar">
-                  <div className="text-[12px] text-[#94a3b8] mom-view-hint">
+                  <div className="text-[12px] text-[#94a3b8] mom-view-hint max-lg:hidden">
                     Komparasi: <strong className="[color:#c084fc]!">● {momData.prevMonthLabel} (Bulan Lalu)</strong> vs{" "}
                     <strong className="[color:#38bdf8]!">● {momData.currMonthLabel} (Bulan Ini)</strong>
                   </div>
@@ -2248,7 +2388,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                         {(() => {
                           const points = momData.trajectoryPoints;
                           const n = points.length;
-                          const svgViewBoxWidth = Math.max(760, n * 58 + 80);
+                          const svgViewBoxWidth = mobile ? Math.max(volumeSize.width, n * 44 + 80) : Math.max(760, n * 58 + 80);
                           const startX = 60;
                           const endX = svgViewBoxWidth - 40;
                           const totalSpan = endX - startX;
@@ -2287,9 +2427,10 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                           const areaPrev = `M ${firstX},${baselineY} L ${polyPrev} L ${lastX},${baselineY} Z`;
 
                           return (
-                            <div className="w-full overflow-x-auto overflow-y-hidden flex-1 flex flex-col justify-start min-h-[270px] svg-barchart-wrap">
+                            <div ref={volumeChartRef} className="w-full overflow-x-auto overflow-y-hidden flex-1 flex flex-col justify-start min-h-[270px] compact-svg-barchart-wrap max-lg:overscroll-x-contain max-lg:[scrollbar-width:thin]">
                               <svg
-                                className="w-full h-full min-h-[270px] max-h-[390px] block report-bar-svg-lg"
+                                className="w-full h-full min-h-[270px] max-h-[390px] block compact-report-bar-svg-lg"
+                                style={mobile ? { width: svgViewBoxWidth, height: viewBoxHeight, flexShrink: 0 } : undefined}
                                 viewBox={`0 0 ${svgViewBoxWidth} ${viewBoxHeight}`}
                                 preserveAspectRatio="none"
                               >
@@ -2374,7 +2515,8 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                                       key={`traj-pt-${item.index}`}
                                       role="button"
                                       tabIndex={0}
-                                      className="[cursor:pointer]!"
+                                      data-focus-ring="none"
+                                      className="[cursor:pointer]! outline-none focus:outline-none focus-visible:brightness-125"
                                       onClick={() => {
                                         setSelectedMomItem((prev) =>
                                           prev?.id === `traj-${item.index}`
@@ -2412,7 +2554,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                                         cx={x}
                                         cy={yPrev}
                                         r={isSelected ? 6 : 4}
-                                        fill="#0f172a"
+                                        fill={mobile ? "rgba(15,23,42,0.9)" : "#0f172a"}
                                         stroke="#a855f7"
                                         strokeWidth={isSelected ? 3 : 2}
                                       />
@@ -2456,7 +2598,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                           );
                         })()}
 
-                        <div className="flex justify-center gap-[24px] mt-[16px] pt-[12px] border-t border-[var(--line)] text-[12px] text-[var(--ink-secondary)] chart-legend-center">
+                        <div className="flex justify-center gap-[24px] mt-[16px] pt-[12px] border-t border-[var(--line)] text-[12px] text-[var(--ink-secondary)] chart-legend-center max-lg:justify-start max-lg:overflow-x-auto max-lg:gap-3 max-lg:[&>span]:shrink-0 max-lg:overscroll-x-contain">
                           <span className="inline-flex items-center gap-[8px] legend-item">
                             <i className="w-[14px] h-[4px] rounded-[2px] inline-block bg-[#38bdf8] legend-dot" />
                             {momData.currMonthLabel} (Bulan Ini: {momData.currTotal} tiket)
@@ -2481,12 +2623,12 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                         {(() => {
                           const projects = momData.projectComparison;
                           const numProj = projects.length;
-                          const svgWidth = Math.max(760, numProj * 88 + 80);
+                          const svgWidth = mobile ? Math.max(volumeSize.width, numProj * 80 + 80) : Math.max(760, numProj * 88 + 80);
                           const startX = 65;
                           const endX = svgWidth - 40;
                           const span = endX - startX;
                           const groupWidth = span / numProj;
-                          const barWidth = 16;
+                          const barWidth = mobile ? 22 : 16;
                           const barGap = 4;
 
                           const viewBoxHeight = 270;
@@ -2501,9 +2643,10 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                           const yTicks = computeYTicks(maxCount);
 
                           return (
-                            <div className="w-full overflow-x-auto overflow-y-hidden flex-1 flex flex-col justify-start min-h-[270px] svg-barchart-wrap">
+                            <div ref={volumeChartRef} className="w-full overflow-x-auto overflow-y-hidden flex-1 flex flex-col justify-start min-h-[270px] compact-svg-barchart-wrap max-lg:overscroll-x-contain max-lg:[scrollbar-width:thin]">
                               <svg
-                                className="w-full h-full min-h-[270px] max-h-[390px] block report-bar-svg-lg"
+                                className="w-full h-full min-h-[270px] max-h-[390px] block compact-report-bar-svg-lg"
+                                style={mobile ? { width: svgWidth, height: viewBoxHeight, flexShrink: 0 } : undefined}
                                 viewBox={`0 0 ${svgWidth} ${viewBoxHeight}`}
                                 preserveAspectRatio="none"
                               >
@@ -2566,7 +2709,8 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                                       key={`mom-proj-${item.project}`}
                                       role="button"
                                       tabIndex={0}
-                                      className="[cursor:pointer]!"
+                                      data-focus-ring="none"
+                                      className="[cursor:pointer]! outline-none focus:outline-none focus-visible:brightness-125"
                                       onClick={() => {
                                         setSelectedMomItem((prev) =>
                                           prev?.id === `proj-${item.project}`
@@ -2704,7 +2848,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                           );
                         })()}
 
-                        <div className="flex justify-center gap-[24px] mt-[16px] pt-[12px] border-t border-[var(--line)] text-[12px] text-[var(--ink-secondary)] chart-legend-center">
+                        <div className="flex justify-center gap-[24px] mt-[16px] pt-[12px] border-t border-[var(--line)] text-[12px] text-[var(--ink-secondary)] chart-legend-center max-lg:justify-start max-lg:overflow-x-auto max-lg:gap-3 max-lg:[&>span]:shrink-0 max-lg:overscroll-x-contain">
                           <span className="inline-flex items-center gap-[8px] legend-item">
                             <i className="w-[9px] h-[9px] rounded-[2.5px] inline-block bg-[#38bdf8] legend-dot" />
                             {momData.currMonthLabel} (Bulan Ini)
@@ -2795,82 +2939,110 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                 ) : null}
               </div>
             )}
+            </PanelSkeletonWrapper>
           </div>
         </article>
 
         {/* Right: Rekap Tiket per User (Task 3) */}
-        <div className="relative w-full h-full min-h-0 max-[1140px]:h-[480px] user-summary-wrapper">
-          <article className={`absolute inset-0 w-full h-full flex flex-col ${REPORT_PANEL_CARD} user-summary-panel`}>
+        <div className="relative w-full h-full min-h-[580px] max-[1140px]:h-[580px] user-summary-wrapper max-lg:h-auto max-lg:min-h-0">
+          <article className={`absolute inset-0 w-full h-full flex flex-col ${REPORT_PANEL_CARD} user-summary-panel max-lg:relative max-lg:h-auto max-lg:[&.user-summary-panel_.report-panel-heading]:h-[69px] max-lg:[&.user-summary-panel.user-summary-panel_.panel-view-action-btn]:size-10 max-lg:[&.user-summary-panel.user-summary-panel_.panel-view-action-btn]:min-h-10 max-lg:[&.user-summary-panel.user-summary-panel_.panel-view-action-btn]:min-w-10 max-lg:[&.user-summary-panel.user-summary-panel_.panel-view-action-btn_span]:hidden max-lg:[&.user-summary-panel_.panel-sub-count]:inline`}>
             <div className={`${REPORT_PANEL_HEADING} report-panel-heading`}>
-              <div className="flex flex-col gap-[2px] chart-heading-left">
+              <div className="flex flex-col gap-[2px] compact-chart-heading-left">
                 <div className="flex items-center gap-[8px] text-[14px] font-bold text-[var(--ink-primary)] panel-title">
                   <Users size={14} className="text-sky-400" />
                   Rekap Tiket per User
                 </div>
               </div>
-              <span className="text-[11px] font-mono text-[var(--ink-muted)] font-semibold panel-sub-count">{userSummaries.length} Staf</span>
+              <div className="flex items-center gap-2">
+                {isLoading ? (
+                  <Skeleton width={48} height={16} borderRadius={99} tone="subtle" />
+                ) : (
+                  <span className="text-[11px] font-mono text-[var(--ink-muted)] font-semibold panel-sub-count">{userSummaries.length} Staf</span>
+                )}
+                <PanelViewButton
+                  panelTitle="Rekap Tiket per User"
+                  onClick={() => handleOpenPanel("user-recap")}
+                  ariaLabel="Perbesar panel Rekap Tiket per User"
+                  disabled={isLoading}
+                />
+              </div>
             </div>
-            <div className="flex flex-col flex-1 justify-between p-[20px] min-h-0 overflow-hidden report-panel-body user-summary-body">
-              <div className="flex flex-col gap-[8px] [flex:1_1_0%] min-h-0 overflow-y-auto pr-[4px] [scrollbar-width:thin] [scrollbar-color:rgba(56,189,248,0.25)_transparent] [&::-webkit-scrollbar]:w-[4px] [&::-webkit-scrollbar-track]:bg-[rgba(148,163,184,0.05)] [&::-webkit-scrollbar-track]:rounded-[4px] [&::-webkit-scrollbar-thumb]:bg-[rgba(56,189,248,0.25)] [&::-webkit-scrollbar-thumb]:rounded-[4px] user-summary-list">
-                {userSummaries.map((user) => (
+            <div className="flex flex-col flex-1 p-3.5 sm:p-4 min-h-0 overflow-hidden report-panel-body user-summary-body">
+              <PanelSkeletonWrapper
+          reserveLoading={mobile}
+                isLoading={isLoading}
+                isStale={isStale}
+                error={error}
+                onRetry={refetch}
+                minHeight={300}
+                className="h-full"
+                loadingClassName="max-lg:flex-none max-lg:h-[352px] lg:min-h-[300px]"
+                skeleton={<StaffRecapSkeleton />}
+                liveRegionText="Memuat rekap tiket per user..."
+              >
+              <div className="flex flex-col gap-2 flex-1 min-h-0 overflow-y-auto pr-1 pb-3 [scrollbar-width:thin] [scrollbar-color:rgba(56,189,248,0.25)_transparent] [&::-webkit-scrollbar]:w-[4px] [&::-webkit-scrollbar-track]:bg-[rgba(148,163,184,0.05)] [&::-webkit-scrollbar-track]:rounded-[4px] [&::-webkit-scrollbar-thumb]:bg-[rgba(56,189,248,0.25)] [&::-webkit-scrollbar-thumb]:rounded-[4px] user-summary-list max-lg:gap-0 max-lg:flex-none max-lg:overflow-visible max-lg:pb-0 max-lg:pr-0">
+                {userSummaries.map((user, staffIndex) => (
                   <button
                     type="button"
                     key={user.name}
-                    className="flex flex-col gap-[5px] p-[8px_10px] rounded-[8px] bg-[rgba(148,163,184,0.04)] border border-[rgba(148,163,184,0.1)] cursor-pointer text-left w-full [transition:all_0.15s_ease] hover:bg-[rgba(56,189,248,0.08)] hover:border-[rgba(56,189,248,0.3)] user-summary-card"
+                    className={`flex flex-col gap-1.5 p-2 sm:p-2.5 rounded-lg bg-[rgba(148,163,184,0.04)] border border-[rgba(148,163,184,0.1)] cursor-pointer text-left w-full transition-all duration-150 hover:bg-[rgba(56,189,248,0.08)] hover:border-[rgba(56,189,248,0.3)] shrink-0 user-summary-card max-lg:grid max-lg:grid-cols-[32px_minmax(0,1fr)_108px_40px] max-lg:grid-rows-1 max-lg:items-center max-lg:gap-x-1.5 max-lg:gap-y-0 max-lg:h-[60px] max-lg:rounded-none max-lg:border-0 max-lg:border-b max-lg:border-slate-700/50 max-lg:bg-transparent max-lg:p-0 max-lg:py-1.5 max-lg:[&_.metric-val]:text-[15px] max-lg:[&_.metric-lbl]:font-sans max-lg:[&_.metric-lbl]:tracking-normal max-lg:[&_.metric-lbl]:leading-[14px] ${!staffExpanded && staffIndex >= 5 ? "max-lg:hidden" : ""}`}
+                    aria-label={`Detail ${user.name}`}
                     onClick={() => setSelectedUserDetail(user)}
                     title={`Klik untuk melihat rincian sistem dan histori tiket ${user.name}`}
                   >
-                    <div className="flex items-center justify-between gap-[8px] user-summary-card-top">
-                      <div className="flex items-center gap-[7px] min-w-0 user-profile-left">
-                        <Avatar size="sm" initials={user.initials} name={user.name} className="w-[24px] h-[24px] rounded-[50%] flex items-center justify-center text-[9.5px] font-bold text-[#fff] shrink-0 user-avatar-sm" />
-                        <div className="flex flex-col min-w-0 user-name-role">
-                          <span className="text-[11px] font-bold text-[var(--ink-primary)] whitespace-nowrap overflow-hidden text-ellipsis user-summary-name">{user.name}</span>
-                          <span className="text-[9px] text-[var(--ink-muted)] whitespace-nowrap overflow-hidden text-ellipsis user-summary-role">{user.role}</span>
+                    <div className="flex items-center justify-between gap-[8px] user-summary-card-top max-lg:contents">
+                      <div className="flex items-center gap-[7px] min-w-0 user-profile-left max-lg:contents">
+                        <Avatar size={mobile ? "md" : "sm"} initials={user.initials} name={user.name} className="w-[24px] h-[24px] rounded-[50%] flex items-center justify-center text-[9.5px] max-lg:text-[11px] font-bold text-[#fff] shrink-0 user-avatar-sm max-lg:col-start-1 max-lg:row-start-1 max-lg:size-8 max-lg:text-[11px]" />
+                        <div className={`flex flex-col min-w-0 user-name-role max-lg:col-start-2 max-lg:row-start-1 ${Object.keys(user.todayBreakdown).length ? "max-lg:self-start" : ""}`}>
+                          <span className="text-[11px] font-bold text-[var(--ink-primary)] whitespace-nowrap overflow-hidden text-ellipsis user-summary-name max-lg:text-[14px] max-lg:leading-[18px]" title={user.name}>{user.name}</span>
+                          <span className="text-[9px] max-lg:text-[11px] text-[var(--ink-muted)] whitespace-nowrap overflow-hidden text-ellipsis user-summary-role max-lg:leading-[14px]" title={user.role}>{user.role}</span>
                         </div>
                       </div>
-                      <span className="inline-flex items-center gap-[2px] text-[9.5px] font-semibold text-[#38bdf8] shrink-0 user-detail-link">
-                        Detail <ChevronRight size={11} />
+                      <span className="inline-flex items-center gap-[2px] text-[9.5px] max-lg:text-[11px] font-semibold text-[#38bdf8] shrink-0 user-detail-link max-lg:col-start-4 max-lg:row-start-1 max-lg:size-10 max-lg:justify-center">
+                        <span className="max-lg:hidden">Detail</span><ChevronRight size={11} className="max-lg:size-4" />
                       </span>
                     </div>
 
                     {/* 3 Metric Pills */}
-                    <div className="grid grid-cols-3 gap-[4px] p-[3px_6px] rounded-[6px] bg-[rgba(15,23,42,0.4)] border border-[rgba(148,163,184,0.08)] user-metrics-row">
+                    <div className="grid grid-cols-3 gap-[4px] p-[3px_6px] rounded-[6px] bg-[rgba(15,23,42,0.4)] border border-[rgba(148,163,184,0.08)] user-metrics-row max-lg:col-start-3 max-lg:row-start-1 max-lg:gap-1.5 max-lg:border-0 max-lg:bg-transparent max-lg:p-0">
                       <div className="flex flex-col items-center text-center gap-[1px] user-metric-col metric-today">
-                        <span className="text-[7.5px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl">HARI INI</span>
-                        <strong className="text-[12px] font-extrabold font-mono text-[#38bdf8] metric-val">{user.todayCount}</strong>
+                        <span className="text-[7.5px] max-lg:text-[11px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl">{mobile ? "Hari" : "HARI INI"}</span>
+                        <strong className={`text-[12px] font-extrabold font-mono text-[#38bdf8] metric-val ${user.todayCount === 0 ? "max-lg:text-slate-400" : ""}`}>{user.todayCount}</strong>
                       </div>
                       <div className="flex flex-col items-center text-center gap-[1px] user-metric-col metric-month">
-                        <span className="text-[7.5px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl">BULAN INI</span>
-                        <strong className="text-[12px] font-extrabold font-mono text-[#10b981] metric-val">{user.monthCount}</strong>
+                        <span className="text-[7.5px] max-lg:text-[11px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl">{mobile ? "Bulan" : "BULAN INI"}</span>
+                        <strong className="text-[12px] font-extrabold font-mono text-[#10b981] metric-val max-lg:text-[#4ade80]">{user.monthCount}</strong>
                       </div>
                       <div className="flex flex-col items-center text-center gap-[1px] user-metric-col metric-year">
-                        <span className="text-[7.5px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl">TAHUN INI</span>
-                        <strong className="text-[12px] font-extrabold font-mono text-[#818cf8] metric-val">{user.yearCount}</strong>
+                        <span className="text-[7.5px] max-lg:text-[11px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl">{mobile ? "Tahun" : "TAHUN INI"}</span>
+                        <strong className="text-[12px] font-extrabold font-mono text-[#818cf8] metric-val max-lg:text-[#c084fc]">{user.yearCount}</strong>
                       </div>
                     </div>
 
                     {/* Today's project tags */}
-                    <div className="flex items-center gap-[4px] text-[9px] text-[var(--ink-muted)] user-today-projects">
-                      <span className="text-[8.5px] text-[var(--ink-muted)] font-semibold shrink-0 user-proj-label">Hari Ini:</span>
+                    <HorizontalScroll className={`flex items-center gap-[4px] text-[9px] max-lg:text-[11px] text-[var(--ink-muted)] user-today-projects max-lg:col-start-2 max-lg:row-start-1 max-lg:self-end max-lg:h-[14px] max-lg:min-h-[14px] max-lg:overflow-x-auto max-lg:whitespace-nowrap max-lg:overscroll-x-contain max-lg:[scrollbar-width:none] max-lg:[&::-webkit-scrollbar]:hidden ${Object.keys(user.todayBreakdown).length ? "" : "max-lg:hidden"}`}>
+                      <span className="text-[8.5px] max-lg:text-[11px] text-[var(--ink-muted)] font-semibold shrink-0 user-proj-label max-lg:hidden">Hari Ini:</span>
                       {Object.keys(user.todayBreakdown).length > 0 ? (
-                        <div className="flex flex-wrap gap-[3px] user-proj-pills-wrap">
+                        <div className="flex flex-wrap gap-[3px] user-proj-pills-wrap max-lg:flex-nowrap">
                           {Object.entries(user.todayBreakdown).map(([proj, count]) => {
                             const pColor = PROJECT_COLORS[proj] || "#94a3b8";
                             return (
-                              <span className="inline-flex items-center gap-[2px] p-[1px_4px] rounded-[3px] text-[8.5px] font-mono font-semibold bg-[rgba(255,255,255,0.06)] text-[var(--ink-secondary)] user-proj-badge" key={proj}>
+                              <span className="inline-flex items-center gap-[2px] p-[1px_4px] rounded-[3px] text-[8.5px] max-lg:text-[11px] font-mono font-semibold bg-[rgba(255,255,255,0.06)] text-[var(--ink-secondary)] user-proj-badge max-lg:py-0 max-lg:leading-[14px]" key={proj}>
                                 <i className="w-[9px] h-[9px] rounded-[2.5px] inline-block legend-dot" style={{ background: pColor }} />
-                                {proj} &times;{count}
+                                {projectLabel(proj, activeClientId)} &times;{count}
                               </span>
                             );
                           })}
                         </div>
                       ) : (
-                        <span className="text-[8.5px] text-[var(--ink-muted)] italic user-proj-none">Tidak ada tiket baru hari ini</span>
+                        <span className="text-[8.5px] max-lg:text-[11px] text-[var(--ink-muted)] italic user-proj-none">Tidak ada tiket baru hari ini</span>
                       )}
-                    </div>
+                    </HorizontalScroll>
                   </button>
                 ))}
               </div>
+              <button type="button" aria-expanded={staffExpanded} onClick={event => toggleCompactPreview(event.currentTarget.closest("article"), staffExpanded, setStaffExpanded)} className="lg:hidden mt-2 min-h-11 w-full inline-flex items-center justify-center gap-2 rounded-lg border border-slate-700 bg-[#243044] text-[13px] font-semibold text-slate-300">{staffExpanded ? "Ringkas" : `Lihat semua (${userSummaries.length})`}<ChevronRight size={16} /></button>
+              </PanelSkeletonWrapper>
             </div>
           </article>
         </div>
@@ -2878,51 +3050,85 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
 
 
       {/* ── 5. Distributions: Category Donut & Priority Donut ── */}
-      <div className="grid grid-cols-2 max-[960px]:grid-cols-1 gap-[18px] report-charts-grid">
+      <div role="group" aria-label="Pilih distribusi" className="flex gap-2 lg:hidden">
+        {["Kategori", "Severity"].map((label, index) => <button key={label} type="button" aria-pressed={distributionIndex === index} onClick={() => {
+          const target = distributionRef.current;
+          if (target && !mobile) target.scrollTo({ left: index * (target.clientWidth + 12) });
+          setDistributionIndex(index);
+        }} className={`min-h-11 flex-1 rounded-lg border text-[13px] font-semibold ${distributionIndex === index ? "border-sky-500/40 bg-sky-500/10 text-sky-300" : "border-slate-700 bg-slate-900/50 text-slate-400"}`}>{label}</button>)}
+      </div>
+      <div ref={distributionRef} className="grid grid-cols-2 max-[960px]:grid-cols-1 gap-[18px] max-lg:gap-3 report-charts-grid max-lg:block max-lg:[scrollbar-width:none] max-lg:[&::-webkit-scrollbar]:hidden max-lg:items-start max-lg:[&>article]:w-full max-lg:[&>article]:min-w-full max-lg:[&>article]:snap-center max-lg:[&>article]:shrink-0">
         {/* Category Distribution (Donut + Ranked Bars) */}
-        <article className={`${REPORT_PANEL_CARD} report-panel`}>
+        <article className={`${REPORT_PANEL_CARD} report-panel @container ${distributionIndex === 0 ? "" : "max-lg:hidden"}`}>
           <div className={`${REPORT_PANEL_HEADING} report-panel-heading`}>
-            <div className={`${REPORT_PANEL_TITLE} panel-title`}>Distribusi Kategori / Tipe Tiket</div>
-            <span className="text-[11px] font-mono text-[var(--ink-muted)] font-semibold panel-sub-count">{typeCounts.length} Kategori</span>
+            <div className={`${REPORT_PANEL_TITLE} panel-title`}><span className="hidden lg:inline">Distribusi Kategori / Tipe Tiket</span><span className="lg:hidden">Distribusi Kategori</span></div>
+            <div className="flex items-center gap-2">
+              {isLoading ? (
+                <Skeleton width={64} height={16} borderRadius={99} tone="subtle" />
+              ) : (
+                <span className="text-[11px] font-mono text-[var(--ink-muted)] font-semibold panel-sub-count">{typeCounts.length} Kategori</span>
+              )}
+              <PanelViewButton
+                panelTitle="Distribusi Kategori / Tipe Tiket"
+                onClick={() => handleOpenPanel("category-distribution")}
+                ariaLabel="Perbesar panel Distribusi Kategori"
+                disabled={isLoading}
+              />
+            </div>
           </div>
-          <div className="flex flex-col flex-1 justify-between p-[20px] report-panel-body">
-            <div className="grid grid-cols-[140px_1fr] max-[540px]:grid-cols-1 max-[540px]:justify-items-center gap-[20px] items-center donut-and-list-grid">
+          <div className="flex flex-col flex-1 min-h-0 p-5 report-panel-body">
+            <PanelSkeletonWrapper
+          reserveLoading={mobile}
+              isLoading={isLoading}
+              isStale={isStale}
+              error={error}
+              onRetry={refetch}
+              minHeight={180}
+              className="h-full"
+              loadingClassName="max-lg:flex-none max-lg:h-[404px] lg:min-h-[180px]"
+                skeleton={<CategoryDistributionSkeleton />}
+              liveRegionText="Memuat distribusi kategori..."
+            >
+              <div className="grid grid-cols-[140px_1fr] max-[540px]:grid-cols-1 max-[540px]:justify-items-center gap-[20px] items-center h-full flex-1 min-h-0 donut-and-list-grid max-lg:gap-3 max-lg:justify-items-center @max-[439px]:max-lg:grid-cols-1 @min-[440px]:max-lg:grid-cols-[140px_1fr]">
               {/* Donut Chart */}
-              <div className="relative w-[130px] h-[130px] donut-chart-wrap">
-                <svg className="w-full h-full donut-svg" viewBox="0 0 160 160">
-                  {renderDonutSlices(
-                    typeCounts.map(([type, count], idx) => ({
-                      label: type,
-                      count,
-                      color: CATEGORY_COLORS[idx % CATEGORY_COLORS.length],
-                    })),
-                    80,
-                    80,
-                    55,
-                    16
-                  )}
-                </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center donut-center-content">
-                  <span className="text-[20px] font-extrabold font-mono text-[var(--ink-primary)] leading-none donut-total-num">{total}</span>
-                  <span className="text-[8px] font-bold font-mono tracking-[0.8px] text-[var(--ink-muted)] mt-[2px] donut-total-label">TOTAL</span>
+              <div className="flex items-center justify-center shrink-0">
+                <div className="relative w-[130px] h-[130px] max-lg:size-[140px] donut-chart-wrap">
+                  <svg className="w-full h-full donut-svg" viewBox="0 0 160 160">
+                    {renderDonutSlices(
+                      typeCounts.map(([type, count], idx) => ({
+                        label: categoryLabel(type),
+                        count,
+                        color: resolveCategoryColor(type, catalog.categories).hex,
+                      })),
+                      80,
+                      80,
+                      55,
+                      14,
+                      2
+                    )}
+                  </svg>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center donut-center-content">
+                    <span className="text-[20px] font-extrabold font-mono text-[var(--ink-primary)] leading-none donut-total-num">{total}</span>
+                    <span className="text-[8px] max-lg:text-[11px] font-bold font-mono tracking-[0.8px] text-[var(--ink-muted)] mt-[2px] donut-total-label">TOTAL</span>
+                  </div>
                 </div>
               </div>
 
               {/* Ranked Category Bars */}
-              <div className="flex flex-col gap-[9px] w-full category-distribution-list">
+              <div className="flex flex-col justify-between h-full gap-2 w-full category-distribution-list max-lg:gap-0">
                 {typeCounts.map(([type, count], idx) => {
                   const pct = total > 0 ? Math.round((count / total) * 100) : 0;
-                  const color = CATEGORY_COLORS[idx % CATEGORY_COLORS.length];
+                  const color = resolveCategoryColor(type, catalog.categories).hex;
 
                   return (
-                    <div className="flex flex-col gap-[4px] category-dist-row" key={type}>
-                      <div className="flex justify-between text-[11.5px] font-medium text-[var(--ink-primary)] category-dist-info">
-                        <span className="inline-flex items-center gap-[6px] category-dist-name">
-                          <i className="w-[9px] h-[9px] rounded-[2.5px] inline-block legend-dot" style={{ background: color }} /> {type}
+                    <div className="flex flex-col gap-[4px] category-dist-row max-lg:min-h-9 max-lg:grid max-lg:grid-cols-[minmax(0,112px)_minmax(24px,1fr)_68px] max-lg:items-center max-lg:gap-2" key={type}>
+                      <div className="flex justify-between text-[11.5px] font-medium text-[var(--ink-primary)] category-dist-info max-lg:contents">
+                        <span className="inline-flex items-center gap-[6px] category-dist-name max-lg:col-start-1 max-lg:row-start-1 max-lg:truncate" title={categoryLabel(type)}>
+                          <i className="w-[9px] h-[9px] rounded-[2.5px] inline-block legend-dot" style={{ background: color }} /> {categoryLabel(type)}
                         </span>
-                        <span className="font-mono text-[11px] text-[var(--ink-muted)] category-dist-count">{count} ({pct}%)</span>
+                        <span className="font-mono text-[11px] text-[var(--ink-muted)] category-dist-count max-lg:col-start-3 max-lg:row-start-1 max-lg:whitespace-nowrap">{count} ({pct}%)</span>
                       </div>
-                      <div className="h-[5px] w-full bg-[rgba(148,163,184,0.15)] rounded-[99px] overflow-hidden category-dist-track">
+                      <div className="h-[5px] w-full bg-[rgba(148,163,184,0.15)] rounded-[99px] overflow-hidden category-dist-track max-lg:col-start-2 max-lg:row-start-1">
                         <div className="h-full rounded-[99px] category-dist-fill" style={{ width: `${pct}%`, background: color }} />
                       </div>
                     </div>
@@ -2930,78 +3136,103 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                 })}
               </div>
             </div>
+            </PanelSkeletonWrapper>
           </div>
         </article>
 
         {/* Severity Distribution */}
-        <article className={`${REPORT_PANEL_CARD} report-panel`}>
+        <article className={`${REPORT_PANEL_CARD} report-panel @container ${distributionIndex === 1 ? "" : "max-lg:hidden"}`}>
           <div className={`${REPORT_PANEL_HEADING} report-panel-heading`}>
-            <div className={`${REPORT_PANEL_TITLE} panel-title`}>Distribusi Berdasarkan Severity</div>
-            <span className="text-[11px] font-mono text-[var(--ink-muted)] font-semibold panel-sub-count">Severity Ratios</span>
+            <div className={`${REPORT_PANEL_TITLE} panel-title`}><span className="hidden lg:inline">Distribusi Berdasarkan Severity</span><span className="lg:hidden">Distribusi Severity</span></div>
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] font-mono text-[var(--ink-muted)] font-semibold panel-sub-count">Severity Ratios</span>
+              <PanelViewButton
+                panelTitle="Distribusi Berdasarkan Severity"
+                onClick={() => handleOpenPanel("severity-distribution")}
+                ariaLabel="Perbesar panel Distribusi Severity"
+                disabled={isLoading}
+              />
+            </div>
           </div>
-          <div className="flex flex-col flex-1 justify-between p-[20px] report-panel-body">
-            <div className="grid grid-cols-[140px_1fr] max-[540px]:grid-cols-1 max-[540px]:justify-items-center gap-[20px] items-center donut-and-list-grid">
+          <div className="flex flex-col flex-1 min-h-0 p-5 report-panel-body">
+            <PanelSkeletonWrapper
+          reserveLoading={mobile}
+              isLoading={isLoading}
+              isStale={isStale}
+              error={error}
+              onRetry={refetch}
+              minHeight={180}
+              className="h-full"
+              loadingClassName="max-lg:flex-none max-lg:h-[372px] lg:min-h-[180px]"
+                skeleton={<SeverityDistributionSkeleton />}
+              liveRegionText="Memuat distribusi severity..."
+            >
+              <div className="flex flex-col @[520px]:grid @[520px]:grid-cols-[auto_1fr] @[520px]:items-stretch gap-4 @[520px]:gap-6 flex-1 min-h-0 justify-center">
               {/* Donut Chart for Priority */}
-              <div className="relative w-[130px] h-[130px] donut-chart-wrap">
-                <svg className="w-full h-full donut-svg" viewBox="0 0 160 160">
-                  {renderDonutSlices(
-                    [
-                      { label: "Critical", count: priorityCounts.Critical, color: PRIORITY_COLORS.Critical },
-                      { label: "High", count: priorityCounts.High, color: PRIORITY_COLORS.High },
-                      { label: "Medium", count: priorityCounts.Medium, color: PRIORITY_COLORS.Medium },
-                      { label: "Low", count: priorityCounts.Low, color: PRIORITY_COLORS.Low },
-                    ],
-                    80,
-                    80,
-                    55,
-                    16
-                  )}
-                </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center donut-center-content">
-                  <span className="text-[20px] font-extrabold font-mono text-[var(--ink-primary)] leading-none donut-total-num">{priorityCounts.Critical + priorityCounts.High}</span>
-                  <span className="text-[8px] font-bold font-mono tracking-[0.8px] text-[var(--ink-muted)] mt-[2px] donut-total-label">CRIT/HIGH</span>
+              <div className="flex items-center justify-center shrink-0">
+                <div className="relative shrink-0 w-[120px] h-[120px] max-lg:size-[120px] @[340px]:w-[132px] @[340px]:h-[132px] @[520px]:w-[148px] @[520px]:h-[148px] donut-chart-wrap">
+                  <svg className="w-full h-full donut-svg" viewBox="0 0 160 160">
+                    {renderDonutSlices(
+                      [
+                        { label: "Critical", count: priorityCounts.Critical, color: PRIORITY_COLORS.Critical },
+                        { label: "High", count: priorityCounts.High, color: PRIORITY_COLORS.High },
+                        { label: "Medium", count: priorityCounts.Medium, color: PRIORITY_COLORS.Medium },
+                        { label: "Low", count: priorityCounts.Low, color: PRIORITY_COLORS.Low },
+                      ],
+                      80,
+                      80,
+                      55,
+                      14,
+                      2
+                    )}
+                  </svg>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none donut-center-content">
+                    <span className="text-[28px] font-bold font-mono text-[#f8fafc] leading-none tabular-nums donut-total-num">
+                      {priorityCounts.Critical + priorityCounts.High}
+                    </span>
+                    <span className="text-[10px] max-lg:text-[11px] font-mono uppercase tracking-[0.12em] text-[#94a3b8] mt-1 donut-total-label">
+                      CRIT/HIGH
+                    </span>
+                  </div>
                 </div>
               </div>
 
               {/* Priority Summary Grid */}
-              <div className="grid grid-cols-2 gap-[10px] w-full priority-spectrum-list">
-                <div className="p-[10px_12px] rounded-[8px] bg-[rgba(15,23,42,0.35)] border border-[var(--line)] [border-left:3px_solid_#ef4444] flex flex-col gap-[2px] priority-spec-box priority-crit">
-                  <div className="flex items-center gap-[6px] text-[11px] text-[var(--ink-primary)] spec-top">
-                    <span className="w-[7px] h-[7px] rounded-[50%] bg-[#ef4444] crit-dot" />
-                    <strong>Critical</strong>
-                  </div>
-                  <span className="text-[18px] font-extrabold font-mono text-[var(--ink-primary)] leading-[1.1] mt-[2px] spec-count">{priorityCounts.Critical}</span>
-                  <span className="text-[9.5px] text-[var(--ink-muted)] font-mono spec-pct">{total > 0 ? Math.round((priorityCounts.Critical / total) * 100) : 0}% share</span>
-                </div>
+              <div className="grid grid-cols-1 @[340px]:grid-cols-2 @[520px]:grid-rows-2 gap-3 w-full h-full priority-spectrum-list max-lg:grid-cols-2 max-lg:gap-2">
+                {(["Critical", "High", "Medium", "Low"] as const).map((key) => {
+                  const count = priorityCounts[key];
+                  const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+                  const style = SEVERITY_CARD_STYLES[key];
 
-                <div className="p-[10px_12px] rounded-[8px] bg-[rgba(15,23,42,0.35)] border border-[var(--line)] [border-left:3px_solid_#f97316] flex flex-col gap-[2px] priority-spec-box priority-high">
-                  <div className="flex items-center gap-[6px] text-[11px] text-[var(--ink-primary)] spec-top">
-                    <span className="w-[7px] h-[7px] rounded-[50%] bg-[#f97316] high-dot" />
-                    <strong>High</strong>
-                  </div>
-                  <span className="text-[18px] font-extrabold font-mono text-[var(--ink-primary)] leading-[1.1] mt-[2px] spec-count">{priorityCounts.High}</span>
-                  <span className="text-[9.5px] text-[var(--ink-muted)] font-mono spec-pct">{total > 0 ? Math.round((priorityCounts.High / total) * 100) : 0}% share</span>
-                </div>
-
-                <div className="p-[10px_12px] rounded-[8px] bg-[rgba(15,23,42,0.35)] border border-[var(--line)] [border-left:3px_solid_#f59e0b] flex flex-col gap-[2px] priority-spec-box priority-med">
-                  <div className="flex items-center gap-[6px] text-[11px] text-[var(--ink-primary)] spec-top">
-                    <span className="w-[7px] h-[7px] rounded-[50%] bg-[#f59e0b] med-dot" />
-                    <strong>Medium</strong>
-                  </div>
-                  <span className="text-[18px] font-extrabold font-mono text-[var(--ink-primary)] leading-[1.1] mt-[2px] spec-count">{priorityCounts.Medium}</span>
-                  <span className="text-[9.5px] text-[var(--ink-muted)] font-mono spec-pct">{total > 0 ? Math.round((priorityCounts.Medium / total) * 100) : 0}% share</span>
-                </div>
-
-                <div className="p-[10px_12px] rounded-[8px] bg-[rgba(15,23,42,0.35)] border border-[var(--line)] [border-left:3px_solid_#2dd4bf] flex flex-col gap-[2px] priority-spec-box priority-low">
-                  <div className="flex items-center gap-[6px] text-[11px] text-[var(--ink-primary)] spec-top">
-                    <span className="w-[7px] h-[7px] rounded-[50%] bg-[#2dd4bf] low-dot" />
-                    <strong>Low</strong>
-                  </div>
-                  <span className="text-[18px] font-extrabold font-mono text-[var(--ink-primary)] leading-[1.1] mt-[2px] spec-count">{priorityCounts.Low}</span>
-                  <span className="text-[9.5px] text-[var(--ink-muted)] font-mono spec-pct">{total > 0 ? Math.round((priorityCounts.Low / total) * 100) : 0}% share</span>
-                </div>
+                  return (
+                    <div
+                      key={key}
+                      className={`p-3.5 rounded-lg bg-slate-950/40 border border-[#334155] border-l-[3px] ${style.borderLeft} flex flex-col justify-between min-w-0 h-full max-lg:p-2 max-lg:h-[108px] priority-spec-box`}
+                    >
+                      <div className="flex items-center gap-1.5 min-w-0 spec-top">
+                        <span className={`w-2 h-2 rounded-full shrink-0 ${style.dot}`} />
+                        <strong className="text-xs font-semibold text-[#f8fafc] truncate">{key}</strong>
+                      </div>
+                      <span className="text-[28px] font-bold font-mono text-[#f8fafc] leading-none tabular-nums my-1 spec-count max-lg:text-[22px]">
+                        {count}
+                      </span>
+                      <div className="flex flex-col gap-1.5 w-full mt-auto">
+                        <span className="text-[11px] font-mono text-[#94a3b8] tabular-nums leading-tight spec-pct">
+                          {pct}% share
+                        </span>
+                        <div className="w-full h-1 bg-[#334155] rounded-full overflow-hidden">
+                          <div
+                            className={`h-full rounded-full ${style.bar}`}
+                            style={{ width: `${Math.min(100, Math.max(0, pct))}%` }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
+            </PanelSkeletonWrapper>
           </div>
         </article>
       </div>
@@ -3010,24 +3241,42 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
       <article className={`${REPORT_PANEL_CARD} flex flex-col w-full mgmt-velocity-panel`}>
         <div className={`${REPORT_PANEL_HEADING} report-panel-heading`}>
           <div>
-            <div className={`${REPORT_PANEL_TITLE} panel-title`}>Tren Durasi Penyelesaian (Resolution Velocity)</div>
+            <div className={`${REPORT_PANEL_TITLE} panel-title`}><span className="hidden lg:inline">Tren Durasi Penyelesaian (Resolution Velocity)</span><span className="lg:hidden">Tren Durasi</span></div>
           </div>
-          <div className="flex items-center gap-[16px] flex-wrap velocity-legend-strip">
-            <div className="flex items-center gap-[6px] text-[11px] font-semibold text-[var(--ink-secondary)] velocity-legend-item">
+          <div className="flex items-center gap-[16px] flex-wrap velocity-legend-strip max-lg:[&_.compact-velocity-legend-item]:hidden">
+            <div className="flex items-center gap-[6px] text-[11px] font-semibold text-[var(--ink-secondary)] compact-velocity-legend-item">
               <span className="inline-block w-[16px] h-[3px] rounded-[2px] bg-[#38bdf8] shadow-[0_0_8px_rgba(56,189,248,0.4)] velocity-legend-line velocity-legend-blue" />
               <span>Rata-rata Resolusi</span>
             </div>
-            <div className="flex items-center gap-[6px] text-[11px] font-semibold text-[var(--ink-secondary)] velocity-legend-item">
+            <div className="flex items-center gap-[6px] text-[11px] font-semibold text-[var(--ink-secondary)] compact-velocity-legend-item">
               <span className="inline-block w-[16px] h-0 rounded-[2px] bg-[#f59e0b] border-t-[2px] border-t-dashed border-t-[#f59e0b] border-transparent velocity-legend-line velocity-legend-orange" />
               <span>Target SLA (60m)</span>
             </div>
-            <div className="flex items-center gap-[6px] text-[11px] font-semibold text-[var(--ink-secondary)] velocity-legend-item">
+            <div className="flex items-center gap-[6px] text-[11px] font-semibold text-[var(--ink-secondary)] compact-velocity-legend-item">
               <span className="inline-block w-[16px] h-0 rounded-[2px] bg-[#f87171] border-t-[2px] border-t-dashed border-t-[#f87171] border-transparent velocity-legend-line velocity-legend-red" />
               <span>Batas Kritis / Breach (90m)</span>
             </div>
+            <PanelViewButton
+              panelTitle="Tren Durasi Penyelesaian"
+              onClick={() => handleOpenPanel("resolution-trend")}
+              ariaLabel="Perbesar panel Tren Durasi Penyelesaian"
+              disabled={isLoading}
+            />
           </div>
         </div>
           <div className="flex flex-col flex-1 p-[16px_20px] gap-[10px] justify-between report-panel-body velocity-panel-body">
+            <PanelSkeletonWrapper
+          reserveLoading={mobile}
+              isLoading={isLoading}
+              isStale={isStale}
+              error={error}
+              onRetry={refetch}
+              minHeight={280}
+              className="h-full"
+              loadingClassName="max-lg:flex-none max-lg:h-[381px] lg:min-h-[280px]"
+                skeleton={<ResolutionVelocitySkeleton />}
+              liveRegionText="Memuat tren durasi penyelesaian..."
+            >
             {volumeByDate.length > 0 ? (
               <>
                 {/* 4 Summary Stat Pills for Quick Velocity Intelligence */}
@@ -3040,21 +3289,21 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                   const compliancePct = Math.round((metCount / volumeByDate.length) * 100);
 
                   return (
-                    <div className="grid grid-cols-4 max-[860px]:grid-cols-2 gap-[10px] mb-[2px] velocity-metrics-strip">
+                    <div className="grid grid-cols-4 max-[860px]:grid-cols-2 gap-[10px] mb-[2px] velocity-metrics-strip max-lg:auto-rows-fr">
                       <div className="flex flex-col gap-[3px] p-[8px_12px] bg-[rgba(15,23,42,0.55)] border border-[rgba(255,255,255,0.08)] rounded-[8px] velocity-metric-pill">
-                        <span className="text-[10px] text-[var(--ink-muted)] font-semibold whitespace-nowrap overflow-hidden text-ellipsis velocity-metric-label">Rata-rata Resolusi</span>
-                        <span className="font-mono text-[15px] font-extrabold text-[var(--ink-primary)] leading-[1.1] [&_small]:text-[10px] [&_small]:font-medium [&_small]:text-[var(--ink-muted)] velocity-metric-val">{avg} <small>menit</small></span>
+                        <span className="text-[10px] max-lg:text-[11px] text-[var(--ink-muted)] font-semibold whitespace-nowrap overflow-hidden text-ellipsis velocity-metric-label">Rata-rata Resolusi</span>
+                        <span className="font-mono text-[15px] font-extrabold text-[var(--ink-primary)] leading-[1.1] [&_small]:text-[10px] [&_small]:font-medium [&_small]:text-[var(--ink-muted)] velocity-metric-val max-lg:text-[20px] max-lg:[&_small]:text-[11px]">{avg} <small>menit</small></span>
                       </div>
                       <div className="flex flex-col gap-[3px] p-[8px_12px] bg-[rgba(15,23,42,0.55)] border border-[rgba(255,255,255,0.08)] rounded-[8px] velocity-metric-pill">
-                        <span className="text-[10px] text-[var(--ink-muted)] font-semibold whitespace-nowrap overflow-hidden text-ellipsis velocity-metric-label">Kepatuhan SLA (≤60m)</span>
-                        <span className="font-mono text-[15px] font-extrabold text-[var(--ink-primary)] leading-[1.1] [&_small]:text-[10px] [&_small]:font-medium velocity-metric-val">{compliancePct}%</span>
+                        <span className="text-[10px] max-lg:text-[11px] text-[var(--ink-muted)] font-semibold whitespace-nowrap overflow-hidden text-ellipsis velocity-metric-label max-lg:whitespace-normal" title="Kepatuhan SLA (≤60m)">Kepatuhan SLA (≤60m)</span>
+                        <span className="font-mono text-[15px] font-extrabold text-[var(--ink-primary)] leading-[1.1] [&_small]:text-[10px] [&_small]:font-medium velocity-metric-val max-lg:text-[20px] max-lg:[&_small]:text-[11px]">{compliancePct}%</span>
                       </div>
                       <div className="flex flex-col gap-[3px] p-[8px_12px] bg-[rgba(15,23,42,0.55)] border border-[rgba(255,255,255,0.08)] rounded-[8px] velocity-metric-pill">
-                        <span className="text-[10px] text-[var(--ink-muted)] font-semibold whitespace-nowrap overflow-hidden text-ellipsis velocity-metric-label">Durasi Tercepat</span>
-                        <span className="font-mono text-[15px] font-extrabold text-[var(--ink-primary)] leading-[1.1] [&_small]:text-[10px] [&_small]:font-medium velocity-metric-val">{min} <small>menit</small></span>
+                        <span className="text-[10px] max-lg:text-[11px] text-[var(--ink-muted)] font-semibold whitespace-nowrap overflow-hidden text-ellipsis velocity-metric-label">Durasi Tercepat</span>
+                        <span className="font-mono text-[15px] font-extrabold text-[var(--ink-primary)] leading-[1.1] [&_small]:text-[10px] [&_small]:font-medium velocity-metric-val max-lg:text-[20px] max-lg:[&_small]:text-[11px]">{min} <small>menit</small></span>
                       </div>
                       <div className="flex flex-col gap-[3px] p-[8px_12px] bg-[rgba(15,23,42,0.55)] border border-[rgba(255,255,255,0.08)] rounded-[8px] velocity-metric-pill">
-                        <span className="text-[10px] text-[var(--ink-muted)] font-semibold whitespace-nowrap overflow-hidden text-ellipsis velocity-metric-label">Durasi Tertinggi</span>
+                        <span className="text-[10px] max-lg:text-[11px] text-[var(--ink-muted)] font-semibold whitespace-nowrap overflow-hidden text-ellipsis velocity-metric-label">Durasi Tertinggi</span>
                         <span className="font-mono text-[15px] font-extrabold leading-[1.1] [&_small]:text-[10px] [&_small]:font-medium velocity-metric-val text-[var(--ink-primary)]">
                           {max} <small>menit</small>
                         </span>
@@ -3065,20 +3314,54 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
 
                 {/* Clean, Prominent Line Chart with Collision-Free Labels & Interactive Hover */}
                 <div
-                  className="relative w-full h-[290px] min-h-[280px] flex flex-col flex-1 overflow-visible velocity-chart-container"
+                  ref={velocityChartRef}
+                  role={mobile ? "slider" : undefined}
+                  aria-valuemin={mobile ? 0 : undefined}
+                  aria-valuemax={mobile ? Math.max(0, volumeByDate.length - 1) : undefined}
+                  aria-valuenow={mobile ? hoveredVelocityPoint ? Math.max(0, volumeByDate.findIndex(item => item.date === hoveredVelocityPoint.date)) : Math.max(0, volumeByDate.length - 1) : undefined}
+                  aria-valuetext={mobile ? hoveredVelocityPoint?.date : undefined}
+                  tabIndex={mobile ? 0 : undefined}
+                  aria-label="Tren durasi; gunakan panah kiri atau kanan untuk rincian"
+                  onBlur={() => { if (mobile) setHoveredVelocityPoint(null); }}
+                  onKeyDown={event => {
+                    if (!mobile) return;
+                    if (event.key === "Escape") { setHoveredVelocityPoint(null); return; }
+                    if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+                    event.preventDefault();
+                    const dates = volumeByDate.map(item => item.date); if (!dates.length) return;
+                    const current = hoveredVelocityPoint ? dates.indexOf(hoveredVelocityPoint.date) : dates.length - 1;
+                    const index = event.key === "Home" ? 0 : event.key === "End" ? dates.length - 1 : Math.max(0, Math.min(dates.length - 1, current + (event.key === "ArrowRight" ? 1 : -1)));
+                    const x = 42 + index * (velocitySize.width - 66) / Math.max(1, dates.length - 1);
+                    const item = volumeByDate[index]; setHoveredVelocityPoint({ x, y: 100, date: item.date, avgResolution: item.avgResolution, closed: item.closed, percentX: 50, percentY: 60 });
+                  }}
+                  className="relative w-full h-[290px] min-h-[280px] flex flex-col flex-1 overflow-visible compact-velocity-chart-container max-lg:h-[252px] max-lg:min-h-[252px] max-lg:flex-none max-lg:touch-pan-y"
+                  onPointerDown={(event) => {
+                    if (!mobile || !volumeByDate.length) return;
+                    const box = event.currentTarget.getBoundingClientRect();
+                    const idx = Math.max(0, Math.min(volumeByDate.length - 1, Math.round((event.clientX - box.left - 42) / Math.max(1, box.width - 66) * (volumeByDate.length - 1))));
+                    const item = volumeByDate[idx];
+                    setHoveredVelocityPoint({ x: 42 + idx * (box.width - 66) / Math.max(1, volumeByDate.length - 1), y: 100, date: item.date, avgResolution: item.avgResolution, closed: item.closed, percentX: 50, percentY: 60 });
+                  }}
+                  onPointerMove={(event) => {
+                    if (!mobile || event.pointerType !== "touch" || !event.buttons || !volumeByDate.length) return;
+                    const box = event.currentTarget.getBoundingClientRect();
+                    const idx = Math.max(0, Math.min(volumeByDate.length - 1, Math.round((event.clientX - box.left - 42) / Math.max(1, box.width - 66) * (volumeByDate.length - 1))));
+                    const item = volumeByDate[idx];
+                    setHoveredVelocityPoint({ x: 42 + idx * (box.width - 66) / Math.max(1, volumeByDate.length - 1), y: 100, date: item.date, avgResolution: item.avgResolution, closed: item.closed, percentX: 50, percentY: 60 });
+                  }}
                   onMouseLeave={() => setHoveredVelocityPoint(null)}
                 >
                   {(() => {
                     const n = volumeByDate.length;
-                    const svgViewBoxWidth = Math.max(860, n * 48 + 90);
-                    const viewBoxHeight = 280;
-                    const startX = 64;
-                    const endX = svgViewBoxWidth - 90; // room for threshold tags on the right
+                    const svgViewBoxWidth = mobile ? velocitySize.width || 320 : Math.max(860, n * 48 + 90);
+                    const viewBoxHeight = mobile ? velocitySize.height || 252 : 280;
+                    const startX = mobile ? 42 : 64;
+                    const endX = svgViewBoxWidth - (mobile ? 24 : 90); // room for threshold tags on the right
                     const totalSpan = endX - startX;
                     const stepX = n > 1 ? totalSpan / (n - 1) : totalSpan / 2;
 
-                    const baselineY = 226;
-                    const topY = 32;
+                    const baselineY = mobile ? viewBoxHeight - 36 : 226;
+                    const topY = mobile ? 30 : 32;
                     const chartHeight = baselineY - topY; // 194px
 
                     // Y ticks at 0, 20, 40, 60, 80, 100
@@ -3108,13 +3391,22 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                     const maxPoint = points.find((p) => p.avgResolution === maxRes);
                     const minPoint = points.find((p) => p.avgResolution === minRes && p.avgResolution !== maxRes);
 
+                    const calloutBounds: ChartBox = { x: startX, y: 6, width: endX - startX, height: baselineY - 10 };
+                    const occupied: ChartBox[] = [60, 90].map(value => ({ x: endX - 82, y: baselineY - Math.round(value / yMax * chartHeight) - 24, width: 82, height: 24 }));
+                    // Reserve the actual line segments, not only their end points.
+                    points.slice(1).forEach((point, index) => {
+                      const previous = points[index];
+                      occupied.push({ x: previous.x - 2, y: Math.min(point.y, previous.y) - 3, width: point.x - previous.x + 4, height: Math.abs(point.y - previous.y) + 6 });
+                    });
+                    const maxCallout = maxPoint ? placeChartCallout(maxPoint.x, maxPoint.y, 72, 22, calloutBounds, occupied) : null;
+                    const minCallout = minPoint ? placeChartCallout(minPoint.x, minPoint.y, 68, 22, calloutBounds, maxCallout ? [...occupied, maxCallout] : occupied) : null;
                     // X-axis stride to avoid crowding
-                    const dateStride = n > 22 ? 3 : n > 12 ? 2 : 1;
+                    const dateStride = mobile ? Math.max(1, Math.ceil(n / 4)) : n > 22 ? 3 : n > 12 ? 2 : 1;
 
                     return (
                       <>
                         <svg
-                          className="w-full h-full min-h-[280px] block select-none !overflow-visible velocity-chart-svg"
+                          className="w-full h-full min-h-[280px] block select-none !overflow-visible compact-velocity-chart-svg max-lg:min-h-[252px] max-lg:[&_text]:text-[11px]"
                           viewBox={`0 0 ${svgViewBoxWidth} ${viewBoxHeight}`}
                           preserveAspectRatio="none"
                         >
@@ -3155,7 +3447,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
 
                                 {/* Left Y-Axis Label */}
                                 <text
-                                  x={startX - 16}
+                                  x={mobile ? startX - 12 : startX - 16}
                                   y={yPos + 3.5}
                                   textAnchor="end"
                                   fill={isSLA ? "#f59e0b" : "var(--ink-muted, #94a3b8)"}
@@ -3184,18 +3476,18 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                                   strokeDasharray="5 4"
                                 />
                                 {/* Right threshold tag for 90m */}
-                                <g transform={`translate(${endX + 10}, ${y90 - 8})`}>
+                                <g transform={`translate(${mobile ? endX - 82 : endX + 10}, ${mobile ? Math.max(topY, y90 - 24) : y90 - 8})`}>
                                   <rect
-                                    width="68"
-                                    height="16"
+                                    width={mobile ? 82 : 68}
+                                    height={mobile ? 20 : 16}
                                     rx="4"
                                     fill="rgba(239, 68, 68, 0.16)"
                                     stroke="rgba(239, 68, 68, 0.45)"
                                     strokeWidth="1"
                                   />
                                   <text
-                                    x="34"
-                                    y="11"
+                                    x={mobile ? 41 : 34}
+                                    y={mobile ? 14 : 11}
                                     textAnchor="middle"
                                     fill="#f87171"
                                     fontSize="8.5"
@@ -3213,18 +3505,18 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                           {(() => {
                             const y60 = baselineY - Math.round((60 / yMax) * chartHeight);
                             return (
-                              <g transform={`translate(${endX + 10}, ${y60 - 8})`}>
+                              <g transform={`translate(${mobile ? endX - 82 : endX + 10}, ${mobile ? y60 - 24 : y60 - 8})`}>
                                 <rect
-                                  width="68"
-                                  height="16"
+                                  width={mobile ? 82 : 68}
+                                  height={mobile ? 20 : 16}
                                   rx="4"
                                   fill="rgba(245, 158, 11, 0.16)"
                                   stroke="rgba(245, 158, 11, 0.45)"
                                   strokeWidth="1"
                                 />
                                 <text
-                                  x="34"
-                                  y="11"
+                                  x={mobile ? 41 : 34}
+                                  y={mobile ? 14 : 11}
                                   textAnchor="middle"
                                   fill="#f59e0b"
                                   fontSize="8.5"
@@ -3243,7 +3535,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                             d={pathD}
                             fill="none"
                             stroke="#38bdf8"
-                            strokeWidth="2.8"
+                            strokeWidth={mobile ? 2.5 : "2.8"}
                             strokeLinecap="round"
                             strokeLinejoin="round"
                           />
@@ -3285,8 +3577,8 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                                       strokeWidth="1"
                                     />
                                     <text
-                                      x={p.x}
-                                      y={baselineY + 18}
+                                      x={mobile ? Math.min(svgViewBoxWidth - 19, Math.max(19, p.x)) : p.x}
+                                      y={baselineY + (mobile ? 22 : 18)}
                                       textAnchor="middle"
                                       fill={isHovered ? "#38bdf8" : "var(--ink-muted, #94a3b8)"}
                                       fontSize="9"
@@ -3299,29 +3591,32 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                                 )}
 
                                 {/* Milestone Callout Badge (Peak Max point) */}
-                                {isMax && !isHovered && (() => {
+                                {isMax && (mobile ? !hoveredVelocityPoint : !isHovered) && (() => {
                                   const maxBadgeText = `${p.avgResolution}m Max`;
                                   const maxBadgeWidth = Math.max(72, maxBadgeText.length * 6.5 + 16);
-                                  const maxBadgeHeight = 17;
+                                  const maxBadgeHeight = mobile ? 22 : 17;
                                   const halfW = maxBadgeWidth / 2;
-                                  const clampedX = Math.max(halfW + 6, Math.min(svgViewBoxWidth - halfW - 6, p.x));
+                                  const clampedX = Math.max((mobile ? startX : 0) + halfW + 6, Math.min((mobile ? endX : svgViewBoxWidth) - halfW - 6, p.x));
                                   const placeBelow = p.y < 30;
-                                  const rectY = placeBelow ? p.y + 8 : p.y - 8 - maxBadgeHeight;
+                                  const rawY = placeBelow ? p.y + 8 : p.y - 8 - maxBadgeHeight;
+                                  if (mobile && !maxCallout) return null;
+                                  const rectY = mobile ? maxCallout!.y : rawY;
+                                  const badgeX = mobile ? maxCallout!.x + halfW : clampedX;
 
                                   return (
                                     <g style={{ pointerEvents: "none" }}>
                                       <rect
-                                        x={clampedX - halfW}
+                                        x={badgeX - halfW}
                                         y={rectY}
                                         width={maxBadgeWidth}
                                         height={maxBadgeHeight}
                                         rx="4"
-                                        fill="#0f172a"
+                                        fill={mobile ? "rgba(15,23,42,0.9)" : "#0f172a"}
                                         stroke={isBreach ? "#ef4444" : "#f59e0b"}
                                         strokeWidth="1.2"
                                       />
                                       <text
-                                        x={clampedX}
+                                        x={badgeX}
                                         y={rectY + maxBadgeHeight / 2}
                                         dominantBaseline="central"
                                         textAnchor="middle"
@@ -3337,29 +3632,32 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                                 })()}
 
                                 {/* Milestone Callout Badge (Fastest Min point) */}
-                                {isMin && !isHovered && (() => {
+                                {isMin && (mobile ? !hoveredVelocityPoint : !isHovered) && (() => {
                                   const minBadgeText = `${p.avgResolution}m Min`;
                                   const minBadgeWidth = Math.max(68, minBadgeText.length * 6.5 + 16);
-                                  const minBadgeHeight = 17;
+                                  const minBadgeHeight = mobile ? 22 : 17;
                                   const halfW = minBadgeWidth / 2;
-                                  const clampedX = Math.max(halfW + 6, Math.min(svgViewBoxWidth - halfW - 6, p.x));
+                                  const clampedX = Math.max((mobile ? startX : 0) + halfW + 6, Math.min((mobile ? endX : svgViewBoxWidth) - halfW - 6, p.x));
                                   const placeAbove = p.y > baselineY - 24;
-                                  const rectY = placeAbove ? p.y - 8 - minBadgeHeight : p.y + 8;
+                                  const rawY = placeAbove ? p.y - 8 - minBadgeHeight : p.y + 8;
+                                  if (mobile && !minCallout) return null;
+                                  const rectY = mobile ? minCallout!.y : rawY;
+                                  const badgeX = mobile ? minCallout!.x + halfW : clampedX;
 
                                   return (
                                     <g style={{ pointerEvents: "none" }}>
                                       <rect
-                                        x={clampedX - halfW}
+                                        x={badgeX - halfW}
                                         y={rectY}
                                         width={minBadgeWidth}
                                         height={minBadgeHeight}
                                         rx="4"
-                                        fill="#0f172a"
+                                        fill={mobile ? "rgba(15,23,42,0.9)" : "#0f172a"}
                                         stroke="#38bdf8"
                                         strokeWidth="1.2"
                                       />
                                       <text
-                                        x={clampedX}
+                                        x={badgeX}
                                         y={rectY + minBadgeHeight / 2}
                                         dominantBaseline="central"
                                         textAnchor="middle"
@@ -3375,12 +3673,12 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                                 })()}
 
                                 {/* Breach callout if breached and not max */}
-                                {isBreach && !isMax && !isHovered && (() => {
+                                {!mobile && isBreach && !isMax && !isHovered && (() => {
                                   const breachText = `${p.avgResolution}m !`;
                                   const breachWidth = Math.max(58, breachText.length * 6.5 + 16);
                                   const breachHeight = 17;
                                   const halfW = breachWidth / 2;
-                                  const clampedX = Math.max(halfW + 6, Math.min(svgViewBoxWidth - halfW - 6, p.x));
+                                  const clampedX = Math.max((mobile ? startX : 0) + halfW + 6, Math.min((mobile ? endX : svgViewBoxWidth) - halfW - 6, p.x));
                                   const placeBelow = p.y < 30;
                                   const rectY = placeBelow ? p.y + 8 : p.y - 8 - breachHeight;
 
@@ -3392,7 +3690,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                                         width={breachWidth}
                                         height={breachHeight}
                                         rx="4"
-                                        fill="#0f172a"
+                                        fill={mobile ? "rgba(15,23,42,0.9)" : "#0f172a"}
                                         stroke="#ef4444"
                                         strokeWidth="1.2"
                                       />
@@ -3427,8 +3725,8 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                                       date: p.date,
                                       avgResolution: p.avgResolution,
                                       closed: p.closed,
-                                      percentX: (p.x / svgViewBoxWidth) * 100,
-                                      percentY: (p.y / viewBoxHeight) * 100,
+                                      percentX: mobile ? 50 : (p.x / svgViewBoxWidth) * 100,
+                                      percentY: mobile ? 60 : (p.y / viewBoxHeight) * 100,
                                     });
                                   }}
                                 />
@@ -3447,7 +3745,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                             const isHovered = hoveredVelocityPoint?.date === p.date;
                             const percentX = (p.x / svgViewBoxWidth) * 100;
                             const percentY = (p.y / viewBoxHeight) * 100;
-                            const dotSize = isHovered ? 13 : isBreach ? 9 : 7;
+                            const dotSize = mobile ? (isHovered ? 8 : 6) : isHovered ? 13 : isBreach ? 9 : 7;
                             const dotColor = isHovered ? "#ffffff" : isBreach ? "#ef4444" : "#38bdf8";
                             const borderColor = isHovered
                               ? isBreach
@@ -3487,16 +3785,16 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                         {/* Floating Interactive Tooltip Overlay */}
                         {hoveredVelocityPoint && (
                           <div
-                            className="absolute pointer-events-none z-[99] -translate-x-1/2 -translate-y-full -mt-[12px] bg-[rgba(15,23,42,0.94)] backdrop-blur-[8px] border border-[rgba(56,189,248,0.35)] rounded-[8px] p-[8px_12px] shadow-[0_8px_24px_rgba(0,0,0,0.45),0_0_12px_rgba(56,189,248,0.15)] min-w-[150px] whitespace-nowrap [animation:tooltipFade_0.15s_ease-out] velocity-chart-tooltip"
+                            role="status" aria-live="polite" className="absolute pointer-events-none z-[99] -translate-x-1/2 -translate-y-full -mt-[12px] bg-[rgba(15,23,42,0.94)] backdrop-blur-[8px] border border-[rgba(56,189,248,0.35)] rounded-[8px] p-[8px_12px] shadow-[0_8px_24px_rgba(0,0,0,0.45),0_0_12px_rgba(56,189,248,0.15)] min-w-[150px] whitespace-nowrap [animation:tooltipFade_0.15s_ease-out] velocity-chart-tooltip max-lg:w-[220px] max-lg:min-w-0 max-lg:whitespace-normal max-lg:animate-none"
                             style={{
-                              left: `${hoveredVelocityPoint.percentX}%`,
-                              top: `${hoveredVelocityPoint.percentY}%`,
+                              left: mobile ? Math.max(112, Math.min(velocitySize.width - 112, hoveredVelocityPoint.x)) : `${hoveredVelocityPoint.percentX}%`,
+                              top: mobile ? 108 : `${hoveredVelocityPoint.percentY}%`,
                             }}
                           >
                             <div className="text-[11px] font-bold text-[var(--ink-primary)] mb-[4px] border-b border-[rgba(255,255,255,0.08)] pb-[3px] flex items-center justify-between gap-[8px] velocity-tooltip-header">
                               <span>📅 {hoveredVelocityPoint.date}</span>
                               <span
-                                className={`inline-block text-[9.5px] font-bold p-[2px_6px] rounded-[4px] mt-[4px] velocity-tooltip-badge ${
+                                className={`inline-block text-[9.5px] max-lg:text-[11px] font-bold p-[2px_6px] rounded-[4px] mt-[4px] velocity-tooltip-badge ${
                                   hoveredVelocityPoint.avgResolution <= 60 ? "bg-[rgba(16,185,129,0.15)] text-[#34d399] border border-[rgba(16,185,129,0.3)] sla-ok" : "bg-[rgba(239,68,68,0.15)] text-[#f87171] border border-[rgba(239,68,68,0.3)] sla-breach"
                                 }`}
                               >
@@ -3527,19 +3825,40 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
             ) : (
               <div className="text-[12px] text-[var(--ink-muted)] text-center py-[24px] italic chart-empty-hint">Tidak ada data resolusi pada filter ini.</div>
             )}
+            </PanelSkeletonWrapper>
           </div>
         </article>
 
       {/* ── 7. Shift Traffic Velocity (Multi-Line Trajectory Chart) ── */}
-      <div className="heatmap-standalone-section mt-[18px]">
+      <div className="heatmap-standalone-section mt-[18px] max-lg:mt-0">
         <article className="bg-[var(--panel-bg)] border border-[rgba(16,185,129,0.18)] rounded-[12px] shadow-[var(--shadow-panel)] overflow-hidden flex flex-col shift-traffic-panel">
           <div className={`${REPORT_PANEL_HEADING} report-panel-heading`}>
             <div className={`${REPORT_PANEL_TITLE} panel-title`}>
               <Activity size={16} className="text-emerald-400" />
-              Tren Trafik Beban per Shift (Shift Traffic Velocity)
+              <span className="hidden lg:inline">Tren Trafik Beban per Shift (Shift Traffic Velocity)</span><span className="lg:hidden">Tren Trafik</span>
             </div>
+            <PanelViewButton
+              panelTitle="Tren Trafik Beban per Shift"
+              onClick={() => handleOpenPanel("shift-traffic")}
+              ariaLabel="Perbesar panel Tren Trafik Beban per Shift"
+              disabled={isLoading}
+            />
           </div>
           <div className="flex flex-col flex-1 justify-between p-[16px_20px] gap-[12px] report-panel-body shift-traffic-panel-body">
+            <PanelSkeletonWrapper
+          reserveLoading={mobile}
+              isLoading={isLoading}
+              isStale={isStale}
+              error={error}
+              onRetry={refetch}
+              minHeight={280}
+              className="h-full"
+              loadingClassName="max-lg:flex-none max-lg:h-[453px] lg:min-h-[280px]"
+                skeleton={<ShiftTrafficSkeleton />}
+              liveRegionText="Memuat tren trafik shift..."
+            >
+            {shiftHeatmapData.grandTotal > 0 ? (
+              <>
             {/* 4 Summary Stat Pills for Quick Shift Intelligence */}
             {(() => {
               const pagiTotal = shiftHeatmapData.shiftTotals["Pagi"] || 0;
@@ -3551,53 +3870,53 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
               const subuhPct = Math.round((subuhTotal / grand) * 100);
 
               return (
-                <div className="grid grid-cols-4 max-[900px]:grid-cols-2 gap-[12px] mb-[14px] shift-traffic-metrics-strip">
+                <div className="grid grid-cols-4 max-[900px]:grid-cols-2 gap-[12px] mb-[14px] shift-traffic-metrics-strip max-lg:[&_.shift-traffic-metric-pill]:h-[64px] max-lg:[&_.shift-traffic-metric-pill]:gap-1 max-lg:auto-rows-fr max-lg:[&_.shift-traffic-metric-sub]:hidden">
                   <div className="flex flex-col gap-[8px] p-[12px_15px] rounded-[10px] bg-[rgba(15,23,42,0.55)] border border-[rgba(148,163,184,0.12)] min-w-0 shadow-[0_2px_8px_rgba(0,0,0,0.18)] transition-all duration-150 hover:bg-[rgba(15,23,42,0.75)] hover:border-[rgba(56,189,248,0.3)] hover:-translate-y-[1px] shift-traffic-metric-pill">
                     <div className="text-[11px] font-semibold text-[var(--ink-muted,#94a3b8)] flex items-center gap-[6px] whitespace-nowrap leading-[1.3] shift-traffic-metric-label">
                       <Sun size={13} className="[color:#fbbf24]! [flex-shrink:0]!" />
                       <span className="text-[var(--ink-primary,#f8fafc)] font-semibold shift-traffic-metric-name">Shift Pagi</span>
-                      <span className="text-[10px] text-[var(--ink-muted,#94a3b8)] font-mono font-medium opacity-80 ml-[2px] shift-traffic-metric-hours">(08:00–16:30)</span>
+                      <span className="text-[10px] max-lg:text-[11px] text-[var(--ink-muted,#94a3b8)] font-mono font-medium opacity-80 ml-[2px] shift-traffic-metric-hours">(08:00–16:30)</span>
                     </div>
-                    <div className="text-[18px] font-extrabold font-mono leading-[1.2] flex items-baseline gap-[6px] shift-traffic-metric-val [color:#fbbf24]!">
+                    <div className="text-[18px] font-extrabold font-mono leading-[1.2] flex items-baseline gap-[6px] max-lg:text-[20px] shift-traffic-metric-val [color:#fbbf24]!">
                       {pagiTotal} <small className="text-[11.5px] font-medium text-[var(--ink-muted,#94a3b8)] shift-metric-unit">tiket</small>
                     </div>
-                    <div className="text-[10.5px] text-[var(--ink-muted,#94a3b8)] font-mono leading-[1.35] whitespace-nowrap overflow-hidden text-ellipsis shift-traffic-metric-sub">{pagiPct}% dari total beban</div>
+                    <div className="text-[10.5px] max-lg:text-[11px] text-[var(--ink-muted,#94a3b8)] font-mono leading-[1.35] whitespace-nowrap overflow-hidden text-ellipsis shift-traffic-metric-sub">{pagiPct}% dari total beban</div>
                   </div>
 
                   <div className="flex flex-col gap-[8px] p-[12px_15px] rounded-[10px] bg-[rgba(15,23,42,0.55)] border border-[rgba(148,163,184,0.12)] min-w-0 shadow-[0_2px_8px_rgba(0,0,0,0.18)] transition-all duration-150 hover:bg-[rgba(15,23,42,0.75)] hover:border-[rgba(56,189,248,0.3)] hover:-translate-y-[1px] shift-traffic-metric-pill">
                     <div className="text-[11px] font-semibold text-[var(--ink-muted,#94a3b8)] flex items-center gap-[6px] whitespace-nowrap leading-[1.3] shift-traffic-metric-label">
                       <Sunset size={13} className="[color:#c084fc]! [flex-shrink:0]!" />
                       <span className="text-[var(--ink-primary,#f8fafc)] font-semibold shift-traffic-metric-name">Shift Malam</span>
-                      <span className="text-[10px] text-[var(--ink-muted,#94a3b8)] font-mono font-medium opacity-80 ml-[2px] shift-traffic-metric-hours">(16:00–00:30)</span>
+                      <span className="text-[10px] max-lg:text-[11px] text-[var(--ink-muted,#94a3b8)] font-mono font-medium opacity-80 ml-[2px] shift-traffic-metric-hours">(16:00–00:30)</span>
                     </div>
-                    <div className="text-[18px] font-extrabold font-mono leading-[1.2] flex items-baseline gap-[6px] shift-traffic-metric-val [color:#c084fc]!">
+                    <div className="text-[18px] font-extrabold font-mono leading-[1.2] flex items-baseline gap-[6px] max-lg:text-[20px] shift-traffic-metric-val [color:#c084fc]!">
                       {malamTotal} <small className="text-[11.5px] font-medium text-[var(--ink-muted,#94a3b8)] shift-metric-unit">tiket</small>
                     </div>
-                    <div className="text-[10.5px] text-[var(--ink-muted,#94a3b8)] font-mono leading-[1.35] whitespace-nowrap overflow-hidden text-ellipsis shift-traffic-metric-sub">{malamPct}% dari total beban</div>
+                    <div className="text-[10.5px] max-lg:text-[11px] text-[var(--ink-muted,#94a3b8)] font-mono leading-[1.35] whitespace-nowrap overflow-hidden text-ellipsis shift-traffic-metric-sub">{malamPct}% dari total beban</div>
                   </div>
 
                   <div className="flex flex-col gap-[8px] p-[12px_15px] rounded-[10px] bg-[rgba(15,23,42,0.55)] border border-[rgba(148,163,184,0.12)] min-w-0 shadow-[0_2px_8px_rgba(0,0,0,0.18)] transition-all duration-150 hover:bg-[rgba(15,23,42,0.75)] hover:border-[rgba(56,189,248,0.3)] hover:-translate-y-[1px] shift-traffic-metric-pill">
                     <div className="text-[11px] font-semibold text-[var(--ink-muted,#94a3b8)] flex items-center gap-[6px] whitespace-nowrap leading-[1.3] shift-traffic-metric-label">
                       <Moon size={13} className="[color:#38bdf8]! [flex-shrink:0]!" />
                       <span className="text-[var(--ink-primary,#f8fafc)] font-semibold shift-traffic-metric-name">Shift Subuh</span>
-                      <span className="text-[10px] text-[var(--ink-muted,#94a3b8)] font-mono font-medium opacity-80 ml-[2px] shift-traffic-metric-hours">(00:00–08:30)</span>
+                      <span className="text-[10px] max-lg:text-[11px] text-[var(--ink-muted,#94a3b8)] font-mono font-medium opacity-80 ml-[2px] shift-traffic-metric-hours">(00:00–08:30)</span>
                     </div>
-                    <div className="text-[18px] font-extrabold font-mono leading-[1.2] flex items-baseline gap-[6px] shift-traffic-metric-val [color:#38bdf8]!">
+                    <div className="text-[18px] font-extrabold font-mono leading-[1.2] flex items-baseline gap-[6px] max-lg:text-[20px] shift-traffic-metric-val [color:#38bdf8]!">
                       {subuhTotal} <small className="text-[11.5px] font-medium text-[var(--ink-muted,#94a3b8)] shift-metric-unit">tiket</small>
                     </div>
-                    <div className="text-[10.5px] text-[var(--ink-muted,#94a3b8)] font-mono leading-[1.35] whitespace-nowrap overflow-hidden text-ellipsis shift-traffic-metric-sub">{subuhPct}% dari total beban</div>
+                    <div className="text-[10.5px] max-lg:text-[11px] text-[var(--ink-muted,#94a3b8)] font-mono leading-[1.35] whitespace-nowrap overflow-hidden text-ellipsis shift-traffic-metric-sub">{subuhPct}% dari total beban</div>
                   </div>
 
                   <div className="flex flex-col gap-[8px] p-[12px_15px] rounded-[10px] bg-[rgba(15,23,42,0.55)] border border-[rgba(148,163,184,0.12)] min-w-0 shadow-[0_2px_8px_rgba(0,0,0,0.18)] transition-all duration-150 hover:bg-[rgba(15,23,42,0.75)] hover:border-[rgba(56,189,248,0.3)] hover:-translate-y-[1px] shift-traffic-metric-pill">
                     <div className="text-[11px] font-semibold text-[var(--ink-muted,#94a3b8)] flex items-center gap-[6px] whitespace-nowrap leading-[1.3] shift-traffic-metric-label">
                       <Zap size={13} className="[color:#f87171]! [flex-shrink:0]!" />
-                      <span className="text-[var(--ink-primary,#f8fafc)] font-semibold shift-traffic-metric-name">Total Beban Terbanyak</span>
-                      <span className="text-[10px] text-[var(--ink-muted,#94a3b8)] font-mono font-medium opacity-80 ml-[2px] shift-traffic-metric-hours">(Kumulatif)</span>
+                      <span className="text-[var(--ink-primary,#f8fafc)] font-semibold shift-traffic-metric-name"><span className="hidden lg:inline">Total Beban Terbanyak</span><span className="lg:hidden">Puncak</span></span>
+                      <span className="text-[10px] max-lg:text-[11px] text-[var(--ink-muted,#94a3b8)] font-mono font-medium opacity-80 ml-[2px] shift-traffic-metric-hours">(Kumulatif)</span>
                     </div>
-                    <div className="text-[18px] font-extrabold font-mono leading-[1.2] flex items-baseline gap-[6px] shift-traffic-metric-val text-rose-400">
+                    <div className="text-[18px] font-extrabold font-mono leading-[1.2] flex items-baseline gap-[6px] max-lg:text-[20px] shift-traffic-metric-val text-rose-400">
                       {shiftHeatmapData.peakShift.name}
                     </div>
-                    <div className="text-[10.5px] text-[var(--ink-muted,#94a3b8)] font-mono leading-[1.35] whitespace-nowrap overflow-hidden text-ellipsis shift-traffic-metric-sub">
+                    <div className="text-[10.5px] max-lg:text-[11px] text-[var(--ink-muted,#94a3b8)] font-mono leading-[1.35] whitespace-nowrap overflow-hidden text-ellipsis shift-traffic-metric-sub">
                       {shiftHeatmapData.shiftTotals[shiftHeatmapData.peakShift.id]} tiket (
                       {grand > 0
                         ? Math.round(
@@ -3613,21 +3932,59 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
 
             {/* Clean, Prominent Multi-Line Chart Modeled After Resolution Velocity */}
             <div
-              className="relative w-full h-[275px] min-h-[265px] max-h-[310px] flex flex-col flex-1 overflow-visible shift-traffic-chart-container"
+              ref={trafficChartRef}
+                  role={mobile ? "slider" : undefined}
+                  aria-valuemin={mobile ? 0 : undefined}
+                  aria-valuemax={mobile ? Math.max(0, shiftHeatmapData.dateList.length - 1) : undefined}
+                  aria-valuenow={mobile ? hoveredShiftTrafficPoint ? Math.max(0, shiftHeatmapData.dateList.indexOf(hoveredShiftTrafficPoint.date)) : Math.max(0, shiftHeatmapData.dateList.length - 1) : undefined}
+                  aria-valuetext={mobile ? hoveredShiftTrafficPoint?.date : undefined}
+                  tabIndex={mobile ? 0 : undefined}
+                  aria-label="Tren trafik; gunakan panah kiri atau kanan untuk rincian"
+                  onBlur={() => { if (mobile) setHoveredShiftTrafficPoint(null); }}
+                  onKeyDown={event => {
+                    if (!mobile) return;
+                    if (event.key === "Escape") { setHoveredShiftTrafficPoint(null); return; }
+                    if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+                    event.preventDefault();
+                    const dates = shiftHeatmapData.dateList; if (!dates.length) return;
+                    const current = hoveredShiftTrafficPoint ? dates.indexOf(hoveredShiftTrafficPoint.date) : dates.length - 1;
+                    const index = event.key === "Home" ? 0 : event.key === "End" ? dates.length - 1 : Math.max(0, Math.min(dates.length - 1, current + (event.key === "ArrowRight" ? 1 : -1)));
+                    const x = 42 + index * (trafficSize.width - 66) / Math.max(1, dates.length - 1);
+                    const date = dates[index]; const subuh = shiftHeatmapData.matrix.Subuh[date] || 0, pagi = shiftHeatmapData.matrix.Pagi[date] || 0, malam = shiftHeatmapData.matrix.Malam[date] || 0; setHoveredShiftTrafficPoint({ x, y: 100, date, subuh, pagi, malam, total: subuh + pagi + malam, percentX: 50, percentY: 80 });
+                  }}
+              className="relative w-full h-[275px] min-h-[265px] max-h-[310px] flex flex-col flex-1 overflow-visible compact-shift-traffic-chart-container max-lg:h-[252px] max-lg:min-h-[252px] max-lg:flex-none max-lg:touch-pan-y"
+              onPointerDown={(event) => {
+                if (!mobile || !shiftHeatmapData.dateList.length) return;
+                const box = event.currentTarget.getBoundingClientRect();
+                const dates = shiftHeatmapData.dateList;
+                const idx = Math.max(0, Math.min(dates.length - 1, Math.round((event.clientX - box.left - 42) / Math.max(1, box.width - 66) * (dates.length - 1))));
+                const date = dates[idx];
+                const subuh = shiftHeatmapData.matrix.Subuh[date] || 0, pagi = shiftHeatmapData.matrix.Pagi[date] || 0, malam = shiftHeatmapData.matrix.Malam[date] || 0;
+                setHoveredShiftTrafficPoint({ x: 42 + idx * (box.width - 66) / Math.max(1, dates.length - 1), y: 100, date, subuh, pagi, malam, total: subuh + pagi + malam, percentX: 50, percentY: 80 });
+              }}
+              onPointerMove={(event) => {
+                if (!mobile || event.pointerType !== "touch" || !event.buttons || !shiftHeatmapData.dateList.length) return;
+                const box = event.currentTarget.getBoundingClientRect();
+                const dates = shiftHeatmapData.dateList;
+                const idx = Math.max(0, Math.min(dates.length - 1, Math.round((event.clientX - box.left - 42) / Math.max(1, box.width - 66) * (dates.length - 1))));
+                const date = dates[idx];
+                const subuh = shiftHeatmapData.matrix.Subuh[date] || 0, pagi = shiftHeatmapData.matrix.Pagi[date] || 0, malam = shiftHeatmapData.matrix.Malam[date] || 0;
+                setHoveredShiftTrafficPoint({ x: 42 + idx * (box.width - 66) / Math.max(1, dates.length - 1), y: 100, date, subuh, pagi, malam, total: subuh + pagi + malam, percentX: 50, percentY: 80 });
+              }}
               onMouseLeave={() => setHoveredShiftTrafficPoint(null)}
             >
               {(() => {
                 const dateList = shiftHeatmapData.dateList;
                 const n = dateList.length;
-                const svgViewBoxWidth = Math.max(860, n * 50 + 60);
-                const viewBoxHeight = 280;
-                const startX = 46;
-                const endX = svgViewBoxWidth - 36;
+                const svgViewBoxWidth = mobile ? trafficSize.width || 320 : Math.max(860, n * 50 + 60);
+                const viewBoxHeight = mobile ? trafficSize.height || 252 : 280;
+                const startX = mobile ? 42 : 46;
+                const endX = svgViewBoxWidth - (mobile ? 24 : 36);
                 const totalSpan = endX - startX;
                 const stepX = n > 1 ? totalSpan / (n - 1) : totalSpan / 2;
 
-                const baselineY = 226;
-                const topY = 38;
+                const baselineY = mobile ? viewBoxHeight - 36 : 226;
+                const topY = mobile ? 38 : 38;
                 const chartHeight = baselineY - topY; // 188px
 
                 // Y ticks calculation - tight scaling to prevent empty top rows!
@@ -3687,12 +4044,12 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                 const peakPointMeta: ShiftPeakPoint | null = foundPeak;
 
                 // X-axis stride to prevent label congestion
-                const dateStride = n > 22 ? 3 : n > 12 ? 2 : 1;
+                const dateStride = mobile ? Math.max(1, Math.ceil(n / 4)) : n > 22 ? 3 : n > 12 ? 2 : 1;
 
                 return (
                   <>
                     <svg
-                      className="w-full h-full min-h-[265px] block select-none overflow-visible shift-traffic-chart-svg"
+                      className="w-full h-full min-h-[265px] block select-none overflow-visible compact-shift-traffic-chart-svg max-lg:min-h-[252px] max-lg:[&_text]:text-[11px]"
                       viewBox={`0 0 ${svgViewBoxWidth} ${viewBoxHeight}`}
                       preserveAspectRatio="none"
                     >
@@ -3830,8 +4187,8 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                                   pagi,
                                   malam,
                                   total,
-                                  percentX: (x / svgViewBoxWidth) * 100,
-                                  percentY: (topShiftY / viewBoxHeight) * 100,
+                                  percentX: mobile ? 50 : (x / svgViewBoxWidth) * 100,
+                                  percentY: mobile ? 80 : (topShiftY / viewBoxHeight) * 100,
                                 });
                               }}
                             />
@@ -3925,7 +4282,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                           <span
                             key={`x-label-${d}`}
                             className={`absolute -translate-x-1/2 translate-y-[6px] text-[11px] font-medium font-mono text-[var(--ink-muted,#94a3b8)] whitespace-nowrap select-none transition-[color,font-weight] duration-150 tracking-[-0.01em] shift-traffic-x-label ${isHovered ? "text-[#38bdf8] font-bold hovered" : ""}`}
-                            style={{ left: `${percentX}%` }}
+                            style={{ left: mobile ? Math.max(19, Math.min(svgViewBoxWidth - 19, x)) : `${percentX}%` }}
                           >
                             {d.length >= 10 ? d.slice(5) : d}
                           </span>
@@ -3938,22 +4295,23 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                       const percentX = (peak.x / svgViewBoxWidth) * 100;
                       const percentY = (peak.y / viewBoxHeight) * 100;
                       const clampedPercentX = Math.max(6, Math.min(94, percentX));
+                      const mobilePeakX = Math.max(startX + 55, Math.min(endX - 55, peak.x));
                       const isNearTop = percentY < 12;
 
                       return (
                         <div
-                          className="absolute pointer-events-none z-[15] inline-flex items-center gap-[5px] p-[3px_9px] rounded-[6px] bg-[rgba(15,23,42,0.95)] border-[1.2px] border-solid border-[#f59e0b] text-[11px] font-bold font-mono leading-[1.2] text-[#fbbf24] shadow-[0_4px_12px_rgba(0,0,0,0.5),0_0_10px_rgba(245,158,11,0.25)] whitespace-nowrap [&_strong]:text-[#fef08a] [&_strong]:font-extrabold shift-traffic-peak-badge"
+                          className="absolute pointer-events-none z-[15] inline-flex items-center gap-[5px] p-[3px_9px] rounded-[6px] bg-[rgba(15,23,42,0.95)] border-[1.2px] border-solid border-[#f59e0b] text-[11px] font-bold font-mono leading-[1.2] text-[#fbbf24] shadow-[0_4px_12px_rgba(0,0,0,0.5),0_0_10px_rgba(245,158,11,0.25)] whitespace-nowrap [&_strong]:text-[#fef08a] [&_strong]:font-extrabold shift-traffic-peak-badge max-lg:flex max-lg:h-6 max-lg:px-2"
                           style={{
-                            left: `${clampedPercentX}%`,
-                            top: `${percentY}%`,
-                            transform: isNearTop
+                            left: mobile ? mobilePeakX : `${clampedPercentX}%`,
+                            top: mobile ? Math.max(0, peak.y - 32) : `${percentY}%`,
+                            transform: mobile ? "translateX(-50%)" : isNearTop
                               ? "translate(-50%, 12px)"
                               : "translate(-50%, calc(-100% - 10px))",
                           }}
                         >
                           <span className="w-[5px] h-[5px] rounded-[50%] bg-[#f59e0b] shadow-[0_0_6px_#f59e0b] shrink-0 shift-traffic-peak-dot" />
                           <span>
-                            Lonjakan: <strong>{peak.count} Tiket</strong> ({peak.shiftName})
+                            {mobile ? <>Lonjakan <strong>{peak.count}</strong></> : <>Lonjakan: <strong>{peak.count} Tiket</strong> ({peak.shiftName})</>}
                           </span>
                         </div>
                       );
@@ -3962,10 +4320,10 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                     {/* Floating Interactive Hover Tooltip */}
                     {hoveredShiftTrafficPoint && (
                       <div
-                        className="absolute pointer-events-none z-[99] -translate-x-1/2 -translate-y-full -mt-[12px] bg-[rgba(15,23,42,0.94)] backdrop-blur-[8px] border border-[rgba(56,189,248,0.35)] rounded-[8px] p-[8px_12px] shadow-[0_8px_24px_rgba(0,0,0,0.45),0_0_12px_rgba(56,189,248,0.15)] min-w-[160px] whitespace-nowrap shift-traffic-tooltip"
+                        role="status" aria-live="polite" className="absolute pointer-events-none z-[99] -translate-x-1/2 -translate-y-full -mt-[12px] bg-[rgba(15,23,42,0.94)] backdrop-blur-[8px] border border-[rgba(56,189,248,0.35)] rounded-[8px] p-[8px_12px] shadow-[0_8px_24px_rgba(0,0,0,0.45),0_0_12px_rgba(56,189,248,0.15)] min-w-[160px] whitespace-nowrap shift-traffic-tooltip max-lg:w-[220px] max-lg:min-w-0 max-lg:whitespace-normal"
                         style={{
-                          left: `${hoveredShiftTrafficPoint.percentX}%`,
-                          top: `${hoveredShiftTrafficPoint.percentY}%`,
+                          left: mobile ? Math.max(112, Math.min(trafficSize.width - 112, hoveredShiftTrafficPoint.x)) : `${hoveredShiftTrafficPoint.percentX}%`,
+                          top: mobile ? 170 : `${hoveredShiftTrafficPoint.percentY}%`,
                         }}
                       >
                         <div className="text-[11px] font-bold text-[var(--ink-primary)] mb-[4px] border-b border-[rgba(255,255,255,0.08)] pb-[3px] flex items-center justify-between gap-[8px] shift-traffic-tooltip-header">
@@ -4012,44 +4370,53 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
             </div>
 
             {/* Filter and Shift Legend Bar */}
-            <div className="flex items-center justify-between flex-wrap gap-[8px] mt-[4px] pt-[10px] pr-[20px] border-t border-[rgba(148,163,184,0.1)] shift-traffic-filter-bar">
+            <div className="flex items-center justify-between flex-wrap gap-[8px] mt-[4px] pt-[10px] pr-[20px] border-t border-[rgba(148,163,184,0.1)] shift-traffic-filter-bar max-lg:pr-0 max-lg:flex-nowrap max-lg:[&_.shift-filter-buttons]:grid max-lg:[&_.shift-filter-buttons]:grid-cols-4 max-lg:[&_.shift-filter-buttons]:w-full max-lg:[&_.shift-filter-buttons]:gap-2 max-lg:[&_.shift-filter-buttons>span]:hidden max-lg:[&_.shift-filter-btn]:justify-center max-lg:[&_.shift-filter-btn]:min-w-0 max-lg:[&_.shift-filter-btn]:px-0 max-lg:[&_.shift-filter-btn]:gap-1">
               <div className="flex items-center gap-[5px] flex-wrap shift-filter-buttons">
                 <span className="text-[11px] font-semibold text-[var(--ink-muted)] mr-[4px]">
                   Tampilkan Garis:
                 </span>
                 <button
                   type="button"
-                  className={`inline-flex items-center gap-[4px] p-[2px_8px] rounded-[5px] text-[10.5px] font-semibold cursor-pointer transition-all duration-150 ease-out select-none border shift-filter-btn ${activeShiftLineFilter === "all" ? "bg-[rgba(56,189,248,0.18)] text-white border-[#38bdf8] shadow-[0_0_8px_rgba(56,189,248,0.2)] active" : "bg-[rgba(148,163,184,0.06)] border-[rgba(148,163,184,0.15)] text-[var(--ink-secondary)] hover:bg-[rgba(56,189,248,0.1)] hover:text-[#38bdf8] hover:border-[rgba(56,189,248,0.3)]"}`}
+                  className={`inline-flex items-center gap-[4px] p-[2px_8px] rounded-[5px] text-[10.5px] max-lg:text-[11px] font-semibold cursor-pointer transition-all duration-150 ease-out select-none border shift-filter-btn max-lg:min-h-10 ${activeShiftLineFilter === "all" ? "bg-[rgba(56,189,248,0.18)] text-white border-[#38bdf8] shadow-[0_0_8px_rgba(56,189,248,0.2)] active" : "bg-[rgba(148,163,184,0.06)] border-[rgba(148,163,184,0.15)] text-[var(--ink-secondary)] hover:bg-[rgba(56,189,248,0.1)] hover:text-[#38bdf8] hover:border-[rgba(56,189,248,0.3)]"}`}
+                  aria-pressed={activeShiftLineFilter === "all"}
                   onClick={() => setActiveShiftLineFilter("all")}
                 >
-                  <span>Semua Shift</span>
+                  <span className="hidden lg:inline">Semua Shift</span><span className="lg:hidden">Semua</span>
                 </button>
                 <button
                   type="button"
-                  className={`inline-flex items-center gap-[4px] p-[2px_8px] rounded-[5px] text-[10.5px] font-semibold cursor-pointer transition-all duration-150 ease-out select-none border shift-filter-btn ${activeShiftLineFilter === "Pagi" ? "bg-[rgba(56,189,248,0.18)] text-white border-[#38bdf8] shadow-[0_0_8px_rgba(56,189,248,0.2)] active" : "bg-[rgba(148,163,184,0.06)] border-[rgba(148,163,184,0.15)] text-[var(--ink-secondary)] hover:bg-[rgba(56,189,248,0.1)] hover:text-[#38bdf8] hover:border-[rgba(56,189,248,0.3)]"}`}
+                  className={`inline-flex items-center gap-[4px] p-[2px_8px] rounded-[5px] text-[10.5px] max-lg:text-[11px] font-semibold cursor-pointer transition-all duration-150 ease-out select-none border shift-filter-btn max-lg:min-h-10 ${activeShiftLineFilter === "Pagi" ? "bg-[rgba(56,189,248,0.18)] text-white border-[#38bdf8] shadow-[0_0_8px_rgba(56,189,248,0.2)] active" : "bg-[rgba(148,163,184,0.06)] border-[rgba(148,163,184,0.15)] text-[var(--ink-secondary)] hover:bg-[rgba(56,189,248,0.1)] hover:text-[#38bdf8] hover:border-[rgba(56,189,248,0.3)]"}`}
+                  aria-pressed={activeShiftLineFilter === "Pagi"}
                   onClick={() => setActiveShiftLineFilter("Pagi")}
                 >
                   <span className="inline-block w-[8px] h-[8px] rounded-[50%] shrink-0 bg-[#fbbf24] shadow-[0_0_6px_rgba(251,191,36,0.6)] shift-legend-dot dot-pagi" />
-                  <span>Shift Pagi</span>
+                  <span className="hidden lg:inline">Shift Pagi</span><span className="lg:hidden">Pagi</span>
                 </button>
                 <button
                   type="button"
-                  className={`inline-flex items-center gap-[4px] p-[2px_8px] rounded-[5px] text-[10.5px] font-semibold cursor-pointer transition-all duration-150 ease-out select-none border shift-filter-btn ${activeShiftLineFilter === "Malam" ? "bg-[rgba(56,189,248,0.18)] text-white border-[#38bdf8] shadow-[0_0_8px_rgba(56,189,248,0.2)] active" : "bg-[rgba(148,163,184,0.06)] border-[rgba(148,163,184,0.15)] text-[var(--ink-secondary)] hover:bg-[rgba(56,189,248,0.1)] hover:text-[#38bdf8] hover:border-[rgba(56,189,248,0.3)]"}`}
+                  className={`inline-flex items-center gap-[4px] p-[2px_8px] rounded-[5px] text-[10.5px] max-lg:text-[11px] font-semibold cursor-pointer transition-all duration-150 ease-out select-none border shift-filter-btn max-lg:min-h-10 ${activeShiftLineFilter === "Malam" ? "bg-[rgba(56,189,248,0.18)] text-white border-[#38bdf8] shadow-[0_0_8px_rgba(56,189,248,0.2)] active" : "bg-[rgba(148,163,184,0.06)] border-[rgba(148,163,184,0.15)] text-[var(--ink-secondary)] hover:bg-[rgba(56,189,248,0.1)] hover:text-[#38bdf8] hover:border-[rgba(56,189,248,0.3)]"}`}
+                  aria-pressed={activeShiftLineFilter === "Malam"}
                   onClick={() => setActiveShiftLineFilter("Malam")}
                 >
                   <span className="inline-block w-[8px] h-[8px] rounded-[50%] shrink-0 bg-[#c084fc] shadow-[0_0_6px_rgba(192,132,252,0.6)] shift-legend-dot dot-malam" />
-                  <span>Shift Malam</span>
+                  <span className="hidden lg:inline">Shift Malam</span><span className="lg:hidden">Malam</span>
                 </button>
                 <button
                   type="button"
-                  className={`inline-flex items-center gap-[4px] p-[2px_8px] rounded-[5px] text-[10.5px] font-semibold cursor-pointer transition-all duration-150 ease-out select-none border shift-filter-btn ${activeShiftLineFilter === "Subuh" ? "bg-[rgba(56,189,248,0.18)] text-white border-[#38bdf8] shadow-[0_0_8px_rgba(56,189,248,0.2)] active" : "bg-[rgba(148,163,184,0.06)] border-[rgba(148,163,184,0.15)] text-[var(--ink-secondary)] hover:bg-[rgba(56,189,248,0.1)] hover:text-[#38bdf8] hover:border-[rgba(56,189,248,0.3)]"}`}
+                  className={`inline-flex items-center gap-[4px] p-[2px_8px] rounded-[5px] text-[10.5px] max-lg:text-[11px] font-semibold cursor-pointer transition-all duration-150 ease-out select-none border shift-filter-btn max-lg:min-h-10 ${activeShiftLineFilter === "Subuh" ? "bg-[rgba(56,189,248,0.18)] text-white border-[#38bdf8] shadow-[0_0_8px_rgba(56,189,248,0.2)] active" : "bg-[rgba(148,163,184,0.06)] border-[rgba(148,163,184,0.15)] text-[var(--ink-secondary)] hover:bg-[rgba(56,189,248,0.1)] hover:text-[#38bdf8] hover:border-[rgba(56,189,248,0.3)]"}`}
+                  aria-pressed={activeShiftLineFilter === "Subuh"}
                   onClick={() => setActiveShiftLineFilter("Subuh")}
                 >
                   <span className="inline-block w-[8px] h-[8px] rounded-[50%] shrink-0 bg-[#38bdf8] shadow-[0_0_6px_rgba(56,189,248,0.6)] shift-legend-dot dot-subuh" />
-                  <span>Shift Subuh</span>
+                  <span className="hidden lg:inline">Shift Subuh</span><span className="lg:hidden">Subuh</span>
                 </button>
               </div>
             </div>
+              </>
+            ) : (
+              <div className="text-[12px] text-[var(--ink-muted)] text-center py-[24px] italic chart-empty-hint">Tidak ada data trafik shift pada filter ini.</div>
+            )}
+            </PanelSkeletonWrapper>
           </div>
         </article>
       </div>
@@ -4061,8 +4428,8 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
         selectedUserDetail &&
         typeof document !== "undefined" &&
         createPortal(
-          <div className="fixed inset-0 w-screen h-screen bg-black/80 backdrop-blur-[6px] z-[999999] flex items-center justify-center p-[24px_16px] overflow-y-auto overscroll-contain animate-[modalFadeIn_0.15s_ease-out] user-modal-overlay" onClick={() => setSelectedUserDetail(null)}>
-            <div className="relative w-full max-w-[660px] max-h-[86vh] bg-[#0f172a] border border-[rgba(56,189,248,0.35)] rounded-[14px] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85),0_0_0_1px_rgba(255,255,255,0.05)] flex flex-col overflow-hidden m-auto animate-[modalScaleUp_0.15s_ease-out] user-modal-card" onClick={(e) => e.stopPropagation()}>
+          <div data-user-modal="true" className="fixed inset-0 w-screen h-screen bg-black/80 backdrop-blur-[6px] z-[999999] flex items-center justify-center p-[24px_16px] overflow-y-auto overscroll-contain animate-[modalFadeIn_0.15s_ease-out] user-modal-overlay max-lg:h-dvh max-lg:p-0 max-lg:[&_button]:min-h-10 max-lg:[&_button]:min-w-10" onClick={() => setSelectedUserDetail(null)}>
+            <div ref={userModalRef} role="dialog" aria-modal="true" aria-label={`Detail tiket ${selectedUserDetail.name}`} className="relative w-full max-w-[660px] max-h-[86vh] bg-[#0f172a] border border-[rgba(56,189,248,0.35)] rounded-[14px] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85),0_0_0_1px_rgba(255,255,255,0.05)] flex flex-col overflow-hidden m-auto animate-[modalScaleUp_0.15s_ease-out] user-modal-card max-lg:max-h-full max-lg:h-full max-lg:rounded-none max-lg:pt-[var(--ctd-safe-top,env(safe-area-inset-top,0px))] max-lg:pb-[var(--ctd-safe-bottom,env(safe-area-inset-bottom,0px))]" onClick={(e) => e.stopPropagation()}>
               <div className="flex items-center justify-between p-[16px_20px] border-b border-[rgba(148,163,184,0.12)] bg-[rgba(148,163,184,0.04)] shrink-0 user-modal-header">
                 <div className="flex items-center gap-[12px] user-modal-profile">
                   <div
@@ -4102,7 +4469,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                   {/* Hari Ini */}
                   <div className="p-[12px_10px] rounded-[10px] bg-[rgba(148,163,184,0.05)] border border-[rgba(148,163,184,0.12)] flex flex-col gap-[8px] user-period-card">
                     <div className="flex items-center justify-between pb-[6px] border-b border-[rgba(148,163,184,0.08)] period-card-header">
-                      <span className="text-[8.5px] font-bold font-mono p-[2px_6px] rounded-[4px] bg-[rgba(56,189,248,0.15)] text-[#38bdf8] period-badge today">HARI INI</span>
+                      <span className="text-[8.5px] max-lg:text-[11px] font-bold font-mono p-[2px_6px] rounded-[4px] bg-[rgba(56,189,248,0.15)] text-[#38bdf8] period-badge today">HARI INI</span>
                       <strong className="text-[13px] font-extrabold font-mono text-[var(--ink-primary)] period-total">{selectedUserDetail.todayCount} Tiket</strong>
                     </div>
                     <div className="flex flex-col gap-[4px] period-breakdown-list">
@@ -4111,10 +4478,10 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                           const pColor = PROJECT_COLORS[proj] || "#94a3b8";
                           const pct = Math.round((count / Math.max(1, selectedUserDetail.todayCount)) * 100);
                           return (
-                            <div className="flex items-center justify-between text-[10px] py-[2px] period-breakdown-row" key={proj}>
+                            <div className="flex items-center justify-between text-[10px] max-lg:text-[11px] py-[2px] period-breakdown-row" key={proj}>
                               <div className="flex items-center gap-[4px] text-[var(--ink-secondary)] period-proj-tag">
                                 <i className="legend-dot" style={{ background: pColor }} />
-                                <span>{proj}</span>
+                                <span>{projectLabel(proj, activeClientId)}</span>
                               </div>
                               <span className="font-mono font-semibold text-[var(--ink-muted)] period-count-pct">{count} ({pct}%)</span>
                             </div>
@@ -4129,7 +4496,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                   {/* Bulan Ini */}
                   <div className="p-[12px_10px] rounded-[10px] bg-[rgba(148,163,184,0.05)] border border-[rgba(148,163,184,0.12)] flex flex-col gap-[8px] user-period-card">
                     <div className="flex items-center justify-between pb-[6px] border-b border-[rgba(148,163,184,0.08)] period-card-header">
-                      <span className="text-[8.5px] font-bold font-mono p-[2px_6px] rounded-[4px] bg-[rgba(16,185,129,0.15)] text-[#34d399] period-badge month">BULAN INI</span>
+                      <span className="text-[8.5px] max-lg:text-[11px] font-bold font-mono p-[2px_6px] rounded-[4px] bg-[rgba(16,185,129,0.15)] text-[#34d399] period-badge month">BULAN INI</span>
                       <strong className="text-[13px] font-extrabold font-mono text-[var(--ink-primary)] period-total">{selectedUserDetail.monthCount} Tiket</strong>
                     </div>
                     <div className="flex flex-col gap-[4px] period-breakdown-list">
@@ -4137,10 +4504,10 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                         const pColor = PROJECT_COLORS[proj] || "#94a3b8";
                         const pct = Math.round((count / Math.max(1, selectedUserDetail.monthCount)) * 100);
                         return (
-                          <div className="flex items-center justify-between text-[10px] py-[2px] period-breakdown-row" key={proj}>
+                          <div className="flex items-center justify-between text-[10px] max-lg:text-[11px] py-[2px] period-breakdown-row" key={proj}>
                             <div className="flex items-center gap-[4px] text-[var(--ink-secondary)] period-proj-tag">
                               <i className="legend-dot" style={{ background: pColor }} />
-                              <span>{proj}</span>
+                              <span>{projectLabel(proj, activeClientId)}</span>
                             </div>
                             <span className="font-mono font-semibold text-[var(--ink-muted)] period-count-pct">{count} ({pct}%)</span>
                           </div>
@@ -4152,7 +4519,7 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                   {/* Tahun Ini */}
                   <div className="p-[12px_10px] rounded-[10px] bg-[rgba(148,163,184,0.05)] border border-[rgba(148,163,184,0.12)] flex flex-col gap-[8px] user-period-card">
                     <div className="flex items-center justify-between pb-[6px] border-b border-[rgba(148,163,184,0.08)] period-card-header">
-                      <span className="text-[8.5px] font-bold font-mono p-[2px_6px] rounded-[4px] bg-[rgba(129,140,248,0.15)] text-[#818cf8] period-badge year">TAHUN INI</span>
+                      <span className="text-[8.5px] max-lg:text-[11px] font-bold font-mono p-[2px_6px] rounded-[4px] bg-[rgba(129,140,248,0.15)] text-[#818cf8] period-badge year">TAHUN INI</span>
                       <strong className="text-[13px] font-extrabold font-mono text-[var(--ink-primary)] period-total">{selectedUserDetail.yearCount} Tiket</strong>
                     </div>
                     <div className="flex flex-col gap-[4px] period-breakdown-list">
@@ -4160,10 +4527,10 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                         const pColor = PROJECT_COLORS[proj] || "#94a3b8";
                         const pct = Math.round((count / Math.max(1, selectedUserDetail.yearCount)) * 100);
                         return (
-                          <div className="flex items-center justify-between text-[10px] py-[2px] period-breakdown-row" key={proj}>
+                          <div className="flex items-center justify-between text-[10px] max-lg:text-[11px] py-[2px] period-breakdown-row" key={proj}>
                             <div className="flex items-center gap-[4px] text-[var(--ink-secondary)] period-proj-tag">
                               <i className="legend-dot" style={{ background: pColor }} />
-                              <span>{proj}</span>
+                              <span>{projectLabel(proj, activeClientId)}</span>
                             </div>
                             <span className="font-mono font-semibold text-[var(--ink-muted)] period-count-pct">{count} ({pct}%)</span>
                           </div>
@@ -4191,12 +4558,12 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
                             : "priority-pill-med";
 
                         return (
-                          <div className="grid grid-cols-[75px_75px_1fr_60px_70px] items-center gap-[8px] p-[6px_10px] rounded-[6px] bg-[rgba(148,163,184,0.04)] text-[10.5px] user-modal-ticket-row" key={t.id}>
+                          <div className="grid grid-cols-[75px_75px_1fr_60px_70px] items-center gap-[8px] p-[6px_10px] rounded-[6px] bg-[rgba(148,163,184,0.04)] text-[10.5px] max-lg:text-[11px] user-modal-ticket-row" key={t.id}>
                             <span className="font-mono font-bold text-[var(--ink-primary)] user-modal-ticket-id">#{t.id}</span>
                             <span className="font-semibold user-modal-ticket-proj" style={{ color: pColor }}>● {t.project}</span>
                             <span className="text-[var(--ink-secondary)] whitespace-nowrap overflow-hidden text-ellipsis user-modal-ticket-sub" title={t.subject}>{t.subject}</span>
                             <span className={`priority-pill ${pClass}`}>{t.severity}</span>
-                            <span className="text-[9.5px] text-[#38bdf8] font-semibold user-modal-ticket-st">{t.status}</span>
+                            <span className="text-[9.5px] max-lg:text-[11px] text-[#38bdf8] font-semibold user-modal-ticket-st">{t.status}</span>
                           </div>
                         );
                       })}
@@ -4210,6 +4577,40 @@ export function TicketReportView({ tickets, dateRangeLabel, onGoToTickets }: Tic
           </div>,
           document.body
         )}
+
+      {/* Memo Modal (large window) */}
+      <MemoModal isOpen={memoModalOpen} onClose={() => setMemoModalOpen(false)} />
+
+      {/* Grafana-style Full-screen Panel Viewer */}
+      {activePanelId && (
+        <PanelViewer
+          panelId={activePanelId}
+          mode={viewerMode}
+          onModeChange={handlePanelModeChange}
+          onClose={handleClosePanel}
+          onNavigatePanel={handleOpenPanel}
+          activeFilters={activeFilterChips}
+          analyticsTicketCount={analyticsTickets.length}
+          totalTicketCount={tickets.length}
+          volumeByDate={volumeByDate}
+          allProjects={allProjects}
+          projectColors={PROJECT_COLORS}
+          selectedDate={selectedDate}
+          onSelectDate={setSelectedDate}
+          momData={momData}
+          userSummaries={userSummaries}
+          onSelectUserDetail={setSelectedUserDetail}
+          typeCounts={typeCounts}
+          totalTickets={total}
+          renderDonutSlices={renderDonutSlices}
+          priorityCounts={priorityCounts}
+          priorityColors={PRIORITY_COLORS}
+          severityStyles={SEVERITY_CARD_STYLES}
+          shiftTrafficData={shiftHeatmapData}
+          activeShiftLineFilter={activeShiftLineFilter}
+          onShiftLineFilterChange={setActiveShiftLineFilter}
+        />
+      )}
     </div>
   );
 }

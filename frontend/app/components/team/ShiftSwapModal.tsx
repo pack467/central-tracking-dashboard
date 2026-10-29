@@ -1,5 +1,7 @@
 "use client";
 
+import { Select } from "@/app/components/ui/Select";
+
 import { useState } from "react";
 import { ArrowRightLeft, Check, X, Clock, AlertCircle, Calendar, RefreshCw } from "lucide-react";
 import { Modal } from "@/app/components/ui/Modal";
@@ -141,7 +143,7 @@ export function ShiftSwapModal({
             <div className="two-inputs [margin-bottom:10px]!">
               <label>
                 <span>Pemohon (Requester)</span>
-                <select
+                <Select size="form" className="w-full"
                   value={requesterId}
                   onChange={(e) => setRequesterId(e.target.value)}
                   required
@@ -151,12 +153,12 @@ export function ShiftSwapModal({
                       {m.name} ({m.role})
                     </option>
                   ))}
-                </select>
+                </Select>
               </label>
 
               <label>
                 <span>Tukar Dengan (Target Member)</span>
-                <select
+                <Select size="form" className="w-full"
                   value={targetId}
                   onChange={(e) => setTargetId(e.target.value)}
                   required
@@ -166,7 +168,7 @@ export function ShiftSwapModal({
                       {m.name} ({m.role})
                     </option>
                   ))}
-                </select>
+                </Select>
               </label>
             </div>
 
@@ -184,14 +186,14 @@ export function ShiftSwapModal({
 
               <label>
                 <span>Shift Target yang Diminta</span>
-                <select
+                <Select size="form" className="w-full"
                   value={targetShift}
                   onChange={(e) => setTargetShift(e.target.value)}
                 >
                   <option value="Shift Subuh (00:00–08:30)">Shift Subuh (00:00–08:30)</option>
                   <option value="Shift Pagi (08:00–16:30)">Shift Pagi (08:00–16:30)</option>
                   <option value="Shift Malam (16:00–00:30)">Shift Malam (16:00–00:30)</option>
-                </select>
+                </Select>
               </label>
             </div>
 

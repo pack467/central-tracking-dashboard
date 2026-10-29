@@ -1,28 +1,9 @@
 "use client";
 
+import { Select } from "@/app/components/ui/Select";
+
 import { useRef, useState } from "react";
-import {
-  ArrowRightLeft,
-  ArrowRight,
-  Check,
-  Calendar,
-  Users,
-  ShieldCheck,
-  Plus,
-  Trash2,
-  ChevronDown,
-  CheckSquare,
-  ChevronsUpDown,
-  FileText,
-  Clock3,
-  UserRound,
-  FolderKanban,
-  Activity,
-  Type,
-  AlignLeft,
-  ListTodo,
-  Flag,
-} from "lucide-react";
+import { ArrowRightLeft, ArrowRight, Check, Calendar, Users, ShieldCheck, Plus, Trash2, ChevronDown, CheckSquare, ChevronsUpDown, FileText, Clock3, UserRound, FolderKanban, Activity, Type, AlignLeft, ListTodo, Flag } from "lucide-react";
 import { Modal } from "@/app/components/ui/Modal";
 import { ModalCloseButton } from "@/app/components/ui/ModalCloseButton";
 import { ConfirmDialog } from "@/app/components/ui/ConfirmDialog";
@@ -601,8 +582,8 @@ export function HandoverWizard({
                         <label className="grid gap-[5px] text-[12px] text-[var(--ink-secondary)] font-bold mb-[10px]">
                           Kondisi saat ini
                           <span className="group/shell block relative w-full min-w-0">
-                            <Activity className="absolute z-[1] left-[13px] top-[21px] -translate-y-1/2 text-[var(--ink-muted)] pointer-events-none transition-colors duration-150 group-focus-within/shell:text-[var(--accent-blue)]" size={16} aria-hidden="true" />
-                            <select
+                            
+                            <Select icon={<Activity size={16} aria-hidden="true" />}
                               className="w-full min-h-[42px] pl-[40px] pr-[42px] py-[10px] rounded-[7px] text-[13px] bg-[var(--input-bg)] border border-[var(--panel-border)] text-[var(--ink-primary)] font-normal appearance-none cursor-pointer focus:border-[var(--accent-blue)] focus:shadow-[0_0_0_3px_var(--accent-blue-soft)] focus:outline-none transition-all duration-150"
                               value={finding.state}
                               onChange={(event) =>
@@ -611,8 +592,8 @@ export function HandoverWizard({
                             >
                               <option value="waiting">Perlu dipantau</option>
                               <option value="in-progress">Sedang ditindaklanjuti</option>
-                            </select>
-                            <ChevronDown className="absolute right-[14px] top-1/2 -translate-y-1/2 text-[var(--ink-secondary)] pointer-events-none group-focus-within/shell:text-[var(--accent-blue)]" size={16} aria-hidden="true" />
+                            </Select>
+                            
                           </span>
                         </label>
                         <label className="col-span-2 max-[660px]:col-span-1 grid gap-[5px] text-[12px] text-[var(--ink-secondary)] font-bold mb-[10px]">
@@ -801,8 +782,8 @@ export function HandoverWizard({
                             <label className="grid gap-[5px] text-[12px] text-[var(--ink-secondary)] font-bold mb-[10px]">
                               Kondisi tugas
                               <span className="group/shell block relative w-full min-w-0">
-                                <Activity className="absolute z-[1] left-[13px] top-[21px] -translate-y-1/2 text-[var(--ink-muted)] pointer-events-none transition-colors duration-150 group-focus-within/shell:text-[var(--accent-blue)]" size={16} aria-hidden="true" />
-                                <select
+                                
+                                <Select icon={<Activity size={16} aria-hidden="true" />}
                                   className="w-full min-h-[42px] pl-[40px] pr-[42px] py-[10px] rounded-[7px] text-[13px] bg-[var(--input-bg)] border border-[var(--panel-border)] text-[var(--ink-primary)] font-normal appearance-none cursor-pointer focus:border-[var(--accent-blue)] focus:shadow-[0_0_0_3px_var(--accent-blue-soft)] focus:outline-none transition-all duration-150"
                                   value={task.state}
                                   onChange={(event) =>
@@ -817,15 +798,15 @@ export function HandoverWizard({
                                   <option value="blocked">Terhambat</option>
                                   <option value="waiting-vendor">Menunggu Vendor</option>
                                   <option value="activity">Aktivitas</option>
-                                </select>
-                                <ChevronDown className="absolute right-[14px] top-1/2 -translate-y-1/2 text-[var(--ink-secondary)] pointer-events-none group-focus-within/shell:text-[var(--accent-blue)]" size={16} aria-hidden="true" />
+                                </Select>
+                                
                               </span>
                             </label>
                             <label className="grid gap-[5px] text-[12px] text-[var(--ink-secondary)] font-bold mb-[10px]">
                               Prioritas
                               <span className="group/shell block relative w-full min-w-0">
-                                <Flag className="absolute z-[1] left-[13px] top-[21px] -translate-y-1/2 text-[var(--ink-muted)] pointer-events-none transition-colors duration-150 group-focus-within/shell:text-[var(--accent-blue)]" size={16} aria-hidden="true" />
-                                <select
+                                
+                                <Select icon={<Flag size={16} aria-hidden="true" />}
                                   className="w-full min-h-[42px] pl-[40px] pr-[42px] py-[10px] rounded-[7px] text-[13px] bg-[var(--input-bg)] border border-[var(--panel-border)] text-[var(--ink-primary)] font-normal appearance-none cursor-pointer focus:border-[var(--accent-blue)] focus:shadow-[0_0_0_3px_var(--accent-blue-soft)] focus:outline-none transition-all duration-150"
                                   value={task.priority || "Medium"}
                                   onChange={(event) =>
@@ -836,8 +817,8 @@ export function HandoverWizard({
                                   <option value="High">Tinggi</option>
                                   <option value="Medium">Sedang</option>
                                   <option value="Low">Rendah</option>
-                                </select>
-                                <ChevronDown className="absolute right-[14px] top-1/2 -translate-y-1/2 text-[var(--ink-secondary)] pointer-events-none group-focus-within/shell:text-[var(--accent-blue)]" size={16} aria-hidden="true" />
+                                </Select>
+                                
                               </span>
                             </label>
                           </div>

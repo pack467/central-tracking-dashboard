@@ -1,4 +1,6 @@
 "use client";
+
+import { Select } from "@/app/components/ui/Select";
 import Link from "next/link";
 import { DetailNotFound } from "@/app/components/routing/RouteEffects";
 
@@ -8,23 +10,7 @@ import { runbooksSchema } from "@/app/lib/query-state";
 import { paths, routes, withQuery, detailId } from "@/app/lib/routes";
 
 import { useCallback, useMemo, useState } from "react";
-import {
-  ChevronDown,
-  ExternalLink,
-  Clock,
-  User,
-  FileText,
-  Video,
-  BarChart2,
-  FileSpreadsheet,
-  Link2,
-  Plus,
-  Trash2,
-  Copy,
-  Check,
-  X,
-  type LucideIcon,
-} from "lucide-react";
+import { ChevronDown, ExternalLink, Clock, User, FileText, Video, BarChart2, FileSpreadsheet, Link2, Plus, Trash2, Copy, Check, X, type LucideIcon } from "lucide-react";
 import type { SopCategory, SopEntry, SopAttachment, SopAttachmentType } from "@/app/lib/types";
 import { seedSopEntries } from "@/app/lib/runbooksData";
 import { useToast } from "@/app/components/ui/Toast";
@@ -316,8 +302,9 @@ function SopCard({
 
                 <div className="grid grid-cols-2 gap-[10px] mb-[12px] max-[860px]:grid-cols-1">
                   <div className="flex flex-col gap-[4px]">
-                    <label className="text-[var(--ink-muted)] text-[10px] font-bold font-mono">TIPE DOKUMEN</label>
-                    <select
+                    <label htmlFor={`sop-${sop.id}-document-type`} className="text-[var(--ink-muted)] text-[10px] font-bold font-mono">TIPE DOKUMEN</label>
+                    <Select
+                      id={`sop-${sop.id}-document-type`}
                       value={formType}
                       onChange={(e) => setFormType(e.target.value as SopAttachmentType)}
                       className="h-[32px] px-[8px] rounded-[5px] border border-[var(--panel-border)] bg-[var(--input-bg)] text-[var(--ink-primary)] text-[11.5px] focus:outline-none focus:border-[var(--accent-blue)]"
@@ -328,7 +315,7 @@ function SopCard({
                       <option value="report">Monthly Report (.xlsx / Rekap)</option>
                       <option value="sheet">Spreadsheet / Excel</option>
                       <option value="link">Web Link / Reference</option>
-                    </select>
+                    </Select>
                   </div>
 
                   <div className="flex flex-col gap-[4px]">

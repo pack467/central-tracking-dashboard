@@ -208,15 +208,6 @@
   @apply [border-bottom:1px_solid_var(--line)];
 }
 
-.view-toolbar > select {
-  @apply [height:34px];
-  @apply [padding:0_8px];
-  @apply [color:var(--ink-primary)];
-  @apply [border:1px_solid_var(--panel-border)];
-  @apply [border-radius:7px];
-  @apply [background:var(--input-bg)];
-  @apply [font-size:11.5px];
-}
 
 .search-field {
   @apply [position:relative];
@@ -235,7 +226,7 @@
 }
 
 .search-field:focus-within {
-  @apply [border-color:var(--accent-blue)];
+  @apply [border-color:rgba(56,189,248,0.4)];
 }
 
 .search-field span,
@@ -275,8 +266,7 @@
   @apply [text-transform:uppercase];
 }
 
-.toolbar-label input,
-.toolbar-label select {
+.toolbar-label input {
   @apply [height:34px];
   @apply [padding:0_8px];
   @apply [color:var(--ink-primary)];
