@@ -41,6 +41,7 @@ export class ApiClient {
   private token: string | null = null;
   private tokenProvider: AuthTokenProvider | null = null;
   private onUnauthorized: UnauthorizedHandler | null = null;
+  private csrfProvider: (() => string | null) | null = null;
 
   constructor(baseUrl?: string) {
     this.baseUrl = (baseUrl ?? getApiConfig().apiUrl).replace(/\/+$/, "");
@@ -54,6 +55,11 @@ export class ApiClient {
     this.tokenProvider = provider;
   }
 
+  /** The session's CSRF token (backend login). Sent as X-CSRF-Token on every write. */
+  setCsrfTokenProvider(provider: () => string | null): void {
+    this.csrfProvider = provider;
+  }
+
   setOnUnauthorized(handler: UnauthorizedHandler): void {
     this.onUnauthorized = handler;
   }
@@ -65,10 +71,6 @@ export class ApiClient {
     }
     if (this.token) {
       return `Bearer ${this.token}`;
-    }
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("ctd.auth.token");
-      if (stored) return `Bearer ${stored}`;
     }
     return null;
   }
@@ -88,6 +90,9 @@ export class ApiClient {
     }
     headers.set("Accept", "application/json");
 
+    // writes carry the session's CSRF token; the session itself is the httpOnly cookie
+    const csrf = this.csrfProvider?.();
+    if (csrf && !/^(GET|HEAD|OPTIONS)$/i.test(fetchOptions.method ?? "GET") && !headers.has("X-CSRF-Token")) headers.set("X-CSRF-Token", csrf);
     const auth = this.getAuthHeader();
     if (auth && !headers.has("Authorization")) {
       headers.set("Authorization", auth);
@@ -116,6 +121,7 @@ export class ApiClient {
 
     try {
       const response = await fetch(url, {
+        credentials: "include",
         ...fetchOptions,
         headers,
         signal: controller.signal,

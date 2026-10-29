@@ -13,9 +13,9 @@ export const MASTER_PERMISSION_CATALOG: readonly MasterCatalogPermission[] = [..
 
 function normalizedRole(value: string): MasterRole {
   const role = value.trim().toLowerCase();
-  if (["manager", "admin", "pengelola", "pengelola master data"].includes(role)) return "manager";
-  if (["lead", "shift lead", "lead operasional"].includes(role)) return "lead";
-  if (["operator", "operator noc"].includes(role)) return "operator";
+  if (["manager", "admin", "super admin", "super_admin", "pengelola", "pengelola master data"].includes(role)) return "manager";
+  if (["lead", "shift lead", "team_lead", "team lead", "lead operasional"].includes(role)) return "lead";
+  if (["operator", "operator noc", "agent"].includes(role)) return "operator";
   return "viewer";
 }
 export function masterRole(actor?: MasterActor): MasterRole {

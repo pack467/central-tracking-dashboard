@@ -17,7 +17,8 @@ import {
   KeyRound,
   Users,
 } from "lucide-react";
-import { PRESET_OPERATORS, getLocalTestOperator, useAuth } from "@/app/lib/auth";
+import { useAuth } from "@/app/lib/auth";
+import { AuthError } from "@/app/lib/auth-api";
 import { useToast } from "@/app/components/ui/Toast";
 
 interface LoginViewProps {
@@ -25,11 +26,13 @@ interface LoginViewProps {
 }
 
 const easeOutCubic = [0.16, 1, 0.3, 1] as const;
+const MAX_ATTEMPTS = 5;
+const LOCK_MS = 30_000;
 
 export function LoginView({ onSuccessRedirect = paths.dashboard }: LoginViewProps) {
   const router = useRouter();
   const next = useSearchParams().get("next");
-  const { login } = useAuth();
+  const { signIn, mode } = useAuth();
   const notify = useToast();
   const shouldReduceMotion = useReducedMotion();
 
@@ -41,6 +44,8 @@ export function LoginView({ onSuccessRedirect = paths.dashboard }: LoginViewProp
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [showForgotModal, setShowForgotModal] = useState(false);
   const [isNavigatingToTeam, setIsNavigatingToTeam] = useState(false);
+  const [failures, setFailures] = useState(0);
+  const [lockedUntil, setLockedUntil] = useState(0);
 
   const handleNavigateToTeam = (e: React.MouseEvent<HTMLAnchorElement>) => {
     // Biarkan browser menangani klik tombol tengah / Cmd+Click / Ctrl+Click
@@ -165,88 +170,47 @@ export function LoginView({ onSuccessRedirect = paths.dashboard }: LoginViewProp
     },
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return;
     setErrorMsg(null);
 
-    const cleanId = identifier.trim().toLowerCase();
-    const cleanPwd = password.trim();
+    // the identifier is sent as typed (minus outer spaces); the password exactly as typed
+    const cleanId = identifier.trim();
 
     if (!cleanId) {
       setErrorMsg("Masukkan email atau ID karyawan.");
       return;
     }
 
-    if (!cleanPwd) {
+    if (!password) {
       setErrorMsg("Masukkan kata sandi.");
       return;
     }
 
+    if (Date.now() < lockedUntil) {
+      setErrorMsg(`Terlalu banyak percobaan. Coba lagi dalam ${Math.ceil((lockedUntil - Date.now()) / 1000)} detik.`);
+      return;
+    }
+
     setLoading(true);
-
-    setTimeout(() => {
-      // 1. Cek akun testing lokal jika ada (.env.local atau localStorage)
-      const localOp = getLocalTestOperator();
-      if (
-        localOp &&
-        (cleanId === localOp.email.toLowerCase() ||
-          cleanId === localOp.employeeId.toLowerCase() ||
-          cleanId === localOp.name.toLowerCase())
-      ) {
-        if (cleanPwd !== localOp.demoPassword) {
-          setLoading(false);
-          setErrorMsg("Kata sandi salah. Silakan periksa kembali.");
-          return;
-        }
-
-        const token = `ctd_token_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-        login(token, localOp);
-
-        notify.success(`Selamat datang, ${localOp.name}!`, {
-          duration: 2000,
-        });
-
-        setTimeout(() => {
-          window.location.href = safeNext(next ?? onSuccessRedirect);
-        }, 300);
-        return;
-      }
-
-      // 2. Operator preset sistem
-      const matched = PRESET_OPERATORS.find(
-        (op) =>
-          op.email.toLowerCase() === cleanId ||
-          op.employeeId.toLowerCase() === cleanId ||
-          op.name.toLowerCase().includes(cleanId)
-      );
-
-      if (matched && matched.demoPassword && cleanPwd !== matched.demoPassword) {
-        setLoading(false);
-        setErrorMsg("Kata sandi salah. Silakan periksa kembali.");
-        return;
-      }
-
-      const targetUser = matched || {
-        id: "custom-op",
-        name: cleanId.includes("@") ? cleanId.split("@")[0].replace(".", " ") : cleanId,
-        employeeId: "EMP-CUSTOM",
-        role: "Operator NOC",
-        email: cleanId.includes("@") ? cleanId : `${cleanId}@company.id`,
-        avatarBg: "#2563eb",
-        shift: "Malam" as const,
-      };
-
-      const token = `ctd_token_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-      login(token, targetUser);
-
-      notify.success(`Selamat datang, ${targetUser.name}!`, {
-        duration: 2000,
-      });
-
+    try {
+      const signedIn = await signIn(cleanId, password, rememberMe);
+      notify.success(`Selamat datang, ${signedIn.name}!`, { duration: 2000 });
       setTimeout(() => {
         window.location.href = safeNext(next ?? onSuccessRedirect);
       }, 300);
-    }, 500);
+    } catch (error) {
+      setLoading(false);
+      setPassword("");
+      if (!(error instanceof AuthError)) { setErrorMsg("Gagal masuk. Coba lagi."); return; }
+      setErrorMsg(error.message);
+      if (error.kind === "invalid" || error.kind === "throttled") {
+        const count = failures + 1;
+        setFailures(count);
+        if (count >= MAX_ATTEMPTS) { setFailures(0); setLockedUntil(Date.now() + LOCK_MS); }
+      }
+    }
   };
 
   return (
@@ -487,8 +451,8 @@ export function LoginView({ onSuccessRedirect = paths.dashboard }: LoginViewProp
               </div>
             </motion.div>
 
-            {/* Remember Me */}
-            <motion.div variants={formItemVariants} className="flex items-center justify-between">
+            {/* Remember Me (demo sessions only: with the backend, the server decides how long a session lasts) */}
+            {mode === "demo" && <motion.div variants={formItemVariants} className="flex items-center justify-between">
               <label className="flex items-center gap-2 cursor-pointer select-none">
                 <input
                   type="checkbox"
@@ -500,7 +464,7 @@ export function LoginView({ onSuccessRedirect = paths.dashboard }: LoginViewProp
                   Ingat saya
                 </span>
               </label>
-            </motion.div>
+            </motion.div>}
 
             {/* Error Message */}
             {errorMsg && (
