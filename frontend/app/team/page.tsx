@@ -1,5 +1,4 @@
 import { paths } from "@/app/lib/routes";
-import React from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { BrandLogo } from "@/app/components/ui/BrandLogo";
@@ -15,31 +14,6 @@ export const metadata: Metadata = {
 export default function TeamPage() {
   return (
     <div className="min-h-screen lg:h-screen lg:overflow-hidden bg-slate-950 text-slate-100 flex flex-col justify-between selection:bg-sky-500/20 selection:text-sky-300 no-scrollbar">
-      {/* Kunci scroll pada desktop agar tidak dapat digulir, serta hilangkan scrollbar sepenuhnya */}
-      <style
-        dangerouslySetInnerHTML={{
-          __html: `
-            html, body {
-              scrollbar-width: none !important;
-              -ms-overflow-style: none !important;
-              scrollbar-gutter: auto !important;
-            }
-            @media (min-width: 1024px) {
-              html, body {
-                overflow: hidden !important;
-                height: 100vh !important;
-                max-height: 100vh !important;
-              }
-            }
-            html::-webkit-scrollbar, body::-webkit-scrollbar {
-              display: none !important;
-              width: 0 !important;
-              height: 0 !important;
-            }
-          `,
-        }}
-      />
-
       {/* Background Grid Pattern & Radial Masks */}
       <div
         className="fixed inset-0 pointer-events-none opacity-40 [background-image:linear-gradient(to_right,rgba(51,65,85,0.15)_1px,transparent_1px),linear-gradient(to_bottom,rgba(51,65,85,0.15)_1px,transparent_1px)] [background-size:32px_32px] [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_80%)]"
@@ -64,12 +38,14 @@ export default function TeamPage() {
       </header>
 
       {/* Main Content Area: Focus purely on Team Members */}
-      <main className="flex-1 flex flex-col justify-center my-auto overflow-hidden">
+      <main className="flex-1 min-h-0 flex flex-col overflow-y-auto no-scrollbar">
+        <div className="my-auto w-full">
         <TeamSection
           title="Meet Our Team"
           eyebrow="Tim Pengembang"
           subtitle="Tim inti rekayasa sistem di balik Central Tracking Dashboard."
         />
+        </div>
       </main>
 
       {/* Clean Global Footer */}

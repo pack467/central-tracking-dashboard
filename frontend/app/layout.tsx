@@ -7,8 +7,11 @@ import "./globals.css";
 
 export async function generateMetadata(): Promise<Metadata> {
   const requestHeaders = await headers();
-  const host = requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host") ?? "localhost:3000";
-  const protocol = requestHeaders.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
+  // the host comes from request headers a visitor can write: only a plain host[:port] and http/https are used for the links in the metadata
+  const rawHost = requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host") ?? "";
+  const host = /^[a-z0-9.-]+(:\d{1,5})?$/i.test(rawHost) ? rawHost : "localhost:3000";
+  const rawProtocol = requestHeaders.get("x-forwarded-proto");
+  const protocol = rawProtocol === "http" || rawProtocol === "https" ? rawProtocol : host.startsWith("localhost") ? "http" : "https";
   const metadataBase = new URL(`${protocol}://${host}`);
   const title = "Central Tracking Dashboard";
   const description = "Pusat komando operasional untuk monitoring NOC, ticketing, dan handover shift.";
