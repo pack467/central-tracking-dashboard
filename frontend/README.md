@@ -60,6 +60,11 @@ Setelah server berjalan, buka URL berikut di browser Anda:
 http://localhost:3000
 ```
 
+### 6. Menghubungkan ke Backend dan Database
+Agar login dan data tiket memakai backend NestJS beserta database PostgreSQL, ikuti panduan langkah demi langkah di
+[docs/menghubungkan-backend.md](docs/menghubungkan-backend.md). Ringkasnya: backend di port 3000, frontend dijalankan dengan
+`npm run dev:backend` (port 3001), lalu cek sambungannya dengan `npm run check:backend`.
+
 ---
 
 ## 🛠️ Perintah yang Tersedia (Available Scripts)
@@ -69,6 +74,8 @@ Berikut daftar perintah npm yang sering digunakan dalam proyek:
 | Perintah | Deskripsi |
 | :--- | :--- |
 | `npm run dev` | Menjalankan server pengembangan lokal (lengkap dengan hot reload dan migrasi database otomatis). |
+| `npm run dev:backend` | Sama dengan `npm run dev`, tetapi di port 3001 (port 3000 dipakai backend). |
+| `npm run check:backend` | Mengecek sambungan frontend → backend → database sesuai `.env.local`. |
 | `npm run build` | Melakukan build dan validasi bundling aplikasi untuk lingkungan produksi. |
 | `npm run start` | Menjalankan server dalam mode produksi setelah di-build. |
 | `npm run db:migrate:local` | Menerapkan migrasi D1 SQLite lokal secara manual menggunakan Wrangler. |

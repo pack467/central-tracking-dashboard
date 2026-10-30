@@ -8,6 +8,9 @@
   "scripts": {
     "predev": "npm run db:migrate:local",
     "dev": "vinext dev",
+    "predev:backend": "npm run db:migrate:local",
+    "dev:backend": "vinext dev -p 3001",
+    "check:backend": "node scripts/check-backend.mjs",
     "prebuild": "node scripts/check-production-env.mjs",
     "build": "vinext build",
     "postbuild": "node scripts/check-bundle.mjs",
