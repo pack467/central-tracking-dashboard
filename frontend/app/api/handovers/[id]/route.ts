@@ -1,5 +1,5 @@
 import { getHandoverDb } from "@/db";
-import { canEditHandover, HandoverError, parseHandoverContent, updateHandoverRecord } from "@/app/lib/handover";
+import { canDeleteHandover, canEditHandover, HandoverError, parseHandoverContent, updateHandoverRecord } from "@/app/lib/handover";
 import { assertSameOrigin, findHandover, handoverActor, handoverFailure, handoverResponse, noteColumns, noteId, readHandoverBody, validatedDraft } from "@/app/lib/handover-server";
 import type { HandoverRecordData, StoredHandoverRecord } from "@/app/lib/types";
 
@@ -45,7 +45,7 @@ export async function DELETE(request: Request, { params }: Context) {
     assertSameOrigin(request);
     const actor = handoverActor(request);
     const current = await findHandover(noteId((await params).id));
-    if (!canEditHandover(parseHandoverContent(current.content), actor)) throw new HandoverError("Hanya pembuat catatan yang dapat menghapusnya.", 403);
+    if (!canDeleteHandover(parseHandoverContent(current.content), actor)) throw new HandoverError("Hanya pengirim atau penerima handover yang dapat menghapusnya.", 403);
     const revision = Number(new URL(request.url).searchParams.get("revision"));
     if (revision !== current.revision) throw new HandoverError("Catatan telah berubah. Muat ulang sebelum menghapus.", 409);
     const note = await getHandoverDb().prepare("DELETE FROM handover_notes WHERE id = ? AND revision = ? RETURNING id").bind(current.id, revision).first();

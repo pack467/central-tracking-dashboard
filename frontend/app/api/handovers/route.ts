@@ -4,6 +4,21 @@ import { assertSameOrigin, handoverActor, handoverFailure, handoverResponse, not
 import { initialHandoverRecord, toDateInputValue } from "@/app/lib/data";
 import type { HandoverActor, StoredHandoverRecord } from "@/app/lib/types";
 
+/**
+ * Demo notes for the local database, written once per server process and only in development. They used to be written on every list
+ * request in every environment, and two of them were overwritten each time, which reset an accepted demo handover back to "not accepted"
+ * and put made-up people into a real database. Every insert is DO NOTHING: a note that already exists is never changed.
+ */
+let demoSeed: Promise<void> | null = null;
+function seedDemoHandoversOnce(db: D1Database) {
+  if (process.env.NODE_ENV !== "development") return Promise.resolve();
+  demoSeed ??= (async () => {
+    const seeded = await db.prepare("SELECT 1 FROM handover_notes WHERE create_request_id = ?").bind("seed-initial-handover").first();
+    if (!seeded) await seedHandoverNotes(db);
+  })().catch((error) => { demoSeed = null; throw error; });
+  return demoSeed;
+}
+
 async function seedHandoverNotes(db: D1Database) {
   const date = toDateInputValue();
   const now = new Date().toISOString();
@@ -113,7 +128,7 @@ async function seedHandoverNotes(db: D1Database) {
 
   await db
     .prepare(
-      `INSERT INTO handover_notes (title, handover_date, content, create_request_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT(create_request_id) DO UPDATE SET content = excluded.content`
+      `INSERT INTO handover_notes (title, handover_date, content, create_request_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT(create_request_id) DO NOTHING`
     )
     .bind("Handover Shift Malam → Subuh", date, completedContent, "seed-completed-handover", prevCreatedAt, prevAcceptedAt)
     .run();
@@ -153,7 +168,7 @@ async function seedHandoverNotes(db: D1Database) {
 
   await db
     .prepare(
-      `INSERT INTO handover_notes (title, handover_date, content, create_request_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT(create_request_id) DO UPDATE SET content = excluded.content`
+      `INSERT INTO handover_notes (title, handover_date, content, create_request_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT(create_request_id) DO NOTHING`
     )
     .bind("Handover Shift Pagi → Malam", yesterday, emptyNoteContent, "seed-empty-note-handover", yesterdayCreatedAt, yesterdayAcceptedAt)
     .run();
@@ -176,7 +191,7 @@ async function seedHandoverNotes(db: D1Database) {
   const title = `Handover Shift ${initialHandoverRecord.sourceShift} → ${initialHandoverRecord.targetShift}`;
   await db
     .prepare(
-      `INSERT INTO handover_notes (title, handover_date, content, create_request_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT(create_request_id) DO UPDATE SET content = excluded.content`
+      `INSERT INTO handover_notes (title, handover_date, content, create_request_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT(create_request_id) DO NOTHING`
     )
     .bind(title, date, content, "seed-initial-handover", now, now)
     .run();
@@ -314,7 +329,7 @@ export async function GET(request: Request) {
       AND ${picClause}`;
     const db = getHandoverDb();
 
-    await seedHandoverNotes(db);
+    await seedDemoHandoversOnce(db);
 
     const baseBinds = [
       startDate, startDate, endDate,

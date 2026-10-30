@@ -1,6 +1,6 @@
 import type { CheckpointAssessment, HandoverActor, HandoverDraft, HandoverRecordData, HandoverTask, RosterMember, Ticket } from "./types";
 import { createShiftHandoverDraft, initialHandoverTasks, isOpenTicket, monitoringSchedule, STANDARD_MONITORED_PROJECTS } from "./data";
-import { getNextShiftChange, getShiftInfo, isShiftActiveForMember } from "./shifts";
+import { getNextShiftChange, getShiftInfo, isShiftActiveForMember, type ShiftId } from "./shifts";
 import { ticketCode } from "@/app/lib/ticket-code";
 
 export const emptyHandoverRecord: HandoverRecordData = {
@@ -55,6 +55,9 @@ export function parseHandoverContent(content: string): HandoverRecordData {
       state: task.state as "repeat" | "waiting" | "in-progress",
       completed: task.completed === true,
       ...(task.sourceRef ? { sourceRef: textValue(task.sourceRef, 200) } : {}),
+      // who ticked it and when; dropping these here lost them on the next save of the note
+      ...(task.completed === true && task.confirmedBy ? { confirmedBy: textValue(task.confirmedBy, 500) } : {}),
+      ...(task.completed === true && task.confirmedAt ? { confirmedAt: textValue(task.confirmedAt, 40) } : {}),
     };
   });
   if (new Set(tasks.map((task) => task.id)).size !== tasks.length) throw new HandoverError("ID tugas harus unik.");
@@ -95,6 +98,8 @@ export function validateDraft(draft: HandoverDraft): HandoverRecordData {
   const coverage = [...record.monitoredProjects, ...(record.monitoringExceptions ?? []).map((item) => item.project)].map((p) => p.toLowerCase());
   if (new Set(coverage).size !== coverage.length) throw new HandoverError("Proyek monitoring tidak boleh duplikat atau sekaligus ditandai tidak dimonitor.");
   if (record.monitoringExceptions?.some((item) => !item.project || !item.reason)) throw new HandoverError("Isi alasan untuk setiap proyek yang tidak dimonitor.");
+  // a new or revised note starts unticked: who confirmed a task is never taken from the sender's draft
+  record.tasks = record.tasks.map((task) => ({ ...task, confirmedBy: undefined, confirmedAt: undefined }));
   record.monitoringOwner ||= record.sourcePic;
   record.monitoringSummary ||= "Monitoring belum dicatat.";
   record.validationNote ||= "Menunggu validasi shift penerima.";
@@ -111,6 +116,24 @@ export function canReceiveHandover(record: HandoverRecordData, actor: HandoverAc
     return record.receiverEmail.toLowerCase() === actor.email.toLowerCase();
   }
   return true;
+}
+/** Deleting a note, or a task from its checklist: the sender or the receiver (anyone, when no receiving account is named). */
+export function canDeleteHandover(record: HandoverRecordData, actor: HandoverActor | null) {
+  return canEditHandover(record, actor) || canReceiveHandover(record, actor);
+}
+
+/**
+ * Team rule: whoever hands over or takes over may add and delete a handover and its tasks, i.e. a person scheduled on the handover's
+ * source or target shift. A person on leave may not. A person with no known shift (not scheduled in Master Data, as people from the
+ * backend are) is not held back: their shift cannot be checked. The handover API does not know shifts, so this is checked in the app.
+ */
+export function isInHandoverShift(memberShift: string | null | undefined, record: Pick<HandoverRecordData, "sourceShift" | "targetShift">) {
+  const shift = (memberShift ?? "").toLowerCase();
+  if (!/subuh|pagi|malam|cuti|leave/.test(shift)) return true;
+  return [record.sourceShift, record.targetShift].some((value) => isShiftActiveForMember(shift, value.toLowerCase() as ShiftId));
+}
+export function handoverShiftRuleMessage(record: Pick<HandoverRecordData, "sourceShift" | "targetShift">, what: string) {
+  return `Hanya anggota Shift ${record.sourceShift} atau Shift ${record.targetShift} yang dapat ${what}.`;
 }
 
 export function updateHandoverRecord(record: HandoverRecordData, actor: HandoverActor, action: string, payload: Record<string, unknown>, now = new Date().toISOString()) {
@@ -131,7 +154,7 @@ export function updateHandoverRecord(record: HandoverRecordData, actor: Handover
     }
     auditAction = task.completed ? "task-confirmed" : "task-unconfirmed";
   } else if (action === "delete-task") {
-    if (!canReceiveHandover(record, actor)) throw new HandoverError("Checklist hanya dapat diubah oleh akun penerima yang dituju.", 403);
+    if (!canDeleteHandover(record, actor)) throw new HandoverError("Tugas hanya dapat dihapus oleh pengirim atau akun penerima yang dituju.", 403);
     if (record.acceptance) throw new HandoverError("Handover sudah diterima. Pengirim harus merevisi catatan sebelum checklist dapat diubah.", 409);
     const taskIndex = next.tasks.findIndex((item) => item.id === payload.taskId);
     if (taskIndex === -1) throw new HandoverError("Tugas tidak ditemukan.");
@@ -152,7 +175,13 @@ export function updateHandoverRecord(record: HandoverRecordData, actor: Handover
   } else {
     throw new HandoverError("Aksi handover tidak dikenal.");
   }
-  next.auditTrail = [...(record.auditTrail ?? []), { action: auditAction, actor, at: now, ...(action === "task" || action === "delete-task" ? { taskId: payload.taskId as number } : {}) }];
+  const trail = record.auditTrail ?? [];
+  const last = trail[trail.length - 1];
+  // Ticking a box and unticking it again (same person, same task, nothing in between) changes nothing, so it leaves no audit line. Without
+  // this, clicking one checkbox back and forth grew the note until it hit the size limit and could not be saved any more.
+  const undo = action === "task" && last?.taskId === payload.taskId && last?.actor?.id === actor.id
+    && last?.action === (auditAction === "task-confirmed" ? "task-unconfirmed" : "task-confirmed");
+  next.auditTrail = undo ? trail.slice(0, -1) : [...trail, { action: auditAction, actor, at: now, ...(action === "task" || action === "delete-task" ? { taskId: payload.taskId as number } : {}) }];
   return next;
 }
 

@@ -19,7 +19,7 @@
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "db:generate": "drizzle-kit generate",
     "db:migrate:local": "wrangler d1 migrations apply site-creator-d1 --local --config wrangler.local.json",
-    "test:handover": "node --import ./tests/typescript-loader.mjs --test tests/handover.test.mjs",
+    "test:handover": "node --import ./tests/report-typescript-loader.mjs --test tests/handover-auth.test.mjs tests/handover-record.test.mjs",
     "test:reports": "node --import ./tests/report-typescript-loader.mjs --test tests/weekly-report.test.mjs",
     "typecheck": "tsc --noEmit",
     "test:routing-query": "node --import ./tests/report-typescript-loader.mjs --test tests/routing-query.test.mjs",

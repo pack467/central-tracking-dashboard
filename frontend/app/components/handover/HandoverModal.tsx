@@ -9,7 +9,7 @@ import { ModalCloseButton } from "@/app/components/ui/ModalCloseButton";
 import { ConfirmDialog } from "@/app/components/ui/ConfirmDialog";
 import { Avatar } from "@/app/components/ui/Avatar";
 import { formatHandoverDate, isOpenTicket } from "@/app/lib/data";
-import { canEditHandover, canReceiveHandover } from "@/app/lib/handover";
+import { canDeleteHandover, canEditHandover, canReceiveHandover } from "@/app/lib/handover";
 import { getShiftTagClass } from "@/app/lib/shifts";
 import { severityTone, statusTone } from "@/app/components/tickets/TicketTable";
 import { TaskStatusBadge } from "./TaskStatusBadge";
@@ -98,6 +98,8 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
   const [acceptanceNote, setAcceptanceNote] = useState("");
   const [taskToDelete, setTaskToDelete] = useState<HandoverTask | null>(null);
   const isReceiver = canReceiveHandover(record, actor);
+  // sender or receiver, and on the handover's shifts
+  const canDeleteTask = canDeleteHandover(record, actor) && workflow.canManage(record);
 
   const noteContent = record.notes?.trim() || "";
   const hasNote = Boolean(noteContent);
@@ -442,8 +444,8 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
                             type="button"
                             className="inline-flex min-h-[30px] items-center justify-center gap-1.5 rounded-md border border-red-500/30 bg-red-500/10 px-3 text-[11.5px] font-bold text-red-300 transition-colors duration-150 hover:not-disabled:border-red-400 hover:not-disabled:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-40"
                             onClick={() => setTaskToDelete(task)}
-                            disabled={busy || !isReceiver || Boolean(record.acceptance)}
-                            title="Hapus tugas dari handover"
+                            disabled={busy || !canDeleteTask || Boolean(record.acceptance)}
+                            title={canDeleteTask ? "Hapus tugas dari handover" : `Hanya pengirim atau penerima dari Shift ${record.sourceShift} / ${record.targetShift} yang dapat menghapus tugas`}
                             aria-label="Hapus tugas"
                           >
                             <Trash2 size={13} aria-hidden="true" />
