@@ -25,12 +25,6 @@ import {
   initialHandoverRecord,
   toDateInputValue,
 } from "@/app/lib/data";
-import {
-  seedSopEntries,
-  seedCredentials,
-  seedQuickLinks,
-  seedEscalationContacts,
-} from "@/app/lib/runbooksData";
 import type { Ticket, StoredHandoverRecord, RosterMember } from "@/app/lib/types";
 import { masterRepository } from "./master-data-repository";
 import { peopleToRosterMembers } from "@/app/lib/people-roster";
@@ -178,15 +172,6 @@ export const mockAdapter = {
       const data = masterRepository.snapshot();
       return peopleToRosterMembers(data.people || [], data.roles || []);
     }, signal);
-  },
-
-  async getRunbooksData(signal?: AbortSignal) {
-    return simulateLatency(() => ({
-      sops: seedSopEntries,
-      credentials: seedCredentials,
-      quickLinks: seedQuickLinks,
-      escalations: seedEscalationContacts,
-    }), signal);
   },
 
   // ── Master Data: Clients ──

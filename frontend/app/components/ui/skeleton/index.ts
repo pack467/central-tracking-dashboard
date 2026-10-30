@@ -16,5 +16,4 @@ export * from "./MonitoringScheduleSkeleton";
 export * from "./ShiftLogSkeleton";
 export * from "./ReportsSkeleton";
 export * from "./TeamRosterSkeleton";
-export * from "./RunbooksSkeleton";
 export * from "./MasterDataSkeleton";

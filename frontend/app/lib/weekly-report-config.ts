@@ -29,7 +29,7 @@ export const DEFAULT_REPORT_CONFIG: ReportConfig = {
     ERICA: "EPC Tools", "Activity - USIEM": "USIEM", "Activity - SM": "SM",
     "Activity - APH": "APH", "Activity - B2B": "B2B", "SM/ActiveMQ": "SM",
   },
-  severity_map: { Medium: "Med", Med: "Med", Low: "Low", High: "High", Critical: "Critical" },
+  severity_map: { Medium: "Med", Med: "Med", Low: "Low", High: "High", Critical: "High" },
   show_empty_projects: false,
   show_footnotes: false,
   show_footer_period: false,

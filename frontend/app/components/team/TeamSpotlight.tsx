@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { safeExternalUrl, safeMailto } from "@/app/lib/safe-url";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -159,9 +160,9 @@ export function TeamSpotlight({
 
             {/* Social / Contact Icons */}
             <div className="flex items-center gap-2.5 my-3 flex-wrap justify-center lg:justify-start">
-              {currentMember.social.email && (
+              {safeMailto(currentMember.social.email) && (
                 <a
-                  href={`mailto:${currentMember.social.email}`}
+                  href={safeMailto(currentMember.social.email)}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium text-slate-300 bg-slate-800/80 border border-slate-700/80 hover:bg-slate-700 hover:text-white transition-colors"
                   title={`Email ${currentMember.social.email}`}
                 >
@@ -170,9 +171,9 @@ export function TeamSpotlight({
                 </a>
               )}
 
-              {currentMember.social.linkedin && (
+              {safeExternalUrl(currentMember.social.linkedin) && (
                 <a
-                  href={currentMember.social.linkedin}
+                  href={safeExternalUrl(currentMember.social.linkedin)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium text-slate-300 bg-slate-800/80 border border-slate-700/80 hover:bg-slate-700 hover:text-white transition-colors"
@@ -184,9 +185,9 @@ export function TeamSpotlight({
                 </a>
               )}
 
-              {currentMember.social.github && (
+              {safeExternalUrl(currentMember.social.github) && (
                 <a
-                  href={currentMember.social.github}
+                  href={safeExternalUrl(currentMember.social.github)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium text-slate-300 bg-slate-800/80 border border-slate-700/80 hover:bg-slate-700 hover:text-white transition-colors"

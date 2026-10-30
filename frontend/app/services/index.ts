@@ -4,6 +4,5 @@ export * from "./dashboard";
 export * from "./monitoring";
 export * from "./shift-log";
 export * from "./roster";
-export * from "./runbooks";
 export * from "./reports";
 export * from "./master-data";

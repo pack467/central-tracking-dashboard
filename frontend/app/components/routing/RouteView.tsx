@@ -8,7 +8,6 @@ import {
   ShiftLogSkeleton,
   ReportsSkeleton,
   TeamRosterSkeleton,
-  RunbooksSkeleton,
   MasterDataSkeleton,
 } from '@/app/components/ui/skeleton';
 
@@ -20,7 +19,6 @@ const ReportsView = lazy(() => import('../views/ReportsView').then(m => ({ defau
 const TeamRosterView = lazy(() => import('../views/TeamRosterView').then(m => ({ default: m.TeamRosterView })));
 const ProfileView = lazy(() => import('../views/ProfileView').then(m => ({ default: m.ProfileView })));
 const NotificationsView = lazy(() => import('../views/NotificationsView').then(m => ({ default: m.NotificationsView })));
-const RunbooksView = lazy(() => import('../views/RunbooksView').then(m => ({ default: m.RunbooksView })));
 const MasterDataView = lazy(() => import('../views/MasterDataView').then(m => ({ default: m.MasterDataView })));
 
 function getSkeletonForPage(page: Parameters<typeof RouteView>[0]['page']) {
@@ -37,8 +35,6 @@ function getSkeletonForPage(page: Parameters<typeof RouteView>[0]['page']) {
       return <ReportsSkeleton />;
     case 'teamRoster':
       return <TeamRosterSkeleton />;
-    case 'runbooks':
-      return <RunbooksSkeleton />;
     case 'masterData':
       return <MasterDataSkeleton />;
     default:
@@ -46,7 +42,7 @@ function getSkeletonForPage(page: Parameters<typeof RouteView>[0]['page']) {
   }
 }
 
-export function RouteView({ page }: { page: 'overview' | 'tickets' | 'monitoring' | 'shiftLog' | 'reports' | 'teamRoster' | 'profile' | 'notifications' | 'runbooks' | 'masterData' }) {
+export function RouteView({ page }: { page: 'overview' | 'tickets' | 'monitoring' | 'shiftLog' | 'reports' | 'teamRoster' | 'profile' | 'notifications' | 'masterData' }) {
   // vinext resolves the SSR page subtree ahead of the client shell. Match the
   // hydration snapshot with a skeleton, then consume the mounted shell context.
   const mounted = useSyncExternalStore(subscribe, () => true, () => false);
@@ -60,15 +56,14 @@ function MountedRouteView({ page }: { page: Parameters<typeof RouteView>[0]['pag
 
   return (
     <Suspense fallback={fallback}>
-      {page === 'overview' && <OverviewView tickets={d.clientTickets} allTickets={d.tickets} onGoToTickets={() => d.handleNavigate('Tickets')} />}
-      {page === 'tickets' && <TicketsView tickets={d.clientTickets} onSelectTicket={d.selectTicket} onNewTicket={d.openTicketCreate} />}
+      {page === 'overview' && <OverviewView tickets={d.clientTickets} allTickets={d.tickets} onGoToTickets={() => d.handleNavigate('Tickets')} assessments={d.assessments} />}
+      {page === 'tickets' && <TicketsView tickets={d.clientTickets} onSelectTicket={d.selectTicket} onNewTicket={d.ticketWritable ? d.openTicketCreate : undefined} />}
       {page === 'monitoring' && <MonitoringView assessments={d.assessments} onAssess={d.handleAssess} onRequestNote={d.setPendingNoteKey} onUpdateNote={d.handleUpdateNote} onOpenGuide={() => d.setGuideOpen(true)} currentHour={d.currentHour} />}
       {page === 'shiftLog' && <ShiftLogView workflow={d.handover} />}
       {page === 'reports' && <ReportsView tickets={d.clientTickets} assessments={d.assessments} handoverCount={d.handover.allTotal} />}
       {page === 'teamRoster' && <TeamRosterView members={d.members} onMembersChange={d.setMembers} />}
       {page === 'profile' && <ProfileView />}
       {page === 'notifications' && <NotificationsView />}
-      {page === 'runbooks' && <RunbooksView />}
       {page === 'masterData' && <MasterDataView />}
     </Suspense>
   );

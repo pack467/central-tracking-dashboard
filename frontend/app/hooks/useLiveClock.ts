@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { wibMsOfDay, wibParts } from "@/app/lib/wib";
 import {
   getNextShiftChange,
   getShiftInfo,
@@ -41,14 +42,16 @@ const DAYS_ID = [
 ];
 
 function getClockState(date: Date = new Date()): LiveClockState {
-  const hours = String(date.getHours()).padStart(2, "0");
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-  const seconds = String(date.getSeconds()).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = MONTHS_ID[date.getMonth()];
-  const monthShort = MONTHS_SHORT_ID[date.getMonth()];
-  const year = date.getFullYear();
-  const dayName = DAYS_ID[date.getDay()];
+  // the WIB wall clock, not the device's
+  const wib = wibParts(date);
+  const hours = String(wib.hours).padStart(2, "0");
+  const minutes = String(wib.minutes).padStart(2, "0");
+  const seconds = String(wib.seconds).padStart(2, "0");
+  const day = String(wib.day).padStart(2, "0");
+  const month = MONTHS_ID[wib.month - 1];
+  const monthShort = MONTHS_SHORT_ID[wib.month - 1];
+  const year = wib.year;
+  const dayName = DAYS_ID[wib.weekday];
 
   return {
     time: `${hours}:${minutes}:${seconds}`,
@@ -79,7 +82,7 @@ export function useLiveClock(): LiveClockState | null {
 }
 
 function getCurrentHour(date: Date = new Date()) {
-  return `${String(date.getHours()).padStart(2, "0")}:00`;
+  return `${String(wibParts(date).hours).padStart(2, "0")}:00`;
 }
 
 /**
@@ -95,7 +98,7 @@ export function useCurrentHour() {
     const scheduleNextUpdate = () => {
       const now = new Date();
       setHour(getCurrentHour(now));
-      const delay = 3_600_000 - (now.getMinutes() * 60_000 + now.getSeconds() * 1_000 + now.getMilliseconds()) + 20;
+      const delay = 3_600_000 - (wibMsOfDay(now) % 3_600_000) + 20;
       timeoutId = setTimeout(scheduleNextUpdate, delay);
     };
 

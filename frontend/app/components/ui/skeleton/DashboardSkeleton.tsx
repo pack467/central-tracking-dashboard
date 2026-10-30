@@ -259,7 +259,7 @@ export function CategoryDistributionSkeleton() {
 
 /**
  * 8. Distribusi Berdasarkan Severity Skeleton
- * Donut severity di kiri + 4 kartu Critical/High/Medium/Low di kanan
+ * Donut severity di kiri + 3 kartu High/Medium/Low di kanan
  */
 export function SeverityDistributionSkeleton() {
   return (
@@ -271,7 +271,7 @@ export function SeverityDistributionSkeleton() {
 
       {/* 4 Severity Cards */}
       <div className="grid grid-cols-2 gap-2.5 w-full h-full">
-        {["Critical", "High", "Medium", "Low"].map((sev, idx) => (
+        {["High", "Medium", "Low"].map((sev, idx) => (
           <div
             key={sev}
             className="p-3 rounded-lg bg-[#0f172a]/30 border border-[#334155] border-l-[3px] border-l-slate-600 flex flex-col justify-between min-h-[75px]"

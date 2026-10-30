@@ -10,6 +10,7 @@ import type {
   Ticket,
 } from "./types";
 import { getNextShiftChange, getShiftInfo } from "./shifts.ts";
+import { addDaysToDateString, weekdayOfDateString, wibClockLabel, wibDateString } from "./wib.ts";
 
 export const projects: ProjectHealthEntry[] = [
   { name: "SM", status: "Needs Attention", detail: "1 pengecualian", tone: "warning" },
@@ -796,7 +797,7 @@ export const seedTickets: Ticket[] = [
     id: "86d40esc1",
     subject: "[USIEM] Latency Spike pada Kafka SIEM Pipeline",
     project: "USIEM",
-    severity: "Critical",
+    severity: "High",
     type: "Escalation",
     category: "Escalation Handling",
     owner: "Mhd. Galih Khairi",
@@ -1110,7 +1111,7 @@ export const seedTickets: Ticket[] = [
     id: "86d40dm04",
     subject: "[MB] Rate-limiting throttling partner webhook",
     project: "MB",
-    severity: "Critical",
+    severity: "High",
     type: "Incident",
     category: "Incident & Issue Handling",
     owner: "Mhd. Galih Khairi",
@@ -1226,7 +1227,7 @@ export const seedTickets: Ticket[] = [
     id: "86d40dm11",
     subject: "[B2B] Penanganan timeout koneksi API ISO8583",
     project: "B2B",
-    severity: "Critical",
+    severity: "High",
     type: "Incident",
     category: "Incident & Issue Handling",
     owner: "Pangondion Kurniawan Naibaho",
@@ -1409,7 +1410,7 @@ export const seedTickets: Ticket[] = [
     id: "86d40dm22",
     subject: "[USIEM] Alert anomali traffic outbound DNS tunneling",
     project: "USIEM",
-    severity: "Critical",
+    severity: "High",
     type: "Incident",
     category: "Incident & Issue Handling",
     owner: "Mhd. Galih Khairi",
@@ -1663,7 +1664,7 @@ export const seedTickets: Ticket[] = [
     id: "86d40esc2",
     subject: "[EPC Tools] Memory Leak pada Catalog Service Pods",
     project: "EPC Tools",
-    severity: "Critical",
+    severity: "High",
     type: "Escalation",
     category: "Escalation Handling",
     owner: "Muhammad Ihsanul Arifin",
@@ -1820,7 +1821,7 @@ export const seedTickets: Ticket[] = [
     id: "86d4027a1",
     subject: "[SM] Upstream Telco SS7 Gateway Timeouts",
     project: "SM",
-    severity: "Critical",
+    severity: "High",
     type: "Incident",
     category: "Incident & Issue Handling",
     owner: "Pangondion Kurniawan Naibaho",
@@ -2012,7 +2013,7 @@ export const seedTickets: Ticket[] = [
     id: "86d40sep01",
     subject: "[USIEM] Lonjakan Event Ingestion Log SIEM Node 3",
     project: "USIEM",
-    severity: "Critical",
+    severity: "High",
     type: "Escalation",
     category: "Escalation Handling",
     owner: "Mhd. Galih Khairi",
@@ -2074,7 +2075,7 @@ export const seedTickets: Ticket[] = [
     id: "86d40sep04",
     subject: "[B2B] Throttling Request API Gateway Transaksi Mitra",
     project: "B2B",
-    severity: "Critical",
+    severity: "High",
     type: "Escalation",
     category: "Escalation Handling",
     owner: "Muhammad Ihsanul Arifin",
@@ -2212,7 +2213,7 @@ export const seedTickets: Ticket[] = [
     id: "86d40sep11",
     subject: "[SM] Antrian Pesan Tertunda pada Broker SM-Broker-02",
     project: "SM",
-    severity: "Critical",
+    severity: "High",
     type: "Escalation",
     category: "Escalation Handling",
     owner: "Mhd. Galih Khairi",
@@ -2350,7 +2351,7 @@ export const seedTickets: Ticket[] = [
     id: "86d40sep18",
     subject: "[SM] Koreksi Routing Tabel BGP Transit Telekomunikasi",
     project: "SM",
-    severity: "Critical",
+    severity: "High",
     type: "Escalation",
     category: "Escalation Handling",
     owner: "Agnes Siahaan",
@@ -2448,7 +2449,7 @@ export const seedTickets: Ticket[] = [
     id: "86d40sep23",
     subject: "[USIEM] Eskalasi Temuan Keamanan Brute Force Akun Privileged",
     project: "USIEM",
-    severity: "Critical",
+    severity: "High",
     type: "Escalation",
     category: "Escalation Handling",
     owner: "Agnes Siahaan",
@@ -2591,7 +2592,8 @@ export const projectHealthWeekly = [
   { project: "UNEM", days: [100, 98, 100, 100, 99, 100, 100] },
 ];
 
-export function toDateInputValue(date = new Date()) {
+export function toDateInputValue(date?: Date) {
+  if (!date) return wibDateString();
   const timezoneOffset = date.getTimezoneOffset() * 60000;
   return new Date(date.getTime() - timezoneOffset).toISOString().slice(0, 10);
 }
@@ -2604,8 +2606,7 @@ export function formatHandoverDate(value: string) {
 }
 
 export function nowClockLabel() {
-  const now = new Date();
-  return `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+  return wibClockLabel();
 }
 
 export function makeTicketId() {
@@ -2672,6 +2673,8 @@ export function initials(name: string | null | undefined) {
  * Unifies the fragmented status checks scattered across the codebase.
  */
 export function isOpenTicket(ticket: Ticket): boolean {
+  // A ticket with a completion time is finished whatever its status says (imported Activity/Meeting tickets keep their status)
+  if (ticket.isStillOpen === false) return false;
   const s = ticket.status.toLowerCase();
   return (
     s === "active" ||
@@ -2696,30 +2699,19 @@ export function safeAverage(values: number[]): number {
 
 /** Returns today's date in YYYY-MM-DD format, pinned to WIB (UTC+7). */
 export function getTodayWIB(): string {
-  const now = new Date();
-  // Convert to WIB by adding UTC+7 offset
-  const wibMs = now.getTime() + (7 * 60 + now.getTimezoneOffset()) * 60_000;
-  const wib = new Date(wibMs);
-  return wib.toISOString().slice(0, 10);
+  return wibDateString();
 }
 
 /** Returns yesterday's date in YYYY-MM-DD, pinned to WIB. */
 export function getYesterdayWIB(): string {
-  const now = new Date();
-  const wibMs = now.getTime() + (7 * 60 + now.getTimezoneOffset()) * 60_000;
-  const wib = new Date(wibMs - 86_400_000);
-  return wib.toISOString().slice(0, 10);
+  return addDaysToDateString(getTodayWIB(), -1);
 }
 
 /** Returns start of current ISO week (Monday) in YYYY-MM-DD, pinned to WIB. */
 export function getStartOfWeekWIB(): string {
-  const now = new Date();
-  const wibMs = now.getTime() + (7 * 60 + now.getTimezoneOffset()) * 60_000;
-  const wib = new Date(wibMs);
-  const day = wib.getDay(); // 0=Sun
-  const diff = day === 0 ? 6 : day - 1; // Monday=0
-  wib.setDate(wib.getDate() - diff);
-  return wib.toISOString().slice(0, 10);
+  const today = getTodayWIB();
+  const day = weekdayOfDateString(today); // 0=Sun
+  return addDaysToDateString(today, -(day === 0 ? 6 : day - 1)); // Monday=0
 }
 
 /** Returns start of current month in YYYY-MM-DD, pinned to WIB. */
@@ -2730,21 +2722,12 @@ export function getStartOfMonthWIB(): string {
 
 /** Returns start of previous ISO week (Monday) in YYYY-MM-DD. */
 export function getStartOfLastWeekWIB(): string {
-  const now = new Date();
-  const wibMs = now.getTime() + (7 * 60 + now.getTimezoneOffset()) * 60_000;
-  const wib = new Date(wibMs);
-  const day = wib.getDay();
-  const diff = day === 0 ? 6 : day - 1;
-  wib.setDate(wib.getDate() - diff - 7);
-  return wib.toISOString().slice(0, 10);
+  return addDaysToDateString(getStartOfWeekWIB(), -7);
 }
 
 /** Returns end of previous ISO week (Sunday) in YYYY-MM-DD. */
 export function getEndOfLastWeekWIB(): string {
-  const start = getStartOfLastWeekWIB();
-  const d = new Date(start + "T00:00:00");
-  d.setDate(d.getDate() + 6);
-  return d.toISOString().slice(0, 10);
+  return addDaysToDateString(getStartOfLastWeekWIB(), 6);
 }
 
 /** Returns YYYY-MM prefix for last month, pinned to WIB. */
@@ -2764,7 +2747,7 @@ export const seedRosterMembers: RosterMember[] = [
     role: "Operator NOC",
     employeeId: "EMP-1001",
     email: "galih.khairi@company.id",
-    phone: "+62 812-3456-7890",
+    phone: "+62 811-0000-0010",
     currentShift: "Shift Malam (16:00–00:30 WIB)",
     status: "Active",
     joinDate: "15 Jan 2024",
@@ -2797,7 +2780,7 @@ export const seedRosterMembers: RosterMember[] = [
     role: "Shift Lead",
     employeeId: "EMP-1002",
     email: "pangondion.k@company.id",
-    phone: "+62 813-8877-6655",
+    phone: "+62 811-0000-0095",
     currentShift: "Shift Malam (16:00–00:30 WIB)",
     status: "Active",
     joinDate: "01 Mar 2023",
@@ -2828,7 +2811,7 @@ export const seedRosterMembers: RosterMember[] = [
     role: "L2 Specialist",
     employeeId: "EMP-1003",
     email: "ihsanul.arifin@company.id",
-    phone: "+62 819-9011-2233",
+    phone: "+62 811-0000-0103",
     currentShift: "Shift Malam (16:00–00:30 WIB)",
     status: "Active",
     joinDate: "10 Feb 2024",
@@ -2858,7 +2841,7 @@ export const seedRosterMembers: RosterMember[] = [
     role: "Operator NOC",
     employeeId: "EMP-1004",
     email: "kristina.marbun@company.id",
-    phone: "+62 856-1122-3344",
+    phone: "+62 811-0000-0114",
     currentShift: "Shift Malam (16:00–00:30 WIB)",
     status: "On Break",
     joinDate: "20 Jun 2023",
@@ -2888,7 +2871,7 @@ export const seedRosterMembers: RosterMember[] = [
     role: "Incident Coordinator",
     employeeId: "EMP-1005",
     email: "pedro.hutagaol@company.id",
-    phone: "+62 811-2233-4455",
+    phone: "+62 811-0000-0125",
     currentShift: "Shift Malam (16:00–00:30 WIB)",
     status: "Active",
     joinDate: "12 Oct 2022",
@@ -2917,7 +2900,7 @@ export const seedRosterMembers: RosterMember[] = [
     role: "Shift Lead",
     employeeId: "EMP-1006",
     email: "agnes.siahaan@company.id",
-    phone: "+62 817-4455-6677",
+    phone: "+62 811-0000-0137",
     currentShift: "Shift Pagi (08:00–16:30 WIB)",
     status: "Active",
     joinDate: "05 May 2024",
@@ -2946,7 +2929,7 @@ export const seedRosterMembers: RosterMember[] = [
     role: "Incident Coordinator",
     employeeId: "EMP-1007",
     email: "tahan.nadeak@company.id",
-    phone: "+62 821-3344-5566",
+    phone: "+62 811-0000-0146",
     currentShift: "Shift Pagi (08:00–16:30 WIB)",
     status: "Active",
     joinDate: "18 Aug 2023",
@@ -2975,7 +2958,7 @@ export const seedRosterMembers: RosterMember[] = [
     role: "Operator NOC",
     employeeId: "EMP-1008",
     email: "yuha.simbolon@company.id",
-    phone: "+62 857-7788-9900",
+    phone: "+62 811-0000-0150",
     currentShift: "Shift Pagi (08:00–16:30 WIB)",
     status: "Active",
     joinDate: "01 Jul 2024",
@@ -3004,7 +2987,7 @@ export const seedRosterMembers: RosterMember[] = [
     role: "Infrastructure Engineer",
     employeeId: "EMP-1009",
     email: "nicholas.putra@company.id",
-    phone: "+62 812-7711-2233",
+    phone: "+62 811-0000-0163",
     currentShift: "Shift Pagi (08:00–16:30 WIB)",
     status: "Active",
     joinDate: "15 Aug 2024",
@@ -3027,7 +3010,7 @@ export const seedRosterMembers: RosterMember[] = [
     role: "L2 Specialist",
     employeeId: "EMP-1010",
     email: "ade.damanik@company.id",
-    phone: "+62 813-9988-7766",
+    phone: "+62 811-0000-0176",
     currentShift: "Shift Pagi (08:00–16:30 WIB)",
     status: "Active",
     joinDate: "04 Jan 2023",
@@ -3050,7 +3033,7 @@ export const seedRosterMembers: RosterMember[] = [
     role: "Shift Lead",
     employeeId: "EMP-1011",
     email: "natanael.tambun@company.id",
-    phone: "+62 818-2233-4455",
+    phone: "+62 811-0000-0185",
     currentShift: "Shift Subuh (00:00–08:30 WIB)",
     status: "Off Duty",
     joinDate: "10 Jun 2024",
@@ -3073,7 +3056,7 @@ export const seedRosterMembers: RosterMember[] = [
     role: "Operator NOC",
     employeeId: "EMP-1012",
     email: "andri.sigiro@company.id",
-    phone: "+62 811-3344-5566",
+    phone: "+62 811-0000-0086",
     currentShift: "Shift Subuh (00:00–08:30 WIB)",
     status: "Off Duty",
     joinDate: "12 Nov 2022",
@@ -3096,7 +3079,7 @@ export const seedRosterMembers: RosterMember[] = [
     role: "Infrastructure Engineer",
     employeeId: "EMP-1013",
     email: "dimas.yudistira@company.id",
-    phone: "+62 856-7788-9911",
+    phone: "+62 811-0000-0191",
     currentShift: "Shift Subuh (00:00–08:30 WIB)",
     status: "Off Duty",
     joinDate: "18 Sep 2023",
@@ -3119,7 +3102,7 @@ export const seedRosterMembers: RosterMember[] = [
     role: "Operator NOC",
     employeeId: "EMP-1014",
     email: "tennov.pakpahan@company.id",
-    phone: "+62 817-6677-8899",
+    phone: "+62 811-0000-0209",
     currentShift: "Cuti Tahunan (On Leave)",
     status: "On Leave",
     joinDate: "20 May 2024",

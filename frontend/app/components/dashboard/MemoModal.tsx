@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { copyTextToClipboard } from "@/app/lib/copy-text";
 import { createPortal } from "react-dom";
 import { AlertTriangle, Check, Copy, StickyNote, X } from "lucide-react";
 import { useToast } from "@/app/components/ui/Toast";
@@ -141,11 +142,12 @@ export function MemoModal({ isOpen, onClose }: Props) {
   const saveAndClose = () => { save(); finishClose(); };
 
   const copyText = useCallback((text: string) => {
-    void navigator.clipboard?.writeText(text).then(() => {
+    void copyTextToClipboard(text).then(copied => {
+      if (!copied) { notify.warning("Tidak dapat menyalin ke clipboard.", { id: "memo-copy-failed" }); return; }
       setCopied(true);
       window.setTimeout(() => setCopied(false), 1600);
       notify.success("Tersalin", { id: "memo-copied" });
-    }).catch(() => notify.warning("Tidak dapat menyalin ke clipboard.", { id: "memo-copy-failed" }));
+    });
   }, [notify]);
   const docOf = (id: string) => drafts[id] ?? notes.find(note => note.id === id)?.doc;
 

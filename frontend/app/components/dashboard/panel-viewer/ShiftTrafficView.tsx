@@ -4,6 +4,16 @@ import { useMemo } from "react";
 import { Sun, Sunset, Moon } from "lucide-react";
 import { useContainerDimensions } from "@/app/hooks/useContainerDimensions";
 import { ChartTooltip, TooltipHeader, TooltipRow, useChartHover } from "./chart-tooltip";
+import { GranularityTag } from "./GranularityTag";
+import { shiftDefinitions } from "@/app/lib/shifts";
+import { axisLabelStride, bucketAxisLabel, bucketKeyOf, bucketRanges, bucketTitle, chooseGranularity, maxPointsFor, showAxisLabel, type VolumeGranularity } from "@/app/lib/volume-buckets";
+
+/** "08:00–16:30": the hours of each shift as the rest of the app defines them. */
+const shiftHours = {
+  pagi: shiftDefinitions.pagi.period.replace(" WIB", "").replace(/\s/g, ""),
+  malam: shiftDefinitions.malam.period.replace(" WIB", "").replace(/\s/g, ""),
+  subuh: shiftDefinitions.subuh.period.replace(" WIB", "").replace(/\s/g, ""),
+};
 
 interface MultiLinePoint {
   date: string;
@@ -69,7 +79,6 @@ export function ShiftTrafficView({
   const subuhPct = Math.round((subuhTotal / grand) * 100);
 
   // Dynamic geometry (ResizeObserver, zero letterbox)
-  const n = multiLineSeries.length;
   const width = Math.max(dimensions.width || 800, 640);
   const height = Math.max(dimensions.height || 420, 320);
 
@@ -83,53 +92,73 @@ export function ShiftTrafficView({
 
   const baselineY = height - marginBottom;
 
+  // One point per day while each gets 28 px; longer ranges are summed per week or month (lib/volume-buckets.ts). The table stays per day.
+  const firstDate = multiLineSeries[0]?.date ?? "";
+  const lastDate = multiLineSeries[multiLineSeries.length - 1]?.date ?? "";
+  const datesAreDays = /^\d{4}-\d{2}-\d{2}$/.test(firstDate) && /^\d{4}-\d{2}-\d{2}$/.test(lastDate);
+  const granularity: VolumeGranularity = datesAreDays ? chooseGranularity(firstDate, lastDate, maxPointsFor(plotWidth, 28)) ?? "month" : "day";
+  const chartSeries = useMemo(() => {
+    if (!datesAreDays || granularity === "day") return multiLineSeries.map((item) => ({ ...item, to: item.date }));
+    const buckets = bucketRanges(firstDate, lastDate, granularity).map((range) => ({ ...range, subuh: 0, pagi: 0, malam: 0, total: 0 }));
+    const byKey = new Map(buckets.map((bucket) => [bucket.date, bucket]));
+    for (const day of multiLineSeries) {
+      const bucket = byKey.get(bucketKeyOf(day.date, granularity, firstDate));
+      if (!bucket) continue;
+      bucket.subuh += day.subuh; bucket.pagi += day.pagi; bucket.malam += day.malam; bucket.total += day.total;
+    }
+    return buckets;
+  }, [multiLineSeries, datesAreDays, granularity, firstDate, lastDate]);
+  const rangeDays = datesAreDays ? bucketRanges(firstDate, lastDate, "day").length : multiLineSeries.length;
+  const n = chartSeries.length;
+
   const maxVal = useMemo(() => {
     let max = 0;
-    for (const p of multiLineSeries) {
+    for (const p of chartSeries) {
       if (activeLineFilter === "all") max = Math.max(max, p.subuh, p.pagi, p.malam);
       else if (activeLineFilter === "Pagi") max = Math.max(max, p.pagi);
       else if (activeLineFilter === "Malam") max = Math.max(max, p.malam);
       else if (activeLineFilter === "Subuh") max = Math.max(max, p.subuh);
     }
     return Math.max(max, 4);
-  }, [multiLineSeries, activeLineFilter]);
+  }, [chartSeries, activeLineFilter]);
 
   const stepVal = Math.max(1, Math.ceil(maxVal / 4));
   const yMax = stepVal * 4;
   const yTicks = [0, stepVal, stepVal * 2, stepVal * 3, yMax];
 
   const stepX = n > 1 ? plotWidth / (n - 1) : plotWidth / 2;
+  const labelStride = axisLabelStride(stepX, granularity);
 
   const pointsPagi = useMemo(() => {
-    return multiLineSeries.map((item, idx) => ({
+    return chartSeries.map((item, idx) => ({
       x: Math.round(marginLeft + (n > 1 ? idx * stepX : plotWidth / 2)),
       y: Math.round(baselineY - (item.pagi / yMax) * plotHeight),
       val: item.pagi,
     }));
-  }, [multiLineSeries, n, stepX, marginLeft, plotWidth, baselineY, yMax, plotHeight]);
+  }, [chartSeries, n, stepX, marginLeft, plotWidth, baselineY, yMax, plotHeight]);
 
   const pointsMalam = useMemo(() => {
-    return multiLineSeries.map((item, idx) => ({
+    return chartSeries.map((item, idx) => ({
       x: Math.round(marginLeft + (n > 1 ? idx * stepX : plotWidth / 2)),
       y: Math.round(baselineY - (item.malam / yMax) * plotHeight),
       val: item.malam,
     }));
-  }, [multiLineSeries, n, stepX, marginLeft, plotWidth, baselineY, yMax, plotHeight]);
+  }, [chartSeries, n, stepX, marginLeft, plotWidth, baselineY, yMax, plotHeight]);
 
   const pointsSubuh = useMemo(() => {
-    return multiLineSeries.map((item, idx) => ({
+    return chartSeries.map((item, idx) => ({
       x: Math.round(marginLeft + (n > 1 ? idx * stepX : plotWidth / 2)),
       y: Math.round(baselineY - (item.subuh / yMax) * plotHeight),
       val: item.subuh,
     }));
-  }, [multiLineSeries, n, stepX, marginLeft, plotWidth, baselineY, yMax, plotHeight]);
+  }, [chartSeries, n, stepX, marginLeft, plotWidth, baselineY, yMax, plotHeight]);
 
   const pathPagi = pointsPagi.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ");
   const pathMalam = pointsMalam.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ");
   const pathSubuh = pointsSubuh.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ");
 
   const { svg: chartSvg, bindSvg, svgProps, index: hoveredIdx } = useChartHover({ xs: pointsPagi.map((p) => p.x), viewWidth: width, resetKey: `${mode}|${activeLineFilter}|${n}` });
-  const hoveredItem = hoveredIdx !== null ? multiLineSeries[hoveredIdx] ?? null : null;
+  const hoveredItem = hoveredIdx !== null ? chartSeries[hoveredIdx] ?? null : null;
   const hoveredX = hoveredIdx !== null ? pointsPagi[hoveredIdx]?.x ?? null : null;
 
   if (multiLineSeries.length === 0 || grandTotal === 0) {
@@ -147,7 +176,7 @@ export function ShiftTrafficView({
         <div className="h-[60px] px-3.5 py-2 rounded-xl bg-slate-900/70 border border-slate-700/60 flex flex-col justify-center shadow-sm">
           <span className="text-[11px] font-mono uppercase tracking-[0.06em] text-slate-400 flex items-center gap-1.5">
             <Sun size={12} className="text-amber-400" />
-            SHIFT PAGI (07:00-15:30)
+            SHIFT PAGI ({shiftHours.pagi})
           </span>
           <div className="text-[20px] font-mono font-bold text-amber-400 tabular-nums leading-tight flex items-baseline gap-1.5">
             {pagiTotal} <span className="text-xs font-normal text-slate-400">tiket ({pagiPct}%)</span>
@@ -156,20 +185,20 @@ export function ShiftTrafficView({
 
         <div className="h-[60px] px-3.5 py-2 rounded-xl bg-slate-900/70 border border-slate-700/60 flex flex-col justify-center shadow-sm">
           <span className="text-[11px] font-mono uppercase tracking-[0.06em] text-slate-400 flex items-center gap-1.5">
-            <Sunset size={12} className="text-sky-400" />
-            SHIFT MALAM (15:00-23:30)
+            <Sunset size={12} className="text-purple-400" />
+            SHIFT MALAM ({shiftHours.malam})
           </span>
-          <div className="text-[20px] font-mono font-bold text-sky-400 tabular-nums leading-tight flex items-baseline gap-1.5">
+          <div className="text-[20px] font-mono font-bold text-purple-400 tabular-nums leading-tight flex items-baseline gap-1.5">
             {malamTotal} <span className="text-xs font-normal text-slate-400">tiket ({malamPct}%)</span>
           </div>
         </div>
 
         <div className="h-[60px] px-3.5 py-2 rounded-xl bg-slate-900/70 border border-slate-700/60 flex flex-col justify-center shadow-sm">
           <span className="text-[11px] font-mono uppercase tracking-[0.06em] text-slate-400 flex items-center gap-1.5">
-            <Moon size={12} className="text-indigo-400" />
-            SHIFT SUBUH (23:00-07:30)
+            <Moon size={12} className="text-sky-400" />
+            SHIFT SUBUH ({shiftHours.subuh})
           </span>
-          <div className="text-[20px] font-mono font-bold text-indigo-400 tabular-nums leading-tight flex items-baseline gap-1.5">
+          <div className="text-[20px] font-mono font-bold text-sky-400 tabular-nums leading-tight flex items-baseline gap-1.5">
             {subuhTotal} <span className="text-xs font-normal text-slate-400">tiket ({subuhPct}%)</span>
           </div>
         </div>
@@ -207,7 +236,8 @@ export function ShiftTrafficView({
           })}
         </div>
 
-        <div className="flex items-center gap-4 text-xs font-mono">
+        <div className="flex items-center gap-4 flex-wrap text-xs font-mono">
+          {datesAreDays && <span className="hidden sm:inline-flex"><GranularityTag granularity={granularity} days={rangeDays} /></span>}
           {(activeLineFilter === "all" || activeLineFilter === "Pagi") && (
             <span className="inline-flex items-center gap-1.5 text-amber-400">
               <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
@@ -215,14 +245,14 @@ export function ShiftTrafficView({
             </span>
           )}
           {(activeLineFilter === "all" || activeLineFilter === "Malam") && (
-            <span className="inline-flex items-center gap-1.5 text-sky-400">
-              <span className="w-2.5 h-2.5 rounded-full bg-sky-400" />
+            <span className="inline-flex items-center gap-1.5 text-purple-400">
+              <span className="w-2.5 h-2.5 rounded-full bg-purple-400" />
               Malam: <b>{malamTotal} ({malamPct}%)</b>
             </span>
           )}
           {(activeLineFilter === "all" || activeLineFilter === "Subuh") && (
-            <span className="inline-flex items-center gap-1.5 text-indigo-400">
-              <span className="w-2.5 h-2.5 rounded-full bg-indigo-400" />
+            <span className="inline-flex items-center gap-1.5 text-sky-400">
+              <span className="w-2.5 h-2.5 rounded-full bg-sky-400" />
               Subuh: <b>{subuhTotal} ({subuhPct}%)</b>
             </span>
           )}
@@ -239,8 +269,8 @@ export function ShiftTrafficView({
                 <tr className="h-10">
                   <th className="py-2.5 px-4 font-semibold sticky left-0 bg-slate-900/95">Tanggal</th>
                   <th className="py-2.5 px-4 text-right font-semibold text-amber-400">Shift Pagi</th>
-                  <th className="py-2.5 px-4 text-right font-semibold text-sky-400">Shift Malam</th>
-                  <th className="py-2.5 px-4 text-right font-semibold text-indigo-400">Shift Subuh</th>
+                  <th className="py-2.5 px-4 text-right font-semibold text-purple-400">Shift Malam</th>
+                  <th className="py-2.5 px-4 text-right font-semibold text-sky-400">Shift Subuh</th>
                   <th className="py-2.5 px-4 text-right font-semibold text-white">Total Harian</th>
                 </tr>
               </thead>
@@ -253,10 +283,10 @@ export function ShiftTrafficView({
                     <td className="py-2.5 px-4 text-right tabular-nums text-amber-300 font-medium">
                       {row.pagi}
                     </td>
-                    <td className="py-2.5 px-4 text-right tabular-nums text-sky-300 font-medium">
+                    <td className="py-2.5 px-4 text-right tabular-nums text-purple-300 font-medium">
                       {row.malam}
                     </td>
-                    <td className="py-2.5 px-4 text-right tabular-nums text-indigo-300 font-medium">
+                    <td className="py-2.5 px-4 text-right tabular-nums text-sky-300 font-medium">
                       {row.subuh}
                     </td>
                     <td className="py-2.5 px-4 text-right tabular-nums font-bold text-white">
@@ -269,8 +299,8 @@ export function ShiftTrafficView({
                 <tr className="h-11">
                   <td className="py-2.5 px-4 sticky left-0 bg-slate-900/95">Total Keseluruhan</td>
                   <td className="py-2.5 px-4 text-right tabular-nums text-amber-400">{pagiTotal}</td>
-                  <td className="py-2.5 px-4 text-right tabular-nums text-sky-400">{malamTotal}</td>
-                  <td className="py-2.5 px-4 text-right tabular-nums text-indigo-400">{subuhTotal}</td>
+                  <td className="py-2.5 px-4 text-right tabular-nums text-purple-400">{malamTotal}</td>
+                  <td className="py-2.5 px-4 text-right tabular-nums text-sky-400">{subuhTotal}</td>
                   <td className="py-2.5 px-4 text-right tabular-nums text-white">{grandTotal}</td>
                 </tr>
               </tfoot>
@@ -349,7 +379,7 @@ export function ShiftTrafficView({
               <path
                 d={pathSubuh}
                 fill="none"
-                stroke="#818cf8"
+                stroke="#38bdf8"
                 strokeWidth="2.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -360,7 +390,7 @@ export function ShiftTrafficView({
               <path
                 d={pathMalam}
                 fill="none"
-                stroke="#38bdf8"
+                stroke="#c084fc"
                 strokeWidth="2.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -379,7 +409,7 @@ export function ShiftTrafficView({
             )}
 
             {/* Points & Value labels */}
-            {multiLineSeries.map((item, idx) => {
+            {chartSeries.map((item, idx) => {
               const showValLabel = n <= 16;
               const xPos = pointsPagi[idx].x;
               const isHovered = hoveredIdx === idx;
@@ -391,7 +421,7 @@ export function ShiftTrafficView({
                       cx={xPos}
                       cy={pointsSubuh[idx].y}
                       r={isHovered ? 5 : 3.5}
-                      fill="#818cf8"
+                      fill="#38bdf8"
                       stroke="#0f172a"
                       strokeWidth="1.5"
                     />
@@ -402,7 +432,7 @@ export function ShiftTrafficView({
                       cx={xPos}
                       cy={pointsMalam[idx].y}
                       r={isHovered ? 5 : 3.5}
-                      fill="#38bdf8"
+                      fill="#c084fc"
                       stroke="#0f172a"
                       strokeWidth="1.5"
                     />
@@ -438,7 +468,7 @@ export function ShiftTrafficView({
                       x={xPos}
                       y={pointsMalam[idx].y - 8}
                       textAnchor="middle"
-                      fill="#38bdf8"
+                      fill="#c084fc"
                       fontSize="10"
                       fontFamily="monospace"
                       fontWeight="bold"
@@ -451,7 +481,7 @@ export function ShiftTrafficView({
                       x={xPos}
                       y={pointsSubuh[idx].y - 8}
                       textAnchor="middle"
-                      fill="#818cf8"
+                      fill="#38bdf8"
                       fontSize="10"
                       fontFamily="monospace"
                       fontWeight="bold"
@@ -465,10 +495,8 @@ export function ShiftTrafficView({
 
             {/* X-axis Ticks & Dates */}
             {pointsPagi.map((p, idx) => {
-              const showLabel = width >= 600 || idx % 2 === 0 || idx === n - 1;
-              const dateParts = multiLineSeries[idx].date.split("-");
-              const shortDate = dateParts.length === 3 ? `${dateParts[2]}/${dateParts[1]}` : multiLineSeries[idx].date;
-
+              if (!showAxisLabel(idx, n, labelStride)) return null;
+              const item = chartSeries[idx];
               return (
                 <g key={`xtick-${idx}`}>
                   <line
@@ -479,19 +507,17 @@ export function ShiftTrafficView({
                     stroke="#475569"
                     strokeWidth="1"
                   />
-                  {showLabel && (
-                    <text
-                      x={p.x}
-                      y={baselineY + 18}
-                      textAnchor="middle"
-                      fill="#94a3b8"
-                      fontSize="11.5"
-                      fontFamily="monospace"
-                      fontWeight="500"
-                    >
-                      {shortDate}
-                    </text>
-                  )}
+                  <text
+                    x={Math.min(width - marginRight - 4, Math.max(marginLeft + 16, p.x))}
+                    y={baselineY + 18}
+                    textAnchor="middle"
+                    fill="#94a3b8"
+                    fontSize="11.5"
+                    fontFamily="monospace"
+                    fontWeight="500"
+                  >
+                    {datesAreDays ? bucketAxisLabel(item, granularity) : item.date}
+                  </text>
                 </g>
               );
             })}
@@ -515,10 +541,10 @@ export function ShiftTrafficView({
           {/* Floating Tooltip */}
           {hoveredItem && hoveredX !== null && (
             <ChartTooltip key={hoveredIdx} svg={chartSvg} anchorX={hoveredX} half={6} plotTop={marginTop} viewWidth={width} viewHeight={height}>
-              <TooltipHeader title={hoveredItem.date} value={`Total ${hoveredItem.total}`} />
+              <TooltipHeader title={datesAreDays ? bucketTitle(hoveredItem, granularity) : hoveredItem.date} value={`Total ${hoveredItem.total}`} />
               <TooltipRow tone="text-amber-300" valueClass="text-amber-300" marker={<Sun size={12} aria-hidden="true" />} label="Shift Pagi" value={`${hoveredItem.pagi} tiket`} />
-              <TooltipRow tone="text-sky-300" valueClass="text-sky-300" marker={<Sunset size={12} aria-hidden="true" />} label="Shift Malam" value={`${hoveredItem.malam} tiket`} />
-              <TooltipRow tone="text-indigo-300" valueClass="text-indigo-300" marker={<Moon size={12} aria-hidden="true" />} label="Shift Subuh" value={`${hoveredItem.subuh} tiket`} />
+              <TooltipRow tone="text-purple-300" valueClass="text-purple-300" marker={<Sunset size={12} aria-hidden="true" />} label="Shift Malam" value={`${hoveredItem.malam} tiket`} />
+              <TooltipRow tone="text-sky-300" valueClass="text-sky-300" marker={<Moon size={12} aria-hidden="true" />} label="Shift Subuh" value={`${hoveredItem.subuh} tiket`} />
             </ChartTooltip>
           )}
         </div>

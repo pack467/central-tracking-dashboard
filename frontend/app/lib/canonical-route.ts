@@ -10,7 +10,7 @@ export function canonicalRoute(input: URL) {
   if (path === '/reports/overview') path = paths.reports;
   const legacy = url.searchParams.get('nav') ?? (path === '/' ? url.searchParams.get('tab') ?? url.searchParams.get('page') : null);
   if (legacy && !/^\d+$/.test(legacy)) {
-    const names: Record<string, string> = { dashboard: 'Dashboard', tickets: 'Tickets', monitoring: 'Monitoring', reports: 'Reports', profile: 'Profile', profil: 'Profile', 'team-roster': 'Team Roster', 'shift-log': 'Shift Log', runbooks: 'Runbooks', notifications: 'Notifications' };
+    const names: Record<string, string> = { dashboard: 'Dashboard', tickets: 'Tickets', monitoring: 'Monitoring', reports: 'Reports', profile: 'Profile', profil: 'Profile', 'team-roster': 'Team Roster', 'shift-log': 'Shift Log', notifications: 'Notifications' };
     if (names[legacy.toLowerCase()]) path = pathForLabel(names[legacy.toLowerCase()]);
     url.searchParams.delete('nav'); url.searchParams.delete('tab'); url.searchParams.delete('page');
   }

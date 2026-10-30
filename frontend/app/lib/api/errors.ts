@@ -12,12 +12,15 @@ export interface ApiErrorInit {
   status: number;
   code?: string;
   details?: unknown;
+  /** From a Retry-After header (429), when the browser is allowed to read it. */
+  retryAfterMs?: number;
 }
 
 export class ApiError extends Error {
   readonly status: number;
   readonly code?: string;
   readonly details?: unknown;
+  readonly retryAfterMs?: number;
 
   constructor(init: ApiErrorInit) {
     super(init.message);
@@ -25,6 +28,7 @@ export class ApiError extends Error {
     this.status = init.status;
     this.code = init.code;
     this.details = init.details;
+    this.retryAfterMs = init.retryAfterMs;
 
     // Maintain proper prototype chain
     Object.setPrototypeOf(this, ApiError.prototype);

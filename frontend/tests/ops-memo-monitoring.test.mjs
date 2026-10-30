@@ -28,8 +28,10 @@ test("Live Ops View shows the Memo & Catatan Shift card, the notes modal and the
 
   // 2. Monitoring Checklist (OK / NOK)
   assert.ok(view.includes("List Monitoring Shift"), "Renders List Monitoring Shift title");
-  assert.ok(view.includes("toggleMonitoringStatus"), "Has toggle between OK and NOK");
-  assert.ok(view.includes("btn-ok"), "Has OK button state");
-  assert.ok(view.includes("btn-nok"), "Has NOK button state");
-  assert.ok(view.includes("ctd_shift_monitoring_checklist"), "Supports localStorage persistence for checklist");
+  // The dashboard list only shows the status of the checkpoints; assessing happens on the Monitoring page
+  assert.ok(!view.includes("toggleMonitoringStatus"), "The dashboard list has no OK/NOK toggle");
+  assert.ok(!/<button[^>]*monitoring-status-btn/.test(view), "The OK/NOK status is not a button");
+  assert.ok(view.includes("btn-ok") && view.includes("btn-nok") && view.includes("btn-pending"), "Has OK, NOK and not-yet-assessed states");
+  assert.ok(view.includes("getClientMonitoringSchedule") && view.includes("assessments?.["), "The rows come from the schedule and the operators' verdicts");
+  assert.ok(!view.includes("DEFAULT_MONITORING_ITEMS") && !view.includes("ctd_shift_monitoring_checklist"), "No fixed list of checkpoints in the page code");
 });

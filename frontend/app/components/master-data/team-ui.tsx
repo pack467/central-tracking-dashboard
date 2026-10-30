@@ -26,7 +26,7 @@ export function InactiveTag({ status }: { status: Person["status"] }) {
     </span>
   );
 }
-export const roleName = (roles: readonly Pick<Role, "key" | "name">[], key: string) => roles.find(role => role.key === key)?.name || key;
+export const roleName = (roles: readonly Pick<Role, "key" | "name">[], key: string) => roles.find(role => role.key === key)?.name || key || "Tidak tersedia";
 export const BLANK = "Belum diisi";
 
 export interface RowMenuItem {

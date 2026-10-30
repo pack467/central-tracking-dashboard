@@ -226,8 +226,8 @@ export interface Severity {
   readonly color: string;
   readonly usageCount: number;
 }
-/** Team entities: people and operational roles (stage 1 of the scope review). */
-export type TeamEntity = "person" | "role";
+/** Team entities: people and operational roles (stage 1 of the scope review), plus office positions and departments (browser-only, app/lib/org-catalog.ts). */
+export type TeamEntity = "person" | "role" | "position" | "department";
 export type AnyMasterEntity = MasterEntity | TeamEntity;
 export type ShiftKey = "subuh" | "pagi" | "malam";
 export interface Person {

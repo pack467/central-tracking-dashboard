@@ -1,4 +1,4 @@
-import { isMockMode } from "@/app/lib/config";
+import { apiModuleEnabled, isMockMode } from "@/app/lib/config";
 import type { AnyMasterEntity, MasterActor } from "@/app/types/master-data";
 
 export type MasterAction = "read" | "create" | "update" | "archive" | "delete";
@@ -19,14 +19,16 @@ function normalizedRole(value: string): MasterRole {
   return "viewer";
 }
 export function masterRole(actor?: MasterActor): MasterRole {
-  if (isMockMode()) {
+  // A partly connected app (mock data, backend login) is still mock mode, but who is logged in is real: their own role decides.
+  if (isMockMode() && !apiModuleEnabled("auth")) {
     const configured = process.env.NEXT_PUBLIC_MOCK_ROLE;
     return configured ? normalizedRole(configured) : "manager";
   }
   return actor ? normalizedRole(actor.role) : "viewer";
 }
 export function masterPermission(entity: AnyMasterEntity, action: MasterAction): MasterPermission {
-  const resource = entity === "category" || entity === "severity" ? "ticketRef" : entity;
+  // Jabatan and Departemen describe staff, so whoever manages people manages them
+  const resource = entity === "category" || entity === "severity" ? "ticketRef" : entity === "position" || entity === "department" ? "person" : entity;
   return `master.${resource}.${action}`;
 }
 export function canMaster(role: MasterRole, entity: AnyMasterEntity, action: MasterAction): boolean {

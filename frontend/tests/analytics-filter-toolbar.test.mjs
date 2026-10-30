@@ -36,13 +36,14 @@ test("Analytics Filter Toolbar is placed directly above Primary Charts and contr
   assert.ok(tsx.includes("analytics-filter-reset-action-btn"), "Must render reset button");
 
   // 4. Live Ops View isolation & excluded filters
-  assert.ok(tsx.includes("rawActiveDate"), "Must maintain rawActiveDate independent of analytics date filter");
+  assert.ok(tsx.includes("openedTodayTickets") && tsx.includes("stillOpenTickets"), "The live ops lists (opened today / still open) are separate from the analytics filters");
+  assert.ok(!tsx.includes("rawActiveDate"), "Live ops no longer treats the newest ticket day as today");
   assert.ok(!tsx.includes("Menyaring grafik volume proyek"), "Subtitle text must be removed");
   
-  // Exclude 'Semua Waktu' from Analytics Filter Toolbar
+  // The date filter defaults to today and offers 'Semua Waktu' as an explicit choice (lib/date-filter.ts)
   const analyticsSectionContent = tsx.slice(filterIndex, primaryChartIndex);
-  assert.ok(analyticsSectionContent.includes("showAllTimePreset={false}"), "Analytics DatePicker must explicitly set showAllTimePreset={false}");
-  assert.ok(!analyticsSectionContent.includes('placeholder="Semua Waktu"'), "Analytics DatePicker placeholder must not be 'Semua Waktu'");
+  assert.ok(!analyticsSectionContent.includes("showAllTimePreset={false}"), "Analytics DatePicker offers the 'Semua Waktu' preset");
+  assert.ok(analyticsSectionContent.includes('placeholder="Semua Waktu"'), "An empty analytics date means all time, and says so");
 
   // 5. Downstream integration
   assert.ok(tsx.includes("for (const t of analyticsTickets)"), "volumeByDate must iterate over analyticsTickets");

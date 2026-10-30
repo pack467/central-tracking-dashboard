@@ -45,6 +45,19 @@ export function isMockMode(): boolean {
   return getApiConfig().useMock;
 }
 
+/**
+ * The parts of the app that can talk to the real backend, switched one by one so that what is connected can grow without breaking what
+ * is not yet. NEXT_PUBLIC_USE_MOCK=false turns every module on (the whole app uses the backend). Otherwise
+ * NEXT_PUBLIC_API_MODULES="auth,tickets,people,roles" turns on only the ones listed, and everything else keeps the local mock data.
+ */
+export type ApiModule = "auth" | "tickets" | "people" | "roles";
+export const API_MODULES: readonly ApiModule[] = ["auth", "tickets", "people", "roles"];
+export function apiModuleEnabled(module: ApiModule): boolean {
+  if (!getApiConfig().useMock) return true;
+  const listed = (process.env.NEXT_PUBLIC_API_MODULES || "").split(",").map(value => value.trim().toLowerCase());
+  return listed.includes(module);
+}
+
 export function getApiUrl(): string {
   return getApiConfig().apiUrl;
 }

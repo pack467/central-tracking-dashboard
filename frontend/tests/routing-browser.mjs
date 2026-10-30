@@ -39,7 +39,7 @@ const visit = async path => {
   await page.waitForTimeout(850);
 };
 const links = [
-  ['/dashboard','Dashboard'], ['/tickets','Tickets'], ['/tickets/escalations','Tickets'], ['/monitoring','Monitoring'], ['/monitoring/history','Monitoring'], ['/shift-log','Shift Log'], ['/reports','Reports'], ['/reports/ticket-log','Reports'], ['/reports/monitoring-log','Reports'], ['/reports/pdf-preview','Reports'], ['/team-roster','Team Roster'], ['/team-roster?view=weekly&week=2026-W34','Team Roster'], ['/team-roster?view=monthly&month=2026-09','Team Roster'], ['/runbooks','Runbooks'], ['/runbooks/credentials','Runbooks'], ['/runbooks/links','Runbooks'], ['/runbooks/escalation','Runbooks'], ['/notifications','Notifikasi'], ['/profile','Profile'],
+  ['/dashboard','Dashboard'], ['/tickets','Tickets'], ['/tickets/escalations','Tickets'], ['/monitoring','Monitoring'], ['/monitoring/history','Monitoring'], ['/shift-log','Shift Log'], ['/reports','Reports'], ['/reports/ticket-log','Reports'], ['/reports/monitoring-log','Reports'], ['/reports/pdf-preview','Reports'], ['/team-roster','Team Roster'], ['/team-roster?view=weekly&week=2026-W34','Team Roster'], ['/team-roster?view=monthly&month=2026-09','Team Roster'], ['/notifications','Notifikasi'], ['/profile','Profile'],
 ];
 for (const [path,label] of links) await run('hard reload ' + path, async () => {
   await visit(path);
@@ -152,14 +152,6 @@ await run('roster detail deep link and missing ID', async () => {
   await visit('/team-roster/missing-id'); await page.getByRole('dialog',{name:'Anggota tidak ditemukan'}).waitFor();
   return names.slice(0,4);
 });
-await run('runbook detail deep link and missing ID', async () => {
-  await visit('/runbooks');
-  await page.locator('[role=button][aria-expanded]').first().click(); await page.waitForTimeout(500);
-  assert.match(new URL(page.url()).pathname,/^\/runbooks\/.+/);
-  await page.reload(); await page.waitForTimeout(1000);
-  assert.equal(await page.locator('[role=button][aria-expanded="true"]').count(),1);
-  await visit('/runbooks/missing-id'); await page.getByRole('dialog',{name:'Runbook tidak ditemukan'}).waitFor();
-});
 await run('scroll preserved for query, reset for pages, restored on history', async () => {
   await visit('/tickets'); await page.evaluate(()=>window.scrollTo(0,400));
   const before=await page.evaluate(()=>window.scrollY);
@@ -230,10 +222,7 @@ await run('monitoring verdicts, notes, clock, sidebar and panel persist', async 
   await page.evaluate(value=>value===null?localStorage.removeItem('ctd.checkpoints'):localStorage.setItem('ctd.checkpoints',value),original);
   await page.clock.setFixedTime(new Date('2026-10-11T03:00:00Z'));
 });
-await run('SM/ActiveMQ slug and Reports copied URL reproduce CSV data',async()=>{
-  await visit('/runbooks/escalation?project=sm-activemq');
-  assert.ok((await page.getByRole('button',{name:/SM\/ActiveMQ/}).getAttribute('class')).includes('bg-[var(--accent-blue-soft)]'));
-  assert.equal(new URL(page.url()).searchParams.get('project'),'sm-activemq');
+await run('Reports copied URL reproduce CSV data',async()=>{
   await visit('/reports/ticket-log?from=2026-09-06&to=2026-09-12&project=aph');
   const url=page.url();
   const copied=await makeContext();const other=await copied.newPage();await other.clock.setFixedTime(new Date('2026-10-11T03:00:00Z'));await other.goto(url);await other.locator('.page-content h1').waitFor();await other.waitForTimeout(1400);

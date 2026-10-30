@@ -10,8 +10,8 @@ interface SeverityDistributionViewProps {
   severityStyles: Record<TicketSeverity, { borderLeft: string; dot: string; bar: string }>;
   renderDonutSlices: DonutRenderer;
 }
-const severities: TicketSeverity[] = ["Critical", "High", "Medium", "Low"];
-const tones = { Critical: "text-rose-400", High: "text-orange-400", Medium: "text-amber-400", Low: "text-teal-400" } as const;
+const severities: TicketSeverity[] = ["High", "Medium", "Low"];
+const tones = { High: "text-orange-400", Medium: "text-amber-400", Low: "text-teal-400" } as const;
 
 export function SeverityDistributionView({ priorityCounts, total, priorityColors, severityStyles, renderDonutSlices }: SeverityDistributionViewProps) {
   const focus = useDistributionFocus();

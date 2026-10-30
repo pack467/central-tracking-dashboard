@@ -1,5 +1,6 @@
 "use client";
 import { useMasterReferences } from "@/app/hooks/useMasterReferences";
+import { durationScale, SLA_BREACH_MINUTES, SLA_TARGET_MINUTES, wholeStep } from "@/app/lib/chart-scale";
 import { resolveCategoryColor } from "@/app/lib/category-colors";
 
 import { Select, MultiSelect } from "@/app/components/ui/Select";
@@ -35,7 +36,7 @@ import { Skeleton, PanelSkeletonWrapper, DashboardLiveOpsCommandBarSkeleton, Tod
 import { useMemo, useState, useEffect, useRef, useCallback } from "react";
 
 import { createPortal } from "react-dom";
-import { Clock, CheckCircle2, AlertTriangle, ShieldCheck, Activity, Layers, TrendingUp, Calendar, Zap, BarChart3, ListChecks, Users, X, ChevronRight, ChevronLeft, Moon, Sun, Sunset, StickyNote, RotateCcw, Check, FolderKanban, SlidersHorizontal, ListFilter } from "lucide-react";
+import { Clock, CheckCircle2, AlertTriangle, ShieldCheck, Activity, TrendingUp, Calendar, Zap, BarChart3, ListChecks, Users, X, ChevronRight, ChevronLeft, Moon, Sun, Sunset, StickyNote, RotateCcw, Check, FolderKanban, SlidersHorizontal, ListFilter } from "lucide-react";
 import { useToast } from "@/app/components/ui/Toast";
 import { Avatar } from "@/app/components/ui/Avatar";
 import { ModalCloseButton } from "@/app/components/ui/ModalCloseButton";
@@ -43,14 +44,31 @@ import { DatePicker } from "@/app/components/ui/DatePicker";
 import { useActiveShift } from "@/app/hooks/useLiveClock";
 import { useUserStatus, getStatusRingStyle } from "@/app/hooks/useUserStatus";
 import { useClient } from "@/app/context/ClientContext";
-import { getTodayWIB } from "@/app/lib/data";
-import type { Ticket } from "@/app/lib/types";
+import { useWibToday } from "@/app/hooks/useWibToday";
+import { dateFilterLabel, dateFilterMatches, dateFilterToPickerValue, lastSevenDaysFilter, pickerValueToDateFilter } from "@/app/lib/date-filter";
+import { bucketAxisLabel, bucketKeyOf, bucketRanges, bucketTitle, bucketVolume, chooseGranularity, formatDay, granularityBadge, granularityNote } from "@/app/lib/volume-buckets";
+import { ChartModeNote } from "@/app/components/ui/ChartModeNote";
+import { ChartEmptyState } from "@/app/components/ui/ChartEmptyState";
+import { useActivePeople, useRoles } from "@/app/hooks/useMasterData";
+import { useOrgCatalog } from "@/app/hooks/useOrgCatalog";
+import { itemOf } from "@/app/lib/org-catalog";
+import { getClientMonitoringSchedule } from "@/app/lib/clientData";
+import { rowKey as checkpointKey } from "@/app/components/dashboard/MonitoringSchedule";
+import { isTicketDone, matchesPerson, newestFirst, normalizeName, periodCounts, slaCompliance, slaStatus, slaTargetFor, ticketDateOf } from "@/app/lib/ticket-metrics";
+import { csvLine } from "@/app/lib/csv";
+import { buildMomComparison } from "@/app/lib/mom-comparison";
+import { MomComparison } from "@/app/components/dashboard/MomComparison";
+import type { CheckpointAssessment, Ticket } from "@/app/lib/types";
 
 interface TicketReportViewProps {
   tickets: Ticket[];
-  dateRangeLabel: string;
   onGoToTickets?: () => void;
+  /** The checkpoint verdicts operators gave on the Monitoring page (read only here). */
+  assessments?: Record<string, CheckpointAssessment>;
 }
+
+/** A person the dashboard lists: the shifter filter and the per-person recap. */
+interface RosterPerson { id?: string; name: string; role: string }
 
 // Standard project color map for consistent visual identity across dashboard
 const PROJECT_COLORS: Record<string, string> = {
@@ -68,18 +86,12 @@ const PROJECT_COLORS: Record<string, string> = {
 
 
 const PRIORITY_COLORS = {
-  Critical: "#ef4444",
   High: "#f97316",
   Medium: "#f59e0b",
   Low: "#2dd4bf",
 };
 
 const SEVERITY_CARD_STYLES = {
-  Critical: {
-    borderLeft: "border-l-[#ef4444]",
-    dot: "bg-[#ef4444]",
-    bar: "bg-[#ef4444]",
-  },
   High: {
     borderLeft: "border-l-[#f97316]",
     dot: "bg-[#f97316]",
@@ -156,48 +168,6 @@ function formatHeatmapDate(dateStr: string) {
   return { dayName: "", dateShort: dateStr.slice(5) };
 }
 
-interface MonitoringCheckItem {
-  id: string;
-  project: string;
-  task: string;
-  status: "OK" | "NOK";
-  time: string;
-  issueNote?: string;
-}
-
-const DEFAULT_MONITORING_ITEMS: MonitoringCheckItem[] = [
-  { id: "mon-1", project: "B2B", task: "Health check gateway B2B sekunder", status: "OK", time: "06:00" },
-  { id: "mon-2", project: "SM", task: "Queue distributor check & routing", status: "OK", time: "06:15" },
-  { id: "mon-3", project: "USIEM", task: "Graylog indexer rate & pipeline buffer", status: "OK", time: "06:30" },
-  { id: "mon-4", project: "ActiveMQ", task: "Broker health check broker #228", status: "NOK", time: "06:45", issueNote: "Antrean naik" },
-  { id: "mon-5", project: "EPC Tools", task: "Validation worker cluster FMC", status: "OK", time: "07:00" },
-  { id: "mon-6", project: "DM", task: "Database replication sync & latency", status: "OK", time: "07:15" },
-  { id: "mon-7", project: "MB", task: "Webhook payment endpoint availability", status: "NOK", time: "07:30", issueNote: "Latensi > 200ms" },
-  { id: "mon-8", project: "APH", task: "Core switch spine DC Cikarang trunk", status: "OK", time: "07:45" },
-  { id: "mon-9", project: "UNEM", task: "Router edge peering Telkomsel link", status: "OK", time: "08:00" },
-  { id: "mon-10", project: "B2B", task: "API gateway ISO8583 response latency", status: "OK", time: "08:15" },
-  { id: "mon-11", project: "ActiveMQ", task: "Dead letter queue monitor & consumer", status: "OK", time: "08:30" },
-  { id: "mon-12", project: "USIEM", task: "Kafka event stream SIEM ingestion", status: "OK", time: "08:45" },
-  { id: "mon-13", project: "SM", task: "SMS gateway notification delivery rate", status: "OK", time: "09:00" },
-];
-
-const STAFF_ROSTER = [
-  { name: "Tahan Julianus Nadeak", role: "Incident Coordinator (Shift Pagi)", baseMonth: 38, baseYear: 245 },
-  { name: "Yuha Azhari Simbolon", role: "Operator NOC (Shift Pagi)", baseMonth: 32, baseYear: 198 },
-  { name: "Nicholas Bima Nooka Putra", role: "Infrastructure Engineer (Shift Pagi)", baseMonth: 29, baseYear: 184 },
-  { name: "Pangondion Kurniawan Naibaho", role: "Shift Lead (Shift Malam)", baseMonth: 45, baseYear: 290 },
-  { name: "Natanael Tambun", role: "Shift Lead (Shift Subuh)", baseMonth: 40, baseYear: 255 },
-  { name: "Agnes Siahaan", role: "Shift Lead (Shift Pagi)", baseMonth: 42, baseYear: 270 },
-  { name: "Ade Yuri F. Damanik", role: "L2 Specialist (Shift Pagi)", baseMonth: 34, baseYear: 220 },
-  { name: "Muhammad Ihsanul Arifin", role: "L2 Specialist (Shift Malam)", baseMonth: 48, baseYear: 310 },
-  { name: "Mhd. Galih Khairi", role: "Operator NOC (Shift Malam)", baseMonth: 52, baseYear: 325 },
-  { name: "Pedro Hutagaol", role: "Incident Coordinator (Shift Malam)", baseMonth: 36, baseYear: 230 },
-  { name: "Kristina Marbun", role: "Operator NOC (Shift Malam)", baseMonth: 44, baseYear: 280 },
-  { name: "Andri Agung Exaudi Sigiro", role: "Operator NOC (Shift Subuh)", baseMonth: 35, baseYear: 215 },
-  { name: "Dimas Yudistira", role: "Infrastructure Engineer (Shift Subuh)", baseMonth: 31, baseYear: 195 },
-  { name: "Tennov Pakpahan", role: "Operator NOC (On Leave)", baseMonth: 26, baseYear: 165 },
-];
-
 function getTicketShiftLocal(ticket: Ticket): "Subuh" | "Pagi" | "Malam" {
   const rawShift = (ticket as any).createdDuringShift || ticket.shift;
   if (rawShift) {
@@ -221,9 +191,9 @@ function getTicketShiftLocal(ticket: Ticket): "Subuh" | "Pagi" | "Malam" {
   return "Pagi";
 }
 
-function AnalyticsShifterMultiSelect({ selectedList, onChange, staffList }: { selectedList: string[]; onChange: (list: string[]) => void; staffList: typeof STAFF_ROSTER }) {
+function AnalyticsShifterMultiSelect({ selectedList, onChange, staffList }: { selectedList: string[]; onChange: (list: string[]) => void; staffList: RosterPerson[] }) {
   return <MultiSelect label="Shifter (PIC)" aria-label="Filter Shifter / PIC" value={selectedList} onChange={onChange} options={staffList.map(staff => ({ value: staff.name, label: staff.name }))} icon={<Users size={16} />} className="analytics-shifter-trigger h-[34px] w-full text-[11.5px]" title={selectedList.length ? selectedList.join(", ") : "Filter Shifter / PIC"} formatValue={values => {
-    if (!values.length) return "Semua Shifter (14)";
+    if (!values.length) return `Semua Shifter (${staffList.length})`;
     if (values.length === 1) return values[0].split(" ").slice(0, 2).join(" ");
     if (values.length === 2) return values[0].split(" ").slice(0, 2).map((part, index) => index ? part[0] + "." : part).join(" ") + " +1";
     return values.length + " Shifter Terpilih";
@@ -265,7 +235,7 @@ function compactVolumeGeometry(count: number, available: number) {
   return { fits, width, bar, step, start: count > 1 ? 8 + bar / 2 : width / 2 };
 }
 
-export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToTickets }: TicketReportViewProps) {
+export function TicketReportView({ tickets: propTickets, onGoToTickets, assessments }: TicketReportViewProps) {
   const mobile = useCompactLayout();
   const phone = useMobileLayout();
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -333,67 +303,25 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
     url.update({ mode });
   }, [url]);
 
-  // Monitoring Checklist (OK / NOK state)
-  const [monitoringItems, setMonitoringItems] = useState<MonitoringCheckItem[]>(DEFAULT_MONITORING_ITEMS);
-
-  useEffect(() => {
-    try {
-      const savedMon = localStorage.getItem("ctd_shift_monitoring_checklist");
-      if (savedMon) {
-        const parsed = JSON.parse(savedMon);
-        if (Array.isArray(parsed)) {
-          if (parsed.length >= DEFAULT_MONITORING_ITEMS.length) {
-            setMonitoringItems(parsed);
-          } else {
-            // Merge with default 13 items so any existing items preserve status, but all 13 are loaded
-            const savedMap = new Map(parsed.map((p: MonitoringCheckItem) => [p.id, p]));
-            const merged = DEFAULT_MONITORING_ITEMS.map((item) => {
-              const saved = savedMap.get(item.id);
-              return saved ? { ...item, status: saved.status, issueNote: saved.issueNote } : item;
-            });
-            setMonitoringItems(merged);
-            localStorage.setItem("ctd_shift_monitoring_checklist", JSON.stringify(merged));
-          }
-        }
-      }
-    } catch {}
-  }, []);
-
-  const toggleMonitoringStatus = (id: string) => {
-    setMonitoringItems((prev) => {
-      const next = prev.map((item) => {
-        if (item.id !== id) return item;
-        const nextStatus = item.status === "OK" ? "NOK" : "OK";
-        return {
-          ...item,
-          status: nextStatus as "OK" | "NOK",
-          issueNote: nextStatus === "NOK" ? (item.issueNote || "Perlu perhatian") : undefined,
-        };
-      });
-      if (typeof window !== "undefined") {
-        localStorage.setItem("ctd_shift_monitoring_checklist", JSON.stringify(next));
-      }
-      return next;
-    });
-  };
-
-  const markAllOk = () => {
-    setMonitoringItems((prev) => {
-      const next = prev.map((item) => ({ ...item, status: "OK" as const, issueNote: undefined }));
-      if (typeof window !== "undefined") {
-        localStorage.setItem("ctd_shift_monitoring_checklist", JSON.stringify(next));
-      }
-      return next;
-    });
-    notify.success("Semua item monitoring ditandai OK!", { id: "mon-all-ok" });
-  };
-
+  // List Monitoring Shift: the day's checkpoints with the verdicts the operators gave on the Monitoring page. The list only shows them;
+  // assessing happens there. A checkpoint nobody has assessed yet says so ("Belum") instead of showing a made-up result.
+  const monitoringItems = useMemo(
+    () => [...getClientMonitoringSchedule(activeClientId)]
+      .sort((a, b) => a.time.localeCompare(b.time) || a.task.localeCompare(b.task))
+      .map((entry) => {
+        const key = checkpointKey(entry);
+        const verdict = assessments?.[key]?.verdict;
+        const status: "OK" | "NOK" | "Belum" = verdict === "ok" || verdict === "adequate" ? "OK" : verdict === "nok" || verdict === "not-adequate" ? "NOK" : "Belum";
+        return { id: key, project: entry.project, task: entry.task, time: entry.time, status };
+      }),
+    [activeClientId, assessments]
+  );
   const okCount = monitoringItems.filter((i) => i.status === "OK").length;
   const nokCount = monitoringItems.filter((i) => i.status === "NOK").length;
+  const assessedCount = okCount + nokCount;
 
   // Active hover and click selection states for charts
   const [volumeTouch, setVolumeTouch] = useState<{ index: number; x: number } | null>(null);
-  const [hoveredDate, setHoveredDate] = useState<string | null>(null);
   const selectedDate = url.values.day || null;
   const setSelectedDate = (next: string | null | ((previous: string | null) => string | null)) => {
     const value = typeof next === "function" ? next(selectedDate) : next;
@@ -403,19 +331,6 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
   const setSelectedChartTab = url.field("chart", "push");
   const momSubView = url.values.mom;
   const setMomSubView = url.field("mom", "push");
-  const [selectedMomItem, setSelectedMomItem] = useState<{
-    type: "project" | "timeline";
-    id: string;
-    label: string;
-    currCount: number;
-    prevCount: number;
-    currResolved?: number;
-    prevResolved?: number;
-    currDate?: string;
-    prevDate?: string;
-    delta: number;
-    deltaPct?: number | string;
-  } | null>(null);
   const [hoveredVelocityPoint, setHoveredVelocityPoint] = useState<{
     x: number;
     y: number;
@@ -440,6 +355,8 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
   const setActiveShiftLineFilter = url.field("line", "replace");
 
   // ── Analytics Filter State (controls all charts & reports below LIVE OPS VIEW) ──
+  // The default is today (WIB): the charts show the day's operation instead of every ticket there ever was. "all" is an explicit choice.
+  const todayWib = useWibToday();
   const analyticsDateFilter = url.values.date;
   const setAnalyticsDateFilter = url.field("date", "replace");
   const analyticsProjectFilter = url.values.project;
@@ -454,7 +371,7 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
 
   const isAnyAnalyticsFilterActive = useMemo(() => {
     return (
-      Boolean(analyticsDateFilter) ||
+      analyticsDateFilter !== "today" ||
       analyticsProjectFilter !== "All" ||
       analyticsShiftFilter !== "All" ||
       analyticsSelectedShifters.length > 0 ||
@@ -469,10 +386,21 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
     analyticsStatusFilter,
     analyticsSeverityFilter,
   ]);
+  // Any filter other than the date: an empty chart then says "nothing matches" rather than "nothing in this period"
+  const isNonDateAnalyticsFilterActive = isAnyAnalyticsFilterActive && (analyticsProjectFilter !== "All" || analyticsShiftFilter !== "All" || analyticsSelectedShifters.length > 0 || analyticsStatusFilter !== "All" || analyticsSeverityFilter !== "All");
+  // The empty charts share one headline and the same way out: widen the dates, or clear the filters.
+  const emptyTitle = () => isNonDateAnalyticsFilterActive ? "Tidak ada tiket yang cocok" : analyticsDateFilter === "today" ? "Belum ada tiket hari ini" : "Tidak ada tiket pada rentang ini";
+  const emptyActions = () => (
+    <>
+      {analyticsDateFilter === "today" && !isAnyAnalyticsFilterActive && <button type="button" onClick={() => setAnalyticsDateFilter(lastSevenDaysFilter(todayWib))} className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-sky-400/40 bg-sky-400/10 px-3.5 text-[12.5px] font-semibold text-sky-300 transition-colors hover:border-sky-400/70 hover:bg-sky-400/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/50 max-lg:min-h-11"><Calendar size={14} aria-hidden="true" />Lihat 7 hari terakhir</button>}
+      {!isNonDateAnalyticsFilterActive && analyticsDateFilter !== "today" && analyticsDateFilter !== "all" && <button type="button" onClick={() => setAnalyticsDateFilter("all")} className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-sky-400/40 bg-sky-400/10 px-3.5 text-[12.5px] font-semibold text-sky-300 transition-colors hover:border-sky-400/70 hover:bg-sky-400/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/50 max-lg:min-h-11"><Calendar size={14} aria-hidden="true" />Lihat semua waktu</button>}
+      {isAnyAnalyticsFilterActive && <button type="button" onClick={resetAllAnalyticsFilters} className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-600 bg-[#243044] px-3.5 text-[12.5px] font-semibold text-slate-200 transition-colors hover:border-slate-500 hover:bg-[#2c3a52] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/50 max-lg:min-h-11"><RotateCcw size={14} aria-hidden="true" />Reset filter</button>}
+    </>
+  );
 
   const activeFilterChips = useMemo(() => {
     const chips: { label: string; value: string }[] = [];
-    if (analyticsDateFilter) chips.push({ label: "Tanggal", value: analyticsDateFilter });
+    if (analyticsDateFilter !== "today") chips.push({ label: "Tanggal", value: dateFilterLabel(analyticsDateFilter, todayWib) });
     if (analyticsProjectFilter && analyticsProjectFilter !== "All") chips.push({ label: "Proyek", value: analyticsProjectFilter });
     if (analyticsShiftFilter && analyticsShiftFilter !== "All") chips.push({ label: "Shift", value: analyticsShiftFilter });
     if (analyticsSelectedShifters.length > 0) chips.push({ label: "PIC", value: `${analyticsSelectedShifters.length} dipilih` });
@@ -481,6 +409,7 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
     return chips;
   }, [
     analyticsDateFilter,
+    todayWib,
     analyticsProjectFilter,
     analyticsShiftFilter,
     analyticsSelectedShifters,
@@ -489,7 +418,7 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
   ]);
 
   const resetAllAnalyticsFilters = () => {
-    setAnalyticsDateFilter("");
+    setAnalyticsDateFilter("today");
     setAnalyticsProjectFilter("All");
     setAnalyticsShiftFilter("All");
     setAnalyticsSelectedShifters([]);
@@ -499,124 +428,70 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
   };
 
   // Filtered tickets for all analytics charts & reports below LIVE OPS VIEW
-  const analyticsTickets = useMemo(() => {
-    return tickets.filter((t) => {
-      // 1. Date Range
-      if (analyticsDateFilter) {
-        const todayStr = getTodayWIB();
-        const ticketDate = t.date || (t.created && t.created.length >= 10 ? t.created.slice(0, 10) : todayStr);
-        if (analyticsDateFilter.includes("..")) {
-          const [start, end] = analyticsDateFilter.split("..");
-          if (start && ticketDate < start) return false;
-          if (end && ticketDate > end) return false;
-        } else if (analyticsDateFilter === "today" || analyticsDateFilter === todayStr) {
-          if (ticketDate !== todayStr) return false;
-        } else {
-          if (ticketDate !== analyticsDateFilter) return false;
-        }
-      }
+  // Everyone the dashboard lists (the shifter filter and the per-person recap): the active people of the team (the backend's own list when it
+  // is connected), plus anybody who owns a ticket without being on that list, so no ticket falls outside every person.
+  const people = useActivePeople();
+  const roles = useRoles();
+  const positions = useOrgCatalog("position");
+  const roster = useMemo<RosterPerson[]>(() => {
+    const roleName = (key: string) => roles.find((role) => role.key === key)?.name ?? key;
+    const shiftName = { subuh: "Shift Subuh", pagi: "Shift Pagi", malam: "Shift Malam" } as const;
+    // the office position (Jabatan) leads, then the role in the app and the shift
+    const rows: RosterPerson[] = people.map((person) => ({ id: person.id, name: person.fullName, role: [itemOf(positions, person.id)?.name, roleName(person.roleKey), person.defaultShift ? shiftName[person.defaultShift] : ""].filter(Boolean).join(" · ") }));
+    const strays = new Set<string>();
+    for (const ticket of tickets) {
+      const owner = (ticket.owner || "").trim();
+      if (owner && owner !== "—" && !rows.some((row) => matchesPerson(ticket, row))) strays.add(owner);
+    }
+    for (const name of strays) rows.push({ name, role: "Tidak ada di daftar personel aktif" });
+    return rows.sort((a, b) => a.name.localeCompare(b.name));
+  }, [people, roles, positions, tickets]);
 
-      // 2. Project
-      if (analyticsProjectFilter !== "All") {
-        if (t.project !== analyticsProjectFilter) return false;
-      }
+  // The filters that are not the date. The per-person recap counts its own day, month and year on top of these.
+  const matchesOtherFilters = useCallback((t: Ticket) => {
+    // Project
+    if (analyticsProjectFilter !== "All" && t.project !== analyticsProjectFilter) return false;
 
-      // 3. Shift
-      if (analyticsShiftFilter !== "All") {
-        const tShift = t.shift || getTicketShiftLocal(t);
-        if (tShift !== analyticsShiftFilter) return false;
-      }
+    // Shift
+    if (analyticsShiftFilter !== "All" && (t.shift || getTicketShiftLocal(t)) !== analyticsShiftFilter) return false;
 
-      // 4. Shifter / PIC
-      if (analyticsSelectedShifters.length > 0) {
-        const owner = (t.owner || "").toLowerCase();
-        const matches = analyticsSelectedShifters.some((shifter) => {
-          const clean = shifter.toLowerCase().replace(/^(mhd\.|m\.)\s+/i, "");
-          return owner.includes(clean) || shifter.toLowerCase().includes(owner);
-        });
-        if (!matches) return false;
-      }
+    // Shifter / PIC: by id when the ticket has one, otherwise by the exact name
+    if (analyticsSelectedShifters.length > 0) {
+      const chosen = roster.filter((person) => analyticsSelectedShifters.includes(person.name));
+      if (!chosen.some((person) => matchesPerson(t, person))) return false;
+    }
 
-      // 5. Status
-      if (analyticsStatusFilter !== "All") {
-        const s = (t.status || "").toLowerCase().replace(/[\s_]+/g, "-");
-        const target = analyticsStatusFilter.toLowerCase();
-        if (target === "closed") {
-          if (s !== "closed" && s !== "ditutup") return false;
-        } else if (target === "re-open") {
-          if (s !== "re-open" && s !== "reopen") return false;
-        } else if (s !== target) {
-          return false;
-        }
+    // Status
+    if (analyticsStatusFilter !== "All") {
+      const s = (t.status || "").toLowerCase().replace(/[\s_]+/g, "-");
+      const target = analyticsStatusFilter.toLowerCase();
+      if (target === "closed") {
+        if (!isTicketDone(t)) return false;
+      } else if (target === "re-open") {
+        if (s !== "re-open" && s !== "reopen") return false;
+      } else if (s !== target) {
+        return false;
       }
+    }
 
-      // 6. Severity
-      if (analyticsSeverityFilter !== "All") {
-        const sev = (t.severity || "").toLowerCase();
-        if (sev !== analyticsSeverityFilter.toLowerCase()) return false;
-      }
+    // Severity
+    if (analyticsSeverityFilter !== "All" && (t.severity || "").toLowerCase() !== analyticsSeverityFilter.toLowerCase()) return false;
 
-      return true;
-    });
-  }, [
-    tickets,
-    analyticsDateFilter,
-    analyticsProjectFilter,
-    analyticsShiftFilter,
-    analyticsSelectedShifters,
-    analyticsStatusFilter,
-    analyticsSeverityFilter,
-  ]);
+    return true;
+  }, [analyticsProjectFilter, analyticsShiftFilter, analyticsSelectedShifters, analyticsStatusFilter, analyticsSeverityFilter, roster]);
+
+  const ticketsWithoutDateFilter = useMemo(() => tickets.filter(matchesOtherFilters), [tickets, matchesOtherFilters]);
+
+  // Date range: "today" (the default), "all", one day or from..to (lib/date-filter.ts). A ticket without a day only appears under "all".
+  const analyticsTickets = useMemo(
+    () => ticketsWithoutDateFilter.filter((t) => dateFilterMatches(analyticsDateFilter, ticketDateOf(t), todayWib)),
+    [ticketsWithoutDateFilter, analyticsDateFilter, todayWib]
+  );
 
   // 1. Overall Aggregates (Downstream charts use analyticsTickets)
   const total = analyticsTickets.length;
-  const closedTickets = useMemo(
-    () => analyticsTickets.filter((t) => t.status.toLowerCase() === "closed" || t.status.toLowerCase() === "ditutup"),
-    [analyticsTickets]
-  );
-  const activeTickets = useMemo(
-    () => analyticsTickets.filter((t) => {
-      const s = t.status.toLowerCase();
-      return s !== "closed" && s !== "ditutup";
-    }),
-    [analyticsTickets]
-  );
-  const criticalTickets = useMemo(
-    () => analyticsTickets.filter((t) => t.severity.toLowerCase() === "critical" || t.severity.toLowerCase() === "kritis"),
-    [analyticsTickets]
-  );
-
-  // Response & Resolution Metrics
-  const avgResolutionMins = useMemo(() => {
-    const withRes = closedTickets.filter((t) => typeof t.resolutionMinutes === "number" && t.resolutionMinutes > 0);
-    if (!withRes.length) return 0;
-    return Math.round(withRes.reduce((sum, t) => sum + (t.resolutionMinutes || 0), 0) / withRes.length);
-  }, [closedTickets]);
-
-  const avgResponseMins = useMemo(() => {
-    const withResp = analyticsTickets.filter((t) => typeof t.responseMinutes === "number" && t.responseMinutes > 0);
-    if (!withResp.length) return 0;
-    return Math.round(withResp.reduce((sum, t) => sum + (t.responseMinutes || 0), 0) / withResp.length);
-  }, [analyticsTickets]);
-
-  // SLA Compliance
-  const { slaRate, breachedCount, metSlaCount } = useMemo(() => {
-    if (!total) return { slaRate: 100, breachedCount: 0, metSlaCount: 0 };
-    let met = 0;
-    let breached = 0;
-
-    for (const t of analyticsTickets) {
-      const target = t.slaTargetMinutes || (t.severity.toLowerCase() === "critical" || t.severity.toLowerCase() === "high" ? 60 : 120);
-      const actual = t.resolutionMinutes ?? (t.agingHours ? (t.agingHours * 60) : 0);
-      if (actual <= target) {
-        met++;
-      } else {
-        breached++;
-      }
-    }
-    const rate = Math.round((met / total) * 100);
-    return { slaRate: rate, breachedCount: breached, metSlaCount: met };
-  }, [analyticsTickets, total]);
+  const closedTickets = useMemo(() => analyticsTickets.filter(isTicketDone), [analyticsTickets]);
+  const activeTickets = useMemo(() => analyticsTickets.filter((t) => !isTicketDone(t)), [analyticsTickets]);
 
   // 2. Project List & Colors
   const allProjects = useMemo(() => {
@@ -644,7 +519,8 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
 
     for (const t of analyticsTickets) {
       if (t.project === "L2") continue;
-      const d = t.date || "2026-08-31";
+      const d = ticketDateOf(t);
+      if (!d) continue; // a ticket without a day has no place on a day chart (no made-up date)
       if (!map[d]) {
         map[d] = {
           created: 0,
@@ -657,7 +533,7 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
       map[d].created += 1;
       map[d].projectCounts[t.project] = (map[d].projectCounts[t.project] || 0) + 1;
 
-      if (t.status.toLowerCase() === "closed" || t.status.toLowerCase() === "ditutup") {
+      if (isTicketDone(t)) {
         map[d].closed += 1;
         if (typeof t.resolutionMinutes === "number") {
           map[d].resolutionTimes.push(t.resolutionMinutes);
@@ -670,9 +546,10 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
     let cumulativeBacklog = 0;
     return sortedEntries.map(([date, data]) => {
       cumulativeBacklog += data.created - data.closed;
+      // a day without a closed ticket has no average (0 here, and the duration charts leave such days out)
       const avgRes = data.resolutionTimes.length
         ? Math.round(data.resolutionTimes.reduce((a, b) => a + b, 0) / data.resolutionTimes.length)
-        : avgResolutionMins;
+        : 0;
       return {
         date,
         created: data.created,
@@ -680,218 +557,15 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
         backlog: Math.max(0, cumulativeBacklog),
         projectCounts: data.projectCounts,
         avgResolution: avgRes,
+        resolutionSum: data.resolutionTimes.reduce((a, b) => a + b, 0),
+        resolvedCount: data.resolutionTimes.length,
       };
     });
-  }, [tickets, avgResolutionMins]);
+  }, [analyticsTickets]);
 
-  // 3B. Month-over-Month (MoM) Comparison Analytics (Bulan Lalu vs Bulan Ini)
-  const momData = useMemo(() => {
-    const monthsSet = new Set<string>();
-    for (const t of tickets) {
-      if (t.project === "L2") continue;
-      const d = t.date || (t.created && t.created.length >= 10 ? t.created.slice(0, 10) : "");
-      if (d && d.length >= 7) {
-        monthsSet.add(d.slice(0, 7));
-      }
-    }
-    const sortedMonths = Array.from(monthsSet).sort();
-
-    let currMonthKey = "2026-09";
-    let prevMonthKey = "2026-08";
-
-    if (sortedMonths.length >= 2) {
-      currMonthKey = sortedMonths[sortedMonths.length - 1];
-      prevMonthKey = sortedMonths[sortedMonths.length - 2];
-    } else if (sortedMonths.length === 1) {
-      currMonthKey = sortedMonths[0];
-      const [yr, mo] = currMonthKey.split("-").map(Number);
-      const prevMo = mo === 1 ? 12 : mo - 1;
-      const prevYr = mo === 1 ? yr - 1 : yr;
-      prevMonthKey = `${prevYr}-${String(prevMo).padStart(2, "0")}`;
-    }
-
-    const formatMonthName = (key: string) => {
-      const [yr, mo] = key.split("-");
-      const names: Record<string, string> = {
-        "01": "Januari",
-        "02": "Februari",
-        "03": "Maret",
-        "04": "April",
-        "05": "Mei",
-        "06": "Juni",
-        "07": "Juli",
-        "08": "Agustus",
-        "09": "September",
-        "10": "Oktober",
-        "11": "November",
-        "12": "Desember",
-      };
-      return `${names[mo] || mo} ${yr}`;
-    };
-
-    const currMonthLabel = formatMonthName(currMonthKey);
-    const prevMonthLabel = formatMonthName(prevMonthKey);
-
-    const isClosed = (t: Ticket) => {
-      const s = (t.status || "").toLowerCase();
-      return s === "closed" || s === "ditutup";
-    };
-
-    const currTickets = tickets.filter((t) => {
-      if (t.project === "L2") return false;
-      const d = t.date || (t.created && t.created.length >= 10 ? t.created.slice(0, 10) : "");
-      return d.startsWith(currMonthKey);
-    });
-
-    const prevTickets = tickets.filter((t) => {
-      if (t.project === "L2") return false;
-      const d = t.date || (t.created && t.created.length >= 10 ? t.created.slice(0, 10) : "");
-      return d.startsWith(prevMonthKey);
-    });
-
-    const currTotal = currTickets.length;
-    const prevTotal = prevTickets.length;
-    const deltaTotal = currTotal - prevTotal;
-    const deltaTotalPct = prevTotal > 0 ? ((deltaTotal / prevTotal) * 100).toFixed(1) : "0";
-
-    const currResolved = currTickets.filter(isClosed).length;
-    const prevResolved = prevTickets.filter(isClosed).length;
-    const deltaResolved = currResolved - prevResolved;
-    const deltaResolvedPct = prevResolved > 0 ? ((deltaResolved / prevResolved) * 100).toFixed(1) : "0";
-
-    const getAvgRes = (list: Ticket[], fallback: number) => {
-      const times = list
-        .filter((t) => isClosed(t) && typeof t.resolutionMinutes === "number")
-        .map((t) => t.resolutionMinutes as number);
-      return times.length ? Math.round(times.reduce((a, b) => a + b, 0) / times.length) : fallback;
-    };
-
-    const currAvgRes = getAvgRes(currTickets, 41);
-    const prevAvgRes = getAvgRes(prevTickets, 46);
-    const deltaAvgRes = currAvgRes - prevAvgRes;
-
-    const getSlaRate = (list: Ticket[], fallback: number) => {
-      const evaluated = list.filter((t) => isClosed(t) && typeof t.resolutionMinutes === "number");
-      if (!evaluated.length) return fallback;
-      const compliant = evaluated.filter((t) => (t.resolutionMinutes as number) <= (t.slaTargetMinutes || 120));
-      return Math.round((compliant.length / evaluated.length) * 100);
-    };
-
-    const currSlaRate = getSlaRate(currTickets, 92);
-    const prevSlaRate = getSlaRate(prevTickets, 96);
-    const deltaSlaRate = currSlaRate - prevSlaRate;
-
-    // Daily trajectory points
-    const groupDaily = (list: Ticket[]) => {
-      const map: Record<string, { created: number; closed: number; projectCounts: Record<string, number> }> = {};
-      for (const t of list) {
-        const d = t.date || (t.created && t.created.length >= 10 ? t.created.slice(0, 10) : "");
-        if (!d) continue;
-        if (!map[d]) map[d] = { created: 0, closed: 0, projectCounts: {} };
-        map[d].created += 1;
-        if (isClosed(t)) map[d].closed += 1;
-        map[d].projectCounts[t.project] = (map[d].projectCounts[t.project] || 0) + 1;
-      }
-      return Object.entries(map).sort((a, b) => a[0].localeCompare(b[0]));
-    };
-
-    const currDaily = groupDaily(currTickets);
-    const prevDaily = groupDaily(prevTickets);
-
-    const maxDays = Math.max(currDaily.length, prevDaily.length, 7);
-    let runningCurrCum = 0;
-    let runningPrevCum = 0;
-
-    const trajectoryPoints = Array.from({ length: maxDays }, (_, i) => {
-      const currItem = currDaily[i];
-      const prevItem = prevDaily[i];
-
-      const cCount = currItem ? currItem[1].created : 0;
-      const pCount = prevItem ? prevItem[1].created : 0;
-      const cClosed = currItem ? currItem[1].closed : 0;
-      const pClosed = prevItem ? prevItem[1].closed : 0;
-
-      runningCurrCum += cCount;
-      runningPrevCum += pCount;
-
-      const formatShort = (dateStr?: string) => {
-        if (!dateStr) return "-";
-        const parts = dateStr.split("-");
-        return parts.length === 3 ? `${parts[2]}/${parts[1]}` : dateStr;
-      };
-
-      return {
-        index: i,
-        label: `Hari ${i + 1}`,
-        currDate: currItem ? currItem[0] : "",
-        currFormatted: currItem ? formatShort(currItem[0]) : "-",
-        currCount: cCount,
-        currResolved: cClosed,
-        currCumulative: runningCurrCum,
-        prevDate: prevItem ? prevItem[0] : "",
-        prevFormatted: prevItem ? formatShort(prevItem[0]) : "-",
-        prevCount: pCount,
-        prevResolved: pClosed,
-        prevCumulative: runningPrevCum,
-      };
-    });
-
-    // Project breakdown comparison
-    const allProjectsSet = new Set<string>();
-    for (const t of tickets) {
-      if (t.project && t.project !== "L2") allProjectsSet.add(t.project);
-    }
-    const projectsList = Array.from(allProjectsSet).sort();
-
-    const projectComparison = projectsList
-      .map((proj) => {
-        const cTickets = currTickets.filter((t) => t.project === proj);
-        const pTickets = prevTickets.filter((t) => t.project === proj);
-
-        const cCount = cTickets.length;
-        const pCount = pTickets.length;
-        const delta = cCount - pCount;
-        const deltaPct = pCount > 0 ? Math.round(((cCount - pCount) / pCount) * 100) : 0;
-
-        const cClosed = cTickets.filter(isClosed).length;
-        const pClosed = pTickets.filter(isClosed).length;
-
-        return {
-          project: proj,
-          color: PROJECT_COLORS[proj] || "#38bdf8",
-          currCount: cCount,
-          currResolved: cClosed,
-          prevCount: pCount,
-          prevResolved: pClosed,
-          delta,
-          deltaPct,
-        };
-      })
-      .sort((a, b) => b.currCount + b.prevCount - (a.currCount + a.prevCount));
-
-    return {
-      currMonthKey,
-      prevMonthKey,
-      currMonthLabel,
-      prevMonthLabel,
-      currTotal,
-      prevTotal,
-      deltaTotal,
-      deltaTotalPct,
-      currResolved,
-      prevResolved,
-      deltaResolved,
-      deltaResolvedPct,
-      currAvgRes,
-      prevAvgRes,
-      deltaAvgRes,
-      currSlaRate,
-      prevSlaRate,
-      deltaSlaRate,
-      trajectoryPoints,
-      projectComparison,
-    };
-  }, [tickets]);
+  // 3B. Bulan Lalu vs Bulan Ini: this month (WIB) against the same days of last month (lib/mom-comparison.ts). All tickets, like before:
+  // the comparison is about the two months, not about the analytics filter.
+  const momComparison = useMemo(() => buildMomComparison(tickets, todayWib), [tickets, todayWib]);
 
   // 4. Breakdown by Category / Type
   const typeCounts = useMemo(() => {
@@ -913,43 +587,18 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
   // 5. Breakdown by Priority
   const priorityCounts = useMemo(() => {
     const counts: Record<keyof typeof PRIORITY_COLORS, number> = {
-      Critical: 0,
       High: 0,
       Medium: 0,
       Low: 0,
     };
     for (const t of analyticsTickets) {
       const s = t.severity.toLowerCase();
-      if (s === "critical" || s === "kritis") counts.Critical += 1;
-      else if (s === "high" || s === "tinggi") counts.High += 1;
+      // three levels: an old "Critical" counts as High (lib/severity.ts)
+      if (s === "critical" || s === "kritis" || s === "high" || s === "tinggi") counts.High += 1;
       else if (s === "medium" || s === "sedang") counts.Medium += 1;
       else counts.Low += 1;
     }
     return counts;
-  }, [analyticsTickets]);
-
-  // 5. Breakdown by Priority
-
-  // 7. SLA Breach Root Cause Breakdown (Constructive, system/process factors only)
-  const breachRootCauses = useMemo(() => {
-    const causes: Record<string, number> = {};
-    const breachedTickets = analyticsTickets.filter((t) => {
-      const target = t.slaTargetMinutes || (t.severity.toLowerCase() === "critical" ? 60 : 120);
-      const actual = t.resolutionMinutes ?? (t.agingHours ? t.agingHours * 60 : 30);
-      return actual > target;
-    });
-
-    for (const t of breachedTickets) {
-      const cause = t.rootCauseCategory || (t.type === "Escalation" ? "Multi-tier Escalation & External Coordination" : "Resource / Database Saturation");
-      causes[cause] = (causes[cause] || 0) + 1;
-    }
-
-    if (Object.keys(causes).length === 0) {
-      causes["Upstream Vendor / ISP Latency & Handshake"] = 1;
-      causes["Database Lock & Connection Pool Contention"] = 1;
-    }
-
-    return Object.entries(causes).sort((a, b) => b[1] - a[1]);
   }, [analyticsTickets]);
 
   // 8. Shift Load Matrix (Heatmap: Shift Subuh, Pagi, Malam vs Dates)
@@ -959,9 +608,10 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
       { id: "Pagi", name: "Shift Pagi", time: "08:00–16:30 WIB", color: "#fbbf24" },
       { id: "Malam", name: "Shift Malam", time: "16:00–00:30 WIB", color: "#a855f7" },
     ];
-    // Show up to the last 14 dates for rich traffic trajectory
-    const dateList = volumeByDate.length > 14 ? volumeByDate.slice(-14).map((v) => v.date) : volumeByDate.map((v) => v.date);
-    if (!dateList.length) dateList.push("2026-08-31");
+    // Every day of the filtered range (days without tickets are zeros), so the totals below are the whole range's;
+    // the dashboard chart groups these days into weeks or months when they do not fit (trafficView)
+    const dateList = volumeByDate.length ? bucketRanges(volumeByDate[0].date, volumeByDate[volumeByDate.length - 1].date, "day").map((range) => range.date) : [];
+    if (!dateList.length) dateList.push(todayWib);
 
     const dateSet = new Set(dateList);
 
@@ -975,7 +625,7 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
     }
 
     for (const t of analyticsTickets) {
-      const d = t.date || "2026-08-31";
+      const d = ticketDateOf(t);
       if (!dateSet.has(d)) continue;
 
       let s = t.shift;
@@ -1020,30 +670,68 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
     }
 
     return { shiftDefs, dateList, matrix, shiftTotals, dateTotals, grandTotal, peakShift };
-  }, [analyticsTickets, volumeByDate]);
+  }, [analyticsTickets, volumeByDate, todayWib]);
+
+  // The shift traffic chart on the dashboard: the same days, summed per week or month when a point per day would not fit its width
+  const trafficGranularity = chooseGranularity(shiftHeatmapData.dateList[0], shiftHeatmapData.dateList[shiftHeatmapData.dateList.length - 1], Math.max(7, Math.floor(((trafficSize.width || 1000) - (mobile ? 66 : 82)) / (mobile ? 14 : 26)))) ?? "month";
+  const trafficView = useMemo(() => {
+    const { dateList, matrix } = shiftHeatmapData;
+    const first = dateList[0];
+    const buckets = bucketRanges(first, dateList[dateList.length - 1], trafficGranularity);
+    const summed: Record<"Subuh" | "Pagi" | "Malam", Record<string, number>> = { Subuh: {}, Pagi: {}, Malam: {} };
+    for (const bucket of buckets) for (const shift of ["Subuh", "Pagi", "Malam"] as const) summed[shift][bucket.date] = 0;
+    for (const day of dateList) {
+      const key = bucketKeyOf(day, trafficGranularity, first);
+      for (const shift of ["Subuh", "Pagi", "Malam"] as const) summed[shift][key] = (summed[shift][key] || 0) + (matrix[shift][day] || 0);
+    }
+    const byKey = new Map(buckets.map((bucket) => [bucket.date, bucket]));
+    const label = (key: string) => { const bucket = byKey.get(key); return bucket ? bucketAxisLabel(bucket, trafficGranularity) : key.slice(5); };
+    const title = (key: string) => { const bucket = byKey.get(key); return bucket ? bucketTitle(bucket, trafficGranularity) : key; };
+    return { dateList: buckets.map((bucket) => bucket.date), matrix: summed, label, title, first, last: dateList[dateList.length - 1] };
+  }, [shiftHeatmapData, trafficGranularity]);
+
+  // Resolution velocity: one point per day, week or month (a weighted average of every closed ticket in it); periods without a
+  // closed ticket have no point instead of a made-up one
+  const velocityGranularity = volumeByDate.length ? chooseGranularity(volumeByDate[0].date, volumeByDate[volumeByDate.length - 1].date, Math.max(7, Math.floor(((velocitySize.width || 1000) - (mobile ? 66 : 154)) / (mobile ? 14 : 26)))) ?? "month" : "day";
+  const velocitySeries = useMemo(
+    () => bucketVolume(volumeByDate, velocityGranularity).filter((bucket) => bucket.resolvedCount > 0).map((bucket) => ({ ...bucket, avgResolution: Math.round(bucket.resolutionSum / bucket.resolvedCount), title: bucketTitle(bucket, velocityGranularity), label: bucketAxisLabel(bucket, velocityGranularity) })),
+    [volumeByDate, velocityGranularity]
+  );
+  // The four numbers above the chart are per closed ticket, so they do not move when the chart groups days into weeks
+  const velocityKpis = useMemo(() => {
+    const finished = analyticsTickets.filter((t) => t.project !== "L2" && isTicketDone(t) && typeof t.resolutionMinutes === "number");
+    if (!finished.length) return null;
+    const times = finished.map((t) => t.resolutionMinutes as number);
+    // compliance against each ticket's own target (60 minutes for High, 120 for Medium/Low: lib/ticket-metrics.ts)
+    return { avg: Math.round(times.reduce((a, b) => a + b, 0) / times.length), compliancePct: slaCompliance(finished).rate ?? 0, min: Math.min(...times), max: Math.max(...times), count: times.length };
+  }, [analyticsTickets]);
 
   // Max volumes for scaling charts
-  const maxDayCreated = Math.max(1, ...volumeByDate.map((v) => v.created));
+  // The volume chart sums days into weeks or months when a bar per day would not fit its width (see volume-buckets.ts)
+  const volumeMaxBars = mobile ? 45 : Math.max(7, Math.floor(((volumeSize.width || 1000) - 60) / 16));
+  const volumeGranularity = volumeByDate.length ? chooseGranularity(volumeByDate[0].date, volumeByDate[volumeByDate.length - 1].date, volumeMaxBars) : "day";
+  const volumeBars = useMemo(() => (volumeGranularity ? bucketVolume(volumeByDate, volumeGranularity) : []), [volumeByDate, volumeGranularity]);
+  const maxDayCreated = Math.max(1, ...volumeBars.map((v) => v.created));
   const maxDayThroughput = Math.max(1, ...volumeByDate.map((v) => Math.max(v.created, v.closed, v.backlog)));
   const maxResTime = Math.max(70, ...volumeByDate.map((v) => v.avgResolution));
 
   // Compute Y-Ticks for main primary charts
   const stackedYTicks = useMemo(() => {
     if (!mobile) return computeYTicks(maxDayCreated);
-    const peak = Math.max(1, ...volumeByDate.map(day => Object.entries(day.projectCounts).reduce((sum, [project, count]) => sum + (hiddenCardProjects.has(project) ? 0 : count), 0)));
+    const peak = Math.max(1, ...volumeBars.map(day => Object.entries(day.projectCounts).reduce((sum, [project, count]) => sum + (hiddenCardProjects.has(project) ? 0 : count), 0)));
     const yMax = Math.max(4, Math.ceil(peak * 1.1));
     return { yMax, ticks: Array.from({ length: 5 }, (_, index) => Math.round(yMax * index / 4)) };
-  }, [mobile, maxDayCreated, volumeByDate, hiddenCardProjects]);
+  }, [mobile, maxDayCreated, volumeBars, hiddenCardProjects]);
   const trajectoryYTicks = useMemo(() => computeYTicks(maxDayThroughput), [maxDayThroughput]);
   const resolutionYTicks = useMemo(() => computeYTicks(maxResTime), [maxResTime]);
 
   useEffect(() => {
     if (!mobile || !volumeChartRef.current) return;
     if (selectedChartTab !== "stacked-project") { volumeChartRef.current.scrollLeft = volumeChartRef.current.scrollWidth; return; }
-    const geometry = compactVolumeGeometry(volumeByDate.length, volumeSize.width);
-    const peakIndex = volumeByDate.findIndex(day => day.created === maxDayCreated);
+    const geometry = compactVolumeGeometry(volumeBars.length, volumeSize.width);
+    const peakIndex = volumeBars.findIndex(day => day.created === maxDayCreated);
     volumeChartRef.current.scrollLeft = geometry.fits ? 0 : Math.max(0, geometry.start + peakIndex * geometry.step - volumeSize.width / 2);
-  }, [mobile, volumeByDate, maxDayCreated, volumeSize.width, volumeChartRef, selectedChartTab]);
+  }, [mobile, volumeBars, maxDayCreated, volumeSize.width, volumeChartRef, selectedChartTab]);
 
   useEffect(() => {
     if (!mobile || !volumeTouch) return;
@@ -1058,37 +746,20 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
   // Selected Engineer Filter for quick ops coordination
   const [selectedEngineerFilter, setSelectedEngineerFilter] = useState<string | null>(null);
 
-  // Active reference date for live ops (unaffected by analytics date filter)
-  const rawActiveDate = useMemo(() => {
-    const dates = tickets.map((t) => t.date).filter(Boolean).sort();
-    return dates.length > 0 ? dates[dates.length - 1]! : "2026-08-31";
-  }, [tickets]);
-
-  // Active reference date (latest date in volume series or current day)
-  const activeDate = volumeByDate.length > 0 ? volumeByDate[volumeByDate.length - 1].date : rawActiveDate;
-
-  // Today's tickets: all tickets created today or currently active in operational queue (unaffected by analytics filter)
-  const todayTickets = useMemo(() => {
-    return tickets
-      .filter((t) => {
-        const d = t.date || "2026-08-31";
-        const isToday = d === rawActiveDate;
-        const isActive = t.status.toLowerCase() !== "closed" && t.status.toLowerCase() !== "ditutup";
-        return isToday || isActive;
-      })
-      .sort((a, b) => {
-        // Sort newest creation time first (no SLA pressure ordering)
-        const timeA = a.created || "00:00";
-        const timeB = b.created || "00:00";
-        return timeB.localeCompare(timeA);
-      });
-  }, [tickets, rawActiveDate]);
+  // The two lists of the "Tiket Hari Ini" panel (not affected by the analytics filters):
+  //  - "today": the tickets opened today, in WIB (not "the newest day in the data")
+  //  - "open": every ticket that is not done yet, whatever day it was opened. A ticket with a completion time is done, whatever its status.
+  const [todayView, setTodayView] = useState<"today" | "open">("today");
+  const openedTodayTickets = useMemo(() => tickets.filter((t) => ticketDateOf(t) === todayWib).sort(newestFirst), [tickets, todayWib]);
+  const stillOpenTickets = useMemo(() => tickets.filter((t) => !isTicketDone(t)).sort(newestFirst), [tickets]);
+  const latestTicketDate = useMemo(() => tickets.reduce((latest, t) => { const day = ticketDateOf(t); return day > latest ? day : latest; }, ""), [tickets]);
+  const todayTickets = todayView === "today" ? openedTodayTickets : stillOpenTickets;
 
   // Filtered today's tickets based on engineer selection
   const displayedTodayTickets = useMemo(() => {
     if (!selectedEngineerFilter) return todayTickets;
     return todayTickets.filter((t) =>
-      (t.owner || "").toLowerCase().includes(selectedEngineerFilter.toLowerCase())
+      normalizeName(t.owner) === normalizeName(selectedEngineerFilter)
     );
   }, [todayTickets, selectedEngineerFilter]);
 
@@ -1146,58 +817,8 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
     return displayedTodayTickets.slice(startIdx, startIdx + effectivePageSize);
   }, [displayedTodayTickets, currentTodayPage, effectivePageSize, todayPageSize]);
 
-  // Shift workload snapshot (team-level aggregate)
-  const shiftWorkload = useMemo(() => {
-    const currentShift = activeShift.shortLabel;
-
-    const shiftTickets = activeTickets.filter((t) => (t.shift || "Pagi") === currentShift);
-    const unshiftedTickets = activeTickets.filter((t) => !t.shift);
-    const unclaimed = unshiftedTickets.length;
-    const inProgress = shiftTickets.filter((t) => {
-      const s = t.status.toLowerCase();
-      return s !== "pending";
-    }).length;
-    const pending = shiftTickets.filter((t) => t.status.toLowerCase() === "pending").length;
-
-    return { currentShift, shiftTickets: shiftTickets.length, unclaimed, inProgress, pending };
-  }, [activeShift.shortLabel, activeTickets]);
-
-  // Tickets per NOC Engineer Workload Distribution (Alphabetical, Non-punitive)
-  const engineerWorkloads = useMemo(() => {
-    const map: Record<string, { total: number; projectCounts: Record<string, number>; tickets: Ticket[] }> = {};
-
-    for (const t of activeTickets) {
-      const rawName = t.owner?.trim() || "Belum Ditugaskan";
-      if (!map[rawName]) {
-        map[rawName] = { total: 0, projectCounts: {}, tickets: [] };
-      }
-      map[rawName].total += 1;
-      map[rawName].projectCounts[t.project] = (map[rawName].projectCounts[t.project] || 0) + 1;
-      map[rawName].tickets.push(t);
-    }
-
-    const getInitials = (name: string) => {
-      if (!name || name === "Belum Ditugaskan") return "—";
-      const clean = name.replace(/^(Mhd\.|M\.)\s+/i, "").trim();
-      const parts = clean.split(/\s+/);
-      if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
-      return clean.slice(0, 2).toUpperCase();
-    };
-
-    return Object.entries(map)
-      .map(([name, data]) => ({
-        name,
-        initials: getInitials(name),
-        totalTickets: data.total,
-        projectBreakdown: data.projectCounts,
-        tickets: data.tickets,
-      }))
-      .sort((a, b) => {
-        if (a.name === "Belum Ditugaskan") return 1;
-        if (b.name === "Belum Ditugaskan") return -1;
-        return a.name.localeCompare(b.name);
-      });
-  }, [activeTickets]);
+  // The shift on duty now (the only part of the old workload snapshot the page shows)
+  const shiftWorkload = { currentShift: activeShift.shortLabel };
 
   // ── Task 3: Rekap Tiket per User (Today, Month, Year Breakdown & Detail Modal) ──
   interface UserSummaryData {
@@ -1205,11 +826,15 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
     role: string;
     initials: string;
     todayCount: number;
+    weekCount: number;
     monthCount: number;
     yearCount: number;
+    totalCount: number;
     todayBreakdown: Record<string, number>;
+    weekBreakdown: Record<string, number>;
     monthBreakdown: Record<string, number>;
     yearBreakdown: Record<string, number>;
+    totalBreakdown: Record<string, number>;
     recentTickets: Ticket[];
   }
 
@@ -1252,6 +877,9 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
     }
   }, [selectedUserDetail]);
 
+  // Per person: the tickets they own that were opened today, this month and this year (WIB), counted from the tickets themselves.
+  // The project, shift, status and severity filters apply; the date filter does not (these are fixed periods). Nobody gets a made-up figure:
+  // a person without tickets has zeros.
   const userSummaries = useMemo<UserSummaryData[]>(() => {
     const getInitials = (name: string) => {
       const clean = name.replace(/^(Mhd\.|M\.)\s+/i, "").trim();
@@ -1261,68 +889,31 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
     };
 
     const rosterToUse = analyticsSelectedShifters.length > 0
-      ? STAFF_ROSTER.filter((staff) => analyticsSelectedShifters.includes(staff.name))
-      : STAFF_ROSTER;
+      ? roster.filter((person) => analyticsSelectedShifters.includes(person.name))
+      : roster;
 
-    return rosterToUse.map((staff) => {
-      // Find all tickets assigned to this staff member (using analyticsTickets)
-      const staffTickets = analyticsTickets.filter((t) => {
-        const owner = (t.owner || "").toLowerCase();
-        const staffKey = staff.name.toLowerCase().replace(/^(mhd\.|m\.)\s+/i, "");
-        return owner.includes(staffKey) || staff.name.toLowerCase().includes(owner);
-      });
-
-      // Today's tickets
-      const todayStaffTickets = staffTickets.filter(
-        (t) => (t.date || "2026-08-31") === activeDate || (t.status.toLowerCase() !== "closed" && t.status.toLowerCase() !== "ditutup")
-      );
-
-      const todayBreakdown: Record<string, number> = {};
-      for (const t of todayStaffTickets) {
-        todayBreakdown[t.project] = (todayBreakdown[t.project] || 0) + 1;
-      }
-
-      // Month breakdown (aggregating current tickets + monthly distribution)
-      const monthBreakdown: Record<string, number> = {};
-      for (const t of staffTickets) {
-        monthBreakdown[t.project] = (monthBreakdown[t.project] || 0) + 1;
-      }
-      // Ensure key project baselines
-      if (Object.keys(monthBreakdown).length === 0) {
-        monthBreakdown["EPC Tools"] = Math.round(staff.baseMonth * 0.35);
-        monthBreakdown["USIEM"] = Math.round(staff.baseMonth * 0.3);
-        monthBreakdown["SM"] = Math.round(staff.baseMonth * 0.2);
-        monthBreakdown["B2B"] = Math.round(staff.baseMonth * 0.15);
-      }
-
-      // Year breakdown
-      const yearBreakdown: Record<string, number> = {};
-      const projKeys = ["EPC Tools", "USIEM", "SM", "MB", "B2B", "APH", "DM"];
-      let remainingYear = staff.baseYear;
-      projKeys.forEach((p, idx) => {
-        const share = idx === projKeys.length - 1 ? remainingYear : Math.round(staff.baseYear * (0.25 - idx * 0.03));
-        yearBreakdown[p] = Math.max(5, share);
-        remainingYear -= yearBreakdown[p];
-      });
-
-      const todayCount = todayStaffTickets.length;
-      const monthCount = Math.max(todayCount, staffTickets.length > 0 ? staffTickets.length * 4 : staff.baseMonth);
-      const yearCount = staff.baseYear + todayCount;
+    return rosterToUse.map((person) => {
+      const staffTickets = ticketsWithoutDateFilter.filter((t) => matchesPerson(t, person)).sort(newestFirst);
+      const counts = periodCounts(staffTickets, todayWib);
 
       return {
-        name: staff.name,
-        role: staff.role,
-        initials: getInitials(staff.name),
-        todayCount,
-        monthCount,
-        yearCount,
-        todayBreakdown,
-        monthBreakdown,
-        yearBreakdown,
+        name: person.name,
+        role: person.role,
+        initials: getInitials(person.name),
+        todayCount: counts.today,
+        weekCount: counts.week,
+        monthCount: counts.month,
+        yearCount: counts.year,
+        totalCount: counts.total,
+        todayBreakdown: counts.byProject.today,
+        weekBreakdown: counts.byProject.week,
+        monthBreakdown: counts.byProject.month,
+        yearBreakdown: counts.byProject.year,
+        totalBreakdown: counts.byProject.total,
         recentTickets: staffTickets.slice(0, 10),
       };
     }).sort((a, b) => a.name.localeCompare(b.name)); // Strictly alphabetical
-  }, [analyticsTickets, activeDate, analyticsSelectedShifters]);
+  }, [ticketsWithoutDateFilter, roster, todayWib, analyticsSelectedShifters]);
 
   // CSV Export with enriched auditable fields
   const exportCsv = () => {
@@ -1345,38 +936,35 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
     ];
 
     const rows = analyticsTickets.map((t) => {
-      const target = t.slaTargetMinutes || (t.severity.toLowerCase() === "critical" ? 60 : 120);
-      const actual = t.resolutionMinutes ?? (t.agingHours ? t.agingHours * 60 : 30);
-      const slaMet = actual <= target ? "YES" : "NO (BREACHED)";
-
+      const status = slaStatus(t);
       return [
         `#${t.id}`,
-        t.date || "2026-08-31",
+        ticketDateOf(t),
         t.created,
-        t.shift || "Pagi",
+        t.shift ?? "",
         t.project,
-        t.type || t.category || "Incident",
+        t.type || t.category || "",
         t.severity,
         t.status,
         t.responseMinutes ?? "",
         t.resolutionMinutes ?? "",
-        target,
-        slaMet,
+        slaTargetFor(t),
+        status === "met" ? "YES" : status === "breached" ? "NO (BREACHED)" : "PENDING",
         t.agingHours ? t.agingHours.toFixed(1) : "",
-        t.rootCauseCategory ? `"${t.rootCauseCategory}"` : "",
-        `"${t.subject.replace(/"/g, '""')}"`,
+        t.rootCauseCategory ?? "",
+        t.subject,
       ];
     });
 
-    const csvContent = [headers.join(";"), ...rows.map((r) => r.join(";"))].join("\n");
+    const csvContent = [csvLine(headers), ...rows.map((r) => csvLine(r))].join("\n");
     const blob = new Blob([`\uFEFF${csvContent}`], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
     anchor.href = url;
-    anchor.download = `noc-ticket-analytics-${dateRangeLabel.toLowerCase().replace(/[^a-z0-9]/g, "-")}-${new Date().toISOString().slice(0, 10)}.csv`;
+    anchor.download = `noc-ticket-analytics-${dateFilterLabel(analyticsDateFilter, todayWib).toLowerCase().replace(/[^a-z0-9]/g, "-")}-${new Date().toISOString().slice(0, 10)}.csv`;
     anchor.click();
     URL.revokeObjectURL(url);
-    notify.success(`NOC Ticket Analytics (${dateRangeLabel}) berhasil diekspor ke CSV dengan detail SLA dan Root Cause.`, {
+    notify.success(`NOC Ticket Analytics (${dateFilterLabel(analyticsDateFilter, todayWib)}) berhasil diekspor ke CSV.`, {
       id: "ticket-report-csv",
     });
   };
@@ -1485,10 +1073,27 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
               <div className="flex flex-col gap-[2px] compact-chart-heading-left">
                 <h2 data-ops-title className={`${REPORT_PANEL_TITLE} panel-title m-0`}>
                   <span className="max-lg:inline-flex max-lg:size-8 max-lg:shrink-0 max-lg:items-center max-lg:justify-center max-lg:rounded-[10px] max-lg:bg-sky-400/12 lg:contents"><ListChecks size={15} className="text-sky-400 max-lg:size-4" /></span>
-                  Tiket Hari Ini
+                  <span className="max-lg:hidden">{todayView === "today" ? "Tiket Hari Ini" : "Tiket Masih Terbuka"}</span><span className="lg:hidden">Tiket</span>
                 </h2>
               </div>
-              <div className="flex items-center gap-[8px] max-lg:min-w-16 max-lg:justify-end">
+              <div className="flex items-center gap-[8px] max-lg:min-w-0 max-lg:justify-end">
+                {!isLoading && (
+                  <div role="group" aria-label="Pilih daftar tiket" className="inline-flex items-center gap-[2px] rounded-[7px] border border-[var(--line)] bg-[rgba(15,23,42,0.4)] p-[2px]">
+                    {([["today", "Hari ini", "Hari ini", openedTodayTickets.length], ["open", "Masih terbuka", "Terbuka", stillOpenTickets.length]] as const).map(([id, label, shortLabel, count]) => (
+                      <button
+                        key={id}
+                        type="button"
+                        aria-pressed={todayView === id}
+                        title={id === "today" ? "Tiket yang dibuka hari ini (WIB)" : "Semua tiket yang belum selesai, dari hari mana pun"}
+                        onClick={() => { setTodayView(id); setTodayPage(1); }}
+                        className={`inline-flex items-center gap-[5px] rounded-[5px] px-[8px] py-[3px] text-[10.5px] font-semibold cursor-pointer transition-colors duration-150 max-lg:min-h-9 max-lg:text-[11px] ${todayView === id ? "bg-[rgba(56,189,248,0.18)] text-[#38bdf8]" : "text-[var(--ink-secondary)] hover:text-[var(--ink-primary)]"}`}
+                      >
+                        <span className="max-lg:hidden">{label}</span><span className="lg:hidden">{shortLabel}</span>
+                        <span className="font-mono text-[10px] opacity-80">{count}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
                 {selectedEngineerFilter && (
                   <button
                     type="button"
@@ -1526,7 +1131,7 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
                   <>
                     <div
                       ref={todayTicketListRef}
-                      role="list" aria-label="Tiket hari ini"
+                      role="list" aria-label={todayView === "today" ? "Tiket hari ini" : "Tiket yang masih terbuka"}
                       className="flex-1 min-h-0 overflow-y-auto overscroll-contain pr-2 [scrollbar-gutter:stable] [scrollbar-width:thin] [scrollbar-color:#334155_transparent] [&::-webkit-scrollbar]:w-[6px] [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-700 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb:hover]:bg-slate-600 flex flex-col gap-[6px] today-ticket-list max-lg:gap-0 max-lg:flex-none max-lg:overflow-visible max-lg:pr-0 max-lg:[scrollbar-gutter:auto]"
                     >
                       {(mobile ? displayedTodayTickets : paginatedTodayTickets).map((ticket, ticketIndex) => {
@@ -1678,8 +1283,8 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
                   <CenteredEmptyState
                     className="flex-1 min-h-0 chart-empty-hint ops-empty-hint max-lg:h-[388.5px] max-lg:min-h-0 max-lg:flex-none"
                     icon={<CheckCircle2 size={24} />}
-                    title={selectedEngineerFilter ? "Tidak ada tiket aktif" : "Tidak ada tiket hari ini"}
-                    description={selectedEngineerFilter ? `Tidak ada tiket aktif yang ditugaskan ke ${selectedEngineerFilter}.` : "Semua tenang untuk saat ini."}
+                    title={selectedEngineerFilter ? "Tidak ada tiket aktif" : todayView === "today" ? "Belum ada tiket hari ini" : "Tidak ada tiket yang masih terbuka"}
+                    description={selectedEngineerFilter ? `Tidak ada tiket aktif yang ditugaskan ke ${selectedEngineerFilter}.` : todayView === "today" ? (latestTicketDate ? `Tiket terakhir masuk pada ${latestTicketDate}.` : "Belum ada tiket sama sekali.") : "Semua tiket sudah selesai."}
                   />
                 )}
               </PanelSkeletonWrapper>
@@ -1766,12 +1371,13 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
                   <div ref={monitoringListRef} role="list" aria-label="Checklist monitoring shift" className="flex flex-col gap-[7px] flex-1 min-h-0 overflow-y-auto max-h-[340px] pr-[6px] pb-2 [scrollbar-gutter:stable] [scrollbar-width:thin] [scrollbar-color:rgba(56,189,248,0.35)_transparent] [&::-webkit-scrollbar]:w-[6px] [&::-webkit-scrollbar-track]:bg-slate-800/20 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-600/70 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb:hover]:bg-sky-500/80 engineer-workload-list max-lg:flex-none max-lg:overflow-visible max-lg:max-h-none max-lg:pr-0 max-lg:[scrollbar-gutter:auto]">
                     {monitoringItems.map((item, monitoringIndex) => {
                       const isOk = item.status === "OK";
+                      const isPending = item.status === "Belum";
                       return (
                         <div
                           key={item.id}
                           role="listitem" aria-label={`${item.task}, ${item.status}`}
                           className={`flex items-center justify-between gap-[10px] p-[7px_11px] rounded-[8px] shrink-0 cursor-default monitoring-check-card max-lg:p-0 max-lg:pl-1.5 max-lg:gap-2 ${!monitoringExpanded && monitoringIndex >= 5 ? "max-lg:hidden" : ""} ${
-                            isOk
+                            isOk || isPending
                               ? "bg-[rgba(255,255,255,0.025)] border border-[rgba(255,255,255,0.07)] hover:bg-[rgba(255,255,255,0.04)] hover:border-[rgba(255,255,255,0.12)]"
                               : "bg-[rgba(244,63,94,0.05)] border border-[rgba(244,63,94,0.25)] border-l-[3.5px] max-lg:border-l-[3px] [&.is-nok.is-nok]:border-l-[#f43f5e] hover:bg-[rgba(244,63,94,0.08)] hover:border-[rgba(244,63,94,0.32)] is-nok"
                           }`}
@@ -1787,20 +1393,19 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
 
                             </div>
                           </div>
-                          <button
-                            type="button"
-                            onClick={() => toggleMonitoringStatus(item.id)}
-                            aria-label={`Status ${item.project}: ${item.task}, ${item.status}`}
+                          <span
                             className={`inline-flex items-center justify-center gap-[5px] h-[24px] p-[0_9px] rounded-[6px] text-[10.5px] max-lg:text-[11px] font-bold font-mono cursor-default select-none shrink-0 tracking-[0.02em] monitoring-status-btn max-lg:h-11 max-lg:min-h-11 max-lg:w-14 max-lg:min-w-14 max-lg:px-1 ${
                               isOk
                                 ? "bg-[rgba(16,185,129,0.12)] border border-[rgba(16,185,129,0.3)] text-[#34d399] btn-ok"
+                                : isPending
+                                ? "bg-[rgba(148,163,184,0.08)] border border-[rgba(148,163,184,0.22)] text-[#94a3b8] btn-pending"
                                 : "bg-[rgba(244,63,94,0.14)] border border-[rgba(244,63,94,0.35)] text-[#fb7185] btn-nok"
                             }`}
-                            title={`Status: ${item.status}`}
+                            title={isPending ? "Belum dinilai di halaman Monitoring" : `Status: ${item.status}`}
                           >
-                            {isOk ? <Check size={11} strokeWidth={2.5} /> : <X size={11} strokeWidth={2.5} />}
+                            {isOk ? <Check size={11} strokeWidth={2.5} /> : isPending ? <Clock size={11} strokeWidth={2.5} /> : <X size={11} strokeWidth={2.5} />}
                             {item.status}
-                          </button>
+                          </span>
                         </div>
                       );
                     })}
@@ -1812,14 +1417,14 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
                     <div className="flex items-center gap-[6px] text-[10.5px] max-lg:text-[11px] text-[#94a3b8] font-mono whitespace-nowrap shrink-0 [&_strong]:text-[#f8fafc] [&_strong]:font-bold compact-engineer-workload-stats">
                       <span
                         className="engineer-workload-stat-item"
-                        title={`${monitoringItems.length} dari 13 checkpoint shift telah diperiksa (${okCount} OK, ${nokCount} NOK)`}
+                        title={`${assessedCount} dari ${monitoringItems.length} checkpoint sudah dinilai di halaman Monitoring (${okCount} OK, ${nokCount} NOK)`}
                       >
-                        <span className="hidden lg:inline">Total: <strong>{monitoringItems.length} dari 13 Checklist</strong></span><span className="lg:hidden">{okCount}/{monitoringItems.length} OK</span>
+                        <span className="hidden lg:inline">Dinilai: <strong>{assessedCount} dari {monitoringItems.length} Checkpoint</strong></span><span className="lg:hidden">{assessedCount}/{monitoringItems.length} dinilai</span>
                       </span>
                     </div>
                     <div className="flex items-center gap-[6px] text-[10.5px] max-lg:text-[11px] text-[#94a3b8] font-mono whitespace-nowrap shrink-0 [&_strong]:text-[#f8fafc] [&_strong]:font-bold compact-engineer-workload-stats">
                       <span className="engineer-workload-stat-item">
-                        <span className="hidden lg:inline">Rata-rata: </span><strong>{((okCount / (monitoringItems.length || 1)) * 100).toFixed(0)}%</strong> Kesiapan
+                        <span className="hidden lg:inline">Rata-rata: </span><strong>{assessedCount ? `${Math.round((okCount / assessedCount) * 100)}%` : "—"}</strong> Kesiapan
                       </span>
                     </div>
                   </div>
@@ -1871,10 +1476,10 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
             <label className="text-[10.5px] max-lg:text-[11px] font-semibold text-[#94a3b8] tracking-[0.02em] analytics-filter-label">Rentang Tanggal</label>
             <div className="relative w-full lg:[&_.date-picker-input-wrapper]:h-[34px] lg:[&_[role='button']]:h-[34px] max-lg:[&_.date-picker-input-wrapper]:h-11 analytics-date-picker-wrap">
               <DatePicker
-                value={analyticsDateFilter}
-                onChange={setAnalyticsDateFilter}
-                placeholder="Pilih Rentang Tanggal"
-                showAllTimePreset={false}
+                value={dateFilterToPickerValue(analyticsDateFilter, todayWib)}
+                onChange={value => setAnalyticsDateFilter(pickerValueToDateFilter(value, todayWib))}
+                placeholder="Semua Waktu"
+                referenceDate={todayWib}
                 inlineCalendar={phone}
                 aria-label="Filter tanggal analitik tiket"
               />
@@ -1929,7 +1534,7 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
             <AnalyticsShifterMultiSelect
               selectedList={analyticsSelectedShifters}
               onChange={setAnalyticsSelectedShifters}
-              staffList={STAFF_ROSTER}
+              staffList={roster}
             />
           </div>
 
@@ -1977,7 +1582,6 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
                 data-active={analyticsSeverityFilter !== "All" ? "true" : undefined}
               >
                 <option value="All">Semua Severity</option>
-                <option value="Critical">{severityLabel("Critical")}</option>
                 <option value="High">{severityLabel("High")}</option>
                 <option value="Medium">{severityLabel("Medium")}</option>
                 <option value="Low">{severityLabel("Low")}</option>
@@ -1992,7 +1596,7 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
 
       {/* ── 2. Primary Charts Section: Enhanced Stacked Bar per Project & Trajectory + Rekap Tiket per User ── */}
       {/* className="report-primary-chart-grid" */}
-      <div className="grid grid-cols-[minmax(0,1fr)_380px] max-[1140px]:grid-cols-1 gap-[16px] items-stretch w-full max-lg:items-start max-lg:gap-3 report-primary-chart-grid">
+      <div className="grid grid-cols-[minmax(0,1fr)_340px] max-[1140px]:grid-cols-1 gap-[16px] items-stretch w-full max-lg:items-start max-lg:gap-3 report-primary-chart-grid">
         {/* Left: Volume per Project / Trajectory Chart (Tabs) */}
         <article className={`${REPORT_PANEL_CARD} flex flex-col h-full min-h-[580px] max-lg:min-h-0 primary-chart-panel max-lg:[&.primary-chart-panel.primary-chart-panel_.panel-view-action-btn]:size-10 max-lg:[&.primary-chart-panel.primary-chart-panel_.panel-view-action-btn]:min-h-10 max-lg:[&.primary-chart-panel.primary-chart-panel_.panel-view-action-btn]:min-w-10 max-lg:[&.primary-chart-panel.primary-chart-panel_.panel-view-action-btn_span]:hidden`}>
           <div className={`${REPORT_PANEL_HEADING} report-panel-heading`}>
@@ -2066,32 +1670,61 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
             {/* View A: Stacked Bar Chart per Project (Enhanced Sizing, Wide Bars, Distinct Gridlines & Y-Axis Scale) */}
             {selectedChartTab === "stacked-project" && (
               <div className="relative flex flex-col flex-1 w-full justify-start gap-[12px] stacked-chart-container">
-                {volumeByDate.length > 0 ? (
+                {volumeByDate.length > 0 && !volumeGranularity ? (
+                  <div role="status" className="flex flex-1 min-h-[300px] w-full flex-col items-center justify-center gap-4 rounded-xl px-6 py-10 text-center bg-[radial-gradient(circle_at_50%_45%,rgba(251,191,36,0.06),transparent_60%)] max-lg:min-h-[260px]">
+                    <span aria-hidden="true" className="grid size-12 shrink-0 place-items-center rounded-full border border-amber-400/25 bg-amber-400/10 text-amber-300 shadow-[0_0_0_6px_rgba(251,191,36,0.05)]"><Calendar size={20} /></span>
+                    <div className="flex max-w-[360px] flex-col gap-1">
+                      <p className="m-0 text-[15px] font-semibold leading-snug text-[#f8fafc]">Rentang terlalu panjang untuk grafik ini</p>
+                      <p className="m-0 text-[13px] leading-snug text-[#94a3b8]">{analyticsTickets.length} tiket dari {volumeByDate[0].date} sampai {volumeByDate[volumeByDate.length - 1].date} tidak muat ditampilkan, bahkan per bulan. Persempit rentang tanggal untuk melihat grafiknya.</p>
+                    </div>
+                  </div>
+                ) : volumeByDate.length > 0 ? (
                   <>
+                    {volumeGranularity && volumeGranularity !== "day" && (
+                      <ChartModeNote badge={granularityBadge(volumeGranularity)} detail="Klik batang untuk melihat rincian periodenya.">
+                        {granularityNote(volumeByDate[0].date, volumeByDate[volumeByDate.length - 1].date, volumeGranularity)}
+                      </ChartModeNote>
+                    )}
                     <div className="hidden h-4 shrink-0 items-center justify-between gap-2 whitespace-nowrap text-[11px] leading-4 text-slate-400 max-lg:flex">
-                      <span>Total {analyticsTickets.length} · Puncak {maxDayCreated} ({volumeByDate.find(day => day.created === maxDayCreated)?.date.slice(5)})</span>
-                      <span className="font-mono">{volumeByDate[0].date.slice(5)}–{volumeByDate.at(-1)?.date.slice(5)}</span>
+                      <span>Total {analyticsTickets.length} · Puncak {maxDayCreated} ({(() => { const peak = volumeBars.find(day => day.created === maxDayCreated); return peak ? bucketAxisLabel(peak, volumeGranularity ?? "day") : ""; })()})</span>
+                      <span className="font-mono">{volumeBars[0].date.slice(5)}–{volumeBars.at(-1)?.to.slice(5)}</span>
                     </div>
                     {(() => {
-                      const n = volumeByDate.length;
+                      const granularity = volumeGranularity ?? "day";
+                      const n = volumeBars.length;
                       const compact = compactVolumeGeometry(n, volumeSize.width);
-                      const svgViewBoxWidth = mobile ? compact.width : Math.max(760, n * 48 + 80);
-                      const startX = mobile ? 24 : 55;
-                      const endX = svgViewBoxWidth - 30;
-                      const totalSpan = endX - startX;
-                      const maxStep = 54;
-                      const minStep = 32;
-                      const stepX = mobile ? compact.step : n > 1 ? Math.min(maxStep, Math.max(minStep, totalSpan / (n - 1))) : 0;
-                      const barWidth = mobile ? compact.bar : Math.min(44, Math.max(20, Math.round(stepX * 0.64)));
-                      const usedWidth = n > 1 ? (n - 1) * stepX : barWidth;
-                      const actualStartX = mobile ? compact.start : n > 1 && (n - 1) * maxStep < totalSpan 
-                        ? Math.round(startX + (totalSpan - usedWidth) / 2) 
-                        : startX;
+                      // Desktop draws in real pixels (the viewBox is the measured width), so nothing is stretched: bars share the width evenly.
+                      const svgViewBoxWidth = mobile ? compact.width : Math.max(320, Math.round(volumeSize.width || 760));
+                      const plotLeft = 48;
+                      const slot = (svgViewBoxWidth - 12 - plotLeft) / Math.max(1, n);
+                      const stepX = mobile ? compact.step : slot;
+                      const barWidth = mobile ? compact.bar : Math.max(4, Math.min(48, Math.round(slot * 0.62)));
+                      const centerX = (idx: number) => (mobile ? compact.start + idx * compact.step : plotLeft + slot * (idx + 0.5));
+                      const labelEvery = Math.max(1, Math.ceil((granularity === "day" ? 42 : 52) / slot));
+                      // On a phone the last bar always gets its label, so the regular label just before it steps aside when it would collide
+                      const mobileLabelEvery = Math.max(1, Math.ceil(n / Math.max(2, Math.floor(volumeSize.width / 55))));
+                      const showAllValues = slot >= 26;
 
-                      const viewBoxHeight = mobile ? 220 : 270;
-                      const baselineY = mobile ? 184 : 225;
-                      const topY = mobile ? 16 : 22;
-                      const chartHeight = baselineY - topY; // 203
+                      // ...and in the height the panel gives it (the svg is laid over its box, so it never pushes the panel taller)
+                      const viewBoxHeight = mobile ? 220 : Math.max(280, Math.round(volumeSize.height || 360));
+                      const baselineY = mobile ? 184 : viewBoxHeight - 38;
+                      const topY = mobile ? 16 : 26;
+                      const chartHeight = baselineY - topY;
+
+                      // Where every bar and its segments sit, computed once for the drawing layer and the hover layer
+                      const barGeometry = volumeBars.map((item, idx) => {
+                        const visibleTotal = Object.entries(item.projectCounts).reduce((sum, [project, count]) => sum + (hiddenCardProjects.has(project) ? 0 : count), 0);
+                        const x = mobile ? centerX(idx) - barWidth / 2 : Math.round(centerX(idx) - barWidth / 2);
+                        let top = baselineY;
+                        const segments = Object.entries(item.projectCounts)
+                          .filter(([project]) => !(mobile && hiddenCardProjects.has(project)))
+                          .map(([project, count]) => {
+                            const height = mobile ? count / Math.max(1, visibleTotal) * Math.max(visibleTotal > 0 ? 3 : 0, visibleTotal / stackedYTicks.yMax * chartHeight) : Math.max(2, (count / stackedYTicks.yMax) * chartHeight);
+                            top -= height;
+                            return { project, count, y: top, height, color: PROJECT_COLORS[project] || "#94a3b8" };
+                          });
+                        return { item, x, center: x + barWidth / 2, top, visibleTotal, segments };
+                      });
 
                       return (
                         <div data-volume-plot className="contents max-lg:block max-lg:relative max-lg:w-full max-lg:pl-9 max-lg:h-[220px]" onPointerDown={event => {
@@ -2108,12 +1741,12 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
                         {mobile && <svg aria-hidden="true" viewBox="0 0 36 220" className="hidden max-lg:block absolute left-0 top-0 h-[220px] w-9 text-slate-400">
                           {stackedYTicks.ticks.map(tick => <text key={tick} x="30" y={184 - tick / stackedYTicks.yMax * 168 + 4} textAnchor="end" fill="currentColor" fontSize="11" fontFamily="var(--font-mono)">{tick}</text>)}
                         </svg>}
-                        <div ref={volumeChartRef} aria-label="Volume tiket per tanggal; ketuk atau geser untuk rincian" className={"w-full overflow-x-auto overflow-y-hidden flex-1 flex flex-col justify-start min-h-[270px] compact-svg-barchart-wrap max-lg:min-h-[220px] max-lg:h-[220px] max-lg:flex-none max-lg:overscroll-x-contain max-lg:[scrollbar-width:none] max-lg:[&::-webkit-scrollbar]:hidden " + (compact.fits ? " max-lg:touch-pan-y " : " max-lg:touch-auto ") + volumeFade}>
+                        <div ref={volumeChartRef} aria-label="Volume tiket per tanggal; ketuk atau geser untuk rincian" className={"relative w-full overflow-x-auto overflow-y-hidden flex-1 flex flex-col justify-start min-h-[300px] compact-svg-barchart-wrap max-lg:min-h-[220px] max-lg:h-[220px] max-lg:flex-none max-lg:overscroll-x-contain max-lg:[scrollbar-width:none] max-lg:[&::-webkit-scrollbar]:hidden " + (compact.fits ? " max-lg:touch-pan-y " : " max-lg:touch-auto ") + volumeFade}>
                           <svg
                             style={mobile ? { width: svgViewBoxWidth, height: 220, flexShrink: 0 } : undefined}
-                            className="w-full h-full min-h-[270px] max-h-[390px] block compact-report-bar-svg-lg max-lg:min-h-[220px] max-lg:h-[220px]"
+                            className={mobile ? "w-full block compact-report-bar-svg-lg max-lg:min-h-[220px] max-lg:h-[220px]" : "absolute inset-0 size-full block compact-report-bar-svg-lg"}
                             viewBox={`0 0 ${svgViewBoxWidth} ${viewBoxHeight}`}
-                            preserveAspectRatio="none"
+                            preserveAspectRatio={mobile ? "none" : "xMidYMid meet"}
                           >
                             {/* Subtle Horizontal Gridlines & Y-Axis Scale */}
                             {stackedYTicks.ticks.map((tick) => {
@@ -2121,9 +1754,9 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
                               return (
                                 <g key={`grid-stacked-${tick}`}>
                                   <line
-                                    x1={mobile ? 0 : 45}
+                                    x1={mobile ? 0 : plotLeft - 4}
                                     y1={yPos}
-                                    x2={svgViewBoxWidth - 15}
+                                    x2={svgViewBoxWidth - (mobile ? 15 : 8)}
                                     y2={yPos}
                                     stroke="rgba(255, 255, 255, 0.08)"
                                     strokeWidth="1"
@@ -2131,7 +1764,7 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
                                   />
                                   {!mobile && <text
                                     className="max-lg:hidden"
-                                    x="38"
+                                    x={plotLeft - 12}
                                     y={yPos + 4}
                                     textAnchor="end"
                                     fill="var(--ink-muted)"
@@ -2146,41 +1779,20 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
                             })}
 
                             {/* Solid Floor Baseline */}
-                            <line x1={mobile ? 0 : 45} y1={baselineY} x2={svgViewBoxWidth - 15} y2={baselineY} stroke="var(--line)" strokeWidth="1.5" />
+                            <line x1={mobile ? 0 : plotLeft - 4} y1={baselineY} x2={svgViewBoxWidth - (mobile ? 15 : 8)} y2={baselineY} stroke="var(--line)" strokeWidth="1.5" />
 
-                            {/* Stacked Bars per Date */}
-                            {volumeByDate.map((item, idx) => {
-                              const visibleTotal = Object.entries(item.projectCounts).reduce((sum, [project, count]) => sum + (hiddenCardProjects.has(project) ? 0 : count), 0);
-                              const x = mobile ? actualStartX + idx * stepX - barWidth / 2 : n > 1 ? Math.round(actualStartX + idx * stepX - barWidth / 2) : Math.round(svgViewBoxWidth / 2 - barWidth / 2);
-                              let currentY = baselineY;
-
-                              const isSelected = selectedDate === item.date;
-                              const isHovered = hoveredDate === item.date;
-
+                            {/* Bars. Drawing only: the hover layer below takes the pointer, so moving across the segments of a bar changes nothing */}
+                            {barGeometry.map((bar, idx) => {
+                              const item = bar.item;
+                              const isSelected = Boolean(selectedDate && selectedDate >= item.date && selectedDate <= item.to);
+                              const regularLabel = idx % labelEvery === 0;
+                              const showLabel = mobile ? (idx % mobileLabelEvery === 0 && n - 1 - idx >= mobileLabelEvery) || idx === n - 1 : regularLabel || isSelected;
                               return (
-                                <g
-                                  key={item.date}
-                                  role="button"
-                                  tabIndex={0}
-                                  data-focus-ring="none"
-                                  aria-label={`Rincian tiket tanggal ${item.date}`}
-                                  onClick={() => setSelectedDate((prev) => (prev === item.date ? null : item.date))}
-                                  onKeyDown={(e) => {
-                                    if (e.key === "Enter" || e.key === " ") {
-                                      e.preventDefault();
-                                      setSelectedDate((prev) => (prev === item.date ? null : item.date));
-                                    }
-                                  }}
-                                  onMouseEnter={() => setHoveredDate(item.date)}
-                                  onMouseLeave={() => setHoveredDate(null)}
-                                  className={`max-lg:snap-center outline-none focus:outline-none focus-visible:brightness-125 stacked-bar-group [cursor:pointer]! [&_rect]:[transition:opacity_0.15s_ease,fill_0.15s_ease] [&_rect]:hover:opacity-100 ${isSelected ? "is-selected" : ""}`}
-                                >
-                                  <title>{`Klik untuk melihat rincian tiket tanggal ${item.date}`}</title>{mobile && <rect x={x - Math.max(0, stepX - barWidth) / 2} y={topY} width={Math.max(barWidth, stepX)} height={chartHeight + 24} fill="transparent" />}
-
+                                <g key={item.date} className="stacked-bar" aria-hidden="true" pointerEvents="none">
                                   {/* Background selected highlight column */}
                                   {isSelected && (
                                     <rect
-                                      x={x - 6}
+                                      x={bar.x - 6}
                                       y={topY}
                                       width={barWidth + 12}
                                       height={chartHeight + 4}
@@ -2192,84 +1804,134 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
                                     />
                                   )}
 
-                                  {/* Background hover highlight column (only when not selected) */}
-                                  {!isSelected && isHovered && (
-                                    <rect
-                                      x={x - 6}
-                                      y={topY}
-                                      width={barWidth + 12}
-                                      height={chartHeight + 4}
-                                      fill="rgba(56, 189, 248, 0.08)"
-                                      rx={8}
-                                    />
-                                  )}
-
                                   {/* Stacked Project segments */}
-                                  {Object.entries(item.projectCounts).map(([project, count]) => {
-                                    if (mobile && hiddenCardProjects.has(project)) return null;
-                                    const segmentHeight = mobile ? count / Math.max(1, visibleTotal) * Math.max(visibleTotal > 0 ? 3 : 0, visibleTotal / stackedYTicks.yMax * chartHeight) : Math.max(5, Math.round((count / stackedYTicks.yMax) * chartHeight));
-                                    currentY -= segmentHeight;
-                                    const color = PROJECT_COLORS[project] || "#94a3b8";
-
-                                    return (
-                                      <rect
-                                        key={project}
-                                        x={x}
-                                        y={currentY}
-                                        width={barWidth}
-                                        height={segmentHeight}
-                                        fill={color}
-                                        rx={3}
-                                        opacity={isSelected ? 1 : isHovered ? 0.95 : 0.9}
-                                        stroke={isSelected ? "rgba(255, 255, 255, 0.4)" : "var(--panel-bg)"}
-                                        strokeWidth={mobile ? "0.5" : isSelected ? "1" : "1.5"}
-                                      />
-                                    );
-                                  })}
+                                  {bar.segments.map((segment) => (
+                                    <rect
+                                      key={segment.project}
+                                      x={bar.x}
+                                      y={segment.y}
+                                      width={barWidth}
+                                      height={segment.height}
+                                      fill={segment.color}
+                                      rx={barWidth >= 12 ? 3 : 1.5}
+                                      opacity={isSelected ? 1 : 0.92}
+                                      stroke={isSelected ? "rgba(255, 255, 255, 0.4)" : "var(--panel-bg)"}
+                                      strokeWidth={mobile || barWidth < 12 ? "0.5" : isSelected ? "1" : "1.5"}
+                                    />
+                                  ))}
 
                                   {/* Total count badge above bar */}
-                                  {(!mobile || idx === n - 1 || item.created === maxDayCreated) && <text
-                                    x={mobile ? Math.min(svgViewBoxWidth - 18, Math.max(18, x + barWidth / 2)) : x + barWidth / 2}
-                                    y={currentY - 8}
+                                  {(mobile ? idx === n - 1 || item.created === maxDayCreated : item.created > 0 && (showAllValues || item.created === maxDayCreated || isSelected)) && <text
+                                    x={mobile ? Math.min(svgViewBoxWidth - 18, Math.max(18, bar.center)) : bar.center}
+                                    y={bar.top - 8}
                                     textAnchor="middle"
                                     fill={isSelected ? "#38bdf8" : "var(--ink-primary)"}
                                     fontSize="11"
                                     fontWeight="800"
                                     fontFamily="var(--font-mono)"
                                   >
-                                    {mobile ? visibleTotal : item.created}
+                                    {mobile ? bar.visibleTotal : item.created}
                                   </text>}
 
-                                  {/* Date label on X-axis */}
-                                  {(!mobile || idx % Math.max(1, Math.ceil(n / Math.max(2, Math.floor(volumeSize.width / 55)))) === 0 || idx === n - 1) && <text
-                                    x={mobile ? Math.min(svgViewBoxWidth - 20, Math.max(20, x + barWidth / 2)) : x + barWidth / 2}
+                                  {/* Date label on X-axis: the regular ones (the hovered bar names its date in its tooltip) */}
+                                  {showLabel && <text
+                                    x={mobile ? Math.min(svgViewBoxWidth - 20, Math.max(20, bar.center)) : Math.min(svgViewBoxWidth - 26, Math.max(22, bar.center))}
                                     y={baselineY + 22}
                                     textAnchor="middle"
-                                    fill={isSelected ? "var(--accent-blue)" : isHovered ? "var(--accent-blue)" : "var(--ink-primary)"}
+                                    fill={isSelected ? "var(--accent-blue)" : "var(--ink-primary)"}
                                     fontSize={mobile ? "11" : "10.5"}
-                                    fontWeight={isSelected ? "800" : isHovered ? "700" : "600"}
+                                    fontWeight={isSelected ? "800" : "600"}
                                     fontFamily="var(--font-mono)"
+                                    paintOrder="stroke"
+                                    stroke={!mobile && !regularLabel ? "var(--panel-bg)" : undefined}
+                                    strokeWidth={6}
                                   >
-                                    {item.date.slice(5)}
+                                    {bucketAxisLabel(item, granularity)}
                                   </text>}
 
                                   {/* Selected indicator dot */}
-                                  {isSelected && (
-                                    <circle
-                                      cx={x + barWidth / 2}
-                                      cy={baselineY + 33}
-                                      r={2.5}
-                                      fill="var(--accent-blue)"
+                                  {isSelected && <circle cx={bar.center} cy={baselineY + 33} r={2.5} fill="var(--accent-blue)" />}
+                                </g>
+                              );
+                            })}
+
+                            {/* Hover layer, on top of every bar. Each column covers its whole slot (no dead gaps, no overlap with its neighbours),
+                                and its highlight and tooltip are shown by CSS (:hover / :focus-visible): no React state, so hovering re-renders nothing. */}
+                            {barGeometry.map((bar) => {
+                              const item = bar.item;
+                              const isSelected = Boolean(selectedDate && selectedDate >= item.date && selectedDate <= item.to);
+                              const title = granularity === "day" ? formatDay(item.date) : bucketTitle(item, granularity);
+                              const toggleSelected = () => setSelectedDate(isSelected ? null : item.date);
+                              const slot = Math.max(barWidth, stepX);
+                              const top = [...bar.segments].sort((a, b) => b.count - a.count);
+                              const rows = top.slice(0, 3);
+                              const rest = top.slice(3).reduce((sum, segment) => sum + segment.count, 0);
+                              const tipWidth = 184;
+                              const tipHeight = 46 + (rows.length + (rest ? 1 : 0)) * 16;
+                              // above the bar when there is room, otherwise beside it (to the right, or to the left near the right edge)
+                              const roomAbove = bar.top - 10 - tipHeight >= 4;
+                              const besideRight = bar.center + barWidth / 2 + 10 + tipWidth <= svgViewBoxWidth - 4;
+                              const tipX = roomAbove
+                                ? Math.min(svgViewBoxWidth - tipWidth - 4, Math.max(plotLeft, bar.center - tipWidth / 2))
+                                : besideRight ? bar.center + barWidth / 2 + 10 : bar.center - barWidth / 2 - 10 - tipWidth;
+                              const tipY = roomAbove ? bar.top - 10 - tipHeight : Math.max(4, Math.min(baselineY - tipHeight, bar.top));
+                              return (
+                                <g
+                                  key={item.date}
+                                  role="button"
+                                  tabIndex={0}
+                                  data-focus-ring="none"
+                                  aria-label={`Rincian tiket ${title}: ${item.created} tiket`}
+                                  aria-pressed={isSelected}
+                                  onClick={toggleSelected}
+                                  onKeyDown={(e) => {
+                                    if (e.key === "Enter" || e.key === " ") {
+                                      e.preventDefault();
+                                      toggleSelected();
+                                    }
+                                  }}
+                                  className={`group outline-none max-lg:snap-center stacked-bar-group [cursor:pointer]! ${isSelected ? "is-selected" : ""}`}
+                                >
+                                  <rect x={bar.center - slot / 2} y={topY - 4} width={slot} height={chartHeight + 34} fill="transparent" />
+                                  {!isSelected && (
+                                    <rect
+                                      x={bar.x - 6}
+                                      y={topY}
+                                      width={barWidth + 12}
+                                      height={chartHeight + 4}
+                                      fill="rgba(56, 189, 248, 0.1)"
+                                      stroke="rgba(56, 189, 248, 0.35)"
+                                      strokeWidth="1"
+                                      rx={8}
+                                      pointerEvents="none"
+                                      className="opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100"
                                     />
+                                  )}
+                                  {!mobile && (
+                                    <g pointerEvents="none" className="opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100">
+                                      <rect x={tipX} y={tipY} width={tipWidth} height={tipHeight} rx={8} fill="#0b1220" fillOpacity="0.96" stroke="rgba(56, 189, 248, 0.4)" strokeWidth="1" />
+                                      <text x={tipX + 12} y={tipY + 19} fill="#f8fafc" fontSize="11.5" fontWeight="700">{title}</text>
+                                      <text x={tipX + 12} y={tipY + 36} fill="#38bdf8" fontSize="11" fontWeight="700" fontFamily="var(--font-mono)">{item.created} tiket</text>
+                                      {rows.map((segment, rowIndex) => (
+                                        <g key={segment.project}>
+                                          <rect x={tipX + 12} y={tipY + 46 + rowIndex * 16} width={8} height={8} rx={2} fill={segment.color} />
+                                          <text x={tipX + 26} y={tipY + 54 + rowIndex * 16} fill="#cbd5e1" fontSize="10.5">{projectLabel(segment.project, activeClientId)}</text>
+                                          <text x={tipX + tipWidth - 12} y={tipY + 54 + rowIndex * 16} textAnchor="end" fill="#f8fafc" fontSize="10.5" fontWeight="700" fontFamily="var(--font-mono)">{segment.count}</text>
+                                        </g>
+                                      ))}
+                                      {rest > 0 && (
+                                        <text x={tipX + 26} y={tipY + 54 + rows.length * 16} fill="#94a3b8" fontSize="10.5">+{top.length - rows.length} sistem lain · {rest}</text>
+                                      )}
+                                    </g>
                                   )}
                                 </g>
                               );
                             })}
                           </svg>
                         </div>
-                        {mobile && volumeTouch && volumeByDate[volumeTouch.index] && <div role="status" aria-live="polite" className="pointer-events-none absolute top-1 z-10 w-[220px] max-w-[calc(100%-8px)] rounded-lg border border-sky-400/40 bg-slate-900/95 p-2 text-[11px] leading-4 text-slate-200 shadow-lg" style={{ left: volumeTouch.x }}>
-                          <div className="font-semibold text-sky-300">{volumeByDate[volumeTouch.index].date} · Total {volumeByDate[volumeTouch.index].created}</div>
-                          <div>{Object.entries(volumeByDate[volumeTouch.index].projectCounts).slice(0, 3).map(([project, count]) => project + ": " + count).join(" · ")}</div>
+                        {mobile && volumeTouch && volumeBars[volumeTouch.index] && <div role="status" aria-live="polite" className="pointer-events-none absolute top-1 z-10 w-[220px] max-w-[calc(100%-8px)] rounded-lg border border-sky-400/40 bg-slate-900/95 p-2 text-[11px] leading-4 text-slate-200 shadow-lg" style={{ left: volumeTouch.x }}>
+                          <div className="font-semibold text-sky-300">{bucketTitle(volumeBars[volumeTouch.index], granularity)} · Total {volumeBars[volumeTouch.index].created}</div>
+                          <div>{Object.entries(volumeBars[volumeTouch.index].projectCounts).slice(0, 3).map(([project, count]) => project + ": " + count).join(" · ")}</div>
                         </div>}
                         </div>
                       );
@@ -2292,13 +1954,14 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
                     {/* Interactive Selected Detail Popover Card (muncul saat bar ditekan/diklik) */}
                     {selectedDate ? (
                       (() => {
-                        const selectedItem = volumeByDate.find((v) => v.date === selectedDate);
+                        const selectedItem = volumeBars.find((v) => selectedDate >= v.date && selectedDate <= v.to);
                         if (!selectedItem) return null;
+                        const isPeriod = selectedItem.date !== selectedItem.to;
                         return (
                           <div className="mt-[14px] p-[12px_16px] bg-[rgba(15,23,42,0.92)] [backdrop-filter:blur(10px)] [-webkit-backdrop-filter:blur(10px)] border border-[rgba(56,189,248,0.4)] [box-shadow:0_4px_20px_rgba(0,0,0,0.35)] rounded-[10px] flex flex-col gap-[8px] chart-hover-popover anim-fade">
                             <div className="flex items-center justify-between gap-[8px] text-[12px] text-[var(--accent-blue)] border-b border-[rgba(255,255,255,0.08)] pb-[6px] popover-header">
                               <div className="flex items-center gap-[8px] popover-title-left">
-                                <Calendar size={13} /> Tanggal: <strong>{selectedDate}</strong> · Total: <strong>{selectedItem.created} Tiket</strong>
+                                <Calendar size={13} /> {isPeriod ? "Periode" : "Tanggal"}: <strong>{bucketTitle(selectedItem, volumeGranularity ?? "day")}</strong> · Total: <strong>{selectedItem.created} Tiket</strong>
                               </div>
                               <button
                                 type="button"
@@ -2331,9 +1994,17 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
                     ) : null}
                   </>
                 ) : (
-                  <div className="flex min-h-[270px] flex-col items-center justify-center gap-3 text-[13px] text-slate-400 chart-empty-hint max-lg:h-[303px] max-lg:min-h-[220px]">
-                    <BarChart3 size={24} className="text-slate-500" /><span>Tidak ada data</span>
-                    {isAnyAnalyticsFilterActive && <button type="button" onClick={resetAllAnalyticsFilters} className="min-h-11 rounded-lg border border-slate-600 bg-[#243044] px-3 font-semibold text-slate-200">Reset filter</button>}
+                  <div role="status" className="flex flex-1 min-h-[300px] w-full flex-col items-center justify-center gap-4 rounded-xl px-6 py-10 text-center bg-[radial-gradient(circle_at_50%_45%,rgba(56,189,248,0.06),transparent_60%)] chart-empty-hint max-lg:h-[303px] max-lg:min-h-[220px] max-lg:flex-none max-lg:py-6">
+                    <span aria-hidden="true" className="grid size-12 shrink-0 place-items-center rounded-full border border-sky-400/25 bg-sky-400/10 text-sky-300 shadow-[0_0_0_6px_rgba(56,189,248,0.05)]"><BarChart3 size={20} /></span>
+                    <div className="flex max-w-[340px] flex-col gap-1">
+                      <p className="m-0 text-[15px] font-semibold leading-snug text-[#f8fafc]">{isNonDateAnalyticsFilterActive ? "Tidak ada tiket yang cocok" : analyticsDateFilter === "today" ? "Belum ada tiket hari ini" : "Tidak ada tiket pada rentang ini"}</p>
+                      <p className="m-0 text-[13px] leading-snug text-[#94a3b8]">{isNonDateAnalyticsFilterActive ? "Ubah atau reset filter untuk melihat volume tiket." : analyticsDateFilter === "today" ? "Grafik terisi otomatis saat tiket baru masuk hari ini." : `Tidak ada tiket pada ${dateFilterLabel(analyticsDateFilter, todayWib)}. Pilih rentang lain untuk melihat volume tiket.`}</p>
+                    </div>
+                    <div className="flex flex-wrap items-center justify-center gap-2">
+                        {!isNonDateAnalyticsFilterActive && analyticsDateFilter !== "today" && analyticsDateFilter !== "all" && <button type="button" onClick={() => setAnalyticsDateFilter("all")} className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-sky-400/40 bg-sky-400/10 px-3.5 text-[12.5px] font-semibold text-sky-300 transition-colors hover:border-sky-400/70 hover:bg-sky-400/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/50 max-lg:min-h-11"><Calendar size={14} aria-hidden="true" />Lihat semua waktu</button>}
+                        {analyticsDateFilter === "today" && !isAnyAnalyticsFilterActive && <button type="button" onClick={() => setAnalyticsDateFilter(lastSevenDaysFilter(todayWib))} className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-sky-400/40 bg-sky-400/10 px-3.5 text-[12.5px] font-semibold text-sky-300 transition-colors hover:border-sky-400/70 hover:bg-sky-400/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/50 max-lg:min-h-11"><Calendar size={14} aria-hidden="true" />Lihat 7 hari terakhir</button>}
+                        {isAnyAnalyticsFilterActive && <button type="button" onClick={resetAllAnalyticsFilters} className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-600 bg-[#243044] px-3.5 text-[12.5px] font-semibold text-slate-200 transition-colors hover:border-slate-500 hover:bg-[#2c3a52] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/50 max-lg:min-h-11"><RotateCcw size={14} aria-hidden="true" />Reset filter</button>}
+                    </div>
                   </div>
                 )}
               </div>
@@ -2341,603 +2012,14 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
 
             {/* View B: Month-over-Month (MoM) Comparison Chart (Bulan Lalu vs Bulan Ini) */}
             {selectedChartTab === "trajectory" && (
-              <div className="flex flex-col flex-1 w-full justify-start gap-[12px] mom-chart-container">
-                {/* Sub-view Mode Switcher & Period Indicators */}
-                <div className="flex items-center justify-between mb-[12px] p-[6px_12px] bg-[rgba(255,255,255,0.02)] rounded-[8px] border border-[rgba(255,255,255,0.06)] mom-subview-toggle-bar">
-                  <div className="text-[12px] text-[#94a3b8] mom-view-hint max-lg:hidden">
-                    Komparasi: <strong className="[color:#c084fc]!">● {momData.prevMonthLabel} (Bulan Lalu)</strong> vs{" "}
-                    <strong className="[color:#38bdf8]!">● {momData.currMonthLabel} (Bulan Ini)</strong>
-                  </div>
-                  <div className="flex gap-[6px] mom-toggle-btns">
-                    <button
-                      type="button"
-                      className={`inline-flex items-center gap-[5px] p-[5px_12px] text-[11px] font-semibold rounded-[6px] border cursor-pointer [transition:all_0.2s_ease] ${
-                        momSubView === "trajectory"
-                          ? "bg-[rgba(56,189,248,0.15)] border-[rgba(56,189,248,0.4)] text-[#38bdf8] active"
-                          : "border-[rgba(255,255,255,0.08)] bg-transparent text-[#94a3b8] hover:bg-[rgba(255,255,255,0.06)] hover:text-[#fff]"
-                      } mom-toggle-btn`}
-                      onClick={() => {
-                        setMomSubView("trajectory");
-                        setSelectedMomItem(null);
-                      }}
-                    >
-                      <TrendingUp size={12} /> Tren Trajectory
-                    </button>
-                    <button
-                      type="button"
-                      className={`inline-flex items-center gap-[5px] p-[5px_12px] text-[11px] font-semibold rounded-[6px] border cursor-pointer [transition:all_0.2s_ease] ${
-                        momSubView === "project"
-                          ? "bg-[rgba(56,189,248,0.15)] border-[rgba(56,189,248,0.4)] text-[#38bdf8] active"
-                          : "border-[rgba(255,255,255,0.08)] bg-transparent text-[#94a3b8] hover:bg-[rgba(255,255,255,0.06)] hover:text-[#fff]"
-                      } mom-toggle-btn`}
-                      onClick={() => {
-                        setMomSubView("project");
-                        setSelectedMomItem(null);
-                      }}
-                    >
-                      <Layers size={12} /> Komparasi per Sistem
-                    </button>
-                  </div>
-                </div>
-
-                {/* 3A. Subview: Tren Trajectory MoM (Line & Area Chart) */}
-                {momSubView === "trajectory" && (
-                  <div className="flex flex-col flex-1 w-full justify-start gap-[12px] trajectory-chart-container">
-                    {momData.trajectoryPoints.length > 0 ? (
-                      <>
-                        {(() => {
-                          const points = momData.trajectoryPoints;
-                          const n = points.length;
-                          const svgViewBoxWidth = mobile ? Math.max(volumeSize.width, n * 44 + 80) : Math.max(760, n * 58 + 80);
-                          const startX = 60;
-                          const endX = svgViewBoxWidth - 40;
-                          const totalSpan = endX - startX;
-                          const stepX = n > 1 ? totalSpan / (n - 1) : 0;
-
-                          const viewBoxHeight = 270;
-                          const baselineY = 225;
-                          const topY = 25;
-                          const chartHeight = baselineY - topY;
-
-                          const maxCount = Math.max(
-                            ...points.map((p) => Math.max(p.currCount, p.prevCount)),
-                            4
-                          );
-                          const yTicks = computeYTicks(maxCount);
-
-                          const pointsCurr = points.map((item, idx) => {
-                            const x = n > 1 ? Math.round(startX + idx * stepX) : Math.round(svgViewBoxWidth / 2);
-                            const y = baselineY - Math.round((item.currCount / yTicks.yMax) * chartHeight);
-                            return { x, y, item };
-                          });
-
-                          const pointsPrev = points.map((item, idx) => {
-                            const x = n > 1 ? Math.round(startX + idx * stepX) : Math.round(svgViewBoxWidth / 2);
-                            const y = baselineY - Math.round((item.prevCount / yTicks.yMax) * chartHeight);
-                            return { x, y, item };
-                          });
-
-                          const firstX = n > 1 ? startX : Math.round(svgViewBoxWidth / 2);
-                          const lastX = n > 1 ? Math.round(startX + (n - 1) * stepX) : Math.round(svgViewBoxWidth / 2);
-
-                          const polyCurr = pointsCurr.map((p) => `${p.x},${p.y}`).join(" L ");
-                          const polyPrev = pointsPrev.map((p) => `${p.x},${p.y}`).join(" L ");
-
-                          const areaCurr = `M ${firstX},${baselineY} L ${polyCurr} L ${lastX},${baselineY} Z`;
-                          const areaPrev = `M ${firstX},${baselineY} L ${polyPrev} L ${lastX},${baselineY} Z`;
-
-                          return (
-                            <div ref={volumeChartRef} className="w-full overflow-x-auto overflow-y-hidden flex-1 flex flex-col justify-start min-h-[270px] compact-svg-barchart-wrap max-lg:overscroll-x-contain max-lg:[scrollbar-width:thin]">
-                              <svg
-                                className="w-full h-full min-h-[270px] max-h-[390px] block compact-report-bar-svg-lg"
-                                style={mobile ? { width: svgViewBoxWidth, height: viewBoxHeight, flexShrink: 0 } : undefined}
-                                viewBox={`0 0 ${svgViewBoxWidth} ${viewBoxHeight}`}
-                                preserveAspectRatio="none"
-                              >
-                                <defs>
-                                  <linearGradient id="gradMomCurr" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.38" />
-                                    <stop offset="100%" stopColor="#38bdf8" stopOpacity="0.02" />
-                                  </linearGradient>
-                                  <linearGradient id="gradMomPrev" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="0%" stopColor="#a855f7" stopOpacity="0.30" />
-                                    <stop offset="100%" stopColor="#a855f7" stopOpacity="0.02" />
-                                  </linearGradient>
-                                </defs>
-
-                                {/* Y-Axis Gridlines & Ticks */}
-                                {yTicks.ticks.map((tick) => {
-                                  const yPos = baselineY - Math.round((tick / yTicks.yMax) * chartHeight);
-                                  return (
-                                    <g key={`grid-mom-${tick}`}>
-                                      <line
-                                        x1="45"
-                                        y1={yPos}
-                                        x2={svgViewBoxWidth - 15}
-                                        y2={yPos}
-                                        stroke="rgba(255, 255, 255, 0.08)"
-                                        strokeWidth="1"
-                                        strokeDasharray={tick === 0 ? undefined : "4 4"}
-                                      />
-                                      <text
-                                        x="38"
-                                        y={yPos + 4}
-                                        textAnchor="end"
-                                        fill="var(--ink-muted)"
-                                        fontSize="10"
-                                        fontWeight="600"
-                                        fontFamily="var(--font-mono)"
-                                      >
-                                        {tick}
-                                      </text>
-                                    </g>
-                                  );
-                                })}
-
-                                {/* Solid Baseline */}
-                                <line
-                                  x1="45"
-                                  y1={baselineY}
-                                  x2={svgViewBoxWidth - 15}
-                                  y2={baselineY}
-                                  stroke="var(--line)"
-                                  strokeWidth="1.5"
-                                />
-
-                                {/* Area Fills */}
-                                <path d={areaPrev} fill="url(#gradMomPrev)" />
-                                <path d={areaCurr} fill="url(#gradMomCurr)" />
-
-                                {/* Trend Lines */}
-                                <path
-                                  d={`M ${polyPrev}`}
-                                  fill="none"
-                                  stroke="#a855f7"
-                                  strokeWidth="2.5"
-                                  strokeDasharray="4 3"
-                                />
-                                <path
-                                  d={`M ${polyCurr}`}
-                                  fill="none"
-                                  stroke="#38bdf8"
-                                  strokeWidth="3"
-                                />
-
-                                {/* Interactive Markers & X Labels */}
-                                {points.map((item, idx) => {
-                                  const x = n > 1 ? Math.round(startX + idx * stepX) : Math.round(svgViewBoxWidth / 2);
-                                  const yCurr = baselineY - Math.round((item.currCount / yTicks.yMax) * chartHeight);
-                                  const yPrev = baselineY - Math.round((item.prevCount / yTicks.yMax) * chartHeight);
-                                  const isSelected = selectedMomItem?.id === `traj-${item.index}`;
-
-                                  return (
-                                    <g
-                                      key={`traj-pt-${item.index}`}
-                                      role="button"
-                                      tabIndex={0}
-                                      data-focus-ring="none"
-                                      className="[cursor:pointer]! outline-none focus:outline-none focus-visible:brightness-125"
-                                      onClick={() => {
-                                        setSelectedMomItem((prev) =>
-                                          prev?.id === `traj-${item.index}`
-                                            ? null
-                                            : {
-                                                type: "timeline",
-                                                id: `traj-${item.index}`,
-                                                label: item.label,
-                                                currCount: item.currCount,
-                                                prevCount: item.prevCount,
-                                                currResolved: item.currResolved,
-                                                prevResolved: item.prevResolved,
-                                                currDate: item.currDate,
-                                                prevDate: item.prevDate,
-                                                delta: item.currCount - item.prevCount,
-                                              }
-                                        );
-                                      }}
-                                    >
-                                      {/* Vertical guideline on select */}
-                                      {isSelected && (
-                                        <line
-                                          x1={x}
-                                          y1={topY}
-                                          x2={x}
-                                          y2={baselineY}
-                                          stroke="rgba(56, 189, 248, 0.4)"
-                                          strokeWidth="1.5"
-                                          strokeDasharray="3 3"
-                                        />
-                                      )}
-
-                                      {/* Prev Month Marker (Purple) */}
-                                      <circle
-                                        cx={x}
-                                        cy={yPrev}
-                                        r={isSelected ? 6 : 4}
-                                        fill={mobile ? "rgba(15,23,42,0.9)" : "#0f172a"}
-                                        stroke="#a855f7"
-                                        strokeWidth={isSelected ? 3 : 2}
-                                      />
-
-                                      {/* Curr Month Marker (Sky Blue) */}
-                                      <circle
-                                        cx={x}
-                                        cy={yCurr}
-                                        r={isSelected ? 7 : 5}
-                                        fill="#38bdf8"
-                                        stroke="#ffffff"
-                                        strokeWidth={2}
-                                      />
-
-                                      {/* X-Axis Tick Label */}
-                                      <text
-                                        x={x}
-                                        y={baselineY + 16}
-                                        textAnchor="middle"
-                                        fill={isSelected ? "#38bdf8" : "var(--ink-primary)"}
-                                        fontSize="10"
-                                        fontWeight={isSelected ? "700" : "500"}
-                                      >
-                                        {item.label}
-                                      </text>
-                                      <text
-                                        x={x}
-                                        y={baselineY + 28}
-                                        textAnchor="middle"
-                                        fill="var(--ink-muted)"
-                                        fontSize="8.5"
-                                        fontFamily="var(--font-mono)"
-                                      >
-                                        {item.currFormatted !== "-" ? item.currFormatted : item.prevFormatted}
-                                      </text>
-                                    </g>
-                                  );
-                                })}
-                              </svg>
-                            </div>
-                          );
-                        })()}
-
-                        <div className="flex justify-center gap-[24px] mt-[16px] pt-[12px] border-t border-[var(--line)] text-[12px] text-[var(--ink-secondary)] chart-legend-center max-lg:justify-start max-lg:overflow-x-auto max-lg:gap-3 max-lg:[&>span]:shrink-0 max-lg:overscroll-x-contain">
-                          <span className="inline-flex items-center gap-[8px] legend-item">
-                            <i className="w-[14px] h-[4px] rounded-[2px] inline-block bg-[#38bdf8] legend-dot" />
-                            {momData.currMonthLabel} (Bulan Ini: {momData.currTotal} tiket)
-                          </span>
-                          <span className="inline-flex items-center gap-[8px] legend-item">
-                            <i className="w-[14px] h-[4px] rounded-[2px] inline-block bg-[#a855f7] legend-dot" />
-                            {momData.prevMonthLabel} (Bulan Lalu: {momData.prevTotal} tiket)
-                          </span>
-                        </div>
-                      </>
-                    ) : (
-                      <div className="p-[40px_0] text-center text-[var(--ink-muted)] text-[12px] chart-empty-hint">Tidak ada data trajectory perbandingan.</div>
-                    )}
-                  </div>
-                )}
-
-                {/* 3B. Subview: Komparasi per Sistem (Grouped Bar Chart) */}
-                {momSubView === "project" && (
-                  <div className="flex flex-col flex-1 w-full justify-start gap-[12px] trajectory-chart-container">
-                    {momData.projectComparison.length > 0 ? (
-                      <>
-                        {(() => {
-                          const projects = momData.projectComparison;
-                          const numProj = projects.length;
-                          const svgWidth = mobile ? Math.max(volumeSize.width, numProj * 80 + 80) : Math.max(760, numProj * 88 + 80);
-                          const startX = 65;
-                          const endX = svgWidth - 40;
-                          const span = endX - startX;
-                          const groupWidth = span / numProj;
-                          const barWidth = mobile ? 22 : 16;
-                          const barGap = 4;
-
-                          const viewBoxHeight = 270;
-                          const baselineY = 225;
-                          const topY = 25;
-                          const chartHeight = baselineY - topY;
-
-                          const maxCount = Math.max(
-                            ...projects.map((p) => Math.max(p.currCount, p.prevCount)),
-                            4
-                          );
-                          const yTicks = computeYTicks(maxCount);
-
-                          return (
-                            <div ref={volumeChartRef} className="w-full overflow-x-auto overflow-y-hidden flex-1 flex flex-col justify-start min-h-[270px] compact-svg-barchart-wrap max-lg:overscroll-x-contain max-lg:[scrollbar-width:thin]">
-                              <svg
-                                className="w-full h-full min-h-[270px] max-h-[390px] block compact-report-bar-svg-lg"
-                                style={mobile ? { width: svgWidth, height: viewBoxHeight, flexShrink: 0 } : undefined}
-                                viewBox={`0 0 ${svgWidth} ${viewBoxHeight}`}
-                                preserveAspectRatio="none"
-                              >
-                                {/* Y-Axis Gridlines & Ticks */}
-                                {yTicks.ticks.map((tick) => {
-                                  const yPos = baselineY - Math.round((tick / yTicks.yMax) * chartHeight);
-                                  return (
-                                    <g key={`grid-proj-${tick}`}>
-                                      <line
-                                        x1="45"
-                                        y1={yPos}
-                                        x2={svgWidth - 15}
-                                        y2={yPos}
-                                        stroke="rgba(255, 255, 255, 0.08)"
-                                        strokeWidth="1"
-                                        strokeDasharray={tick === 0 ? undefined : "4 4"}
-                                      />
-                                      <text
-                                        x="38"
-                                        y={yPos + 4}
-                                        textAnchor="end"
-                                        fill="var(--ink-muted)"
-                                        fontSize="10"
-                                        fontWeight="600"
-                                        fontFamily="var(--font-mono)"
-                                      >
-                                        {tick}
-                                      </text>
-                                    </g>
-                                  );
-                                })}
-
-                                {/* Solid Baseline */}
-                                <line
-                                  x1="45"
-                                  y1={baselineY}
-                                  x2={svgWidth - 15}
-                                  y2={baselineY}
-                                  stroke="var(--line)"
-                                  strokeWidth="1.5"
-                                />
-
-                                {/* Project Group Bars */}
-                                {projects.map((item, idx) => {
-                                  const groupCenter = startX + idx * groupWidth + groupWidth / 2;
-                                  const xPrev = groupCenter - barWidth - barGap / 2;
-                                  const xCurr = groupCenter + barGap / 2;
-
-                                  const hPrev = Math.round((item.prevCount / yTicks.yMax) * chartHeight);
-                                  const yPrev = baselineY - hPrev;
-
-                                  const hCurr = Math.round((item.currCount / yTicks.yMax) * chartHeight);
-                                  const yCurr = baselineY - hCurr;
-
-                                  const isSelected = selectedMomItem?.id === `proj-${item.project}`;
-                                  const deltaLabel = item.delta > 0 ? `+${item.delta}` : `${item.delta}`;
-
-                                  return (
-                                    <g
-                                      key={`mom-proj-${item.project}`}
-                                      role="button"
-                                      tabIndex={0}
-                                      data-focus-ring="none"
-                                      className="[cursor:pointer]! outline-none focus:outline-none focus-visible:brightness-125"
-                                      onClick={() => {
-                                        setSelectedMomItem((prev) =>
-                                          prev?.id === `proj-${item.project}`
-                                            ? null
-                                            : {
-                                                type: "project",
-                                                id: `proj-${item.project}`,
-                                                label: item.project,
-                                                currCount: item.currCount,
-                                                prevCount: item.prevCount,
-                                                currResolved: item.currResolved,
-                                                prevResolved: item.prevResolved,
-                                                delta: item.delta,
-                                                deltaPct: item.deltaPct,
-                                              }
-                                        );
-                                      }}
-                                    >
-                                      {/* Background column highlight on select */}
-                                      {isSelected && (
-                                        <rect
-                                          x={groupCenter - groupWidth / 2 + 4}
-                                          y={topY}
-                                          width={groupWidth - 8}
-                                          height={chartHeight + 5}
-                                          fill="rgba(56, 189, 248, 0.08)"
-                                          rx="6"
-                                        />
-                                      )}
-
-                                      {/* Delta Badge above the bars */}
-                                      <g transform={`translate(${groupCenter}, ${Math.min(yPrev, yCurr) - 10})`}>
-                                        <rect
-                                          x="-14"
-                                          y="-10"
-                                          width="28"
-                                          height="13"
-                                          rx="3"
-                                          fill={
-                                            item.delta > 0
-                                              ? "rgba(248, 113, 113, 0.2)"
-                                              : item.delta < 0
-                                              ? "rgba(52, 211, 153, 0.2)"
-                                              : "rgba(255, 255, 255, 0.08)"
-                                          }
-                                        />
-                                        <text
-                                          x="0"
-                                          y="-1"
-                                          textAnchor="middle"
-                                          fontSize="8.5"
-                                          fontWeight="700"
-                                          fontFamily="var(--font-mono)"
-                                          fill={
-                                            item.delta > 0
-                                              ? "#f87171"
-                                              : item.delta < 0
-                                              ? "#34d399"
-                                              : "var(--ink-muted)"
-                                          }
-                                        >
-                                          {deltaLabel}
-                                        </text>
-                                      </g>
-
-                                      {/* Left Bar: Bulan Lalu (Purple) */}
-                                      <rect
-                                        x={xPrev}
-                                        y={yPrev}
-                                        width={barWidth}
-                                        height={Math.max(2, hPrev)}
-                                        fill="#a855f7"
-                                        opacity={0.88}
-                                        rx="3"
-                                      />
-                                      {item.prevCount > 0 && (
-                                        <text
-                                          x={xPrev + barWidth / 2}
-                                          y={yPrev - 3}
-                                          textAnchor="middle"
-                                          fill="#c084fc"
-                                          fontSize="9"
-                                          fontWeight="700"
-                                          fontFamily="var(--font-mono)"
-                                        >
-                                          {item.prevCount}
-                                        </text>
-                                      )}
-
-                                      {/* Right Bar: Bulan Ini (Sky Blue) */}
-                                      <rect
-                                        x={xCurr}
-                                        y={yCurr}
-                                        width={barWidth}
-                                        height={Math.max(2, hCurr)}
-                                        fill="#38bdf8"
-                                        rx="3"
-                                      />
-                                      {item.currCount > 0 && (
-                                        <text
-                                          x={xCurr + barWidth / 2}
-                                          y={yCurr - 3}
-                                          textAnchor="middle"
-                                          fill="#38bdf8"
-                                          fontSize="9"
-                                          fontWeight="700"
-                                          fontFamily="var(--font-mono)"
-                                        >
-                                          {item.currCount}
-                                        </text>
-                                      )}
-
-                                      {/* Bottom Project Label & Dot */}
-                                      <circle
-                                        cx={groupCenter - 18}
-                                        cy={baselineY + 16}
-                                        r="3.5"
-                                        fill={item.color}
-                                      />
-                                      <text
-                                        x={groupCenter - 10}
-                                        y={baselineY + 19}
-                                        textAnchor="start"
-                                        fill={isSelected ? "#38bdf8" : "var(--ink-primary)"}
-                                        fontSize="10"
-                                        fontWeight={isSelected ? "700" : "600"}
-                                      >
-                                        {item.project}
-                                      </text>
-                                    </g>
-                                  );
-                                })}
-                              </svg>
-                            </div>
-                          );
-                        })()}
-
-                        <div className="flex justify-center gap-[24px] mt-[16px] pt-[12px] border-t border-[var(--line)] text-[12px] text-[var(--ink-secondary)] chart-legend-center max-lg:justify-start max-lg:overflow-x-auto max-lg:gap-3 max-lg:[&>span]:shrink-0 max-lg:overscroll-x-contain">
-                          <span className="inline-flex items-center gap-[8px] legend-item">
-                            <i className="w-[9px] h-[9px] rounded-[2.5px] inline-block bg-[#38bdf8] legend-dot" />
-                            {momData.currMonthLabel} (Bulan Ini)
-                          </span>
-                          <span className="inline-flex items-center gap-[8px] legend-item">
-                            <i className="w-[9px] h-[9px] rounded-[2.5px] inline-block bg-[#a855f7] legend-dot" />
-                            {momData.prevMonthLabel} (Bulan Lalu)
-                          </span>
-                        </div>
-                      </>
-                    ) : (
-                      <div className="p-[40px_0] text-center text-[var(--ink-muted)] text-[12px] chart-empty-hint">Tidak ada data sistem perbandingan.</div>
-                    )}
-                  </div>
-                )}
-
-                {/* 4. Interactive Detail Popover Card */}
-                {selectedMomItem ? (
-                  <div className="mt-[12px] p-[12px_16px] bg-[rgba(15,23,42,0.92)] [backdrop-filter:blur(10px)] [-webkit-backdrop-filter:blur(10px)] border border-[rgba(56,189,248,0.4)] [box-shadow:0_4px_20px_rgba(0,0,0,0.35)] rounded-[10px] flex flex-col gap-[8px] chart-hover-popover anim-fade">
-                    <div className="flex items-center justify-between gap-[8px] text-[12px] text-[var(--accent-blue)] border-b border-[rgba(255,255,255,0.08)] pb-[6px] popover-header">
-                      <div className="flex items-center gap-[8px] popover-title-left">
-                        {selectedMomItem.type === "project" ? (
-                          <>
-                            <Layers size={13} className="text-sky-400" /> Komparasi Sistem:{" "}
-                            <strong>{selectedMomItem.label}</strong>
-                          </>
-                        ) : (
-                          <>
-                            <Calendar size={13} className="text-sky-400" /> Timeline:{" "}
-                            <strong>{selectedMomItem.label}</strong>
-                            <span className="text-[11px] text-[var(--ink-muted)] ml-[6px]">
-                              ({selectedMomItem.currDate || "-"} vs {selectedMomItem.prevDate || "-"})
-                            </span>
-                          </>
-                        )}
-                      </div>
-                      <button
-                        type="button"
-                        className="bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.12)] text-[var(--ink-muted)] rounded-[6px] w-[28px] h-[28px] min-w-[28px] min-h-[28px] inline-grid place-items-center cursor-pointer p-0 [transition:all_0.15s_ease] shrink-0 hover:bg-[rgba(239,68,68,0.2)] hover:border-[rgba(239,68,68,0.5)] hover:text-[#f87171] focus-visible:[outline:none] focus-visible:border-[var(--accent-blue-border)] focus-visible:[box-shadow:0_0_0_3px_rgba(56,189,248,0.18)] chart-popover-close-btn"
-                        onClick={() => setSelectedMomItem(null)}
-                        title="Tutup detail komparasi"
-                        aria-label="Tutup detail komparasi"
-                      >
-                        <X size={13} className="block w-[14px] h-[14px] shrink-0 pointer-events-none" />
-                      </button>
-                    </div>
-                    <div className="flex gap-[14px] flex-wrap popover-project-list">
-                      <span className="inline-flex items-center gap-[6px] text-[12px] text-[var(--ink-primary)] bg-[rgba(255,255,255,0.03)] p-[3px_8px] rounded-[5px] border border-[rgba(255,255,255,0.05)] popover-item">
-                        <i className="w-[9px] h-[9px] rounded-[2.5px] inline-block bg-[#38bdf8] legend-dot" />
-                        <strong>{momData.currMonthLabel} (Bulan Ini):</strong> {selectedMomItem.currCount} tiket
-                        {typeof selectedMomItem.currResolved === "number" && ` (${selectedMomItem.currResolved} diselesaikan)`}
-                      </span>
-                      <span className="inline-flex items-center gap-[6px] text-[12px] text-[var(--ink-primary)] bg-[rgba(255,255,255,0.03)] p-[3px_8px] rounded-[5px] border border-[rgba(255,255,255,0.05)] popover-item">
-                        <i className="w-[9px] h-[9px] rounded-[2.5px] inline-block bg-[#c084fc] legend-dot" />
-                        <strong>{momData.prevMonthLabel} (Bulan Lalu):</strong> {selectedMomItem.prevCount} tiket
-                        {typeof selectedMomItem.prevResolved === "number" && ` (${selectedMomItem.prevResolved} diselesaikan)`}
-                      </span>
-                      <span className="inline-flex items-center gap-[6px] text-[12px] text-[var(--ink-primary)] bg-[rgba(255,255,255,0.03)] p-[3px_8px] rounded-[5px] border border-[rgba(255,255,255,0.05)] popover-item">
-                        <i
-                          className="w-[9px] h-[9px] rounded-[2.5px] inline-block legend-dot"
-                          style={{
-                            background:
-                              selectedMomItem.delta > 0
-                                ? "#f87171"
-                                : selectedMomItem.delta < 0
-                                ? "#34d399"
-                                : "#94a3b8",
-                          }}
-                        />
-                        <strong>Selisih (MoM):</strong>{" "}
-                        <span
-                          style={{
-                            color:
-                              selectedMomItem.delta > 0
-                                ? "#f87171"
-                                : selectedMomItem.delta < 0
-                                ? "#34d399"
-                                : "inherit",
-                            fontWeight: 700,
-                          }}
-                        >
-                          {selectedMomItem.delta > 0 ? `+${selectedMomItem.delta}` : selectedMomItem.delta} tiket
-                          {selectedMomItem.deltaPct !== undefined && ` (${selectedMomItem.deltaPct}%)`}
-                        </span>
-                      </span>
-                    </div>
-                  </div>
-                ) : null}
-              </div>
+              <MomComparison
+                data={momComparison}
+                variant="compact"
+                view={momSubView === "project" ? "project" : "trajectory"}
+                onViewChange={setMomSubView}
+                projectLabel={(project) => projectLabel(project, activeClientId)}
+                projectColor={(project) => PROJECT_COLORS[project] || "#94a3b8"}
+              />
             )}
             </PanelSkeletonWrapper>
           </div>
@@ -2985,59 +2067,26 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
                   <button
                     type="button"
                     key={user.name}
-                    className={`flex flex-col gap-1.5 p-2 sm:p-2.5 rounded-lg bg-[rgba(148,163,184,0.04)] border border-[rgba(148,163,184,0.1)] cursor-pointer text-left w-full transition-all duration-150 hover:bg-[rgba(56,189,248,0.08)] hover:border-[rgba(56,189,248,0.3)] shrink-0 user-summary-card max-lg:grid max-lg:grid-cols-[32px_minmax(0,1fr)_108px_40px] max-lg:grid-rows-1 max-lg:items-center max-lg:gap-x-1.5 max-lg:gap-y-0 max-lg:h-[60px] max-lg:rounded-none max-lg:border-0 max-lg:border-b max-lg:border-slate-700/50 max-lg:bg-transparent max-lg:p-0 max-lg:py-1.5 max-lg:[&_.metric-val]:text-[15px] max-lg:[&_.metric-lbl]:font-sans max-lg:[&_.metric-lbl]:tracking-normal max-lg:[&_.metric-lbl]:leading-[14px] ${!staffExpanded && staffIndex >= 5 ? "max-lg:hidden" : ""}`}
-                    aria-label={`Detail ${user.name}`}
+                    className={`group grid grid-cols-[32px_minmax(0,1fr)_auto_14px] items-center gap-x-2.5 px-2.5 py-2.5 rounded-xl bg-[rgba(148,163,184,0.04)] border border-[rgba(148,163,184,0.1)] cursor-pointer text-left w-full transition-colors duration-150 hover:bg-[rgba(56,189,248,0.07)] hover:border-[rgba(56,189,248,0.3)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/50 shrink-0 user-summary-card max-lg:min-h-[64px] max-lg:grid-cols-[32px_minmax(0,1fr)_auto_16px] max-lg:rounded-none max-lg:border-0 max-lg:border-b max-lg:border-slate-700/50 max-lg:bg-transparent max-lg:px-0 ${!staffExpanded && staffIndex >= 5 ? "max-lg:hidden" : ""}`}
+                    aria-label={`Detail ${user.name}: ${user.totalCount} tiket total, ${user.todayCount} tiket hari ini`}
                     onClick={() => setSelectedUserDetail(user)}
-                    title={`Klik untuk melihat rincian sistem dan histori tiket ${user.name}`}
                   >
-                    <div className="flex items-center justify-between gap-[8px] user-summary-card-top max-lg:contents">
-                      <div className="flex items-center gap-[7px] min-w-0 user-profile-left max-lg:contents">
-                        <Avatar size={mobile ? "md" : "sm"} initials={user.initials} name={user.name} className="w-[24px] h-[24px] rounded-[50%] flex items-center justify-center text-[9.5px] max-lg:text-[11px] font-bold text-[#fff] shrink-0 user-avatar-sm max-lg:col-start-1 max-lg:row-start-1 max-lg:size-8 max-lg:text-[11px]" />
-                        <div className={`flex flex-col min-w-0 user-name-role max-lg:col-start-2 max-lg:row-start-1 ${Object.keys(user.todayBreakdown).length ? "max-lg:self-start" : ""}`}>
-                          <span className="text-[11px] font-bold text-[var(--ink-primary)] whitespace-nowrap overflow-hidden text-ellipsis user-summary-name max-lg:text-[14px] max-lg:leading-[18px]" title={user.name}>{user.name}</span>
-                          <span className="text-[9px] max-lg:text-[11px] text-[var(--ink-muted)] whitespace-nowrap overflow-hidden text-ellipsis user-summary-role max-lg:leading-[14px]" title={user.role}>{user.role}</span>
-                        </div>
-                      </div>
-                      <span className="inline-flex items-center gap-[2px] text-[9.5px] max-lg:text-[11px] font-semibold text-[#38bdf8] shrink-0 user-detail-link max-lg:col-start-4 max-lg:row-start-1 max-lg:size-10 max-lg:justify-center">
-                        <span className="max-lg:hidden">Detail</span><ChevronRight size={11} className="max-lg:size-4" />
+                    <Avatar size="md" initials={user.initials} name={user.name} className="size-8 rounded-full flex items-center justify-center text-[11px] font-bold text-white shrink-0 user-avatar-sm" />
+                    <span className="flex flex-col min-w-0 gap-[3px]">
+                      <span className="text-[12.5px] font-semibold leading-tight text-[var(--ink-primary)] truncate user-summary-name max-lg:text-[14px]" title={user.name}>{user.name}</span>
+                      <span className="text-[10.5px] leading-tight text-[var(--ink-muted)] truncate user-summary-role max-lg:text-[11px]" title={user.role}>{user.role || "—"}</span>
+                    </span>
+                    <span className="flex items-start gap-3 user-metrics-row">
+                      <span className="flex w-[52px] flex-col items-center gap-[5px] leading-none user-metric-col metric-total" title="Semua tiket orang ini pada filter yang dipilih">
+                        <strong className={`font-mono text-[16px] font-extrabold tabular-nums metric-val ${user.totalCount ? "text-[var(--ink-primary)]" : "text-slate-500"}`}>{user.totalCount.toLocaleString("id-ID")}</strong>
+                        <span className="text-balance text-center text-[9.5px] font-semibold leading-[1.15] text-[var(--ink-muted)] metric-lbl max-lg:text-[10px]">Total Tiket</span>
                       </span>
-                    </div>
-
-                    {/* 3 Metric Pills */}
-                    <div className="grid grid-cols-3 gap-[4px] p-[3px_6px] rounded-[6px] bg-[rgba(15,23,42,0.4)] border border-[rgba(148,163,184,0.08)] user-metrics-row max-lg:col-start-3 max-lg:row-start-1 max-lg:gap-1.5 max-lg:border-0 max-lg:bg-transparent max-lg:p-0">
-                      <div className="flex flex-col items-center text-center gap-[1px] user-metric-col metric-today">
-                        <span className="text-[7.5px] max-lg:text-[11px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl">{mobile ? "Hari" : "HARI INI"}</span>
-                        <strong className={`text-[12px] font-extrabold font-mono text-[#38bdf8] metric-val ${user.todayCount === 0 ? "max-lg:text-slate-400" : ""}`}>{user.todayCount}</strong>
-                      </div>
-                      <div className="flex flex-col items-center text-center gap-[1px] user-metric-col metric-month">
-                        <span className="text-[7.5px] max-lg:text-[11px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl">{mobile ? "Bulan" : "BULAN INI"}</span>
-                        <strong className="text-[12px] font-extrabold font-mono text-[#10b981] metric-val max-lg:text-[#4ade80]">{user.monthCount}</strong>
-                      </div>
-                      <div className="flex flex-col items-center text-center gap-[1px] user-metric-col metric-year">
-                        <span className="text-[7.5px] max-lg:text-[11px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl">{mobile ? "Tahun" : "TAHUN INI"}</span>
-                        <strong className="text-[12px] font-extrabold font-mono text-[#818cf8] metric-val max-lg:text-[#c084fc]">{user.yearCount}</strong>
-                      </div>
-                    </div>
-
-                    {/* Today's project tags */}
-                    <HorizontalScroll className={`flex items-center gap-[4px] text-[9px] max-lg:text-[11px] text-[var(--ink-muted)] user-today-projects max-lg:col-start-2 max-lg:row-start-1 max-lg:self-end max-lg:h-[14px] max-lg:min-h-[14px] max-lg:overflow-x-auto max-lg:whitespace-nowrap max-lg:overscroll-x-contain max-lg:[scrollbar-width:none] max-lg:[&::-webkit-scrollbar]:hidden ${Object.keys(user.todayBreakdown).length ? "" : "max-lg:hidden"}`}>
-                      <span className="text-[8.5px] max-lg:text-[11px] text-[var(--ink-muted)] font-semibold shrink-0 user-proj-label max-lg:hidden">Hari Ini:</span>
-                      {Object.keys(user.todayBreakdown).length > 0 ? (
-                        <div className="flex flex-wrap gap-[3px] user-proj-pills-wrap max-lg:flex-nowrap">
-                          {Object.entries(user.todayBreakdown).map(([proj, count]) => {
-                            const pColor = PROJECT_COLORS[proj] || "#94a3b8";
-                            return (
-                              <span className="inline-flex items-center gap-[2px] p-[1px_4px] rounded-[3px] text-[8.5px] max-lg:text-[11px] font-mono font-semibold bg-[rgba(255,255,255,0.06)] text-[var(--ink-secondary)] user-proj-badge max-lg:py-0 max-lg:leading-[14px]" key={proj}>
-                                <i className="w-[9px] h-[9px] rounded-[2.5px] inline-block legend-dot" style={{ background: pColor }} />
-                                {projectLabel(proj, activeClientId)} &times;{count}
-                              </span>
-                            );
-                          })}
-                        </div>
-                      ) : (
-                        <span className="text-[8.5px] max-lg:text-[11px] text-[var(--ink-muted)] italic user-proj-none">Tidak ada tiket baru hari ini</span>
-                      )}
-                    </HorizontalScroll>
+                      <span className="flex w-[52px] flex-col items-center gap-[5px] leading-none user-metric-col metric-today" title="Tiket yang dibuka hari ini (WIB)">
+                        <strong className={`font-mono text-[16px] font-extrabold tabular-nums metric-val ${user.todayCount ? "text-[#38bdf8]" : "text-slate-500"}`}>{user.todayCount}</strong>
+                        <span className="text-balance text-center text-[9.5px] font-semibold leading-[1.15] text-[var(--ink-muted)] metric-lbl max-lg:text-[10px]">Tiket Saat Ini</span>
+                      </span>
+                    </span>
+                    <ChevronRight size={14} className="text-slate-500 transition-colors group-hover:text-sky-300 user-detail-link" aria-hidden="true" />
                   </button>
                 ))}
               </div>
@@ -3174,7 +2223,6 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
                   <svg className="w-full h-full donut-svg" viewBox="0 0 160 160">
                     {renderDonutSlices(
                       [
-                        { label: "Critical", count: priorityCounts.Critical, color: PRIORITY_COLORS.Critical },
                         { label: "High", count: priorityCounts.High, color: PRIORITY_COLORS.High },
                         { label: "Medium", count: priorityCounts.Medium, color: PRIORITY_COLORS.Medium },
                         { label: "Low", count: priorityCounts.Low, color: PRIORITY_COLORS.Low },
@@ -3188,18 +2236,18 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none donut-center-content">
                     <span className="text-[28px] font-bold font-mono text-[#f8fafc] leading-none tabular-nums donut-total-num">
-                      {priorityCounts.Critical + priorityCounts.High}
+                      {priorityCounts.High}
                     </span>
                     <span className="text-[10px] max-lg:text-[11px] font-mono uppercase tracking-[0.12em] text-[#94a3b8] mt-1 donut-total-label">
-                      CRIT/HIGH
+                      HIGH
                     </span>
                   </div>
                 </div>
               </div>
 
               {/* Priority Summary Grid */}
-              <div className="grid grid-cols-1 @[340px]:grid-cols-2 @[520px]:grid-rows-2 gap-3 w-full h-full priority-spectrum-list max-lg:grid-cols-2 max-lg:gap-2">
-                {(["Critical", "High", "Medium", "Low"] as const).map((key) => {
+              <div className="grid grid-cols-1 @[340px]:grid-cols-3 gap-3 w-full h-full priority-spectrum-list max-lg:grid-cols-3 max-lg:gap-2">
+                {(["High", "Medium", "Low"] as const).map((key) => {
                   const count = priorityCounts[key];
                   const pct = total > 0 ? Math.round((count / total) * 100) : 0;
                   const style = SEVERITY_CARD_STYLES[key];
@@ -3243,18 +2291,19 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
           <div>
             <div className={`${REPORT_PANEL_TITLE} panel-title`}><span className="hidden lg:inline">Tren Durasi Penyelesaian (Resolution Velocity)</span><span className="lg:hidden">Tren Durasi</span></div>
           </div>
-          <div className="flex items-center gap-[16px] flex-wrap velocity-legend-strip max-lg:[&_.compact-velocity-legend-item]:hidden">
+          {/* the legend only explains lines that are drawn; with nothing to draw it is hidden */}
+          <div className={`flex items-center gap-[16px] flex-wrap velocity-legend-strip max-lg:[&_.compact-velocity-legend-item]:hidden ${velocityKpis && velocitySeries.length > 0 ? "" : "[&_.compact-velocity-legend-item]:hidden"}`}>
             <div className="flex items-center gap-[6px] text-[11px] font-semibold text-[var(--ink-secondary)] compact-velocity-legend-item">
               <span className="inline-block w-[16px] h-[3px] rounded-[2px] bg-[#38bdf8] shadow-[0_0_8px_rgba(56,189,248,0.4)] velocity-legend-line velocity-legend-blue" />
               <span>Rata-rata Resolusi</span>
             </div>
             <div className="flex items-center gap-[6px] text-[11px] font-semibold text-[var(--ink-secondary)] compact-velocity-legend-item">
               <span className="inline-block w-[16px] h-0 rounded-[2px] bg-[#f59e0b] border-t-[2px] border-t-dashed border-t-[#f59e0b] border-transparent velocity-legend-line velocity-legend-orange" />
-              <span>Target SLA (60m)</span>
+              <span>Target High (60m)</span>
             </div>
             <div className="flex items-center gap-[6px] text-[11px] font-semibold text-[var(--ink-secondary)] compact-velocity-legend-item">
               <span className="inline-block w-[16px] h-0 rounded-[2px] bg-[#f87171] border-t-[2px] border-t-dashed border-t-[#f87171] border-transparent velocity-legend-line velocity-legend-red" />
-              <span>Batas Kritis / Breach (90m)</span>
+              <span>Target Medium/Low (120m)</span>
             </div>
             <PanelViewButton
               panelTitle="Tren Durasi Penyelesaian"
@@ -3277,16 +2326,11 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
                 skeleton={<ResolutionVelocitySkeleton />}
               liveRegionText="Memuat tren durasi penyelesaian..."
             >
-            {volumeByDate.length > 0 ? (
+            {velocityKpis && velocitySeries.length > 0 ? (
               <>
-                {/* 4 Summary Stat Pills for Quick Velocity Intelligence */}
+                {/* 4 Summary Stat Pills for Quick Velocity Intelligence (per closed ticket) */}
                 {(() => {
-                  const resolutions = volumeByDate.map((v) => v.avgResolution);
-                  const avg = Math.round(resolutions.reduce((a, b) => a + b, 0) / (resolutions.length || 1));
-                  const min = Math.min(...resolutions);
-                  const max = Math.max(...resolutions);
-                  const metCount = volumeByDate.filter((v) => v.avgResolution <= 60).length;
-                  const compliancePct = Math.round((metCount / volumeByDate.length) * 100);
+                  const { avg, min, max, compliancePct } = velocityKpis;
 
                   return (
                     <div className="grid grid-cols-4 max-[860px]:grid-cols-2 gap-[10px] mb-[2px] velocity-metrics-strip max-lg:auto-rows-fr">
@@ -3295,7 +2339,7 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
                         <span className="font-mono text-[15px] font-extrabold text-[var(--ink-primary)] leading-[1.1] [&_small]:text-[10px] [&_small]:font-medium [&_small]:text-[var(--ink-muted)] velocity-metric-val max-lg:text-[20px] max-lg:[&_small]:text-[11px]">{avg} <small>menit</small></span>
                       </div>
                       <div className="flex flex-col gap-[3px] p-[8px_12px] bg-[rgba(15,23,42,0.55)] border border-[rgba(255,255,255,0.08)] rounded-[8px] velocity-metric-pill">
-                        <span className="text-[10px] max-lg:text-[11px] text-[var(--ink-muted)] font-semibold whitespace-nowrap overflow-hidden text-ellipsis velocity-metric-label max-lg:whitespace-normal" title="Kepatuhan SLA (≤60m)">Kepatuhan SLA (≤60m)</span>
+                        <span className="text-[10px] max-lg:text-[11px] text-[var(--ink-muted)] font-semibold whitespace-nowrap overflow-hidden text-ellipsis velocity-metric-label max-lg:whitespace-normal" title="Tiket selesai yang memenuhi targetnya sendiri: 60 menit untuk High, 120 menit untuk Medium/Low">Kepatuhan SLA</span>
                         <span className="font-mono text-[15px] font-extrabold text-[var(--ink-primary)] leading-[1.1] [&_small]:text-[10px] [&_small]:font-medium velocity-metric-val max-lg:text-[20px] max-lg:[&_small]:text-[11px]">{compliancePct}%</span>
                       </div>
                       <div className="flex flex-col gap-[3px] p-[8px_12px] bg-[rgba(15,23,42,0.55)] border border-[rgba(255,255,255,0.08)] rounded-[8px] velocity-metric-pill">
@@ -3311,14 +2355,23 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
                     </div>
                   );
                 })()}
+                <ChartModeNote
+                  className="mt-[14px] mb-[6px]"
+                  badge={granularityBadge(velocityGranularity)}
+                  detail={<>Kartu di atas dihitung dari <strong className="font-semibold text-[#cbd5e1]">{velocityKpis.count.toLocaleString("id-ID")} tiket selesai</strong>. Periode tanpa tiket selesai tidak diberi titik.</>}
+                >
+                  {velocityGranularity === "day"
+                    ? "Rata-rata durasi penyelesaian tiap hari."
+                    : `Rata-rata durasi penyelesaian tiap ${velocityGranularity === "week" ? "minggu (Senin–Minggu)" : "bulan"}, dari rentang ${bucketRanges(volumeByDate[0].date, volumeByDate[volumeByDate.length - 1].date, "day").length} hari.`}
+                </ChartModeNote>
 
                 {/* Clean, Prominent Line Chart with Collision-Free Labels & Interactive Hover */}
                 <div
                   ref={velocityChartRef}
                   role={mobile ? "slider" : undefined}
                   aria-valuemin={mobile ? 0 : undefined}
-                  aria-valuemax={mobile ? Math.max(0, volumeByDate.length - 1) : undefined}
-                  aria-valuenow={mobile ? hoveredVelocityPoint ? Math.max(0, volumeByDate.findIndex(item => item.date === hoveredVelocityPoint.date)) : Math.max(0, volumeByDate.length - 1) : undefined}
+                  aria-valuemax={mobile ? Math.max(0, velocitySeries.length - 1) : undefined}
+                  aria-valuenow={mobile ? hoveredVelocityPoint ? Math.max(0, velocitySeries.findIndex(item => item.date === hoveredVelocityPoint.date)) : Math.max(0, velocitySeries.length - 1) : undefined}
                   aria-valuetext={mobile ? hoveredVelocityPoint?.date : undefined}
                   tabIndex={mobile ? 0 : undefined}
                   aria-label="Tren durasi; gunakan panah kiri atau kanan untuk rincian"
@@ -3328,53 +2381,51 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
                     if (event.key === "Escape") { setHoveredVelocityPoint(null); return; }
                     if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
                     event.preventDefault();
-                    const dates = volumeByDate.map(item => item.date); if (!dates.length) return;
+                    const dates = velocitySeries.map(item => item.date); if (!dates.length) return;
                     const current = hoveredVelocityPoint ? dates.indexOf(hoveredVelocityPoint.date) : dates.length - 1;
                     const index = event.key === "Home" ? 0 : event.key === "End" ? dates.length - 1 : Math.max(0, Math.min(dates.length - 1, current + (event.key === "ArrowRight" ? 1 : -1)));
                     const x = 42 + index * (velocitySize.width - 66) / Math.max(1, dates.length - 1);
-                    const item = volumeByDate[index]; setHoveredVelocityPoint({ x, y: 100, date: item.date, avgResolution: item.avgResolution, closed: item.closed, percentX: 50, percentY: 60 });
+                    const item = velocitySeries[index]; setHoveredVelocityPoint({ x, y: 100, date: item.date, avgResolution: item.avgResolution, closed: item.closed, percentX: 50, percentY: 60 });
                   }}
                   className="relative w-full h-[290px] min-h-[280px] flex flex-col flex-1 overflow-visible compact-velocity-chart-container max-lg:h-[252px] max-lg:min-h-[252px] max-lg:flex-none max-lg:touch-pan-y"
                   onPointerDown={(event) => {
-                    if (!mobile || !volumeByDate.length) return;
+                    if (!mobile || !velocitySeries.length) return;
                     const box = event.currentTarget.getBoundingClientRect();
-                    const idx = Math.max(0, Math.min(volumeByDate.length - 1, Math.round((event.clientX - box.left - 42) / Math.max(1, box.width - 66) * (volumeByDate.length - 1))));
-                    const item = volumeByDate[idx];
-                    setHoveredVelocityPoint({ x: 42 + idx * (box.width - 66) / Math.max(1, volumeByDate.length - 1), y: 100, date: item.date, avgResolution: item.avgResolution, closed: item.closed, percentX: 50, percentY: 60 });
+                    const idx = Math.max(0, Math.min(velocitySeries.length - 1, Math.round((event.clientX - box.left - 42) / Math.max(1, box.width - 66) * (velocitySeries.length - 1))));
+                    const item = velocitySeries[idx];
+                    setHoveredVelocityPoint({ x: 42 + idx * (box.width - 66) / Math.max(1, velocitySeries.length - 1), y: 100, date: item.date, avgResolution: item.avgResolution, closed: item.closed, percentX: 50, percentY: 60 });
                   }}
                   onPointerMove={(event) => {
-                    if (!mobile || event.pointerType !== "touch" || !event.buttons || !volumeByDate.length) return;
+                    if (!mobile || event.pointerType !== "touch" || !event.buttons || !velocitySeries.length) return;
                     const box = event.currentTarget.getBoundingClientRect();
-                    const idx = Math.max(0, Math.min(volumeByDate.length - 1, Math.round((event.clientX - box.left - 42) / Math.max(1, box.width - 66) * (volumeByDate.length - 1))));
-                    const item = volumeByDate[idx];
-                    setHoveredVelocityPoint({ x: 42 + idx * (box.width - 66) / Math.max(1, volumeByDate.length - 1), y: 100, date: item.date, avgResolution: item.avgResolution, closed: item.closed, percentX: 50, percentY: 60 });
+                    const idx = Math.max(0, Math.min(velocitySeries.length - 1, Math.round((event.clientX - box.left - 42) / Math.max(1, box.width - 66) * (velocitySeries.length - 1))));
+                    const item = velocitySeries[idx];
+                    setHoveredVelocityPoint({ x: 42 + idx * (box.width - 66) / Math.max(1, velocitySeries.length - 1), y: 100, date: item.date, avgResolution: item.avgResolution, closed: item.closed, percentX: 50, percentY: 60 });
                   }}
                   onMouseLeave={() => setHoveredVelocityPoint(null)}
                 >
                   {(() => {
-                    const n = volumeByDate.length;
-                    const svgViewBoxWidth = mobile ? velocitySize.width || 320 : Math.max(860, n * 48 + 90);
-                    const viewBoxHeight = mobile ? velocitySize.height || 252 : 280;
+                    const n = velocitySeries.length;
+                    // The viewBox is the measured box, so text and dots are drawn at their real size (nothing is stretched)
+                    const svgViewBoxWidth = mobile ? velocitySize.width || 320 : Math.max(480, velocitySize.width || 860);
+                    const viewBoxHeight = mobile ? velocitySize.height || 252 : Math.max(260, velocitySize.height || 290);
                     const startX = mobile ? 42 : 64;
                     const endX = svgViewBoxWidth - (mobile ? 24 : 90); // room for threshold tags on the right
                     const totalSpan = endX - startX;
                     const stepX = n > 1 ? totalSpan / (n - 1) : totalSpan / 2;
 
-                    const baselineY = mobile ? viewBoxHeight - 36 : 226;
+                    const baselineY = mobile ? viewBoxHeight - 36 : viewBoxHeight - 40;
                     const topY = mobile ? 30 : 32;
-                    const chartHeight = baselineY - topY; // 194px
+                    const chartHeight = baselineY - topY;
 
-                    // Y ticks at 0, 20, 40, 60, 80, 100
-                    const maxVal = Math.max(70, ...volumeByDate.map((v) => v.avgResolution));
-                    const yMax = Math.max(100, Math.ceil(maxVal / 20) * 20);
-                    const ticks = [0, 20, 40, 60, 80, 100];
-                    if (yMax > 100) {
-                      for (let i = 120; i <= yMax; i += 20) ticks.push(i);
-                    }
+                    // A bounded set of round ticks; far above the SLA lines the axis is compressed so one outlier cannot flatten them (lib/chart-scale.ts)
+                    const scale = durationScale(Math.max(70, ...velocitySeries.map((v) => v.avgResolution)));
+                    const ticks = scale.ticks;
+                    const yFor = (minutes: number) => baselineY - Math.round(scale.ratio(minutes) * chartHeight);
 
-                    const points = volumeByDate.map((item, idx) => {
+                    const points = velocitySeries.map((item, idx) => {
                       const x = n > 1 ? Math.round(startX + idx * stepX) : Math.round((startX + endX) / 2);
-                      const y = baselineY - Math.round((item.avgResolution / yMax) * chartHeight);
+                      const y = yFor(item.avgResolution);
                       return { x, y, idx, ...item };
                     });
 
@@ -3392,7 +2443,7 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
                     const minPoint = points.find((p) => p.avgResolution === minRes && p.avgResolution !== maxRes);
 
                     const calloutBounds: ChartBox = { x: startX, y: 6, width: endX - startX, height: baselineY - 10 };
-                    const occupied: ChartBox[] = [60, 90].map(value => ({ x: endX - 82, y: baselineY - Math.round(value / yMax * chartHeight) - 24, width: 82, height: 24 }));
+                    const occupied: ChartBox[] = [SLA_TARGET_MINUTES, SLA_BREACH_MINUTES].map(value => ({ x: endX - 82, y: yFor(value) - 24, width: 82, height: 24 }));
                     // Reserve the actual line segments, not only their end points.
                     points.slice(1).forEach((point, index) => {
                       const previous = points[index];
@@ -3401,12 +2452,12 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
                     const maxCallout = maxPoint ? placeChartCallout(maxPoint.x, maxPoint.y, 72, 22, calloutBounds, occupied) : null;
                     const minCallout = minPoint ? placeChartCallout(minPoint.x, minPoint.y, 68, 22, calloutBounds, maxCallout ? [...occupied, maxCallout] : occupied) : null;
                     // X-axis stride to avoid crowding
-                    const dateStride = mobile ? Math.max(1, Math.ceil(n / 4)) : n > 22 ? 3 : n > 12 ? 2 : 1;
+                    const dateStride = mobile ? Math.max(1, Math.ceil(n / 4)) : Math.max(1, Math.ceil((velocityGranularity === "day" ? 44 : 54) / Math.max(1, stepX)));
 
                     return (
                       <>
                         <svg
-                          className="w-full h-full min-h-[280px] block select-none !overflow-visible compact-velocity-chart-svg max-lg:min-h-[252px] max-lg:[&_text]:text-[11px]"
+                          className="w-full h-full min-h-[260px] block select-none !overflow-visible compact-velocity-chart-svg max-lg:min-h-[252px] max-lg:[&_text]:text-[11px]"
                           viewBox={`0 0 ${svgViewBoxWidth} ${viewBoxHeight}`}
                           preserveAspectRatio="none"
                         >
@@ -3423,7 +2474,7 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
 
                           {/* ── 1. Horizontal Gridlines & Y-Axis Ticks ── */}
                           {ticks.map((tick) => {
-                            const yPos = baselineY - Math.round((tick / yMax) * chartHeight);
+                            const yPos = yFor(tick);
                             const isSLA = tick === 60;
                             const isBaseline = tick === 0;
 
@@ -3461,9 +2512,24 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
                             );
                           })}
 
-                          {/* ── 2. Reference Threshold Line 90m (Breach Threshold) ── */}
+                          {/* The axis above 120m is compressed when one value is far above the SLA lines: say so */}
+                          {scale.broken && (
+                            <text
+                              x={startX - 10}
+                              y={topY - 12}
+                              fill="var(--ink-muted, #94a3b8)"
+                              fontSize="8.5"
+                              fontWeight="600"
+                              fontFamily="var(--font-mono)"
+                              opacity="0.85"
+                            >
+                              Skala di atas {scale.breakAt}m diperkecil
+                            </text>
+                          )}
+
+                          {/* ── 2. Reference line: the Medium/Low target (SLA_BREACH_MINUTES = 120m) ── */}
                           {(() => {
-                            const y90 = baselineY - Math.round((90 / yMax) * chartHeight);
+                            const y90 = yFor(SLA_BREACH_MINUTES);
                             return (
                               <g key="grid-breach-90">
                                 <line
@@ -3494,7 +2560,7 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
                                     fontWeight="700"
                                     fontFamily="var(--font-mono)"
                                   >
-                                    Breach 90m
+                                    Target 120m
                                   </text>
                                 </g>
                               </g>
@@ -3503,7 +2569,7 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
 
                           {/* Right threshold tag for 60m (Target SLA) */}
                           {(() => {
-                            const y60 = baselineY - Math.round((60 / yMax) * chartHeight);
+                            const y60 = yFor(SLA_TARGET_MINUTES);
                             return (
                               <g transform={`translate(${mobile ? endX - 82 : endX + 10}, ${mobile ? y60 - 24 : y60 - 8})`}>
                                 <rect
@@ -3555,13 +2621,13 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
 
                           {/* ── 5. Data Points & Milestone Badges ── */}
                           {points.map((p, idx) => {
-                            const isBreach = p.avgResolution > 60;
+                            const isBreach = p.avgResolution > SLA_BREACH_MINUTES;
                             const isHovered = hoveredVelocityPoint?.date === p.date;
                             const isMax = maxPoint?.date === p.date;
                             const isMin = minPoint?.date === p.date;
 
                             // X-axis tick & label display
-                            const showXLabel = idx % dateStride === 0 || idx === n - 1;
+                            const showXLabel = idx === n - 1 || (idx % dateStride === 0 && n - 1 - idx >= dateStride) || isHovered;
 
                             return (
                               <g key={p.date}>
@@ -3578,14 +2644,17 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
                                     />
                                     <text
                                       x={mobile ? Math.min(svgViewBoxWidth - 19, Math.max(19, p.x)) : p.x}
-                                      y={baselineY + (mobile ? 22 : 18)}
+                                      y={baselineY + (mobile ? 22 : 20)}
                                       textAnchor="middle"
                                       fill={isHovered ? "#38bdf8" : "var(--ink-muted, #94a3b8)"}
-                                      fontSize="9"
+                                      fontSize={mobile ? "9" : "10.5"}
                                       fontWeight={isHovered ? "700" : "500"}
                                       fontFamily="var(--font-mono)"
+                                      paintOrder="stroke"
+                                      stroke={isHovered ? "var(--panel-bg)" : undefined}
+                                      strokeWidth={6}
                                     >
-                                      {p.date.slice(5)}
+                                      {p.label}
                                     </text>
                                   </>
                                 )}
@@ -3672,44 +2741,6 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
                                   );
                                 })()}
 
-                                {/* Breach callout if breached and not max */}
-                                {!mobile && isBreach && !isMax && !isHovered && (() => {
-                                  const breachText = `${p.avgResolution}m !`;
-                                  const breachWidth = Math.max(58, breachText.length * 6.5 + 16);
-                                  const breachHeight = 17;
-                                  const halfW = breachWidth / 2;
-                                  const clampedX = Math.max((mobile ? startX : 0) + halfW + 6, Math.min((mobile ? endX : svgViewBoxWidth) - halfW - 6, p.x));
-                                  const placeBelow = p.y < 30;
-                                  const rectY = placeBelow ? p.y + 8 : p.y - 8 - breachHeight;
-
-                                  return (
-                                    <g style={{ pointerEvents: "none" }}>
-                                      <rect
-                                        x={clampedX - halfW}
-                                        y={rectY}
-                                        width={breachWidth}
-                                        height={breachHeight}
-                                        rx="4"
-                                        fill={mobile ? "rgba(15,23,42,0.9)" : "#0f172a"}
-                                        stroke="#ef4444"
-                                        strokeWidth="1.2"
-                                      />
-                                      <text
-                                        x={clampedX}
-                                        y={rectY + breachHeight / 2}
-                                        dominantBaseline="central"
-                                        textAnchor="middle"
-                                        fill="#f87171"
-                                        fontSize="8.5"
-                                        fontWeight="800"
-                                        fontFamily="var(--font-mono)"
-                                      >
-                                        {breachText}
-                                      </text>
-                                    </g>
-                                  );
-                                })()}
-
                                 {/* Transparent Wide Hover Target Column */}
                                 <rect
                                   x={p.x - stepX / 2}
@@ -3741,7 +2772,7 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
                           aria-hidden="true"
                         >
                           {points.map((p) => {
-                            const isBreach = p.avgResolution > 60;
+                            const isBreach = p.avgResolution > SLA_BREACH_MINUTES;
                             const isHovered = hoveredVelocityPoint?.date === p.date;
                             const percentX = (p.x / svgViewBoxWidth) * 100;
                             const percentY = (p.y / viewBoxHeight) * 100;
@@ -3792,13 +2823,13 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
                             }}
                           >
                             <div className="text-[11px] font-bold text-[var(--ink-primary)] mb-[4px] border-b border-[rgba(255,255,255,0.08)] pb-[3px] flex items-center justify-between gap-[8px] velocity-tooltip-header">
-                              <span>📅 {hoveredVelocityPoint.date}</span>
+                              <span>📅 {velocitySeries.find((item) => item.date === hoveredVelocityPoint.date)?.title ?? hoveredVelocityPoint.date}</span>
                               <span
                                 className={`inline-block text-[9.5px] max-lg:text-[11px] font-bold p-[2px_6px] rounded-[4px] mt-[4px] velocity-tooltip-badge ${
-                                  hoveredVelocityPoint.avgResolution <= 60 ? "bg-[rgba(16,185,129,0.15)] text-[#34d399] border border-[rgba(16,185,129,0.3)] sla-ok" : "bg-[rgba(239,68,68,0.15)] text-[#f87171] border border-[rgba(239,68,68,0.3)] sla-breach"
+                                  hoveredVelocityPoint.avgResolution <= SLA_TARGET_MINUTES ? "bg-[rgba(16,185,129,0.15)] text-[#34d399] border border-[rgba(16,185,129,0.3)] sla-ok" : hoveredVelocityPoint.avgResolution <= SLA_BREACH_MINUTES ? "bg-[rgba(245,158,11,0.15)] text-[#fbbf24] border border-[rgba(245,158,11,0.3)] sla-mid" : "bg-[rgba(239,68,68,0.15)] text-[#f87171] border border-[rgba(239,68,68,0.3)] sla-breach"
                                 }`}
                               >
-                                {hoveredVelocityPoint.avgResolution <= 60 ? "✓ SLA OK" : "⚠ Breach"}
+                                {hoveredVelocityPoint.avgResolution <= SLA_TARGET_MINUTES ? `✓ ≤ ${SLA_TARGET_MINUTES}m` : hoveredVelocityPoint.avgResolution <= SLA_BREACH_MINUTES ? `${SLA_TARGET_MINUTES}–${SLA_BREACH_MINUTES}m` : `⚠ > ${SLA_BREACH_MINUTES}m`}
                               </span>
                             </div>
                             <div className="flex items-center justify-between gap-[12px] text-[11px] mt-[3px] text-[var(--ink-secondary)] velocity-tooltip-row">
@@ -3823,7 +2854,13 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
                 </div>
               </>
             ) : (
-              <div className="text-[12px] text-[var(--ink-muted)] text-center py-[24px] italic chart-empty-hint">Tidak ada data resolusi pada filter ini.</div>
+              <ChartEmptyState
+                icon={<Clock size={18} />}
+                title={velocitySeries.length ? "Belum ada tiket selesai" : emptyTitle()}
+                text={velocitySeries.length ? "Ada tiket pada rentang ini, tetapi belum ada yang ditutup. Durasi penyelesaian muncul setelah tiket ditutup." : "Durasi penyelesaian per hari muncul setelah ada tiket yang ditutup pada rentang ini."}
+                actions={emptyActions()}
+                className="min-h-[240px] max-lg:min-h-[220px]"
+              />
             )}
             </PanelSkeletonWrapper>
           </div>
@@ -3930,13 +2967,18 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
               );
             })()}
 
+            {trafficGranularity !== "day" && (
+              <ChartModeNote badge={granularityBadge(trafficGranularity)} detail="Kartu di atas mencakup seluruh rentang, bukan hanya yang terlihat di grafik." className="-mt-[2px]">
+                {granularityNote(trafficView.first, trafficView.last, trafficGranularity)}
+              </ChartModeNote>
+            )}
             {/* Clean, Prominent Multi-Line Chart Modeled After Resolution Velocity */}
             <div
               ref={trafficChartRef}
                   role={mobile ? "slider" : undefined}
                   aria-valuemin={mobile ? 0 : undefined}
-                  aria-valuemax={mobile ? Math.max(0, shiftHeatmapData.dateList.length - 1) : undefined}
-                  aria-valuenow={mobile ? hoveredShiftTrafficPoint ? Math.max(0, shiftHeatmapData.dateList.indexOf(hoveredShiftTrafficPoint.date)) : Math.max(0, shiftHeatmapData.dateList.length - 1) : undefined}
+                  aria-valuemax={mobile ? Math.max(0, trafficView.dateList.length - 1) : undefined}
+                  aria-valuenow={mobile ? hoveredShiftTrafficPoint ? Math.max(0, trafficView.dateList.indexOf(hoveredShiftTrafficPoint.date)) : Math.max(0, trafficView.dateList.length - 1) : undefined}
                   aria-valuetext={mobile ? hoveredShiftTrafficPoint?.date : undefined}
                   tabIndex={mobile ? 0 : undefined}
                   aria-label="Tren trafik; gunakan panah kiri atau kanan untuk rincian"
@@ -3946,56 +2988,59 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
                     if (event.key === "Escape") { setHoveredShiftTrafficPoint(null); return; }
                     if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
                     event.preventDefault();
-                    const dates = shiftHeatmapData.dateList; if (!dates.length) return;
+                    const dates = trafficView.dateList; if (!dates.length) return;
                     const current = hoveredShiftTrafficPoint ? dates.indexOf(hoveredShiftTrafficPoint.date) : dates.length - 1;
                     const index = event.key === "Home" ? 0 : event.key === "End" ? dates.length - 1 : Math.max(0, Math.min(dates.length - 1, current + (event.key === "ArrowRight" ? 1 : -1)));
                     const x = 42 + index * (trafficSize.width - 66) / Math.max(1, dates.length - 1);
-                    const date = dates[index]; const subuh = shiftHeatmapData.matrix.Subuh[date] || 0, pagi = shiftHeatmapData.matrix.Pagi[date] || 0, malam = shiftHeatmapData.matrix.Malam[date] || 0; setHoveredShiftTrafficPoint({ x, y: 100, date, subuh, pagi, malam, total: subuh + pagi + malam, percentX: 50, percentY: 80 });
+                    const date = dates[index]; const subuh = trafficView.matrix.Subuh[date] || 0, pagi = trafficView.matrix.Pagi[date] || 0, malam = trafficView.matrix.Malam[date] || 0; setHoveredShiftTrafficPoint({ x, y: 100, date, subuh, pagi, malam, total: subuh + pagi + malam, percentX: 50, percentY: 80 });
                   }}
               className="relative w-full h-[275px] min-h-[265px] max-h-[310px] flex flex-col flex-1 overflow-visible compact-shift-traffic-chart-container max-lg:h-[252px] max-lg:min-h-[252px] max-lg:flex-none max-lg:touch-pan-y"
               onPointerDown={(event) => {
-                if (!mobile || !shiftHeatmapData.dateList.length) return;
+                if (!mobile || !trafficView.dateList.length) return;
                 const box = event.currentTarget.getBoundingClientRect();
-                const dates = shiftHeatmapData.dateList;
+                const dates = trafficView.dateList;
                 const idx = Math.max(0, Math.min(dates.length - 1, Math.round((event.clientX - box.left - 42) / Math.max(1, box.width - 66) * (dates.length - 1))));
                 const date = dates[idx];
-                const subuh = shiftHeatmapData.matrix.Subuh[date] || 0, pagi = shiftHeatmapData.matrix.Pagi[date] || 0, malam = shiftHeatmapData.matrix.Malam[date] || 0;
+                const subuh = trafficView.matrix.Subuh[date] || 0, pagi = trafficView.matrix.Pagi[date] || 0, malam = trafficView.matrix.Malam[date] || 0;
                 setHoveredShiftTrafficPoint({ x: 42 + idx * (box.width - 66) / Math.max(1, dates.length - 1), y: 100, date, subuh, pagi, malam, total: subuh + pagi + malam, percentX: 50, percentY: 80 });
               }}
               onPointerMove={(event) => {
-                if (!mobile || event.pointerType !== "touch" || !event.buttons || !shiftHeatmapData.dateList.length) return;
+                if (!mobile || event.pointerType !== "touch" || !event.buttons || !trafficView.dateList.length) return;
                 const box = event.currentTarget.getBoundingClientRect();
-                const dates = shiftHeatmapData.dateList;
+                const dates = trafficView.dateList;
                 const idx = Math.max(0, Math.min(dates.length - 1, Math.round((event.clientX - box.left - 42) / Math.max(1, box.width - 66) * (dates.length - 1))));
                 const date = dates[idx];
-                const subuh = shiftHeatmapData.matrix.Subuh[date] || 0, pagi = shiftHeatmapData.matrix.Pagi[date] || 0, malam = shiftHeatmapData.matrix.Malam[date] || 0;
+                const subuh = trafficView.matrix.Subuh[date] || 0, pagi = trafficView.matrix.Pagi[date] || 0, malam = trafficView.matrix.Malam[date] || 0;
                 setHoveredShiftTrafficPoint({ x: 42 + idx * (box.width - 66) / Math.max(1, dates.length - 1), y: 100, date, subuh, pagi, malam, total: subuh + pagi + malam, percentX: 50, percentY: 80 });
               }}
               onMouseLeave={() => setHoveredShiftTrafficPoint(null)}
             >
               {(() => {
-                const dateList = shiftHeatmapData.dateList;
+                const dateList = trafficView.dateList;
                 const n = dateList.length;
-                const svgViewBoxWidth = mobile ? trafficSize.width || 320 : Math.max(860, n * 50 + 60);
-                const viewBoxHeight = mobile ? trafficSize.height || 252 : 280;
+                // The viewBox is the measured box (labels are HTML on top), so the lines and dots keep their real proportions
+                const svgViewBoxWidth = mobile ? trafficSize.width || 320 : Math.max(480, trafficSize.width || 860);
+                const viewBoxHeight = mobile ? trafficSize.height || 252 : Math.max(250, trafficSize.height || 280);
                 const startX = mobile ? 42 : 46;
                 const endX = svgViewBoxWidth - (mobile ? 24 : 36);
                 const totalSpan = endX - startX;
                 const stepX = n > 1 ? totalSpan / (n - 1) : totalSpan / 2;
 
-                const baselineY = mobile ? viewBoxHeight - 36 : 226;
+                const baselineY = mobile ? viewBoxHeight - 36 : viewBoxHeight - 46;
                 const topY = mobile ? 38 : 38;
-                const chartHeight = baselineY - topY; // 188px
+                const chartHeight = baselineY - topY;
 
                 // Y ticks calculation - tight scaling to prevent empty top rows!
                 const allCounts = dateList.flatMap((d) => [
-                  shiftHeatmapData.matrix.Subuh[d] || 0,
-                  shiftHeatmapData.matrix.Pagi[d] || 0,
-                  shiftHeatmapData.matrix.Malam[d] || 0,
+                  trafficView.matrix.Subuh[d] || 0,
+                  trafficView.matrix.Pagi[d] || 0,
+                  trafficView.matrix.Malam[d] || 0,
                 ]);
                 const maxCount = Math.max(3, ...allCounts);
-                const yMax = maxCount <= 3 ? 3 : maxCount <= 6 ? maxCount : Math.ceil(maxCount / 2) * 2;
-                const stepTick = yMax <= 4 ? 1 : yMax <= 8 ? 2 : Math.ceil(yMax / 4);
+                // up to 8 the axis is fitted tightly; above that it uses round whole-number steps (0, 10, 20, 30 rather than 0, 7, 14, 21, 26)
+                const fittedMax = maxCount <= 3 ? 3 : maxCount <= 6 ? maxCount : Math.ceil(maxCount / 2) * 2;
+                const stepTick = fittedMax <= 4 ? 1 : fittedMax <= 8 ? 2 : wholeStep(fittedMax / 4);
+                const yMax = fittedMax <= 8 ? fittedMax : Math.ceil(maxCount / stepTick) * stepTick;
                 const ticks: number[] = [];
                 for (let i = 0; i <= yMax; i += stepTick) ticks.push(i);
                 if (ticks[ticks.length - 1] !== yMax) ticks.push(yMax);
@@ -4011,7 +3056,7 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
                 const shiftSeries = shiftsMeta.map((s) => {
                   const points = dateList.map((d, idx) => {
                     const x = n > 1 ? Math.round(startX + idx * stepX) : Math.round((startX + endX) / 2);
-                    const count = shiftHeatmapData.matrix[s.id][d] || 0;
+                    const count = trafficView.matrix[s.id][d] || 0;
                     const y = baselineY - Math.round((count / yMax) * chartHeight);
                     return { x, y, count, date: d, idx };
                   });
@@ -4044,12 +3089,12 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
                 const peakPointMeta: ShiftPeakPoint | null = foundPeak;
 
                 // X-axis stride to prevent label congestion
-                const dateStride = mobile ? Math.max(1, Math.ceil(n / 4)) : n > 22 ? 3 : n > 12 ? 2 : 1;
+                const dateStride = mobile ? Math.max(1, Math.ceil(n / 4)) : Math.max(1, Math.ceil((trafficGranularity === "day" ? 48 : 58) / Math.max(1, stepX)));
 
                 return (
                   <>
                     <svg
-                      className="w-full h-full min-h-[265px] block select-none overflow-visible compact-shift-traffic-chart-svg max-lg:min-h-[252px] max-lg:[&_text]:text-[11px]"
+                      className="w-full h-full min-h-[250px] block select-none overflow-visible compact-shift-traffic-chart-svg max-lg:min-h-[252px] max-lg:[&_text]:text-[11px]"
                       viewBox={`0 0 ${svgViewBoxWidth} ${viewBoxHeight}`}
                       preserveAspectRatio="none"
                     >
@@ -4146,10 +3191,10 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
                       {dateList.map((d, idx) => {
                         const x =
                           n > 1 ? Math.round(startX + idx * stepX) : Math.round((startX + endX) / 2);
-                        const showXLabel = idx % dateStride === 0 || idx === n - 1;
-                        const subuh = shiftHeatmapData.matrix.Subuh[d] || 0;
-                        const pagi = shiftHeatmapData.matrix.Pagi[d] || 0;
-                        const malam = shiftHeatmapData.matrix.Malam[d] || 0;
+                        const showXLabel = idx === n - 1 || (idx % dateStride === 0 && n - 1 - idx >= dateStride);
+                        const subuh = trafficView.matrix.Subuh[d] || 0;
+                        const pagi = trafficView.matrix.Pagi[d] || 0;
+                        const malam = trafficView.matrix.Malam[d] || 0;
                         const total = subuh + pagi + malam;
 
                         // Calculate y of highest shift for tooltip positioning
@@ -4273,7 +3318,7 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
                       {dateList.map((d, idx) => {
                         const x =
                           n > 1 ? Math.round(startX + idx * stepX) : Math.round((startX + endX) / 2);
-                        const showXLabel = idx % dateStride === 0 || idx === n - 1;
+                        const showXLabel = idx === n - 1 || (idx % dateStride === 0 && n - 1 - idx >= dateStride);
                         if (!showXLabel) return null;
                         const percentX = (x / svgViewBoxWidth) * 100;
                         const isHovered = hoveredShiftTrafficPoint?.date === d;
@@ -4284,7 +3329,7 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
                             className={`absolute -translate-x-1/2 translate-y-[6px] text-[11px] font-medium font-mono text-[var(--ink-muted,#94a3b8)] whitespace-nowrap select-none transition-[color,font-weight] duration-150 tracking-[-0.01em] shift-traffic-x-label ${isHovered ? "text-[#38bdf8] font-bold hovered" : ""}`}
                             style={{ left: mobile ? Math.max(19, Math.min(svgViewBoxWidth - 19, x)) : `${percentX}%` }}
                           >
-                            {d.length >= 10 ? d.slice(5) : d}
+                            {trafficView.label(d)}
                           </span>
                         );
                       })}
@@ -4294,7 +3339,10 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
                     {peakPointMeta && !hoveredShiftTrafficPoint && ((peak: ShiftPeakPoint) => {
                       const percentX = (peak.x / svgViewBoxWidth) * 100;
                       const percentY = (peak.y / viewBoxHeight) * 100;
-                      const clampedPercentX = Math.max(6, Math.min(94, percentX));
+                      // near the right edge the label grows leftwards, near the left edge rightwards, so it is never cut off by the card
+                      const clampedPercentX = Math.max(2, Math.min(98, percentX));
+                      const anchorX = percentX > 68 ? "-100%" : percentX < 32 ? "0%" : "-50%";
+                      const nudgeX = percentX > 68 ? "14px" : percentX < 32 ? "-14px" : "0px";
                       const mobilePeakX = Math.max(startX + 55, Math.min(endX - 55, peak.x));
                       const isNearTop = percentY < 12;
 
@@ -4305,8 +3353,8 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
                             left: mobile ? mobilePeakX : `${clampedPercentX}%`,
                             top: mobile ? Math.max(0, peak.y - 32) : `${percentY}%`,
                             transform: mobile ? "translateX(-50%)" : isNearTop
-                              ? "translate(-50%, 12px)"
-                              : "translate(-50%, calc(-100% - 10px))",
+                              ? `translate(calc(${anchorX} + ${nudgeX}), 12px)`
+                              : `translate(calc(${anchorX} + ${nudgeX}), calc(-100% - 10px))`,
                           }}
                         >
                           <span className="w-[5px] h-[5px] rounded-[50%] bg-[#f59e0b] shadow-[0_0_6px_#f59e0b] shrink-0 shift-traffic-peak-dot" />
@@ -4327,7 +3375,7 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
                         }}
                       >
                         <div className="text-[11px] font-bold text-[var(--ink-primary)] mb-[4px] border-b border-[rgba(255,255,255,0.08)] pb-[3px] flex items-center justify-between gap-[8px] shift-traffic-tooltip-header">
-                          <span>📅 {hoveredShiftTrafficPoint.date}</span>
+                          <span>📅 {trafficView.title(hoveredShiftTrafficPoint.date)}</span>
                           <span className="[color:#38bdf8]! [font-weight:700]!">
                             {hoveredShiftTrafficPoint.total} Tiket
                           </span>
@@ -4357,7 +3405,7 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
                           </span>
                         </div>
                         <div className="flex items-center justify-between gap-[12px] text-[11px] border-t border-[rgba(255,255,255,0.08)] pt-[3px] mt-[4px] font-bold text-[var(--ink-primary)] shift-traffic-tooltip-row shift-traffic-tooltip-total">
-                          <span>Total Harian:</span>
+                          <span>{trafficGranularity === "day" ? "Total Harian:" : "Total Periode:"}</span>
                           <span className="font-bold font-mono shift-traffic-tooltip-val">
                             {hoveredShiftTrafficPoint.total} Tiket
                           </span>
@@ -4414,7 +3462,14 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
             </div>
               </>
             ) : (
-              <div className="text-[12px] text-[var(--ink-muted)] text-center py-[24px] italic chart-empty-hint">Tidak ada data trafik shift pada filter ini.</div>
+              <ChartEmptyState
+                tone="emerald"
+                icon={<Activity size={18} />}
+                title={emptyTitle()}
+                text="Trafik tiket per shift (Pagi, Malam, Subuh) muncul setelah ada tiket pada rentang ini."
+                actions={emptyActions()}
+                className="min-h-[220px]"
+              />
             )}
             </PanelSkeletonWrapper>
           </div>
@@ -4429,7 +3484,7 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
         typeof document !== "undefined" &&
         createPortal(
           <div data-user-modal="true" className="fixed inset-0 w-screen h-screen bg-black/80 backdrop-blur-[6px] z-[999999] flex items-center justify-center p-[24px_16px] overflow-y-auto overscroll-contain animate-[modalFadeIn_0.15s_ease-out] user-modal-overlay max-lg:h-dvh max-lg:p-0 max-lg:[&_button]:min-h-10 max-lg:[&_button]:min-w-10" onClick={() => setSelectedUserDetail(null)}>
-            <div ref={userModalRef} role="dialog" aria-modal="true" aria-label={`Detail tiket ${selectedUserDetail.name}`} className="relative w-full max-w-[660px] max-h-[86vh] bg-[#0f172a] border border-[rgba(56,189,248,0.35)] rounded-[14px] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85),0_0_0_1px_rgba(255,255,255,0.05)] flex flex-col overflow-hidden m-auto animate-[modalScaleUp_0.15s_ease-out] user-modal-card max-lg:max-h-full max-lg:h-full max-lg:rounded-none max-lg:pt-[var(--ctd-safe-top,env(safe-area-inset-top,0px))] max-lg:pb-[var(--ctd-safe-bottom,env(safe-area-inset-bottom,0px))]" onClick={(e) => e.stopPropagation()}>
+            <div ref={userModalRef} role="dialog" aria-modal="true" aria-label={`Detail tiket ${selectedUserDetail.name}`} className="relative w-full max-w-[780px] max-h-[86vh] bg-[#0f172a] border border-[rgba(56,189,248,0.35)] rounded-[14px] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85),0_0_0_1px_rgba(255,255,255,0.05)] flex flex-col overflow-hidden m-auto animate-[modalScaleUp_0.15s_ease-out] user-modal-card max-lg:max-h-full max-lg:h-full max-lg:rounded-none max-lg:pt-[var(--ctd-safe-top,env(safe-area-inset-top,0px))] max-lg:pb-[var(--ctd-safe-bottom,env(safe-area-inset-bottom,0px))]" onClick={(e) => e.stopPropagation()}>
               <div className="flex items-center justify-between p-[16px_20px] border-b border-[rgba(148,163,184,0.12)] bg-[rgba(148,163,184,0.04)] shrink-0 user-modal-header">
                 <div className="flex items-center gap-[12px] user-modal-profile">
                   <div
@@ -4464,85 +3519,72 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
               </div>
 
               <div className="p-[16px_20px] flex flex-col gap-[14px] overflow-y-auto flex-1 user-modal-body">
-                {/* 3 Period Summaries */}
-                <div className="grid grid-cols-3 max-[600px]:grid-cols-1 gap-[10px] user-modal-periods-grid">
-                  {/* Hari Ini */}
-                  <div className="p-[12px_10px] rounded-[10px] bg-[rgba(148,163,184,0.05)] border border-[rgba(148,163,184,0.12)] flex flex-col gap-[8px] user-period-card">
-                    <div className="flex items-center justify-between pb-[6px] border-b border-[rgba(148,163,184,0.08)] period-card-header">
-                      <span className="text-[8.5px] max-lg:text-[11px] font-bold font-mono p-[2px_6px] rounded-[4px] bg-[rgba(56,189,248,0.15)] text-[#38bdf8] period-badge today">HARI INI</span>
-                      <strong className="text-[13px] font-extrabold font-mono text-[var(--ink-primary)] period-total">{selectedUserDetail.todayCount} Tiket</strong>
-                    </div>
-                    <div className="flex flex-col gap-[4px] period-breakdown-list">
-                      {Object.keys(selectedUserDetail.todayBreakdown).length > 0 ? (
-                        Object.entries(selectedUserDetail.todayBreakdown).map(([proj, count]) => {
-                          const pColor = PROJECT_COLORS[proj] || "#94a3b8";
-                          const pct = Math.round((count / Math.max(1, selectedUserDetail.todayCount)) * 100);
-                          return (
-                            <div className="flex items-center justify-between text-[10px] max-lg:text-[11px] py-[2px] period-breakdown-row" key={proj}>
-                              <div className="flex items-center gap-[4px] text-[var(--ink-secondary)] period-proj-tag">
-                                <i className="legend-dot" style={{ background: pColor }} />
-                                <span>{projectLabel(proj, activeClientId)}</span>
-                              </div>
-                              <span className="font-mono font-semibold text-[var(--ink-muted)] period-count-pct">{count} ({pct}%)</span>
-                            </div>
-                          );
-                        })
-                      ) : (
-                        <span className="period-empty-text">Tidak ada tiket aktif hari ini</span>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Bulan Ini */}
-                  <div className="p-[12px_10px] rounded-[10px] bg-[rgba(148,163,184,0.05)] border border-[rgba(148,163,184,0.12)] flex flex-col gap-[8px] user-period-card">
-                    <div className="flex items-center justify-between pb-[6px] border-b border-[rgba(148,163,184,0.08)] period-card-header">
-                      <span className="text-[8.5px] max-lg:text-[11px] font-bold font-mono p-[2px_6px] rounded-[4px] bg-[rgba(16,185,129,0.15)] text-[#34d399] period-badge month">BULAN INI</span>
-                      <strong className="text-[13px] font-extrabold font-mono text-[var(--ink-primary)] period-total">{selectedUserDetail.monthCount} Tiket</strong>
-                    </div>
-                    <div className="flex flex-col gap-[4px] period-breakdown-list">
-                      {Object.entries(selectedUserDetail.monthBreakdown).map(([proj, count]) => {
-                        const pColor = PROJECT_COLORS[proj] || "#94a3b8";
-                        const pct = Math.round((count / Math.max(1, selectedUserDetail.monthCount)) * 100);
-                        return (
-                          <div className="flex items-center justify-between text-[10px] max-lg:text-[11px] py-[2px] period-breakdown-row" key={proj}>
-                            <div className="flex items-center gap-[4px] text-[var(--ink-secondary)] period-proj-tag">
-                              <i className="legend-dot" style={{ background: pColor }} />
-                              <span>{projectLabel(proj, activeClientId)}</span>
-                            </div>
-                            <span className="font-mono font-semibold text-[var(--ink-muted)] period-count-pct">{count} ({pct}%)</span>
+                {/* Five periods, from all tickets down to today */}
+                {(() => {
+                  const user = selectedUserDetail;
+                  const periods = [
+                    { key: "total", label: "Total", hint: "Semua tiket pada filter yang dipilih", value: user.totalCount, breakdown: user.totalBreakdown, tone: "text-[var(--ink-primary)]", ring: "border-slate-500/30 bg-slate-400/[0.06]" },
+                    { key: "year", label: "Tahun Ini", hint: `Sejak 1 Januari ${todayWib.slice(0, 4)}`, value: user.yearCount, breakdown: user.yearBreakdown, tone: "text-[#a78bfa]", ring: "border-violet-400/25 bg-violet-400/[0.06]" },
+                    { key: "month", label: "Bulan Ini", hint: "Sejak tanggal 1 bulan ini", value: user.monthCount, breakdown: user.monthBreakdown, tone: "text-[#34d399]", ring: "border-emerald-400/25 bg-emerald-400/[0.06]" },
+                    { key: "week", label: "Minggu Ini", hint: "Senin sampai hari ini", value: user.weekCount, breakdown: user.weekBreakdown, tone: "text-[#fbbf24]", ring: "border-amber-400/25 bg-amber-400/[0.06]" },
+                    { key: "today", label: "Saat Ini", hint: "Tiket yang dibuka hari ini", value: user.todayCount, breakdown: user.todayBreakdown, tone: "text-[#38bdf8]", ring: "border-sky-400/30 bg-sky-400/[0.07]" },
+                  ];
+                  const projects = Object.entries(user.totalBreakdown).sort((a, b) => b[1] - a[1]).map(([project]) => project);
+                  return (
+                    <>
+                      <div className="grid grid-cols-5 gap-2.5 max-[720px]:grid-cols-3 max-[420px]:grid-cols-2 user-modal-periods-grid">
+                        {periods.map((period) => (
+                          <div key={period.key} className={`flex flex-col gap-1 rounded-[10px] border p-[10px_12px] user-period-card ${period.ring}`} title={period.hint}>
+                            <span className="text-[10px] font-bold uppercase tracking-[0.07em] text-[var(--ink-muted)]">{period.label}</span>
+                            <strong className={`font-mono text-[22px] font-extrabold leading-none tabular-nums ${period.tone}`}>{period.value.toLocaleString("id-ID")}</strong>
+                            <span className="text-[10px] text-[var(--ink-muted)]">tiket</span>
                           </div>
-                        );
-                      })}
-                    </div>
-                  </div>
+                        ))}
+                      </div>
 
-                  {/* Tahun Ini */}
-                  <div className="p-[12px_10px] rounded-[10px] bg-[rgba(148,163,184,0.05)] border border-[rgba(148,163,184,0.12)] flex flex-col gap-[8px] user-period-card">
-                    <div className="flex items-center justify-between pb-[6px] border-b border-[rgba(148,163,184,0.08)] period-card-header">
-                      <span className="text-[8.5px] max-lg:text-[11px] font-bold font-mono p-[2px_6px] rounded-[4px] bg-[rgba(129,140,248,0.15)] text-[#818cf8] period-badge year">TAHUN INI</span>
-                      <strong className="text-[13px] font-extrabold font-mono text-[var(--ink-primary)] period-total">{selectedUserDetail.yearCount} Tiket</strong>
-                    </div>
-                    <div className="flex flex-col gap-[4px] period-breakdown-list">
-                      {Object.entries(selectedUserDetail.yearBreakdown).map(([proj, count]) => {
-                        const pColor = PROJECT_COLORS[proj] || "#94a3b8";
-                        const pct = Math.round((count / Math.max(1, selectedUserDetail.yearCount)) * 100);
-                        return (
-                          <div className="flex items-center justify-between text-[10px] max-lg:text-[11px] py-[2px] period-breakdown-row" key={proj}>
-                            <div className="flex items-center gap-[4px] text-[var(--ink-secondary)] period-proj-tag">
-                              <i className="legend-dot" style={{ background: pColor }} />
-                              <span>{projectLabel(proj, activeClientId)}</span>
-                            </div>
-                            <span className="font-mono font-semibold text-[var(--ink-muted)] period-count-pct">{count} ({pct}%)</span>
+                      <div className="flex flex-col gap-2 user-modal-breakdown">
+                        <div className="flex items-baseline justify-between gap-2">
+                          <span className="text-[12px] font-bold text-[var(--ink-primary)]">Rincian per Proyek</span>
+                          <span className="text-[10.5px] text-[var(--ink-muted)]">{projects.length} proyek</span>
+                        </div>
+                        {projects.length ? (
+                          <div className="overflow-x-auto rounded-[10px] border border-[rgba(148,163,184,0.12)]">
+                            <table className="w-full min-w-[460px] border-collapse text-[11.5px]">
+                              <thead>
+                                <tr className="bg-[rgba(148,163,184,0.06)] text-[10px] font-bold uppercase tracking-[0.06em] text-[var(--ink-muted)]">
+                                  <th scope="col" className="px-3 py-2 text-left">Proyek</th>
+                                  {periods.map((period) => <th key={period.key} scope="col" className="px-3 py-2 text-right whitespace-nowrap">{period.label}</th>)}
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {projects.map((project) => (
+                                  <tr key={project} className="border-t border-[rgba(148,163,184,0.08)]">
+                                    <th scope="row" className="px-3 py-[7px] text-left font-semibold text-[var(--ink-secondary)]">
+                                      <span className="inline-flex items-center gap-2">
+                                        <i className="inline-block size-[9px] shrink-0 rounded-[2.5px]" style={{ background: PROJECT_COLORS[project] || "#94a3b8" }} />
+                                        {projectLabel(project, activeClientId)}
+                                      </span>
+                                    </th>
+                                    {periods.map((period) => {
+                                      const count = period.breakdown[project] || 0;
+                                      return <td key={period.key} className={`px-3 py-[7px] text-right font-mono tabular-nums ${count ? `font-bold ${period.tone}` : "text-slate-600"}`}>{count || "–"}</td>;
+                                    })}
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
                           </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
+                        ) : (
+                          <div className="rounded-[10px] border border-dashed border-[rgba(148,163,184,0.18)] px-4 py-5 text-center text-[12px] text-[var(--ink-muted)]">Belum ada tiket untuk orang ini pada filter yang dipilih.</div>
+                        )}
+                      </div>
+                    </>
+                  );
+                })()}
 
                 {/* Recent Activity / Assigned Tickets */}
                 <div className="flex flex-col gap-[8px] user-modal-tickets-section">
-                  <div className="text-[11.5px] font-bold text-[var(--ink-primary)] user-tickets-title">Tiket Terkait dalam Antrean ({selectedUserDetail.recentTickets.length})</div>
+                  <div className="text-[11.5px] font-bold text-[var(--ink-primary)] user-tickets-title">Tiket Terbaru ({selectedUserDetail.recentTickets.length})</div>
                   {selectedUserDetail.recentTickets.length > 0 ? (
                     <div className="flex flex-col gap-[4px] max-h-[160px] overflow-y-auto pr-[4px] user-modal-tickets-list">
                       {selectedUserDetail.recentTickets.map((t) => {
@@ -4597,7 +3639,7 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
           projectColors={PROJECT_COLORS}
           selectedDate={selectedDate}
           onSelectDate={setSelectedDate}
-          momData={momData}
+          momData={momComparison}
           userSummaries={userSummaries}
           onSelectUserDetail={setSelectedUserDetail}
           typeCounts={typeCounts}
@@ -4609,6 +3651,7 @@ export function TicketReportView({ tickets: propTickets, dateRangeLabel, onGoToT
           shiftTrafficData={shiftHeatmapData}
           activeShiftLineFilter={activeShiftLineFilter}
           onShiftLineFilterChange={setActiveShiftLineFilter}
+          resolutionKpis={velocityKpis}
         />
       )}
     </div>

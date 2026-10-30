@@ -15,6 +15,7 @@ import { Avatar, MasterBadge, buttonClass, type MasterUsers } from "./master-ui"
 import { useMenuDismiss } from "./menu-ui";
 import { BLANK, RoleBadge, roleName } from "./team-ui";
 import type { PersonStatusTarget } from "./PeopleList";
+import { OrgAssignField } from "./OrgAssignField";
 
 interface Props {
   id: string;
@@ -224,6 +225,11 @@ export function PersonDetail({ id, catalog, roles, users, access, onClose, onEdi
                     {person.defaultShift && <KeyValue label="Shift default">{SHIFT_LABELS[person.defaultShift]}</KeyValue>}
                     {person.joinDate && <KeyValue label="Tanggal bergabung">{joinLabel(person.joinDate)}</KeyValue>}
                   </dl>
+                  <dl className="mt-3 grid grid-cols-1 gap-3 border-t border-slate-700/60 pt-3 sm:grid-cols-2">
+                    <KeyValue label="Jabatan"><OrgAssignField kind="position" personId={person.id} editable={canMaster(access, "position", "update")} /></KeyValue>
+                    <KeyValue label="Departemen"><OrgAssignField kind="department" personId={person.id} editable={canMaster(access, "department", "update")} /></KeyValue>
+                  </dl>
+                  <p className="mt-2 text-[11px] text-slate-400">Jabatan dan departemen tersimpan di browser ini (belum ada di backend).</p>
                   {usage?.lastHolderOf && <p className="mt-3 text-[11.5px] text-amber-200">Satu-satunya {usage.lastHolderOf} aktif.</p>}
                 </DetailCard>
                 {person.notes ? (

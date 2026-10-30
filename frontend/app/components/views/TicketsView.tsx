@@ -25,7 +25,8 @@ import { PanelSkeletonWrapper, TicketsTableSkeleton } from "@/app/components/ui/
 interface TicketsViewProps {
   tickets: Ticket[];
   onSelectTicket: (ticket: Ticket) => void;
-  onNewTicket: () => void;
+  /** Left out while tickets cannot be written (backend mode): the button is not shown. */
+  onNewTicket?: () => void;
 }
 
 type MainViewTab = "queue" | "escalations";
@@ -34,7 +35,7 @@ const STATUS_OPTIONS = ["All", "Open", "Closed", "Activity", "Meeting", "Re-Open
 
 
 
-const PRIORITY_OPTIONS = ["All Severities", "Critical", "High", "Medium", "Low"] as const;
+const PRIORITY_OPTIONS = ["All Severities", "High", "Medium", "Low"] as const;
 
 const SHIFT_OPTIONS = ["Semua Shift", "Shift Subuh", "Shift Pagi", "Shift Malam"] as const;
 
@@ -406,7 +407,7 @@ export function TicketsView({ tickets: propTickets, onSelectTicket, onNewTicket 
           <h1 className="text-[24px] font-bold text-[#f8fafc] leading-[1.2] tracking-[-0.4px] mt-[6px] mb-[4px]">Tickets</h1>
         </div>
         <div className="flex gap-[9px]">
-          <button
+          {onNewTicket && <button
             type="button"
             className="inline-flex items-center justify-center gap-[7px] h-[36px] px-[15px] rounded-[7px] text-[12px] font-semibold text-white bg-[#38bdf8] shadow-[0_1px_2px_0_rgba(0,0,0,0.2)] cursor-pointer hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             onClick={onNewTicket}
@@ -414,7 +415,7 @@ export function TicketsView({ tickets: propTickets, onSelectTicket, onNewTicket 
             aria-disabled={isLoading}
           >
             <span>＋</span> New Ticket
-          </button>
+          </button>}
         </div>
       </section>
 
@@ -464,13 +465,13 @@ export function TicketsView({ tickets: propTickets, onSelectTicket, onNewTicket 
           badgeTone="blue"
         />
 
-        {/* High Severity & Critical */}
+        {/* High severity */}
         <StatCard
           label="HIGH SEVERITY / ESCALATED"
           value={highPriorityCount + escalatedCount}
           accentColor={highPriorityCount + escalatedCount > 0 ? "rose" : "gray"}
           icon={<AlertTriangle size={15} strokeWidth={2} />}
-          subtitle={`${highPriorityCount} Critical/High · ${escalatedCount} Escalated`}
+          subtitle={`${highPriorityCount} High · ${escalatedCount} Escalated`}
           badgeText={
             highPriorityCount + escalatedCount > 0 ? "Needs Attention" : "All Nominal"
           }

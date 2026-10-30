@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { copyTextToClipboard } from "@/app/lib/copy-text";
 import Link from "next/link";
 import { AlertTriangle, ArrowUpRight, Check, Copy, History, Lock, Trash2 } from "lucide-react";
 import { Modal } from "@/app/components/ui/Modal";
@@ -168,7 +169,7 @@ export function MasterDetail(props: Props) {
   useEffect(() => () => { if (copyTimer.current) clearTimeout(copyTimer.current); }, []);
   const loading = result.key !== key, row = loading ? undefined : result.row, impact = result.impact;
   const copy = (value: string, keyName: string) => {
-    void navigator.clipboard?.writeText(value).then(() => { setCopied(keyName); if (copyTimer.current) clearTimeout(copyTimer.current); copyTimer.current = setTimeout(() => setCopied(""), 1600); }).catch(() => undefined);
+    void copyTextToClipboard(value).then(copied => { if (!copied) return; setCopied(keyName); if (copyTimer.current) clearTimeout(copyTimer.current); copyTimer.current = setTimeout(() => setCopied(""), 1600); });
   };
   const relation = (label: string, count: number, target: MasterEntity, query: Partial<MasterQuery>) => (
     <button

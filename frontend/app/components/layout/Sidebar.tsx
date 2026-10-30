@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
-import { BookOpen, Users, User, MoreHorizontal, Edit3, SlidersHorizontal, LogOut, ChevronLeft, ChevronRight, PanelLeft, Sun, Sunset, Moon } from "lucide-react";
+import { Users, User, MoreHorizontal, Edit3, SlidersHorizontal, LogOut, ChevronLeft, ChevronRight, PanelLeft, Sun, Sunset, Moon } from "lucide-react";
 import { BrandLogo } from "@/app/components/ui/BrandLogo";
 import { Avatar } from "@/app/components/ui/Avatar";
 import { useToast } from "@/app/components/ui/Toast";
@@ -199,25 +199,6 @@ export function Sidebar({
             </Link>
           );
         })}
-
-        <Link href={paths.runbooks}
-          className={`nav-item flex items-center text-left rounded-[8px] text-[13px] [transition:color_0.15s,_background_0.15s,_border-color_0.15s] overflow-hidden relative cursor-pointer hover:text-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] ${
-            collapsed
-              ? `w-[44px] h-[44px] p-0 m-[0_auto_2px] justify-center items-center gap-0 rounded-[10px] ${
-                  activeNav === "Runbooks" ? "active text-[var(--sidebar-active-text)] bg-[var(--sidebar-active)] font-semibold [border-left:none]" : "bg-transparent text-[var(--sidebar-muted)] font-medium"
-                }`
-              : `w-full gap-[11px] p-[9px_12px] ${
-                  activeNav === "Runbooks" ? "active text-[var(--sidebar-active-text)] bg-[var(--sidebar-active)] font-semibold border-l-[3px] border-l-[var(--sidebar-active-border)]" : "bg-transparent text-[var(--sidebar-muted)] font-medium"
-                }`
-          }`}
-          aria-current={isActivePath(pathname, paths.runbooks) ? "page" : undefined}
-          title="Runbooks"
-        >
-          <span className={`nav-icon inline-flex items-center justify-center w-[20px] h-[20px] shrink-0 text-currentColor [transition:color_0.15s] ${collapsed ? "m-[0_auto]" : ""}`} aria-hidden="true">
-            <BookOpen size={18} strokeWidth={1.8} aria-hidden="true" />
-          </span>
-          <span className={`nav-label whitespace-nowrap text-[13px] text-inherit ${collapsed ? "hidden" : ""}`}>Runbooks</span>
-        </Link>
       </nav>
 
       <section
