@@ -1,6 +1,7 @@
 import type { CheckpointAssessment, HandoverActor, HandoverDraft, HandoverRecordData, HandoverTask, RosterMember, Ticket } from "./types";
 import { createShiftHandoverDraft, initialHandoverTasks, isOpenTicket, monitoringSchedule, STANDARD_MONITORED_PROJECTS } from "./data";
 import { getNextShiftChange, getShiftInfo, isShiftActiveForMember } from "./shifts";
+import { ticketCode } from "@/app/lib/ticket-code";
 
 export const emptyHandoverRecord: HandoverRecordData = {
   sourceShift: "", targetShift: "", sourcePic: "", targetPic: "", monitoringOwner: "",
@@ -186,7 +187,7 @@ export function buildDashboardHandoverDraft(input: { tickets: Ticket[]; assessme
         id: 1000 + index,
         taskTemplateId: `ticket-${ticket.id}`,
         isNewlyAdded: true,
-        title: `Tindak lanjut #${ticket.id}: ${ticket.subject}`,
+        title: `Tindak lanjut #${ticketCode(ticket)}: ${ticket.subject}`,
         project: ticket.project,
         detail: `${ticket.description || ticket.subject}\nStatus: ${ticket.status}. PIC: ${ticket.owner}.`,
         state: "in-progress" as const,

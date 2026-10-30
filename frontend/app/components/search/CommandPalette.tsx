@@ -19,6 +19,7 @@ interface CommandPaletteProps {
 }
 
 import type { LucideIcon } from "lucide-react";
+import { ticketCode } from "@/app/lib/ticket-code";
 
 interface PaletteResult {
   key: string;
@@ -86,7 +87,7 @@ function PaletteOverlay({
     const ticketMatches = tickets
       .filter((ticket) =>
         needle
-          ? Object.values(ticket).some(
+          ? ticketCode(ticket).toLowerCase().includes(needle) || Object.values(ticket).some(
               (value) => typeof value === "string" && value.toLowerCase().includes(needle),
             )
           : true,
@@ -96,7 +97,7 @@ function PaletteOverlay({
         key: `ticket-${ticket.id}`,
         kind: "ticket" as const,
         label: ticket.subject,
-        hint: `#${ticket.id} · Pemilik: ${ticket.owner}`,
+        hint: `#${ticketCode(ticket)} · Pemilik: ${ticket.owner}`,
         ticket,
       }));
     return [...navMatches, ...ticketMatches];

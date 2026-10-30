@@ -64,7 +64,8 @@ test('modules switch on one by one, and USE_MOCK=false turns them all on', () =>
   } finally { for (const key of keys) { if (saved[key] === undefined) delete process.env[key]; else process.env[key] = saved[key]; } }
 });
 
-import { fetchAllTickets, mergeRecentTickets, rememberTickets, ticketWritesEnabled, setTicketCacheOwner } from '../app/services/backend-tickets.ts';
+import { ticketCode } from '../app/lib/ticket-code.ts';
+import { fetchAllTickets, mergeRecentTickets, rememberTickets, setTicketCacheOwner, backendProjects, ticketToCreateBody, ticketToUpdateBody } from '../app/services/backend-tickets.ts';
 import { localDataNotice } from '../app/lib/local-data-notice.ts';
 import { bindSessionData } from '../app/lib/session-data.ts';
 
@@ -85,11 +86,50 @@ test('recent changes replace known tickets, add new ones and keep newest first',
   assert.equal(mergeRecentTickets(current, [shown('3', '2026-10-03', '10:00')]).length, 3, 'a ticket already there is not duplicated');
 });
 
-test('tickets can be written only while the app keeps them itself', () => {
-  assert.equal(withEnv({ NEXT_PUBLIC_USE_MOCK: undefined, NEXT_PUBLIC_API_MODULES: undefined }, ticketWritesEnabled), true, 'mock: as before');
-  assert.equal(withEnv({ NEXT_PUBLIC_USE_MOCK: 'true', NEXT_PUBLIC_API_MODULES: 'auth,people,roles' }, ticketWritesEnabled), true, 'tickets module off');
-  assert.equal(withEnv({ NEXT_PUBLIC_USE_MOCK: 'true', NEXT_PUBLIC_API_MODULES: 'auth,tickets' }, ticketWritesEnabled), false, 'tickets from the backend: read-only');
-  assert.equal(withEnv({ NEXT_PUBLIC_USE_MOCK: 'false', NEXT_PUBLIC_API_MODULES: undefined }, ticketWritesEnabled), false);
+// GET /ticket-categories and /ticket-severities as seeded (prisma/seed-data)
+const lookups = {
+  categories: [{ id: '1', name: 'Ad-hoc Request' }, { id: '3', name: 'Incident & Issue Handling' }],
+  severities: [{ id: '1', code_name: 'Low', name: 'Low' }, { id: '2', code_name: 'Med', name: 'Medium' }, { id: '3', code_name: 'High', name: 'High' }],
+};
+
+test('a backend ticket shows its third-party number and keeps its id as the key', () => {
+  const model = backendTicketToModel(ticket());
+  assert.equal(model.id, '3640', 'URLs and PATCH use the id');
+  assert.equal(ticketCode(model), 'REQ-2997', 'what the operator sees, as in the database');
+  assert.equal(ticketCode(backendTicketToModel(ticket({ third_party_ticket_id: null }))), '3640', 'no third-party id: the id');
+  assert.equal(ticketCode({ id: 'TICK-0001' }), 'TICK-0001', 'tickets the app keeps itself are unchanged');
+});
+
+test('a backend ticket keeps the backend ids behind its names', () => {
+  assert.deepEqual(backendTicketToModel(ticket()).backend, { projectId: '6', projectName: 'Umbrella SIEM', clientId: '1', userId: '6', thirdPartyId: 'REQ-2997' });
+  const projects = backendProjects([ticket(), ticket({ id: '2', project_id: '1', project: { id: '1', name: 'Single Mediation', code_prefix: 'SM' } }), ticket({ id: '3' })].map(backendTicketToModel));
+  assert.deepEqual(projects, [{ id: '1', name: 'Single Mediation' }, { id: '6', name: 'Umbrella SIEM' }], 'one per project id, by name');
+});
+
+test('a new ticket from the form becomes the body of POST /tickets', () => {
+  const draft = { id: '86d4abcde', subject: 'Cek SM', project: 'Single Mediation', severity: 'Medium', category: 'Ad-hoc Request', status: 'Re-Open', owner: 'A', ownerIds: ['7', 'local-x'], created: '10:00', description: 'catatan', requestTime: '09:30', completionTime: '10:15', backend: { projectId: '1', clientId: '1', thirdPartyId: '86d4abcde' } };
+  const body = ticketToCreateBody(draft, lookups);
+  assert.equal(body.project_id, '1'); assert.equal(body.client_id, '1'); assert.equal(body.severity_id, '2'); assert.equal(body.category_id, '1');
+  assert.equal(body.status, 'ReOpen'); assert.equal(body.user_id, '7', 'the first PIC that is a backend user');
+  assert.equal(body.third_party_ticket_id, '86d4abcde'); assert.equal(body.description, 'catatan');
+  assert.match(body.open_at, /^\d{4}-\d{2}-\d{2}T09:30:00\+07:00$/, 'WIB time with its offset'); assert.match(body.closed_at, /T10:15:00\+07:00$/);
+  const plain = ticketToCreateBody({ ...draft, ownerIds: undefined, requestTime: undefined, completionTime: undefined, description: undefined, status: 'Open' }, lookups);
+  for (const key of ['user_id', 'open_at', 'closed_at', 'description']) assert.equal(key in plain, false, `${key} left to the backend's default`);
+  assert.throws(() => ticketToCreateBody({ ...draft, status: 'RCA' }, lookups), /Status "RCA" belum ada di backend/);
+  assert.throws(() => ticketToCreateBody({ ...draft, category: 'Maintenance' }, lookups), /Kategori "Maintenance" tidak dikenal/);
+  assert.throws(() => ticketToCreateBody({ ...draft, backend: undefined }, lookups), /Pilih proyek/);
+});
+
+test('an edit sends only what changed, and escalation is refused rather than lost', () => {
+  const before = backendTicketToModel(ticket({ status: 'Open', closed_at: null }));
+  assert.deepEqual(ticketToUpdateBody({ ...before, description: before.description }, before, lookups), {}, 'nothing changed');
+  assert.deepEqual(ticketToUpdateBody({ ...before, status: 'Closed' }, before, lookups), { status: 'Closed' }, 'Close Ticket');
+  assert.deepEqual(ticketToUpdateBody({ ...before, severity: 'High', category: 'Ad-hoc Request', subject: 'Baru', backend: { ...before.backend, projectId: '1' } }, before, lookups),
+    { subject: 'Baru', project_id: '1', severity_id: '3', category_id: '1' });
+  assert.deepEqual(ticketToUpdateBody({ ...before, ownerIds: ['6'] }, before, lookups), {}, 'the same assignee is not sent (no "reassigning" for an operator)');
+  assert.deepEqual(ticketToUpdateBody({ ...before, ownerIds: ['9'] }, before, lookups), { user_id: '9' });
+  assert.deepEqual(ticketToUpdateBody({ ...before, description: '' }, before, lookups), { description: null });
+  assert.throws(() => ticketToUpdateBody({ ...before, status: 'Escalated' }, before, lookups), /Status "Escalated" belum ada di backend/);
 });
 
 test('pages that are not connected say so, only while the app is partly connected', () => {
@@ -114,7 +154,7 @@ test('changing the logged-in person is safe to repeat and never throws without a
 test('the cached tickets belong to one person and survive a reload, not a change of person', async () => {
   const store = new Map();
   globalThis.window = { sessionStorage: { getItem: key => store.get(key) ?? null, setItem: (key, value) => store.set(key, String(value)), removeItem: key => store.delete(key) } };
-  const KEY = 'ctd.backendTickets.v1';
+  const KEY = 'ctd.backendTickets.v2';
   const stored = () => JSON.parse(store.get(KEY) ?? 'null');
   try {
     bindSessionData(null);

@@ -25,7 +25,7 @@ import { useBackendTickets } from "@/app/hooks/useBackendTickets";
 import { useBackendTeam } from "@/app/hooks/useBackendTeam";
 import { useAccess } from "@/app/hooks/useAccess";
 import { LocalDataNotice } from "@/app/components/ui/LocalDataNotice";
-import { ticketsFromBackend, ticketWritesEnabled } from "@/app/services/backend-tickets";
+import { createBackendTicket, ticketsFromBackend, updateBackendTicket } from "@/app/services/backend-tickets";
 import { useHandoverWorkflow } from "@/app/hooks/useHandoverWorkflow";
 
 
@@ -45,6 +45,7 @@ import {
 import { ClientProvider, useClient } from "@/app/context/ClientContext";
 import { ALL_COMBINED_SEED_TICKETS, getClientTickets, getClientMonitoringSchedule } from "@/app/lib/clientData";
 import { rowKey } from "@/app/components/dashboard/MonitoringSchedule";
+import { ticketCode } from "@/app/lib/ticket-code";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (
@@ -81,15 +82,31 @@ function useShellState() {
   }, [ticketsError, notify]);
   const fromBackend = ticketsFromBackend();
   const { can } = useAccess();
-  const connectedForWrites = ticketWritesEnabled();
-  const ticketWritable = connectedForWrites && can("tickets.create") && can("tickets.update");
+  const ticketWritable = can("tickets.create") && can("tickets.update");
   // why tickets cannot be changed, shown where the buttons would be (undefined when they can)
-  const ticketReadOnlyReason = ticketWritable ? undefined : connectedForWrites ? "Anda tidak memiliki izin untuk mengubah tiket." : "Tiket ini hanya bisa dilihat: perubahan tiket belum tersambung ke backend.";
+  const ticketReadOnlyReason = ticketWritable ? undefined : "Anda tidak memiliki izin untuk mengubah tiket.";
   const teamError = useBackendTeam(false).error;
   useEffect(() => {
     if (teamError) notify.critical(`Personel tidak dapat dimuat dari backend: ${teamError}`, { id: "team-load-failed", duration: 8000 });
   }, [teamError, notify]);
   const [tickets, setTickets, ticketsReady] = fromBackend ? remoteTickets : localTickets;
+  const putRemoteTicket = remoteTickets[6];
+  /** Saves a new ticket (to the backend when it is the source) and answers with it as saved. A failure throws, for the form to show. */
+  const saveNewTicket = useCallback(async (ticket: Ticket): Promise<Ticket> => {
+    if (!fromBackend) { setTickets((previous) => [ticket, ...previous]); return ticket; }
+    const saved = await createBackendTicket(ticket, tickets);
+    putRemoteTicket(saved);
+    return saved;
+  }, [fromBackend, setTickets, tickets, putRemoteTicket]);
+  /** Saves a change to a ticket, the same way. */
+  const saveTicketChange = useCallback(async (updated: Ticket): Promise<Ticket> => {
+    if (!fromBackend) { setTickets((previous) => previous.map((ticket) => (ticket.id === updated.id ? updated : ticket))); return updated; }
+    const previous = tickets.find((ticket) => ticket.id === updated.id);
+    if (!previous) throw new Error(`Tiket #${ticketCode(updated)} tidak ditemukan.`);
+    const saved = await updateBackendTicket(updated, previous);
+    putRemoteTicket(saved);
+    return saved;
+  }, [fromBackend, setTickets, tickets, putRemoteTicket]);
   const [assessments, setAssessments] = useLocalStorage<Record<string, CheckpointAssessment>>("ctd.checkpoints", EMPTY_ASSESSMENTS);
   useLocalStorage<string[]>("ctd.acknowledged", EMPTY_ACKNOWLEDGED);
 
@@ -228,7 +245,7 @@ function useShellState() {
     return () => window.removeEventListener("keydown", listener);
   }, [selectedTicket, closeTicket]);
 
-  return { closeTicketUrl, activeNav, pageKey, tickets, setTickets, ticketsReady, ticketWritable, ticketReadOnlyReason, refreshTickets: fromBackend ? remoteTickets[5] : undefined, clientTickets, assessments, handleAssess, setPendingNoteKey, handleUpdateNote, setGuideOpen, currentHour, handover, members, setMembers, selectTicket, openTicketCreate, handleNavigate, mobileNavOpen, setMobileNavOpen, shiftPanelOpen, setShiftPanelOpen, sidebarCollapsed, setSidebarCollapsed, openTicketCount, searchOpen, setSearchOpen, ticketModalOpen, setTicketModalOpen, loadedOverlays, activeClient, activeClientId, notify, addNotification, selectedTicketId, selectedTicket, closeTicket, pendingNoteKey, pendingEntry, setAssessments, guideOpen };
+  return { closeTicketUrl, activeNav, pageKey, tickets, setTickets, saveNewTicket, saveTicketChange, ticketsReady, ticketWritable, ticketReadOnlyReason, refreshTickets: fromBackend ? remoteTickets[5] : undefined, clientTickets, assessments, handleAssess, setPendingNoteKey, handleUpdateNote, setGuideOpen, currentHour, handover, members, setMembers, selectTicket, openTicketCreate, handleNavigate, mobileNavOpen, setMobileNavOpen, shiftPanelOpen, setShiftPanelOpen, sidebarCollapsed, setSidebarCollapsed, openTicketCount, searchOpen, setSearchOpen, ticketModalOpen, setTicketModalOpen, loadedOverlays, activeClient, activeClientId, notify, addNotification, selectedTicketId, selectedTicket, closeTicket, pendingNoteKey, pendingEntry, setAssessments, guideOpen };
 }
 
 export type AppShellState = ReturnType<typeof useShellState>;
@@ -240,7 +257,7 @@ export function useAppData() {
 function DashboardShell({ children }: { children: React.ReactNode }) {
   const state = useShellState();
   const mobileChrome = useMobileChrome();
-  const { activeNav, setTickets, ticketsReady, ticketWritable, ticketReadOnlyReason, refreshTickets, clientTickets, setPendingNoteKey, setGuideOpen, handover, selectTicket, openTicketCreate, handleNavigate, mobileNavOpen, setMobileNavOpen, shiftPanelOpen, setShiftPanelOpen, sidebarCollapsed, setSidebarCollapsed, openTicketCount, searchOpen, setSearchOpen, ticketModalOpen, setTicketModalOpen, loadedOverlays, activeClient, activeClientId, notify, addNotification, selectedTicketId, selectedTicket, closeTicket, pendingNoteKey, pendingEntry, setAssessments, guideOpen } = state;
+  const { activeNav, saveNewTicket, saveTicketChange, ticketsReady, ticketWritable, ticketReadOnlyReason, refreshTickets, clientTickets, setPendingNoteKey, setGuideOpen, handover, selectTicket, openTicketCreate, handleNavigate, mobileNavOpen, setMobileNavOpen, shiftPanelOpen, setShiftPanelOpen, sidebarCollapsed, setSidebarCollapsed, openTicketCount, searchOpen, setSearchOpen, ticketModalOpen, setTicketModalOpen, loadedOverlays, activeClient, activeClientId, notify, addNotification, selectedTicketId, selectedTicket, closeTicket, pendingNoteKey, pendingEntry, setAssessments, guideOpen } = state;
 
   return (
     <ShellContext.Provider value={state}>
@@ -312,17 +329,13 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
           <TicketCreateModal
             open={ticketModalOpen}
             onClose={() => setTicketModalOpen(false)}
-            onCreate={(ticket) => {
-              const ticketWithClient: Ticket = {
-                ...ticket,
-                clientId: activeClientId,
-              };
-              setTickets((previous) => [ticketWithClient, ...previous]);
-              notify.success(`Ticket #${ticket.id} berhasil dibuat dan dicatat untuk ${activeClient.shortName}.`, { id: `ticket-${ticket.id}` });
-              const slaEval = evaluateTicketSlaStatus(ticketWithClient);
+            onCreate={async (draft) => {
+              const ticket = await saveNewTicket({ ...draft, clientId: activeClientId });
+              notify.success(`Ticket #${ticketCode(ticket)} berhasil dibuat dan dicatat untuk ${activeClient.shortName}.`, { id: `ticket-${ticket.id}` });
+              const slaEval = evaluateTicketSlaStatus(ticket);
               if (slaEval.status === "breached") {
                 addNotification({
-                  title: `SLA Breach: Tiket #${ticket.id} terlampaui`,
+                  title: `SLA Breach: Tiket #${ticketCode(ticket)} terlampaui`,
                   message: `Waktu penanganan (${slaEval.actualMinutes}m) melampaui SLA ${slaEval.targetMinutes}m pada tiket "${ticket.subject}".`,
                   category: "SLA",
                   project: ticket.project,
@@ -332,7 +345,7 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
                 });
               } else if (slaEval.status === "approaching") {
                 addNotification({
-                  title: `Peringatan SLA: Tiket #${ticket.id} mendekati batas waktu`,
+                  title: `Peringatan SLA: Tiket #${ticketCode(ticket)} mendekati batas waktu`,
                   message: `Sisa waktu ${slaEval.remainingMinutes}m sebelum batas toleransi SLA ${slaEval.targetMinutes}m terlampaui.`,
                   category: "SLA",
                   project: ticket.project,
@@ -351,12 +364,12 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
             ticket={selectedTicket}
             onClose={closeTicket}
             readOnlyReason={ticketReadOnlyReason}
-            onUpdate={(updated) => {
-              setTickets((previous) => previous.map((ticket) => (ticket.id === updated.id ? updated : ticket)));
+            onUpdate={async (change) => {
+              const updated = await saveTicketChange(change);
               const slaEval = evaluateTicketSlaStatus(updated);
               if (slaEval.status === "breached") {
                 addNotification({
-                  title: `SLA Breach: Tiket #${updated.id} terlampaui`,
+                  title: `SLA Breach: Tiket #${ticketCode(updated)} terlampaui`,
                   message: `Waktu penanganan (${slaEval.actualMinutes}m) melampaui SLA ${slaEval.targetMinutes}m pada tiket "${updated.subject}".`,
                   category: "SLA",
                   project: updated.project,
@@ -366,7 +379,7 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
                 });
               } else if (slaEval.status === "approaching") {
                 addNotification({
-                  title: `Peringatan SLA: Tiket #${updated.id} mendekati batas waktu`,
+                  title: `Peringatan SLA: Tiket #${ticketCode(updated)} mendekati batas waktu`,
                   message: `Sisa waktu ${slaEval.remainingMinutes}m sebelum batas toleransi SLA ${slaEval.targetMinutes}m terlampaui.`,
                   category: "SLA",
                   project: updated.project,

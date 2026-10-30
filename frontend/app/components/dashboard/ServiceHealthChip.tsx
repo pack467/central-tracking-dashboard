@@ -36,6 +36,7 @@ import {
   CLIENT_HANDOVER_TASKS,
   ALL_COMBINED_SEED_TICKETS 
 } from "@/app/lib/clientData";
+import { ticketCode } from "@/app/lib/ticket-code";
 
 // ── Types ──
 
@@ -458,10 +459,10 @@ export function OpenTicketsList({
               type="button"
               className="service-ticket-row"
               onClick={() => onSelectTicket?.(ticket.id)}
-              title={`[${ticket.id}] ${ticket.subject} (Click to open)`}
+              title={`[${ticketCode(ticket)}] ${ticket.subject} (Click to open)`}
             >
               <div className="service-ticket-left">
-                <span className="service-ticket-id">#{ticket.id}</span>
+                <span className="service-ticket-id">#{ticketCode(ticket)}</span>
                 <span className="service-ticket-title">{ticket.subject}</span>
               </div>
               <div className="service-ticket-right">
@@ -569,7 +570,7 @@ export function ServiceDetailModal({
       "",
       `3. OPEN TICKETS (${openTickets.length}):`,
       openTickets.length > 0
-        ? openTickets.map((t) => `  • #${t.id} [${t.severity} / ${t.status}] ${t.subject} (PIC: ${t.owner})`).join("\n")
+        ? openTickets.map((t) => `  • #${ticketCode(t)} [${t.severity} / ${t.status}] ${t.subject} (PIC: ${t.owner})`).join("\n")
         : "  • No open tickets for this service.",
     ].filter(Boolean).join("\n");
 

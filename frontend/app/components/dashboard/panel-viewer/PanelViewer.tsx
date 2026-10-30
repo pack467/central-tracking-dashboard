@@ -206,6 +206,8 @@ export function PanelViewer({
 
   const hasCustomFilters = activeFilters.length > 0;
   const isDistribution = panelId === "category-distribution" || panelId === "severity-distribution";
+  // on a narrow screen these hold more than the screen is tall: the page scrolls, instead of each part being squeezed into a short box
+  const scrollsWhenNarrow = isDistribution || (panelId === "ticket-mom" && mode === "table");
   const smallRecap = panelId === "user-recap" && narrow;
 
   return createPortal(
@@ -346,7 +348,7 @@ export function PanelViewer({
       )}
 
       {/* ── 3. Main Viewer Body (Full width up to 1920px, no dead side space) ── */}
-      <main className={`flex-1 min-h-0 min-w-0 ${smallRecap ? "p-0" : "p-3 sm:p-5"} flex flex-col max-w-[1920px] w-full mx-auto ${isDistribution ? "overflow-y-auto overscroll-contain lg:overflow-hidden" : "overflow-hidden"}`}>
+      <main className={`flex-1 min-h-0 min-w-0 ${smallRecap ? "p-0" : "p-3 sm:p-5"} flex flex-col max-w-[1920px] w-full mx-auto ${scrollsWhenNarrow ? "overflow-y-auto overscroll-contain lg:overflow-hidden" : "overflow-hidden"}`}>
         {panelId === "ticket-volume" && (
           <TicketVolumeView
             volumeByDate={volumeByDate}

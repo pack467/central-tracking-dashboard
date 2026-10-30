@@ -2,13 +2,11 @@
 import { MasterProjectName } from "@/app/components/ui/MasterProjectName";
 
 import { useMemo, useState } from "react";
-import { ArrowRight, Check, CheckCircle2, FileText, Info, Lock, Ticket as TicketIcon, Trash2, UserCheck } from "lucide-react";
+import { Activity, AlertTriangle, ArrowRight, Check, CheckCircle2, Eye, FileText, Info, ListChecks, Lock, ShieldCheck, Ticket as TicketIcon, Trash2, UserCheck, XCircle, type LucideIcon } from "lucide-react";
 import { Badge } from "@/app/components/ui/Badge";
-import { ProjectMark } from "@/app/components/ui/ProjectMark";
 import { Modal } from "@/app/components/ui/Modal";
 import { ModalCloseButton } from "@/app/components/ui/ModalCloseButton";
 import { ConfirmDialog } from "@/app/components/ui/ConfirmDialog";
-import { IconFindings, IconMonitoring, IconTasks } from "@/app/components/ui/Icons";
 import { Avatar } from "@/app/components/ui/Avatar";
 import { formatHandoverDate, isOpenTicket } from "@/app/lib/data";
 import { canEditHandover, canReceiveHandover } from "@/app/lib/handover";
@@ -18,6 +16,7 @@ import { TaskStatusBadge } from "./TaskStatusBadge";
 import { TaskPriorityBadge } from "./TaskPriorityBadge";
 import type { useHandoverWorkflow } from "@/app/hooks/useHandoverWorkflow";
 import type { HandoverTask, Ticket } from "@/app/lib/types";
+import { ticketCode } from "@/app/lib/ticket-code";
 
 export type HandoverWorkflow = ReturnType<typeof useHandoverWorkflow>;
 
@@ -46,6 +45,51 @@ const fallbackCheckpoints = [
   { time: "08:00", project: "ActiveMQ", task: "Broker heap & consumer count", verdict: "ok" as const, note: "Heap normal" },
 ];
 
+/** A project named in a list: plain text in a quiet chip, the same in every tab. */
+function ProjectPill({ name, large }: { name: string; large?: boolean }) {
+  return <span className={`inline-flex shrink-0 items-center rounded-md border border-slate-600/60 bg-slate-800/70 font-mono font-semibold text-slate-200 ${large ? "px-2 py-1 text-[12px]" : "px-1.5 py-0.5 text-[10.5px]"}`}>{name}</span>;
+}
+
+/** What a tab says when it has nothing: an icon, one line that answers, one line that explains. */
+function EmptyNote({ icon: Icon, title, text, tone = "slate" }: { icon: LucideIcon; title: string; text: string; tone?: "slate" | "green" }) {
+  const green = tone === "green";
+  return (
+    <div className={`flex flex-col items-center gap-1.5 rounded-xl border px-5 py-7 text-center ${green ? "border-emerald-400/25 bg-emerald-500/[0.06]" : "border-dashed border-slate-700 bg-slate-900/40"}`}>
+      <Icon size={24} className={green ? "text-emerald-400" : "text-slate-500"} aria-hidden="true" />
+      <strong className={`text-[13.5px] font-semibold ${green ? "text-emerald-300" : "text-slate-200"}`}>{title}</strong>
+      <p className="m-0 text-[12px] text-slate-400">{text}</p>
+    </div>
+  );
+}
+
+function SectionTitle({ children, hint }: { children: React.ReactNode; hint?: string }) {
+  return (
+    <div className="mb-2 flex items-baseline justify-between gap-2">
+      <span className="text-[12px] font-semibold text-slate-300">{children}</span>
+      {hint && <span className="text-[11.5px] text-slate-500">{hint}</span>}
+    </div>
+  );
+}
+
+/** A count with its meaning underneath. */
+function MiniStat({ value, label, tone, ring }: { value: number; label: string; tone: string; ring: string }) {
+  return (
+    <div className={`flex min-w-0 flex-col gap-1 rounded-lg border px-3 py-2 ${ring}`}>
+      <strong className={`font-mono text-[18px] font-bold leading-none tabular-nums ${tone}`}>{value}</strong>
+      <span className="truncate text-[11px] text-slate-400">{label}</span>
+    </div>
+  );
+}
+
+function ValidationNote({ shift, note }: { shift: string; note: string }) {
+  return (
+    <div className="flex items-start gap-2 rounded-lg border border-emerald-400/25 bg-emerald-500/[0.07] px-3 py-2.5 text-[12.5px] leading-[1.5] text-emerald-100/90">
+      <CheckCircle2 size={14} className="mt-[2px] shrink-0 text-emerald-400" aria-hidden="true" />
+      <span><strong className="font-semibold text-emerald-300">Catatan penerimaan shift {shift}:</strong> {note}</span>
+    </div>
+  );
+}
+
 export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverModalProps) {
   const { open, close: onClose, record, records, busy, active, actor } = workflow;
   const onToggleTask = workflow.toggleTask;
@@ -63,9 +107,6 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
       ? record.sourceShift
       : `Shift ${record.sourceShift}`
     : "";
-  const noteAttribution = senderShift
-    ? `Catatan dari ${senderName} (${senderShift})`
-    : `Catatan dari ${senderName}`;
 
   // Core distinction: A completed record is strictly read-only history.
   // Pending records default to active confirmation mode.
@@ -108,12 +149,23 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
     ? record.monitoringCheckpoints
     : fallbackCheckpoints;
 
-  const getTabButtonClass = (tabKey: "tasks" | "findings" | "monitoring" | "notes" | "tickets") =>
-    `p-[7px_12px] rounded-[6px] text-[12px] transition-all duration-150 ease-in-out cursor-pointer border ${
-      activeTab === tabKey
-        ? "text-[var(--accent-blue)] bg-[var(--accent-blue-soft)] border-[var(--accent-blue-border)] font-bold"
-        : "text-[var(--ink-muted)] bg-transparent border-transparent font-semibold hover:text-[var(--ink-primary)] hover:bg-[var(--panel-bg-hover)]"
-    }`;
+  const checkpointsOk = checkpoints.filter((cp) => cp.verdict === "ok").length;
+  const findingsWaiting = record.findings.filter((finding) => finding.state === "waiting").length;
+
+  // the five parts of the handover; a count that needs attention (findings, open tickets) shows amber while its tab is not open
+  const tabs: Array<{ key: typeof activeTab; label: string; icon: LucideIcon; count: number; alert?: boolean }> = [
+    { key: "tasks", label: "Daftar Tugas", icon: ListChecks, count: tasks.length },
+    { key: "notes", label: "Catatan Shift", icon: FileText, count: hasNote ? 1 : 0 },
+    { key: "findings", label: "Temuan & Isu", icon: AlertTriangle, count: record.findings.length, alert: record.findings.length > 0 },
+    { key: "monitoring", label: "Status Monitoring", icon: Activity, count: record.monitoredProjects.length },
+    { key: "tickets", label: "Tiket yang Masih Open", icon: TicketIcon, count: openTicketsList.length, alert: openTicketsList.length > 0 },
+  ];
+  const taskFilters: Array<[typeof filter, string, number]> = [
+    ["all", "All", tasks.length],
+    ["repeat", "Routine", tasks.filter((task) => task.state === "repeat").length],
+    ["waiting", "Pending", tasks.filter((task) => task.state === "waiting").length],
+    ["in-progress", "In Progress", tasks.filter((task) => task.state === "in-progress").length],
+  ];
 
 
   return (
@@ -273,104 +325,87 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
               )}
             </div>
 
-            {/* Navigation Tabs */}
-            <div className="flex gap-[4px] mb-[14px] border-b border-[var(--line)] pb-[8px]" role="tablist">
-              <button
-                className={getTabButtonClass("tasks")}
-                onClick={() => setActiveTab("tasks")}
-                role="tab"
-                aria-selected={activeTab === "tasks"}
-              >
-                <IconTasks /> Daftar Tugas ({tasks.length})
-              </button>
-              <button
-                className={getTabButtonClass("notes")}
-                onClick={() => setActiveTab("notes")}
-                role="tab"
-                aria-selected={activeTab === "notes"}
-              >
-                <FileText size={14} style={{ display: "inline-block", verticalAlign: "middle", marginRight: "4px" }} />
-                Catatan Shift {hasNote ? "(1)" : ""}
-              </button>
-              <button
-                className={getTabButtonClass("findings")}
-                onClick={() => setActiveTab("findings")}
-                role="tab"
-                aria-selected={activeTab === "findings"}
-              >
-                <IconFindings /> Temuan &amp; Isu ({record.findings.length})
-              </button>
-              <button
-                className={getTabButtonClass("monitoring")}
-                onClick={() => setActiveTab("monitoring")}
-                role="tab"
-                aria-selected={activeTab === "monitoring"}
-              >
-                <IconMonitoring /> Status Monitoring ({record.monitoredProjects.length})
-              </button>
-              <button
-                className={getTabButtonClass("tickets")}
-                onClick={() => setActiveTab("tickets")}
-                role="tab"
-                aria-selected={activeTab === "tickets"}
-              >
-                <TicketIcon size={14} style={{ display: "inline-block", verticalAlign: "middle", marginRight: "4px" }} />
-                Tiket yang Masih Open ({openTicketsList.length})
-              </button>
+            {/* Navigation Tabs: five equal columns (icon and count, the name under them); on a phone a row of pills that scrolls sideways */}
+            <div className="mb-[16px] grid grid-cols-5 gap-1 rounded-xl border border-slate-700/60 bg-slate-900/50 p-1 max-[600px]:flex max-[600px]:overflow-x-auto max-[600px]:[scrollbar-width:none] max-[600px]:[&::-webkit-scrollbar]:hidden" role="tablist" aria-label="Bagian handover">
+              {tabs.map((tab) => {
+                const selected = activeTab === tab.key;
+                return (
+                  <button
+                    key={tab.key}
+                    type="button"
+                    role="tab"
+                    aria-selected={selected}
+                    onClick={() => setActiveTab(tab.key)}
+                    className={`flex min-w-0 flex-col items-center justify-center gap-1 rounded-lg border px-2 py-2 text-center text-[12px] font-semibold leading-tight transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 max-[600px]:shrink-0 max-[600px]:flex-row max-[600px]:gap-2 max-[600px]:px-3 ${
+                      selected ? "border-sky-400/40 bg-sky-400/10 text-sky-300" : "border-transparent text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+                    }`}
+                  >
+                    <span className="inline-flex items-center gap-1.5">
+                      <tab.icon size={14} aria-hidden="true" />
+                      <span className={`min-w-[20px] rounded-full px-1.5 py-[1px] text-center font-mono text-[11px] font-bold ${selected ? "bg-sky-400/20 text-sky-200" : tab.alert ? "bg-amber-400/15 text-amber-300" : "bg-slate-700/70 text-slate-300"}`}>{tab.count}</span>
+                    </span>
+                    <span className="max-[600px]:whitespace-nowrap">{tab.label}</span>
+                  </button>
+                );
+              })}
             </div>
 
             {/* TAB 1: DAFTAR TUGAS */}
             {activeTab === "tasks" && (
-              <div className="flex flex-col gap-[10px]">
-                <div className="flex items-center gap-[8px] p-[8px_12px] mb-[12px] rounded-[var(--radius-sm,_6px)] bg-[rgba(59,130,246,0.08)] border border-[rgba(59,130,246,0.2)]" role="note">
-                  <Info size={14} style={{ color: "#60a5fa", flexShrink: 0 }} aria-hidden="true" />
-                  <p className="m-0 text-[11.5px] leading-[1.45] text-[#93c5fd] font-medium">
-                    Tandai &quot;Done&quot; untuk tugas yang sudah ditinjau dan tetap berlaku, atau &quot;Delete&quot; untuk tugas yang sudah tidak diperlukan.
-                  </p>
+              <div className="flex flex-col gap-3">
+                {!isReadOnly && (
+                  <div className="flex items-start gap-2 rounded-lg border border-sky-400/20 bg-sky-400/[0.06] px-3 py-2.5" role="note">
+                    <Info size={14} className="mt-[1px] shrink-0 text-sky-400" aria-hidden="true" />
+                    <p className="m-0 text-[12px] leading-[1.5] text-sky-100/90">
+                      Tandai <b className="font-semibold text-emerald-300">Done</b> untuk tugas yang sudah ditinjau dan tetap dilanjutkan, atau <b className="font-semibold text-red-300">Delete</b> untuk tugas yang tidak diperlukan lagi.
+                    </p>
+                  </div>
+                )}
+
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex gap-1.5 overflow-x-auto [scrollbar-width:none]" aria-label="Filter status tugas">
+                    {taskFilters.map(([value, label, count]) => (
+                      <button
+                        key={value}
+                        type="button"
+                        onClick={() => setFilter(value)}
+                        aria-pressed={filter === value}
+                        className={`inline-flex shrink-0 items-center gap-1.5 rounded-md border px-2.5 py-1 text-[11.5px] font-semibold transition-colors duration-150 ${
+                          filter === value ? "border-sky-400/40 bg-sky-400/10 text-sky-300" : "border-slate-700 bg-slate-900/60 text-slate-400 hover:border-slate-500 hover:text-slate-200"
+                        }`}
+                      >
+                        {label}<span className="font-mono text-[10.5px] text-slate-500">{count}</span>
+                      </button>
+                    ))}
+                  </div>
+                  <span className="text-[11.5px] text-slate-400"><b className="font-mono font-semibold text-emerald-300">{completedTasksCount}</b> dari {tasks.length} ditandai Done</span>
                 </div>
 
-                <div className="flex gap-[5px] overflow-x-auto mb-[9px] pb-[1px]" aria-label="Filter status tugas">
-                  {([
-                    ["all", "All"],
-                    ["repeat", "Routine"],
-                    ["waiting", "Pending"],
-                    ["in-progress", "In Progress"],
-                  ] as Array<["all" | typeof filter, string]>).map(([value, label]) => (
-                    <button
-                      key={value}
-                      className={`shrink-0 p-[5px_8px] rounded-[5px] text-[10px] font-semibold border transition-all duration-150 cursor-pointer ${
-                        filter === value
-                          ? "text-[var(--accent-blue)] border-[var(--accent-blue-border)] bg-[var(--accent-blue-soft)]"
-                          : "text-[var(--ink-secondary)] border-[var(--panel-border)] bg-[var(--panel-bg)] hover:text-[var(--accent-blue)] hover:border-[var(--accent-blue-border)] hover:bg-[var(--accent-blue-soft)]"
-                      }`}
-                      onClick={() => setFilter(value)}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
-
-                <div className="grid gap-[7px]">
+                <div className="grid gap-2">
                   {visibleTasks.map((task) => (
                     <article
-                      className={`flex items-start gap-[12px] p-[12px_14px] bg-[var(--panel-bg)] border border-[var(--panel-border)] rounded-[8px] transition-all duration-150 ${
-                        isReadOnly
-                          ? "cursor-default hover:bg-[var(--panel-bg)] hover:border-[var(--panel-border)]"
-                          : "hover:border-[rgba(255,255,255,0.16)] hover:bg-[var(--panel-bg-hover)]"
-                      }`}
                       key={task.id}
+                      className={`grid grid-cols-[24px_minmax(0,1fr)_auto] items-start gap-x-3 gap-y-2.5 rounded-xl border p-3.5 transition-colors duration-150 max-[560px]:grid-cols-[24px_minmax(0,1fr)] ${
+                        task.completed ? "border-emerald-500/35 bg-emerald-500/[0.06]" : "border-slate-700/70 bg-slate-900/60"
+                      } ${isReadOnly ? "" : "hover:border-slate-500/80"}`}
                     >
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-[8px] mb-[2px]">
-                          <ProjectMark name={task.project} />
-                          <strong className="text-[12.5px] text-[var(--ink-primary)] font-bold">{task.title}</strong>
-                        </div>
-                        <p className="m-[3px_0_0] text-[11.5px] text-[var(--ink-secondary)] leading-[1.4]">{task.detail}</p>
+                      {/* done or not, readable at a glance; the Done button is what changes it */}
+                      <span aria-hidden="true" className={`mt-[1px] grid size-6 place-items-center rounded-full border-2 ${task.completed ? "border-emerald-400 bg-emerald-500 text-white" : "border-slate-600 text-transparent"}`}>
+                        <Check size={13} strokeWidth={3} />
+                      </span>
 
-                        {/* Read-Only: Rich Historical Confirmation Details */}
+                      <div className="min-w-0">
+                        <strong className={`block text-[13.5px] font-semibold leading-snug ${task.completed ? "text-emerald-50" : "text-slate-100"}`}>{task.title}</strong>
+                        {task.detail && <p className="m-0 mt-1 text-[12.5px] leading-[1.5] text-slate-400">{task.detail}</p>}
+                        <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                          <ProjectPill name={task.project} />
+                          <TaskStatusBadge state={task.state} />
+                          <TaskPriorityBadge priority={task.priority} />
+                        </div>
+
                         {isReadOnly && (
-                          <div className="flex items-center gap-[5px] mt-[6px] text-[11px] text-[var(--ink-muted)] leading-[1.3] [&_strong]:text-[var(--ink-secondary)] [&_strong]:font-semibold">
-                            <UserCheck size={12} />
+                          <div className="mt-2 flex items-center gap-1.5 text-[11.5px] leading-[1.4] text-slate-500 [&_strong]:font-semibold [&_strong]:text-slate-300">
+                            <UserCheck size={12} className="shrink-0" aria-hidden="true" />
                             <span>
                               {task.completed ? (
                                 <>
@@ -385,318 +420,263 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
                         )}
                       </div>
 
-                      <div className="flex flex-col items-end gap-[8px] shrink-0">
-                        <div className="flex items-center gap-[6px] flex-wrap justify-end">
-                          <TaskStatusBadge state={task.state} />
-                          <TaskPriorityBadge priority={task.priority} />
+                      {!isReadOnly ? (
+                        <div className="flex items-center gap-1.5 max-[560px]:col-start-2">
+                          <button
+                            type="button"
+                            className={`inline-flex min-h-[30px] items-center justify-center gap-1.5 rounded-md border px-3 text-[11.5px] font-bold transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-40 ${
+                              task.completed
+                                ? "border-emerald-500 bg-emerald-500 text-white hover:not-disabled:bg-emerald-600"
+                                : "border-emerald-500/40 bg-emerald-500/10 text-emerald-300 hover:not-disabled:border-emerald-400 hover:not-disabled:bg-emerald-500/20"
+                            }`}
+                            onClick={() => onToggleTask(task.id)}
+                            disabled={busy || !isReceiver || Boolean(record.acceptance)}
+                            title={task.completed ? "Batal tandai Done" : "Tandai tugas ini Done (tetap berlaku dan dilanjutkan)"}
+                            aria-label={task.completed ? "Tugas ditandai Done" : "Tandai Done"}
+                            aria-pressed={task.completed}
+                          >
+                            <Check size={13} strokeWidth={2.5} aria-hidden="true" />
+                            Done
+                          </button>
+                          <button
+                            type="button"
+                            className="inline-flex min-h-[30px] items-center justify-center gap-1.5 rounded-md border border-red-500/30 bg-red-500/10 px-3 text-[11.5px] font-bold text-red-300 transition-colors duration-150 hover:not-disabled:border-red-400 hover:not-disabled:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-40"
+                            onClick={() => setTaskToDelete(task)}
+                            disabled={busy || !isReceiver || Boolean(record.acceptance)}
+                            title="Hapus tugas dari handover"
+                            aria-label="Hapus tugas"
+                          >
+                            <Trash2 size={13} aria-hidden="true" />
+                            Delete
+                          </button>
                         </div>
-
-                        {!isReadOnly ? (
-                          <div className="flex items-center gap-[6px]">
-                            <button
-                              type="button"
-                              className={`inline-flex items-center justify-center gap-[5px] min-h-[28px] p-[4px_11px] rounded-[6px] text-[11px] font-bold tracking-[0.2px] cursor-pointer transition-all duration-150 select-none box-border disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none border ${
-                                task.completed
-                                  ? "bg-[#10b981] border-[#10b981] text-white shadow-[0_0_10px_rgba(16,185,129,0.45)] hover:not-disabled:bg-[#059669] hover:not-disabled:border-[#059669]"
-                                  : "bg-[rgba(16,185,129,0.12)] border-[rgba(16,185,129,0.4)] text-[#34d399] hover:not-disabled:bg-[rgba(16,185,129,0.25)] hover:not-disabled:border-[#10b981] hover:not-disabled:text-white"
-                              }`}
-                              onClick={() => onToggleTask(task.id)}
-                              disabled={busy || !isReceiver || Boolean(record.acceptance)}
-                              title={task.completed ? "Batal tandai Done" : "Tandai tugas ini Done (tetap berlaku dan dilanjutkan)"}
-                              aria-label={task.completed ? "Tugas ditandai Done" : "Tandai Done"}
-                              aria-pressed={task.completed}
-                            >
-                              <Check size={13} strokeWidth={2.5} />
-                              <span>Done</span>
-                            </button>
-                            <button
-                              type="button"
-                              className="inline-flex items-center justify-center gap-[5px] min-h-[28px] p-[4px_11px] rounded-[6px] text-[11px] font-bold tracking-[0.2px] cursor-pointer transition-all duration-150 select-none box-border disabled:opacity-40 disabled:cursor-not-allowed disabled:pointer-events-none border bg-[rgba(239,68,68,0.1)] border-[rgba(239,68,68,0.3)] text-[#f87171] hover:not-disabled:bg-[rgba(239,68,68,0.25)] hover:not-disabled:border-[#ef4444] hover:not-disabled:text-white"
-                              onClick={() => setTaskToDelete(task)}
-                              disabled={busy || !isReceiver || Boolean(record.acceptance)}
-                              title="Hapus tugas dari handover"
-                              aria-label="Hapus tugas"
-                            >
-                              <Trash2 size={13} />
-                              <span>Delete</span>
-                            </button>
-                          </div>
-                        ) : (
-                          task.completed && (
-                            <span className="inline-flex items-center gap-[4px] p-[3px_9px] rounded-[99px] text-[11px] font-bold bg-[rgba(16,185,129,0.16)] border border-[rgba(16,185,129,0.35)] text-[#4ade80] cursor-default select-none">
-                              <Check size={12} strokeWidth={2.5} /> Done
-                            </span>
-                          )
-                        )}
-                      </div>
+                      ) : (
+                        task.completed && (
+                          <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/35 bg-emerald-500/15 px-2.5 py-1 text-[11px] font-bold text-emerald-300 max-[560px]:col-start-2 max-[560px]:justify-self-start">
+                            <Check size={12} strokeWidth={2.5} aria-hidden="true" /> Done
+                          </span>
+                        )
+                      )}
                     </article>
                   ))}
 
-                  {visibleTasks.length === 0 && (
-                    <div className="p-[12px] text-[var(--ink-muted)] border border-dashed border-[var(--panel-border)] rounded-[8px] bg-[var(--bg)] text-[10.5px]">
-                      Tidak ada tugas pada filter ini.
-                    </div>
-                  )}
+                  {visibleTasks.length === 0 && <EmptyNote icon={ListChecks} title="Tidak ada tugas pada filter ini" text="Pilih filter lain untuk melihat tugas yang ada." />}
                 </div>
               </div>
             )}
 
             {/* TAB 2: CATATAN SHIFT */}
             {activeTab === "notes" && (
-              <div className="flex flex-col gap-[10px]">
-                {/* 1. Outgoing Shift Note (Sender) */}
+              <div className="flex flex-col gap-3">
                 {noteContent ? (
-                  <div className="p-[16px_18px] bg-[var(--panel-bg)] border border-[var(--panel-border)] rounded-[10px] flex flex-col gap-[12px]">
-                    <div className="flex justify-between items-center border-b border-[var(--line)] pb-[12px]">
-                      <div className="flex items-center gap-[12px]">
-                        <Avatar
-                          size="md"
-                          name={senderName}
-                          shape="rounded"
-                          className="w-[36px] h-[36px] rounded-[8px] bg-[var(--accent-blue-soft)] text-[var(--accent-blue)] border border-[var(--accent-blue-border)] grid place-items-center text-[13px] font-bold shrink-0"
-                        />
-                        <div>
-                          <strong className="block text-[13px] font-bold text-[var(--ink-primary)]">{noteAttribution}</strong>
-                          <span className="block text-[11px] text-[var(--ink-muted)] mt-[1px]">Pesan dari shift pengirim</span>
-                        </div>
+                  <article className="overflow-hidden rounded-xl border border-slate-700/70 bg-slate-900/60">
+                    <header className="flex items-center gap-3 border-b border-slate-700/60 px-4 py-3">
+                      <Avatar size="md" name={senderName} />
+                      <div className="min-w-0">
+                        <strong className="block truncate text-[13.5px] font-semibold text-slate-100">{senderName}</strong>
+                        <span className="block text-[11.5px] text-slate-400">{senderShift ? `Catatan dari ${senderShift}` : "Catatan dari shift pengirim"}</span>
                       </div>
-                    </div>
-                    <div className="text-[13px] leading-[1.65] text-[var(--ink-secondary)] whitespace-pre-wrap [word-break:break-word] bg-[var(--bg)] border border-[var(--line)] rounded-[8px] p-[14px_16px]">
+                    </header>
+                    <div className="border-l-[3px] border-sky-400/60 px-4 py-3.5 text-[13px] leading-[1.7] text-slate-200 whitespace-pre-wrap [word-break:break-word]">
                       {noteContent}
                     </div>
-                  </div>
+                  </article>
                 ) : (
-                  <div className="p-[12px] text-[var(--ink-muted)] border border-dashed border-[var(--panel-border)] rounded-[8px] bg-[var(--bg)] text-[10.5px]">
-                    Tidak ada catatan tambahan dari shift sebelumnya.
-                  </div>
+                  <EmptyNote icon={FileText} title="Tidak ada catatan" text="Shift sebelumnya tidak menulis catatan tambahan." />
                 )}
 
-                {/* 2. Receiver Acceptance Note (Canonical single location) */}
+                {/* Receiver acceptance note (its one place) */}
                 {!isReadOnly && isReceiver && !record.acceptance && (
-                  <div className="mt-[10px] p-[14px_16px] bg-[var(--panel-bg)] border border-[var(--panel-border)] rounded-[8px]">
-                    <label className="flex flex-col gap-[8px] m-0">
-                      <span className="font-semibold text-[12px] text-[var(--ink-primary)] block mb-[6px]">
-                        Catatan Penerimaan Akhir (Opsional)
-                      </span>
+                  <div className="rounded-xl border border-slate-700/70 bg-slate-900/60 p-4">
+                    <label className="m-0 flex flex-col gap-1.5">
+                      <span className="text-[12.5px] font-semibold text-slate-100">Catatan Penerimaan Akhir <span className="font-normal text-slate-500">(opsional)</span></span>
                       <textarea
                         rows={2}
                         disabled={busy}
                         value={acceptanceNote}
                         onChange={(event) => setAcceptanceNote(event.target.value)}
                         placeholder="Hasil pemeriksaan penerima sebelum menerima serah terima"
-                        className="w-full bg-[var(--panel-bg)] text-[var(--ink-primary)] border border-[var(--line)] rounded-[6px] p-[8px_12px] text-[13px] focus:outline-none focus:border-[var(--accent-blue)] resize-y"
+                        className="w-full resize-y rounded-lg border border-slate-700 bg-slate-950/60 px-3 py-2 text-[13px] text-slate-100 placeholder:text-slate-500 focus:border-sky-400 focus:outline-none"
                       />
                     </label>
-                    {actor && (
-                      <p className="text-[var(--ink-secondary)] text-[11px] mt-[6px] mb-0">
-                        Akun {actor.local ? "simulasi lokal" : "aktif"}: {actor.name}
-                      </p>
-                    )}
+                    {actor && <p className="mb-0 mt-2 text-[11.5px] text-slate-500">Akun {actor.local ? "simulasi lokal" : "aktif"}: {actor.name}</p>}
                   </div>
                 )}
 
-                {/* When in active mode but viewer is not the designated receiver */}
                 {!isReadOnly && !isReceiver && !record.acceptance && actor && (
-                  <p className="text-[var(--ink-secondary)] mt-[8px] mb-0">
-                    Akun {actor.local ? "simulasi lokal" : "aktif"}: {actor.name}. Checklist dan penerimaan menunggu akun penerima yang dituju ({record.targetPic}).
+                  <p className="m-0 flex items-start gap-2 rounded-lg border border-slate-700/60 bg-slate-900/40 px-3 py-2.5 text-[12px] text-slate-400">
+                    <Info size={14} className="mt-[1px] shrink-0" aria-hidden="true" />
+                    <span>Akun {actor.local ? "simulasi lokal" : "aktif"}: {actor.name}. Checklist dan penerimaan menunggu akun penerima yang dituju ({record.targetPic}).</span>
                   </p>
                 )}
 
-                {/* In Read-Only Mode: Display confirmed acceptance note if exists */}
                 {isReadOnly && record.validationNote && record.validationNote !== "Menunggu validasi shift penerima." && (
-                  <div className="p-[10px_12px] bg-[var(--green-soft)] border border-[var(--green-border)] rounded-[6px] text-[12px] text-[var(--green)] mt-[6px]">
-                    <strong>
-                      <Check size={13} style={{ display: "inline-block", verticalAlign: "middle", marginRight: "3px" }} />
-                      Catatan Penerimaan Shift {record.targetShift}:
-                    </strong>{" "}
-                    {record.validationNote}
-                  </div>
+                  <ValidationNote shift={record.targetShift} note={record.validationNote} />
                 )}
               </div>
             )}
 
             {/* TAB 3: TEMUAN & ISU */}
             {activeTab === "findings" && (
-              <div className="flex flex-col gap-[10px]">
+              <div className="flex flex-col gap-3">
                 {record.findings.length ? (
-                  <div className="grid gap-[10px]">
-                    {record.findings.map((finding, index) => (
-                      <article className="p-[12px_14px] bg-[var(--orange-soft)] border border-[var(--orange-border)] rounded-[8px]" key={`${finding.title}-${index}`}>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-[6px]">
-                            <ProjectMark name={finding.project || "NOC"} />
-                            <strong className="text-[12.5px] font-bold text-[var(--ink-primary)]">{finding.project || "NOC"}</strong>
-                          </div>
-                          <span
-                            className={`inline-flex items-center justify-center shrink-0 min-h-[21px] p-[3px_7px] border border-transparent rounded-[5px] font-mono text-[8.5px] font-bold leading-[1.1] text-center ${
-                              finding.state === "waiting"
-                                ? "text-[var(--orange)] border-[var(--orange-border)] bg-[var(--orange-soft)]"
-                                : "text-[var(--purple)] border-[var(--purple-border)] bg-[var(--purple-soft)]"
-                            }`}
+                  <>
+                    <p className="m-0 text-[12px] text-slate-400">
+                      <b className="font-semibold text-amber-300">{findingsWaiting}</b> masih dipantau · <b className="font-semibold text-violet-300">{record.findings.length - findingsWaiting}</b> sedang ditindaklanjuti
+                    </p>
+                    <div className="grid gap-2">
+                      {record.findings.map((finding, index) => {
+                        const waiting = finding.state === "waiting";
+                        return (
+                          <article
+                            key={`${finding.title}-${index}`}
+                            className={`rounded-xl border border-l-[3px] p-3.5 ${waiting ? "border-amber-400/25 border-l-amber-400 bg-amber-400/[0.05]" : "border-violet-400/25 border-l-violet-400 bg-violet-400/[0.05]"}`}
                           >
-                            {finding.state === "waiting" ? "Dipantau" : "On Follow Up"}
-                          </span>
-                        </div>
-                        <h4 className="m-[8px_0_4px] text-[13px] text-[var(--ink-primary)] font-semibold">
-                          {finding.title || "Temuan tanpa judul"}
-                        </h4>
-                        <p className="m-0 text-[11.5px] text-[var(--ink-secondary)] leading-[1.4]">
-                          {finding.detail || "Belum ada rincian."}
-                        </p>
-                      </article>
-                    ))}
-                  </div>
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                              <ProjectPill name={finding.project || "NOC"} />
+                              <span className={`inline-flex items-center gap-1.5 rounded-md border px-2 py-[3px] text-[11px] font-bold ${waiting ? "border-amber-400/35 bg-amber-400/10 text-amber-300" : "border-violet-400/35 bg-violet-400/10 text-violet-300"}`}>
+                                {waiting ? <Eye size={12} aria-hidden="true" /> : <ArrowRight size={12} aria-hidden="true" />}
+                                {waiting ? "Dipantau" : "On Follow Up"}
+                              </span>
+                            </div>
+                            <h4 className="m-0 mt-2 text-[13.5px] font-semibold leading-snug text-slate-100">{finding.title || "Temuan tanpa judul"}</h4>
+                            <p className="m-0 mt-1 text-[12.5px] leading-[1.5] text-slate-400">{finding.detail || "Belum ada rincian."}</p>
+                          </article>
+                        );
+                      })}
+                    </div>
+                  </>
                 ) : (
-                  <div className="p-[12px] text-[var(--ink-muted)] border border-dashed border-[var(--panel-border)] rounded-[8px] bg-[var(--bg)] text-[10.5px]">
-                    Tidak ada temuan khusus yang memerlukan tindak lanjut pada shift ini.
-                  </div>
+                  <EmptyNote icon={ShieldCheck} tone="green" title="Tidak ada temuan" text="Tidak ada temuan khusus yang memerlukan tindak lanjut pada shift ini." />
                 )}
               </div>
             )}
 
             {/* TAB 4: STATUS MONITORING */}
             {activeTab === "monitoring" && (
-              <div className="flex flex-col gap-[10px]">
-                <div className="p-[14px_16px] bg-[var(--panel-bg)] border border-[var(--panel-border)] rounded-[8px]">
-                  <div className="flex justify-between items-center mb-[8px]">
-                    <strong className="text-[12.5px] font-bold text-[var(--ink-primary)]">Penanggung Jawab: {record.monitoringOwner}</strong>
-                    <Badge tone={record.acceptance ? "success" : "warning"}>
-                      {record.acceptance ? "Diterima & Diverifikasi" : "Menunggu penerimaan"}
-                    </Badge>
+              <div className="flex flex-col gap-3">
+                <section className="rounded-xl border border-slate-700/70 bg-slate-900/60 p-4">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div className="flex min-w-0 items-center gap-3">
+                      <Avatar size="md" name={record.monitoringOwner} />
+                      <div className="min-w-0">
+                        <span className="block text-[11.5px] text-slate-400">Penanggung jawab monitoring</span>
+                        <strong className="block truncate text-[13.5px] font-semibold text-slate-100">{record.monitoringOwner || "—"}</strong>
+                      </div>
+                    </div>
+                    <Badge tone={record.acceptance ? "success" : "warning"}>{record.acceptance ? "Diterima & Diverifikasi" : "Menunggu penerimaan"}</Badge>
                   </div>
-                  <p className="m-[0_0_12px] text-[12px] text-[var(--ink-secondary)]">
-                    {record.monitoringSummary}
-                  </p>
+                  {record.monitoringSummary && <p className="m-0 mt-3 text-[12.5px] leading-[1.6] text-slate-300">{record.monitoringSummary}</p>}
+                  <div className="mt-3 grid grid-cols-3 gap-2">
+                    <MiniStat value={record.monitoredProjects.length} label="Proyek dimonitor" tone="text-sky-300" ring="border-sky-400/25 bg-sky-400/[0.06]" />
+                    <MiniStat value={checkpointsOk} label="Checkpoint OK" tone="text-emerald-300" ring="border-emerald-400/25 bg-emerald-400/[0.06]" />
+                    <MiniStat value={checkpoints.length - checkpointsOk} label="Checkpoint NOK" tone={checkpoints.length - checkpointsOk ? "text-red-300" : "text-slate-400"} ring={checkpoints.length - checkpointsOk ? "border-red-400/30 bg-red-500/[0.06]" : "border-slate-600/50 bg-slate-800/40"} />
+                  </div>
+                </section>
 
-                  <span className="text-[11px] font-bold text-[var(--ink-muted)] uppercase block mb-[6px]">
-                    Proyek yang Dimonitor ({record.monitoredProjects.length})
-                  </span>
-                  <div className="flex flex-wrap gap-[6px] mb-[12px]">
-                    {record.monitoredProjects.map((project) => (
-                      <span key={project} className="inline-flex items-center gap-[5px] p-[3px_8px] rounded-[6px] bg-[var(--bg)] border border-[var(--line)] text-[11px] font-semibold text-[var(--ink-primary)]">
-                        <ProjectMark name={project} /> {project}
-                      </span>
-                    ))}
-                  </div>
-                  {!record.monitoredProjects.length && (
-                    <p className="text-[11.5px] text-[var(--ink-muted)]">
-                      Tidak ada proyek yang dinyatakan termonitor pada catatan ini.
-                    </p>
+                <section>
+                  <SectionTitle>Proyek yang dimonitor</SectionTitle>
+                  {record.monitoredProjects.length ? (
+                    <div className="flex flex-wrap gap-1.5">
+                      {record.monitoredProjects.map((project) => <ProjectPill key={project} name={project} large />)}
+                    </div>
+                  ) : (
+                    <p className="m-0 text-[12px] text-slate-500">Tidak ada proyek yang dinyatakan termonitor pada catatan ini.</p>
                   )}
+                </section>
 
-                  {/* Monitored Checkpoints Results with Plain Static OK/NOK Badges in Read-Only Mode */}
-                  <div className="mt-[16px] mb-[12px]">
-                    <span className="text-[11px] font-bold text-[var(--ink-muted)] uppercase block mb-[8px]">
-                      Hasil Checkpoint Monitoring Shift ({checkpoints.length})
-                    </span>
-
-                    <div className="flex flex-col gap-[6px]">
-                      {checkpoints.map((cp, idx) => (
-                        <div className="flex items-center justify-between gap-[12px] p-[8px_12px] bg-[var(--bg)] border border-[var(--line)] rounded-[6px]" key={`${cp.time}-${cp.project}-${idx}`}>
-                          <div className="flex items-center gap-[10px] min-w-0">
-                            <span className="font-mono text-[11px] font-bold text-[var(--ink-muted)]">{cp.time}</span>
-                            <ProjectMark name={cp.project} />
-                            <div className="flex flex-col min-w-0">
-                              <strong className="text-[12px] text-[var(--ink-primary)] font-semibold whitespace-nowrap overflow-hidden text-ellipsis">{cp.task}</strong>
-                              {cp.note && <small className="text-[11px] text-[var(--ink-muted)]">{cp.note}</small>}
+                <section>
+                  <SectionTitle hint={`${checkpoints.length} checkpoint`}>Hasil checkpoint monitoring shift</SectionTitle>
+                  <div className="grid gap-1.5">
+                    {checkpoints.map((cp, idx) => {
+                      const ok = cp.verdict === "ok";
+                      return (
+                        <div
+                          key={`${cp.time}-${cp.project}-${idx}`}
+                          className={`grid grid-cols-[48px_minmax(0,1fr)_auto] items-center gap-3 rounded-lg border px-3 py-2.5 ${ok ? "border-slate-700/60 bg-slate-900/50" : "border-red-400/30 bg-red-500/[0.06]"}`}
+                        >
+                          <span className="font-mono text-[12px] font-semibold text-slate-400">{cp.time}</span>
+                          <div className="min-w-0">
+                            <div className="flex min-w-0 items-center gap-2">
+                              <ProjectPill name={cp.project} />
+                              <strong className="truncate text-[12.5px] font-semibold text-slate-100" title={cp.task}>{cp.task}</strong>
                             </div>
+                            {cp.note && <small className={`mt-0.5 block truncate text-[11.5px] ${ok ? "text-slate-500" : "text-red-200/80"}`} title={cp.note}>{cp.note}</small>}
                           </div>
-
-                          {/* Static non-clickable status label in Read-Only mode */}
-                          <span
-                            className={`inline-flex items-center justify-center min-w-[44px] p-[3px_8px] rounded-[4px] text-[10.5px] font-extrabold tracking-[0.5px] cursor-default select-none pointer-events-none shrink-0 border ${
-                              cp.verdict === "ok"
-                                ? "bg-[rgba(34,197,94,0.16)] text-[#4ade80] border-[rgba(74,222,128,0.32)]"
-                                : "bg-[rgba(239,68,68,0.16)] text-[#f87171] border-[rgba(248,113,113,0.32)]"
-                            }`}
-                          >
-                            {cp.verdict.toUpperCase()}
+                          <span className={`inline-flex min-w-[54px] items-center justify-center gap-1 rounded-md border px-2 py-[3px] text-[11px] font-extrabold tracking-[0.4px] ${ok ? "border-emerald-400/35 bg-emerald-500/15 text-emerald-300" : "border-red-400/40 bg-red-500/15 text-red-300"}`}>
+                            {ok ? <CheckCircle2 size={12} aria-hidden="true" /> : <XCircle size={12} aria-hidden="true" />}
+                            {ok ? "OK" : "NOK"}
                           </span>
                         </div>
+                      );
+                    })}
+                  </div>
+                </section>
+
+                {(record.monitoringExceptions ?? []).length > 0 && (
+                  <section>
+                    <SectionTitle>Tidak dimonitor</SectionTitle>
+                    <div className="grid gap-1.5">
+                      {(record.monitoringExceptions ?? []).map((exception) => (
+                        <article key={exception.project} className="rounded-lg border border-amber-400/25 border-l-[3px] border-l-amber-400 bg-amber-400/[0.05] px-3 py-2.5">
+                          <div className="flex items-center gap-2"><ProjectPill name={exception.project} /><strong className="text-[12.5px] font-semibold text-amber-200">Tidak dimonitor</strong></div>
+                          <p className="m-0 mt-1 text-[12px] leading-[1.5] text-slate-400">{exception.reason || "Alasan belum dicatat."}</p>
+                        </article>
                       ))}
                     </div>
-                  </div>
+                  </section>
+                )}
 
-                  {/* Exceptions */}
-                  <div className="grid gap-[12px] my-[16px]">
-                    {(record.monitoringExceptions ?? []).map((exception) => (
-                      <article className="p-[12px_14px] bg-[var(--orange-soft)] border border-[var(--orange-border)] rounded-[8px]" key={exception.project}>
-                        <strong className="text-[12.5px] font-bold text-[var(--ink-primary)] block">{exception.project} — Tidak Dimonitor</strong>
-                        <p className="mt-[4px] mb-0 text-[11.5px] text-[var(--ink-secondary)] leading-[1.4]">{exception.reason || "Alasan belum dicatat."}</p>
-                      </article>
-                    ))}
-                  </div>
-
-                  {record.validationNote && (
-                    <div className="p-[10px_12px] bg-[var(--green-soft)] border border-[var(--green-border)] rounded-[6px] text-[12px] text-[var(--green)]">
-                      <strong>
-                        <Check size={13} style={{ display: "inline-block", verticalAlign: "middle", marginRight: "3px" }} />
-                        Catatan Shift {record.targetShift}:
-                      </strong>{" "}
-                      {record.validationNote}
-                    </div>
-                  )}
-                </div>
+                {record.validationNote && <ValidationNote shift={record.targetShift} note={record.validationNote} />}
               </div>
             )}
 
             {/* TAB 5: TIKET YANG MASIH OPEN */}
             {activeTab === "tickets" && (
-              <div className="flex flex-col gap-[10px]">
+              <div className="flex flex-col gap-3">
                 {openTicketsList.length ? (
-                  <div className="flex flex-col gap-[8px]">
-                    {openTicketsList.map((ticket) => (
-                      <div
-                        key={ticket.id}
-                        className="flex flex-col gap-[8px] p-[12px_14px] bg-[var(--panel-bg)] border border-[var(--panel-border)] rounded-[8px] cursor-pointer transition-all duration-150 hover:bg-[var(--panel-bg-hover)] hover:border-[var(--accent-blue-border)] hover:-translate-y-[1px]"
-                        onClick={() => onSelectTicket?.(ticket)}
-                        role="button"
-                        tabIndex={0}
-                        title={`Buka detail ticket #${ticket.id}`}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" || e.key === " ") {
-                            e.preventDefault();
-                            onSelectTicket?.(ticket);
-                          }
-                        }}
-                      >
-                        <div className="flex justify-between items-center gap-[8px]">
-                          <div className="flex items-center gap-[8px]">
-                            <span className="font-mono text-[11px] font-bold text-[var(--accent-blue)]">#{ticket.id}</span>
-                            <span className="inline-flex items-center gap-[4px] text-[11px] font-semibold text-[var(--ink-muted)]">
-                              <ProjectMark name={ticket.project} />
-                              <span><MasterProjectName value={ticket.project} historical /></span>
+                  <>
+                    <p className="m-0 text-[12px] text-slate-400"><b className="font-semibold text-amber-300">{openTicketsList.length}</b> tiket belum selesai saat serah terima · klik untuk membuka detailnya</p>
+                    <div className="grid gap-2">
+                      {openTicketsList.map((ticket) => (
+                        <div
+                          key={ticket.id}
+                          className="flex cursor-pointer flex-col gap-2 rounded-xl border border-slate-700/70 bg-slate-900/60 p-3.5 transition-colors duration-150 hover:border-sky-400/40 hover:bg-slate-800/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+                          onClick={() => onSelectTicket?.(ticket)}
+                          role="button"
+                          tabIndex={0}
+                          title={`Buka detail ticket #${ticketCode(ticket)}`}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              onSelectTicket?.(ticket);
+                            }
+                          }}
+                        >
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <div className="flex min-w-0 items-center gap-2">
+                              <span className="font-mono text-[12px] font-bold text-sky-300">#{ticketCode(ticket)}</span>
+                              <span className="inline-flex items-center rounded-md border border-slate-600/60 bg-slate-800/70 px-1.5 py-0.5 text-[11px] font-semibold text-slate-200"><MasterProjectName value={ticket.project} historical /></span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <Badge tone={severityTone(ticket.severity || ticket.priority || "neutral")}>{ticket.priority || ticket.severity || "Normal"}</Badge>
+                              <Badge tone={statusTone(ticket.status)}>{ticket.status}</Badge>
+                            </div>
+                          </div>
+                          <h4 className="m-0 text-[13.5px] font-semibold leading-snug text-slate-100">{ticket.subject}</h4>
+                          <div className="flex items-center justify-between gap-2 border-t border-slate-700/60 pt-2 text-[11.5px] text-slate-400">
+                            <span className="inline-flex min-w-0 items-center gap-2">
+                              <Avatar size="xs" name={ticket.owner || "—"} />
+                              <span className="truncate">PIC: <strong className="font-semibold text-slate-200">{ticket.owner || "Belum ditugaskan"}</strong></span>
                             </span>
-                          </div>
-                          <div className="flex items-center gap-[6px]">
-                            <Badge tone={severityTone(ticket.severity || ticket.priority || "neutral")}>
-                              {ticket.priority || ticket.severity || "Normal"}
-                            </Badge>
-                            <Badge tone={statusTone(ticket.status)}>
-                              {ticket.status}
-                            </Badge>
+                            <span className="inline-flex shrink-0 items-center gap-1 font-semibold text-sky-300">Lihat detail <ArrowRight size={12} aria-hidden="true" /></span>
                           </div>
                         </div>
-                        <h4 className="text-[13px] font-semibold text-[var(--ink-primary)] leading-[1.4] m-0">
-                          {ticket.subject}
-                        </h4>
-                        <div className="flex justify-between items-center text-[11px] text-[var(--ink-muted)] border-t border-[var(--line)] pt-[8px] mt-[2px]">
-                          <span className="text-[11px] text-[var(--ink-muted)] [&_strong]:text-[var(--ink-secondary)]">
-                            PIC: <strong>{ticket.owner || "Belum ditugaskan"}</strong>
-                          </span>
-                          <span className="text-[var(--accent-blue)] font-semibold inline-flex items-center gap-[3px] text-[11px]">
-                            Lihat detail ticket <span>→</span>
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  </>
                 ) : (
-                  <div className="p-[28px_20px] bg-[var(--green-soft)] border border-[var(--green-border)] rounded-[10px] text-center flex flex-col items-center gap-[6px] [&_strong]:text-[14px] [&_strong]:text-[var(--green)] [&_p]:m-0 [&_p]:text-[12px] [&_p]:text-[var(--ink-secondary)]">
-                    <CheckCircle2 size={26} style={{ color: "var(--green)", marginBottom: "4px" }} />
-                    <strong>Tidak ada tiket yang masih terbuka</strong>
-                    <p>Tidak ada tiket yang masih terbuka pada saat handover ini diselesaikan.</p>
-                  </div>
+                  <EmptyNote icon={CheckCircle2} tone="green" title="Tidak ada tiket yang masih terbuka" text="Semua tiket sudah selesai saat handover ini dibuat." />
                 )}
               </div>
             )}

@@ -7,9 +7,10 @@ import { routes } from "@/app/lib/routes";
 
 import { Badge } from "@/app/components/ui/Badge";
 import { EmptyState } from "@/app/components/ui/EmptyState";
-import { ProjectMark } from "@/app/components/ui/ProjectMark";
+import { EntityIconTile } from "@/app/components/master-data/master-ui";
 import { Avatar } from "@/app/components/ui/Avatar";
 import type { Ticket, Tone } from "@/app/lib/types";
+import { ticketCode } from "@/app/lib/ticket-code";
 
 interface TicketTableProps {
   tickets: Ticket[];
@@ -44,7 +45,7 @@ export function TicketTable({
   compact = false,
   showEscalationDetails = false,
 }: TicketTableProps) {
-  const { categoryLabel, projectLabel } = useMasterReferences();
+  const { categoryLabel, projectLabel, projectFor } = useMasterReferences();
   const ownerLabel = useOwnerLabel();
   const pathname = usePathname();
   const query = useSearchParams().toString();
@@ -103,7 +104,7 @@ export function TicketTable({
               {/* Ticket Code, Subject & Type Tag */}
               <div className="min-w-0 overflow-hidden max-[769px]:flex max-[769px]:flex-col max-[769px]:items-start max-[769px]:gap-1 max-[769px]:w-full max-[769px]:pb-1.5 max-[769px]:border-b max-[769px]:border-[#334155]">
                 <div className="flex items-center gap-2 mb-[3px] flex-wrap min-w-0">
-                  <span className="font-mono text-[10.5px] font-semibold text-[#38bdf8] shrink-0">#{ticket.id}</span>
+                  <span className="font-mono text-[10.5px] font-semibold text-[#38bdf8] shrink-0">#{ticketCode(ticket)}</span>
                   <span className="inline-flex items-center px-1.5 py-[1.5px] rounded-[4px] border border-[#334155] bg-[rgba(148,163,184,0.08)] text-[#cbd5e1] text-[9.5px] font-semibold font-mono tracking-[0.2px] uppercase shrink-0">{typeLabel}</span>
                 </div>
                 <strong className="block text-[12.5px] font-semibold text-[#f8fafc] leading-[1.35] overflow-hidden text-ellipsis whitespace-nowrap min-w-0 max-[769px]:whitespace-normal" title={ticket.subject}>{ticket.subject}</strong>
@@ -113,7 +114,7 @@ export function TicketTable({
               <div className="min-w-0 overflow-hidden max-[769px]:flex max-[769px]:items-center max-[769px]:w-full">
                 <span className="hidden max-[769px]:inline-block text-[10.5px] font-semibold text-[#94a3b8] font-mono min-w-[80px] shrink-0">Project:</span>
                 <span className="inline-flex items-center gap-[7px] text-[11.5px] text-[#f8fafc] min-w-0 max-w-full">
-                  <ProjectMark name={ticket.project} />
+                  <EntityIconTile entity="project" size="xs" src={projectFor(ticket.projectId || ticket.project, ticket.clientId)?.logoUrl} />
                   <span className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">{projectLabel(ticket.projectId || ticket.project, ticket.clientId, true)}</span>
                 </span>
               </div>

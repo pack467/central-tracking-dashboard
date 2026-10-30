@@ -27,6 +27,7 @@ import { reportButtonClass, reportInputClass, reportPrimaryButtonClass } from "@
 import { useResource } from "@/app/hooks/useResource";
 import { reportsService } from "@/app/services/reports";
 import { PanelSkeletonWrapper, ReportsSkeleton } from "@/app/components/ui/skeleton";
+import { ticketCode } from "@/app/lib/ticket-code";
 
 const ReportPdfPreview = lazy(() =>
   import("@/app/components/reports/ReportPdfPreview").then((module) => ({ default: module.ReportPdfPreview }))
@@ -220,7 +221,7 @@ export function ReportsView({ tickets, assessments }: ReportsViewProps) {
   ];
 
   const filteredTickets = report.tickets.filter((ticket) =>
-    `${ticket.id} ${ticket.subject} ${ticket.project} ${ticket.owner} ${ticket.status}`
+    `${ticket.id} ${ticketCode(ticket)} ${ticket.subject} ${ticket.project} ${ticket.owner} ${ticket.status}`
       .toLowerCase()
       .includes(logQuery.toLowerCase())
   );
@@ -696,7 +697,7 @@ export function ReportsView({ tickets, assessments }: ReportsViewProps) {
                     ? filteredTickets.slice(offset, offset + 10).map((ticket, index) => (
                         <article key={`${ticket.id}-${offset + index}`} className="rounded-[10px] border border-[#334155] bg-[#0f172a]/70 p-3.5">
                           <div className="mb-1.5 flex items-center justify-between gap-2">
-                            <span className="font-mono text-xs font-bold text-[#38bdf8]">{ticket.id}</span>
+                            <span className="font-mono text-xs font-bold text-[#38bdf8]">{ticketCode(ticket)}</span>
                             <span
                               className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10.5px] font-mono font-bold ${
                                 ticket.status?.toLowerCase().includes("close")
@@ -758,7 +759,7 @@ export function ReportsView({ tickets, assessments }: ReportsViewProps) {
                       stickyFirstCol
                       rows={filteredTickets.slice(offset, offset + 10).map((ticket) => [
                         <div key="id" className="min-w-24">
-                          <span className="font-mono text-xs font-bold text-[#38bdf8]">{ticket.id}</span>
+                          <span className="font-mono text-xs font-bold text-[#38bdf8]">{ticketCode(ticket)}</span>
                           <p className="mt-0.5 text-[11px] font-mono text-[#94a3b8]">
                             {numericDate(ticketDate(ticket))}
                             <br />

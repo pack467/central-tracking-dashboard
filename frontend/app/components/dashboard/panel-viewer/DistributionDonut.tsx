@@ -32,6 +32,11 @@ export function DistributionStat({ label, value, detail, tone = "text-white" }: 
   </div>;
 }
 
+/** Said once when the chosen range has no tickets, so a page of zeros reads as "nothing yet" and not as broken. */
+export function DistributionEmptyNote() {
+  return <p className="rounded-lg border border-dashed border-slate-700 bg-slate-900/50 px-3 py-2 text-[12px] leading-5 text-slate-400">Belum ada tiket pada rentang ini. Ubah <span className="font-semibold text-slate-300">Rentang Tanggal</span> di Filter Laporan untuk melihat datanya.</p>;
+}
+
 export function DistributionDonut({ slices, total, renderDonutSlices, focus }: { slices: DistributionSlice[]; total: number; renderDonutSlices: DonutRenderer; focus: DistributionFocus }) {
   const [panelRef, dimensions] = useContainerDimensions<HTMLDivElement>();
   const compact = useCompactLayout(), phone = useMobileLayout();
@@ -63,7 +68,7 @@ export function DistributionDonut({ slices, total, renderDonutSlices, focus }: {
       </svg>
       <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-1.5 px-[19%] text-center" aria-live="polite" data-distribution-center>
         <strong className="font-mono text-[44px] leading-none font-black tabular-nums lg:text-[52px]">{selected?.count ?? total}</strong>
-        <span className="text-[11px] leading-4 font-semibold text-slate-400">{selected ? `${selected.label} · ${total ? Math.round(selected.count / total * 100) : 0}%` : "Total tiket"}</span>
+        <span className="text-[11px] leading-4 font-semibold text-slate-400">{selected ? `${selected.label} · ${total ? Math.round(selected.count / total * 100) : 0}%` : total ? "Total tiket" : "Belum ada tiket"}</span>
       </div>
     </div>
     <div className="flex w-full flex-wrap items-center justify-center gap-2" aria-label="Legenda distribusi">

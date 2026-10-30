@@ -9,11 +9,11 @@ const REFRESH_MS = 60_000;
 
 /**
  * The shell's tickets when they come from the backend: loaded once the person is logged in, kept in memory (nothing is written to
- * localStorage). Tickets are read-only while writing is not connected, so this copy only ever changes by loading or refreshing.
+ * localStorage). This copy changes by loading, refreshing, or `put` with a ticket the backend has just saved.
  * While the tab is visible the newest changes (the 100 most recently updated tickets) are merged in every minute, and again when the
  * tab comes back after being hidden.
  *
- * Returns [tickets, setTickets, ready, error, reload, refresh]. `ready` becomes true after the first answer, even a failed one, so
+ * Returns [tickets, setTickets, ready, error, reload, refresh, put]. `ready` becomes true after the first answer, even a failed one, so
  * nothing waits forever. `reload` loads everything again; `refresh` fetches only the newest changes.
  */
 export function useBackendTickets(enabled: boolean) {
@@ -52,5 +52,12 @@ export function useBackendTickets(enabled: boolean) {
   }, [enabled, ready, error, refresh]);
 
   const reload = useCallback(() => { resetTicketCache(); setReady(false); setRound(value => value + 1); }, []);
-  return [tickets, setTickets as Dispatch<SetStateAction<Ticket[]>>, ready, error, reload, refresh] as const;
+  /** A ticket the backend just saved goes into the list (and the stored copy) at once, not at the next refresh. */
+  const put = useCallback((ticket: Ticket) => {
+    const merged = mergeRecentTickets(latest.current, [ticket]);
+    latest.current = merged;
+    rememberTickets(merged);
+    setTickets(merged);
+  }, []);
+  return [tickets, setTickets as Dispatch<SetStateAction<Ticket[]>>, ready, error, reload, refresh, put] as const;
 }

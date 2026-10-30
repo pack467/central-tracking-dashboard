@@ -11,6 +11,7 @@ import { Badge } from "@/app/components/ui/Badge";
 import { TimePicker } from "@/app/components/ui/TimePicker";
 import { OwnerTagInput } from "@/app/components/tickets/OwnerTagInput";
 import { usePeople } from "@/app/hooks/useMasterData";
+import { useBackendTicketOptions } from "@/app/hooks/useBackendTicketOptions";
 import { ownerIdsFor } from "@/app/lib/ticket-owner";
 import { makeTicketId, nowClockLabel } from "@/app/lib/data";
 import { severityTone, statusTone } from "@/app/components/tickets/TicketTable";
@@ -22,7 +23,8 @@ import { getClientSystems } from "@/app/lib/clientData";
 interface TicketCreateModalProps {
   open: boolean;
   onClose: () => void;
-  onCreate: (ticket: TicketType) => void;
+  /** Saves the ticket; a promise that fails keeps the form open with the reason. */
+  onCreate: (ticket: TicketType) => void | Promise<unknown>;
 }
 
 const PRIORITY_OPTIONS = ["Low", "Medium", "High"];
@@ -32,13 +34,19 @@ const STATUS_OPTIONS = ["Open", "Closed", "Activity", "Meeting", "Re-Open", "Pen
 
 export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModalProps) {
   const { user } = useAuth();
-  const { activeCategories, severityLabel, projectLabel, projectFor } = useMasterReferences();
+  const master = useMasterReferences();
+  // with the backend as the source its projects (by id) and categories are offered instead of the Master Data ones
+  const backend = useBackendTicketOptions();
+  const { severityLabel, projectFor } = master;
+  const activeCategories = backend ? backend.categories : master.activeCategories;
+  const projectLabel = (value: string, organizationId?: string) => backend ? backend.projectName(value) : master.projectLabel(value, organizationId);
   const { activeClient, activeClientId, getProjectsForClient } = useClient();
   const clientSystems = useMemo(() => {
+    if (backend) return backend.projects.map((p) => p.id);
     const projs = getProjectsForClient(activeClientId, false).map((p) => p.name);
     if (projs.length > 0) return projs;
     return getClientSystems(activeClientId);
-  }, [activeClientId, getProjectsForClient]);
+  }, [backend, activeClientId, getProjectsForClient]);
 
   const operatorName = user?.name || "Mhd. Galih Khairi";
   const [ticketCode, setTicketCode] = useState(() => makeTicketId());
@@ -60,6 +68,7 @@ export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModal
   const [isStillOpen, setIsStillOpen] = useState(false);
 
   const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
 
   // Pre-fill suggested ticket code & current time whenever modal opens
   useEffect(() => {
@@ -94,7 +103,8 @@ export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModal
     setError("");
   };
 
-  const submit = () => {
+  const submit = async () => {
+    if (saving) return;
     const cleanCode = ticketCode.trim().replace(/^#/, "");
     const trimmedSubject = subject.trim();
 
@@ -141,10 +151,11 @@ export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModal
     const isAdhoc = category === "Ad-hoc Request";
     const primaryOwner = owners.length > 0 ? owners.join(", ") : "Unassigned";
 
-    onCreate({
+    const draft: TicketType = {
       id: cleanCode,
       subject: trimmedSubject,
-      project,
+      // the backend keeps the project by id and the ticket code as its third-party id
+      ...(backend ? { project: backend.projectName(project), backend: { projectId: project, thirdPartyId: cleanCode } } : { project }),
       severity,
       requestTime: isAdhoc ? requestTime : undefined,
       responseTime: isAdhoc ? responseTime : undefined,
@@ -155,7 +166,7 @@ export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModal
       ...(ownerIds.length ? { ownerIds } : {}),
       category,
       type: category,
-      projectId: projectFor(project, activeClientId)?.id,
+      projectId: backend ? undefined : projectFor(project, activeClientId)?.id,
       systemId: systemId || undefined,
       status,
       created,
@@ -173,8 +184,17 @@ export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModal
           author: operatorName,
         },
       ],
-    });
+    };
 
+    setSaving(true);
+    try {
+      await onCreate(draft);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Ticket tidak tersimpan. Coba lagi.");
+      return;
+    } finally {
+      setSaving(false);
+    }
     reset();
     onClose();
   };
@@ -360,7 +380,7 @@ export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModal
             </Select>
           </label>
 
-          <TicketSystemSelect project={project} organizationId={activeClientId} value={systemId} onChange={setSystemId} />
+          <TicketSystemSelect project={backend ? backend.projectName(project) : project}organizationId={activeClientId} value={systemId} onChange={setSystemId} />
 
           {/* Conditional Fields for "Ad-hoc Request" */}
           {isAdhoc && (
@@ -485,7 +505,7 @@ export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModal
         <button className="button button-secondary" onClick={onClose} type="button">
           Batal
         </button>
-        <button className="button button-primary" onClick={submit} type="button">
+        <button className="button button-primary" onClick={submit} type="button" disabled={saving}>
           <Check size={14} className="[display:inline-block]! [vertical-align:middle]! [margin-right:4px]!" /> Buat Ticket
         </button>
       </div>
