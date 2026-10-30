@@ -35,6 +35,8 @@ type Step = 1 | 2 | 3 | 4;
 
 const SHIFT_OPTIONS = ["Subuh", "Pagi", "Malam"].map((shift) => ({ value: shift, label: `Shift ${shift}` }));
 const splitNames = (value: string) => value.split(",").map((name) => name.trim()).filter(Boolean);
+const formatPicNames = (names: string[], empty: string) =>
+  !names.length ? empty : names.length <= 2 ? names.join(", ") : `${names.slice(0, 2).join(", ")} (+${names.length - 2})`;
 
 const SHIFT_ROTATIONS = [
   { from: "Subuh", to: "Pagi", label: "Subuh → Pagi" },
@@ -370,16 +372,17 @@ export function HandoverWizard({
               <div className={CARD}>
                 <CardTitle icon={<Users size={16} />} title="Penanggung jawab (PIC)" sub="Siapa yang menyerahkan dan siapa yang menerima" />
                 <div className="grid grid-cols-2 items-start gap-4 max-[660px]:grid-cols-1">
-                  <Field label="PIC shift pengirim">
-                    <Select icon={<UserRound size={16} aria-hidden="true" />} className={SELECT} aria-label="PIC shift pengirim" required searchable
-                      options={[{ value: "", label: "Pilih PIC pengirim" }, ...people]} value={draft.sourcePic}
-                      onValueChange={(sourcePic) => onDraftChange((prev) => ({ ...prev, sourcePic }))} />
+                  <Field label="PIC shift pengirim" hint="Boleh memilih lebih dari satu orang.">
+                    <MultiSelect icon={<UserRound size={16} aria-hidden="true" />} className={SELECT} aria-label="PIC shift pengirim" required searchable
+                      placeholder="Pilih PIC pengirim" options={people} value={splitNames(draft.sourcePic)}
+                      onChange={(names) => onDraftChange((prev) => ({ ...prev, sourcePic: names.join(", ") }))}
+                      formatValue={(names) => formatPicNames(names, "Pilih PIC pengirim")} />
                   </Field>
                   <Field label="PIC shift penerima" hint="Boleh memilih lebih dari satu orang.">
                     <MultiSelect icon={<Users size={16} aria-hidden="true" />} className={SELECT} aria-label="PIC shift penerima" required searchable
                       placeholder="Pilih PIC penerima" options={people} value={splitNames(draft.targetPic)}
                       onChange={(names) => onDraftChange((prev) => ({ ...prev, targetPic: names.join(", ") }))}
-                      formatValue={(names) => !names.length ? "Pilih PIC penerima" : names.length <= 2 ? names.join(", ") : `${names.slice(0, 2).join(", ")} (+${names.length - 2})`} />
+                      formatValue={(names) => formatPicNames(names, "Pilih PIC penerima")} />
                   </Field>
                 </div>
               </div>

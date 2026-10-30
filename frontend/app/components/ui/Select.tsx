@@ -129,10 +129,14 @@ function SelectBase({ value, onSingleChange, onMultiChange, formatValue, selectA
     const viewportWidth = viewport?.width ?? window.innerWidth, viewportHeight = viewport?.height ?? window.innerHeight;
     const longest = Math.max(16, ...options.map(option => (option.textValue ?? textOf(option.label)).length));
     const width = Math.min(viewportWidth - 24, Math.max(box.width, Math.min(360, longest * 7 + 52), 180));
-    const naturalHeight = Math.min(320, options.length * 36 + (searchable ? 48 : 0) + (multiple ? 44 : 0) + 10);
+    // a multi-select spends ~92px on its search box and "Pilih Semua" row, so it gets more room to still show a useful number of options
+    const cap = multiple ? 380 : 320;
+    const naturalHeight = Math.min(cap, options.length * 36 + (searchable ? 48 : 0) + (multiple ? 44 : 0) + 10);
     const below = viewportHeight - box.bottom - 10, above = box.top - 10;
-    const flip = below < Math.min(naturalHeight, 180) && above > below;
-    const maxHeight = Math.max(100, Math.min(320, flip ? above : below, viewportHeight - 24));
+    // open upwards whenever the list does not fit below and there is more room above (it used to stay below until under 180px,
+    // which left a long list showing two or three options near the bottom of a form)
+    const flip = below < naturalHeight && above > below;
+    const maxHeight = Math.max(100, Math.min(cap, flip ? above : below, viewportHeight - 24));
     const actualHeight = Math.min(popupRef.current?.parentElement?.getBoundingClientRect().height || naturalHeight, maxHeight);
     const next = { left: Math.max(12, Math.min(viewportWidth - width - 12, box.left)), top: Math.max(12, flip ? box.top - actualHeight - 6 : box.bottom + 6), width, maxHeight };
     setPosition(previous => Object.keys(next).every(key => previous[key as keyof typeof next] === next[key as keyof typeof next]) ? previous : next);
