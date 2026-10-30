@@ -257,7 +257,7 @@ export function useAppData() {
 function DashboardShell({ children }: { children: React.ReactNode }) {
   const state = useShellState();
   const mobileChrome = useMobileChrome();
-  const { activeNav, saveNewTicket, saveTicketChange, ticketsReady, ticketWritable, ticketReadOnlyReason, refreshTickets, clientTickets, setPendingNoteKey, setGuideOpen, handover, selectTicket, openTicketCreate, handleNavigate, mobileNavOpen, setMobileNavOpen, shiftPanelOpen, setShiftPanelOpen, sidebarCollapsed, setSidebarCollapsed, openTicketCount, searchOpen, setSearchOpen, ticketModalOpen, setTicketModalOpen, loadedOverlays, activeClient, activeClientId, notify, addNotification, selectedTicketId, selectedTicket, closeTicket, pendingNoteKey, pendingEntry, setAssessments, guideOpen } = state;
+  const { activeNav, saveNewTicket, saveTicketChange, ticketsReady, ticketWritable, ticketReadOnlyReason, refreshTickets, clientTickets, setPendingNoteKey, setGuideOpen, handover, members, selectTicket, openTicketCreate, handleNavigate, mobileNavOpen, setMobileNavOpen, shiftPanelOpen, setShiftPanelOpen, sidebarCollapsed, setSidebarCollapsed, openTicketCount, searchOpen, setSearchOpen, ticketModalOpen, setTicketModalOpen, loadedOverlays, activeClient, activeClientId, notify, addNotification, selectedTicketId, selectedTicket, closeTicket, pendingNoteKey, pendingEntry, setAssessments, guideOpen } = state;
 
   return (
     <ShellContext.Provider value={state}>
@@ -416,6 +416,7 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
             onSave={() => void handover.save()}
             saving={handover.busy}
             actor={handover.actor}
+            members={members}
           />
         )}
 

@@ -1,14 +1,14 @@
 "use client";
 
-import { Select } from "@/app/components/ui/Select";
+import { MultiSelect, Select } from "@/app/components/ui/Select";
 
-import { useRef, useState, type ReactNode } from "react";
+import { useMemo, useRef, useState, type ReactNode } from "react";
 import { ArrowRightLeft, ArrowRight, Check, Calendar, Users, ShieldCheck, Plus, Trash2, ChevronDown, CheckSquare, ChevronsUpDown, FileText, Clock3, UserRound, Activity, Type, AlignLeft, ListTodo, Flag, AlertCircle, Lightbulb } from "lucide-react";
 import { Modal } from "@/app/components/ui/Modal";
 import { ModalCloseButton } from "@/app/components/ui/ModalCloseButton";
 import { ConfirmDialog } from "@/app/components/ui/ConfirmDialog";
 import { DatePicker } from "@/app/components/ui/DatePicker";
-import type { HandoverActor, HandoverDraft, HandoverState } from "@/app/lib/types";
+import type { HandoverActor, HandoverDraft, HandoverState, RosterMember } from "@/app/lib/types";
 import { TaskStatusBadge } from "./TaskStatusBadge";
 import { TaskPriorityBadge } from "./TaskPriorityBadge";
 import { ProjectSelect } from "./ProjectSelect";
@@ -27,9 +27,14 @@ interface HandoverWizardProps {
   onClose: () => void;
   onSave: () => void;
   saving: boolean;
+  /** The roster (Master Data): the people the PIC fields offer. */
+  members: RosterMember[];
 }
 
 type Step = 1 | 2 | 3 | 4;
+
+const SHIFT_OPTIONS = ["Subuh", "Pagi", "Malam"].map((shift) => ({ value: shift, label: `Shift ${shift}` }));
+const splitNames = (value: string) => value.split(",").map((name) => name.trim()).filter(Boolean);
 
 const SHIFT_ROTATIONS = [
   { from: "Subuh", to: "Pagi", label: "Subuh → Pagi" },
@@ -104,8 +109,16 @@ export function HandoverWizard({
   onClose,
   onSave,
   saving,
+  members,
 }: HandoverWizardProps) {
   const [step, setStep] = useState<Step>(initialStep);
+  // People on leave are not offered. A name already in the draft (an older note, someone no longer in the roster) stays selectable,
+  // so opening a note to revise it never drops its PIC.
+  const people = useMemo(() => {
+    const names = new Set(members.filter((member) => member.status !== "On Leave").map((member) => member.name));
+    for (const name of [...splitNames(draft.sourcePic), ...splitNames(draft.targetPic)]) names.add(name);
+    return [...names].sort((a, b) => a.localeCompare(b, "id")).map((name) => ({ value: name, label: name }));
+  }, [members, draft.sourcePic, draft.targetPic]);
   const [confirmDiscard, setConfirmDiscard] = useState(false);
   const [collapsedTasks, setCollapsedTasks] = useState<Record<number, boolean>>({});
   const formScrollRef = useRef<HTMLDivElement>(null);
@@ -235,11 +248,13 @@ export function HandoverWizard({
               <span className="block font-mono text-[10.5px] font-bold tracking-[0.75px] text-[var(--accent-blue)]">{mode === "prepare" ? "PERSIAPAN SERAH TERIMA SHIFT" : "CATATAN SERAH TERIMA"}</span>
               <h2 className="m-0 mt-0.5 text-[20px] font-bold leading-[1.25] tracking-[-0.35px] text-[var(--ink-primary)] max-[660px]:text-[17px]">{title}</h2>
               <p className="m-0 mt-1 text-[12.5px] leading-[1.5] text-[var(--ink-secondary)]">Isi empat langkah singkat untuk shift penerima, lalu periksa ringkasannya sebelum menyimpan.</p>
-              <p className="mt-2 inline-flex w-fit items-center gap-2 rounded-md border border-[var(--line)] bg-[var(--panel-bg)] px-2.5 py-1 text-[11.5px] text-[var(--ink-secondary)]" role="status">
-                <span className={`size-[7px] shrink-0 rounded-full ${draftSaved ? "bg-[var(--green)]" : "bg-[var(--orange)]"}`} />
-                {draftSaved ? "Draf tersimpan otomatis di perangkat ini" : "Draf belum tersimpan — jangan tutup halaman"}
-                {mode === "edit" && <span> · Revisi akan mengulang checklist penerimaan.</span>}
-              </p>
+              {(!draftSaved || mode === "edit") && (
+                <p className="mt-2 inline-flex w-fit items-center gap-2 rounded-md border border-[var(--line)] bg-[var(--panel-bg)] px-2.5 py-1 text-[11.5px] text-[var(--ink-secondary)]" role="status">
+                  {!draftSaved && <span className="size-[7px] shrink-0 rounded-full bg-[var(--orange)]" />}
+                  {!draftSaved && "Draf belum tersimpan — jangan tutup halaman"}
+                  {mode === "edit" && <span>{!draftSaved && " · "}Revisi akan mengulang checklist penerimaan.</span>}
+                </p>
+              )}
             </div>
           </div>
           <ModalCloseButton onClose={requestClose} />
@@ -337,19 +352,17 @@ export function HandoverWizard({
                 {/* Shift Pengirim & Penerima with directional arrow */}
                 <div className="mt-4 grid grid-cols-[minmax(0,1fr)_32px_minmax(0,1fr)] items-end gap-3 max-[660px]:grid-cols-1">
                   <Field label="Shift yang menyerahkan">
-                    <span className="group/shell relative block w-full min-w-0">
-                      <Clock3 className={FIELD_ICON} size={16} aria-hidden="true" />
-                      <input className={INPUT} value={draft.sourceShift} onChange={(event) => onDraftChange((prev) => ({ ...prev, sourceShift: event.target.value }))} placeholder="Contoh: Subuh" required />
-                    </span>
+                    <Select icon={<Clock3 size={16} aria-hidden="true" />} className={SELECT} aria-label="Shift yang menyerahkan" required
+                      options={[{ value: "", label: "Pilih shift" }, ...SHIFT_OPTIONS]} value={draft.sourceShift}
+                      onValueChange={(sourceShift) => onDraftChange((prev) => ({ ...prev, sourceShift }))} />
                   </Field>
                   <span className="mb-[5px] grid size-8 place-items-center rounded-full border border-[var(--accent-blue-border)] bg-[var(--accent-blue-soft)] text-[var(--accent-blue)] max-[660px]:mb-0 max-[660px]:justify-self-center max-[660px]:rotate-90" title="Arah serah terima" aria-hidden="true">
                     <ArrowRight size={16} />
                   </span>
                   <Field label="Shift yang menerima">
-                    <span className="group/shell relative block w-full min-w-0">
-                      <Clock3 className={FIELD_ICON} size={16} aria-hidden="true" />
-                      <input className={INPUT} value={draft.targetShift} onChange={(event) => onDraftChange((prev) => ({ ...prev, targetShift: event.target.value }))} placeholder="Contoh: Pagi" required />
-                    </span>
+                    <Select icon={<Clock3 size={16} aria-hidden="true" />} className={SELECT} aria-label="Shift yang menerima" required
+                      options={[{ value: "", label: "Pilih shift" }, ...SHIFT_OPTIONS]} value={draft.targetShift}
+                      onValueChange={(targetShift) => onDraftChange((prev) => ({ ...prev, targetShift }))} />
                   </Field>
                 </div>
               </div>
@@ -358,16 +371,15 @@ export function HandoverWizard({
                 <CardTitle icon={<Users size={16} />} title="Penanggung jawab (PIC)" sub="Siapa yang menyerahkan dan siapa yang menerima" />
                 <div className="grid grid-cols-2 items-start gap-4 max-[660px]:grid-cols-1">
                   <Field label="PIC shift pengirim">
-                    <span className="group/shell relative block w-full min-w-0">
-                      <UserRound className={FIELD_ICON} size={16} aria-hidden="true" />
-                      <input className={INPUT} value={draft.sourcePic} onChange={(event) => onDraftChange((prev) => ({ ...prev, sourcePic: event.target.value }))} placeholder="Nama penanggung jawab shift saat ini" required />
-                    </span>
+                    <Select icon={<UserRound size={16} aria-hidden="true" />} className={SELECT} aria-label="PIC shift pengirim" required searchable
+                      options={[{ value: "", label: "Pilih PIC pengirim" }, ...people]} value={draft.sourcePic}
+                      onValueChange={(sourcePic) => onDraftChange((prev) => ({ ...prev, sourcePic }))} />
                   </Field>
-                  <Field label="PIC shift penerima" hint="Lebih dari satu nama dipisahkan koma.">
-                    <span className="group/shell relative block w-full min-w-0">
-                      <UserRound className={FIELD_ICON} size={16} aria-hidden="true" />
-                      <input className={INPUT} value={draft.targetPic} onChange={(event) => onDraftChange((prev) => ({ ...prev, targetPic: event.target.value }))} placeholder="Nama penerima, contoh: Budi, Andi" required />
-                    </span>
+                  <Field label="PIC shift penerima" hint="Boleh memilih lebih dari satu orang.">
+                    <MultiSelect icon={<Users size={16} aria-hidden="true" />} className={SELECT} aria-label="PIC shift penerima" required searchable
+                      placeholder="Pilih PIC penerima" options={people} value={splitNames(draft.targetPic)}
+                      onChange={(names) => onDraftChange((prev) => ({ ...prev, targetPic: names.join(", ") }))}
+                      formatValue={(names) => !names.length ? "Pilih PIC penerima" : names.length <= 2 ? names.join(", ") : `${names.slice(0, 2).join(", ")} (+${names.length - 2})`} />
                   </Field>
                 </div>
               </div>
