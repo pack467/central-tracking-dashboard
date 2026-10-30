@@ -5,7 +5,7 @@
 Ids are strings in the JSON because pg returns BIGINT as a string. Booleans came from `BIT(1)` as `'0'`/`'1'`.
 
 - **user_role (5):** 1 SUPER_ADMIN, 2 ADMIN, 3 TEAM_LEAD, 4 AGENT, 5 VIEWER with a `permissions` array each (the default grants: SUPER_ADMIN `["*"]`, ADMIN 8, TEAM_LEAD 4, AGENT 3, VIEWER 2). This file is the source of the defaults; `test/helpers/seeded-roles.ts` reads it so tests check the real data.
-- **users (20):** all emails are `@hutabyte.com`, NIK format `YYYY-NNNN`, `password` and `department` all null. Roles: SUPER_ADMIN ids 3, 5, 6, 10; ADMIN id 4; TEAM_LEAD ids 15–18; VIEWER id 20; the rest are AGENT. Inactive users (`is_active '0'`): ids 12, 13, 19.
+- **users (20):** all emails are `@hutabyte.com`, NIK format `YYYY-NNNN`, `password` and `position` all null. Roles: SUPER_ADMIN ids 3, 5, 6, 10; ADMIN id 4; TEAM_LEAD ids 15–18; VIEWER id 20; the rest are AGENT. Inactive users (`is_active '0'`): ids 12, 13, 19.
 - **tenants (2):** 1 Telkomsel, 2 Lintasarta
 - **clients (2):** 1 Tritronik, 2 IoTera
 - **projects (11)** (id, name, tenant, code_prefix):

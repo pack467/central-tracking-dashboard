@@ -17,7 +17,7 @@ Conventions:
 
 | Model → table | Fields (besides id/timestamps) | Relations |
 |---|---|---|
-| `User` → `users` | **name**(255), nik(255, unique), **email**(citext, unique, stored lowercase), role_id, is_active (default true), password(100, must be a hash, e.g. bcrypt `$2b$`), photo_url(500), department(255) | role → UserRole; handovers as `HandoverUpdatedBy` / `HandoverAcknowledgedBy`; routineMeetings, routineReports (as PIC); ticketLogs; monitoring templates/logs; sessions (UserSession) |
+| `User` → `users` | **name**(255), nik(255, unique), **email**(citext, unique, stored lowercase), role_id, is_active (default true), password(100, must be a hash, e.g. bcrypt `$2b$`), photo_url(500), position(255) (renamed from `department` on 2026-10-30) | role → UserRole; handovers as `HandoverUpdatedBy` / `HandoverAcknowledgedBy`; routineMeetings, routineReports (as PIC); ticketLogs; monitoring templates/logs; sessions (UserSession) |
 | `UserSession` → `user_sessions` | **sid**(128, unique; express-session's id, never sent to clients), **user_id**, **data** (`jsonb`: cookie settings, userId, csrfToken, loginAt, userAgent, ip), user_agent(500), ip(64), **expires_at** (login + `SESSION_MAX_AGE`, or earlier with an idle timeout), last_used_at (written at most once a minute), created_at (= login). No `updated_at`: `last_used_at` plays that role. One row per logged-in device; deleting it logs that device out. See `auth.md`. | user (**ON DELETE CASCADE**) |
 | `UserRole` → `user_role` | **name**(citext, unique), description(500) | users; permissions (RolePermission) |
 | `Permission` → `permissions` | **key**(100, PK), description(text), obsolete_at, timestamps | roles (RolePermission) |

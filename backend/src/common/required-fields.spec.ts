@@ -28,7 +28,7 @@ describe('required fields reject null on update', () => {
   });
 
   it.each([
-    [UpdateUserDto, { role_id: null, department: null }],
+    [UpdateUserDto, { role_id: null, position: null }],
     [UpdateTicketDto, { description: null, closed_at: null, user_id: null }],
     [UpdateTicketCategoryDto, { description: null }],
     [UpdateRoleDto, { description: null }],
@@ -38,7 +38,7 @@ describe('required fields reject null on update', () => {
 
   it('still allows omitting required fields (partial update)', async () => {
     expect(await errorsFor(UpdateTicketDto, {})).toEqual([]);
-    expect(await errorsFor(UpdateUserDto, { department: 'QA' })).toEqual([]);
+    expect(await errorsFor(UpdateUserDto, { position: 'Engineer' })).toEqual([]);
   });
 });
 

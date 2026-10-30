@@ -26,7 +26,7 @@ export class User {
   photo_url: string | null;
 
   @ApiProperty({ type: String, nullable: true })
-  department: string | null;
+  position: string | null;
 
   @ApiProperty()
   created_at: Date;

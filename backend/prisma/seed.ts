@@ -60,7 +60,7 @@ async function main() {
       role_id: big(r.role_id),
       is_active: bool(r.is_active, true),
       photo_url: r.photo_url ?? null,
-      department: r.department ?? null,
+      position: r.position ?? null,
       // Only written when the JSON has one, so re-seeding never wipes passwords set in the app.
       // Must already be a hash (e.g. $2b$...), never plaintext.
       ...(r.password && { password: r.password }),

@@ -23,7 +23,7 @@ CREATE TABLE "users" (
     "is_active" BOOLEAN NOT NULL DEFAULT true,
     "password" VARCHAR(100),
     "photo_url" VARCHAR(500),
-    "department" VARCHAR(255),
+    "position" VARCHAR(255),
     "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 

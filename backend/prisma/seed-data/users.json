@@ -8,7 +8,7 @@
     "is_active": "1",
     "password": null,
     "photo_url": null,
-    "department": null
+    "position": null
   },
   {
     "id": "2",
@@ -19,7 +19,7 @@
     "is_active": "1",
     "password": null,
     "photo_url": null,
-    "department": null
+    "position": null
   },
   {
     "id": "3",
@@ -30,7 +30,7 @@
     "is_active": "1",
     "password": null,
     "photo_url": null,
-    "department": null
+    "position": null
   },
   {
     "id": "4",
@@ -41,7 +41,7 @@
     "is_active": "1",
     "password": null,
     "photo_url": null,
-    "department": null
+    "position": null
   },
   {
     "id": "5",
@@ -52,7 +52,7 @@
     "is_active": "1",
     "password": null,
     "photo_url": null,
-    "department": null
+    "position": null
   },
   {
     "id": "6",
@@ -63,7 +63,7 @@
     "is_active": "1",
     "password": null,
     "photo_url": null,
-    "department": null
+    "position": null
   },
   {
     "id": "7",
@@ -74,7 +74,7 @@
     "is_active": "1",
     "password": null,
     "photo_url": null,
-    "department": null
+    "position": null
   },
   {
     "id": "8",
@@ -85,7 +85,7 @@
     "is_active": "1",
     "password": null,
     "photo_url": null,
-    "department": null
+    "position": null
   },
   {
     "id": "9",
@@ -96,7 +96,7 @@
     "is_active": "1",
     "password": null,
     "photo_url": null,
-    "department": null
+    "position": null
   },
   {
     "id": "10",
@@ -107,7 +107,7 @@
     "is_active": "1",
     "password": null,
     "photo_url": null,
-    "department": null
+    "position": null
   },
   {
     "id": "11",
@@ -118,7 +118,7 @@
     "is_active": "1",
     "password": null,
     "photo_url": null,
-    "department": null
+    "position": null
   },
   {
     "id": "12",
@@ -129,7 +129,7 @@
     "is_active": "0",
     "password": null,
     "photo_url": null,
-    "department": null
+    "position": null
   },
   {
     "id": "13",
@@ -140,7 +140,7 @@
     "is_active": "0",
     "password": null,
     "photo_url": null,
-    "department": null
+    "position": null
   },
   {
     "id": "14",
@@ -151,7 +151,7 @@
     "is_active": "1",
     "password": null,
     "photo_url": null,
-    "department": null
+    "position": null
   },
   {
     "id": "15",
@@ -162,7 +162,7 @@
     "is_active": "1",
     "password": null,
     "photo_url": null,
-    "department": null
+    "position": null
   },
   {
     "id": "16",
@@ -173,7 +173,7 @@
     "is_active": "1",
     "password": null,
     "photo_url": null,
-    "department": null
+    "position": null
   },
   {
     "id": "17",
@@ -184,7 +184,7 @@
     "is_active": "1",
     "password": null,
     "photo_url": null,
-    "department": null
+    "position": null
   },
   {
     "id": "18",
@@ -195,7 +195,7 @@
     "is_active": "1",
     "password": null,
     "photo_url": null,
-    "department": null
+    "position": null
   },
   {
     "id": "19",
@@ -206,7 +206,7 @@
     "is_active": "0",
     "password": null,
     "photo_url": null,
-    "department": null
+    "position": null
   },
   {
     "id": "20",
@@ -217,6 +217,6 @@
     "is_active": "1",
     "password": null,
     "photo_url": null,
-    "department": null
+    "position": null
   }
 ]

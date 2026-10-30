@@ -53,5 +53,5 @@ export class CreateUserDto {
   @IsOptional()
   @IsString()
   @MaxLength(255)
-  department?: string;
+  position?: string;
 }

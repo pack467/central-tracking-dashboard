@@ -85,7 +85,7 @@ Content-Type: application/json
     "role_id": "4",
     "is_active": true,
     "photo_url": null,
-    "department": null,
+    "position": null,
     "created_at": "2026-10-12T20:46:07.000Z",
     "updated_at": "2026-10-12T20:46:07.000Z",
     "role": "AGENT",
