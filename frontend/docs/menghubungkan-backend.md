@@ -99,7 +99,7 @@ Semua perintah di langkah ini dijalankan dari folder `backend/`.
 - `SEED_DEFAULT_PASSWORD` hanya diberikan ke user yang **passwordnya masih kosong** saat seed dijalankan.
 - Seed **tidak pernah menimpa** password yang sudah ada. Jadi kalau `SEED_DEFAULT_PASSWORD` diganti lalu seed diulang,
   user lama **tetap memakai password lama**.
-- Perhatikan pengetikan: `adm1n123` (angka satu) berbeda dengan `admin123` (huruf i).
+- Password awal tim backend: `admin123`. Login memakai nilai `SEED_DEFAULT_PASSWORD` di `backend/.env` **komputer yang menjalankan backend**, bukan milik orang lain.
 - Login memakai **email** atau **NIK** yang ada di tabel `users`. User yang tidak aktif (`is_active = false`) tidak bisa login.
 
 Cara memberi password awal lagi ke semua user (hanya untuk database lokal):
@@ -167,7 +167,7 @@ Script ini membaca `frontend/.env.local` lalu mengecek satu per satu:
 Untuk sekalian mencoba login (script langsung logout lagi setelahnya):
 
 ```bash
-npm run check:backend -- --id nama@hutabyte.com --password adm1n123
+npm run check:backend -- --id nama@hutabyte.com --password admin123
 ```
 
 Contoh hasil kalau semuanya benar:
