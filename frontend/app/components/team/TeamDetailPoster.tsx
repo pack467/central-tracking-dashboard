@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { safeExternalUrl, safeMailto } from "@/app/lib/safe-url";
 import Image from "next/image";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { X, Mail, ExternalLink } from "lucide-react";
@@ -322,9 +323,9 @@ export function TeamDetailPoster({ member, isOpen, onClose }: TeamDetailPosterPr
 
           {/* Contact & Social Links Bar */}
           <div className="flex items-center gap-2.5 flex-wrap pt-0.5">
-            {member.social.email && (
+            {safeMailto(member.social.email) && (
               <a
-                href={`mailto:${member.social.email}`}
+                href={safeMailto(member.social.email)}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-200 bg-slate-800/80 border border-slate-700 hover:bg-slate-700 hover:text-white transition-all shadow-sm"
                 title={`Kirim email ke ${member.social.email}`}
               >
@@ -333,9 +334,9 @@ export function TeamDetailPoster({ member, isOpen, onClose }: TeamDetailPosterPr
               </a>
             )}
 
-            {member.social.linkedin && (
+            {safeExternalUrl(member.social.linkedin) && (
               <a
-                href={member.social.linkedin}
+                href={safeExternalUrl(member.social.linkedin)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-200 bg-slate-800/80 border border-slate-700 hover:bg-slate-700 hover:text-white transition-all shadow-sm"
@@ -347,9 +348,9 @@ export function TeamDetailPoster({ member, isOpen, onClose }: TeamDetailPosterPr
               </a>
             )}
 
-            {member.social.github && (
+            {safeExternalUrl(member.social.github) && (
               <a
-                href={member.social.github}
+                href={safeExternalUrl(member.social.github)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-200 bg-slate-800/80 border border-slate-700 hover:bg-slate-700 hover:text-white transition-all shadow-sm"

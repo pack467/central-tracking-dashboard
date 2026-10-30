@@ -8,12 +8,19 @@
 import { isMockMode } from "@/app/lib/config";
 import { apiClient } from "@/app/lib/api/client";
 import { mockAdapter } from "./mock-adapter";
+import { fetchAllTickets, ticketsFromBackend } from "./backend-tickets";
 import { ticketDtoToModel, ticketModelToDto, type TicketDto } from "@/app/types/ticket";
 import type { ApiPaginatedResponse, ApiQueryParams } from "@/app/types/api";
 import type { Ticket } from "@/app/lib/types";
 
 export const ticketsService = {
   async list(params?: ApiQueryParams, signal?: AbortSignal): Promise<Ticket[]> {
+    if (ticketsFromBackend()) {
+      // all tickets of the backend; the view filters, sorts and pages them itself
+      const all = await fetchAllTickets();
+      const clientId = ((params?.clientId as string | undefined) || "tritronik").toLowerCase();
+      return all.filter(ticket => (ticket.clientId || "tritronik").toLowerCase() === clientId);
+    }
     if (isMockMode()) {
       return mockAdapter.getTickets(params?.clientId as string | undefined, signal);
     }
@@ -30,6 +37,7 @@ export const ticketsService = {
   },
 
   async getById(id: string, signal?: AbortSignal): Promise<Ticket | null> {
+    if (ticketsFromBackend()) return (await fetchAllTickets()).find(ticket => ticket.id.toLowerCase() === id.toLowerCase()) ?? null;
     if (isMockMode()) {
       const tickets = await mockAdapter.getTickets(undefined, signal);
       return tickets.find((t) => t.id.toLowerCase() === id.toLowerCase()) ?? null;

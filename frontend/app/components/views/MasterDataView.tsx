@@ -6,8 +6,12 @@ import { useAppData } from "@/app/components/routing/AppShell";
 import { useAuth } from "@/app/lib/auth";
 import { masterRole } from "@/app/lib/permissions";
 import { MASTER_DATA_P0_ENABLED } from "@/app/lib/master-data-flags";
-import { MASTER_GROUPS, MASTER_LABELS } from "@/app/lib/master-data-route";
-import { useMasterCatalog, useMasterReview, usePeople } from "@/app/hooks/useMasterData";
+import { MASTER_GROUPS, MASTER_LABELS, isOrgEntity } from "@/app/lib/master-data-route";
+import { useOrgCatalog } from "@/app/hooks/useOrgCatalog";
+import { OrgCatalogPanel } from "@/app/components/master-data/OrgCatalogPanel";
+import { useMasterCatalog, useMasterReview, usePeople, useRoles } from "@/app/hooks/useMasterData";
+import { rolesFromBackend } from "@/app/services/backend-team";
+import { useAccess } from "@/app/hooks/useAccess";
 import { useMasterRoute } from "@/app/hooks/useMasterRoute";
 import { MasterNavigation } from "@/app/components/master-data/MasterNavigation";
 import { CatalogPanel } from "@/app/components/master-data/CatalogPanel";
@@ -52,8 +56,12 @@ function MasterDataContent() {
     [people]
   );
   const openEntity = (next: AnyMasterEntity) => route.select(next);
-  const roles = catalog.roles || [];
-  const hasLead = roles.some(role => role.key === "Shift Lead");
+  // roles and people come from the backend when those modules are connected; the filters below read them from the catalog
+  const roles = useRoles(), positions = useOrgCatalog("position"), departments = useOrgCatalog("department");
+  const { can } = useAccess();
+  const rolesReadable = !rolesFromBackend() || can("roles.view");
+  const leadKey = rolesFromBackend() ? "TEAM_LEAD" : "Shift Lead";
+  const hasLead = roles.some(role => role.key === leadKey);
   const summary: StatItem[] = route.group === "services"
     ? [
       { key: "organization", count: catalog.organizations.filter(o => o.status === "active").length, label: "Organisasi aktif", target: "organization" },
@@ -63,21 +71,24 @@ function MasterDataContent() {
     : route.group === "team"
       ? [
         { key: "person", count: people.filter(person => person.status === "active").length, label: "Personel aktif", target: "person" },
-        { key: "role", count: roles.filter(role => role.active).length, label: "Peran aktif", target: "role" },
-        ...(hasLead ? [{ key: "lead", count: people.filter(person => person.status === "active" && person.roleKey === "Shift Lead").length, label: "Shift Lead aktif" }] : [])
+        ...(rolesReadable ? [{ key: "role", count: roles.filter(role => role.active).length, label: "Peran aktif", target: "role" as const }] : []),
+        ...(hasLead ? [{ key: "lead", count: people.filter(person => person.status === "active" && person.roleKey === leadKey).length, label: "Shift Lead aktif" }] : [])
       ]
       : [
         { key: "category", count: catalog.categories.filter(c => c.active).length, label: "Kategori aktif", target: "category" as const },
         { key: "tickets", count: appData?.tickets.length || 0, label: "Tiket terhubung", hint: "semua tiket dari semua klien" }
       ];
+  const teamCatalog = useMemo(() => rolesFromBackend() ? { ...catalog, roles: roles.map(role => ({ ...role, usageCount: 0 })) } : catalog, [catalog, roles]);
   const counts = {
     organization: catalog.organizations.length,
     project: catalog.projects.length,
     system: catalog.systems.length,
     category: catalog.categories.length,
-    severity: catalog.severities.length,
+    severity: catalog.severities.filter(s => s.code !== "critical").length,
     person: people.length,
-    role: roles.length
+    role: rolesReadable ? roles.length : null,
+    position: positions.items.length,
+    department: departments.items.length
   };
   const savedAt = sync.lastSavedAt ? new Date(sync.lastSavedAt) : null;
   const stamp = savedAt
@@ -156,8 +167,10 @@ function MasterDataContent() {
         </div>
       </header>
       <MasterNavigation entity={entity} counts={counts} onSelect={openEntity} />
-      {route.group === "team" ? (
-        <TeamPanel route={route} catalog={catalog} access={access} users={users} />
+      {isOrgEntity(entity) ? (
+        <OrgCatalogPanel key={entity} kind={entity} route={route} catalog={catalog} access={access} people={people} />
+      ) : route.group === "team" ? (
+        <TeamPanel route={route} catalog={teamCatalog} access={access} users={users} />
       ) : (
         <CatalogPanel route={route} catalog={catalog} access={access} users={users} />
       )}

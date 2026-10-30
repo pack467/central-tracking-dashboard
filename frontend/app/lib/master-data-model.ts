@@ -68,8 +68,9 @@ export function isSafeLogo(value: string): boolean {
 }
 /** The only way a stored logo may reach an img src. */
 export function safeLogo(value: string | undefined | null): string | undefined { return value && isSafeLogo(value) ? value : undefined; }
-export function severityTicketCode(code: SeverityCode): "Critical" | "High" | "Medium" | "Low" {
-  return ({ critical: "Critical", high: "High", medium: "Medium", low: "Low" } as const)[code];
+/** The stored catalog keeps its four seed severities (its checks expect them), but tickets have three: "critical" reads as High. */
+export function severityTicketCode(code: SeverityCode): "High" | "Medium" | "Low" {
+  return ({ critical: "High", high: "High", medium: "Medium", low: "Low" } as const)[code];
 }
 /** Existing Monitoring matching semantics, shared without importing UI modules. */
 export function matchesLegacyProject(entryProject: string, targetProject: string): boolean {

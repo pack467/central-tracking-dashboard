@@ -4,6 +4,8 @@ import { MasterProjectName } from "@/app/components/ui/MasterProjectName";
 import { useState, useMemo } from "react";
 import { useContainerDimensions } from "@/app/hooks/useContainerDimensions";
 import { ChartTooltip, TooltipHeader, TooltipRow, TooltipSwatch, useChartHover } from "./chart-tooltip";
+import { GranularityTag } from "./GranularityTag";
+import { axisLabelStride, bucketAxisLabel, bucketRanges, bucketTitle, bucketVolume, chooseGranularity, maxPointsFor, showAxisLabel } from "@/app/lib/volume-buckets";
 
 interface VolumeItem {
   date: string;
@@ -12,6 +14,8 @@ interface VolumeItem {
   backlog: number;
   projectCounts: Record<string, number>;
   avgResolution: number;
+  resolutionSum?: number;
+  resolvedCount?: number;
 }
 
 interface TicketVolumeViewProps {
@@ -95,29 +99,7 @@ export function TicketVolumeView({
     return totals;
   }, [volumeByDate, allProjects]);
 
-  // Y-axis scaling
-  const maxVolume = useMemo(() => {
-    let max = 0;
-    for (const v of volumeByDate) {
-      let sum = 0;
-      for (const p of activeProjects) {
-        sum += v.projectCounts[p] || 0;
-      }
-      if (sum > max) max = sum;
-    }
-    return Math.max(max, 4);
-  }, [volumeByDate, activeProjects]);
-
-  const yTicks = useMemo(() => {
-    const step = Math.max(1, Math.ceil(maxVolume / 4));
-    const ceiling = step * 4;
-    return [0, step, step * 2, step * 3, ceiling];
-  }, [maxVolume]);
-
-  const yMax = yTicks[yTicks.length - 1];
-
   // Dynamic geometry (ResizeObserver, zero letterbox)
-  const n = volumeByDate.length;
   const width = Math.max(dimensions.width || 800, 640);
   const height = Math.max(dimensions.height || 420, 320);
 
@@ -131,13 +113,44 @@ export function TicketVolumeView({
 
   const baselineY = height - marginBottom;
 
-  const stepX = n > 1 ? plotWidth / (n - 1) : plotWidth / 2;
-  const barWidth = Math.min(48, Math.max(20, Math.round(stepX * 0.62)));
+  // One bar per day while each gets 24 px; longer ranges are summed per week or month (lib/volume-buckets.ts). The table stays per day.
+  const firstDate = volumeByDate[0]?.date ?? "";
+  const lastDate = volumeByDate[volumeByDate.length - 1]?.date ?? "";
+  const granularity = volumeByDate.length ? chooseGranularity(firstDate, lastDate, maxPointsFor(plotWidth, 24)) ?? "month" : "day";
+  const series = useMemo(() => bucketVolume(volumeByDate, granularity), [volumeByDate, granularity]);
+  const rangeDays = volumeByDate.length ? bucketRanges(firstDate, lastDate, "day").length : 0;
+
+  // Y-axis scaling
+  const maxVolume = useMemo(() => {
+    let max = 0;
+    for (const v of series) {
+      let sum = 0;
+      for (const p of activeProjects) {
+        sum += v.projectCounts[p] || 0;
+      }
+      if (sum > max) max = sum;
+    }
+    return Math.max(max, 4);
+  }, [series, activeProjects]);
+
+  const yTicks = useMemo(() => {
+    const step = Math.max(1, Math.ceil(maxVolume / 4));
+    const ceiling = step * 4;
+    return [0, step, step * 2, step * 3, ceiling];
+  }, [maxVolume]);
+
+  const yMax = yTicks[yTicks.length - 1];
+
+  // Every bar gets an equal slot of the width, so neighbours never touch
+  const n = series.length;
+  const slot = plotWidth / Math.max(1, n);
+  const barWidth = Math.max(4, Math.min(48, Math.round(slot * 0.62)));
+  const labelStride = axisLabelStride(slot, granularity);
 
   // Calculate bars
   const bars = useMemo(() => {
-    return volumeByDate.map((item, idx) => {
-      const centerX = Math.round(marginLeft + (n > 1 ? idx * stepX : plotWidth / 2));
+    return series.map((item, idx) => {
+      const centerX = Math.round(marginLeft + slot * (idx + 0.5));
       const x = Math.round(centerX - barWidth / 2);
 
       let currentY = baselineY;
@@ -170,9 +183,10 @@ export function TicketVolumeView({
         topY: currentY,
       };
     });
-  }, [volumeByDate, n, stepX, marginLeft, plotWidth, barWidth, baselineY, activeProjects, yMax, plotHeight, projectColors]);
+  }, [series, slot, marginLeft, barWidth, baselineY, activeProjects, yMax, plotHeight, projectColors]);
 
-  const { svg: chartSvg, bindSvg, svgProps, index: hoveredIdx } = useChartHover({ xs: bars.map((b) => b.centerX), viewWidth: width, resetKey: `${mode}|${n}` });
+  const peakBarVal = Math.max(0, ...bars.map((b) => b.totalBarVal));
+  const { svg: chartSvg, bindSvg, svgProps, index: hoveredIdx } = useChartHover({ xs: bars.map((b) => b.centerX), viewWidth: width, resetKey: `${mode}|${n}|${granularity}` });
   const hoveredBar = hoveredIdx !== null ? bars[hoveredIdx] ?? null : null;
   // Tallest tooltips list at most 8 rows: the 7 biggest projects and the rest folded into one line.
   const tooltipRows = useMemo(() => {
@@ -274,8 +288,8 @@ export function TicketVolumeView({
           )}
         </div>
 
-        <span className="text-[11px] font-mono text-slate-500 hidden sm:inline">
-          {n} hari pengamatan
+        <span className="hidden sm:inline-flex">
+          <GranularityTag granularity={granularity} days={rangeDays} />
         </span>
       </div>
 
@@ -426,7 +440,7 @@ export function TicketVolumeView({
             {/* Stacked Bars */}
             {bars.map((b) => {
               const isHovered = hoveredIdx === b.idx;
-              const isSelected = selectedDate === b.item.date;
+              const isSelected = Boolean(selectedDate && selectedDate >= b.item.date && selectedDate <= b.item.to);
 
               return (
                 <g
@@ -448,7 +462,7 @@ export function TicketVolumeView({
 
                   {/* Segments */}
                   {b.segments.map((seg, sIdx) => {
-                    const isTopSegment = sIdx === b.segments.length - 1;
+                    const isTopSegment = sIdx === b.segments.length - 1 && barWidth >= 10;
                     return (
                       <g key={`seg-${sIdx}`}>
                         <rect
@@ -479,12 +493,12 @@ export function TicketVolumeView({
                   })}
 
                   {/* Total on top of bar (displayed if barWidth >= 24px or peak) */}
-                  {b.totalBarVal > 0 && (barWidth >= 24 || b.totalBarVal === stats.peakVal) && (
+                  {b.totalBarVal > 0 && (barWidth >= 24 || b.totalBarVal === peakBarVal) && (
                     <text
                       x={b.centerX}
                       y={b.topY - 6}
                       textAnchor="middle"
-                      fill={b.totalBarVal === stats.peakVal ? "#f59e0b" : "#cbd5e1"}
+                      fill={b.totalBarVal === peakBarVal ? "#f59e0b" : "#cbd5e1"}
                       fontSize="11"
                       fontFamily="monospace"
                       fontWeight="bold"
@@ -498,10 +512,7 @@ export function TicketVolumeView({
 
             {/* X-axis Ticks & Dates */}
             {bars.map((b) => {
-              const showLabel = width >= 600 || b.idx % 2 === 0 || b.idx === n - 1;
-              const dateParts = b.item.date.split("-");
-              const shortDate = dateParts.length === 3 ? `${dateParts[2]}/${dateParts[1]}` : b.item.date;
-
+              if (!showAxisLabel(b.idx, n, labelStride)) return null;
               return (
                 <g key={`xtick-${b.idx}`}>
                   <line
@@ -512,19 +523,17 @@ export function TicketVolumeView({
                     stroke="#475569"
                     strokeWidth="1"
                   />
-                  {showLabel && (
-                    <text
-                      x={b.centerX}
-                      y={baselineY + 18}
-                      textAnchor="middle"
-                      fill="#94a3b8"
-                      fontSize="11.5"
-                      fontFamily="monospace"
-                      fontWeight="500"
-                    >
-                      {shortDate}
-                    </text>
-                  )}
+                  <text
+                    x={Math.min(width - 24, Math.max(marginLeft + 18, b.centerX))}
+                    y={baselineY + 18}
+                    textAnchor="middle"
+                    fill="#94a3b8"
+                    fontSize="11.5"
+                    fontFamily="monospace"
+                    fontWeight="500"
+                  >
+                    {bucketAxisLabel(b.item, granularity)}
+                  </text>
                 </g>
               );
             })}
@@ -548,7 +557,7 @@ export function TicketVolumeView({
           {/* Floating Tooltip */}
           {hoveredBar && (
             <ChartTooltip key={hoveredIdx} svg={chartSvg} anchorX={hoveredBar.centerX} half={barWidth / 2 + 3} plotTop={marginTop} viewWidth={width} viewHeight={height}>
-              <TooltipHeader title={hoveredBar.item.date} value={`Total ${hoveredBar.totalBarVal}`} />
+              <TooltipHeader title={bucketTitle(hoveredBar.item, granularity)} value={`Total ${hoveredBar.totalBarVal}`} />
               {tooltipRows.map((seg) => (
                 <TooltipRow
                   key={seg.project}

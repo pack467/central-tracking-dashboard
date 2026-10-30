@@ -24,19 +24,16 @@ test("Month-over-Month (MoM) ticket comparison is properly implemented in Ticket
   // 2. Executive MoM Summary Metrics Strip was removed per user request
   assert.ok(!content.includes("mom-metrics-strip"), "Does NOT render .mom-metrics-strip container");
 
-  // 3. Subview Switcher
-  assert.ok(content.includes("mom-subview-toggle-bar"), "Has subview toggle bar");
-  assert.ok(content.includes("Tren Trajectory"), "Has toggle for 'Tren Trajectory'");
-  assert.ok(content.includes("Komparasi per Sistem"), "Has toggle for 'Komparasi per Sistem'");
-
-  // 4. Data memo computation
-  assert.ok(content.includes("momData"), "Computes momData memoization");
-  assert.ok(content.includes("trajectoryPoints"), "Calculates trajectoryPoints comparison");
-  assert.ok(content.includes("projectComparison"), "Calculates projectComparison breakdown");
-
-  // 5. Interactive Popover Card
-  assert.ok(content.includes("selectedMomItem"), "Supports selectedMomItem interactive selection");
-  assert.ok(content.includes("Selisih (MoM):"), "Displays Selisih (MoM) in interactive popover");
+  // 3. One shared component (dashboard card and expanded panel), built from lib/mom-comparison.ts
+  assert.ok(content.includes("<MomComparison") && content.includes("buildMomComparison"), "Uses the shared MomComparison component and its data builder");
+  const component = fs.readFileSync(path.resolve("app/components/dashboard/MomComparison.tsx"), "utf8");
+  assert.ok(component.includes("mom-subview-toggle-bar"), "Has subview toggle bar");
+  assert.ok(component.includes('"Tren"') && component.includes("Per Sistem"), "Has the trend and the per-system views");
+  assert.ok(component.includes("Kumulatif") && component.includes("Harian"), "The trend can show running totals or daily counts");
+  const data = fs.readFileSync(path.resolve("app/lib/mom-comparison.ts"), "utf8");
+  assert.ok(data.includes("throughDay"), "Compares the same days of both months");
+  const viewer = fs.readFileSync(path.resolve("app/components/dashboard/panel-viewer/TicketMomView.tsx"), "utf8");
+  assert.ok(viewer.includes("<MomComparison") && viewer.includes('variant="full"'), "The expanded panel uses the same component");
 });
 
 function getTicketsEnhancementsCss() {

@@ -2,7 +2,10 @@
 
 import { useMemo } from "react";
 import { useContainerDimensions } from "@/app/hooks/useContainerDimensions";
+import { durationScale, SLA_BREACH_MINUTES, SLA_TARGET_MINUTES } from "@/app/lib/chart-scale";
 import { ChartTooltip, TooltipHeader, TooltipRow, useChartHover } from "./chart-tooltip";
+import { GranularityTag } from "./GranularityTag";
+import { axisLabelStride, bucketAxisLabel, bucketRanges, bucketTitle, bucketVolume, chooseGranularity, maxPointsFor, showAxisLabel, type VolumeGranularity } from "@/app/lib/volume-buckets";
 
 interface VolumeItem {
   date: string;
@@ -11,38 +14,40 @@ interface VolumeItem {
   backlog: number;
   projectCounts: Record<string, number>;
   avgResolution: number;
+  resolutionSum?: number;
+  resolvedCount?: number;
+}
+
+export interface ResolutionKpis {
+  avg: number;
+  compliancePct: number;
+  min: number;
+  max: number;
+  count: number;
 }
 
 interface ResolutionTrendViewProps {
   volumeByDate: VolumeItem[];
   mode: "chart" | "table";
+  /** Per closed ticket, as on the dashboard card. Without it the view falls back to the periods it draws. */
+  kpis?: ResolutionKpis | null;
 }
 
-export function ResolutionTrendView({ volumeByDate, mode }: ResolutionTrendViewProps) {
+/** The days, weeks or months that have at least one closed ticket, each with the average over all of its closed tickets. */
+function averagedSeries(volumeByDate: VolumeItem[], granularity: VolumeGranularity) {
+  return bucketVolume(volumeByDate, granularity)
+    .filter((bucket) => bucket.resolvedCount > 0)
+    .map((bucket) => ({ ...bucket, avgResolution: Math.round(bucket.resolutionSum / bucket.resolvedCount) }));
+}
+
+export function ResolutionTrendView({ volumeByDate, mode, kpis: ticketKpis }: ResolutionTrendViewProps) {
   const [containerRef, dimensions] = useContainerDimensions<HTMLDivElement>();
 
-  // Compute KPI stats
-  const kpis = useMemo(() => {
-    if (volumeByDate.length === 0) {
-      return { avg: 0, min: 0, max: 0, compliancePct: 0 };
-    }
-    const resolutions = volumeByDate.map((v) => v.avgResolution);
-    const avg = Math.round(resolutions.reduce((a, b) => a + b, 0) / resolutions.length);
-    const min = Math.min(...resolutions);
-    const max = Math.max(...resolutions);
-    const metCount = volumeByDate.filter((v) => v.avgResolution <= 60).length;
-    const compliancePct = Math.round((metCount / volumeByDate.length) * 100);
-
-    return { avg, min, max, compliancePct };
-  }, [volumeByDate]);
-
-  // Geometry calculations using actual container dimensions (Zero letterboxing)
-  const n = volumeByDate.length;
   const width = Math.max(dimensions.width || 800, 640);
   const height = Math.max(dimensions.height || 420, 320);
 
   const marginLeft = 48;
-  const marginRight = 84; // Room for SLA 60m / Breach 90m labels at right
+  const marginRight = 84; // Room for the two SLA target labels at right (60m, 120m)
   const marginTop = 28;
   const marginBottom = 34;
 
@@ -51,29 +56,47 @@ export function ResolutionTrendView({ volumeByDate, mode }: ResolutionTrendViewP
 
   const baselineY = height - marginBottom;
 
-  // Y-axis scaling
-  const yMax = Math.max(100, Math.ceil(kpis.max / 20) * 20);
-  const yTicks = [0, 20, 40, 60, 80, 100];
-  if (yMax > 100) {
-    for (let t = 120; t <= yMax; t += 20) yTicks.push(t);
-  }
+  // One point per day while each gets 28 px; longer ranges average per week or month. Periods without a closed ticket get no point.
+  const firstDate = volumeByDate[0]?.date ?? "";
+  const lastDate = volumeByDate[volumeByDate.length - 1]?.date ?? "";
+  const granularity = volumeByDate.length ? chooseGranularity(firstDate, lastDate, maxPointsFor(plotWidth, 28)) ?? "month" : "day";
+  const series = useMemo(() => averagedSeries(volumeByDate, granularity), [volumeByDate, granularity]);
+  const dailyRows = useMemo(() => averagedSeries(volumeByDate, "day"), [volumeByDate]);
+  const rangeDays = volumeByDate.length ? bucketRanges(firstDate, lastDate, "day").length : 0;
+  const n = series.length;
+
+  const kpis = useMemo(() => {
+    if (ticketKpis) return ticketKpis;
+    const resolved = series.reduce((sum, item) => sum + item.resolvedCount, 0);
+    if (!resolved) return { avg: 0, min: 0, max: 0, compliancePct: 0, count: 0 };
+    const values = series.map((item) => item.avgResolution);
+    return { avg: Math.round(series.reduce((sum, item) => sum + item.resolutionSum, 0) / resolved), min: Math.min(...values), max: Math.max(...values), compliancePct: Math.round((values.filter((value) => value <= SLA_TARGET_MINUTES).length / values.length) * 100), count: resolved };
+  }, [ticketKpis, series]);
+
+  // Y-axis scaling: from the points drawn, not from the slowest single ticket
+  // A bounded set of round ticks; far above the SLA lines the axis is compressed so one outlier cannot flatten them (lib/chart-scale.ts)
+  const seriesMax = Math.max(0, ...series.map((item) => item.avgResolution));
+  const seriesMin = series.length ? Math.min(...series.map((item) => item.avgResolution)) : 0;
+  const scale = useMemo(() => durationScale(seriesMax), [seriesMax]);
+  const yTicks = scale.ticks;
+  const yFor = (minutes: number) => baselineY - Math.round(scale.ratio(minutes) * plotHeight);
 
   const stepX = n > 1 ? plotWidth / (n - 1) : plotWidth / 2;
+  const labelStride = axisLabelStride(stepX, granularity);
 
   // Target SLA line coordinates
-  const targetSlaY = baselineY - Math.round((60 / yMax) * plotHeight);
-  const breachSlaY = baselineY - Math.round((90 / yMax) * plotHeight);
-  const avgLineY = baselineY - Math.round((kpis.avg / yMax) * plotHeight);
+  const targetSlaY = yFor(SLA_TARGET_MINUTES);
+  const breachSlaY = yFor(SLA_BREACH_MINUTES);
+  const avgLineY = yFor(kpis.avg);
 
   // Points
   const points = useMemo(() => {
-    return volumeByDate.map((item, idx) => {
+    return series.map((item, idx) => {
       const x = Math.round(marginLeft + (n > 1 ? idx * stepX : plotWidth / 2));
-      const val = Math.min(item.avgResolution, yMax);
-      const y = Math.round(baselineY - (val / yMax) * plotHeight);
+      const y = Math.round(baselineY - scale.ratio(item.avgResolution) * plotHeight);
       return { x, y, idx, item };
     });
-  }, [volumeByDate, n, stepX, marginLeft, plotWidth, baselineY, yMax, plotHeight]);
+  }, [series, n, stepX, marginLeft, plotWidth, baselineY, scale, plotHeight]);
 
   const pathLine = points.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ");
   const firstX = points[0]?.x ?? marginLeft;
@@ -81,16 +104,16 @@ export function ResolutionTrendView({ volumeByDate, mode }: ResolutionTrendViewP
   const pathArea = `${pathLine} L ${lastX} ${baselineY} L ${firstX} ${baselineY} Z`;
 
   // Find peak and trough points for pill callouts
-  const peakPoint = points.find((p) => p.item.avgResolution === kpis.max);
-  const minPoint = points.find((p) => p.item.avgResolution === kpis.min);
+  const peakPoint = points.find((p) => p.item.avgResolution === seriesMax);
+  const minPoint = points.find((p) => p.item.avgResolution === seriesMin && p !== peakPoint);
 
-  const { svg: chartSvg, bindSvg, svgProps, index: hoveredIdx } = useChartHover({ xs: points.map((p) => p.x), viewWidth: width, resetKey: `${mode}|${n}` });
+  const { svg: chartSvg, bindSvg, svgProps, index: hoveredIdx } = useChartHover({ xs: points.map((p) => p.x), viewWidth: width, resetKey: `${mode}|${n}|${granularity}` });
   const hoveredPoint = hoveredIdx !== null ? points[hoveredIdx] ?? null : null;
 
-  if (volumeByDate.length === 0) {
+  if (series.length === 0) {
     return (
       <div className="flex items-center justify-center h-80 text-slate-400 text-sm">
-        Tidak ada data durasi penyelesaian untuk filter saat ini.
+        Belum ada tiket selesai pada filter saat ini, jadi durasi penyelesaian belum bisa dihitung.
       </div>
     );
   }
@@ -110,7 +133,7 @@ export function ResolutionTrendView({ volumeByDate, mode }: ResolutionTrendViewP
 
         <div className="h-[60px] px-3.5 py-2 rounded-xl bg-slate-900/70 border border-slate-700/60 flex flex-col justify-center shadow-sm">
           <span className="text-[11px] font-mono uppercase tracking-[0.06em] text-slate-400">
-            KEPATUHAN SLA (&le;60M)
+            KEPATUHAN SLA
           </span>
           <div className="text-[20px] font-mono font-bold text-emerald-400 tabular-nums leading-tight">
             {kpis.compliancePct}%
@@ -149,16 +172,16 @@ export function ResolutionTrendView({ volumeByDate, mode }: ResolutionTrendViewP
           </span>
           <span className="inline-flex items-center gap-1.5 text-amber-400 font-medium text-[11.5px]">
             <span className="w-3.5 h-0 border-t-2 border-dashed border-amber-400" />
-            Target SLA (60m)
+            High (60m)
           </span>
           <span className="inline-flex items-center gap-1.5 text-rose-400 font-medium text-[11.5px]">
             <span className="w-3.5 h-0 border-t-2 border-dashed border-rose-400" />
-            Batas Kritis (90m)
+            Medium/Low (120m)
           </span>
         </div>
 
-        <span className="text-[11px] font-mono text-slate-500 hidden sm:inline">
-          {n} titik pengamatan
+        <span className="hidden sm:inline-flex">
+          <GranularityTag granularity={granularity} days={rangeDays} />
         </span>
       </div>
 
@@ -173,14 +196,14 @@ export function ResolutionTrendView({ volumeByDate, mode }: ResolutionTrendViewP
                   <th className="py-2.5 px-4 font-semibold sticky left-0 bg-slate-900/95">Tanggal</th>
                   <th className="py-2.5 px-4 text-right font-semibold text-sky-400">Rata-rata Resolusi</th>
                   <th className="py-2.5 px-4 text-right font-semibold text-slate-300">Tiket Ditutup</th>
-                  <th className="py-2.5 px-4 text-center font-semibold">Status SLA</th>
+                  <th className="py-2.5 px-4 text-center font-semibold" title="Rata-rata hari itu dibanding dua target: 60 menit (High) dan 120 menit (Medium/Low)">Rata-rata vs target</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/60 font-mono">
-                {volumeByDate.map((row) => {
-                  const isMet = row.avgResolution <= 60;
-                  const isBreach = row.avgResolution > 90;
-                  const statusLabel = isBreach ? "Breached (>90m)" : isMet ? "SLA Terpenuhi" : "Peringatan (60-90m)";
+                {dailyRows.map((row) => {
+                  const isMet = row.avgResolution <= SLA_TARGET_MINUTES;
+                  const isBreach = row.avgResolution > SLA_BREACH_MINUTES;
+                  const statusLabel = isBreach ? `Di atas ${SLA_BREACH_MINUTES}m` : isMet ? `≤ ${SLA_TARGET_MINUTES}m` : `${SLA_TARGET_MINUTES}–${SLA_BREACH_MINUTES}m`;
                   const statusClass = isBreach
                     ? "bg-rose-500/15 text-rose-400 border-rose-500/30"
                     : isMet
@@ -211,7 +234,7 @@ export function ResolutionTrendView({ volumeByDate, mode }: ResolutionTrendViewP
                 <tr className="h-11">
                   <td className="py-2.5 px-4 sticky left-0 bg-slate-900/95">Rata-rata Periode</td>
                   <td className="py-2.5 px-4 text-right tabular-nums text-sky-400">{kpis.avg} menit</td>
-                  <td className="py-2.5 px-4 text-right tabular-nums">{volumeByDate.reduce((a, b) => a + b.closed, 0)}</td>
+                  <td className="py-2.5 px-4 text-right tabular-nums">{dailyRows.reduce((a, b) => a + b.closed, 0)}</td>
                   <td className="py-2.5 px-4 text-center text-emerald-400 font-semibold">{kpis.compliancePct}% kepatuhan</td>
                 </tr>
               </tfoot>
@@ -255,7 +278,7 @@ export function ResolutionTrendView({ volumeByDate, mode }: ResolutionTrendViewP
 
             {/* Gridlines & Y-ticks */}
             {yTicks.map((tick) => {
-              const yPos = baselineY - Math.round((tick / yMax) * plotHeight);
+              const yPos = yFor(tick);
               return (
                 <g key={`ytick-${tick}`}>
                   <line
@@ -281,6 +304,13 @@ export function ResolutionTrendView({ volumeByDate, mode }: ResolutionTrendViewP
                 </g>
               );
             })}
+
+            {/* The axis above 120m is compressed when one value is far above the SLA lines: say so */}
+            {scale.broken && (
+              <text x={marginLeft} y={marginTop - 12} fill="#94a3b8" fontSize="10.5" fontFamily="monospace" fontWeight="600" opacity="0.85">
+                Skala di atas {scale.breakAt}m diperkecil
+              </text>
+            )}
 
             {/* Base line */}
             <line
@@ -310,10 +340,10 @@ export function ResolutionTrendView({ volumeByDate, mode }: ResolutionTrendViewP
               fontFamily="monospace"
               fontWeight="bold"
             >
-              SLA 60m
+              Target 60m
             </text>
 
-            {/* SLA Breach Line (90m) */}
+            {/* Medium/Low target line (120m) */}
             <line
               x1={marginLeft}
               y1={breachSlaY}
@@ -331,7 +361,7 @@ export function ResolutionTrendView({ volumeByDate, mode }: ResolutionTrendViewP
               fontFamily="monospace"
               fontWeight="bold"
             >
-              Breach 90m
+              Target 120m
             </text>
 
             {/* Dashed Average Line across data */}
@@ -371,11 +401,7 @@ export function ResolutionTrendView({ volumeByDate, mode }: ResolutionTrendViewP
 
             {/* X-axis Ticks & Dates */}
             {points.map((p, idx) => {
-              // Skip labels if tight on mobile
-              const showLabel = width >= 600 || idx % 2 === 0 || idx === n - 1;
-              const dateParts = p.item.date.split("-");
-              const shortDate = dateParts.length === 3 ? `${dateParts[2]}/${dateParts[1]}` : p.item.date;
-
+              if (!showAxisLabel(idx, n, labelStride)) return null;
               return (
                 <g key={`xtick-${idx}`}>
                   <line
@@ -386,19 +412,17 @@ export function ResolutionTrendView({ volumeByDate, mode }: ResolutionTrendViewP
                     stroke="#475569"
                     strokeWidth="1"
                   />
-                  {showLabel && (
-                    <text
-                      x={p.x}
-                      y={baselineY + 18}
-                      textAnchor="middle"
-                      fill="#94a3b8"
-                      fontSize="11.5"
-                      fontFamily="monospace"
-                      fontWeight="500"
-                    >
-                      {shortDate}
-                    </text>
-                  )}
+                  <text
+                    x={Math.min(width - marginRight, Math.max(marginLeft + 16, p.x))}
+                    y={baselineY + 18}
+                    textAnchor="middle"
+                    fill="#94a3b8"
+                    fontSize="11.5"
+                    fontFamily="monospace"
+                    fontWeight="500"
+                  >
+                    {bucketAxisLabel(p.item, granularity)}
+                  </text>
                 </g>
               );
             })}
@@ -437,7 +461,7 @@ export function ResolutionTrendView({ volumeByDate, mode }: ResolutionTrendViewP
 
                   {/* Value label directly above point (without hover) */}
                   {showValLabel && (
-                    <g transform={`translate(${p.x}, ${p.y - 12})`}>
+                    <g transform={`translate(${Math.min(width - marginRight + 14, Math.max(marginLeft + 16, p.x))}, ${p.y - 12})`}>
                       <rect
                         x="-14"
                         y="-10"
@@ -486,9 +510,9 @@ export function ResolutionTrendView({ volumeByDate, mode }: ResolutionTrendViewP
           {hoveredPoint && (
             <ChartTooltip key={hoveredIdx} svg={chartSvg} anchorX={hoveredPoint.x} half={6} plotTop={marginTop} viewWidth={width} viewHeight={height}>
               <TooltipHeader
-                title={hoveredPoint.item.date}
-                valueClass={hoveredPoint.item.avgResolution <= 60 ? "text-emerald-400" : hoveredPoint.item.avgResolution <= 90 ? "text-amber-400" : "text-rose-400"}
-                value={hoveredPoint.item.avgResolution <= 60 ? "SLA Terpenuhi" : hoveredPoint.item.avgResolution <= 90 ? "Warning" : "Breach"}
+                title={bucketTitle(hoveredPoint.item, granularity)}
+                valueClass={hoveredPoint.item.avgResolution <= SLA_TARGET_MINUTES ? "text-emerald-400" : hoveredPoint.item.avgResolution <= SLA_BREACH_MINUTES ? "text-amber-400" : "text-rose-400"}
+                value={hoveredPoint.item.avgResolution <= SLA_TARGET_MINUTES ? `≤ ${SLA_TARGET_MINUTES}m` : hoveredPoint.item.avgResolution <= SLA_BREACH_MINUTES ? `${SLA_TARGET_MINUTES}–${SLA_BREACH_MINUTES}m` : `Di atas ${SLA_BREACH_MINUTES}m`}
               />
               <TooltipRow label="Rata-rata resolusi" valueClass="text-sky-400" value={`${hoveredPoint.item.avgResolution} menit`} />
               <TooltipRow tone="text-slate-400" valueClass="font-normal text-slate-300" label="Tiket ditutup" value={`${hoveredPoint.item.closed} tiket`} />

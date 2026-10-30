@@ -33,6 +33,15 @@ export const dateRange: Codec<string> = {
     return parts.sort().join('..');
   }, print: String,
 };
+/**
+ * The dashboard's date filter. With nothing in the URL it is today (WIB): the charts show the day's operation, not every ticket there ever
+ * was. "all" is every ticket; a day or from..to is explicit. Anything invalid falls back to today. See lib/date-filter.ts.
+ */
+export const dashboardDateRange: Codec<string> = {
+  default: 'today',
+  parse: raw => raw === 'all' ? 'all' : dateRange.parse(raw) || 'today',
+  print: String,
+};
 // A search URL may contain operational vocabulary / ticket codes, never names,
 // email addresses, notes, credentials, or arbitrary free text. Private searches
 // remain an input draft in memory (and still filter the existing data).
@@ -86,7 +95,7 @@ export function validWeek(raw: string) {
   return /^20\d{2}-W(0[1-9]|[1-4]\d|5[0-3])$/.test(raw) && isoWeek(weekStart(raw)) === raw;
 }
 export function ticketsSchema(projects: string[], categories = ['Incident', 'Ad-hoc Request', 'Change Request', 'Maintenance', 'Monitoring Alert', 'Escalation', 'Other']) {
-  return { list: choice(['queue', 'escalations'], 'queue'), q: search, status: choice(['All', 'Open', 'Closed', 'Activity', 'Meeting', 'Re-Open', 'Pending', 'RCA', 'Active', 'Escalated', 'open', 'closed', 'activity', 'meeting', 're-open', 'pending', 'rca'], 'All'), priority: choice(['All Severities', 'Critical', 'High', 'Medium', 'Low'], 'All Severities'), project: optionalChoice(projects, 'All Projects'), date: dateRange, type: choice(['All Types', ...categories], 'All Types'), shift: choice(['Semua Shift', 'Shift Subuh', 'Shift Pagi', 'Shift Malam'], 'Semua Shift'), sort: choice(['newest', 'oldest', 'priority', 'aging'], 'newest'), ...pagination };
+  return { list: choice(['queue', 'escalations'], 'queue'), q: search, status: choice(['All', 'Open', 'Closed', 'Activity', 'Meeting', 'Re-Open', 'Pending', 'RCA', 'Active', 'Escalated', 'open', 'closed', 'activity', 'meeting', 're-open', 'pending', 'rca'], 'All'), priority: choice(['All Severities', 'High', 'Medium', 'Low'], 'All Severities'), project: optionalChoice(projects, 'All Projects'), date: dateRange, type: choice(['All Types', ...categories], 'All Types'), shift: choice(['Semua Shift', 'Shift Subuh', 'Shift Pagi', 'Shift Malam'], 'Semua Shift'), sort: choice(['newest', 'oldest', 'priority', 'aging'], 'newest'), ...pagination };
 }
 export function reportsSchema(start: string, end: string, projects: string[]) {
   return { from: date(start), to: date(end), range: choice(['period', 'empty'] as const, 'period'), project: optionalChoice(projects, 'all'), q: search, page: integer() };
@@ -95,7 +104,6 @@ export function monitoringSchema(projects: string[], systems: string[]) {
   return { project: optionalChoice(projects), system: optionalChoice(systems), status: choice(['Semua', 'Needs Attention', 'Upcoming'], 'Semua'), health: choice(['all', 'urgent', 'healthy'] as const, 'all'), q: search, verdict: choice(['all', 'ok', 'nok'], 'all'), date: dateRange, ...pagination };
 }
 export const shiftLogSchema = { date: dateRange, shift: choice(['', 'Subuh', 'Pagi', 'Malam'], ''), ...pagination };
-export const runbooksSchema = { q: search, category: choice(['All', 'Monitoring', 'Incident', 'Handover', 'Maintenance', 'General', 'Website', 'VPN', 'SSH', 'API', 'Dashboard', 'Ticketing', 'Internal', 'Vendor'], 'All'), project: optionalChoice(['EPC Core', 'SM/ActiveMQ', 'B2B', 'USIEM', 'UNEM', 'DM', 'MB'], 'All') };
 export const notificationsSchema = { q: search, date: dateRange, status: choice(['all', 'unread', 'read'] as const, 'all'), category: choice(['all', 'SLA', 'Monitoring', 'Ticket', 'Serah Terima', 'Temuan'], 'all'), sort: choice(['newest', 'oldest', 'severity'] as const, 'newest'), ...pagination };
 
 export function parseQuery<S extends Schema>(schema: S, params: URLSearchParams): Query<S> {
@@ -125,4 +133,4 @@ export const VALID_PANEL_IDS = [
 ] as const;
 export type PanelId = (typeof VALID_PANEL_IDS)[number];
 
-export function dashboardSchema(projects: string[]) { return { chart: choice(["stacked-project", "trajectory"] as const, "stacked-project"), mom: choice(["trajectory", "project"] as const, "trajectory"), day: date(), line: choice(["all", "Subuh", "Pagi", "Malam"] as const, "all"), date: dateRange, project: optionalChoice(projects, "All"), shift: choice(["All", "Subuh", "Pagi", "Malam"], "All"), status: choice(["All", "Open", "Closed", "Activity", "Meeting", "Re-Open", "Pending", "RCA", "open", "closed", "activity", "meeting", "re-open", "pending", "rca", "active", "escalated"], "All"), priority: choice(["All", "Critical", "High", "Medium", "Low"], "All"), panel: optionalChoice(VALID_PANEL_IDS, ""), mode: choice(["chart", "table"] as const, "chart"), page: integer(), size: { default: 10, parse: (raw: string) => [0, 10, 15, 20, 25, 30, 50, 100].includes(+raw) ? +raw : 10, print: String } }; }
+export function dashboardSchema(projects: string[]) { return { chart: choice(["stacked-project", "trajectory"] as const, "stacked-project"), mom: choice(["trajectory", "project"] as const, "trajectory"), day: date(), line: choice(["all", "Subuh", "Pagi", "Malam"] as const, "all"), date: dashboardDateRange, project: optionalChoice(projects, "All"), shift: choice(["All", "Subuh", "Pagi", "Malam"], "All"), status: choice(["All", "Open", "Closed", "Activity", "Meeting", "Re-Open", "Pending", "RCA", "open", "closed", "activity", "meeting", "re-open", "pending", "rca", "active", "escalated"], "All"), priority: choice(["All", "High", "Medium", "Low"], "All"), panel: optionalChoice(VALID_PANEL_IDS, ""), mode: choice(["chart", "table"] as const, "chart"), page: integer(), size: { default: 10, parse: (raw: string) => [0, 10, 15, 20, 25, 30, 50, 100].includes(+raw) ? +raw : 10, print: String } }; }

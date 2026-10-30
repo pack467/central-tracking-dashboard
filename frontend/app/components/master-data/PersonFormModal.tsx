@@ -12,6 +12,7 @@ import type { Person, PersonInput, Role, ShiftKey } from "@/app/types/master-dat
 import { Field, FormFooter, FormHeader, Section, Segmented, STATUS_HINTS, STATUS_SEGMENTS, DiscardConfirm } from "./form-ui";
 import { useUnsavedChangesGuard, useVisualViewport } from "./form-hooks";
 import { inputClass } from "./master-ui";
+import { wibDateString } from "@/app/lib/wib";
 
 interface FormState {
   fullName: string;
@@ -44,7 +45,7 @@ function initial({ person, roles }: Props): FormState {
     notes: person?.notes || ""
   };
 }
-const PLACEHOLDERS: Partial<Record<keyof FormState, string>> = { fullName: "mis. Budi Santoso", employeeId: "mis. EMP-1020", email: "nama@perusahaan.id", phone: "+62 812-3456-7890" };
+const PLACEHOLDERS: Partial<Record<keyof FormState, string>> = { fullName: "mis. Budi Santoso", employeeId: "mis. EMP-1020", email: "nama@perusahaan.id", phone: "+62 811-0000-0010" };
 const LABELS: Record<string, string> = { fullName: "Nama lengkap", employeeId: "ID pegawai", email: "Email", roleKey: "Peran", joinDate: "Tanggal bergabung" };
 const FIELDS = ["fullName", "employeeId", "email", "phone", "roleKey", "defaultShift", "joinDate", "status", "notes"] as const;
 
@@ -59,7 +60,7 @@ export function PersonFormModal(props: Props) {
   const [more, setMore] = useState(!!start.notes);
   const [requestKey] = useState(() => masterId("request"));
   const prefix = useId();
-  const todayYMD = (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; })();
+  const todayYMD = wibDateString();
   const busy = useRef(false);
   const dirty = JSON.stringify(form) !== JSON.stringify(start);
   const viewport = useVisualViewport(); useUnsavedChangesGuard(dirty);

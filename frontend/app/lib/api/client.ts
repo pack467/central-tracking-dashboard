@@ -151,9 +151,11 @@ export class ApiClient {
           ? errorBody.error
           : `HTTP ${response.status} Request Failed`;
 
+        const retryAfter = Number(response.headers.get("retry-after"));
         throw new ApiError({
           status: response.status,
           message,
+          retryAfterMs: Number.isFinite(retryAfter) && retryAfter > 0 ? Math.min(retryAfter, 120) * 1000 : undefined,
           code:
             typeof errorBody.error === "string"
               ? errorBody.error

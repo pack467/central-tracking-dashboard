@@ -1,3 +1,5 @@
+import { wibMinutesOfDay, wibMsOfDay } from "./wib.ts";
+
 export type ShiftId = "subuh" | "pagi" | "malam";
 
 export interface ShiftInfo {
@@ -71,7 +73,7 @@ export function getShiftTagClass(shiftName: string): string {
 }
 
 export function getShiftInfo(date: Date = new Date()): ShiftInfo {
-  return getShiftInfoForMinutes(date.getHours() * 60 + date.getMinutes());
+  return getShiftInfoForMinutes(wibMinutesOfDay(date));
 }
 
 export interface ShiftTransitionState {
@@ -197,23 +199,14 @@ export function getShiftTransitionStateForMinutes(totalMinutes: number): ShiftTr
 }
 
 export function getShiftTransitionState(date: Date = new Date()): ShiftTransitionState {
-  return getShiftTransitionStateForMinutes(date.getHours() * 60 + date.getMinutes());
+  return getShiftTransitionStateForMinutes(wibMinutesOfDay(date));
 }
 
 export function getNextShiftChange(date: Date = new Date()): Date {
-  const next = new Date(date);
-  const totalMinutes = date.getHours() * 60 + date.getMinutes();
-
-  if (totalMinutes < 8 * 60) {
-    next.setHours(8, 0, 0, 20);
-  } else if (totalMinutes < 16 * 60) {
-    next.setHours(16, 0, 0, 20);
-  } else {
-    next.setDate(next.getDate() + 1);
-    next.setHours(0, 0, 0, 20);
-  }
-
-  return next;
+  const totalMinutes = wibMinutesOfDay(date);
+  // shifts change at 08:00, 16:00 and midnight WIB; the 20 ms keeps the timer from firing a hair before the change
+  const targetMinutes = totalMinutes < 8 * 60 ? 8 * 60 : totalMinutes < 16 * 60 ? 16 * 60 : 24 * 60;
+  return new Date(date.getTime() + (targetMinutes * 60_000 - wibMsOfDay(date)) + 20);
 }
 
 /**

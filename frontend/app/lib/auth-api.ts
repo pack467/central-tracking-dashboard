@@ -54,6 +54,10 @@ export async function loginRequest(identifier: string, password: string): Promis
   if (!response.ok) throw new AuthError("server", "Server sedang bermasalah. Coba lagi nanti.");
   const body = await response.json().catch(() => null) as { user?: BackendUser; csrf_token?: string } | null;
   if (!body?.user || typeof body.csrf_token !== "string") throw new AuthError("server", "Jawaban server tidak dikenali.");
+  // The session lives only in a cookie. If the browser did not keep it (the API on another site, cookies blocked), the person would be
+  // logged in here and logged out again by the next request, over and over. Check once that the cookie comes back and say what is wrong.
+  const kept = await call("/auth/me").then(check => check.ok, () => false);
+  if (!kept) throw new AuthError("unavailable", "Login berhasil, tetapi browser tidak menyimpan sesinya (cookie). Hubungi administrator: alamat aplikasi dan API harus satu situs, dan cookie harus diizinkan.");
   csrfToken = body.csrf_token;
   return { user: body.user, csrf: body.csrf_token };
 }

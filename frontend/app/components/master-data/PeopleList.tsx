@@ -2,6 +2,8 @@
 import { useState, type ReactNode } from "react";
 import { Ban, Eye, Pencil, RotateCcw, Trash2 } from "lucide-react";
 import { canMaster, type MasterRole } from "@/app/lib/permissions";
+import { useOrgCatalog } from "@/app/hooks/useOrgCatalog";
+import { itemOf } from "@/app/lib/org-catalog";
 import { masterPeople } from "@/app/services/master-data-v2";
 import type { Person, PersonUsage, Role } from "@/app/types/master-data";
 import { COL, DataTable, Stack, type Column } from "./data-table";
@@ -85,6 +87,8 @@ const Muted = ({ children }: { children: ReactNode }) => <span className="text-s
 
 export function PeopleList(props: Props) {
   const { rows, roles, highlighted, onDetail, footer } = props;
+  const positions = useOrgCatalog("position"), departments = useOrgCatalog("department");
+  const office = (person: Person) => [itemOf(positions, person.id)?.name, itemOf(departments, person.id)?.name].filter(Boolean).join(" · ");
   const columns: Column<Person>[] = [
     {
       key: "name",
@@ -102,6 +106,16 @@ export function PeopleList(props: Props) {
       )
     },
     { key: "role", label: "Peran", w: "w-[180px]", cell: person => <RoleBadge roleKey={person.roleKey} name={roleName(roles, person.roleKey)} /> },
+    {
+      key: "office",
+      label: "Jabatan / Departemen",
+      w: "w-[220px]",
+      hide: "md",
+      cell: person => {
+        const position = itemOf(positions, person.id), department = itemOf(departments, person.id);
+        return <Stack title={<span title={position?.name}>{position?.name || <Muted>Jabatan belum diisi</Muted>}</span>} sub={<span title={department?.name}>{department?.name || "Departemen belum diisi"}</span>} />;
+      }
+    },
     {
       key: "contact",
       label: "Email / Telepon",
@@ -139,6 +153,7 @@ export function PeopleList(props: Props) {
                 <RoleBadge roleKey={person.roleKey} name={roleName(roles, person.roleKey)} />
                 <MasterBadge value={person.status === "archived" ? "inactive" : person.status} />
               </span>
+              {office(person) && <span className="mt-1 block truncate text-[12px] text-slate-200">{office(person)}</span>}
               <span className="mt-1 block truncate text-[12px] text-slate-300">{person.email || BLANK}</span>
             </span>
           </button>

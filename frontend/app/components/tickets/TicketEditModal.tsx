@@ -23,7 +23,7 @@ interface TicketEditModalProps {
   onSave: (updated: Ticket) => void;
 }
 
-const PRIORITY_OPTIONS = ["Low", "Medium", "High", "Critical"];
+const PRIORITY_OPTIONS = ["Low", "Medium", "High"];
 const STATUS_OPTIONS = ["Open", "Closed", "Activity", "Meeting", "Re-Open", "Pending", "RCA"] as const;
 
 

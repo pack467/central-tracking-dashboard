@@ -1,6 +1,6 @@
 import { MASTER_DATA_P0_ENABLED } from "@/app/lib/master-data-flags";
 import type { AnyMasterEntity, MasterQuery, ReviewFindingType } from "@/app/types/master-data";
-export const MASTER_TABS = { organization: "organizations", project: "projects", system: "systems", category: "categories", severity: "severities", person: "people", role: "roles" } as const;
+export const MASTER_TABS = { organization: "organizations", project: "projects", system: "systems", category: "categories", severity: "severities", person: "people", role: "roles", position: "positions", department: "departments" } as const;
 export const MASTER_LABELS: Record<AnyMasterEntity, string> = {
   organization: "Organisasi",
   project: "Proyek",
@@ -8,7 +8,9 @@ export const MASTER_LABELS: Record<AnyMasterEntity, string> = {
   category: "Kategori",
   severity: "Severity",
   person: "Personel",
-  role: "Peran"
+  role: "Peran",
+  position: "Jabatan",
+  department: "Departemen"
 };
 export const MASTER_GROUPS = { services: "Organisasi & Layanan", tickets: "Referensi Tiket", team: "Tim & Operasional" } as const;
 export type MasterGroup = keyof typeof MASTER_GROUPS;
@@ -19,14 +21,16 @@ export const MASTER_SORTS: Record<MasterSort, string> = { order: "Manual", name:
 /** Sort options offered by the toolbar; categories lead with the order set in "Atur urutan", the order the ticket picker uses. */
 export function sortOptions(entity: AnyMasterEntity): MasterSort[] {
   if (entity === "category") return ["order", "name", "-name", "-usage", "-updated"];
-  return entity === "severity" || entity === "role" ? ["order", "name", "-name", "-updated"] : ["name", "-name", "-updated"];
+  return entity === "severity" || entity === "role" || isOrgEntity(entity) ? ["order", "name", "-name", "-updated"] : ["name", "-name", "-updated"];
 }
 export function defaultSort(entity: AnyMasterEntity): MasterSort { return sortOptions(entity)[0]; }
 export function entityGroup(entity: AnyMasterEntity): MasterGroup {
-  return entity === "category" || entity === "severity" ? "tickets" : entity === "person" || entity === "role" ? "team" : "services";
+  return entity === "category" || entity === "severity" ? "tickets" : entity === "person" || entity === "role" || isOrgEntity(entity) ? "team" : "services";
 }
 export const isTeamEntity = (entity: AnyMasterEntity): entity is "person" | "role" => entity === "person" || entity === "role";
-export const GROUP_ENTITIES: Record<MasterGroup, readonly AnyMasterEntity[]> = { services: ["organization", "project", "system"], tickets: ["category", "severity"], team: ["person", "role"] };
+/** Jabatan and Departemen: kept in this browser until the backend has them (app/lib/org-catalog.ts). */
+export const isOrgEntity = (entity: AnyMasterEntity): entity is "position" | "department" => entity === "position" || entity === "department";
+export const GROUP_ENTITIES: Record<MasterGroup, readonly AnyMasterEntity[]> = { services: ["organization", "project", "system"], tickets: ["category", "severity"], team: ["person", "role", "position", "department"] };
 export interface MasterRoute {
   entity: AnyMasterEntity;
   group: MasterGroup;
@@ -47,7 +51,7 @@ export function parseMasterRoute(params: URLSearchParams): MasterRoute {
   const type = params.get("type");
   const sort = params.get("sort") as MasterSort | null;
   const p0 = MASTER_DATA_P0_ENABLED;
-  const statuses = entity === "role" ? ["active", "inactive"] : ["active", "inactive", "archived"];
+  const statuses = entity === "role" || isOrgEntity(entity) ?["active", "inactive"] : ["active", "inactive", "archived"];
   return {
     entity,
     group,

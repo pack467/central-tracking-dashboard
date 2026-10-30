@@ -7,7 +7,7 @@ import type { AnyMasterEntity } from "@/app/types/master-data";
 const groups: { key: keyof typeof MASTER_GROUPS; icon: typeof Building2; entities: AnyMasterEntity[] }[] = [
   { key: "services", icon: Building2, entities: ["organization", "project", "system"] },
   { key: "tickets", icon: Ticket, entities: ["category", "severity"] },
-  { key: "team", icon: Users, entities: ["person", "role"] }
+  { key: "team", icon: Users, entities: ["person", "role", "position", "department"] }
 ];
 function keyboard(event: KeyboardEvent<HTMLDivElement>) {
   if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
@@ -18,7 +18,10 @@ function keyboard(event: KeyboardEvent<HTMLDivElement>) {
     : event.key === "End" ? tabs.length - 1 : (index + (event.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length;
   event.preventDefault(); tabs[next]?.focus(); tabs[next]?.click();
 }
-export function MasterNavigation({ entity, onSelect, counts = {} }: { entity: AnyMasterEntity; onSelect: (entity: AnyMasterEntity) => void; counts?: Partial<Record<AnyMasterEntity, number>> }) {
+/** A count that cannot be known (null, e.g. no permission to read it) is a dash, not a 0. */
+const count = (value: number | null | undefined) => value === null ? "–" : value ?? 0;
+
+export function MasterNavigation({ entity, onSelect, counts = {} }: { entity: AnyMasterEntity; onSelect: (entity: AnyMasterEntity) => void; counts?: Partial<Record<AnyMasterEntity, number | null>> }) {
   const [open, setOpen] = useState(false);
   const group = groups.find(g => g.entities.includes(entity))!;
   return (
@@ -82,7 +85,7 @@ export function MasterNavigation({ entity, onSelect, counts = {} }: { entity: An
                 <span
                   className={active ? "font-dashboard-mono text-[11px] tabular-nums text-sky-300/80" : "font-dashboard-mono text-[11px] tabular-nums text-slate-400"}
                 >
-                  {counts[key] ?? 0}
+                  {count(counts[key])}
                 </span>
               </button>
             );
@@ -101,7 +104,7 @@ export function MasterNavigation({ entity, onSelect, counts = {} }: { entity: An
           <span className="block truncate text-[11px] font-normal leading-4 text-slate-400">{MASTER_GROUPS[group.key]}</span>
           <span className="block truncate leading-5">{MASTER_LABELS[entity]}</span>
         </span>
-        <span className="font-dashboard-mono text-[11px] text-slate-400">{counts[entity] ?? 0}</span>
+        <span className="font-dashboard-mono text-[11px] text-slate-400">{count(counts[entity])}</span>
         <ChevronDown size={17} />
       </button>
       <BottomSheet open={open} onClose={() => setOpen(false)} title="Kategori Master Data" dataSheetId="master-category">
@@ -126,7 +129,7 @@ export function MasterNavigation({ entity, onSelect, counts = {} }: { entity: An
                   >
                     <span className="flex items-center gap-2">
                       {MASTER_LABELS[key]}
-                      <span className="font-dashboard-mono text-[11px] text-slate-400">{counts[key] ?? 0}</span>
+                      <span className="font-dashboard-mono text-[11px] text-slate-400">{count(counts[key])}</span>
                     </span>
                     {entity === key && <Check size={18} className="text-sky-300" />}
                   </button>

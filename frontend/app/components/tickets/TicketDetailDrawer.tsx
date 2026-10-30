@@ -170,9 +170,11 @@ interface TicketDetailDrawerProps {
   ticket: Ticket | null;
   onClose: () => void;
   onUpdate: (ticket: Ticket) => void;
+  /** Set when the ticket can be looked at but not changed (edit, escalate and close are not offered): the reason shown in their place. */
+  readOnlyReason?: string;
 }
 
-export function TicketDetailDrawer({ ticket, onClose, onUpdate }: TicketDetailDrawerProps) {
+export function TicketDetailDrawer({ ticket, onClose, onUpdate, readOnlyReason }: TicketDetailDrawerProps) {
   const notify = useToast();
   const { categoryLabel } = useMasterReferences();
   const people = usePeople();
@@ -451,7 +453,7 @@ export function TicketDetailDrawer({ ticket, onClose, onUpdate }: TicketDetailDr
             </div>
           </div>
 
-          <div className="drawer-footer">
+          {readOnlyReason ? <div className="drawer-footer"><span className="text-[var(--ink-muted)] text-[12px]">{readOnlyReason}</span></div> : <div className="drawer-footer">
             <button
               type="button"
               className="button button-secondary [display:inline-flex]! [align-items:center]! [gap:6px]!"
@@ -476,7 +478,7 @@ export function TicketDetailDrawer({ ticket, onClose, onUpdate }: TicketDetailDr
             >
               Close Ticket
             </button>
-          </div>
+          </div>}
         </div>
       </div>
 

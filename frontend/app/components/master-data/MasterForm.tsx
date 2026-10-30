@@ -127,7 +127,7 @@ const PLACEHOLDERS: Record<MasterEntity, Partial<Record<string, string>>> = {
     shortName: "mis. Contoh",
     contactName: "mis. Budi Santoso",
     email: "nama@perusahaan.id",
-    phone: "+62 812-3456-7890"
+    phone: "+62 811-0000-0010"
   },
   project: { name: "mis. Core Network Monitoring", code: "mis. CNM", shortName: "mis. Core Network" },
   system: { name: "mis. Billing Gateway", code: "mis. BILLING-GATEWAY", referenceUrl: "https://…" },

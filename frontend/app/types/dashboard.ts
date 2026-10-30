@@ -33,7 +33,7 @@ export interface CategoryDistributionDto {
 }
 
 export interface SeverityDistributionDto {
-  severity: "Critical" | "High" | "Medium" | "Low";
+  severity: "High" | "Medium" | "Low";
   count: number;
   percentage: number;
   slaBreachedCount: number;

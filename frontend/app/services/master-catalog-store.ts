@@ -39,7 +39,8 @@ function records<E extends MasterEntity>(entity: E, data = load()): MasterRecord
   if (entity === "category")
     return data.categories.map(category => ({ ...category, usageCount: tickets.filter(t => (t.type || t.category) === category.key).length })) as MasterRecordMap[E][];
   if (entity === "severity")
-    return data.severities.map(severity => ({ ...severity, color: SEVERITY_COLORS[severity.code], usageCount: tickets.filter(t => t.severity.toLowerCase() === severity.code).length })) as MasterRecordMap[E][];
+    // an old "critical" ticket counts under High; the "critical" seed itself stays stored but is not listed (see list())
+    return data.severities.map(severity => ({ ...severity, color: SEVERITY_COLORS[severity.code], usageCount: tickets.filter(t => { const s = t.severity.toLowerCase(); return s === severity.code || (severity.code === "high" && (s === "critical" || s === "kritis")); }).length })) as MasterRecordMap[E][];
   return data[persistedKey[entity]] as MasterRecordMap[E][];
 }
 
@@ -53,7 +54,8 @@ export function get<E extends MasterEntity>(entity: E, id: string, actor = sessi
 export function list<E extends MasterEntity>(entity: E, query: MasterQuery = {}, actor = sessionActor): MasterPage<MasterRecordMap[E]> {
   authorized(entity, "read", actor); const data = load();
   const needle = query.q?.trim().toLocaleLowerCase() || "";
-  let rows = records(entity, data).filter(item => {
+  // three severities on every page: the stored "critical" seed (kept because the catalog checks expect four) is not listed
+  let rows = records(entity, data).filter(item => !(entity === "severity" && (item as { code?: string }).code === "critical")).filter(item => {
     const value = item as unknown as Record<string, unknown>;
     // A logo is base64 text: searching inside it would match almost any short query.
     if (needle && !JSON.stringify(value, (key, field) => key === "logoUrl" ? undefined : field).toLocaleLowerCase().includes(needle)) return false;

@@ -2,6 +2,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { masterRepository } from "@/app/services/master-data-repository";
 import { masterDataV2, masterPeople, masterRoles } from "@/app/services/master-data-v2";
+import { peopleFromBackend, rolesFromBackend } from "@/app/services/backend-team";
+import { useBackendTeam } from "@/app/hooks/useBackendTeam";
 import { isAbortError } from "@/app/lib/api/errors";
 import { MASTER_DATA_P0_ENABLED } from "@/app/lib/master-data-flags";
 import { seedRoles } from "@/app/lib/master-people";
@@ -78,14 +80,18 @@ export function useTeamRecords<T>(kind: "person" | "role", query: MasterQuery) {
 /** Every person, live: a person added anywhere is available at once, without a reload. */
 export function usePeople(): Person[] {
   const { revision, ready } = useMasterSync();
-  return useMemo(() => { void revision; return ready ? masterRepository.people() : seedPeopleSnapshot(); }, [revision, ready]) as Person[];
+  const fromBackend = peopleFromBackend();
+  const remote = useBackendTeam(fromBackend || rolesFromBackend());
+  return useMemo(() => { void revision; return fromBackend ? remote.people : ready ? masterRepository.people() : seedPeopleSnapshot(); }, [revision, ready, fromBackend, remote.people]) as Person[];
 }
 /** Active roles in display order, for pickers and filters. */
 export function useRoles(): Omit<Role, "usageCount">[] {
   const { revision, ready } = useMasterSync();
+  const fromBackend = rolesFromBackend();
+  const remote = useBackendTeam(fromBackend || peopleFromBackend());
   return useMemo(
-    () => { void revision; return [...(ready ? masterRepository.roles() : seedRoles())].sort((a, b) => a.sortOrder - b.sortOrder); },
-    [revision, ready]
+    () => { void revision; return [...(fromBackend ? remote.roles : ready ? masterRepository.roles() : seedRoles())].sort((a, b) => a.sortOrder - b.sortOrder); },
+    [revision, ready, fromBackend, remote.roles]
   );
 }
 /** Active people, for every PIC picker. A person that is assigned but no longer active stays selectable only through the current value. */

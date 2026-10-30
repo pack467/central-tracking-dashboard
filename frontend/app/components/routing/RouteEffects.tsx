@@ -23,7 +23,6 @@ export function RouteEffects() {
     const sameList = [
       [paths.tickets, ['escalations']],
       [paths.teamRoster, []],
-      [paths.runbooks, ['credentials', 'links', 'escalation']],
     ].some(([base, reserved]) => {
       const root = base as string;
       const exclusions = reserved as string[];
@@ -54,7 +53,7 @@ export function RouteEffects() {
   useEffect(() => {
     const hash = window.location.hash.slice(1).toLowerCase();
     if (['profile', 'profil'].includes(hash)) router.replace(paths.profile);
-    else if (['dashboard', 'tickets', 'monitoring', 'reports', 'runbooks'].includes(hash)) router.replace(pathForLabel(hash[0].toUpperCase() + hash.slice(1)));
+    else if (['dashboard', 'tickets', 'monitoring', 'reports'].includes(hash)) router.replace(pathForLabel(hash[0].toUpperCase() + hash.slice(1)));
   }, [router]);
   return null;
 }

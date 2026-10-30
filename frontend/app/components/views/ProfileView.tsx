@@ -81,7 +81,7 @@ export function ProfileView() {
     role: baseMember.role || "Operator NOC",
     employeeId: baseMember.employeeId || "EMP-1001",
     email: baseMember.email || "galih.khairi@company.id",
-    phone: baseMember.phone || "+62 812-3456-7890",
+    phone: baseMember.phone || "+62 811-0000-0010",
     department: "Network Operations Center & Infrastructure",
     joinDate: baseMember.joinDate || "15 Jan 2024",
     bio: "Operator NOC Console 01 — Siap koordinasi via radio console / WhatsApp internal.",

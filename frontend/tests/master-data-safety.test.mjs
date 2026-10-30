@@ -43,7 +43,7 @@ test('C1: creating records works end to end without randomUUID', () => {
 });
 
 test('C5: only http(s) and app paths are safe reference URLs', () => {
-  for (const ok of ['https://grafana.example.com/d/1', 'HTTP://x.test', '/runbooks/jaringan', '/tickets?id=1']) assert.equal(isSafeReferenceUrl(ok), true, ok);
+  for (const ok of ['https://grafana.example.com/d/1', 'HTTP://x.test', '/reports/jaringan', '/tickets?id=1']) assert.equal(isSafeReferenceUrl(ok), true, ok);
   for (const bad of ['javascript:alert(1)', 'JaVaScRiPt:alert(1)', 'data:text/html,<script>', '//evil.example', '/\\evil.example', '\\\\evil.example', 'ftp://x', '', 'vbscript:x']) assert.equal(isSafeReferenceUrl(bad), false, bad);
   assert.equal(safeHref('  https://ok.test/a  '), 'https://ok.test/a');
   assert.equal(safeHref('javascript:alert(1)'), undefined);
@@ -54,7 +54,7 @@ test('C5: the adapter rejects unsafe URLs on write and stored ones are dropped o
   reset();
   const system = repo.bootstrap().systems[0];
   for (const bad of ['javascript:alert(1)', '//evil.example', '/\\evil.example']) assert.throws(() => repo.update('system', system.id, { referenceUrl: bad }), status(422), bad);
-  repo.update('system', system.id, { referenceUrl: '/runbooks/aman' });
+  repo.update('system', system.id, { referenceUrl: '/reports/aman' });
   // tamper with storage: one unsafe, one safe
   const data = JSON.parse(values.get(KEY));
   data.systems[0].referenceUrl = 'javascript:alert(document.cookie)';

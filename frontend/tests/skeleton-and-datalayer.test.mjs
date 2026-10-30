@@ -50,7 +50,6 @@ test("3. Domain Services & NestJS DTO Types", () => {
     "shift-log.ts",
     "roster.ts",
     "reports.ts",
-    "runbooks.ts",
     "dashboard.ts",
     "mock-adapter.ts",
   ];
@@ -66,7 +65,6 @@ test("3. Domain Services & NestJS DTO Types", () => {
     "shift.ts",
     "roster.ts",
     "reports.ts",
-    "runbooks.ts",
     "dashboard.ts",
   ];
   for (const file of typeFiles) {
@@ -93,7 +91,6 @@ test("4. Skeleton UI Primitives & Zero Layout Shift Structure", () => {
     "ShiftLogSkeleton.tsx",
     "ReportsSkeleton.tsx",
     "TeamRosterSkeleton.tsx",
-    "RunbooksSkeleton.tsx",
   ];
   for (const file of primitives) {
     const fullPath = path.join(skeletonDir, file);

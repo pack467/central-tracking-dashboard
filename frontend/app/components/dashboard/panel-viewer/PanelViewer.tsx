@@ -17,7 +17,7 @@ import { UserRecapView } from "./UserRecapView";
 import { CategoryDistributionView } from "./CategoryDistributionView";
 import { SeverityDistributionView } from "./SeverityDistributionView";
 import { ShiftTrafficView } from "./ShiftTrafficView";
-import { ResolutionTrendView } from "./ResolutionTrendView";
+import { ResolutionTrendView, type ResolutionKpis } from "./ResolutionTrendView";
 import type { TicketSeverity } from "@/app/lib/types";
 import { useNarrowTouchLayout } from "@/app/hooks/useMobileLayout";
 
@@ -53,13 +53,16 @@ interface PanelViewerProps {
   totalTickets: number;
   renderDonutSlices: any;
 
-  priorityCounts: { Critical: number; High: number; Medium: number; Low: number };
+  priorityCounts: { High: number; Medium: number; Low: number };
   priorityColors: Record<TicketSeverity, string>;
   severityStyles: Record<TicketSeverity, { borderLeft: string; dot: string; bar: string }>;
 
   shiftTrafficData: any;
   activeShiftLineFilter: "all" | "Pagi" | "Malam" | "Subuh";
   onShiftLineFilterChange: (filter: "all" | "Pagi" | "Malam" | "Subuh") => void;
+
+  /** Resolution numbers per closed ticket, the same as the dashboard card shows. */
+  resolutionKpis?: ResolutionKpis | null;
 }
 
 const PANEL_METADATA: Record<
@@ -68,17 +71,17 @@ const PANEL_METADATA: Record<
 > = {
   "ticket-volume": {
     title: "Ticket Volume per Project",
-    subtitle: "Tiket / hari",
+    subtitle: "Tiket",
     allowTable: true,
   },
   "ticket-mom": {
     title: "Perbandingan Tiket MoM",
-    subtitle: "Agu vs Sep",
+    subtitle: "Bulan lalu vs bulan ini",
     allowTable: true,
   },
   "user-recap": {
     title: "Rekap Tiket per User",
-    subtitle: "14 staf",
+    subtitle: "Staf",
     allowTable: false, // user-recap is table-first
   },
   "category-distribution": {
@@ -98,7 +101,7 @@ const PANEL_METADATA: Record<
   },
   "resolution-trend": {
     title: "Tren Durasi Penyelesaian",
-    subtitle: "Menit / hari",
+    subtitle: "Menit",
     allowTable: true,
   },
 };
@@ -129,6 +132,7 @@ export function PanelViewer({
   shiftTrafficData,
   activeShiftLineFilter,
   onShiftLineFilterChange,
+  resolutionKpis,
 }: PanelViewerProps) {
   const narrow = useNarrowTouchLayout();
   const modalRef = useRef<HTMLDivElement>(null);
@@ -197,6 +201,9 @@ export function PanelViewer({
     allowTable: false,
   };
 
+  // The figures in the subtitle come from the data, never from a fixed text (the number of people, the two months compared)
+  const panelSubtitle = panelId === "user-recap" ? `${userSummaries.length} staf` : panelId === "ticket-mom" && momData?.previous?.label && momData?.current?.label ? `${momData.previous.label} vs ${momData.current.label} · tgl 1–${momData.throughDay}` : meta.subtitle;
+
   const hasCustomFilters = activeFilters.length > 0;
   const isDistribution = panelId === "category-distribution" || panelId === "severity-distribution";
   const smallRecap = panelId === "user-recap" && narrow;
@@ -229,7 +236,7 @@ export function PanelViewer({
               {smallRecap ? "Rekap per User" : meta.title}
             </h1>
             <span className={`${smallRecap ? "hidden" : "hidden md:inline-block"} px-2.5 py-0.5 rounded-full text-[11px] font-mono bg-sky-500/10 border border-sky-500/25 text-sky-400 shrink-0`}>
-              {meta.subtitle}
+              {panelSubtitle}
             </span>
             {!hasCustomFilters && (
               <span className="hidden lg:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-mono bg-slate-800/80 border border-slate-700/70 text-slate-400 shrink-0">
@@ -352,7 +359,7 @@ export function PanelViewer({
         )}
 
         {panelId === "ticket-mom" && (
-          <TicketMomView momData={momData} mode={mode} />
+          <TicketMomView momData={momData} mode={mode} projectColors={projectColors} />
         )}
 
         {panelId === "user-recap" && (
@@ -391,7 +398,7 @@ export function PanelViewer({
         )}
 
         {panelId === "resolution-trend" && (
-          <ResolutionTrendView volumeByDate={volumeByDate} mode={mode} />
+          <ResolutionTrendView volumeByDate={volumeByDate} mode={mode} kpis={resolutionKpis} />
         )}
       </main>
     </div>,

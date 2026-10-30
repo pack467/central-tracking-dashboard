@@ -1,6 +1,7 @@
 "use client";
 
 import { Select } from "@/app/components/ui/Select";
+import { copyTextToClipboard } from "@/app/lib/copy-text";
 import { paths } from "@/app/lib/routes";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -331,10 +332,10 @@ export function RosterTable({ members, onSelectMember, onEditMember, onRequestSw
 
   /** Stable copy callback — useCallback keeps ref stable so RosterRow.memo comparison passes. */
   const copyToClipboard = useCallback((text: string, label: string) => {
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(text);
-      notify.success(`${label} disalin: ${text}`, { id: `copy-${text}` });
-    }
+    void copyTextToClipboard(text).then(copied => {
+      if (copied) notify.success(`${label} disalin: ${text}`, { id: `copy-${text}` });
+      else notify.warning(`${label} tidak dapat disalin.`, { id: `copy-failed-${text}` });
+    });
   }, [notify]);
 
   const pageNumbers = useMemo(() => {

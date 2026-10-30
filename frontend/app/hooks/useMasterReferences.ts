@@ -23,6 +23,6 @@ export function useMasterReferences() {
     severityLabel,
     projectFor,
     projectLabel,
-    severityOptions: catalog.severities.map(s => ({ value: severityTicketCode(s.code), label: s.displayName }))
+    severityOptions: catalog.severities.filter(s => s.code !== "critical").map(s => ({ value: severityTicketCode(s.code), label: s.displayName }))
   };
 }

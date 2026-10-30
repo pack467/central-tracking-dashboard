@@ -1,6 +1,7 @@
 import { apiClient } from "@/app/lib/api/client";
 import { isMockMode } from "@/app/lib/config";
 import { simulateLatency } from "./mock-adapter";
+import { backendPeople, backendRoles, notConnected, peopleFromBackend, rolesFromBackend } from "./backend-team";
 import { masterRepository as repo } from "./master-data-repository";
 import type {
   AuditEntry,
@@ -42,62 +43,79 @@ const enc = encodeURIComponent;
 /** People master (single source of staff identity). Same { data, meta } contract as the catalog entities. */
 export const masterPeople = {
   list(query: MasterQuery = {}, signal?: AbortSignal): Promise<MasterPage<Person>> {
+    if (peopleFromBackend()) return backendPeople.list(query, signal);
     return isMockMode() ? simulateLatency(() => repo.listPeople(query), signal) : apiClient.get("/master/people", { params: { ...query }, signal });
   },
   async get(id: string, signal?: AbortSignal): Promise<Person> {
+    if (peopleFromBackend()) return backendPeople.get(id, signal);
     if (isMockMode()) return simulateLatency(() => repo.getPerson(id), signal, true);
     return (await apiClient.get<{ data: Person }>(`/master/people/${enc(id)}`, { signal })).data;
   },
   create(input: PersonInput, requestKey: string, signal?: AbortSignal): Promise<Person> {
+    if (peopleFromBackend()) return Promise.reject(notConnected("Menambah personel"));
     return mutation(async () => isMockMode() ? simulateLatency(() => repo.createPerson(input), signal, true) : (await apiClient.post<{ data: Person }>("/master/people", input, { signal, headers: { "Idempotency-Key": requestKey } })).data);
   },
   update(id: string, input: Partial<PersonInput>, requestKey: string, signal?: AbortSignal): Promise<Person> {
+    if (peopleFromBackend()) return Promise.reject(notConnected("Mengubah personel"));
     return mutation(async () => isMockMode() ? simulateLatency(() => repo.updatePerson(id, input), signal, true) : (await apiClient.put<{ data: Person }>(`/master/people/${enc(id)}`, input, { signal, headers: { "Idempotency-Key": requestKey } })).data);
   },
   setStatus(id: string, status: string, signal?: AbortSignal): Promise<Person> {
+    if (peopleFromBackend()) return Promise.reject(notConnected("Mengubah status personel"));
     return mutation(async () => isMockMode() ? simulateLatency(() => repo.setPersonStatus(id, status), signal, true) : (await apiClient.patch<{ data: Person }>(`/master/people/${enc(id)}/status`, { status }, { signal })).data);
   },
   async usage(id: string, signal?: AbortSignal): Promise<PersonUsage> {
+    if (peopleFromBackend()) return backendPeople.usage(id, signal);
     if (isMockMode()) return simulateLatency(() => repo.personUsage(id), signal, true);
     return (await apiClient.get<{ data: PersonUsage }>(`/master/people/${enc(id)}/usage`, { signal })).data;
   },
   delete(id: string, signal?: AbortSignal): Promise<void> {
+    if (peopleFromBackend()) return Promise.reject(notConnected("Menghapus personel"));
     return mutation(async () => { if (isMockMode()) await simulateLatency(() => repo.deletePerson(id), signal, true); else await apiClient.delete(`/master/people/${enc(id)}`, { signal }); });
   },
   listAudit(id: string, page = 1, signal?: AbortSignal): Promise<MasterPage<AuditEntry>> {
+    if (peopleFromBackend()) return backendPeople.audit();
     return isMockMode() ? simulateLatency(() => repo.listTeamAudit("person", id, page), signal) : apiClient.get(`/master/people/${enc(id)}/audit`, { params: { page }, signal });
   }
 };
 /** Operational roles (Peran). The role key is stable and immutable; renaming changes the display name only. */
 export const masterRoles = {
   list(query: MasterQuery = {}, signal?: AbortSignal): Promise<MasterPage<Role>> {
+    if (rolesFromBackend()) return backendRoles.list(query, signal);
     return isMockMode() ? simulateLatency(() => repo.listRoles(query), signal) : apiClient.get("/master/roles", { params: { ...query }, signal });
   },
   async get(key: string, signal?: AbortSignal): Promise<Role> {
+    if (rolesFromBackend()) return backendRoles.get(key, signal);
     if (isMockMode()) return simulateLatency(() => repo.getRole(key), signal, true);
     return (await apiClient.get<{ data: Role }>(`/master/roles/${enc(key)}`, { signal })).data;
   },
   create(input: RoleInput, requestKey: string, signal?: AbortSignal): Promise<Role> {
+    if (rolesFromBackend()) return Promise.reject(notConnected("Menambah peran"));
     return mutation(async () => isMockMode() ? simulateLatency(() => repo.createRole(input), signal, true) : (await apiClient.post<{ data: Role }>("/master/roles", input, { signal, headers: { "Idempotency-Key": requestKey } })).data);
   },
   update(key: string, input: Partial<RoleInput>, requestKey: string, signal?: AbortSignal): Promise<Role> {
+    if (rolesFromBackend()) return Promise.reject(notConnected("Mengubah peran"));
     return mutation(async () => isMockMode() ? simulateLatency(() => repo.updateRole(key, input), signal, true) : (await apiClient.put<{ data: Role }>(`/master/roles/${enc(key)}`, input, { signal, headers: { "Idempotency-Key": requestKey } })).data);
   },
   setStatus(key: string, status: string, signal?: AbortSignal): Promise<Role> {
+    if (rolesFromBackend()) return Promise.reject(notConnected("Mengubah status peran"));
     return mutation(async () => isMockMode() ? simulateLatency(() => repo.setRoleStatus(key, status), signal, true) : (await apiClient.patch<{ data: Role }>(`/master/roles/${enc(key)}/status`, { status }, { signal })).data);
   },
   async usage(key: string, signal?: AbortSignal): Promise<RoleUsage> {
+    if (rolesFromBackend()) return backendRoles.usage(key, signal);
     if (isMockMode()) return simulateLatency(() => repo.roleUsage(key), signal, true);
     return (await apiClient.get<{ data: RoleUsage }>(`/master/roles/${enc(key)}/usage`, { signal })).data;
   },
   delete(key: string, signal?: AbortSignal): Promise<void> {
+    if (rolesFromBackend()) return Promise.reject(notConnected("Menghapus peran"));
     return mutation(async () => { if (isMockMode()) await simulateLatency(() => repo.deleteRole(key), signal, true); else await apiClient.delete(`/master/roles/${enc(key)}`, { signal }); });
   },
   /** One atomic request: swaps the role with its neighbour. */
   reorder(key: string, direction: number, signal?: AbortSignal): Promise<void> {
+    if (rolesFromBackend()) return Promise.reject(notConnected("Mengatur urutan peran"));
     return mutation(async () => { if (isMockMode()) await simulateLatency(() => repo.reorderRole(key, direction), signal, true); else await apiClient.patch("/master/roles/order", { key, direction }, { signal }); });
   },
   listAudit(key: string, page = 1, signal?: AbortSignal): Promise<MasterPage<AuditEntry>> {
+    if (rolesFromBackend()) return backendPeople.audit();
     return isMockMode() ? simulateLatency(() => repo.listTeamAudit("role", key, page), signal) : apiClient.get(`/master/roles/${enc(key)}/audit`, { params: { page }, signal });
   },
 };

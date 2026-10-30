@@ -14,6 +14,7 @@ import { DatePicker } from "@/app/components/ui/DatePicker";
 import { PaginationBar } from "@/app/components/ui/PaginationBar";
 import { useNotifications, type NotificationItem, NOTIFICATION_CATEGORIES } from "@/app/context/NotificationContext";
 import { useClient } from "@/app/context/ClientContext";
+import { wibDateString } from "@/app/lib/wib";
 
 function getNotificationIcon(item: NotificationItem): LucideIcon {
   const cat = (item.category || "").toLowerCase();
@@ -77,11 +78,7 @@ function getCategoryClasses(category: string): string {
 
 function formatTimestampToYMD(timestamp?: number): string {
   if (!timestamp) return "";
-  const d = new Date(timestamp);
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
+  return wibDateString(new Date(timestamp));
 }
 
 export function NotificationsView() {

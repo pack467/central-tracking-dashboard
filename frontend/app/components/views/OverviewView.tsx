@@ -1,9 +1,7 @@
 "use client";
 
-import { useMemo } from "react";
 import { TicketReportView } from "@/app/components/tickets/TicketReportView";
-import type { Ticket } from "@/app/lib/types";
-import { getTodayWIB } from "@/app/lib/data";
+import type { CheckpointAssessment, Ticket } from "@/app/lib/types";
 
 // Re-export getTicketShift for backward compatibility (used by TicketsView)
 export function getTicketShift(ticket: Ticket): "Subuh" | "Pagi" | "Malam" {
@@ -33,16 +31,15 @@ interface OverviewViewProps {
   tickets: Ticket[];
   allTickets?: Ticket[];
   onGoToTickets: () => void;
+  assessments?: Record<string, CheckpointAssessment>;
 }
 
-export function OverviewView({ tickets, allTickets, onGoToTickets }: OverviewViewProps) {
-  const todayLabel = useMemo(() => getTodayWIB(), []);
-
+export function OverviewView({ tickets, allTickets, onGoToTickets, assessments }: OverviewViewProps) {
   return (
     <TicketReportView
       tickets={tickets}
-      dateRangeLabel={`Hari Ini — ${todayLabel}`}
       onGoToTickets={onGoToTickets}
+      assessments={assessments}
     />
   );
 }

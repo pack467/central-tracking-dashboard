@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { copyTextToClipboard } from "@/app/lib/copy-text";
 import { Mail, Phone, Clock, CalendarDays, X } from "lucide-react";
 import { Badge } from "@/app/components/ui/Badge";
 import { Avatar } from "@/app/components/ui/Avatar";
@@ -196,10 +197,10 @@ export function MemberDetailDrawer({
   };
 
   const copyToClipboard = (text: string, label: string) => {
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(text);
-      notify.success(`${label} copied: ${text}`, { id: `copy-${text}` });
-    }
+    void copyTextToClipboard(text).then(copied => {
+      if (copied) notify.success(`${label} copied: ${text}`, { id: `copy-${text}` });
+      else notify.warning(`${label} could not be copied.`, { id: `copy-failed-${text}` });
+    });
   };
 
   return (

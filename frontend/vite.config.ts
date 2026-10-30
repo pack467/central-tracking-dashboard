@@ -1,5 +1,5 @@
 import vinext from "vinext";
-import { defineConfig, type ViteDevServer } from "vite";
+import { defineConfig, loadEnv, type ViteDevServer } from "vite";
 import hostingConfig from "./.openai/hosting.json";
 import { sites } from "./build/sites-vite-plugin";
 import { canonicalRoute } from "./app/lib/canonical-route";
@@ -35,7 +35,15 @@ const localBindingConfig = {
     : [],
 };
 
-export default defineConfig(async () => {
+export default defineConfig(async ({ mode }) => {
+  // An unset NEXT_PUBLIC_* variable is left as `{}.NAME` in the browser code, which the bundler cannot evaluate. This one decides whether the
+  // demo accounts (a known password) are in the build at all, so it is always written in, empty when unset (see lib/auth.tsx).
+  const publicEnv = { ...loadEnv(mode, process.cwd(), ["NEXT_PUBLIC_", "CTD_"]), ...process.env };
+  const demoLogin = String(publicEnv.NEXT_PUBLIC_ALLOW_DEMO_LOGIN ?? "").trim();
+  // Dev server only. Vite already answers to localhost and to IP addresses (so opening it by LAN IP works). Other host names (a tunnel, a
+  // shared dev domain) must be named in CTD_DEV_ALLOWED_HOSTS, comma separated; "*" allows any (anyone who can reach the port can then use it).
+  const devHosts = String(publicEnv.CTD_DEV_ALLOWED_HOSTS ?? "").split(",").map(host => host.trim()).filter(Boolean);
+
   // Keep Wrangler and Miniflare state project-local. These are non-secret tool
   // settings; application environment belongs in ignored `.env*` files.
   process.env.WRANGLER_WRITE_LOGS ??= "false";
@@ -46,9 +54,10 @@ export default defineConfig(async () => {
   const { cloudflare } = await import("@cloudflare/vite-plugin");
 
   return {
+    define: { "process.env.NEXT_PUBLIC_ALLOW_DEMO_LOGIN": JSON.stringify(demoLogin) },
     server: {
       ...(isCodexSeatbeltSandbox ? { watch: { useFsEvents: false, usePolling: true } } : {}),
-      allowedHosts: true as const,
+      allowedHosts: devHosts.includes("*") ? (true as const) : devHosts,
     },
     plugins: [
       {

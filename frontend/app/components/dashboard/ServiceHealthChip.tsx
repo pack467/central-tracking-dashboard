@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useMemo } from "react";
+import { copyTextToClipboard } from "@/app/lib/copy-text";
 import { 
   Activity,
   AlertCircle,
@@ -572,8 +573,10 @@ export function ServiceDetailModal({
         : "  • No open tickets for this service.",
     ].filter(Boolean).join("\n");
 
-    navigator.clipboard?.writeText(lines);
-    notify(`Ringkasan ${project.name} berhasil disalin ke clipboard`, "success");
+    void copyTextToClipboard(lines).then(copied => {
+      if (copied) notify(`Ringkasan ${project.name} berhasil disalin ke clipboard`, "success");
+      else notify("Tidak dapat menyalin ke clipboard.", "info");
+    });
   };
 
   const handleRunDiagnostics = () => {

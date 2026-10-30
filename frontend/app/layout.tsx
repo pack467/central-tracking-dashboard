@@ -5,6 +5,24 @@ import { RouteProgress } from "@/app/components/ui/RouteProgress";
 import { ClientErrorGuard } from "@/app/components/ui/ClientErrorGuard";
 import "./globals.css";
 
+/** The public https address of this site, from the build (NEXT_PUBLIC_SITE_URL). Null when none is configured or it is not https. */
+function configuredSite(): URL | null {
+  try {
+    const url = new URL(process.env.NEXT_PUBLIC_SITE_URL || "");
+    return url.protocol === "https:" ? url : null;
+  } catch { return null; }
+}
+
+/**
+ * Runs before anything else loads. A page opened over plain http (not localhost) on a site declared https is sent to the same path on
+ * the https address; without this the browser would ask for every script and stylesheet over https and the page would load broken.
+ * The only value written into the script is the origin from the build, as a JSON string.
+ */
+function httpsRedirectScript(site: URL): string {
+  const origin = JSON.stringify(site.origin).replace(/</g, "\\u003c");
+  return `(function(){var h=location.hostname;if(location.protocol==="http:"&&h!=="localhost"&&h!=="127.0.0.1"&&h!=="[::1]"){location.replace(${origin}+location.pathname+location.search+location.hash);}})();`;
+}
+
 export async function generateMetadata(): Promise<Metadata> {
   const requestHeaders = await headers();
   // the host comes from request headers a visitor can write: only a plain host[:port] and http/https are used for the links in the metadata
@@ -12,7 +30,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const host = /^[a-z0-9.-]+(:\d{1,5})?$/i.test(rawHost) ? rawHost : "localhost:3000";
   const rawProtocol = requestHeaders.get("x-forwarded-proto");
   const protocol = rawProtocol === "http" || rawProtocol === "https" ? rawProtocol : host.startsWith("localhost") ? "http" : "https";
-  const metadataBase = new URL(`${protocol}://${host}`);
+  const metadataBase = configuredSite() ?? new URL(`${protocol}://${host}`);
   const title = "Central Tracking Dashboard";
   const description = "Pusat komando operasional untuk monitoring NOC, ticketing, dan handover shift.";
 
@@ -46,14 +64,18 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const site = configuredSite();
+  // the nonce proxy.ts made for this response: without it the browser refuses this script (production only)
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
   return (
     <html lang="id" className="dark [&:has([data-panel-viewer])]:overflow-hidden [&:has([data-sheet-open])]:overflow-hidden [&:has([data-memo-open])]:overflow-hidden [&:has([data-user-modal])]:overflow-hidden">
       <head>
+        {site && <script nonce={nonce} dangerouslySetInnerHTML={{ __html: httpsRedirectScript(site) }} />}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         {/* Browser tab / address bar icon (hutabyte_icon_transparent) */}

@@ -29,7 +29,9 @@ const SEARCH_NOUN: Record<AnyMasterEntity, string> = {
   category: "kategori",
   severity: "severity",
   person: "nama, ID pegawai, atau email",
-  role: "peran"
+  role: "peran",
+  position: "jabatan",
+  department: "departemen"
 };
 interface Chip { key: string; label: string; clear: () => void }
 export function MasterFilters({ entity, query, catalog, setQuery, addButton, extraButton, reviewCount = 0, onReviewChange, resultCount, resultLabel }: { entity: AnyMasterEntity; query: MasterQuery; catalog: MasterSnapshotV2; setQuery: (query: Partial<MasterQuery>) => void; addButton?: ReactNode; extraButton?: ReactNode; reviewCount?: number; onReviewChange?: (value: boolean) => void; resultCount?: number; resultLabel?: string }) {
@@ -100,7 +102,7 @@ export function MasterFilters({ entity, query, catalog, setQuery, addButton, ext
               { value: "all", label: all("Semua", "Semua status") },
               { value: "active", label: "Aktif" },
               ...(entity !== "project" ? [{ value: "inactive", label: "Nonaktif" }] : []),
-              ...(entity !== "category" && entity !== "role" && entity !== "person" ? [{ value: "archived", label: "Arsip" }] : [])
+              ...(entity !== "category" && entity !== "role" && entity !== "person" && entity !== "position" && entity !== "department" ? [{ value: "archived", label: "Arsip" }] : [])
             ]}
             onValueChange={status => setQuery({ status })}
           />

@@ -16,10 +16,16 @@ import { ToastProvider, useToast } from "@/app/components/ui/Toast";
 import { useCurrentHour } from "@/app/hooks/useLiveClock";
 import { useLocalStorage } from "@/app/hooks/useLocalStorage";
 import { isOpenTicket } from "@/app/lib/data";
+import { normalizeSeverity } from "@/app/lib/severity";
 import { usePeople, useRoles } from "@/app/hooks/useMasterData";
 import { peopleToRosterMembers } from "@/app/lib/people-roster";
 import type { CheckpointAssessment, RosterMember, Ticket } from "@/app/lib/types";
-import { AuthProvider } from "@/app/lib/auth";
+import { AuthProvider, useAuth } from "@/app/lib/auth";
+import { useBackendTickets } from "@/app/hooks/useBackendTickets";
+import { useBackendTeam } from "@/app/hooks/useBackendTeam";
+import { useAccess } from "@/app/hooks/useAccess";
+import { LocalDataNotice } from "@/app/components/ui/LocalDataNotice";
+import { ticketsFromBackend, ticketWritesEnabled } from "@/app/services/backend-tickets";
 import { useHandoverWorkflow } from "@/app/hooks/useHandoverWorkflow";
 
 
@@ -65,7 +71,25 @@ function useShellState() {
   const notify = useToast();
   const { addNotification } = useNotifications();
   const { activeClient, activeClientId } = useClient();
-  const [tickets, setTickets, ticketsReady] = useLocalStorage<Ticket[]>("ctd.tickets.v4", ALL_COMBINED_SEED_TICKETS);
+  const localTickets = useLocalStorage<Ticket[]>("ctd.tickets.v4", ALL_COMBINED_SEED_TICKETS);
+  const { user: sessionUser, ready: sessionReady } = useAuth();
+  // with the tickets module connected, the backend is the source: the stored copy and its seed data are not used at all
+  const remoteTickets = useBackendTickets(ticketsFromBackend() && sessionReady && !!sessionUser);
+  const ticketsError = remoteTickets[3];
+  useEffect(() => {
+    if (ticketsError) notify.critical(`Tiket tidak dapat dimuat dari backend: ${ticketsError}`, { id: "tickets-load-failed", duration: 8000 });
+  }, [ticketsError, notify]);
+  const fromBackend = ticketsFromBackend();
+  const { can } = useAccess();
+  const connectedForWrites = ticketWritesEnabled();
+  const ticketWritable = connectedForWrites && can("tickets.create") && can("tickets.update");
+  // why tickets cannot be changed, shown where the buttons would be (undefined when they can)
+  const ticketReadOnlyReason = ticketWritable ? undefined : connectedForWrites ? "Anda tidak memiliki izin untuk mengubah tiket." : "Tiket ini hanya bisa dilihat: perubahan tiket belum tersambung ke backend.";
+  const teamError = useBackendTeam(false).error;
+  useEffect(() => {
+    if (teamError) notify.critical(`Personel tidak dapat dimuat dari backend: ${teamError}`, { id: "team-load-failed", duration: 8000 });
+  }, [teamError, notify]);
+  const [tickets, setTickets, ticketsReady] = fromBackend ? remoteTickets : localTickets;
   const [assessments, setAssessments] = useLocalStorage<Record<string, CheckpointAssessment>>("ctd.checkpoints", EMPTY_ASSESSMENTS);
   useLocalStorage<string[]>("ctd.acknowledged", EMPTY_ACKNOWLEDGED);
 
@@ -160,23 +184,29 @@ function useShellState() {
   }, [markOverlayLoaded, pathname, router, searchParams]);
 
   const openTicketCreate = useCallback(() => {
+    if (!ticketWritable) { notify.info(ticketReadOnlyReason ?? "Tiket tidak bisa dibuat.", { id: "ticket-read-only" }); return; }
     markOverlayLoaded("ticketCreate");
     setTicketModalOpen(true);
-  }, [markOverlayLoaded]);
+  }, [markOverlayLoaded, ticketWritable, ticketReadOnlyReason, notify]);
 
   useEffect(() => {
-    // Ensure all clients' seed tickets are present
+    // Ensure all clients' seed tickets are present (never on top of real tickets)
+    if (fromBackend) return;
     setTickets((previous) => {
-      const hasBni = previous.some((t) => t.clientId === "bni");
-      const hasTelkomsel = previous.some((t) => t.clientId === "telkomsel");
+      // three severities: a stored ticket from before that still says "Critical" becomes High (lib/severity.ts)
+      const normalized = previous.some((t) => normalizeSeverity(t.severity) !== t.severity)
+        ? previous.map((t) => (normalizeSeverity(t.severity) === t.severity ? t : { ...t, severity: normalizeSeverity(t.severity) }))
+        : previous;
+      const hasBni = normalized.some((t) => t.clientId === "bni");
+      const hasTelkomsel = normalized.some((t) => t.clientId === "telkomsel");
       if (!hasBni || !hasTelkomsel) {
-        const existingIds = new Set(previous.map((t) => t.id));
+        const existingIds = new Set(normalized.map((t) => t.id));
         const missing = ALL_COMBINED_SEED_TICKETS.filter((t) => !existingIds.has(t.id));
-        return [...previous, ...missing];
+        return [...normalized, ...missing];
       }
-      return previous;
+      return normalized;
     });
-  }, [setTickets]);
+  }, [setTickets, fromBackend]);
 
 
   useEffect(() => {
@@ -198,7 +228,7 @@ function useShellState() {
     return () => window.removeEventListener("keydown", listener);
   }, [selectedTicket, closeTicket]);
 
-  return { closeTicketUrl, activeNav, pageKey, tickets, setTickets, ticketsReady, clientTickets, assessments, handleAssess, setPendingNoteKey, handleUpdateNote, setGuideOpen, currentHour, handover, members, setMembers, selectTicket, openTicketCreate, handleNavigate, mobileNavOpen, setMobileNavOpen, shiftPanelOpen, setShiftPanelOpen, sidebarCollapsed, setSidebarCollapsed, openTicketCount, searchOpen, setSearchOpen, ticketModalOpen, setTicketModalOpen, loadedOverlays, activeClient, activeClientId, notify, addNotification, selectedTicketId, selectedTicket, closeTicket, pendingNoteKey, pendingEntry, setAssessments, guideOpen };
+  return { closeTicketUrl, activeNav, pageKey, tickets, setTickets, ticketsReady, ticketWritable, ticketReadOnlyReason, refreshTickets: fromBackend ? remoteTickets[5] : undefined, clientTickets, assessments, handleAssess, setPendingNoteKey, handleUpdateNote, setGuideOpen, currentHour, handover, members, setMembers, selectTicket, openTicketCreate, handleNavigate, mobileNavOpen, setMobileNavOpen, shiftPanelOpen, setShiftPanelOpen, sidebarCollapsed, setSidebarCollapsed, openTicketCount, searchOpen, setSearchOpen, ticketModalOpen, setTicketModalOpen, loadedOverlays, activeClient, activeClientId, notify, addNotification, selectedTicketId, selectedTicket, closeTicket, pendingNoteKey, pendingEntry, setAssessments, guideOpen };
 }
 
 export type AppShellState = ReturnType<typeof useShellState>;
@@ -210,7 +240,7 @@ export function useAppData() {
 function DashboardShell({ children }: { children: React.ReactNode }) {
   const state = useShellState();
   const mobileChrome = useMobileChrome();
-  const { activeNav, setTickets, ticketsReady, clientTickets, setPendingNoteKey, setGuideOpen, handover, selectTicket, openTicketCreate, handleNavigate, mobileNavOpen, setMobileNavOpen, shiftPanelOpen, setShiftPanelOpen, sidebarCollapsed, setSidebarCollapsed, openTicketCount, searchOpen, setSearchOpen, ticketModalOpen, setTicketModalOpen, loadedOverlays, activeClient, activeClientId, notify, addNotification, selectedTicketId, selectedTicket, closeTicket, pendingNoteKey, pendingEntry, setAssessments, guideOpen } = state;
+  const { activeNav, setTickets, ticketsReady, ticketWritable, ticketReadOnlyReason, refreshTickets, clientTickets, setPendingNoteKey, setGuideOpen, handover, selectTicket, openTicketCreate, handleNavigate, mobileNavOpen, setMobileNavOpen, shiftPanelOpen, setShiftPanelOpen, sidebarCollapsed, setSidebarCollapsed, openTicketCount, searchOpen, setSearchOpen, ticketModalOpen, setTicketModalOpen, loadedOverlays, activeClient, activeClientId, notify, addNotification, selectedTicketId, selectedTicket, closeTicket, pendingNoteKey, pendingEntry, setAssessments, guideOpen } = state;
 
   return (
     <ShellContext.Provider value={state}>
@@ -231,12 +261,13 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
           activeNav={activeNav}
           onOpenSearch={() => setSearchOpen(true)}
           onOpenMobileNav={() => setMobileNavOpen(true)}
-          onRefresh={() => handover.refresh()}
+          onRefresh={async () => { await Promise.all([handover.refresh(), refreshTickets?.()]); }}
           onNavigate={handleNavigate}
           onOpenHandover={() => handover.openActive()}
         />
 
         <div className="page-content max-w-[1600px] w-full mx-auto pt-[28px] px-[32px] pb-[44px] [contain:layout_style] max-[1240px]:px-[22px] max-[660px]:pt-[18px] max-[660px]:px-[16px] max-[660px]:pb-[36px] max-md:pt-3 min-[400px]:max-md:px-4 max-[400px]:px-3">
+          <LocalDataNotice />
           <div className="app-page-view w-full [animation:pageViewEnter_0.22s_cubic-bezier(0.16,_1,_0.3,_1)_both] will-change-[opacity,transform] [&>*]:scroll-mt-[76px] motion-reduce:animate-none">
             {children}
           </div>
@@ -245,7 +276,7 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
       </section>
 
       {/* ── Floating Action Button: New Ticket (persists across all pages & viewport fixed) ── */}
-      <FloatingNewTicketButton onClick={openTicketCreate} isOpen={ticketModalOpen} scrollHidden={mobileChrome.scrollHidden} keyboardOpen={mobileChrome.keyboardOpen} onReveal={mobileChrome.revealFab} />
+      {ticketWritable && <FloatingNewTicketButton onClick={openTicketCreate} isOpen={ticketModalOpen} scrollHidden={mobileChrome.scrollHidden} keyboardOpen={mobileChrome.keyboardOpen} onReveal={mobileChrome.revealFab} />}
       <BottomNav keyboardOpen={mobileChrome.keyboardOpen} openTicketCount={openTicketCount} onOpenHandover={() => handover.openActive()} />
 
       {/* ── Global Shift Coverage Panel (Discord-style right panel) ── */}
@@ -319,6 +350,7 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
           <TicketDetailDrawer
             ticket={selectedTicket}
             onClose={closeTicket}
+            readOnlyReason={ticketReadOnlyReason}
             onUpdate={(updated) => {
               setTickets((previous) => previous.map((ticket) => (ticket.id === updated.id ? updated : ticket)));
               const slaEval = evaluateTicketSlaStatus(updated);
