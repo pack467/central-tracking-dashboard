@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import { AppSplash } from "@/app/components/ui/AppSplash";
 import { RouteProgress } from "@/app/components/ui/RouteProgress";
 import { ClientErrorGuard } from "@/app/components/ui/ClientErrorGuard";
+import { QueryProvider } from "@/app/components/QueryProvider";
 import "./globals.css";
 
 /** The public https address of this site, from the build (NEXT_PUBLIC_SITE_URL). Null when none is configured or it is not https. */
@@ -96,7 +97,7 @@ export default async function RootLayout({
         <AppSplash />
         <RouteProgress />
         <div id="app-root" className="w-full min-h-screen flex flex-col">
-          {children}
+          <QueryProvider>{children}</QueryProvider>
         </div>
       </body>
     </html>

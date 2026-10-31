@@ -73,3 +73,17 @@ test('the sender and the receiver may delete a task or a note; with a named rece
   assert.throws(() => updateHandoverRecord(named, other, 'delete-task', { taskId: 1 }), { status: 403 });
   assert.equal(canDeleteHandover({ ...named, receiverEmail: '' }, other), true, 'no receiving account named: anyone may receive, so anyone may delete');
 });
+
+test('a note sent by the browser cannot carry its own ticket lists; stored lists keep only known fields of the right type', () => {
+  const forged = [{ id: 'FAKE-1', subject: 'Tiket palsu', status: 'Closed' }];
+  const draft = { ...record(), date: '2026-10-31', monitoredProjects: 'SM', openTickets: forged, closedTickets: forged };
+  const validated = save(validateDraft(draft));
+  assert.equal(validated.openTickets, undefined);
+  assert.equal(validated.closedTickets, undefined);
+  const stored = save({ ...record(), openTickets: [
+    { id: 'T-1', subject: 'Queue penuh', status: 'Open', agingHours: 2, extra: 'x', owner: { name: 'nested' } },
+    { id: { $ne: 1 }, subject: 'no string id' },
+    'not a ticket',
+  ] });
+  assert.deepEqual(stored.openTickets, [{ id: 'T-1', subject: 'Queue penuh', status: 'Open', agingHours: 2 }]);
+});

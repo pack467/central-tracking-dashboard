@@ -31,6 +31,24 @@ const arrayValue = (value: unknown, max = 200): unknown[] => {
   return value;
 };
 
+const TICKET_TEXT = ["id", "subject", "project", "severity", "priority", "status", "owner", "source", "description", "category", "date", "requestTime", "created", "createdAt", "updatedAt", "clientId"] as const;
+const TICKET_NUMBER = ["agingHours", "resolutionMinutes", "responseMinutes"] as const;
+/**
+ * A ticket kept in a stored note, reduced to the fields a note shows, each of the right type and length. An entry without an id and a
+ * subject is dropped. Lists in a note sent by the browser are not taken at all (see validateDraft): these come from notes already stored.
+ */
+function storedTickets(value: unknown): Ticket[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+  return value.slice(0, 200).flatMap((item) => {
+    if (!item || typeof item !== "object" || Array.isArray(item)) return [];
+    const source = item as Record<string, unknown>;
+    const ticket: Record<string, string | number> = {};
+    for (const key of TICKET_TEXT) if (typeof source[key] === "string" && (source[key] as string).length <= (key === "description" ? 5000 : 300)) ticket[key] = source[key] as string;
+    for (const key of TICKET_NUMBER) if (typeof source[key] === "number" && Number.isFinite(source[key])) ticket[key] = source[key] as number;
+    return ticket.id && ticket.subject ? [ticket as unknown as Ticket] : [];
+  });
+}
+
 export function parseHandoverContent(content: string): HandoverRecordData {
   if (typeof content !== "string" || !content.trim()) {
     throw new HandoverError("Data catatan handover tidak valid.");
@@ -74,8 +92,8 @@ export function parseHandoverContent(content: string): HandoverRecordData {
     monitoredProjects: arrayValue(raw.monitoredProjects).map((project) => textValue(project, 120)),
     validationNote: textValue(raw.validationNote),
     notes: optionalText(raw.notes, 5000),
-    openTickets: Array.isArray(raw.openTickets) ? (raw.openTickets as Ticket[]) : undefined,
-    closedTickets: Array.isArray(raw.closedTickets) ? (raw.closedTickets as Ticket[]) : undefined,
+    openTickets: storedTickets(raw.openTickets),
+    closedTickets: storedTickets(raw.closedTickets),
     tasks, findings,
     monitoringExceptions: arrayValue(raw.monitoringExceptions ?? []).map((value) => {
       const exception = objectValue(value);
@@ -100,6 +118,10 @@ export function validateDraft(draft: HandoverDraft): HandoverRecordData {
   if (record.monitoringExceptions?.some((item) => !item.project || !item.reason)) throw new HandoverError("Isi alasan untuk setiap proyek yang tidak dimonitor.");
   // a new or revised note starts unticked: who confirmed a task is never taken from the sender's draft
   record.tasks = record.tasks.map((task) => ({ ...task, confirmedBy: undefined, confirmedAt: undefined }));
+  // Nor are ticket lists: the browser could write any ticket into them. The app never sends its own (a note's open tickets come from its
+  // tasks' "ticket:<id>" references, read against the live ticket list); a revision keeps the lists already stored (api/handovers/[id]).
+  record.openTickets = undefined;
+  record.closedTickets = undefined;
   record.monitoringOwner ||= record.sourcePic;
   record.monitoringSummary ||= "Monitoring belum dicatat.";
   record.validationNote ||= "Menunggu validasi shift penerima.";

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { handoverActor, assertSameOrigin } from '../app/lib/handover-auth.ts';
+import { handoverActor, assertSameOrigin, requestActor } from '../app/lib/handover-auth.ts';
 
 const ENV = ['NODE_ENV', 'HANDOVER_TRUST_OAI_HEADERS', 'HANDOVER_SIMULATED_ACTOR', 'HANDOVER_ALLOWED_ORIGINS', 'TRUST_FORWARDED_HEADERS'];
 const make = (url, headers = {}, method = 'POST') => new Request(url, { method, headers });
@@ -74,4 +74,27 @@ test('allowed origins and a trusted reverse proxy are explicit settings', () => 
   withEnv({ NODE_ENV: 'production' }, () => {
     assert.equal(status(() => assertSameOrigin(make('http://internal:3000/x', { origin: 'https://dashboard.example.com', 'x-forwarded-host': 'dashboard.example.com', 'x-forwarded-proto': 'https' }))), 403, 'forwarded headers are ignored unless trusted');
   });
+});
+
+test('backend login: the caller is the backend session user, checked with GET /auth/me; no session, no handover', async () => {
+  const saved = { modules: process.env.NEXT_PUBLIC_API_MODULES, url: process.env.HANDOVER_BACKEND_URL, env: process.env.NODE_ENV };
+  process.env.NEXT_PUBLIC_API_MODULES = 'auth';
+  process.env.HANDOVER_BACKEND_URL = 'http://backend.internal:3000/';
+  process.env.NODE_ENV = 'development';
+  const calls = [];
+  const backend = status => async (url, init) => { calls.push({ url, cookie: init.headers.Cookie }); return new Response(JSON.stringify({ id: '12', name: 'Agnes Siahaan', email: 'Agnes@Company.id' }), { status }); };
+  const statusOf = async promise => { try { await promise; return 'ok'; } catch (error) { return error.status; } };
+  try {
+    const request = sid => make('http://localhost:3001/api/handovers', { cookie: `theme=dark; ctd.sid=${sid}; other=1` }, 'GET');
+    assert.deepEqual(await requestActor(request('s%3Aabc.sig'), backend(200)), { id: '12', name: 'Agnes Siahaan', email: 'agnes@company.id' });
+    assert.deepEqual(calls[0], { url: 'http://backend.internal:3000/auth/me', cookie: 'ctd.sid=s%3Aabc.sig' }, 'only the session cookie is sent');
+    await requestActor(request('s%3Aabc.sig'), backend(200));
+    assert.equal(calls.length, 1, 'a session confirmed a moment ago is not asked again');
+    assert.equal(await statusOf(requestActor(request('s%3Aended'), backend(401))), 401);
+    assert.equal(await statusOf(requestActor(make('http://localhost:3001/x', {}, 'GET'), backend(200))), 401, 'development no longer means the built-in operator');
+    assert.equal(await statusOf(requestActor(request('s%3Adown'), async () => { throw new TypeError('fetch failed'); })), 503, 'backend unreachable');
+    assert.equal(await statusOf(requestActor(make('http://x/y', { 'oai-authenticated-user-id': '1', 'oai-authenticated-user-email': 'boss@x.id' }), backend(200))), 401, 'identity headers do not count');
+  } finally {
+    for (const [key, value] of [['NEXT_PUBLIC_API_MODULES', saved.modules], ['HANDOVER_BACKEND_URL', saved.url], ['NODE_ENV', saved.env]]) { if (value === undefined) delete process.env[key]; else process.env[key] = value; }
+  }
 });

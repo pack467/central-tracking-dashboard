@@ -23,17 +23,32 @@ type DraftSession = {
 type ListResponse = { notes: StoredHandoverRecord[]; total: number; page: number; hasMore: boolean; actor: HandoverActor };
 type Inputs = { tickets: Ticket[]; assessments: Record<string, CheckpointAssessment>; members: RosterMember[] };
 
+/**
+ * Set by the hook while it is mounted: what a 401 from the handover API means. With the backend login, that API checks the session cookie
+ * with the backend. Either the session has ended (the app then logs out, as a 401 from the backend itself does), or it is alive and the
+ * cookie never reached this site's server: logging in again would not help, so say what is wrong instead of looping through /login.
+ */
+let explainUnauthorized: (() => Promise<string | null>) | null = null;
+const COOKIE_NOT_RECEIVED = "Anda masih login, tetapi sesi tidak sampai ke server handover. Hubungi administrator: aplikasi dan API harus disajikan di satu alamat.";
+
 async function request<T>(url: string, options?: RequestInit): Promise<T> {
   const response = await fetch(url, { cache: "no-store", ...options, headers: { "Content-Type": "application/json", ...options?.headers }, signal: AbortSignal.timeout(20000) });
-  const payload = await response.json();
+  // a proxy in front can answer with an HTML error page: that is a failed request, not a parse error to show
+  const payload = (await response.json().catch(() => ({}))) as { error?: string };
+  if (response.status === 401 && explainUnauthorized) throw new HandoverError((await explainUnauthorized()) ?? payload.error ?? "Sesi login sudah berakhir.", 401);
   if (!response.ok) throw new HandoverError(payload.error || "Permintaan handover gagal.", response.status);
   return payload as T;
 }
 
 export function useHandoverWorkflow(inputs: Inputs) {
   const notify = useToast();
-  const { user } = useAuth();
+  const { user, recheckSession } = useAuth();
   const userId = user?.id ?? null;
+  useEffect(() => {
+    const explain = async () => ((await recheckSession()) === "valid" ? COOKIE_NOT_RECEIVED : null);
+    explainUnauthorized = explain;
+    return () => { if (explainUnauthorized === explain) explainUnauthorized = null; };
+  }, [recheckSession]);
   // The logged-in person's shift, from the roster (Master Data); a demo account carries its own. Unknown when neither has one.
   const myShift = useMemo(() => {
     if (!user) return null;

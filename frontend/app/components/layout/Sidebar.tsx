@@ -457,16 +457,13 @@ export function Sidebar({
                 type="button"
                 role="menuitem"
                 className="profile-dropdown-item danger flex items-center gap-[9px] w-full p-[7px_9px] rounded-[6px] bg-transparent border-none text-[var(--ink-primary)] text-[12px] font-[var(--font-sans)] font-medium text-left cursor-pointer transition-[background-color,color] duration-120 box-border hover:bg-[var(--red-soft)] hover:text-[var(--red)] [&_svg]:shrink-0 [&_svg]:text-[var(--ink-muted)] [&_svg]:transition-colors [&_svg]:duration-120 hover:[&_svg]:text-[var(--red)]"
-                onClick={() => {
+                onClick={async () => {
                   setProfileMenuOpen(false);
-                  logout();
-                  notify.info("Sesi konsol telah ditutup. Mengalihkan ke halaman login...", {
-                    id: "logout-session-hint",
-                    duration: 3000,
-                  });
-                  setTimeout(() => {
-                    window.location.href = paths.login;
-                  }, 400);
+                  notify.info("Menutup sesi...", { id: "logout-session-hint", duration: 3000 });
+                  // leave only once the session is really over; replace() so Back does not return to the app
+                  const problem = await logout();
+                  if (problem === null) window.location.replace(paths.login);
+                  else notify.critical(problem, { id: "logout-session-hint" });
                 }}
               >
                 <LogOut size={14} />

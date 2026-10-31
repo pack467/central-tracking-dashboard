@@ -11,10 +11,11 @@
  */
 
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { api } from "@/app/lib/api";
 import { apiModuleEnabled } from "@/app/lib/config";
 import { bindSessionData } from "@/app/lib/session-data";
-import { AuthError, BAD_CREDENTIALS, fetchSession, getCsrfToken, loginRequest, logoutRequest, roleLabel, setCsrfToken, type BackendUser } from "@/app/lib/auth-api";
+import { AuthError, BAD_CREDENTIALS, checkSession, fetchSession, getCsrfToken, loginRequest, logoutRequest, markSessionConfirmed, roleLabel, sessionConfirmedAt, setCsrfToken, type BackendUser } from "@/app/lib/auth-api";
 
 export interface AuthUser {
   id: string;
@@ -43,7 +44,14 @@ interface AuthContextValue {
   token: string | null;
   /** Logs in and resolves with the user; rejects with an AuthError whose message is safe to show. */
   signIn: (identifier: string, password: string, remember?: boolean) => Promise<AuthUser>;
-  logout: () => void;
+  /** Resolves null once the session is over (on the server too, in backend mode); otherwise a message saying why it is not, to show. */
+  logout: () => Promise<string | null>;
+  /**
+   * Asks the backend now whether the session is alive (no waiting period), and logs out here when it has ended. For a 401 from a server
+   * that is not the backend (the handover API): "valid" then means the session is fine and that server did not get it.
+   * Always "unknown" in demo mode.
+   */
+  recheckSession: () => Promise<"valid" | "ended" | "unknown">;
   /** UI hint only (hide a button): the server checks every permission itself. */
   hasPermission: (key: string) => boolean;
   can: (action: "create" | "edit" | "delete" | "escalate" | "admin", resource: "ticket" | "handover" | "roster" | "system") => boolean;
@@ -74,8 +82,22 @@ const newToken = () => `ctd_token_${typeof crypto !== "undefined" && "randomUUID
 const AUTH_CHANNEL = "ctd-auth";
 /** Wait a moment after a message: a logout request may still be on its way to the server when the other tab hears about it. */
 const RECHECK_DELAY_MS = 700;
+/**
+ * Pages that never call the backend (Monitoring, Shift Log, Handover...) would keep working after the session ended elsewhere (logout in
+ * another browser, expiry, revoked by an admin). So moving to another page, or coming back to the tab, checks the session with one
+ * GET /auth/me, but only when nothing has confirmed it for this long: any successful backend answer counts, so a busy app sends none.
+ */
+const SESSION_CHECK_MS = 60_000;
+/**
+ * A BroadcastChannel message also reaches the other channel objects of the same tab, so this tab heard its own announcements and asked the
+ * server again (GET /auth/me and /auth/csrf after every login, logout and ended session). The message carries this tab's id to skip those.
+ */
+// Made on first use, never while the module loads: Cloudflare Workers refuse random values in global scope, and the server render of
+// every page with this provider failed (React then rendered it in the browser instead).
+let tabId: string | undefined;
+const thisTab = () => (tabId ??= typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`);
 function announceSessionChange() {
-  try { const channel = new BroadcastChannel(AUTH_CHANNEL); channel.postMessage("changed"); channel.close(); } catch { /* not supported: other tabs find out on their next request */ }
+  try { const channel = new BroadcastChannel(AUTH_CHANNEL); channel.postMessage(thisTab()); channel.close(); } catch { /* not supported: other tabs find out on their next request */ }
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -98,18 +120,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (hadSession) announceSessionChange(); // once, not for every call that fails together
       });
       api.setCsrfTokenProvider(getCsrfToken);
+      api.setOnSuccess(markSessionConfirmed);
       void fetchSession().then(session => { if (!cancelled) { setSessionUser(session ? toAuthUser(session) : null); setReady(true); } });
       // another tab logged in, out, or lost its session: look at the cookie again
       let recheck: ReturnType<typeof setTimeout> | undefined;
       let channel: BroadcastChannel | undefined;
       try {
         channel = new BroadcastChannel(AUTH_CHANNEL);
-        channel.onmessage = () => {
+        channel.onmessage = (event: MessageEvent) => {
+          if (event.data === thisTab()) return;
           if (recheck) clearTimeout(recheck);
           recheck = setTimeout(() => { void fetchSession().then(session => { if (!cancelled) setSessionUser(session ? toAuthUser(session) : null); }); }, RECHECK_DELAY_MS);
         };
       } catch { /* BroadcastChannel not available */ }
-      return () => { cancelled = true; if (recheck) clearTimeout(recheck); channel?.close(); };
+      return () => { cancelled = true; if (recheck) clearTimeout(recheck); channel?.close(); api.setOnSuccess(null); };
     }
     // restore the demo session from browser storage (a callback, not state set synchronously in the effect body)
     void Promise.resolve().then(() => {
@@ -163,19 +187,56 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return next;
   };
 
-  const logout = () => {
+  const logout = async (): Promise<string | null> => {
+    if (backend) {
+      // The server first. The page used to clear the person here and leave for /login after 400 ms without waiting: when the logout
+      // request failed, the session was still alive and the login page found it and logged the person straight back in.
+      const result = await logoutRequest();
+      if (result === "throttled") return "Server sedang membatasi permintaan. Tunggu sekitar satu menit lalu coba keluar lagi.";
+      if (result === "failed") return "Sesi belum bisa ditutup di server. Periksa koneksi lalu coba lagi.";
+      setToken(null);
+      api.setToken(null);
+      setSessionUser(null);
+      announceSessionChange();
+      return null;
+    }
     setToken(null);
     setUser(null);
     api.setToken(null);
     bindSessionData(null);
-    if (backend) { announceSessionChange(); void logoutRequest(); return; }
     try {
       localStorage.setItem(LOGGED_OUT_KEY, "true");
       for (const store of [localStorage, sessionStorage]) { store.removeItem(TOKEN_STORAGE_KEY); store.removeItem(USER_STORAGE_KEY); }
     } catch {
       // Ignore storage errors
     }
+    return null;
   };
+
+  // One session check at a time, and only when nothing confirmed the session in the last minute (see SESSION_CHECK_MS).
+  const pathname = usePathname();
+  const checking = useRef(false);
+  const verifySession = useCallback(() => {
+    if (!backend || !userRef.current || checking.current || Date.now() - sessionConfirmedAt() < SESSION_CHECK_MS) return;
+    checking.current = true;
+    void checkSession()
+      .then(state => { if (state === "ended" && userRef.current) { setSessionUser(null); announceSessionChange(); } })
+      .finally(() => { checking.current = false; });
+  }, [backend, setSessionUser]);
+  const recheckSession = useCallback(async () => {
+    if (!backend || !userRef.current) return "unknown" as const;
+    const state = await checkSession();
+    if (state === "ended" && userRef.current) { setSessionUser(null); announceSessionChange(); }
+    return state;
+  }, [backend, setSessionUser]);
+  useEffect(() => { verifySession(); }, [pathname, verifySession]);
+  useEffect(() => {
+    if (!backend) return;
+    const onReturn = () => { if (document.visibilityState === "visible") verifySession(); };
+    document.addEventListener("visibilitychange", onReturn);
+    window.addEventListener("focus", onReturn);
+    return () => { document.removeEventListener("visibilitychange", onReturn); window.removeEventListener("focus", onReturn); };
+  }, [backend, verifySession]);
 
   const hasPermission = (key: string): boolean => !!user && (!backend || (user.permissions ?? []).includes(key));
 
@@ -189,7 +250,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, ready, isAuthenticated: Boolean(user), mode: backend ? "backend" : "demo", token, signIn, logout, hasPermission, can }}>
+    <AuthContext.Provider value={{ user, ready, isAuthenticated: Boolean(user), mode: backend ? "backend" : "demo", token, signIn, logout, recheckSession, hasPermission, can }}>
       {children}
     </AuthContext.Provider>
   );
