@@ -1,13 +1,13 @@
 import { getHandoverDb } from "@/db";
-import { canEditHandover, HandoverError, parseHandoverContent, updateHandoverRecord } from "@/app/lib/handover";
-import { assertSameOrigin, findHandover, handoverActor, handoverFailure, handoverResponse, noteColumns, noteId, readHandoverBody, validatedDraft } from "@/app/lib/handover-server";
+import { canDeleteHandover, canEditHandover, HandoverError, parseHandoverContent, updateHandoverRecord } from "@/app/lib/handover";
+import { assertSameOrigin, findHandover, handoverFailure, handoverResponse, noteColumns, noteId, readHandoverBody, requestActor, validatedDraft } from "@/app/lib/handover-server";
 import type { HandoverRecordData, StoredHandoverRecord } from "@/app/lib/types";
 
 type Context = { params: Promise<{ id: string }> };
 
 export async function GET(request: Request, { params }: Context) {
   try {
-    handoverActor(request);
+    await requestActor(request);
     return handoverResponse({ note: await findHandover(noteId((await params).id)) });
   } catch (error) { return handoverFailure(error); }
 }
@@ -15,7 +15,7 @@ export async function GET(request: Request, { params }: Context) {
 export async function PUT(request: Request, { params }: Context) {
   try {
     assertSameOrigin(request);
-    const actor = handoverActor(request);
+    const actor = await requestActor(request);
     const body = await readHandoverBody(request);
     const current = await findHandover(noteId((await params).id));
     if (body.revision !== current.revision) throw new HandoverError("Catatan telah berubah di sesi lain. Muat ulang catatan sebelum mencoba lagi; draf Anda tetap disimpan.", 409);
@@ -27,7 +27,7 @@ export async function PUT(request: Request, { params }: Context) {
       if (!canEditHandover(record, actor)) throw new HandoverError("Hanya pembuat catatan yang dapat merevisi handover.", 403);
       const validated = validatedDraft(body.draft);
       date = validated.date;
-      next = { ...validated.record, createdBy: record.createdBy ?? actor, acceptance: null, tasks: validated.record.tasks.map((task) => ({ ...task, completed: false })), auditTrail: [...(record.auditTrail ?? []), { action: record.acceptance ? "reopened" : "edited", actor, at: now }] };
+      next = { ...validated.record, openTickets: record.openTickets, closedTickets: record.closedTickets, createdBy: record.createdBy ?? actor, acceptance: null, tasks: validated.record.tasks.map((task) => ({ ...task, completed: false })), auditTrail: [...(record.auditTrail ?? []), { action: record.acceptance ? "reopened" : "edited", actor, at: now }] };
     } else {
       next = updateHandoverRecord(record, actor, String(body.action), body, now);
     }
@@ -43,9 +43,9 @@ export async function PUT(request: Request, { params }: Context) {
 export async function DELETE(request: Request, { params }: Context) {
   try {
     assertSameOrigin(request);
-    const actor = handoverActor(request);
+    const actor = await requestActor(request);
     const current = await findHandover(noteId((await params).id));
-    if (!canEditHandover(parseHandoverContent(current.content), actor)) throw new HandoverError("Hanya pembuat catatan yang dapat menghapusnya.", 403);
+    if (!canDeleteHandover(parseHandoverContent(current.content), actor)) throw new HandoverError("Hanya pengirim atau penerima handover yang dapat menghapusnya.", 403);
     const revision = Number(new URL(request.url).searchParams.get("revision"));
     if (revision !== current.revision) throw new HandoverError("Catatan telah berubah. Muat ulang sebelum menghapus.", 409);
     const note = await getHandoverDb().prepare("DELETE FROM handover_notes WHERE id = ? AND revision = ? RETURNING id").bind(current.id, revision).first();

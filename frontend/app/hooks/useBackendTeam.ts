@@ -1,50 +1,41 @@
 "use client";
 
-import { useEffect, useSyncExternalStore } from "react";
+import { useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { ApiError } from "@/app/lib/api/errors";
-import { backendPeople, backendRoles } from "@/app/services/backend-team";
+import { useSessionUserId } from "@/app/hooks/useSessionUserId";
+import { backendPeopleAndRoles } from "@/app/services/backend-team";
 import type { Person, Role } from "@/app/types/master-data";
 
 /**
- * Everyone and every role from the backend (/users, /roles), loaded once and shared by every screen that lists people: the roster,
- * the PIC and owner pickers, and Master Data. Without a login the load fails with a 401, which is not an error to show: the app sends the
- * person to /login and the login resets this store. Any other failure is kept in `error` and tried again a few times, 5 s then 15 s then 45 s.
+ * Everyone and every role from the backend (/users, /roles), loaded once per logged-in person and shared by every screen that lists people:
+ * the roster, the PIC and owner pickers, and Master Data. One query (TanStack Query), so all those screens share one load and one answer.
+ *
+ * Nobody logged in: nothing is loaded and the (empty) store counts as loaded. Marking it "not loaded" used to make every screen still on
+ * display load /users and /roles again after a logout, in a loop with the 401 that followed. A 401 is not an error to show either: the app
+ * sends the person to /login. Any other failure is kept in `error` while it is tried again (5 s, 15 s, 45 s; lib/query-client.ts).
+ * `enabled` false only reads what another screen loaded.
  */
 interface Snapshot { people: Person[]; roles: Role[]; loaded: boolean; error?: string }
 const EMPTY: Snapshot = { people: [], roles: [], loaded: false };
-const RETRY_MS = [5_000, 15_000, 45_000];
-let snapshot: Snapshot = EMPTY;
-let inflight: Promise<void> | undefined;
-let attempt = 0;
-let retryTimer: ReturnType<typeof setTimeout> | undefined;
-const listeners = new Set<() => void>();
-const publish = (next: Snapshot) => { snapshot = next; listeners.forEach(listener => listener()); };
+const NOTHING_TO_LOAD: Snapshot = { ...EMPTY, loaded: true };
 
-function load() {
-  if (inflight) return;
-  inflight = Promise.all([backendPeople.all(), backendRoles.available()])
-    .then(([people, roles]) => { attempt = 0; publish({ people, roles, loaded: true }); })
-    .catch((cause: unknown) => {
-      if (cause instanceof ApiError && cause.status === 401) { publish({ ...EMPTY, loaded: true }); return; }
-      publish({ ...EMPTY, error: cause instanceof Error && cause.message ? cause.message : "Gagal memuat personel." });
-      if (attempt < RETRY_MS.length) retryTimer = setTimeout(load, RETRY_MS[attempt++]);
-    })
-    .finally(() => { inflight = undefined; });
-}
-/** Forget what was loaded (logout, or the person changed). A retry that was waiting is cancelled. */
-export function resetBackendTeam() {
-  if (retryTimer) clearTimeout(retryTimer);
-  retryTimer = undefined;
-  attempt = 0;
-  publish(EMPTY);
-}
+export const backendTeamKey = (userId: string | null) => ["backend", userId, "team"] as const;
 
 export function useBackendTeam(enabled: boolean): Snapshot {
-  const current = useSyncExternalStore(
-    notify => { listeners.add(notify); return () => { listeners.delete(notify); }; },
-    () => snapshot,
-    () => EMPTY
-  );
-  useEffect(() => { if (enabled && !current.loaded) load(); }, [enabled, current.loaded]);
-  return current;
+  const userId = useSessionUserId();
+  const query = useQuery({
+    queryKey: backendTeamKey(userId),
+    queryFn: ({ signal }) => backendPeopleAndRoles(signal),
+    enabled: enabled && userId !== null,
+    staleTime: Infinity,
+  });
+  const problem = query.error ?? query.failureReason;
+  return useMemo(() => {
+    if (userId === null) return NOTHING_TO_LOAD;
+    if (query.data) return { people: query.data.people, roles: query.data.roles, loaded: true };
+    if (problem instanceof ApiError && problem.status === 401) return NOTHING_TO_LOAD;
+    if (problem) return { ...EMPTY, error: problem.message || "Gagal memuat personel." };
+    return EMPTY;
+  }, [userId, query.data, problem]);
 }

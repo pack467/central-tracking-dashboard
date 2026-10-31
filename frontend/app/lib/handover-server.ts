@@ -5,7 +5,7 @@ import { HandoverError, validateDraft } from "./handover";
 export const noteColumns = "id, title, handover_date AS handoverDate, content, created_at AS createdAt, updated_at AS updatedAt, revision";
 
 // identity and origin checks live in handover-auth.ts (testable without the database)
-export { assertSameOrigin, handoverActor } from "./handover-auth";
+export { assertSameOrigin, requestActor } from "./handover-auth";
 
 export async function readHandoverBody(request: Request) {
   if (Number(request.headers.get("content-length")) > 100000) throw new HandoverError("Catatan terlalu panjang.", 413);

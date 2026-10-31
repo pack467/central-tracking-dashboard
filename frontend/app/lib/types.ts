@@ -107,6 +107,8 @@ export interface Ticket {
   shift?: "Subuh" | "Pagi" | "Malam";
   history?: TicketHistoryEntry[];
   clientId?: string;
+  /** Tickets from the backend only: the backend ids behind the shown names, so an edit can be sent back (see services/backend-tickets.ts). */
+  backend?: { projectId?: string; projectName?: string; clientId?: string; userId?: string; thirdPartyId?: string };
 }
 
 export type HandoverState =

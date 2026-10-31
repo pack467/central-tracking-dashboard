@@ -1,12 +1,21 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { ApiError, isAbortError } from "@/app/lib/api/errors";
+import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { ApiError } from "@/app/lib/api/errors";
+import { shouldRetry } from "@/app/lib/query-client";
+import { useSessionUserId } from "@/app/hooks/useSessionUserId";
 
-// In-memory cache & in-flight promise tracker for deduplication & StrictMode safety
-const resourceCache = new Map<string, { data: unknown; timestamp: number }>();
-const inFlightRequests = new Map<string, Promise<unknown>>();
-
+/**
+ * A screen's data from a service call, on the shared server data cache (TanStack Query). The same contract as before the cache was
+ * shared, so the screens did not change:
+ *  - The call runs whenever the screen opens, and when `key` or `deps` change; meanwhile the data already known stays on screen and
+ *    `isStale` is true (stale-while-revalidate).
+ *  - Screens asking with the same key and deps share one request.
+ *  - The key also carries the logged-in person, and lib/session-data.ts empties the cache when the person changes, so a screen never shows
+ *    the previous person's data.
+ *  - A failure is tried again once (network, timeout, 429, 5xx; see lib/query-client.ts), then shown in `error`.
+ */
 export interface ResourceOptions<T> {
   deps?: unknown[];
   enabled?: boolean;
@@ -36,135 +45,67 @@ function checkIfEmpty(val: unknown): boolean {
   return false;
 }
 
+/** The call with a time limit: past `timeoutMs` it is cancelled and fails with a 408 (TIMEOUT). */
+async function withTimeout<T>(call: (signal: AbortSignal) => Promise<T>, signal: AbortSignal, timeoutMs?: number): Promise<T> {
+  if (!timeoutMs) return call(signal);
+  const timer = AbortSignal.timeout(timeoutMs);
+  try {
+    return await call(AbortSignal.any([signal, timer]));
+  } catch (cause) {
+    if (timer.aborted && !signal.aborted) throw new ApiError({ status: 408, code: "TIMEOUT", message: `Request timeout setelah ${timeoutMs}ms. Backend tidak merespons.` });
+    throw cause;
+  }
+}
+
 export function useResource<T>(
   key: string,
   fetcher: (signal: AbortSignal) => Promise<T>,
   options: ResourceOptions<T> = {}
 ): ResourceResult<T> {
-  const {
-    deps = [],
-    enabled = true,
-    timeoutMs,
-    initialData = null,
-    staleWhileRevalidate = true,
-    onSuccess,
-    onError,
-  } = options;
-
-  // Check cache for initial hydration
-  const cached = resourceCache.get(key);
-  const startData = (cached ? (cached.data as T) : initialData) ?? null;
-
-  const [data, setData] = useState<T | null>(startData);
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">(
-    startData ? "success" : enabled ? "loading" : "idle"
-  );
-  const [error, setError] = useState<ApiError | Error | null>(null);
-  const [isStale, setIsStale] = useState<boolean>(false);
-
-  const abortControllerRef = useRef<AbortController | null>(null);
-  const activeKeyRef = useRef(key);
+  const { deps = [], enabled = true, timeoutMs, initialData = null, staleWhileRevalidate = true, onSuccess, onError } = options;
+  const userId = useSessionUserId();
+  const client = useQueryClient();
   const depsKey = JSON.stringify(deps);
+  const queryKey = useMemo(() => ["resource", userId, key, depsKey] as const, [userId, key, depsKey]);
+  // the latest fetcher and callbacks, without making them part of the key
+  const latest = useRef({ fetcher, onSuccess, onError });
+  useEffect(() => { latest.current = { fetcher, onSuccess, onError }; });
 
-  useEffect(() => {
-    activeKeyRef.current = key;
-  }, [key]);
+  const query = useQuery<T, Error, T, typeof queryKey>({
+    queryKey,
+    queryFn: ({ signal }) => withTimeout(latest.current.fetcher, signal, timeoutMs),
+    enabled,
+    staleTime: 0,
+    retry: (failureCount, error) => failureCount < 1 && shouldRetry(failureCount, error),
+    placeholderData: (previous) => (staleWhileRevalidate && previous !== undefined ? previous : ((initialData ?? undefined) as typeof previous)),
+  });
 
-  const executeFetch = useCallback(
-    async (isManualRefetch = false) => {
-      if (!enabled) return;
+  useEffect(() => { if (query.isSuccess && !query.isPlaceholderData) latest.current.onSuccess?.(query.data); }, [query.isSuccess, query.isPlaceholderData, query.data]);
+  useEffect(() => { if (query.error) latest.current.onError?.(query.error); }, [query.error]);
 
-      // Abort previous in-flight request for this component
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
+  const data = query.data ?? null;
+  const error = query.error ?? null;
+  // as before: data on screen is "success" (isStale says it is being renewed); nothing yet is "loading", or "idle" when not asked for
+  const status: ResourceResult<T>["status"] = query.isError ? "error" : data !== null ? "success" : enabled ? "loading" : "idle";
 
-      const controller = new AbortController();
-      abortControllerRef.current = controller;
+  const refetch = useCallback(async () => { await query.refetch(); }, [query]);
+  const setData: React.Dispatch<React.SetStateAction<T | null>> = useCallback((action) => {
+    client.setQueryData<T>(queryKey, (previous) => {
+      const next = typeof action === "function" ? (action as (value: T | null) => T | null)(previous ?? null) : action;
+      return next ?? undefined;
+    });
+  }, [client, queryKey]);
 
-      // SWR strategy: If previous data exists, keep it visible and mark isStale
-      if (data !== null && staleWhileRevalidate) {
-        setIsStale(true);
-      } else {
-        setStatus("loading");
-      }
-      setError(null);
-
-      try {
-        let fetchPromise = inFlightRequests.get(key) as Promise<T> | undefined;
-
-        if (!fetchPromise || isManualRefetch) {
-          fetchPromise = fetcher(controller.signal);
-          inFlightRequests.set(key, fetchPromise);
-        }
-
-        const result = await fetchPromise;
-
-        // Ensure key hasn't changed while awaiting
-        if (activeKeyRef.current === key) {
-          resourceCache.set(key, { data: result, timestamp: Date.now() });
-          setData(result);
-          setStatus("success");
-          setIsStale(false);
-          setError(null);
-          onSuccess?.(result);
-        }
-      } catch (err: unknown) {
-        if (isAbortError(err)) {
-          // Normal abort on unmount/parameter change, do not update error state
-          return;
-        }
-
-        if (activeKeyRef.current === key) {
-          const formattedError =
-            err instanceof ApiError
-              ? err
-              : err instanceof Error
-              ? err
-              : new Error("Gagal mengambil data dari server");
-
-          setError(formattedError);
-          setStatus("error");
-          setIsStale(false);
-          onError?.(formattedError);
-        }
-      } finally {
-        inFlightRequests.delete(key);
-      }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [key, enabled, staleWhileRevalidate, depsKey]
-  );
-
-  useEffect(() => {
-    executeFetch();
-
-    return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
-    };
-  }, [executeFetch]);
-
-  const refetch = useCallback(async () => {
-    await executeFetch(true);
-  }, [executeFetch]);
-
-  const isLoading = status === "loading" && !data;
-  const isEmpty = status === "success" && checkIfEmpty(data);
-  const isTimeout =
-    status === "error" &&
-    error instanceof ApiError &&
-    (error.isTimeout || error.status === 408);
-
+  const isLoading = status === "loading" && data === null;
+  const isStale = query.isFetching && data !== null;
   return {
     data,
     status,
     error,
     isLoading,
     isStale,
-    isEmpty,
-    isTimeout,
+    isEmpty: status === "success" && checkIfEmpty(data),
+    isTimeout: status === "error" && error instanceof ApiError && (error.isTimeout || error.status === 408),
     refetch,
     setData,
   };

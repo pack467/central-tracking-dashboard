@@ -1,5 +1,6 @@
 "use client";
 import { useMasterReferences } from "@/app/hooks/useMasterReferences";
+import { TICKET_SEVERITIES } from "@/app/lib/severity";
 import { durationScale, SLA_BREACH_MINUTES, SLA_TARGET_MINUTES, wholeStep } from "@/app/lib/chart-scale";
 import { resolveCategoryColor } from "@/app/lib/category-colors";
 
@@ -59,6 +60,7 @@ import { csvLine } from "@/app/lib/csv";
 import { buildMomComparison } from "@/app/lib/mom-comparison";
 import { MomComparison } from "@/app/components/dashboard/MomComparison";
 import type { CheckpointAssessment, Ticket } from "@/app/lib/types";
+import { ticketCode } from "@/app/lib/ticket-code";
 
 interface TicketReportViewProps {
   tickets: Ticket[];
@@ -90,6 +92,9 @@ const PRIORITY_COLORS = {
   Medium: "#f59e0b",
   Low: "#2dd4bf",
 };
+
+/** The severity colours as text, the same hex values as PRIORITY_COLORS. */
+const SEVERITY_TEXT = { High: "text-[#f97316]", Medium: "text-[#f59e0b]", Low: "text-[#2dd4bf]" } as const;
 
 const SEVERITY_CARD_STYLES = {
   High: {
@@ -938,7 +943,7 @@ export function TicketReportView({ tickets: propTickets, onGoToTickets, assessme
     const rows = analyticsTickets.map((t) => {
       const status = slaStatus(t);
       return [
-        `#${t.id}`,
+        `#${ticketCode(t)}`,
         ticketDateOf(t),
         t.created,
         t.shift ?? "",
@@ -2067,26 +2072,55 @@ export function TicketReportView({ tickets: propTickets, onGoToTickets, assessme
                   <button
                     type="button"
                     key={user.name}
-                    className={`group grid grid-cols-[32px_minmax(0,1fr)_auto_14px] items-center gap-x-2.5 px-2.5 py-2.5 rounded-xl bg-[rgba(148,163,184,0.04)] border border-[rgba(148,163,184,0.1)] cursor-pointer text-left w-full transition-colors duration-150 hover:bg-[rgba(56,189,248,0.07)] hover:border-[rgba(56,189,248,0.3)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/50 shrink-0 user-summary-card max-lg:min-h-[64px] max-lg:grid-cols-[32px_minmax(0,1fr)_auto_16px] max-lg:rounded-none max-lg:border-0 max-lg:border-b max-lg:border-slate-700/50 max-lg:bg-transparent max-lg:px-0 ${!staffExpanded && staffIndex >= 5 ? "max-lg:hidden" : ""}`}
-                    aria-label={`Detail ${user.name}: ${user.totalCount} tiket total, ${user.todayCount} tiket hari ini`}
+                    className={`flex flex-col gap-1.5 p-2 sm:p-2.5 rounded-lg bg-[rgba(148,163,184,0.04)] border border-[rgba(148,163,184,0.1)] cursor-pointer text-left w-full transition-all duration-150 hover:bg-[rgba(56,189,248,0.08)] hover:border-[rgba(56,189,248,0.3)] shrink-0 user-summary-card max-lg:grid max-lg:grid-cols-[32px_minmax(0,1fr)_108px_40px] max-lg:grid-rows-1 max-lg:items-center max-lg:gap-x-1.5 max-lg:gap-y-0 max-lg:h-[60px] max-lg:rounded-none max-lg:border-0 max-lg:border-b max-lg:border-slate-700/50 max-lg:bg-transparent max-lg:p-0 max-lg:py-1.5 max-lg:[&_.metric-val]:text-[15px] max-lg:[&_.metric-lbl]:font-sans max-lg:[&_.metric-lbl]:tracking-normal max-lg:[&_.metric-lbl]:leading-[14px] ${!staffExpanded && staffIndex >= 5 ? "max-lg:hidden" : ""}`}
+                    aria-label={`Detail ${user.name}`}
                     onClick={() => setSelectedUserDetail(user)}
+                    title={`Klik untuk melihat rincian sistem dan histori tiket ${user.name}`}
                   >
-                    <Avatar size="md" initials={user.initials} name={user.name} className="size-8 rounded-full flex items-center justify-center text-[11px] font-bold text-white shrink-0 user-avatar-sm" />
-                    <span className="flex flex-col min-w-0 gap-[3px]">
-                      <span className="text-[12.5px] font-semibold leading-tight text-[var(--ink-primary)] truncate user-summary-name max-lg:text-[14px]" title={user.name}>{user.name}</span>
-                      <span className="text-[10.5px] leading-tight text-[var(--ink-muted)] truncate user-summary-role max-lg:text-[11px]" title={user.role}>{user.role || "—"}</span>
-                    </span>
-                    <span className="flex items-start gap-3 user-metrics-row">
-                      <span className="flex w-[52px] flex-col items-center gap-[5px] leading-none user-metric-col metric-total" title="Semua tiket orang ini pada filter yang dipilih">
-                        <strong className={`font-mono text-[16px] font-extrabold tabular-nums metric-val ${user.totalCount ? "text-[var(--ink-primary)]" : "text-slate-500"}`}>{user.totalCount.toLocaleString("id-ID")}</strong>
-                        <span className="text-balance text-center text-[9.5px] font-semibold leading-[1.15] text-[var(--ink-muted)] metric-lbl max-lg:text-[10px]">Total Tiket</span>
+                    <div className="flex items-center justify-between gap-[8px] user-summary-card-top max-lg:contents">
+                      <div className="flex items-center gap-[7px] min-w-0 user-profile-left max-lg:contents">
+                        <Avatar size={mobile ? "md" : "sm"} initials={user.initials} name={user.name} className="w-[24px] h-[24px] rounded-[50%] flex items-center justify-center text-[9.5px] max-lg:text-[11px] font-bold text-[#fff] shrink-0 user-avatar-sm max-lg:col-start-1 max-lg:row-start-1 max-lg:size-8 max-lg:text-[11px]" />
+                        <div className={`flex flex-col min-w-0 user-name-role max-lg:col-start-2 max-lg:row-start-1 ${Object.keys(user.todayBreakdown).length ? "max-lg:self-start" : ""}`}>
+                          <span className="text-[11px] font-bold text-[var(--ink-primary)] whitespace-nowrap overflow-hidden text-ellipsis user-summary-name max-lg:text-[14px] max-lg:leading-[18px]" title={user.name}>{user.name}</span>
+                          <span className="text-[9px] max-lg:text-[11px] text-[var(--ink-muted)] whitespace-nowrap overflow-hidden text-ellipsis user-summary-role max-lg:leading-[14px]" title={user.role}>{user.role}</span>
+                        </div>
+                      </div>
+                      <span className="inline-flex items-center gap-[2px] text-[9.5px] max-lg:text-[11px] font-semibold text-[#38bdf8] shrink-0 user-detail-link max-lg:col-start-4 max-lg:row-start-1 max-lg:size-10 max-lg:justify-center">
+                        <span className="max-lg:hidden">Detail</span><ChevronRight size={11} className="max-lg:size-4" />
                       </span>
-                      <span className="flex w-[52px] flex-col items-center gap-[5px] leading-none user-metric-col metric-today" title="Tiket yang dibuka hari ini (WIB)">
-                        <strong className={`font-mono text-[16px] font-extrabold tabular-nums metric-val ${user.todayCount ? "text-[#38bdf8]" : "text-slate-500"}`}>{user.todayCount}</strong>
-                        <span className="text-balance text-center text-[9.5px] font-semibold leading-[1.15] text-[var(--ink-muted)] metric-lbl max-lg:text-[10px]">Tiket Saat Ini</span>
-                      </span>
-                    </span>
-                    <ChevronRight size={14} className="text-slate-500 transition-colors group-hover:text-sky-300 user-detail-link" aria-hidden="true" />
+                    </div>
+
+                    {/* 2 Metric Pills: the tickets of today on the left, all tickets on the right */}
+                    <div className="grid grid-cols-2 gap-[4px] p-[3px_6px] rounded-[6px] bg-[rgba(15,23,42,0.4)] border border-[rgba(148,163,184,0.08)] user-metrics-row max-lg:col-start-3 max-lg:row-start-1 max-lg:gap-1.5 max-lg:border-0 max-lg:bg-transparent max-lg:p-0">
+                      <div className="flex flex-col items-center text-center gap-[1px] user-metric-col metric-today" title="Tiket yang dibuka hari ini (WIB)">
+                        <span className="text-[7.5px] max-lg:text-[11px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl">{mobile ? "Saat Ini" : "TIKET SAAT INI"}</span>
+                        <strong className={`text-[12px] font-extrabold font-mono metric-val ${user.todayCount ? "text-[#38bdf8]" : "text-slate-400"}`}>{user.todayCount}</strong>
+                      </div>
+                      <div className="flex flex-col items-center text-center gap-[1px] user-metric-col metric-total" title="Semua tiket orang ini pada filter yang dipilih">
+                        <span className="text-[7.5px] max-lg:text-[11px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl">{mobile ? "Total" : "TOTAL TIKET"}</span>
+                        <strong className={`text-[12px] font-extrabold font-mono metric-val ${user.totalCount ? "text-[#818cf8] max-lg:text-[#c084fc]" : "text-slate-400"}`}>{user.totalCount.toLocaleString("id-ID")}</strong>
+                      </div>
+                    </div>
+
+                    {/* Today's project tags */}
+                    <HorizontalScroll className={`flex items-center gap-[4px] text-[9px] max-lg:text-[11px] text-[var(--ink-muted)] user-today-projects max-lg:col-start-2 max-lg:row-start-1 max-lg:self-end max-lg:h-[14px] max-lg:min-h-[14px] max-lg:overflow-x-auto max-lg:whitespace-nowrap max-lg:overscroll-x-contain max-lg:[scrollbar-width:none] max-lg:[&::-webkit-scrollbar]:hidden ${Object.keys(user.todayBreakdown).length ? "" : "max-lg:hidden"}`}>
+                      <span className="text-[8.5px] max-lg:text-[11px] text-[var(--ink-muted)] font-semibold shrink-0 user-proj-label max-lg:hidden">Hari Ini:</span>
+                      {Object.keys(user.todayBreakdown).length > 0 ? (
+                        <div className="flex flex-wrap gap-[3px] user-proj-pills-wrap max-lg:flex-nowrap">
+                          {Object.entries(user.todayBreakdown).map(([proj, count]) => {
+                            const pColor = PROJECT_COLORS[proj] || "#94a3b8";
+                            return (
+                              <span className="inline-flex items-center gap-[2px] p-[1px_4px] rounded-[3px] text-[8.5px] max-lg:text-[11px] font-mono font-semibold bg-[rgba(255,255,255,0.06)] text-[var(--ink-secondary)] user-proj-badge max-lg:py-0 max-lg:leading-[14px]" key={proj}>
+                                <i className="w-[9px] h-[9px] rounded-[2.5px] inline-block legend-dot" style={{ background: pColor }} />
+                                {projectLabel(proj, activeClientId)} &times;{count}
+                              </span>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <span className="text-[8.5px] max-lg:text-[11px] text-[var(--ink-muted)] italic user-proj-none">Tidak ada tiket baru hari ini</span>
+                      )}
+                    </HorizontalScroll>
                   </button>
                 ))}
               </div>
@@ -2216,17 +2250,13 @@ export function TicketReportView({ tickets: propTickets, onGoToTickets, assessme
                 skeleton={<SeverityDistributionSkeleton />}
               liveRegionText="Memuat distribusi severity..."
             >
-              <div className="flex flex-col @[520px]:grid @[520px]:grid-cols-[auto_1fr] @[520px]:items-stretch gap-4 @[520px]:gap-6 flex-1 min-h-0 justify-center">
-              {/* Donut Chart for Priority */}
+              {/* Same layout as Distribusi Kategori next to it: the donut with the total, then one row per severity */}
+              <div className="grid grid-cols-[140px_1fr] max-[540px]:grid-cols-1 max-[540px]:justify-items-center gap-[20px] items-center h-full flex-1 min-h-0 max-lg:gap-3 max-lg:justify-items-center @max-[439px]:max-lg:grid-cols-1 @min-[440px]:max-lg:grid-cols-[140px_1fr]">
               <div className="flex items-center justify-center shrink-0">
-                <div className="relative shrink-0 w-[120px] h-[120px] max-lg:size-[120px] @[340px]:w-[132px] @[340px]:h-[132px] @[520px]:w-[148px] @[520px]:h-[148px] donut-chart-wrap">
+                <div className="relative w-[130px] h-[130px] max-lg:size-[140px] donut-chart-wrap">
                   <svg className="w-full h-full donut-svg" viewBox="0 0 160 160">
                     {renderDonutSlices(
-                      [
-                        { label: "High", count: priorityCounts.High, color: PRIORITY_COLORS.High },
-                        { label: "Medium", count: priorityCounts.Medium, color: PRIORITY_COLORS.Medium },
-                        { label: "Low", count: priorityCounts.Low, color: PRIORITY_COLORS.Low },
-                      ],
+                      TICKET_SEVERITIES.map((key) => ({ label: key, count: priorityCounts[key], color: PRIORITY_COLORS[key] })),
                       80,
                       80,
                       55,
@@ -2235,45 +2265,31 @@ export function TicketReportView({ tickets: propTickets, onGoToTickets, assessme
                     )}
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none donut-center-content">
-                    <span className="text-[28px] font-bold font-mono text-[#f8fafc] leading-none tabular-nums donut-total-num">
-                      {priorityCounts.High}
-                    </span>
-                    <span className="text-[10px] max-lg:text-[11px] font-mono uppercase tracking-[0.12em] text-[#94a3b8] mt-1 donut-total-label">
-                      HIGH
-                    </span>
+                    <span className="text-[20px] font-extrabold font-mono text-[var(--ink-primary)] leading-none donut-total-num">{total}</span>
+                    <span className="text-[8px] max-lg:text-[11px] font-bold font-mono tracking-[0.8px] text-[var(--ink-muted)] mt-[2px] donut-total-label">TOTAL</span>
                   </div>
                 </div>
               </div>
 
-              {/* Priority Summary Grid */}
-              <div className="grid grid-cols-1 @[340px]:grid-cols-3 gap-3 w-full h-full priority-spectrum-list max-lg:grid-cols-3 max-lg:gap-2">
-                {(["High", "Medium", "Low"] as const).map((key) => {
+              <div className="flex flex-col justify-center gap-2.5 h-full w-full min-w-0 priority-spectrum-list">
+                {TICKET_SEVERITIES.map((key) => {
                   const count = priorityCounts[key];
                   const pct = total > 0 ? Math.round((count / total) * 100) : 0;
                   const style = SEVERITY_CARD_STYLES[key];
-
                   return (
-                    <div
-                      key={key}
-                      className={`p-3.5 rounded-lg bg-slate-950/40 border border-[#334155] border-l-[3px] ${style.borderLeft} flex flex-col justify-between min-w-0 h-full max-lg:p-2 max-lg:h-[108px] priority-spec-box`}
-                    >
-                      <div className="flex items-center gap-1.5 min-w-0 spec-top">
-                        <span className={`w-2 h-2 rounded-full shrink-0 ${style.dot}`} />
-                        <strong className="text-xs font-semibold text-[#f8fafc] truncate">{key}</strong>
-                      </div>
-                      <span className="text-[28px] font-bold font-mono text-[#f8fafc] leading-none tabular-nums my-1 spec-count max-lg:text-[22px]">
-                        {count}
-                      </span>
-                      <div className="flex flex-col gap-1.5 w-full mt-auto">
-                        <span className="text-[11px] font-mono text-[#94a3b8] tabular-nums leading-tight spec-pct">
-                          {pct}% share
+                    <div key={key} className={`flex flex-col gap-2 min-w-0 rounded-lg border border-[#334155] border-l-[3px] ${style.borderLeft} bg-slate-950/40 px-3 py-2.5 priority-spec-box`}>
+                      <div className="flex items-center justify-between gap-3 min-w-0">
+                        <span className="inline-flex items-center gap-1.5 min-w-0">
+                          <span className={`w-2 h-2 rounded-full shrink-0 ${style.dot}`} />
+                          <strong className="text-[12.5px] font-semibold text-[#f8fafc] truncate">{key}</strong>
                         </span>
-                        <div className="w-full h-1 bg-[#334155] rounded-full overflow-hidden">
-                          <div
-                            className={`h-full rounded-full ${style.bar}`}
-                            style={{ width: `${Math.min(100, Math.max(0, pct))}%` }}
-                          />
-                        </div>
+                        <span className="flex items-baseline gap-1.5 shrink-0 font-mono tabular-nums">
+                          <strong className={`text-[20px] font-bold leading-none spec-count ${count ? SEVERITY_TEXT[key] : "text-slate-500"}`}>{count}</strong>
+                          <span className="text-[11px] text-[var(--ink-muted)] spec-pct">{pct}%</span>
+                        </span>
+                      </div>
+                      <div className="w-full h-[5px] bg-[rgba(148,163,184,0.15)] rounded-full overflow-hidden">
+                        <div className={`h-full rounded-full ${style.bar}`} style={{ width: `${Math.min(100, Math.max(0, pct))}%` }} />
                       </div>
                     </div>
                   );
@@ -3523,21 +3539,20 @@ export function TicketReportView({ tickets: propTickets, onGoToTickets, assessme
                 {(() => {
                   const user = selectedUserDetail;
                   const periods = [
-                    { key: "total", label: "Total", hint: "Semua tiket pada filter yang dipilih", value: user.totalCount, breakdown: user.totalBreakdown, tone: "text-[var(--ink-primary)]", ring: "border-slate-500/30 bg-slate-400/[0.06]" },
-                    { key: "year", label: "Tahun Ini", hint: `Sejak 1 Januari ${todayWib.slice(0, 4)}`, value: user.yearCount, breakdown: user.yearBreakdown, tone: "text-[#a78bfa]", ring: "border-violet-400/25 bg-violet-400/[0.06]" },
-                    { key: "month", label: "Bulan Ini", hint: "Sejak tanggal 1 bulan ini", value: user.monthCount, breakdown: user.monthBreakdown, tone: "text-[#34d399]", ring: "border-emerald-400/25 bg-emerald-400/[0.06]" },
-                    { key: "week", label: "Minggu Ini", hint: "Senin sampai hari ini", value: user.weekCount, breakdown: user.weekBreakdown, tone: "text-[#fbbf24]", ring: "border-amber-400/25 bg-amber-400/[0.06]" },
-                    { key: "today", label: "Saat Ini", hint: "Tiket yang dibuka hari ini", value: user.todayCount, breakdown: user.todayBreakdown, tone: "text-[#38bdf8]", ring: "border-sky-400/30 bg-sky-400/[0.07]" },
+                    { key: "total", label: "Total", caption: "Total Tiket", hint: "Semua tiket pada filter yang dipilih", value: user.totalCount, breakdown: user.totalBreakdown, tone: "text-[var(--ink-primary)]", ring: "border-slate-500/30 bg-slate-400/[0.06]" },
+                    { key: "year", label: "Tahun Ini", caption: "Tiket Tahun Ini", hint: `Sejak 1 Januari ${todayWib.slice(0, 4)}`, value: user.yearCount, breakdown: user.yearBreakdown, tone: "text-[#a78bfa]", ring: "border-violet-400/25 bg-violet-400/[0.06]" },
+                    { key: "month", label: "Bulan Ini", caption: "Tiket Bulan Ini", hint: "Sejak tanggal 1 bulan ini", value: user.monthCount, breakdown: user.monthBreakdown, tone: "text-[#34d399]", ring: "border-emerald-400/25 bg-emerald-400/[0.06]" },
+                    { key: "week", label: "Minggu Ini", caption: "Tiket Minggu Ini", hint: "Senin sampai hari ini", value: user.weekCount, breakdown: user.weekBreakdown, tone: "text-[#fbbf24]", ring: "border-amber-400/25 bg-amber-400/[0.06]" },
+                    { key: "today", label: "Hari Ini", caption: "Tiket Hari Ini", hint: "Tiket yang dibuka hari ini", value: user.todayCount, breakdown: user.todayBreakdown, tone: "text-[#38bdf8]", ring: "border-sky-400/30 bg-sky-400/[0.07]" },
                   ];
                   const projects = Object.entries(user.totalBreakdown).sort((a, b) => b[1] - a[1]).map(([project]) => project);
                   return (
                     <>
                       <div className="grid grid-cols-5 gap-2.5 max-[720px]:grid-cols-3 max-[420px]:grid-cols-2 user-modal-periods-grid">
                         {periods.map((period) => (
-                          <div key={period.key} className={`flex flex-col gap-1 rounded-[10px] border p-[10px_12px] user-period-card ${period.ring}`} title={period.hint}>
-                            <span className="text-[10px] font-bold uppercase tracking-[0.07em] text-[var(--ink-muted)]">{period.label}</span>
+                          <div key={period.key} className={`flex flex-col items-start gap-1.5 rounded-[10px] border p-[10px_12px] user-period-card ${period.ring}`} title={period.hint}>
                             <strong className={`font-mono text-[22px] font-extrabold leading-none tabular-nums ${period.tone}`}>{period.value.toLocaleString("id-ID")}</strong>
-                            <span className="text-[10px] text-[var(--ink-muted)]">tiket</span>
+                            <span className="text-[10.5px] font-medium leading-tight text-[var(--ink-muted)]">{period.caption}</span>
                           </div>
                         ))}
                       </div>
@@ -3601,7 +3616,7 @@ export function TicketReportView({ tickets: propTickets, onGoToTickets, assessme
 
                         return (
                           <div className="grid grid-cols-[75px_75px_1fr_60px_70px] items-center gap-[8px] p-[6px_10px] rounded-[6px] bg-[rgba(148,163,184,0.04)] text-[10.5px] max-lg:text-[11px] user-modal-ticket-row" key={t.id}>
-                            <span className="font-mono font-bold text-[var(--ink-primary)] user-modal-ticket-id">#{t.id}</span>
+                            <span className="font-mono font-bold text-[var(--ink-primary)] user-modal-ticket-id">#{ticketCode(t)}</span>
                             <span className="font-semibold user-modal-ticket-proj" style={{ color: pColor }}>● {t.project}</span>
                             <span className="text-[var(--ink-secondary)] whitespace-nowrap overflow-hidden text-ellipsis user-modal-ticket-sub" title={t.subject}>{t.subject}</span>
                             <span className={`priority-pill ${pClass}`}>{t.severity}</span>

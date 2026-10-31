@@ -6,8 +6,9 @@ import { useUrlQuery } from "@/app/hooks/useUrlQuery";
 import { shiftLogSchema } from "@/app/lib/query-state";
 import { paths } from "@/app/lib/routes";
 import { useToast } from "@/app/components/ui/Toast";
+import { useAuth } from "@/app/lib/auth";
 import { createHandoverDraft, initialHandoverRecord } from "@/app/lib/data";
-import { buildDashboardHandoverDraft, HandoverError, parseHandoverContent, validateDraft } from "@/app/lib/handover";
+import { buildDashboardHandoverDraft, HandoverError, handoverShiftRuleMessage, isInHandoverShift, parseHandoverContent, validateDraft } from "@/app/lib/handover";
 import type { CheckpointAssessment, HandoverActor, HandoverDraft, RosterMember, StoredHandoverRecord, Ticket } from "@/app/lib/types";
 
 type DraftSession = {
@@ -22,15 +23,40 @@ type DraftSession = {
 type ListResponse = { notes: StoredHandoverRecord[]; total: number; page: number; hasMore: boolean; actor: HandoverActor };
 type Inputs = { tickets: Ticket[]; assessments: Record<string, CheckpointAssessment>; members: RosterMember[] };
 
+/**
+ * Set by the hook while it is mounted: what a 401 from the handover API means. With the backend login, that API checks the session cookie
+ * with the backend. Either the session has ended (the app then logs out, as a 401 from the backend itself does), or it is alive and the
+ * cookie never reached this site's server: logging in again would not help, so say what is wrong instead of looping through /login.
+ */
+let explainUnauthorized: (() => Promise<string | null>) | null = null;
+const COOKIE_NOT_RECEIVED = "Anda masih login, tetapi sesi tidak sampai ke server handover. Hubungi administrator: aplikasi dan API harus disajikan di satu alamat.";
+
 async function request<T>(url: string, options?: RequestInit): Promise<T> {
   const response = await fetch(url, { cache: "no-store", ...options, headers: { "Content-Type": "application/json", ...options?.headers }, signal: AbortSignal.timeout(20000) });
-  const payload = await response.json();
+  // a proxy in front can answer with an HTML error page: that is a failed request, not a parse error to show
+  const payload = (await response.json().catch(() => ({}))) as { error?: string };
+  if (response.status === 401 && explainUnauthorized) throw new HandoverError((await explainUnauthorized()) ?? payload.error ?? "Sesi login sudah berakhir.", 401);
   if (!response.ok) throw new HandoverError(payload.error || "Permintaan handover gagal.", response.status);
   return payload as T;
 }
 
 export function useHandoverWorkflow(inputs: Inputs) {
   const notify = useToast();
+  const { user, recheckSession } = useAuth();
+  const userId = user?.id ?? null;
+  useEffect(() => {
+    const explain = async () => ((await recheckSession()) === "valid" ? COOKIE_NOT_RECEIVED : null);
+    explainUnauthorized = explain;
+    return () => { if (explainUnauthorized === explain) explainUnauthorized = null; };
+  }, [recheckSession]);
+  // The logged-in person's shift, from the roster (Master Data); a demo account carries its own. Unknown when neither has one.
+  const myShift = useMemo(() => {
+    if (!user) return null;
+    const email = user.email.toLowerCase();
+    const member = inputs.members.find((item) => item.id === user.id || (email && item.email.toLowerCase() === email));
+    return member?.currentShift ?? user.shift ?? null;
+  }, [inputs.members, user]);
+  const canManage = useCallback((value: { sourceShift: string; targetShift: string }) => isInHandoverShift(myShift, value), [myShift]);
   const [records, setRecords] = useState<StoredHandoverRecord[]>([]);
   const [active, setActive] = useState<StoredHandoverRecord | null>(null);
   const activeRef = useRef(active);
@@ -128,22 +154,39 @@ export function useHandoverWorkflow(inputs: Inputs) {
   }, [notify]);
 
   useEffect(() => {
-    if (!actor || storageKey.current === `ctd.handoverDraft.v1:${actor.id}`) return;
-    storageKey.current = `ctd.handoverDraft.v1:${actor.id}`;
+    // The draft belongs to the person logged in to the app, not only to the handover identity: in development (and with a simulated actor)
+    // every person has the same handover identity, and the next person at a shared desk must not get the previous person's draft.
+    if (!actor || !userId) return;
+    const key = `ctd.handoverDraft.v1:${userId}:${actor.id}`;
+    if (storageKey.current === key) return;
+    storageKey.current = key;
+    let restored: DraftSession | null = null;
     try {
-      const saved = localStorage.getItem(storageKey.current);
-      if (!saved) return;
-      const restored = JSON.parse(saved) as DraftSession;
-      if (!["prepare", "create", "edit"].includes(restored.mode) || typeof restored.requestId !== "string" || typeof restored.draft?.date !== "string" || typeof restored.draft?.monitoredProjects !== "string") throw new Error();
-      restored.step = Math.min(Math.max(Number(restored.step) || 1, 1), 4) as 1 | 2 | 3 | 4;
-      parseHandoverContent(JSON.stringify({ ...restored.draft, monitoredProjects: restored.draft.monitoredProjects.split(",").filter(Boolean) }));
-      sessionRef.current = restored;
-      setSession(restored);
-      setDraftSaved(true);
+      // a draft from before drafts were per person goes to whoever opens handover first, and only to them
+      const legacyKey = `ctd.handoverDraft.v1:${actor.id}`;
+      const legacy = localStorage.getItem(legacyKey);
+      if (legacy !== null) {
+        if (localStorage.getItem(key) === null) localStorage.setItem(key, legacy);
+        localStorage.removeItem(legacyKey);
+      }
+      const saved = localStorage.getItem(key);
+      if (saved) {
+        const parsed = JSON.parse(saved) as DraftSession;
+        if (!["prepare", "create", "edit"].includes(parsed.mode) || typeof parsed.requestId !== "string" || typeof parsed.draft?.date !== "string" || typeof parsed.draft?.monitoredProjects !== "string") throw new Error();
+        parsed.step = Math.min(Math.max(Number(parsed.step) || 1, 1), 4) as 1 | 2 | 3 | 4;
+        parseHandoverContent(JSON.stringify({ ...parsed.draft, monitoredProjects: parsed.draft.monitoredProjects.split(",").filter(Boolean) }));
+        restored = parsed;
+      }
     } catch {
       notify.warning("Draf lokal tidak dapat dipulihkan. Catatan yang sudah disimpan di server tetap aman.", { id: "handover-draft-restore" });
     }
-  }, [actor, notify]);
+    // this person's draft, or none: the previous person's draft never stays open
+    if (restored || sessionRef.current) {
+      sessionRef.current = restored;
+      setSession(restored);
+      if (restored) setDraftSaved(true);
+    }
+  }, [actor, userId, notify]);
 
   const openWizard = (mode: "prepare" | "create") => {
     if (busyRef.current) return;
@@ -153,7 +196,9 @@ export function useHandoverWorkflow(inputs: Inputs) {
       persistSession({ ...sessionRef.current, open: true });
       notify.info("Melanjutkan draf yang belum disimpan. Buang draf jika ingin memulai catatan baru.", { id: "handover-resume" });
     } else {
-      persistSession({ draft: buildDashboardHandoverDraft({ ...inputs, actor }), mode, editId: null, revision: null, requestId: crypto.randomUUID(), step: 1, open: true });
+      const draft = buildDashboardHandoverDraft({ ...inputs, actor });
+      if (!canManage(draft)) { notify.warning(handoverShiftRuleMessage(draft, "membuat handover ini")); return; }
+      persistSession({ draft, mode, editId: null, revision: null, requestId: crypto.randomUUID(), step: 1, open: true });
     }
   };
 
@@ -184,6 +229,7 @@ export function useHandoverWorkflow(inputs: Inputs) {
     const draftSession = sessionRef.current;
     if (!draftSession || busyRef.current) return;
     try { validateDraft(draftSession.draft); } catch (cause) { notify.warning(cause instanceof Error ? cause.message : "Lengkapi form handover."); return; }
+    if (!draftSession.editId && !canManage(draftSession.draft)) { notify.warning(handoverShiftRuleMessage(draftSession.draft, "membuat handover ini")); return; }
     busyRef.current = true;
     setBusy(true);
     try {
@@ -222,6 +268,8 @@ export function useHandoverWorkflow(inputs: Inputs) {
     if (busyRef.current) throw new Error("Tunggu penyimpanan yang sedang berjalan.");
     const note = records.find((item) => item.id === id);
     if (!note) throw new Error("Muat ulang daftar catatan.");
+    const content = parseHandoverContent(note.content);
+    if (!canManage(content)) throw new Error(handoverShiftRuleMessage(content, "menghapus handover ini"));
     busyRef.current = true;
     setBusy(true);
     try {
@@ -304,7 +352,13 @@ export function useHandoverWorkflow(inputs: Inputs) {
     changeDraft: (updater: (draft: HandoverDraft) => HandoverDraft) => { if (sessionRef.current && !busyRef.current) persistSession({ ...sessionRef.current, draft: updater(sessionRef.current.draft) }); },
     changeStep: (step: 1 | 2 | 3 | 4) => { if (sessionRef.current) persistSession({ ...sessionRef.current, step }); },
     toggleTask: (id: number) => { const task = record.tasks.find((item) => item.id === id); if (task) void mutate("task", { taskId: id, completed: !task.completed }); },
-    deleteTask: (id: number) => { const task = record.tasks.find((item) => item.id === id); if (task) void mutate("delete-task", { taskId: id }); },
+    deleteTask: (id: number) => {
+      const task = record.tasks.find((item) => item.id === id);
+      if (!task) return;
+      if (!canManage(record)) { notify.warning(handoverShiftRuleMessage(record, "menghapus tugas handover ini")); return; }
+      void mutate("delete-task", { taskId: id });
+    },
+    canManage,
     confirm: (note: string) => void mutate("confirm", { note }),
   };
 }

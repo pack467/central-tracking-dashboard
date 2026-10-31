@@ -4,47 +4,26 @@
  *
  * What the backend does not have, and so what the UI will not show for these tickets: system, priority, shift (derived here from the hour),
  * escalation, response time, SLA target and history. Severity has three levels there (Low, Med, High), the same three the UI has.
+ *
+ * Writes go to POST /tickets and PATCH /tickets/:id. The form's names (project, severity, category, status, PIC) are turned into the
+ * backend's ids here; anything the backend cannot hold is refused with a message instead of looking saved.
  */
 import { apiClient } from "@/app/lib/api/client";
 import { ApiError } from "@/app/lib/api/errors";
 import { apiModuleEnabled } from "@/app/lib/config";
 import { getShiftInfoForMinutes } from "@/app/lib/shifts";
+import { wibDateString } from "@/app/lib/wib";
 import type { Ticket, TicketSeverity } from "@/app/lib/types";
+import type { z } from "zod";
+import { backendTicketSchema, lookupListSchema, parseResponse, ticketPageSchema } from "@/app/lib/api/schemas";
+import { getQueryClient } from "@/app/lib/query-client";
 
-export interface BackendTicket {
-  id: string;
-  third_party_ticket_id: string | null;
-  project_id: string;
-  client_id: string | null;
-  tenant_id: string | null;
-  user_id: string | null;
-  severity_id: string | null;
-  category_id: string | null;
-  requester: string | null;
-  subject: string;
-  description: string | null;
-  status: "Open" | "Closed" | "Activity" | "Meeting" | "Pending" | "ReOpen" | string;
-  open_at: string;
-  closed_at: string | null;
-  created_at: string;
-  updated_at: string;
-  project?: { id: string; name: string; code_prefix: string | null } | null;
-  tenant?: { id: string; name: string } | null;
-  client?: { id: string; name: string } | null;
-  user?: { id: string; name: string; email: string | null } | null;
-  severity?: { id: string; code_name: string; name: string } | null;
-  category?: { id: string; name: string } | null;
-}
-interface TicketPage { data: BackendTicket[]; meta: { page: number; limit: number; total: number; total_pages: number } }
+/** A ticket as the backend sends it; the shape is checked on arrival (lib/api/schemas.ts). Status: Open, Closed, Activity, Meeting, Pending, ReOpen. */
+export type BackendTicket = z.output<typeof backendTicketSchema>;
+type TicketPage = z.output<typeof ticketPageSchema>;
 
 /** Tickets use the backend only when both the tickets module and the login are on: the endpoints need a session. */
 export const ticketsFromBackend = (): boolean => apiModuleEnabled("tickets") && apiModuleEnabled("auth");
-
-/**
- * Tickets can be created, edited and closed only while the app keeps them itself. With the backend as the source they are read-only until
- * writing is connected (it needs the project list, which the backend does not offer yet), so nothing looks saved that is not.
- */
-export const ticketWritesEnabled = (): boolean => !ticketsFromBackend();
 
 const WIB_OFFSET_MS = 7 * 3600_000;
 const pad = (n: number) => String(n).padStart(2, "0");
@@ -94,10 +73,18 @@ export function backendTicketToModel(source: BackendTicket): Ticket {
     shift: opened ? getShiftInfoForMinutes(opened.minuteOfDay).shortLabel : undefined,
     // every backend ticket belongs to the Tritronik client today; the app's own client ids are slugs of the names
     clientId: (source.client?.name || "Tritronik").trim().toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+    backend: {
+      projectId: String(source.project?.id ?? source.project_id),
+      ...(source.project?.name ? { projectName: source.project.name } : {}),
+      ...(source.client?.id ?? source.client_id ? { clientId: String(source.client?.id ?? source.client_id) } : {}),
+      ...(source.user?.id ?? source.user_id ? { userId: String(source.user?.id ?? source.user_id) } : {}),
+      ...(source.third_party_ticket_id ? { thirdPartyId: source.third_party_ticket_id } : {}),
+    },
   };
 }
 
-const PAGE = 100, PARALLEL = 4, CACHE_MS = 30_000, STORED_MS = 3 * 60_000, STORAGE_KEY = "ctd.backendTickets.v1";
+// v2: tickets carry their backend ids (`backend`), which a copy stored by v1 does not have
+const PAGE = 100, PARALLEL = 4, CACHE_MS = 30_000, STORED_MS = 3 * 60_000, STORAGE_KEY = "ctd.backendTickets.v2";
 let cache: { at: number; promise: Promise<Ticket[]> } | undefined;
 /** Whose tickets are cached. A load or a stored copy made for someone else is never used. */
 let owner = "";
@@ -107,7 +94,7 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 async function getPage(page: number): Promise<TicketPage> {
   for (let attempt = 0; ; attempt++) {
     try {
-      return await apiClient.get<TicketPage>("/tickets", { params: { limit: PAGE, page, sort: "open_at", order: "desc" } });
+      return parseResponse(ticketPageSchema, await apiClient.get<unknown>("/tickets", { params: { limit: PAGE, page, sort: "open_at", order: "desc" } }), "daftar tiket");
     } catch (cause) {
       if (!(cause instanceof ApiError) || cause.status !== 429 || attempt >= 3) throw cause;
       // the server's own Retry-After when the browser can read it, else a growing wait; a little jitter so tabs do not retry in step
@@ -166,7 +153,7 @@ export function setTicketCacheOwner(id: string | null) {
 }
 /** The newest changes: the 100 tickets changed most recently (new ones and edited ones). One request, so it can run every minute. */
 export async function fetchRecentTickets(): Promise<Ticket[]> {
-  const page = await apiClient.get<TicketPage>("/tickets", { params: { limit: PAGE, page: 1, sort: "updated_at", order: "desc" } });
+  const page = parseResponse(ticketPageSchema, await apiClient.get<unknown>("/tickets", { params: { limit: PAGE, page: 1, sort: "updated_at", order: "desc" } }), "tiket terbaru");
   return page.data.map(backendTicketToModel);
 }
 const sortKey = (ticket: Ticket) => `${ticket.date ?? ""} ${ticket.requestTime ?? ""}`;
@@ -188,4 +175,105 @@ export function rememberTickets(tickets: Ticket[]) {
 export function resetTicketCache() {
   cache = undefined;
   try { window.sessionStorage.removeItem(STORAGE_KEY); } catch { /* nothing stored */ }
+}
+
+// ── Writing ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+type Lookup = z.output<typeof lookupListSchema>[number];
+export interface TicketLookups { categories: Lookup[]; severities: Lookup[] }
+export const ticketLookupsKey = ["backend", "ticket-lookups"] as const;
+
+export async function loadTicketLookups(): Promise<TicketLookups> {
+  const [categories, severities] = await Promise.all([apiClient.get<unknown>("/ticket-categories"), apiClient.get<unknown>("/ticket-severities")]);
+  return { categories: parseResponse(lookupListSchema, categories, "kategori tiket"), severities: parseResponse(lookupListSchema, severities, "severity tiket") };
+}
+/**
+ * Categories and severities as the backend names them (GET /ticket-categories, /ticket-severities). Kept in the query cache for the whole
+ * session (the forms read the same entry through useBackendTicketOptions) and dropped at logout; a failure is not kept.
+ */
+export function fetchTicketLookups(): Promise<TicketLookups> {
+  return getQueryClient().fetchQuery({ queryKey: ticketLookupsKey, queryFn: loadTicketLookups, staleTime: Infinity });
+}
+
+/** The backend's projects, read from its tickets (there is no GET /projects): one per id, by name. A project without tickets is not listed. */
+export function backendProjects(tickets: readonly Ticket[]): { id: string; name: string }[] {
+  const byId = new Map<string, string>();
+  for (const ticket of tickets) {
+    const id = ticket.backend?.projectId;
+    if (id && !byId.has(id)) byId.set(id, ticket.backend?.projectName || ticket.project);
+  }
+  return [...byId].map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name));
+}
+
+/** The UI's statuses the backend has (`TicketStatus`). Escalated and RCA exist only in the app. */
+const BACKEND_STATUS: Record<string, string> = { Open: "Open", Closed: "Closed", Activity: "Activity", Meeting: "Meeting", Pending: "Pending", "Re-Open": "ReOpen", ReOpen: "ReOpen" };
+function backendStatus(status: string): string {
+  const value = BACKEND_STATUS[status];
+  if (!value) throw new Error(`Status "${status}" belum ada di backend. Pilih Open, Closed, Activity, Meeting, Pending atau Re-Open.`);
+  return value;
+}
+const sameName = (a: string | undefined, b: string) => !!a && a.trim().toLowerCase() === b.trim().toLowerCase();
+function lookupId(list: readonly Lookup[], value: string | undefined, what: string): string | null {
+  if (!value) return null;
+  const found = list.find(item => sameName(item.name, value) || sameName(item.code_name, value));
+  if (!found) throw new Error(`${what} "${value}" tidak dikenal backend.`);
+  return found.id;
+}
+/** The backend keeps one assignee: the first PIC that is a backend user. */
+const assigneeOf = (ticket: Ticket) => ticket.ownerIds?.find(id => /^\d+$/.test(id));
+/** HH:MM on today's WIB date, written with its +07:00 offset so the backend stores the right UTC instant. */
+const wibToday = (time: string) => `${wibDateString()}T${time}:00+07:00`;
+
+/** The body of POST /tickets for a ticket filled in on the form. `backend.projectId` holds the chosen project. */
+export function ticketToCreateBody(ticket: Ticket, known: TicketLookups): Record<string, unknown> {
+  const projectId = ticket.backend?.projectId;
+  if (!projectId) throw new Error("Pilih proyek.");
+  const assignee = assigneeOf(ticket);
+  return {
+    subject: ticket.subject,
+    project_id: projectId,
+    status: backendStatus(String(ticket.status)),
+    severity_id: lookupId(known.severities, ticket.severity, "Severity"),
+    category_id: lookupId(known.categories, ticket.category, "Kategori"),
+    ...(ticket.backend?.clientId ? { client_id: ticket.backend.clientId } : {}),
+    ...(ticket.description ? { description: ticket.description } : {}),
+    ...(ticket.backend?.thirdPartyId ? { third_party_ticket_id: ticket.backend.thirdPartyId } : {}),
+    // without one the backend assigns the ticket to whoever creates it
+    ...(assignee ? { user_id: assignee } : {}),
+    ...(ticket.requestTime ? { open_at: wibToday(ticket.requestTime) } : {}),
+    ...(ticket.completionTime ? { closed_at: wibToday(ticket.completionTime) } : {}),
+  };
+}
+
+/** The body of PATCH /tickets/:id: only what changed, so an operator without tickets.write.any is not refused for "reassigning". */
+export function ticketToUpdateBody(next: Ticket, previous: Ticket, known: TicketLookups): Record<string, unknown> {
+  const body: Record<string, unknown> = {};
+  if (next.subject !== previous.subject) body.subject = next.subject;
+  if (next.backend?.projectId && next.backend.projectId !== previous.backend?.projectId) body.project_id = next.backend.projectId;
+  if (next.severity !== previous.severity) body.severity_id = lookupId(known.severities, next.severity, "Severity");
+  if ((next.category || "") !== (previous.category || "")) body.category_id = lookupId(known.categories, next.category, "Kategori");
+  if (next.status !== previous.status) body.status = backendStatus(String(next.status));
+  if ((next.description || "") !== (previous.description || "")) body.description = next.description || null;
+  const assignee = assigneeOf(next);
+  if (assignee && assignee !== previous.backend?.userId) body.user_id = assignee;
+  return body;
+}
+
+/**
+ * Creates the ticket in the backend and answers with it as the backend saved it (its own id, times and names). The client is the backend
+ * client of the app's active client, read from the loaded tickets (`known`), as there is no GET /clients.
+ */
+export async function createBackendTicket(ticket: Ticket, known: readonly Ticket[]): Promise<Ticket> {
+  const appClient = ticket.clientId || "tritronik";
+  const clientId = known.find(item => (item.clientId || "tritronik") === appClient && item.backend?.clientId)?.backend?.clientId;
+  if (!clientId) throw new Error("Klien ini belum punya tiket di backend, jadi tiket baru belum bisa dicatat untuknya.");
+  const body = ticketToCreateBody({ ...ticket, backend: { ...ticket.backend, clientId } }, await fetchTicketLookups());
+  return backendTicketToModel(parseResponse(backendTicketSchema, await apiClient.post<unknown>("/tickets", body), "tiket yang disimpan"));
+}
+
+/** Saves the changes from `previous` to `next`; nothing changed sends nothing. */
+export async function updateBackendTicket(next: Ticket, previous: Ticket): Promise<Ticket> {
+  const body = ticketToUpdateBody(next, previous, await fetchTicketLookups());
+  if (!Object.keys(body).length) return previous;
+  return backendTicketToModel(parseResponse(backendTicketSchema, await apiClient.patch<unknown>(`/tickets/${encodeURIComponent(previous.id)}`, body), "tiket yang disimpan"));
 }

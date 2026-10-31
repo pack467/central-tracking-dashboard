@@ -9,13 +9,14 @@ import { Avatar } from "@/app/components/ui/Avatar";
 import { ConfirmDialog } from "@/app/components/ui/ConfirmDialog";
 import { ModalCloseButton } from "@/app/components/ui/ModalCloseButton";
 import { TicketEditModal } from "@/app/components/tickets/TicketEditModal";
-import { ProjectMark } from "@/app/components/ui/ProjectMark";
+import { EntityIconTile } from "@/app/components/master-data/master-ui";
 import { useToast } from "@/app/components/ui/Toast";
 import { severityTone, statusTone } from "@/app/components/tickets/TicketTable";
 import { useState } from "react";
 import { nowClockLabel, initials } from "@/app/lib/data";
 import { useAuth } from "@/app/lib/auth";
 import type { Ticket } from "@/app/lib/types";
+import { ticketCode } from "@/app/lib/ticket-code";
 
 export type ActivityTypeLabel = "Tiket Dibuat" | "User Request" | "Kita Merespon" | "Tiket Closed" | "Tiket Open";
 
@@ -169,14 +170,15 @@ export function getActivityConfig(type?: string, action?: string, ticketStatus?:
 interface TicketDetailDrawerProps {
   ticket: Ticket | null;
   onClose: () => void;
-  onUpdate: (ticket: Ticket) => void;
+  /** Saves the change; a promise that fails keeps the drawer open and says why. */
+  onUpdate: (ticket: Ticket) => void | Promise<unknown>;
   /** Set when the ticket can be looked at but not changed (edit, escalate and close are not offered): the reason shown in their place. */
   readOnlyReason?: string;
 }
 
 export function TicketDetailDrawer({ ticket, onClose, onUpdate, readOnlyReason }: TicketDetailDrawerProps) {
   const notify = useToast();
-  const { categoryLabel } = useMasterReferences();
+  const { categoryLabel, projectFor } = useMasterReferences();
   const people = usePeople();
   const { user } = useAuth();
   const operatorName = user?.name || "Operator NOC";
@@ -185,8 +187,14 @@ export function TicketDetailDrawer({ ticket, onClose, onUpdate, readOnlyReason }
 
   if (!ticket) return null;
 
-  const escalate = () => {
-    onUpdate({
+  /** Runs a save; on failure says why and answers false, so the drawer stays open and nothing reads as done. */
+  const saved = async (change: Ticket) => {
+    try { await onUpdate(change); return true; }
+    catch (cause) { notify.critical(`Tiket #${ticketCode(ticket)} tidak tersimpan: ${cause instanceof Error ? cause.message : "coba lagi."}`, { id: `ticket-${ticket.id}`, duration: 8000 }); return false; }
+  };
+
+  const escalate = async () => {
+    if (!await saved({
       ...ticket,
       status: "Escalated",
       history: [
@@ -198,14 +206,14 @@ export function TicketDetailDrawer({ ticket, onClose, onUpdate, readOnlyReason }
           author: operatorName,
         },
       ],
-    });
-    notify.info(`Ticket #${ticket.id} dieskalasikan ke Lead Operator.`, { id: `ticket-${ticket.id}` });
+    })) return;
+    notify.info(`Ticket #${ticketCode(ticket)} dieskalasikan ke Lead Operator.`, { id: `ticket-${ticket.id}` });
     onClose();
   };
 
-  const markDone = () => {
+  const markDone = async () => {
     setConfirmClose(false);
-    onUpdate({
+    if (!await saved({
       ...ticket,
       status: "Closed",
       history: [
@@ -217,8 +225,8 @@ export function TicketDetailDrawer({ ticket, onClose, onUpdate, readOnlyReason }
           author: operatorName,
         },
       ],
-    });
-    notify.success(`Ticket #${ticket.id} ditandai selesai.`, { id: `ticket-${ticket.id}` });
+    })) return;
+    notify.success(`Ticket #${ticketCode(ticket)} ditandai selesai.`, { id: `ticket-${ticket.id}` });
     onClose();
   };
 
@@ -273,7 +281,7 @@ export function TicketDetailDrawer({ ticket, onClose, onUpdate, readOnlyReason }
                 {ticket.subject}
               </h2>
               <span className="[font-size:11px]! [color:var(--ink-muted)]! [font-family:var(--font-mono)]!">
-                ID Ticket: #{ticket.id} · Dibuat pukul {ticket.created}
+                ID Ticket: #{ticketCode(ticket)} · Dibuat pukul {ticket.created}
               </span>
             </div>
             <ModalCloseButton onClose={onClose} label="Tutup panel" />
@@ -290,7 +298,7 @@ export function TicketDetailDrawer({ ticket, onClose, onUpdate, readOnlyReason }
                 {/* Project & Category Row */}
                 <div className="[display:flex]! [align-items:center]! [gap:16px]! [flex-wrap:wrap]!">
                   <div className="[display:flex]! [align-items:center]! [gap:10px]!">
-                    <ProjectMark name={ticket.project} />
+                    <EntityIconTile entity="project" size="xs" src={projectFor(ticket.projectId || ticket.project, ticket.clientId)?.logoUrl} />
                     <div>
                       <strong className="[display:block]! [font-size:13px]! [color:var(--ink-primary)]!">
                         {ticket.project}
@@ -470,7 +478,7 @@ export function TicketDetailDrawer({ ticket, onClose, onUpdate, readOnlyReason }
               className="button button-primary"
               onClick={() => {
                 if (ticket.status === "Ditutup" || ticket.status === "Closed") {
-                  notify.info(`Ticket #${ticket.id} sudah ditutup sebelumnya.`, { id: `ticket-${ticket.id}` });
+                  notify.info(`Ticket #${ticketCode(ticket)} sudah ditutup sebelumnya.`, { id: `ticket-${ticket.id}` });
                   return;
                 }
                 setConfirmClose(true);
@@ -485,7 +493,7 @@ export function TicketDetailDrawer({ ticket, onClose, onUpdate, readOnlyReason }
       <ConfirmDialog
         open={confirmClose}
         danger
-        title={`Tutup ticket #${ticket.id}?`}
+        title={`Tutup ticket #${ticketCode(ticket)}?`}
         message="Ticket akan ditandai Ditutup dan masuk ke riwayat aktivitas hari ini."
         confirmLabel="Ya, tutup ticket"
         onCancel={() => setConfirmClose(false)}

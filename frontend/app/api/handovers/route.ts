@@ -1,8 +1,23 @@
 import { getHandoverDb } from "@/db";
 import { HandoverError } from "@/app/lib/handover";
-import { assertSameOrigin, handoverActor, handoverFailure, handoverResponse, noteColumns, readHandoverBody, validatedDraft } from "@/app/lib/handover-server";
+import { assertSameOrigin, handoverFailure, handoverResponse, noteColumns, readHandoverBody, requestActor, validatedDraft } from "@/app/lib/handover-server";
 import { initialHandoverRecord, toDateInputValue } from "@/app/lib/data";
 import type { HandoverActor, StoredHandoverRecord } from "@/app/lib/types";
+
+/**
+ * Demo notes for the local database, written once per server process and only in development. They used to be written on every list
+ * request in every environment, and two of them were overwritten each time, which reset an accepted demo handover back to "not accepted"
+ * and put made-up people into a real database. Every insert is DO NOTHING: a note that already exists is never changed.
+ */
+let demoSeed: Promise<void> | null = null;
+function seedDemoHandoversOnce(db: D1Database) {
+  if (process.env.NODE_ENV !== "development") return Promise.resolve();
+  demoSeed ??= (async () => {
+    const seeded = await db.prepare("SELECT 1 FROM handover_notes WHERE create_request_id = ?").bind("seed-initial-handover").first();
+    if (!seeded) await seedHandoverNotes(db);
+  })().catch((error) => { demoSeed = null; throw error; });
+  return demoSeed;
+}
 
 async function seedHandoverNotes(db: D1Database) {
   const date = toDateInputValue();
@@ -113,7 +128,7 @@ async function seedHandoverNotes(db: D1Database) {
 
   await db
     .prepare(
-      `INSERT INTO handover_notes (title, handover_date, content, create_request_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT(create_request_id) DO UPDATE SET content = excluded.content`
+      `INSERT INTO handover_notes (title, handover_date, content, create_request_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT(create_request_id) DO NOTHING`
     )
     .bind("Handover Shift Malam → Subuh", date, completedContent, "seed-completed-handover", prevCreatedAt, prevAcceptedAt)
     .run();
@@ -153,7 +168,7 @@ async function seedHandoverNotes(db: D1Database) {
 
   await db
     .prepare(
-      `INSERT INTO handover_notes (title, handover_date, content, create_request_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT(create_request_id) DO UPDATE SET content = excluded.content`
+      `INSERT INTO handover_notes (title, handover_date, content, create_request_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT(create_request_id) DO NOTHING`
     )
     .bind("Handover Shift Pagi → Malam", yesterday, emptyNoteContent, "seed-empty-note-handover", yesterdayCreatedAt, yesterdayAcceptedAt)
     .run();
@@ -176,7 +191,7 @@ async function seedHandoverNotes(db: D1Database) {
   const title = `Handover Shift ${initialHandoverRecord.sourceShift} → ${initialHandoverRecord.targetShift}`;
   await db
     .prepare(
-      `INSERT INTO handover_notes (title, handover_date, content, create_request_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT(create_request_id) DO UPDATE SET content = excluded.content`
+      `INSERT INTO handover_notes (title, handover_date, content, create_request_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT(create_request_id) DO NOTHING`
     )
     .bind(title, date, content, "seed-initial-handover", now, now)
     .run();
@@ -265,7 +280,7 @@ async function seedHandoverNotes(db: D1Database) {
 
 export async function GET(request: Request) {
   try {
-    const actor = handoverActor(request);
+    const actor = await requestActor(request);
     const url = new URL(request.url);
     const page = Math.max(1, Math.min(100000, Math.floor(Number(url.searchParams.get("page")) || 1)));
     const limit = Math.max(1, Math.min(500, Math.floor(Number(url.searchParams.get("limit")) || 200)));
@@ -290,36 +305,22 @@ export async function GET(request: Request) {
       endDate = startDate;
     }
     const shift = (url.searchParams.get("shift") ?? "").slice(0, 50).trim().toLowerCase();
-    const rawPic = (url.searchParams.get("pic") ?? "").slice(0, 500).trim();
-    const picList = rawPic
-      ? rawPic
-          .split(/[,|]/)
-          .map((p) => p.trim().toLowerCase())
-          .filter(Boolean)
-      : [];
+    const rawPic = (url.searchParams.get("pic") ?? "").slice(0, 5000).trim();
+    const picList = [...new Set(rawPic.split(/[,|]/).map((p) => p.trim().toLowerCase()).filter(Boolean))].slice(0, 200);
 
-    let picClause = "(1=1)";
-    const picBinds: string[] = [];
-    if (picList.length > 0) {
-      picClause = `(${picList
-        .map(() => "(instr(lower(json_extract(content, '$.sourcePic')), ?) > 0 OR instr(lower(json_extract(content, '$.targetPic')), ?) > 0)")
-        .join(" OR ")})`;
-      for (const p of picList) {
-        picBinds.push(p, p);
-      }
-    }
-
+    // All the names go in one parameter, as a JSON array read with json_each: two parameters per name ran past D1's limit of 100 bound
+    // parameters per query at about 45 names, and the list failed with a 500.
     const where = `WHERE (? = '' OR (handover_date >= ? AND handover_date <= ?))
       AND (? = '' OR instr(lower(title), ?) > 0 OR instr(lower(json_extract(content, '$.sourceShift')), ?) > 0 OR instr(lower(json_extract(content, '$.targetShift')), ?) > 0)
-      AND ${picClause}`;
+      AND (json_array_length(?) = 0 OR EXISTS (SELECT 1 FROM json_each(?) AS pic WHERE instr(lower(json_extract(content, '$.sourcePic')), pic.value) > 0 OR instr(lower(json_extract(content, '$.targetPic')), pic.value) > 0))`;
     const db = getHandoverDb();
 
-    await seedHandoverNotes(db);
+    await seedDemoHandoversOnce(db);
 
     const baseBinds = [
       startDate, startDate, endDate,
       shift, shift, shift, shift,
-      ...picBinds,
+      JSON.stringify(picList), JSON.stringify(picList),
     ];
 
     const [rows, count] = await Promise.all([
@@ -341,7 +342,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     assertSameOrigin(request);
-    const actor = handoverActor(request);
+    const actor = await requestActor(request);
     const body = await readHandoverBody(request);
     if (typeof body.requestId !== "string" || !/^[a-zA-Z0-9-]{10,100}$/.test(body.requestId)) throw new HandoverError("ID draf tidak valid.");
     const { record, date } = validatedDraft(body.draft);

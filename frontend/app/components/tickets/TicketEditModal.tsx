@@ -11,16 +11,20 @@ import { Badge } from "@/app/components/ui/Badge";
 import { severityTone, statusTone } from "@/app/components/tickets/TicketTable";
 import { nowClockLabel } from "@/app/lib/data";
 import { useActivePeople } from "@/app/hooks/useMasterData";
+import { useBackendTicketOptions } from "@/app/hooks/useBackendTicketOptions";
+import { ownerIdsFor } from "@/app/lib/ticket-owner";
 import { useAuth } from "@/app/lib/auth";
 import { useToast } from "@/app/components/ui/Toast";
 import type { Ticket } from "@/app/lib/types";
 import { useClient } from "@/app/context/ClientContext";
+import { ticketCode } from "@/app/lib/ticket-code";
 
 interface TicketEditModalProps {
   open: boolean;
   ticket: Ticket | null;
   onClose: () => void;
-  onSave: (updated: Ticket) => void;
+  /** Saves the change; a promise that fails keeps the modal open with the reason. */
+  onSave: (updated: Ticket) => void | Promise<unknown>;
 }
 
 const PRIORITY_OPTIONS = ["Low", "Medium", "High"];
@@ -30,17 +34,24 @@ const STATUS_OPTIONS = ["Open", "Closed", "Activity", "Meeting", "Re-Open", "Pen
 export function TicketEditModal({ open, ticket, onClose, onSave }: TicketEditModalProps) {
   const notify = useToast();
   const { user } = useAuth();
-  const { activeCategories, categoryLabel, severityLabel, projectLabel, projectFor } = useMasterReferences();
+  const master = useMasterReferences();
+  // with the backend as the source its projects (by id) and categories are offered instead of the Master Data ones
+  const backend = useBackendTicketOptions();
+  const { severityLabel, projectFor } = master;
+  const activeCategories = backend ? backend.categories : master.activeCategories;
+  const categoryLabel = backend ? (key: string) => key : master.categoryLabel;
   const { activeClientId, getProjectsForClient } = useClient();
   const operatorName = user?.name || "Operator NOC";
+  const projectLabel = (value: string, organizationId?: string, archived?: boolean) => backend ? backend.projectName(value) : master.projectLabel(value, organizationId, archived);
+  const ticketProject = (backend ? ticket?.backend?.projectId : ticket?.project) || "";
 
   const projectOptions = useMemo(() => {
-    const list = getProjectsForClient(ticket?.clientId || activeClientId, false).map((p) => p.name);
-    if (ticket?.project && !list.includes(ticket.project)) {
-      return [ticket.project, ...list];
+    const list = backend ? backend.projects.map((p) => p.id) : getProjectsForClient(ticket?.clientId || activeClientId, false).map((p) => p.name);
+    if (ticketProject && !list.includes(ticketProject)) {
+      return [ticketProject, ...list];
     }
     return list;
-  }, [activeClientId, getProjectsForClient, ticket]);
+  }, [backend, activeClientId, getProjectsForClient, ticket, ticketProject]);
 
   const [subject, setSubject] = useState("");
   const [project, setProject] = useState("SM");
@@ -52,11 +63,12 @@ export function TicketEditModal({ open, ticket, onClose, onSave }: TicketEditMod
   const assignees = useActivePeople();
   const [description, setDescription] = useState("");
   const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (ticket && open) {
       setSubject(ticket.subject);
-      setProject(ticket.project);
+      setProject(ticketProject);
       setSystemId(ticket.systemId || "");
       setSeverity(ticket.severity);
       setStatus(ticket.status);
@@ -65,29 +77,35 @@ export function TicketEditModal({ open, ticket, onClose, onSave }: TicketEditMod
       setDescription(ticket.description || "");
       setError("");
     }
-  }, [ticket, open]);
+  }, [ticket, open, ticketProject]);
 
   if (!ticket) return null;
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    if (saving) return;
     const trimmedSubject = subject.trim();
     if (!trimmedSubject) {
       setError("Subjek ticket wajib diisi.");
       return;
     }
 
+    const owners = owner.trim() ? owner.trim().split(",").map((s) => s.trim()).filter(Boolean) : ticket.owners;
+    const changedOwner = !!owner.trim() && owner.trim() !== ticket.owner;
+    const ownerIds = changedOwner ? ownerIdsFor(owners ?? [], assignees) : ticket.ownerIds;
     const updatedTicket: Ticket = {
       ...ticket,
       subject: trimmedSubject,
-      project,
-      projectId: projectFor(project, ticket.clientId || activeClientId)?.id,
+      ...(backend
+        ? { backend: { ...ticket.backend, projectId: project, projectName: backend.projectName(project) } }
+        : { project, projectId: projectFor(project, ticket.clientId || activeClientId)?.id }),
       systemId: systemId || undefined,
       severity,
       status,
       category: category || undefined,
       type: category || undefined,
       owner: owner.trim() || ticket.owner,
-      owners: owner.trim() ? owner.trim().split(",").map((s) => s.trim()).filter(Boolean) : ticket.owners,
+      owners,
+      ...(ownerIds?.length ? { ownerIds } : {}),
       description: description.trim(),
       history: [
         ...(ticket.history ?? []),
@@ -100,18 +118,26 @@ export function TicketEditModal({ open, ticket, onClose, onSave }: TicketEditMod
       ],
     };
 
-    onSave(updatedTicket);
-    notify.success(`Perubahan ticket #${ticket.id} berhasil disimpan.`, { id: `ticket-edit-${ticket.id}` });
+    setSaving(true);
+    try {
+      await onSave(updatedTicket);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Perubahan tidak tersimpan. Coba lagi.");
+      return;
+    } finally {
+      setSaving(false);
+    }
+    notify.success(`Perubahan ticket #${ticketCode(ticket)} berhasil disimpan.`, { id: `ticket-edit-${ticket.id}` });
     onClose();
   };
 
   return (
-    <Modal open={open} onClose={onClose} label={`Edit Ticket #${ticket.id}`} width={560}>
+    <Modal open={open} onClose={onClose} label={`Edit Ticket #${ticketCode(ticket)}`} width={560}>
       <div className="modal-title">
         <div>
           <strong className="[display:flex]! [align-items:center]! [gap:6px]!">
             <Edit3 size={15} className="[color:var(--accent-blue)]" />
-            Edit Ticket #{ticket.id}
+            Edit Ticket #{ticketCode(ticket)}
           </strong>
           <small>Perbarui rincian subjek, proyek, severity, penanggung jawab, dan deskripsi ticket.</small>
         </div>
@@ -196,7 +222,7 @@ export function TicketEditModal({ open, ticket, onClose, onSave }: TicketEditMod
           </label>
         </div>
 
-        <TicketSystemSelect project={project} organizationId={ticket?.clientId || activeClientId} value={systemId} onChange={setSystemId} originalId={ticket?.systemId} />
+        <TicketSystemSelect project={backend ? backend.projectName(project) : project}organizationId={ticket?.clientId || activeClientId} value={systemId} onChange={setSystemId} originalId={ticket?.systemId} />
 
         {/* Row 4: Description */}
         <label className="[grid-column:1_/_-1]!">
@@ -217,7 +243,7 @@ export function TicketEditModal({ open, ticket, onClose, onSave }: TicketEditMod
         <button className="button button-secondary" onClick={onClose} type="button">
           Batal
         </button>
-        <button className="button button-primary" onClick={handleSave} type="button">
+        <button className="button button-primary" onClick={handleSave} type="button" disabled={saving}>
           <Check size={14} className="[display:inline-block]! [vertical-align:middle]! [margin-right:4px]!" />
           Simpan Perubahan
         </button>

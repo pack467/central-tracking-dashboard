@@ -41,6 +41,7 @@ export class ApiClient {
   private token: string | null = null;
   private tokenProvider: AuthTokenProvider | null = null;
   private onUnauthorized: UnauthorizedHandler | null = null;
+  private onSuccess: (() => void) | null = null;
   private csrfProvider: (() => string | null) | null = null;
 
   constructor(baseUrl?: string) {
@@ -62,6 +63,11 @@ export class ApiClient {
 
   setOnUnauthorized(handler: UnauthorizedHandler): void {
     this.onUnauthorized = handler;
+  }
+
+  /** Called after every successful answer: the session was valid a moment ago, so a separate session check can wait. */
+  setOnSuccess(handler: (() => void) | null): void {
+    this.onSuccess = handler;
   }
 
   private getAuthHeader(): string | null {
@@ -133,6 +139,7 @@ export class ApiClient {
       if (response.status === 401 && this.onUnauthorized) {
         this.onUnauthorized();
       }
+      if (response.ok) this.onSuccess?.();
 
       if (!response.ok) {
         let errorBody: Record<string, unknown> = {};

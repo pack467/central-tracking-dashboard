@@ -197,9 +197,9 @@ export function LoginView({ onSuccessRedirect = paths.dashboard }: LoginViewProp
     try {
       const signedIn = await signIn(cleanId, password, rememberMe);
       notify.success(`Selamat datang, ${signedIn.name}!`, { duration: 2000 });
-      setTimeout(() => {
-        window.location.href = safeNext(next ?? onSuccessRedirect);
-      }, 300);
+      // A move inside the app, not a document load: a load ran the session check and the people/roles load a second time, while the
+      // ones this page had already started were thrown away. What was loaded (module stores) carries over to the app.
+      router.replace(safeNext(next ?? onSuccessRedirect));
     } catch (error) {
       setLoading(false);
       setPassword("");

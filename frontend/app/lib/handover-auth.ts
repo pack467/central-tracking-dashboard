@@ -1,10 +1,16 @@
 import type { HandoverActor } from "./types";
 import { HandoverError } from "./handover";
+import { apiModuleEnabled, getApiConfig } from "./config";
+import { authUserSchema } from "./api/schemas";
 
 /**
  * Who is calling the handover API, and from where. Kept free of the database import so it can be tested on its own.
  *
- * Nothing here is decided by a header a visitor can type:
+ * With the backend login (auth module on), the caller is whoever the backend session says: the browser sends the session cookie (ctd.sid)
+ * to this site too (same host in development, one address with /api in production), and it is checked with GET /auth/me on the backend.
+ * There is then no built-in operator and no header to trust: no valid session, no handover.
+ *
+ * Without the backend login, nothing here is decided by a header a visitor can type:
  *  - Identity headers (oai-authenticated-user-*) are only believed when HANDOVER_TRUST_OAI_HEADERS=true, i.e. when a trusted proxy in front
  *    of this app sets them and strips any copy sent by the client. Otherwise anyone could write them.
  *  - The built-in "local operator" exists only in development, or when a demo deliberately sets HANDOVER_SIMULATED_ACTOR=true. It is no
@@ -29,6 +35,52 @@ export function handoverActor(request: Request): HandoverActor {
   if (isDev() || flag("HANDOVER_SIMULATED_ACTOR"))
     return { id: "local-operator", name: "Mhd. Galih Khairi", email: "galih.khairi@company.internal", local: true };
   throw new HandoverError("Masuk dengan akun Anda untuk mengakses handover.", 401);
+}
+
+const SESSION_COOKIE = "ctd.sid";
+/**
+ * A session the backend confirmed a moment ago is believed for this long without asking again, so a busy Handover page does not send
+ * GET /auth/me for every request. The cost: a session ended elsewhere still works here for up to this long.
+ */
+const SESSION_CACHE_MS = 15_000;
+const SESSION_CACHE_MAX = 500;
+const confirmed = new Map<string, { at: number; actor: HandoverActor }>();
+
+function sessionCookie(header: string | null): string | null {
+  for (const part of (header ?? "").split(";")) {
+    const [name, ...value] = part.trim().split("=");
+    if (name === SESSION_COOKIE && value.length) return value.join("=");
+  }
+  return null;
+}
+/** Where this server reaches the backend: HANDOVER_BACKEND_URL (an internal address), else the one the browser uses. */
+const backendUrl = () => (process.env.HANDOVER_BACKEND_URL?.trim() || getApiConfig().apiUrl).replace(/\/+$/, "");
+
+/** The handover caller: the backend session's user when the backend login is on, otherwise handoverActor() above. */
+export async function requestActor(request: Request, fetcher: typeof fetch = fetch): Promise<HandoverActor> {
+  if (!apiModuleEnabled("auth")) return handoverActor(request);
+  const sid = sessionCookie(request.headers.get("cookie"));
+  if (!sid) throw new HandoverError("Sesi login tidak ditemukan. Masuk kembali untuk mengakses handover.", 401);
+  const known = confirmed.get(sid);
+  if (known && Date.now() - known.at < SESSION_CACHE_MS) return known.actor;
+  confirmed.delete(sid);
+  let response: Response;
+  try {
+    // only the session cookie goes to the backend, nothing else this site may have set
+    response = await fetcher(`${backendUrl()}/auth/me`, { headers: { Accept: "application/json", Cookie: `${SESSION_COOKIE}=${sid}` }, cache: "no-store", signal: AbortSignal.timeout(8000) });
+  } catch {
+    throw new HandoverError("Server login tidak dapat dihubungi. Coba lagi sebentar lagi.", 503);
+  }
+  if (response.status === 401) throw new HandoverError("Sesi login sudah berakhir. Masuk kembali untuk mengakses handover.", 401);
+  if (!response.ok) throw new HandoverError("Server login sedang bermasalah. Coba lagi sebentar lagi.", 503);
+  const parsed = authUserSchema.safeParse(await response.json().catch(() => null));
+  if (!parsed.success) throw new HandoverError("Jawaban server login tidak dikenali.", 503);
+  const user = parsed.data;
+  const email = user.email?.trim().toLowerCase() ?? "";
+  const actor: HandoverActor = { id: user.id, name: user.name?.trim() || email || "Pengguna", email };
+  if (confirmed.size >= SESSION_CACHE_MAX) confirmed.delete(confirmed.keys().next().value!);
+  confirmed.set(sid, { at: Date.now(), actor });
+  return actor;
 }
 
 /** Origins that may write: this request's own origin, the ones listed in HANDOVER_ALLOWED_ORIGINS, and (behind a proxy) the forwarded host. */

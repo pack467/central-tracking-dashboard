@@ -65,7 +65,7 @@ function ShifterMultiSelect({ value, onChange, records }: { value: string; onCha
   const allShifters = useMemo(() => {
     const names = new Set<string>(DEFAULT_NOC_SHIFTERS);
     for (const record of records) {
-      try { const parsed = typeof record.content === "string" ? JSON.parse(record.content) : record.content; if (parsed?.sourcePic) names.add(parsed.sourcePic); if (parsed?.targetPic) names.add(parsed.targetPic); } catch { /* Keep the existing malformed-record fallback. */ }
+      try { const parsed = typeof record.content === "string" ? JSON.parse(record.content) : record.content; for (const pic of [parsed?.sourcePic, parsed?.targetPic]) if (typeof pic === "string") for (const name of pic.split(",")) if (name.trim()) names.add(name.trim()); } catch { /* Keep the existing malformed-record fallback. */ }
     }
     return Array.from(names).sort((a, b) => a.localeCompare(b));
   }, [records]);

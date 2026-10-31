@@ -3,6 +3,7 @@ import { MasterProjectName } from "@/app/components/ui/MasterProjectName";
 
 import { User } from "lucide-react";
 import type { Ticket } from "@/app/lib/types";
+import { ticketCode } from "@/app/lib/ticket-code";
 
 interface TodayTicketRowProps {
   ticket: Ticket;
@@ -36,7 +37,7 @@ const projectColorClasses: Record<string, string> = {
 export function TodayTicketRow({ ticket, projectColor, priorityStyle, statusStyle, statusLabel, previewVisible, lastVisible, mobile }: TodayTicketRowProps) {
   return <div role="listitem" data-today-ticket={ticket.id} aria-label={`${ticket.subject}, ${ticket.severity}, ${statusLabel}`} aria-hidden={mobile && !previewVisible || undefined} className={`grid grid-cols-[88px_1fr_auto] items-center gap-[12px] p-[7px_12px] rounded-[8px] border border-[rgba(148,163,184,0.08)] bg-[rgba(148,163,184,0.03)] hover:bg-[rgba(148,163,184,0.08)] hover:border-[rgba(56,189,248,0.2)] transition-all duration-150 ease-[ease] shrink-0 compact-today-ticket-row max-lg:flex max-lg:flex-wrap max-lg:content-start max-lg:gap-x-2 max-lg:gap-y-2 max-lg:rounded-none max-lg:border-x-0 max-lg:border-t-0 max-lg:border-b-[#334155]/45 max-lg:bg-transparent max-lg:px-4 max-lg:overflow-hidden max-lg:[container-type:inline-size] max-lg:hover:bg-transparent max-lg:hover:border-[#334155]/45 max-lg:transition-[height,padding,border-width,opacity] max-lg:duration-200 motion-reduce:transition-none ${previewVisible ? "max-lg:h-[129.5px] max-lg:py-3.5 max-lg:opacity-100" : "max-lg:h-0 max-lg:py-0 max-lg:opacity-0 max-lg:border-b-0 max-lg:pointer-events-none"} ${lastVisible ? "max-lg:border-b-0" : ""}`}>
     <div className="flex flex-col gap-[2px] compact-today-ticket-id-col max-lg:contents">
-      <span className="font-mono text-[11px] font-bold text-[#f8fafc] today-ticket-id max-lg:order-2 max-lg:min-w-0 max-lg:flex-1 max-lg:basis-0 max-lg:truncate max-lg:text-right max-lg:font-normal max-lg:text-[#94a3b8]" title={`#${ticket.id}`}>#{ticket.id}</span>
+      <span className="font-mono text-[11px] font-bold text-[#f8fafc] today-ticket-id max-lg:order-2 max-lg:min-w-0 max-lg:flex-1 max-lg:basis-0 max-lg:truncate max-lg:text-right max-lg:font-normal max-lg:text-[#94a3b8]" title={`#${ticketCode(ticket)}`}>#{ticketCode(ticket)}</span>
       <span className={`text-[10px] max-lg:text-[12px] font-semibold today-ticket-proj max-lg:order-4 max-lg:inline-flex max-lg:h-[22px] max-lg:max-w-[90px] max-lg:items-center max-lg:gap-1.5 max-lg:font-mono max-lg:leading-[22px] ${projectColorClasses[projectColor] || "text-[#94a3b8]"}`} title={ticket.project}>
         <span className="max-lg:hidden">● </span><span aria-hidden="true" className="hidden size-1.5 shrink-0 rounded-full bg-current max-lg:inline-block" /><span className={`max-lg:truncate ${projectTextContrast[ticket.project] || ""}`}><MasterProjectName value={ticket.project} historical /></span>
       </span>

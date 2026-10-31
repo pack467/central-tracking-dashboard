@@ -39,7 +39,8 @@ test("API route handles multi-shifter filtering with OR logic", async () => {
   const routeContent = await fs.readFile(routePath, "utf-8");
 
   assert.ok(routeContent.includes("split(/[,|]/)"), "Parses comma or pipe-separated multiple shifters");
-  assert.ok(routeContent.includes("picClause"), "Builds dynamic OR clause for multiple shifters");
+  // any of the names may match; all of them go in one JSON parameter (json_each), so many names never run past D1's 100 parameters
+  assert.ok(routeContent.includes("EXISTS (SELECT 1 FROM json_each(?)"), "Matches any of the shifters, from one JSON parameter");
 });
 
 test("API route handles single date, range, partial range, and reversed range properly", async () => {

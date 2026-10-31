@@ -1,5 +1,6 @@
 import type { CheckpointAssessment, HistoricalAssessmentEntry, MonitoringEntry, Ticket } from "./types";
 import { DEFAULT_REPORT_CONFIG, resolveReportConfig, type ReportConfig, type SignatoryConfig } from "./weekly-report-config";
+import { ticketCode } from "@/app/lib/ticket-code";
 
 export { DEFAULT_REPORT_CONFIG, resolveReportConfig, type ReportConfig, type SignatoryConfig } from "./weekly-report-config";
 
@@ -293,7 +294,7 @@ export function ticketReportRows(report: WeeklyReport, options: { shortDates?: b
     return `${d} ${time}`.trim();
   };
   return report.tickets.map((ticket) => [
-    ticket.id,
+    ticketCode(ticket),
     formatDate(ticketDate(ticket), ticket.created.match(/\d{2}:\d{2}/)?.[0] || ""),
     ticket.subject,
     ticket.project,

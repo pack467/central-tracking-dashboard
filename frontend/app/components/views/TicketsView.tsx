@@ -15,6 +15,7 @@ import { StatCard } from "@/app/components/ui/StatCard";
 import { EmptyState } from "@/app/components/ui/EmptyState";
 import { DatePicker } from "@/app/components/ui/DatePicker";
 import type { Ticket } from "@/app/lib/types";
+import { ticketCode } from "@/app/lib/ticket-code";
 import { getTodayWIB } from "@/app/lib/data";
 import { useClient } from "@/app/context/ClientContext";
 import { getTicketShift } from "@/app/components/views/OverviewView";
@@ -25,7 +26,7 @@ import { PanelSkeletonWrapper, TicketsTableSkeleton } from "@/app/components/ui/
 interface TicketsViewProps {
   tickets: Ticket[];
   onSelectTicket: (ticket: Ticket) => void;
-  /** Left out while tickets cannot be written (backend mode): the button is not shown. */
+  /** Left out when the person may not write tickets: the button is not shown. */
   onNewTicket?: () => void;
 }
 
@@ -206,7 +207,8 @@ export function TicketsView({ tickets: propTickets, onSelectTicket, onNewTicket 
 
       // 8. Search keyword
       if (!needle) return true;
-      return Object.values(ticket).some(
+      // the shown number (REQ-2997) lives in `backend`, which the loop over the text fields does not reach
+      return ticketCode(ticket).toLowerCase().includes(needle) || Object.values(ticket).some(
         (value) => typeof value === "string" && value.toLowerCase().includes(needle),
       );
     });
@@ -261,6 +263,8 @@ export function TicketsView({ tickets: propTickets, onSelectTicket, onNewTicket 
   const totalCount = tickets.length;
   const activeCount = tickets.filter((t) => normalizeStatus(t.status) !== "closed").length;
   const closedCount = tickets.filter((t) => normalizeStatus(t.status) === "closed").length;
+  // the Active on Queue card counts only tickets whose status is still Open
+  const openCount = tickets.filter((t) => normalizeStatus(t.status) === "open").length;
   const pendingCount = tickets.filter((t) => normalizeStatus(t.status) === "pending").length;
   const highPriorityCount = tickets.filter((t) => {
     const s = t.severity.toLowerCase();
@@ -275,7 +279,7 @@ export function TicketsView({ tickets: propTickets, onSelectTicket, onNewTicket 
       t.category === "Escalation Handling",
   ).length;
 
-  const activePct = totalCount > 0 ? Math.round((activeCount / totalCount) * 100) : 0;
+  const openPct = totalCount > 0 ? Math.round((openCount / totalCount) * 100) : 0;
   const closedPct = totalCount > 0 ? Math.round((closedCount / totalCount) * 100) : 0;
 
   // Active filters count for reset and chip list
@@ -444,12 +448,12 @@ export function TicketsView({ tickets: propTickets, onSelectTicket, onNewTicket 
         {/* Active Queue */}
         <StatCard
           label="ACTIVE ON QUEUE"
-          value={activeCount}
+          value={openCount}
           accentColor="green"
           icon={<Activity size={15} strokeWidth={2} />}
-          subtitle={`${activePct}% dari total antrean`}
-          progress={{ value: activePct, color: "#4ade80" }}
-          badgeText={activeCount > 0 ? `${activeCount} In Progress` : "Queue Clear"}
+          subtitle={`${openPct}% dari total antrean`}
+          progress={{ value: openPct, color: "#4ade80" }}
+          badgeText={openCount > 0 ? `${openCount} Open` : "Queue Clear"}
           badgeTone="green"
         />
 

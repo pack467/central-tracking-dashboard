@@ -10,29 +10,15 @@ import { ApiError } from "@/app/lib/api/errors";
 import { apiModuleEnabled } from "@/app/lib/config";
 import { roleLabel } from "@/app/lib/auth-api";
 import type { MasterPage, MasterQuery, Person, PersonUsage, Role, RoleUsage } from "@/app/types/master-data";
+import { z } from "zod";
+import { backendRoleSchema, backendUserSchema, parseResponse } from "@/app/lib/api/schemas";
 
-export interface BackendUser {
-  id: string;
-  name: string | null;
-  nik: string | null;
-  email: string | null;
-  role_id: string | null;
-  is_active: boolean;
-  photo_url: string | null;
-  department: string | null;
-  created_at: string;
-  updated_at: string;
-}
-export interface BackendRole {
-  id: string;
-  name: string;
-  description: string | null;
-  permissions: string[];
-  effective_permissions?: string[];
-  user_count?: number;
-  created_at: string;
-  updated_at: string;
-}
+/** A person and a role as the backend sends them; the shapes are checked on arrival (lib/api/schemas.ts). */
+export type BackendUser = z.output<typeof backendUserSchema>;
+export type BackendRole = z.output<typeof backendRoleSchema>;
+const userListSchema = z.array(backendUserSchema);
+const roleListSchema = z.array(backendRoleSchema);
+const ticketCountSchema = z.looseObject({ meta: z.looseObject({ total: z.number() }) });
 
 export const peopleFromBackend = (): boolean => apiModuleEnabled("people") && apiModuleEnabled("auth");
 export const rolesFromBackend = (): boolean => apiModuleEnabled("roles") && apiModuleEnabled("auth");
@@ -74,8 +60,8 @@ function page<T>(rows: T[], query: MasterQuery): MasterPage<T> {
   return { data: rows.slice((current - 1) * pageSize, current * pageSize), meta: { page: current, pageSize, total, totalPages } };
 }
 
-async function users(signal?: AbortSignal) { return apiClient.get<BackendUser[]>("/users", { signal }); }
-async function roles(signal?: AbortSignal) { return apiClient.get<BackendRole[]>("/roles", { signal }); }
+async function users(signal?: AbortSignal) { return parseResponse(userListSchema, await apiClient.get<unknown>("/users", { signal }), "daftar personel"); }
+async function roles(signal?: AbortSignal) { return parseResponse(roleListSchema, await apiClient.get<unknown>("/roles", { signal }), "daftar peran"); }
 const isForbidden = (cause: unknown) => cause instanceof ApiError && cause.status === 403;
 /**
  * GET /roles needs roles.read, which only admins have, while GET /users needs users.read, which everyone has. Roles here only name
@@ -87,6 +73,12 @@ async function rolesForLabels(signal?: AbortSignal): Promise<BackendRole[]> {
 const NO_ROLE_ACCESS = "Anda tidak memiliki izin untuk melihat daftar peran.";
 async function rolesOrDenied(signal?: AbortSignal): Promise<BackendRole[]> {
   try { return await roles(signal); } catch (cause) { throw isForbidden(cause) ? new ApiError({ status: 403, code: "FORBIDDEN", message: NO_ROLE_ACCESS }) : cause; }
+}
+
+/** Everyone and the readable roles together, each list fetched once (people.all and roles.available would both fetch /roles). */
+export async function backendPeopleAndRoles(signal?: AbortSignal): Promise<{ people: Person[]; roles: Role[] }> {
+  const [userRows, roleRows] = await Promise.all([users(signal), rolesForLabels(signal)]);
+  return { people: userRows.map(user => backendUserToPerson(user, roleRows)), roles: roleRows.map(backendRoleToRole) };
 }
 
 export const backendPeople = {
@@ -114,7 +106,7 @@ export const backendPeople = {
   },
   /** Tickets are counted by the backend (GET /tickets filters by user_id); the other relations do not exist there. */
   async usage(id: string, signal?: AbortSignal): Promise<PersonUsage> {
-    const count = async (params: Record<string, string | number>) => (await apiClient.get<{ meta: { total: number } }>("/tickets", { params: { limit: 1, user_id: id, ...params }, signal })).meta.total;
+    const count = async (params: Record<string, string | number>) => parseResponse(ticketCountSchema, await apiClient.get<unknown>("/tickets", { params: { limit: 1, user_id: id, ...params }, signal }), "jumlah tiket").meta.total;
     const [tickets, activeTickets] = await Promise.all([count({}), count({ status: "Open,Pending,ReOpen,Activity" })]);
     const reason = "Penghapusan dan penonaktifan personel belum tersambung ke backend.";
     return { organizations: [], projects: [], systems: [], tickets, activeTickets, ticketExamples: [], handovers: 0, checkpoints: 0, scheduleEntries: 0, swapRequests: 0, auditEntries: 0, isSelf: false, canDelete: false, deleteReason: reason, canDeactivate: false, deactivateReason: reason };

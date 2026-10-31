@@ -30,7 +30,7 @@ import { useToast } from "@/app/components/ui/Toast";
 import { Avatar } from "@/app/components/ui/Avatar";
 import { formatHandoverDate, isOpenTicket } from "@/app/lib/data";
 import type { HandoverRecordData, StoredHandoverRecord } from "@/app/lib/types";
-import { canEditHandover, getTaskIdentity, isNewlyAddedTask, parseHandoverContent } from "@/app/lib/handover";
+import { canDeleteHandover, getTaskIdentity, isNewlyAddedTask, parseHandoverContent } from "@/app/lib/handover";
 import {
   HandoverHistoryControls,
   type HandoverWorkflow,
@@ -233,8 +233,8 @@ export function ShiftLogView({ workflow }: { workflow: HandoverWorkflow }) {
       await onDeleteRecord(pendingDelete.id);
       notify.success("Catatan handover dihapus.", { id: `handover-delete-${pendingDelete.id}` });
       setPendingDelete(null);
-    } catch {
-      notify.critical("Catatan belum dapat dihapus. Coba lagi.", { id: `handover-delete-${pendingDelete.id}` });
+    } catch (cause) {
+      notify.critical(cause instanceof Error && cause.message ? cause.message : "Catatan belum dapat dihapus. Coba lagi.", { id: `handover-delete-${pendingDelete.id}` });
     } finally {
       setDeleting(false);
     }
@@ -323,7 +323,7 @@ export function ShiftLogView({ workflow }: { workflow: HandoverWorkflow }) {
                 const prevTasks = lineageMap.get(record.id) ?? Math.max(0, total - newCount);
                 const currTasks = total;
                 const isAccepted = Boolean(content?.acceptance);
-                const isEditable = Boolean(content && canEditHandover(content, workflow.actor));
+                const canDelete = Boolean(content && canDeleteHandover(content, workflow.actor) && workflow.canManage(content));
 
                 return (
                   <li className="relative mb-[16px] last:mb-0" key={record.id}>
@@ -383,10 +383,10 @@ export function ShiftLogView({ workflow }: { workflow: HandoverWorkflow }) {
                           <button
                             type="button"
                             className="inline-flex items-center gap-[5px] p-[5px_10px] rounded-[6px] text-[11px] font-semibold cursor-pointer border border-[rgba(239,68,68,0.28)] bg-[rgba(239,68,68,0.08)] text-[#f87171] transition-all duration-150 ease-out select-none enabled:hover:bg-[rgba(239,68,68,0.18)] enabled:hover:border-[rgba(239,68,68,0.5)] enabled:hover:text-[#ef4444] enabled:hover:shadow-[0_0_8px_rgba(239,68,68,0.25)] disabled:opacity-35 disabled:cursor-not-allowed disabled:bg-transparent disabled:border-transparent disabled:text-[var(--ink-muted)]"
-                            disabled={workflow.busy || !isEditable}
+                            disabled={workflow.busy || !canDelete}
                             title={
-                              !isEditable
-                                ? "Hanya pembuat atau personil terkait yang dapat menghapus"
+                              !canDelete
+                                ? `Hanya pengirim atau penerima dari Shift ${content?.sourceShift} / ${content?.targetShift} yang dapat menghapus`
                                 : "Hapus catatan handover"
                             }
                             onClick={() => setPendingDelete(record)}
