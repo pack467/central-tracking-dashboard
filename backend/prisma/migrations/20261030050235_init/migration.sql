@@ -212,7 +212,7 @@ CREATE TABLE "monitoring_templates" (
     "project_id" BIGINT NOT NULL,
     "name" VARCHAR(255) NOT NULL,
     "instructions" TEXT,
-    "times" TEXT NOT NULL,
+    "times" TEXT[],
     "timezone" VARCHAR(64) NOT NULL DEFAULT 'Asia/Jakarta',
     "is_temporary" BOOLEAN NOT NULL DEFAULT false,
     "active_from" DATE,

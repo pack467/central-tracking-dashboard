@@ -34,12 +34,14 @@ backend/
 │   │   ├── middleware/request-id.middleware.ts
 │   │   ├── middleware/origin-check.middleware.ts   refuses cross-site writes (login CSRF)
 │   │   ├── pipes/parse-bigint.pipe.ts
-│   │   └── validators/bigint-id.ts   @BigIntId() + toBigInt() for BigInt id fields in DTOs
+│   │   ├── validators/bigint-id.ts   @BigIntId() + toBigInt() for BigInt id fields in DTOs
+│   │   └── validators/query-boolean.ts   @QueryBoolean() for true/false query parameters
 │   ├── health/                     /health (app + DB) and /ready (app only), terminus
 │   ├── metrics/                    MetricsModule + public MetricsController (/metrics)
 │   ├── permissions/                PermissionsModule: startup sync + /permissions (catalogue, descriptions)
 │   ├── roles/                      RolesModule: /roles CRUD + grant/revoke; roles.permissions.ts
 │   ├── tickets/                    tickets.permissions.ts; TicketsModule: /tickets, categories/ (/ticket-categories), severities/ (/ticket-severities)
+│   ├── monitoring/                 monitoring.permissions.ts, monitoring-schedule.ts; MonitoringModule: templates/ (/monitoring-templates), logs/ (/monitoring-logs)
 │   ├── prisma/prisma.module.ts     @Global, provides + exports PrismaService
 │   ├── prisma/prisma.service.ts    PrismaClient with PrismaPg adapter, schema ctd_config
 │   ├── users/                      users.permissions.ts; CRUD (controller/service/dto); entities/user.entity.ts = Swagger response shape

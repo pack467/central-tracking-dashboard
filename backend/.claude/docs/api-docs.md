@@ -12,5 +12,5 @@
   - each controller has `@ApiTags('<group>')`
   - each route has `@ApiOperation({ summary })`, `@Api<Status>Response(...)` for each status it can return, and `@ApiParam` for `:id` (typed as a string of digits)
   - protected routes get `@ApiCookieAuth()` (usually on the controller class), and the class-level 401 reads "Not logged in (no or expired session), or the user is inactive"
-- **Tags in use:** `app` (`GET /`), `auth`, `users`, `roles`, `permissions`, `tickets`, `ticket-categories`, `ticket-severities`, `health` and `metrics`. Terminus's `@HealthCheck()` decorator documents the 200/503 health responses.
+- **Tags in use:** `app` (`GET /`), `auth`, `users`, `roles`, `permissions`, `tickets`, `ticket-categories`, `ticket-severities`, `monitoring-templates`, `monitoring-logs`, `health` and `metrics`. Terminus's `@HealthCheck()` decorator documents the 200/503 health responses.
 - **When adding a route:** give it a tag, summary, response type and error responses, plus `@ApiCookieAuth()` unless it's `@Public()`. A write's 403 can also mean a missing CSRF token; the API description explains that once, so routes don't repeat it. Then check it at `/docs`.

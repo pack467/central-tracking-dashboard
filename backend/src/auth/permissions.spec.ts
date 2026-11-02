@@ -101,7 +101,7 @@ describe('seeded roles (prisma/seed-data/user_role.json)', () => {
 
   it('keeps the access each role had', () => {
     const has = (role: string, key: string) => (seededPermissions(role) as Set<string>).has(key);
-    expect(seededKeys('VIEWER')).toEqual(['tickets.read', 'users.read']);
+    expect(seededKeys('VIEWER')).toEqual(['monitoring.read', 'tickets.read', 'users.read']);
     expect(has('AGENT', 'tickets.write')).toBe(true);
     expect(has('AGENT', 'tickets.write.any')).toBe(false);
     expect(has('TEAM_LEAD', 'tickets.write.any')).toBe(true);
@@ -112,5 +112,17 @@ describe('seeded roles (prisma/seed-data/user_role.json)', () => {
     expect(has('ADMIN', 'users.manage.all')).toBe(false);
     expect(has('ADMIN', 'roles.manage')).toBe(false);
     expect(has('TEAM_LEAD', 'roles.read')).toBe(false);
+  });
+
+  it('gives monitoring checks to agents, templates and reviews to team leads, deletes to admins', () => {
+    const has = (role: string, key: string) => (seededPermissions(role) as Set<string>).has(key);
+    expect(has('VIEWER', 'monitoring.check')).toBe(false);
+    expect(has('AGENT', 'monitoring.check')).toBe(true);
+    for (const key of ['monitoring.check.any', 'monitoring.review', 'monitoring.templates.manage']) {
+      expect(has('AGENT', key)).toBe(false);
+      expect(has('TEAM_LEAD', key)).toBe(true);
+    }
+    expect(has('TEAM_LEAD', 'monitoring.delete')).toBe(false);
+    expect(has('ADMIN', 'monitoring.delete')).toBe(true);
   });
 });

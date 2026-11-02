@@ -1,6 +1,6 @@
 # TODO: live monitoring page (presence + "who is editing what")
 
-**Status: design agreed, not started** (user, 2026-10-11). Depends on the monitoring REST API (not built yet). Session auth, which the socket logs in with, is done (2026-10-13, `auth.md`). Nothing here is implemented.
+**Status: design agreed, not started** (user, 2026-10-11). Depends on the monitoring REST API: templates and logs CRUD are built (2026-11-02, `monitoring.md`); the day grid and the `version` column are not. Session auth, which the socket logs in with, is done (2026-10-13, `auth.md`). Nothing here is implemented.
 
 ## Goal
 
@@ -25,7 +25,7 @@ A Socket.IO gateway (`/monitoring` namespace) puts each viewer in a room per pro
 | Socket permissions | A small **`WsAuthGuard`** reusing the module's permission constants: `MONITORING_READ` to join, `MONITORING_CHECK` to send `slot.focus` | `@Can`/`PermissionsGuard` are built for HTTP; same rules applied on sockets. Never check role names |
 | Message validation | **class-validator DTOs + `ValidationPipe`** on the gateway; errors as `WsException` | Same style as the REST DTOs |
 | Editing markers | **`PresenceService` with an in-memory `Map`** + a sweep timer for expiry | One instance → no Redis needed. Behind an interface (`PresenceStore`) so it can move to Redis without touching the gateway |
-| Saving logs | **REST** (`POST /monitoring/logs`, `PATCH /monitoring/logs/:id`), then the service emits `log.saved` | Business rules stay in one place; DB is the source of truth |
+| Saving logs | **REST** (`POST /monitoring-logs`, `PATCH /monitoring-logs/:id`), then the service emits `log.saved` | Business rules stay in one place; DB is the source of truth |
 | Concurrent saves | **Optimistic locking**: `monitoring_logs.version Int @default(0)`; update with Prisma `updateMany({ where: { id, version }, data: { …, version: { increment: 1 } } })`; `count === 0` → **409** | No DB locks held while someone types; a stale save is rejected instead of silently overwriting |
 | Slot instants across time zones | **`@date-fns/tz`** (date-fns v4) | "14:00 Asia/Jakarta on 2026-10-11" → exact `scheduled_at` instant, reliably. Small, maintained |
 | Event flood protection | **Per-socket limiter** in the gateway (e.g. max 20 focus/heartbeat events per 10 s, then drop + warn) | `@nestjs/throttler` only covers HTTP |
@@ -74,7 +74,7 @@ All names and payload types live in `src/monitoring/live/monitoring.events.ts`. 
 | `presence.update` | `{ joined?: {user_id, name}, left?: {user_id} }` | Someone joins/leaves the grid (deduplicated per user: several tabs = one viewer) |
 | `slot.editing` | `{ template_id, scheduled_at, user_id, name, since }` | Someone focuses a slot |
 | `slot.released` | `{ template_id, scheduled_at, user_id, reason: 'blur' \| 'saved' \| 'timeout' \| 'disconnect' }` | Marker removed |
-| `log.saved` | `{ log: <same shape as GET /monitoring/logs/:id>, action: 'created' \| 'updated' }` | After a successful REST create/update (also releases the saver's marker with `reason: 'saved'`) |
+| `log.saved` | `{ log: <same shape as GET /monitoring-logs/:id>, action: 'created' \| 'updated' }` | After a successful REST create/update (also releases the saver's marker with `reason: 'saved'`) |
 | `session.ended` | `{}` | Session revoked/expired; the server then disconnects the socket |
 
 Later (with the scheduler from `todo-redis.md`): `slot.missed` `{ template_id, scheduled_at }` when a slot passes its grace period with no log.
@@ -118,12 +118,12 @@ src/monitoring/live/
 - Per-socket rate limit; cap rooms per socket (e.g. 3) and markers per user (e.g. 10).
 - No log contents (notes, evidence) are sent through presence events; only `log.saved` carries the log, to the room's (authorised) members.
 
-## Permissions (new, in `src/monitoring/monitoring.permissions.ts`)
+## Permissions (in `src/monitoring/monitoring.permissions.ts`, built 2026-11-02)
 
-Shared with the monitoring REST API; names to confirm when that module is built:
+Shared with the monitoring REST API (`monitoring.md`):
 - `monitoring.read`: view the grid / join the live room (all roles by default).
 - `monitoring.check`: create/correct logs and send `slot.focus` (AGENT and up).
-- `monitoring.review`, `monitoring.templates.manage`: REST only (TEAM_LEAD and up).
+- `monitoring.check.any`, `monitoring.review`, `monitoring.templates.manage`: REST only (TEAM_LEAD and up); `monitoring.delete`: REST only (ADMIN and up).
 
 ## Frontend (suggestions for the frontend team; the backend work doesn't touch `frontend/`)
 
@@ -153,7 +153,7 @@ Shared with the monitoring REST API; names to confirm when that module is built:
 
 ## Suggested order
 
-1. **Monitoring REST API** (templates, logs, the day grid, `version` column, permissions).
+1. **Monitoring REST API**: templates, logs and permissions done 2026-11-02 (`monitoring.md`); the day grid and the `version` column remain.
 2. ~~Session auth~~: done 2026-10-13 (`auth.md`); the socket logs in with the session cookie.
 3. **Live layer** (this file): gateway, presence, `log.saved`.
 4. **Missed-slot events** with the scheduler (`todo-redis.md`, BullMQ).
@@ -170,4 +170,3 @@ Shared with the monitoring REST API; names to confirm when that module is built:
 1. **Timeouts:** 60 s heartbeat loss / 2 min idle OK?
 2. **Room granularity:** per project + day (as above), or per project only if the page shows several days?
 3. **Multiple editors on one slot:** warn only (as above), or block the second person in the UI?
-4. **Permission names** for monitoring (confirm with the REST API design).

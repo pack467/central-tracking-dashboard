@@ -6,6 +6,7 @@ import { resolvePermissions, type Permission } from '../../src/auth/permissions.
 import '../../src/tickets/tickets.permissions.js';
 import '../../src/users/users.permissions.js';
 import '../../src/roles/roles.permissions.js';
+import '../../src/monitoring/monitoring.permissions.js';
 
 export interface SeedRole {
   id: string;

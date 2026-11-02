@@ -8,6 +8,7 @@ Access is **permission-based**: code checks permissions, never role names. Since
    - `src/tickets/tickets.permissions.ts`: `TICKETS_READ`, `TICKETS_WRITE`, `TICKETS_WRITE_ANY`, `TICKETS_DELETE`, `TICKET_LOOKUPS_MANAGE`
    - `src/users/users.permissions.ts`: `USERS_READ`, `USERS_MANAGE`, `USERS_MANAGE_ALL`
    - `src/roles/roles.permissions.ts`: `ROLES_READ`, `ROLES_MANAGE`
+   - `src/monitoring/monitoring.permissions.ts`: `MONITORING_READ`, `MONITORING_CHECK`, `MONITORING_CHECK_ANY`, `MONITORING_REVIEW`, `MONITORING_TEMPLATES_MANAGE`, `MONITORING_DELETE`
 2. **Used** on a route with `@Can(TICKETS_DELETE)`, or in a service with `actor.permissions.has(TICKETS_WRITE_ANY)`.
 3. **Registered** in the `permissions` table at app startup by `PermissionsService.sync()` (`OnApplicationBootstrap`).
 4. **Granted** to roles through the API (`/roles`, see `roles.md`); stored as rows in `role_permissions`.
@@ -55,13 +56,13 @@ It logs e.g. `Permissions synced: 11 defined, 2 added, 9 described, 0 restored, 
 
 | Permission | VIEWER | AGENT | TEAM_LEAD | ADMIN | SUPER_ADMIN |
 |---|:-:|:-:|:-:|:-:|:-:|
-| `tickets.read`, `users.read` | ✓ | ✓ | ✓ | ✓ | ✓ |
-| `tickets.write` | | ✓ | ✓ | ✓ | ✓ |
-| `tickets.write.any` | | | ✓ | ✓ | ✓ |
-| `tickets.delete`, `ticket-lookups.manage`, `users.manage`, `roles.read` | | | | ✓ | ✓ |
+| `tickets.read`, `users.read`, `monitoring.read` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `tickets.write`, `monitoring.check` | | ✓ | ✓ | ✓ | ✓ |
+| `tickets.write.any`, `monitoring.check.any`, `monitoring.review`, `monitoring.templates.manage` | | | ✓ | ✓ | ✓ |
+| `tickets.delete`, `ticket-lookups.manage`, `users.manage`, `roles.read`, `monitoring.delete` | | | | ✓ | ✓ |
 | `users.manage.all`, `roles.manage` | | | | | ✓ |
 
-SUPER_ADMIN is granted `*` (one row), so it automatically has every future permission. Defaults come from `prisma/seed-data/user_role.json` (`permissions` arrays). The seed creates any referenced keys (no description; the startup sync fills it), then grants them **only to roles that have no grants yet**, so re-seeding never overwrites changes made through the API. Live grants: SUPER_ADMIN 1, ADMIN 8, TEAM_LEAD 4, AGENT 3, VIEWER 2 (18 rows).
+SUPER_ADMIN is granted `*` (one row), so it automatically has every future permission. Defaults come from `prisma/seed-data/user_role.json` (`permissions` arrays). The seed creates any referenced keys (no description; the startup sync fills it), then grants them **only to roles that have no grants yet**, so re-seeding never overwrites changes made through the API. Seeded grants: SUPER_ADMIN 1, ADMIN 14, TEAM_LEAD 9, AGENT 5, VIEWER 3 (32 rows; the monitoring ones were added 2026-11-02, so a database seeded earlier has 18 until it is reset or the grants are added through `/roles`).
 
 ## Hierarchy rule for users ("below you")
 

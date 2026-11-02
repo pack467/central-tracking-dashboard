@@ -12,6 +12,12 @@
     "name": "ADMIN",
     "description": null,
     "permissions": [
+      "monitoring.check",
+      "monitoring.check.any",
+      "monitoring.delete",
+      "monitoring.read",
+      "monitoring.review",
+      "monitoring.templates.manage",
       "roles.read",
       "ticket-lookups.manage",
       "tickets.delete",
@@ -27,6 +33,11 @@
     "name": "TEAM_LEAD",
     "description": null,
     "permissions": [
+      "monitoring.check",
+      "monitoring.check.any",
+      "monitoring.read",
+      "monitoring.review",
+      "monitoring.templates.manage",
       "tickets.read",
       "tickets.write",
       "tickets.write.any",
@@ -38,6 +49,8 @@
     "name": "AGENT",
     "description": null,
     "permissions": [
+      "monitoring.check",
+      "monitoring.read",
       "tickets.read",
       "tickets.write",
       "users.read"
@@ -48,6 +61,7 @@
     "name": "VIEWER",
     "description": null,
     "permissions": [
+      "monitoring.read",
       "tickets.read",
       "users.read"
     ]

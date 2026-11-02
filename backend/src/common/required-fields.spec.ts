@@ -8,6 +8,8 @@ import { UpdateTicketDto } from '../tickets/dto/update-ticket.dto.js';
 import { UpdateTicketCategoryDto } from '../tickets/categories/dto/ticket-category.dto.js';
 import { UpdateTicketSeverityDto } from '../tickets/severities/dto/ticket-severity.dto.js';
 import { UpdateRoleDto } from '../roles/dto/role.dto.js';
+import { UpdateMonitoringTemplateDto } from '../monitoring/templates/dto/update-monitoring-template.dto.js';
+import { UpdateMonitoringLogDto } from '../monitoring/logs/dto/update-monitoring-log.dto.js';
 
 // Update DTOs use PartialType(..., { skipNullProperties: false }) so that null
 // for a column that is NOT NULL in the database is a 400, not a DB error (500).
@@ -23,6 +25,13 @@ describe('required fields reject null on update', () => {
     [UpdateTicketCategoryDto, { name: null }, 'name'],
     [UpdateTicketSeverityDto, { code_name: null }, 'code_name'],
     [UpdateRoleDto, { name: null }, 'name'],
+    [UpdateMonitoringTemplateDto, { name: null }, 'name'],
+    [UpdateMonitoringTemplateDto, { times: null }, 'times'],
+    [UpdateMonitoringTemplateDto, { project_id: null }, 'project_id'],
+    // NOT NULL with a default: may be left out, but not cleared.
+    [UpdateMonitoringTemplateDto, { timezone: null }, 'timezone'],
+    [UpdateMonitoringTemplateDto, { is_active: null }, 'is_active'],
+    [UpdateMonitoringLogDto, { result: null }, 'result'],
   ])('%o rejects %o', async (cls, body, field) => {
     expect(await errorsFor(cls as new () => object, body)).toContain(field);
   });
@@ -32,6 +41,8 @@ describe('required fields reject null on update', () => {
     [UpdateTicketDto, { description: null, closed_at: null, user_id: null }],
     [UpdateTicketCategoryDto, { description: null }],
     [UpdateRoleDto, { description: null }],
+    [UpdateMonitoringTemplateDto, { instructions: null, client_id: null, active_from: null, active_until: null }],
+    [UpdateMonitoringLogDto, { note: null, evidence_url: null, ticket_id: null }],
   ])('%o still allows clearing optional fields with %o', async (cls, body) => {
     expect(await errorsFor(cls as new () => object, body)).toEqual([]);
   });
@@ -39,6 +50,7 @@ describe('required fields reject null on update', () => {
   it('still allows omitting required fields (partial update)', async () => {
     expect(await errorsFor(UpdateTicketDto, {})).toEqual([]);
     expect(await errorsFor(UpdateUserDto, { position: 'Engineer' })).toEqual([]);
+    expect(await errorsFor(UpdateMonitoringTemplateDto, {})).toEqual([]);
   });
 });
 
