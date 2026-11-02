@@ -1,0 +1,18 @@
+[
+  {
+    "width": 1920,
+    "before": [
+      1920,
+      3183
+    ],
+    "after": [
+      1920,
+      3183
+    ],
+    "exactPercent": 0.514762671483925,
+    "tolerance16Percent": 0.0,
+    "tolerance1Percent": 0.013024924075819459,
+    "tolerance2Percent": 1.6362969944496808e-05,
+    "maxChannelDifference": 6
+  }
+]

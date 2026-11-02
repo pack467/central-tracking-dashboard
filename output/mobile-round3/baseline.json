@@ -1,0 +1,6532 @@
+{
+  "rows": [
+    {
+      "viewport": 320,
+      "height": 4411,
+      "route": "/dashboard",
+      "width": 320,
+      "selects": [
+        {
+          "label": "Jumlah tiket per halaman",
+          "value": "10",
+          "options": [
+            {
+              "value": "10",
+              "label": "10/hal.",
+              "disabled": false
+            },
+            {
+              "value": "15",
+              "label": "15/hal.",
+              "disabled": false
+            },
+            {
+              "value": "25",
+              "label": "25/hal.",
+              "disabled": false
+            },
+            {
+              "value": "0",
+              "label": "Semua",
+              "disabled": false
+            }
+          ],
+          "x": 217,
+          "y": 769.890625,
+          "width": 76,
+          "height": 44,
+          "top": 769.890625,
+          "right": 293,
+          "bottom": 813.890625,
+          "left": 217
+        }
+      ],
+      "panels": [
+        {
+          "title": "Tiket Hari Ini",
+          "x": 12,
+          "y": 168.890625,
+          "width": 296,
+          "height": 660,
+          "top": 168.890625,
+          "right": 308,
+          "bottom": 828.890625,
+          "left": 12
+        },
+        {
+          "title": "Memo & Catatan Shift",
+          "x": 12,
+          "y": 840.890625,
+          "width": 296,
+          "height": 181,
+          "top": 840.890625,
+          "right": 308,
+          "bottom": 1021.890625,
+          "left": 12
+        },
+        {
+          "title": "List Monitoring Shift",
+          "x": 12,
+          "y": 1033.890625,
+          "width": 296,
+          "height": 438.5,
+          "top": 1033.890625,
+          "right": 308,
+          "bottom": 1472.390625,
+          "left": 12
+        },
+        {
+          "title": "Ticket Volume per Project (Stacked by System)Volume Tiket",
+          "x": 12,
+          "y": 1570.390625,
+          "width": 296,
+          "height": 418,
+          "top": 1570.390625,
+          "right": 308,
+          "bottom": 1988.390625,
+          "left": 12
+        },
+        {
+          "title": "Rekap Tiket per User",
+          "x": 12,
+          "y": 2000.390625,
+          "width": 296,
+          "height": 591,
+          "top": 2000.390625,
+          "right": 308,
+          "bottom": 2591.390625,
+          "left": 12
+        },
+        {
+          "title": "Distribusi Kategori / Tipe TiketDistribusi Kategori",
+          "x": 12,
+          "y": 2659.390625,
+          "width": 296,
+          "height": 507,
+          "top": 2659.390625,
+          "right": 308,
+          "bottom": 3166.390625,
+          "left": 12
+        },
+        {
+          "title": "Tren Durasi Penyelesaian (Resolution Velocity)Tren Durasi",
+          "x": 12,
+          "y": 3178.390625,
+          "width": 296,
+          "height": 517,
+          "top": 3178.390625,
+          "right": 308,
+          "bottom": 3695.390625,
+          "left": 12
+        },
+        {
+          "title": "Tren Trafik Beban per Shift (Shift Traffic Velocity)Tren Trafik",
+          "x": 12,
+          "y": 3707.390625,
+          "width": 296,
+          "height": 556,
+          "top": 3707.390625,
+          "right": 308,
+          "bottom": 4263.390625,
+          "left": 12
+        }
+      ],
+      "staffRows": [
+        {
+          "x": 27,
+          "y": 2088.390625,
+          "width": 266,
+          "height": 140,
+          "top": 2088.390625,
+          "right": 293,
+          "bottom": 2228.390625,
+          "left": 27
+        },
+        {
+          "x": 27,
+          "y": 2236.390625,
+          "width": 266,
+          "height": 140,
+          "top": 2236.390625,
+          "right": 293,
+          "bottom": 2376.390625,
+          "left": 27
+        },
+        {
+          "x": 27,
+          "y": 2384.390625,
+          "width": 266,
+          "height": 140,
+          "top": 2384.390625,
+          "right": 293,
+          "bottom": 2524.390625,
+          "left": 27
+        }
+      ],
+      "volume": {
+        "scroll": 822,
+        "client": 230,
+        "total": 1052,
+        "x": 63,
+        "y": 1658.390625,
+        "width": 230,
+        "height": 252,
+        "top": 1658.390625,
+        "right": 293,
+        "bottom": 1910.390625,
+        "left": 63
+      }
+    },
+    {
+      "viewport": 360,
+      "height": 4378,
+      "route": "/dashboard",
+      "width": 360,
+      "selects": [
+        {
+          "label": "Jumlah tiket per halaman",
+          "value": "10",
+          "options": [
+            {
+              "value": "10",
+              "label": "10/hal.",
+              "disabled": false
+            },
+            {
+              "value": "15",
+              "label": "15/hal.",
+              "disabled": false
+            },
+            {
+              "value": "25",
+              "label": "25/hal.",
+              "disabled": false
+            },
+            {
+              "value": "0",
+              "label": "Semua",
+              "disabled": false
+            }
+          ],
+          "x": 257,
+          "y": 769.890625,
+          "width": 76,
+          "height": 44,
+          "top": 769.890625,
+          "right": 333,
+          "bottom": 813.890625,
+          "left": 257
+        }
+      ],
+      "panels": [
+        {
+          "title": "Tiket Hari Ini",
+          "x": 12,
+          "y": 168.890625,
+          "width": 336,
+          "height": 660,
+          "top": 168.890625,
+          "right": 348,
+          "bottom": 828.890625,
+          "left": 12
+        },
+        {
+          "title": "Memo & Catatan Shift",
+          "x": 12,
+          "y": 840.890625,
+          "width": 336,
+          "height": 181,
+          "top": 840.890625,
+          "right": 348,
+          "bottom": 1021.890625,
+          "left": 12
+        },
+        {
+          "title": "List Monitoring Shift",
+          "x": 12,
+          "y": 1033.890625,
+          "width": 336,
+          "height": 438.5,
+          "top": 1033.890625,
+          "right": 348,
+          "bottom": 1472.390625,
+          "left": 12
+        },
+        {
+          "title": "Ticket Volume per Project (Stacked by System)Volume Tiket",
+          "x": 12,
+          "y": 1570.390625,
+          "width": 336,
+          "height": 418,
+          "top": 1570.390625,
+          "right": 348,
+          "bottom": 1988.390625,
+          "left": 12
+        },
+        {
+          "title": "Rekap Tiket per User",
+          "x": 12,
+          "y": 2000.390625,
+          "width": 336,
+          "height": 591,
+          "top": 2000.390625,
+          "right": 348,
+          "bottom": 2591.390625,
+          "left": 12
+        },
+        {
+          "title": "Distribusi Kategori / Tipe TiketDistribusi Kategori",
+          "x": 12,
+          "y": 2659.390625,
+          "width": 336,
+          "height": 507,
+          "top": 2659.390625,
+          "right": 348,
+          "bottom": 3166.390625,
+          "left": 12
+        },
+        {
+          "title": "Tren Durasi Penyelesaian (Resolution Velocity)Tren Durasi",
+          "x": 12,
+          "y": 3178.390625,
+          "width": 336,
+          "height": 484,
+          "top": 3178.390625,
+          "right": 348,
+          "bottom": 3662.390625,
+          "left": 12
+        },
+        {
+          "title": "Tren Trafik Beban per Shift (Shift Traffic Velocity)Tren Trafik",
+          "x": 12,
+          "y": 3674.390625,
+          "width": 336,
+          "height": 556,
+          "top": 3674.390625,
+          "right": 348,
+          "bottom": 4230.390625,
+          "left": 12
+        }
+      ],
+      "staffRows": [
+        {
+          "x": 27,
+          "y": 2088.390625,
+          "width": 306,
+          "height": 140,
+          "top": 2088.390625,
+          "right": 333,
+          "bottom": 2228.390625,
+          "left": 27
+        },
+        {
+          "x": 27,
+          "y": 2236.390625,
+          "width": 306,
+          "height": 140,
+          "top": 2236.390625,
+          "right": 333,
+          "bottom": 2376.390625,
+          "left": 27
+        },
+        {
+          "x": 27,
+          "y": 2384.390625,
+          "width": 306,
+          "height": 140,
+          "top": 2384.390625,
+          "right": 333,
+          "bottom": 2524.390625,
+          "left": 27
+        }
+      ],
+      "volume": {
+        "scroll": 782,
+        "client": 270,
+        "total": 1052,
+        "x": 63,
+        "y": 1658.390625,
+        "width": 270,
+        "height": 252,
+        "top": 1658.390625,
+        "right": 333,
+        "bottom": 1910.390625,
+        "left": 63
+      }
+    },
+    {
+      "viewport": 375,
+      "height": 4378,
+      "route": "/dashboard",
+      "width": 375,
+      "selects": [
+        {
+          "label": "Jumlah tiket per halaman",
+          "value": "10",
+          "options": [
+            {
+              "value": "10",
+              "label": "10/hal.",
+              "disabled": false
+            },
+            {
+              "value": "15",
+              "label": "15/hal.",
+              "disabled": false
+            },
+            {
+              "value": "25",
+              "label": "25/hal.",
+              "disabled": false
+            },
+            {
+              "value": "0",
+              "label": "Semua",
+              "disabled": false
+            }
+          ],
+          "x": 272,
+          "y": 769.890625,
+          "width": 76,
+          "height": 44,
+          "top": 769.890625,
+          "right": 348,
+          "bottom": 813.890625,
+          "left": 272
+        }
+      ],
+      "panels": [
+        {
+          "title": "Tiket Hari Ini",
+          "x": 12,
+          "y": 168.890625,
+          "width": 351,
+          "height": 660,
+          "top": 168.890625,
+          "right": 363,
+          "bottom": 828.890625,
+          "left": 12
+        },
+        {
+          "title": "Memo & Catatan Shift",
+          "x": 12,
+          "y": 840.890625,
+          "width": 351,
+          "height": 181,
+          "top": 840.890625,
+          "right": 363,
+          "bottom": 1021.890625,
+          "left": 12
+        },
+        {
+          "title": "List Monitoring Shift",
+          "x": 12,
+          "y": 1033.890625,
+          "width": 351,
+          "height": 438.5,
+          "top": 1033.890625,
+          "right": 363,
+          "bottom": 1472.390625,
+          "left": 12
+        },
+        {
+          "title": "Ticket Volume per Project (Stacked by System)Volume Tiket",
+          "x": 12,
+          "y": 1570.390625,
+          "width": 351,
+          "height": 418,
+          "top": 1570.390625,
+          "right": 363,
+          "bottom": 1988.390625,
+          "left": 12
+        },
+        {
+          "title": "Rekap Tiket per User",
+          "x": 12,
+          "y": 2000.390625,
+          "width": 351,
+          "height": 591,
+          "top": 2000.390625,
+          "right": 363,
+          "bottom": 2591.390625,
+          "left": 12
+        },
+        {
+          "title": "Distribusi Kategori / Tipe TiketDistribusi Kategori",
+          "x": 12,
+          "y": 2659.390625,
+          "width": 351,
+          "height": 507,
+          "top": 2659.390625,
+          "right": 363,
+          "bottom": 3166.390625,
+          "left": 12
+        },
+        {
+          "title": "Tren Durasi Penyelesaian (Resolution Velocity)Tren Durasi",
+          "x": 12,
+          "y": 3178.390625,
+          "width": 351,
+          "height": 484,
+          "top": 3178.390625,
+          "right": 363,
+          "bottom": 3662.390625,
+          "left": 12
+        },
+        {
+          "title": "Tren Trafik Beban per Shift (Shift Traffic Velocity)Tren Trafik",
+          "x": 12,
+          "y": 3674.390625,
+          "width": 351,
+          "height": 556,
+          "top": 3674.390625,
+          "right": 363,
+          "bottom": 4230.390625,
+          "left": 12
+        }
+      ],
+      "staffRows": [
+        {
+          "x": 27,
+          "y": 2088.390625,
+          "width": 321,
+          "height": 140,
+          "top": 2088.390625,
+          "right": 348,
+          "bottom": 2228.390625,
+          "left": 27
+        },
+        {
+          "x": 27,
+          "y": 2236.390625,
+          "width": 321,
+          "height": 140,
+          "top": 2236.390625,
+          "right": 348,
+          "bottom": 2376.390625,
+          "left": 27
+        },
+        {
+          "x": 27,
+          "y": 2384.390625,
+          "width": 321,
+          "height": 140,
+          "top": 2384.390625,
+          "right": 348,
+          "bottom": 2524.390625,
+          "left": 27
+        }
+      ],
+      "volume": {
+        "scroll": 767,
+        "client": 285,
+        "total": 1052,
+        "x": 63,
+        "y": 1658.390625,
+        "width": 285,
+        "height": 252,
+        "top": 1658.390625,
+        "right": 348,
+        "bottom": 1910.390625,
+        "left": 63
+      }
+    },
+    {
+      "viewport": 390,
+      "height": 4378,
+      "route": "/dashboard",
+      "width": 390,
+      "selects": [
+        {
+          "label": "Jumlah tiket per halaman",
+          "value": "10",
+          "options": [
+            {
+              "value": "10",
+              "label": "10/hal.",
+              "disabled": false
+            },
+            {
+              "value": "15",
+              "label": "15/hal.",
+              "disabled": false
+            },
+            {
+              "value": "25",
+              "label": "25/hal.",
+              "disabled": false
+            },
+            {
+              "value": "0",
+              "label": "Semua",
+              "disabled": false
+            }
+          ],
+          "x": 287,
+          "y": 769.890625,
+          "width": 76,
+          "height": 44,
+          "top": 769.890625,
+          "right": 363,
+          "bottom": 813.890625,
+          "left": 287
+        }
+      ],
+      "panels": [
+        {
+          "title": "Tiket Hari Ini",
+          "x": 12,
+          "y": 168.890625,
+          "width": 366,
+          "height": 660,
+          "top": 168.890625,
+          "right": 378,
+          "bottom": 828.890625,
+          "left": 12
+        },
+        {
+          "title": "Memo & Catatan Shift",
+          "x": 12,
+          "y": 840.890625,
+          "width": 366,
+          "height": 181,
+          "top": 840.890625,
+          "right": 378,
+          "bottom": 1021.890625,
+          "left": 12
+        },
+        {
+          "title": "List Monitoring Shift",
+          "x": 12,
+          "y": 1033.890625,
+          "width": 366,
+          "height": 438.5,
+          "top": 1033.890625,
+          "right": 378,
+          "bottom": 1472.390625,
+          "left": 12
+        },
+        {
+          "title": "Ticket Volume per Project (Stacked by System)Volume Tiket",
+          "x": 12,
+          "y": 1570.390625,
+          "width": 366,
+          "height": 418,
+          "top": 1570.390625,
+          "right": 378,
+          "bottom": 1988.390625,
+          "left": 12
+        },
+        {
+          "title": "Rekap Tiket per User",
+          "x": 12,
+          "y": 2000.390625,
+          "width": 366,
+          "height": 591,
+          "top": 2000.390625,
+          "right": 378,
+          "bottom": 2591.390625,
+          "left": 12
+        },
+        {
+          "title": "Distribusi Kategori / Tipe TiketDistribusi Kategori",
+          "x": 12,
+          "y": 2659.390625,
+          "width": 366,
+          "height": 507,
+          "top": 2659.390625,
+          "right": 378,
+          "bottom": 3166.390625,
+          "left": 12
+        },
+        {
+          "title": "Tren Durasi Penyelesaian (Resolution Velocity)Tren Durasi",
+          "x": 12,
+          "y": 3178.390625,
+          "width": 366,
+          "height": 484,
+          "top": 3178.390625,
+          "right": 378,
+          "bottom": 3662.390625,
+          "left": 12
+        },
+        {
+          "title": "Tren Trafik Beban per Shift (Shift Traffic Velocity)Tren Trafik",
+          "x": 12,
+          "y": 3674.390625,
+          "width": 366,
+          "height": 556,
+          "top": 3674.390625,
+          "right": 378,
+          "bottom": 4230.390625,
+          "left": 12
+        }
+      ],
+      "staffRows": [
+        {
+          "x": 27,
+          "y": 2088.390625,
+          "width": 336,
+          "height": 140,
+          "top": 2088.390625,
+          "right": 363,
+          "bottom": 2228.390625,
+          "left": 27
+        },
+        {
+          "x": 27,
+          "y": 2236.390625,
+          "width": 336,
+          "height": 140,
+          "top": 2236.390625,
+          "right": 363,
+          "bottom": 2376.390625,
+          "left": 27
+        },
+        {
+          "x": 27,
+          "y": 2384.390625,
+          "width": 336,
+          "height": 140,
+          "top": 2384.390625,
+          "right": 363,
+          "bottom": 2524.390625,
+          "left": 27
+        }
+      ],
+      "volume": {
+        "scroll": 752,
+        "client": 300,
+        "total": 1052,
+        "x": 63,
+        "y": 1658.390625,
+        "width": 300,
+        "height": 252,
+        "top": 1658.390625,
+        "right": 363,
+        "bottom": 1910.390625,
+        "left": 63
+      }
+    },
+    {
+      "viewport": 390,
+      "height": 3559,
+      "route": "/tickets",
+      "width": 390,
+      "selects": [
+        {
+          "label": "Jumlah tiket per halaman",
+          "value": "10",
+          "options": [
+            {
+              "value": "10",
+              "label": "10",
+              "disabled": false
+            },
+            {
+              "value": "30",
+              "label": "30",
+              "disabled": false
+            },
+            {
+              "value": "50",
+              "label": "50",
+              "disabled": false
+            },
+            {
+              "value": "100",
+              "label": "100",
+              "disabled": false
+            }
+          ],
+          "x": 124.25,
+          "y": 3284.046875,
+          "width": 77,
+          "height": 30,
+          "top": 3284.046875,
+          "right": 201.25,
+          "bottom": 3314.046875,
+          "left": 124.25
+        }
+      ],
+      "panels": [],
+      "staffRows": [],
+      "volume": null
+    },
+    {
+      "viewport": 390,
+      "height": 3883,
+      "route": "/monitoring",
+      "width": 390,
+      "selects": [],
+      "panels": [],
+      "staffRows": [],
+      "volume": null
+    },
+    {
+      "viewport": 390,
+      "height": 5289,
+      "route": "/shift-log",
+      "width": 390,
+      "selects": [
+        {
+          "label": "Filter berdasarkan shift",
+          "value": "",
+          "options": [
+            {
+              "value": "",
+              "label": "Semua Shift",
+              "disabled": false
+            },
+            {
+              "value": "subuh",
+              "label": "Shift Subuh",
+              "disabled": false
+            },
+            {
+              "value": "pagi",
+              "label": "Shift Pagi",
+              "disabled": false
+            },
+            {
+              "value": "malam",
+              "label": "Shift Malam",
+              "disabled": false
+            },
+            {
+              "value": "subuh → pagi",
+              "label": "Subuh → Pagi",
+              "disabled": false
+            },
+            {
+              "value": "pagi → malam",
+              "label": "Pagi → Malam",
+              "disabled": false
+            },
+            {
+              "value": "malam → subuh",
+              "label": "Malam → Subuh",
+              "disabled": false
+            }
+          ],
+          "x": 27,
+          "y": 497.359375,
+          "width": 336,
+          "height": 38,
+          "top": 497.359375,
+          "right": 363,
+          "bottom": 535.359375,
+          "left": 27
+        },
+        {
+          "label": "Jumlah catatan per halaman",
+          "value": "10",
+          "options": [
+            {
+              "value": "10",
+              "label": "10",
+              "disabled": false
+            },
+            {
+              "value": "30",
+              "label": "30",
+              "disabled": false
+            },
+            {
+              "value": "50",
+              "label": "50",
+              "disabled": false
+            },
+            {
+              "value": "100",
+              "label": "100",
+              "disabled": false
+            }
+          ],
+          "x": 142.25,
+          "y": 4982.265625,
+          "width": 60,
+          "height": 30,
+          "top": 4982.265625,
+          "right": 202.25,
+          "bottom": 5012.265625,
+          "left": 142.25
+        }
+      ],
+      "panels": [],
+      "staffRows": [],
+      "volume": null
+    },
+    {
+      "viewport": 390,
+      "height": 3120,
+      "route": "/reports",
+      "width": 390,
+      "selects": [
+        {
+          "label": "Filter proyek laporan",
+          "value": "all",
+          "options": [
+            {
+              "value": "all",
+              "label": "Semua proyek (11)",
+              "disabled": false
+            },
+            {
+              "value": "APH",
+              "label": "APH",
+              "disabled": false
+            },
+            {
+              "value": "B2B",
+              "label": "B2B",
+              "disabled": false
+            },
+            {
+              "value": "DM",
+              "label": "DM",
+              "disabled": false
+            },
+            {
+              "value": "EPC",
+              "label": "EPC",
+              "disabled": false
+            },
+            {
+              "value": "EPC Core",
+              "label": "EPC Core",
+              "disabled": false
+            },
+            {
+              "value": "EPC Tools",
+              "label": "EPC Tools",
+              "disabled": false
+            },
+            {
+              "value": "MB",
+              "label": "MB",
+              "disabled": false
+            },
+            {
+              "value": "SM",
+              "label": "SM",
+              "disabled": false
+            },
+            {
+              "value": "SM/ActiveMQ",
+              "label": "SM/ActiveMQ",
+              "disabled": false
+            },
+            {
+              "value": "UNEM",
+              "label": "UNEM",
+              "disabled": false
+            },
+            {
+              "value": "USIEM",
+              "label": "USIEM",
+              "disabled": false
+            }
+          ],
+          "x": 227,
+          "y": 933.171875,
+          "width": 165,
+          "height": 40,
+          "top": 933.171875,
+          "right": 392,
+          "bottom": 973.171875,
+          "left": 227
+        }
+      ],
+      "panels": [],
+      "staffRows": [],
+      "volume": null
+    },
+    {
+      "viewport": 390,
+      "height": 1974,
+      "route": "/team-roster",
+      "width": 390,
+      "selects": [
+        {
+          "label": "Filter role",
+          "value": "All",
+          "options": [
+            {
+              "value": "All",
+              "label": "All Roles (14)",
+              "disabled": false
+            },
+            {
+              "value": "Operator NOC",
+              "label": "Operator NOC",
+              "disabled": false
+            },
+            {
+              "value": "Shift Lead",
+              "label": "Shift Lead",
+              "disabled": false
+            },
+            {
+              "value": "Incident Coordinator",
+              "label": "Incident Coordinator",
+              "disabled": false
+            },
+            {
+              "value": "L2 Specialist",
+              "label": "L2 Specialist",
+              "disabled": false
+            },
+            {
+              "value": "Infrastructure Engineer",
+              "label": "Infrastructure Engineer",
+              "disabled": false
+            }
+          ],
+          "x": 29,
+          "y": 624.328125,
+          "width": 332,
+          "height": 40,
+          "top": 624.328125,
+          "right": 361,
+          "bottom": 664.328125,
+          "left": 29
+        },
+        {
+          "label": "Filter shift",
+          "value": "All",
+          "options": [
+            {
+              "value": "All",
+              "label": "All Shifts",
+              "disabled": false
+            },
+            {
+              "value": "Subuh",
+              "label": "Shift Subuh",
+              "disabled": false
+            },
+            {
+              "value": "Pagi",
+              "label": "Shift Pagi",
+              "disabled": false
+            },
+            {
+              "value": "Malam",
+              "label": "Shift Malam",
+              "disabled": false
+            }
+          ],
+          "x": 29,
+          "y": 672.328125,
+          "width": 332,
+          "height": 40,
+          "top": 672.328125,
+          "right": 361,
+          "bottom": 712.328125,
+          "left": 29
+        },
+        {
+          "label": "Filter status",
+          "value": "All",
+          "options": [
+            {
+              "value": "All",
+              "label": "All Statuses",
+              "disabled": false
+            },
+            {
+              "value": "Active",
+              "label": "Active (On Duty)",
+              "disabled": false
+            },
+            {
+              "value": "On Break",
+              "label": "On Break",
+              "disabled": false
+            },
+            {
+              "value": "Off Duty",
+              "label": "Off Duty",
+              "disabled": false
+            },
+            {
+              "value": "On Leave",
+              "label": "On Leave",
+              "disabled": false
+            }
+          ],
+          "x": 29,
+          "y": 720.328125,
+          "width": 332,
+          "height": 40,
+          "top": 720.328125,
+          "right": 361,
+          "bottom": 760.328125,
+          "left": 29
+        },
+        {
+          "label": "Jumlah baris per halaman",
+          "value": "10",
+          "options": [
+            {
+              "value": "10",
+              "label": "10",
+              "disabled": false
+            },
+            {
+              "value": "25",
+              "label": "25",
+              "disabled": false
+            },
+            {
+              "value": "50",
+              "label": "50",
+              "disabled": false
+            },
+            {
+              "value": "all",
+              "label": "All",
+              "disabled": false
+            }
+          ],
+          "x": 124.25,
+          "y": 1635.328125,
+          "width": 51,
+          "height": 34,
+          "top": 1635.328125,
+          "right": 175.25,
+          "bottom": 1669.328125,
+          "left": 124.25
+        }
+      ],
+      "panels": [],
+      "staffRows": [],
+      "volume": null
+    },
+    {
+      "viewport": 390,
+      "height": 3882,
+      "route": "/master-data",
+      "width": 390,
+      "selects": [
+        {
+          "label": "Filter status klien",
+          "value": "all",
+          "options": [
+            {
+              "value": "all",
+              "label": "Semua Status (8)",
+              "disabled": false
+            },
+            {
+              "value": "active",
+              "label": "Aktif (8)",
+              "disabled": false
+            },
+            {
+              "value": "inactive",
+              "label": "Nonaktif (0)",
+              "disabled": false
+            },
+            {
+              "value": "archived",
+              "label": "Arsip (0)",
+              "disabled": false
+            }
+          ],
+          "x": 25,
+          "y": 700,
+          "width": 142,
+          "height": 36,
+          "top": 700,
+          "right": 167,
+          "bottom": 736,
+          "left": 25
+        }
+      ],
+      "panels": [],
+      "staffRows": [],
+      "volume": null
+    },
+    {
+      "viewport": 390,
+      "height": 1473,
+      "route": "/runbooks",
+      "width": 390,
+      "selects": [],
+      "panels": [],
+      "staffRows": [],
+      "volume": null
+    },
+    {
+      "viewport": 412,
+      "height": 4378,
+      "route": "/dashboard",
+      "width": 412,
+      "selects": [
+        {
+          "label": "Jumlah tiket per halaman",
+          "value": "10",
+          "options": [
+            {
+              "value": "10",
+              "label": "10/hal.",
+              "disabled": false
+            },
+            {
+              "value": "15",
+              "label": "15/hal.",
+              "disabled": false
+            },
+            {
+              "value": "25",
+              "label": "25/hal.",
+              "disabled": false
+            },
+            {
+              "value": "0",
+              "label": "Semua",
+              "disabled": false
+            }
+          ],
+          "x": 305,
+          "y": 769.890625,
+          "width": 76,
+          "height": 44,
+          "top": 769.890625,
+          "right": 381,
+          "bottom": 813.890625,
+          "left": 305
+        }
+      ],
+      "panels": [
+        {
+          "title": "Tiket Hari Ini",
+          "x": 16,
+          "y": 168.890625,
+          "width": 380,
+          "height": 660,
+          "top": 168.890625,
+          "right": 396,
+          "bottom": 828.890625,
+          "left": 16
+        },
+        {
+          "title": "Memo & Catatan Shift",
+          "x": 16,
+          "y": 840.890625,
+          "width": 380,
+          "height": 181,
+          "top": 840.890625,
+          "right": 396,
+          "bottom": 1021.890625,
+          "left": 16
+        },
+        {
+          "title": "List Monitoring Shift",
+          "x": 16,
+          "y": 1033.890625,
+          "width": 380,
+          "height": 438.5,
+          "top": 1033.890625,
+          "right": 396,
+          "bottom": 1472.390625,
+          "left": 16
+        },
+        {
+          "title": "Ticket Volume per Project (Stacked by System)Volume Tiket",
+          "x": 16,
+          "y": 1570.390625,
+          "width": 380,
+          "height": 418,
+          "top": 1570.390625,
+          "right": 396,
+          "bottom": 1988.390625,
+          "left": 16
+        },
+        {
+          "title": "Rekap Tiket per User",
+          "x": 16,
+          "y": 2000.390625,
+          "width": 380,
+          "height": 591,
+          "top": 2000.390625,
+          "right": 396,
+          "bottom": 2591.390625,
+          "left": 16
+        },
+        {
+          "title": "Distribusi Kategori / Tipe TiketDistribusi Kategori",
+          "x": 16,
+          "y": 2659.390625,
+          "width": 380,
+          "height": 507,
+          "top": 2659.390625,
+          "right": 396,
+          "bottom": 3166.390625,
+          "left": 16
+        },
+        {
+          "title": "Tren Durasi Penyelesaian (Resolution Velocity)Tren Durasi",
+          "x": 16,
+          "y": 3178.390625,
+          "width": 380,
+          "height": 484,
+          "top": 3178.390625,
+          "right": 396,
+          "bottom": 3662.390625,
+          "left": 16
+        },
+        {
+          "title": "Tren Trafik Beban per Shift (Shift Traffic Velocity)Tren Trafik",
+          "x": 16,
+          "y": 3674.390625,
+          "width": 380,
+          "height": 556,
+          "top": 3674.390625,
+          "right": 396,
+          "bottom": 4230.390625,
+          "left": 16
+        }
+      ],
+      "staffRows": [
+        {
+          "x": 31,
+          "y": 2088.390625,
+          "width": 350,
+          "height": 140,
+          "top": 2088.390625,
+          "right": 381,
+          "bottom": 2228.390625,
+          "left": 31
+        },
+        {
+          "x": 31,
+          "y": 2236.390625,
+          "width": 350,
+          "height": 140,
+          "top": 2236.390625,
+          "right": 381,
+          "bottom": 2376.390625,
+          "left": 31
+        },
+        {
+          "x": 31,
+          "y": 2384.390625,
+          "width": 350,
+          "height": 140,
+          "top": 2384.390625,
+          "right": 381,
+          "bottom": 2524.390625,
+          "left": 31
+        }
+      ],
+      "volume": {
+        "scroll": 738,
+        "client": 314,
+        "total": 1052,
+        "x": 67,
+        "y": 1658.390625,
+        "width": 314,
+        "height": 252,
+        "top": 1658.390625,
+        "right": 381,
+        "bottom": 1910.390625,
+        "left": 67
+      }
+    },
+    {
+      "viewport": 430,
+      "height": 4378,
+      "route": "/dashboard",
+      "width": 430,
+      "selects": [
+        {
+          "label": "Jumlah tiket per halaman",
+          "value": "10",
+          "options": [
+            {
+              "value": "10",
+              "label": "10/hal.",
+              "disabled": false
+            },
+            {
+              "value": "15",
+              "label": "15/hal.",
+              "disabled": false
+            },
+            {
+              "value": "25",
+              "label": "25/hal.",
+              "disabled": false
+            },
+            {
+              "value": "0",
+              "label": "Semua",
+              "disabled": false
+            }
+          ],
+          "x": 323,
+          "y": 769.890625,
+          "width": 76,
+          "height": 44,
+          "top": 769.890625,
+          "right": 399,
+          "bottom": 813.890625,
+          "left": 323
+        }
+      ],
+      "panels": [
+        {
+          "title": "Tiket Hari Ini",
+          "x": 16,
+          "y": 168.890625,
+          "width": 398,
+          "height": 660,
+          "top": 168.890625,
+          "right": 414,
+          "bottom": 828.890625,
+          "left": 16
+        },
+        {
+          "title": "Memo & Catatan Shift",
+          "x": 16,
+          "y": 840.890625,
+          "width": 398,
+          "height": 181,
+          "top": 840.890625,
+          "right": 414,
+          "bottom": 1021.890625,
+          "left": 16
+        },
+        {
+          "title": "List Monitoring Shift",
+          "x": 16,
+          "y": 1033.890625,
+          "width": 398,
+          "height": 438.5,
+          "top": 1033.890625,
+          "right": 414,
+          "bottom": 1472.390625,
+          "left": 16
+        },
+        {
+          "title": "Ticket Volume per Project (Stacked by System)Volume Tiket",
+          "x": 16,
+          "y": 1570.390625,
+          "width": 398,
+          "height": 418,
+          "top": 1570.390625,
+          "right": 414,
+          "bottom": 1988.390625,
+          "left": 16
+        },
+        {
+          "title": "Rekap Tiket per User",
+          "x": 16,
+          "y": 2000.390625,
+          "width": 398,
+          "height": 591,
+          "top": 2000.390625,
+          "right": 414,
+          "bottom": 2591.390625,
+          "left": 16
+        },
+        {
+          "title": "Distribusi Kategori / Tipe TiketDistribusi Kategori",
+          "x": 16,
+          "y": 2659.390625,
+          "width": 398,
+          "height": 507,
+          "top": 2659.390625,
+          "right": 414,
+          "bottom": 3166.390625,
+          "left": 16
+        },
+        {
+          "title": "Tren Durasi Penyelesaian (Resolution Velocity)Tren Durasi",
+          "x": 16,
+          "y": 3178.390625,
+          "width": 398,
+          "height": 484,
+          "top": 3178.390625,
+          "right": 414,
+          "bottom": 3662.390625,
+          "left": 16
+        },
+        {
+          "title": "Tren Trafik Beban per Shift (Shift Traffic Velocity)Tren Trafik",
+          "x": 16,
+          "y": 3674.390625,
+          "width": 398,
+          "height": 556,
+          "top": 3674.390625,
+          "right": 414,
+          "bottom": 4230.390625,
+          "left": 16
+        }
+      ],
+      "staffRows": [
+        {
+          "x": 31,
+          "y": 2088.390625,
+          "width": 368,
+          "height": 140,
+          "top": 2088.390625,
+          "right": 399,
+          "bottom": 2228.390625,
+          "left": 31
+        },
+        {
+          "x": 31,
+          "y": 2236.390625,
+          "width": 368,
+          "height": 140,
+          "top": 2236.390625,
+          "right": 399,
+          "bottom": 2376.390625,
+          "left": 31
+        },
+        {
+          "x": 31,
+          "y": 2384.390625,
+          "width": 368,
+          "height": 140,
+          "top": 2384.390625,
+          "right": 399,
+          "bottom": 2524.390625,
+          "left": 31
+        }
+      ],
+      "volume": {
+        "scroll": 720,
+        "client": 332,
+        "total": 1052,
+        "x": 67,
+        "y": 1658.390625,
+        "width": 332,
+        "height": 252,
+        "top": 1658.390625,
+        "right": 399,
+        "bottom": 1910.390625,
+        "left": 67
+      }
+    },
+    {
+      "viewport": 768,
+      "height": 4362,
+      "route": "/dashboard",
+      "width": 768,
+      "selects": [
+        {
+          "label": "Jumlah tiket per halaman",
+          "value": "10",
+          "options": [
+            {
+              "value": "10",
+              "label": "10/hal.",
+              "disabled": false
+            },
+            {
+              "value": "15",
+              "label": "15/hal.",
+              "disabled": false
+            },
+            {
+              "value": "25",
+              "label": "25/hal.",
+              "disabled": false
+            },
+            {
+              "value": "0",
+              "label": "Semua",
+              "disabled": false
+            }
+          ],
+          "x": 655,
+          "y": 789.890625,
+          "width": 76,
+          "height": 44,
+          "top": 789.890625,
+          "right": 731,
+          "bottom": 833.890625,
+          "left": 655
+        },
+        {
+          "label": "Filter proyek",
+          "value": "All",
+          "options": [
+            {
+              "value": "All",
+              "label": "Semua Proyek",
+              "disabled": false
+            },
+            {
+              "value": "APH",
+              "label": "APH",
+              "disabled": false
+            },
+            {
+              "value": "B2B",
+              "label": "B2B",
+              "disabled": false
+            },
+            {
+              "value": "DM",
+              "label": "DM",
+              "disabled": false
+            },
+            {
+              "value": "EPC Tools",
+              "label": "EPC Tools",
+              "disabled": false
+            },
+            {
+              "value": "MB",
+              "label": "MB",
+              "disabled": false
+            },
+            {
+              "value": "SM",
+              "label": "SM",
+              "disabled": false
+            },
+            {
+              "value": "UNEM",
+              "label": "UNEM",
+              "disabled": false
+            },
+            {
+              "value": "USIEM",
+              "label": "USIEM",
+              "disabled": false
+            }
+          ],
+          "x": 390,
+          "y": 1576.390625,
+          "width": 339,
+          "height": 44,
+          "top": 1576.390625,
+          "right": 729,
+          "bottom": 1620.390625,
+          "left": 390
+        },
+        {
+          "label": "Filter shift",
+          "value": "All",
+          "options": [
+            {
+              "value": "All",
+              "label": "Semua Shift",
+              "disabled": false
+            },
+            {
+              "value": "Subuh",
+              "label": "Shift Subuh (00:00–08:30)",
+              "disabled": false
+            },
+            {
+              "value": "Pagi",
+              "label": "Shift Pagi (08:00–16:30)",
+              "disabled": false
+            },
+            {
+              "value": "Malam",
+              "label": "Shift Malam (16:00–00:30)",
+              "disabled": false
+            }
+          ],
+          "x": 39,
+          "y": 1652.890625,
+          "width": 339,
+          "height": 44,
+          "top": 1652.890625,
+          "right": 378,
+          "bottom": 1696.890625,
+          "left": 39
+        },
+        {
+          "label": "Filter status tiket",
+          "value": "All",
+          "options": [
+            {
+              "value": "All",
+              "label": "Semua Status",
+              "disabled": false
+            },
+            {
+              "value": "Open",
+              "label": "Open",
+              "disabled": false
+            },
+            {
+              "value": "Closed",
+              "label": "Closed",
+              "disabled": false
+            },
+            {
+              "value": "Activity",
+              "label": "Activity",
+              "disabled": false
+            },
+            {
+              "value": "Meeting",
+              "label": "Meeting",
+              "disabled": false
+            },
+            {
+              "value": "Re-Open",
+              "label": "Re-Open",
+              "disabled": false
+            },
+            {
+              "value": "Pending",
+              "label": "Pending",
+              "disabled": false
+            },
+            {
+              "value": "RCA",
+              "label": "RCA",
+              "disabled": false
+            }
+          ],
+          "x": 39,
+          "y": 1729.390625,
+          "width": 339,
+          "height": 44,
+          "top": 1729.390625,
+          "right": 378,
+          "bottom": 1773.390625,
+          "left": 39
+        },
+        {
+          "label": "Filter keparahan",
+          "value": "All",
+          "options": [
+            {
+              "value": "All",
+              "label": "Semua Severity",
+              "disabled": false
+            },
+            {
+              "value": "Critical",
+              "label": "Critical (Kritis)",
+              "disabled": false
+            },
+            {
+              "value": "High",
+              "label": "High (Tinggi)",
+              "disabled": false
+            },
+            {
+              "value": "Medium",
+              "label": "Medium (Sedang)",
+              "disabled": false
+            },
+            {
+              "value": "Low",
+              "label": "Low (Rendah)",
+              "disabled": false
+            }
+          ],
+          "x": 390,
+          "y": 1729.390625,
+          "width": 339,
+          "height": 44,
+          "top": 1729.390625,
+          "right": 729,
+          "bottom": 1773.390625,
+          "left": 390
+        }
+      ],
+      "panels": [
+        {
+          "title": "Tiket Hari Ini",
+          "x": 22,
+          "y": 188.890625,
+          "width": 724,
+          "height": 660,
+          "top": 188.890625,
+          "right": 746,
+          "bottom": 848.890625,
+          "left": 22
+        },
+        {
+          "title": "Memo & Catatan Shift",
+          "x": 22,
+          "y": 860.890625,
+          "width": 724,
+          "height": 181,
+          "top": 860.890625,
+          "right": 746,
+          "bottom": 1041.890625,
+          "left": 22
+        },
+        {
+          "title": "List Monitoring Shift",
+          "x": 22,
+          "y": 1053.890625,
+          "width": 724,
+          "height": 438.5,
+          "top": 1053.890625,
+          "right": 746,
+          "bottom": 1492.390625,
+          "left": 22
+        },
+        {
+          "title": "Ticket Volume per Project (Stacked by System)Volume Tiket",
+          "x": 22,
+          "y": 1800.390625,
+          "width": 724,
+          "height": 418,
+          "top": 1800.390625,
+          "right": 746,
+          "bottom": 2218.390625,
+          "left": 22
+        },
+        {
+          "title": "Rekap Tiket per User",
+          "x": 22,
+          "y": 2230.390625,
+          "width": 724,
+          "height": 591,
+          "top": 2230.390625,
+          "right": 746,
+          "bottom": 2821.390625,
+          "left": 22
+        },
+        {
+          "title": "Distribusi Kategori / Tipe TiketDistribusi Kategori",
+          "x": 22,
+          "y": 2889.390625,
+          "width": 724,
+          "height": 355,
+          "top": 2889.390625,
+          "right": 746,
+          "bottom": 3244.390625,
+          "left": 22
+        },
+        {
+          "title": "Tren Durasi Penyelesaian (Resolution Velocity)Tren Durasi",
+          "x": 22,
+          "y": 3256.390625,
+          "width": 724,
+          "height": 486,
+          "top": 3256.390625,
+          "right": 746,
+          "bottom": 3742.390625,
+          "left": 22
+        },
+        {
+          "title": "Tren Trafik Beban per Shift (Shift Traffic Velocity)Tren Trafik",
+          "x": 22,
+          "y": 3754.390625,
+          "width": 724,
+          "height": 564,
+          "top": 3754.390625,
+          "right": 746,
+          "bottom": 4318.390625,
+          "left": 22
+        }
+      ],
+      "staffRows": [
+        {
+          "x": 37,
+          "y": 2318.390625,
+          "width": 694,
+          "height": 140,
+          "top": 2318.390625,
+          "right": 731,
+          "bottom": 2458.390625,
+          "left": 37
+        },
+        {
+          "x": 37,
+          "y": 2466.390625,
+          "width": 694,
+          "height": 140,
+          "top": 2466.390625,
+          "right": 731,
+          "bottom": 2606.390625,
+          "left": 37
+        },
+        {
+          "x": 37,
+          "y": 2614.390625,
+          "width": 694,
+          "height": 140,
+          "top": 2614.390625,
+          "right": 731,
+          "bottom": 2754.390625,
+          "left": 37
+        }
+      ],
+      "volume": {
+        "scroll": 394,
+        "client": 658,
+        "total": 1052,
+        "x": 73,
+        "y": 1888.390625,
+        "width": 658,
+        "height": 252,
+        "top": 1888.390625,
+        "right": 731,
+        "bottom": 2140.390625,
+        "left": 73
+      }
+    },
+    {
+      "viewport": 768,
+      "height": 3231,
+      "route": "/tickets",
+      "width": 768,
+      "selects": [
+        {
+          "label": "Jumlah tiket per halaman",
+          "value": "10",
+          "options": [
+            {
+              "value": "10",
+              "label": "10",
+              "disabled": false
+            },
+            {
+              "value": "30",
+              "label": "30",
+              "disabled": false
+            },
+            {
+              "value": "50",
+              "label": "50",
+              "disabled": false
+            },
+            {
+              "value": "100",
+              "label": "100",
+              "disabled": false
+            }
+          ],
+          "x": 134.25,
+          "y": 3124.234375,
+          "width": 77,
+          "height": 30,
+          "top": 3124.234375,
+          "right": 211.25,
+          "bottom": 3154.234375,
+          "left": 134.25
+        }
+      ],
+      "panels": [],
+      "staffRows": [],
+      "volume": null
+    },
+    {
+      "viewport": 768,
+      "height": 1651,
+      "route": "/monitoring",
+      "width": 768,
+      "selects": [],
+      "panels": [],
+      "staffRows": [],
+      "volume": null
+    },
+    {
+      "viewport": 768,
+      "height": 2860,
+      "route": "/shift-log",
+      "width": 768,
+      "selects": [
+        {
+          "label": "Filter berdasarkan shift",
+          "value": "",
+          "options": [
+            {
+              "value": "",
+              "label": "Semua Shift",
+              "disabled": false
+            },
+            {
+              "value": "subuh",
+              "label": "Shift Subuh",
+              "disabled": false
+            },
+            {
+              "value": "pagi",
+              "label": "Shift Pagi",
+              "disabled": false
+            },
+            {
+              "value": "malam",
+              "label": "Shift Malam",
+              "disabled": false
+            },
+            {
+              "value": "subuh → pagi",
+              "label": "Subuh → Pagi",
+              "disabled": false
+            },
+            {
+              "value": "pagi → malam",
+              "label": "Pagi → Malam",
+              "disabled": false
+            },
+            {
+              "value": "malam → subuh",
+              "label": "Malam → Subuh",
+              "disabled": false
+            }
+          ],
+          "x": 273,
+          "y": 336.078125,
+          "width": 190,
+          "height": 38,
+          "top": 336.078125,
+          "right": 463,
+          "bottom": 374.078125,
+          "left": 273
+        },
+        {
+          "label": "Jumlah catatan per halaman",
+          "value": "10",
+          "options": [
+            {
+              "value": "10",
+              "label": "10",
+              "disabled": false
+            },
+            {
+              "value": "30",
+              "label": "30",
+              "disabled": false
+            },
+            {
+              "value": "50",
+              "label": "50",
+              "disabled": false
+            },
+            {
+              "value": "100",
+              "label": "100",
+              "disabled": false
+            }
+          ],
+          "x": 152.25,
+          "y": 2733.046875,
+          "width": 60,
+          "height": 30,
+          "top": 2733.046875,
+          "right": 212.25,
+          "bottom": 2763.046875,
+          "left": 152.25
+        }
+      ],
+      "panels": [],
+      "staffRows": [],
+      "volume": null
+    },
+    {
+      "viewport": 768,
+      "height": 2672,
+      "route": "/reports",
+      "width": 768,
+      "selects": [
+        {
+          "label": "Filter proyek laporan",
+          "value": "all",
+          "options": [
+            {
+              "value": "all",
+              "label": "Semua proyek (11)",
+              "disabled": false
+            },
+            {
+              "value": "APH",
+              "label": "APH",
+              "disabled": false
+            },
+            {
+              "value": "B2B",
+              "label": "B2B",
+              "disabled": false
+            },
+            {
+              "value": "DM",
+              "label": "DM",
+              "disabled": false
+            },
+            {
+              "value": "EPC",
+              "label": "EPC",
+              "disabled": false
+            },
+            {
+              "value": "EPC Core",
+              "label": "EPC Core",
+              "disabled": false
+            },
+            {
+              "value": "EPC Tools",
+              "label": "EPC Tools",
+              "disabled": false
+            },
+            {
+              "value": "MB",
+              "label": "MB",
+              "disabled": false
+            },
+            {
+              "value": "SM",
+              "label": "SM",
+              "disabled": false
+            },
+            {
+              "value": "SM/ActiveMQ",
+              "label": "SM/ActiveMQ",
+              "disabled": false
+            },
+            {
+              "value": "UNEM",
+              "label": "UNEM",
+              "disabled": false
+            },
+            {
+              "value": "USIEM",
+              "label": "USIEM",
+              "disabled": false
+            }
+          ],
+          "x": 243,
+          "y": 589.78125,
+          "width": 165,
+          "height": 32,
+          "top": 589.78125,
+          "right": 408,
+          "bottom": 621.78125,
+          "left": 243
+        }
+      ],
+      "panels": [],
+      "staffRows": [],
+      "volume": null
+    },
+    {
+      "viewport": 768,
+      "height": 1591,
+      "route": "/team-roster",
+      "width": 768,
+      "selects": [
+        {
+          "label": "Filter role",
+          "value": "All",
+          "options": [
+            {
+              "value": "All",
+              "label": "All Roles (14)",
+              "disabled": false
+            },
+            {
+              "value": "Operator NOC",
+              "label": "Operator NOC",
+              "disabled": false
+            },
+            {
+              "value": "Shift Lead",
+              "label": "Shift Lead",
+              "disabled": false
+            },
+            {
+              "value": "Incident Coordinator",
+              "label": "Incident Coordinator",
+              "disabled": false
+            },
+            {
+              "value": "L2 Specialist",
+              "label": "L2 Specialist",
+              "disabled": false
+            },
+            {
+              "value": "Infrastructure Engineer",
+              "label": "Infrastructure Engineer",
+              "disabled": false
+            }
+          ],
+          "x": 39,
+          "y": 598.484375,
+          "width": 146.84375,
+          "height": 40,
+          "top": 598.484375,
+          "right": 185.84375,
+          "bottom": 638.484375,
+          "left": 39
+        },
+        {
+          "label": "Filter shift",
+          "value": "All",
+          "options": [
+            {
+              "value": "All",
+              "label": "All Shifts",
+              "disabled": false
+            },
+            {
+              "value": "Subuh",
+              "label": "Shift Subuh",
+              "disabled": false
+            },
+            {
+              "value": "Pagi",
+              "label": "Shift Pagi",
+              "disabled": false
+            },
+            {
+              "value": "Malam",
+              "label": "Shift Malam",
+              "disabled": false
+            }
+          ],
+          "x": 193.84375,
+          "y": 598.484375,
+          "width": 146.859375,
+          "height": 40,
+          "top": 598.484375,
+          "right": 340.703125,
+          "bottom": 638.484375,
+          "left": 193.84375
+        },
+        {
+          "label": "Filter status",
+          "value": "All",
+          "options": [
+            {
+              "value": "All",
+              "label": "All Statuses",
+              "disabled": false
+            },
+            {
+              "value": "Active",
+              "label": "Active (On Duty)",
+              "disabled": false
+            },
+            {
+              "value": "On Break",
+              "label": "On Break",
+              "disabled": false
+            },
+            {
+              "value": "Off Duty",
+              "label": "Off Duty",
+              "disabled": false
+            },
+            {
+              "value": "On Leave",
+              "label": "On Leave",
+              "disabled": false
+            }
+          ],
+          "x": 348.703125,
+          "y": 598.484375,
+          "width": 146.859375,
+          "height": 40,
+          "top": 598.484375,
+          "right": 495.5625,
+          "bottom": 638.484375,
+          "left": 348.703125
+        },
+        {
+          "label": "Jumlah baris per halaman",
+          "value": "10",
+          "options": [
+            {
+              "value": "10",
+              "label": "10",
+              "disabled": false
+            },
+            {
+              "value": "25",
+              "label": "25",
+              "disabled": false
+            },
+            {
+              "value": "50",
+              "label": "50",
+              "disabled": false
+            },
+            {
+              "value": "all",
+              "label": "All",
+              "disabled": false
+            }
+          ],
+          "x": 134.25,
+          "y": 1408.484375,
+          "width": 51,
+          "height": 30,
+          "top": 1408.484375,
+          "right": 185.25,
+          "bottom": 1438.484375,
+          "left": 134.25
+        }
+      ],
+      "panels": [],
+      "staffRows": [],
+      "volume": null
+    },
+    {
+      "viewport": 768,
+      "height": 2126,
+      "route": "/master-data",
+      "width": 768,
+      "selects": [
+        {
+          "label": "Filter status klien",
+          "value": "all",
+          "options": [
+            {
+              "value": "all",
+              "label": "Semua Status (8)",
+              "disabled": false
+            },
+            {
+              "value": "active",
+              "label": "Aktif (8)",
+              "disabled": false
+            },
+            {
+              "value": "inactive",
+              "label": "Nonaktif (0)",
+              "disabled": false
+            },
+            {
+              "value": "archived",
+              "label": "Arsip (0)",
+              "disabled": false
+            }
+          ],
+          "x": 408.34375,
+          "y": 477,
+          "width": 142,
+          "height": 36,
+          "top": 477,
+          "right": 550.34375,
+          "bottom": 513,
+          "left": 408.34375
+        }
+      ],
+      "panels": [],
+      "staffRows": [],
+      "volume": null
+    },
+    {
+      "viewport": 768,
+      "height": 858,
+      "route": "/runbooks",
+      "width": 768,
+      "selects": [],
+      "panels": [],
+      "staffRows": [],
+      "volume": null
+    },
+    {
+      "viewport": 768,
+      "route": "/dashboard?shifter=Tahan",
+      "counter": "Menampilkan 0 dari 88 Tiket",
+      "recap": "Rekap Tiket per User\nView\nTJ\nTahan Julianus Nadeak\nIncident Coordinator (Shift Pagi)\nDetail\nHARI INI\n0\nBULAN INI\n38\nTAHUN INI\n245\nHari Ini:\nTidak ada tiket baru hari ini\nLihat semua (1)"
+    },
+    {
+      "viewport": 844,
+      "height": 4474,
+      "route": "/dashboard",
+      "width": 844,
+      "selects": [
+        {
+          "label": "Jumlah tiket per halaman",
+          "value": "10",
+          "options": [
+            {
+              "value": "10",
+              "label": "10/hal.",
+              "disabled": false
+            },
+            {
+              "value": "15",
+              "label": "15/hal.",
+              "disabled": false
+            },
+            {
+              "value": "25",
+              "label": "25/hal.",
+              "disabled": false
+            },
+            {
+              "value": "0",
+              "label": "Semua",
+              "disabled": false
+            }
+          ],
+          "x": 731,
+          "y": 789.890625,
+          "width": 76,
+          "height": 44,
+          "top": 789.890625,
+          "right": 807,
+          "bottom": 833.890625,
+          "left": 731
+        },
+        {
+          "label": "Filter proyek",
+          "value": "All",
+          "options": [
+            {
+              "value": "All",
+              "label": "Semua Proyek",
+              "disabled": false
+            },
+            {
+              "value": "APH",
+              "label": "APH",
+              "disabled": false
+            },
+            {
+              "value": "B2B",
+              "label": "B2B",
+              "disabled": false
+            },
+            {
+              "value": "DM",
+              "label": "DM",
+              "disabled": false
+            },
+            {
+              "value": "EPC Tools",
+              "label": "EPC Tools",
+              "disabled": false
+            },
+            {
+              "value": "MB",
+              "label": "MB",
+              "disabled": false
+            },
+            {
+              "value": "SM",
+              "label": "SM",
+              "disabled": false
+            },
+            {
+              "value": "UNEM",
+              "label": "UNEM",
+              "disabled": false
+            },
+            {
+              "value": "USIEM",
+              "label": "USIEM",
+              "disabled": false
+            }
+          ],
+          "x": 428,
+          "y": 1576.390625,
+          "width": 377,
+          "height": 44,
+          "top": 1576.390625,
+          "right": 805,
+          "bottom": 1620.390625,
+          "left": 428
+        },
+        {
+          "label": "Filter shift",
+          "value": "All",
+          "options": [
+            {
+              "value": "All",
+              "label": "Semua Shift",
+              "disabled": false
+            },
+            {
+              "value": "Subuh",
+              "label": "Shift Subuh (00:00–08:30)",
+              "disabled": false
+            },
+            {
+              "value": "Pagi",
+              "label": "Shift Pagi (08:00–16:30)",
+              "disabled": false
+            },
+            {
+              "value": "Malam",
+              "label": "Shift Malam (16:00–00:30)",
+              "disabled": false
+            }
+          ],
+          "x": 39,
+          "y": 1652.890625,
+          "width": 377,
+          "height": 44,
+          "top": 1652.890625,
+          "right": 416,
+          "bottom": 1696.890625,
+          "left": 39
+        },
+        {
+          "label": "Filter status tiket",
+          "value": "All",
+          "options": [
+            {
+              "value": "All",
+              "label": "Semua Status",
+              "disabled": false
+            },
+            {
+              "value": "Open",
+              "label": "Open",
+              "disabled": false
+            },
+            {
+              "value": "Closed",
+              "label": "Closed",
+              "disabled": false
+            },
+            {
+              "value": "Activity",
+              "label": "Activity",
+              "disabled": false
+            },
+            {
+              "value": "Meeting",
+              "label": "Meeting",
+              "disabled": false
+            },
+            {
+              "value": "Re-Open",
+              "label": "Re-Open",
+              "disabled": false
+            },
+            {
+              "value": "Pending",
+              "label": "Pending",
+              "disabled": false
+            },
+            {
+              "value": "RCA",
+              "label": "RCA",
+              "disabled": false
+            }
+          ],
+          "x": 39,
+          "y": 1729.390625,
+          "width": 377,
+          "height": 44,
+          "top": 1729.390625,
+          "right": 416,
+          "bottom": 1773.390625,
+          "left": 39
+        },
+        {
+          "label": "Filter keparahan",
+          "value": "All",
+          "options": [
+            {
+              "value": "All",
+              "label": "Semua Severity",
+              "disabled": false
+            },
+            {
+              "value": "Critical",
+              "label": "Critical (Kritis)",
+              "disabled": false
+            },
+            {
+              "value": "High",
+              "label": "High (Tinggi)",
+              "disabled": false
+            },
+            {
+              "value": "Medium",
+              "label": "Medium (Sedang)",
+              "disabled": false
+            },
+            {
+              "value": "Low",
+              "label": "Low (Rendah)",
+              "disabled": false
+            }
+          ],
+          "x": 428,
+          "y": 1729.390625,
+          "width": 377,
+          "height": 44,
+          "top": 1729.390625,
+          "right": 805,
+          "bottom": 1773.390625,
+          "left": 428
+        }
+      ],
+      "panels": [
+        {
+          "title": "Tiket Hari Ini",
+          "x": 22,
+          "y": 188.890625,
+          "width": 800,
+          "height": 660,
+          "top": 188.890625,
+          "right": 822,
+          "bottom": 848.890625,
+          "left": 22
+        },
+        {
+          "title": "Memo & Catatan Shift",
+          "x": 22,
+          "y": 860.890625,
+          "width": 800,
+          "height": 181,
+          "top": 860.890625,
+          "right": 822,
+          "bottom": 1041.890625,
+          "left": 22
+        },
+        {
+          "title": "List Monitoring Shift",
+          "x": 22,
+          "y": 1053.890625,
+          "width": 800,
+          "height": 438.5,
+          "top": 1053.890625,
+          "right": 822,
+          "bottom": 1492.390625,
+          "left": 22
+        },
+        {
+          "title": "Ticket Volume per Project (Stacked by System)Volume Tiket",
+          "x": 22,
+          "y": 1800.390625,
+          "width": 800,
+          "height": 418,
+          "top": 1800.390625,
+          "right": 822,
+          "bottom": 2218.390625,
+          "left": 22
+        },
+        {
+          "title": "Rekap Tiket per User",
+          "x": 22,
+          "y": 2230.390625,
+          "width": 800,
+          "height": 591,
+          "top": 2230.390625,
+          "right": 822,
+          "bottom": 2821.390625,
+          "left": 22
+        },
+        {
+          "title": "Distribusi Kategori / Tipe TiketDistribusi Kategori",
+          "x": 22,
+          "y": 2889.390625,
+          "width": 800,
+          "height": 355,
+          "top": 2889.390625,
+          "right": 822,
+          "bottom": 3244.390625,
+          "left": 22
+        },
+        {
+          "title": "Tren Durasi Penyelesaian (Resolution Velocity)Tren Durasi",
+          "x": 22,
+          "y": 3256.390625,
+          "width": 800,
+          "height": 486,
+          "top": 3256.390625,
+          "right": 822,
+          "bottom": 3742.390625,
+          "left": 22
+        },
+        {
+          "title": "Tren Trafik Beban per Shift (Shift Traffic Velocity)Tren Trafik",
+          "x": 22,
+          "y": 3754.390625,
+          "width": 800,
+          "height": 564,
+          "top": 3754.390625,
+          "right": 822,
+          "bottom": 4318.390625,
+          "left": 22
+        }
+      ],
+      "staffRows": [
+        {
+          "x": 37,
+          "y": 2318.390625,
+          "width": 770,
+          "height": 140,
+          "top": 2318.390625,
+          "right": 807,
+          "bottom": 2458.390625,
+          "left": 37
+        },
+        {
+          "x": 37,
+          "y": 2466.390625,
+          "width": 770,
+          "height": 140,
+          "top": 2466.390625,
+          "right": 807,
+          "bottom": 2606.390625,
+          "left": 37
+        },
+        {
+          "x": 37,
+          "y": 2614.390625,
+          "width": 770,
+          "height": 140,
+          "top": 2614.390625,
+          "right": 807,
+          "bottom": 2754.390625,
+          "left": 37
+        }
+      ],
+      "volume": {
+        "scroll": 318,
+        "client": 734,
+        "total": 1052,
+        "x": 73,
+        "y": 1888.390625,
+        "width": 734,
+        "height": 252,
+        "top": 1888.390625,
+        "right": 807,
+        "bottom": 2140.390625,
+        "left": 73
+      }
+    },
+    {
+      "viewport": 1024,
+      "height": 4591,
+      "route": "/dashboard",
+      "width": 1024,
+      "selects": [
+        {
+          "label": "Filter proyek",
+          "value": "All",
+          "options": [
+            {
+              "value": "All",
+              "label": "Semua Proyek",
+              "disabled": false
+            },
+            {
+              "value": "APH",
+              "label": "APH",
+              "disabled": false
+            },
+            {
+              "value": "B2B",
+              "label": "B2B",
+              "disabled": false
+            },
+            {
+              "value": "DM",
+              "label": "DM",
+              "disabled": false
+            },
+            {
+              "value": "EPC Tools",
+              "label": "EPC Tools",
+              "disabled": false
+            },
+            {
+              "value": "MB",
+              "label": "MB",
+              "disabled": false
+            },
+            {
+              "value": "SM",
+              "label": "SM",
+              "disabled": false
+            },
+            {
+              "value": "UNEM",
+              "label": "UNEM",
+              "disabled": false
+            },
+            {
+              "value": "USIEM",
+              "label": "USIEM",
+              "disabled": false
+            }
+          ],
+          "x": 476.625,
+          "y": 1693.046875,
+          "width": 162.78125,
+          "height": 34,
+          "top": 1693.046875,
+          "right": 639.40625,
+          "bottom": 1727.046875,
+          "left": 476.625
+        },
+        {
+          "label": "Filter shift",
+          "value": "All",
+          "options": [
+            {
+              "value": "All",
+              "label": "Semua Shift",
+              "disabled": false
+            },
+            {
+              "value": "Subuh",
+              "label": "Shift Subuh (00:00–08:30)",
+              "disabled": false
+            },
+            {
+              "value": "Pagi",
+              "label": "Shift Pagi (08:00–16:30)",
+              "disabled": false
+            },
+            {
+              "value": "Malam",
+              "label": "Shift Malam (16:00–00:30)",
+              "disabled": false
+            }
+          ],
+          "x": 649.40625,
+          "y": 1693.046875,
+          "width": 162.796875,
+          "height": 34,
+          "top": 1693.046875,
+          "right": 812.203125,
+          "bottom": 1727.046875,
+          "left": 649.40625
+        },
+        {
+          "label": "Filter status tiket",
+          "value": "All",
+          "options": [
+            {
+              "value": "All",
+              "label": "Semua Status",
+              "disabled": false
+            },
+            {
+              "value": "Open",
+              "label": "Open",
+              "disabled": false
+            },
+            {
+              "value": "Closed",
+              "label": "Closed",
+              "disabled": false
+            },
+            {
+              "value": "Activity",
+              "label": "Activity",
+              "disabled": false
+            },
+            {
+              "value": "Meeting",
+              "label": "Meeting",
+              "disabled": false
+            },
+            {
+              "value": "Re-Open",
+              "label": "Re-Open",
+              "disabled": false
+            },
+            {
+              "value": "Pending",
+              "label": "Pending",
+              "disabled": false
+            },
+            {
+              "value": "RCA",
+              "label": "RCA",
+              "disabled": false
+            }
+          ],
+          "x": 255,
+          "y": 1756.796875,
+          "width": 211.625,
+          "height": 34,
+          "top": 1756.796875,
+          "right": 466.625,
+          "bottom": 1790.796875,
+          "left": 255
+        },
+        {
+          "label": "Filter keparahan",
+          "value": "All",
+          "options": [
+            {
+              "value": "All",
+              "label": "Semua Severity",
+              "disabled": false
+            },
+            {
+              "value": "Critical",
+              "label": "Critical (Kritis)",
+              "disabled": false
+            },
+            {
+              "value": "High",
+              "label": "High (Tinggi)",
+              "disabled": false
+            },
+            {
+              "value": "Medium",
+              "label": "Medium (Sedang)",
+              "disabled": false
+            },
+            {
+              "value": "Low",
+              "label": "Low (Rendah)",
+              "disabled": false
+            }
+          ],
+          "x": 476.625,
+          "y": 1756.796875,
+          "width": 162.78125,
+          "height": 34,
+          "top": 1756.796875,
+          "right": 639.40625,
+          "bottom": 1790.796875,
+          "left": 476.625
+        }
+      ],
+      "panels": [
+        {
+          "title": "Tiket Hari Ini",
+          "x": 238,
+          "y": 229.796875,
+          "width": 764,
+          "height": 690,
+          "top": 229.796875,
+          "right": 1002,
+          "bottom": 919.796875,
+          "left": 238
+        },
+        {
+          "title": "Memo & Catatan Shift",
+          "x": 238,
+          "y": 935.796875,
+          "width": 764,
+          "height": 221,
+          "top": 935.796875,
+          "right": 1002,
+          "bottom": 1156.796875,
+          "left": 238
+        },
+        {
+          "title": "List Monitoring Shift",
+          "x": 238,
+          "y": 1168.796875,
+          "width": 764,
+          "height": 427,
+          "top": 1168.796875,
+          "right": 1002,
+          "bottom": 1595.796875,
+          "left": 238
+        },
+        {
+          "title": "Ticket Volume per Project (Stacked by System)Volume Tiket",
+          "x": 238,
+          "y": 1831.796875,
+          "width": 764,
+          "height": 580,
+          "top": 1831.796875,
+          "right": 1002,
+          "bottom": 2411.796875,
+          "left": 238
+        },
+        {
+          "title": "Rekap Tiket per User",
+          "x": 238,
+          "y": 2427.796875,
+          "width": 764,
+          "height": 580,
+          "top": 2427.796875,
+          "right": 1002,
+          "bottom": 3007.796875,
+          "left": 238
+        },
+        {
+          "title": "Distribusi Kategori / Tipe TiketDistribusi Kategori",
+          "x": 238,
+          "y": 3027.796875,
+          "width": 373,
+          "height": 503.5,
+          "top": 3027.796875,
+          "right": 611,
+          "bottom": 3531.296875,
+          "left": 238
+        },
+        {
+          "title": "Distribusi Berdasarkan SeverityDistribusi Severity",
+          "x": 629,
+          "y": 3027.796875,
+          "width": 373,
+          "height": 503.5,
+          "top": 3027.796875,
+          "right": 1002,
+          "bottom": 3531.296875,
+          "left": 629
+        },
+        {
+          "title": "Tren Durasi Penyelesaian (Resolution Velocity)Tren Durasi",
+          "x": 238,
+          "y": 3551.296875,
+          "width": 764,
+          "height": 458.5,
+          "top": 3551.296875,
+          "right": 1002,
+          "bottom": 4009.796875,
+          "left": 238
+        },
+        {
+          "title": "Tren Trafik Beban per Shift (Shift Traffic Velocity)Tren Trafik",
+          "x": 238,
+          "y": 4047.796875,
+          "width": 764,
+          "height": 498.8125,
+          "top": 4047.796875,
+          "right": 1002,
+          "bottom": 4546.609375,
+          "left": 238
+        }
+      ],
+      "staffRows": [
+        {
+          "x": 255,
+          "y": 2501.796875,
+          "width": 726,
+          "height": 115,
+          "top": 2501.796875,
+          "right": 981,
+          "bottom": 2616.796875,
+          "left": 255
+        },
+        {
+          "x": 255,
+          "y": 2624.796875,
+          "width": 726,
+          "height": 117,
+          "top": 2624.796875,
+          "right": 981,
+          "bottom": 2741.796875,
+          "left": 255
+        },
+        {
+          "x": 255,
+          "y": 2749.796875,
+          "width": 726,
+          "height": 115,
+          "top": 2749.796875,
+          "right": 981,
+          "bottom": 2864.796875,
+          "left": 255
+        },
+        {
+          "x": 255,
+          "y": 2872.796875,
+          "width": 726,
+          "height": 115,
+          "top": 2872.796875,
+          "right": 981,
+          "bottom": 2987.796875,
+          "left": 255
+        },
+        {
+          "x": 255,
+          "y": 2995.796875,
+          "width": 726,
+          "height": 117,
+          "top": 2995.796875,
+          "right": 981,
+          "bottom": 3112.796875,
+          "left": 255
+        },
+        {
+          "x": 255,
+          "y": 3120.796875,
+          "width": 726,
+          "height": 117,
+          "top": 3120.796875,
+          "right": 981,
+          "bottom": 3237.796875,
+          "left": 255
+        },
+        {
+          "x": 255,
+          "y": 3245.796875,
+          "width": 726,
+          "height": 117,
+          "top": 3245.796875,
+          "right": 981,
+          "bottom": 3362.796875,
+          "left": 255
+        },
+        {
+          "x": 255,
+          "y": 3370.796875,
+          "width": 726,
+          "height": 115,
+          "top": 3370.796875,
+          "right": 981,
+          "bottom": 3485.796875,
+          "left": 255
+        },
+        {
+          "x": 255,
+          "y": 3493.796875,
+          "width": 726,
+          "height": 115,
+          "top": 3493.796875,
+          "right": 981,
+          "bottom": 3608.796875,
+          "left": 255
+        },
+        {
+          "x": 255,
+          "y": 3616.796875,
+          "width": 726,
+          "height": 117,
+          "top": 3616.796875,
+          "right": 981,
+          "bottom": 3733.796875,
+          "left": 255
+        },
+        {
+          "x": 255,
+          "y": 3741.796875,
+          "width": 726,
+          "height": 117,
+          "top": 3741.796875,
+          "right": 981,
+          "bottom": 3858.796875,
+          "left": 255
+        },
+        {
+          "x": 255,
+          "y": 3866.796875,
+          "width": 726,
+          "height": 115,
+          "top": 3866.796875,
+          "right": 981,
+          "bottom": 3981.796875,
+          "left": 255
+        },
+        {
+          "x": 255,
+          "y": 3989.796875,
+          "width": 726,
+          "height": 115,
+          "top": 3989.796875,
+          "right": 981,
+          "bottom": 4104.796875,
+          "left": 255
+        },
+        {
+          "x": 255,
+          "y": 4112.796875,
+          "width": 726,
+          "height": 115,
+          "top": 4112.796875,
+          "right": 981,
+          "bottom": 4227.796875,
+          "left": 255
+        }
+      ],
+      "volume": {
+        "scroll": 0,
+        "client": 722,
+        "total": 722,
+        "x": 259,
+        "y": 1946.046875,
+        "width": 722,
+        "height": 400.5,
+        "top": 1946.046875,
+        "right": 981,
+        "bottom": 2346.546875,
+        "left": 259
+      }
+    },
+    {
+      "viewport": 1024,
+      "height": 1588,
+      "route": "/tickets",
+      "width": 1024,
+      "selects": [
+        {
+          "label": "Filter kategori tiket",
+          "value": "All Types",
+          "options": [
+            {
+              "value": "All Types",
+              "label": "All Types",
+              "disabled": false
+            },
+            {
+              "value": "Incident",
+              "label": "Incident",
+              "disabled": false
+            },
+            {
+              "value": "Ad-hoc Request",
+              "label": "Ad-hoc Request",
+              "disabled": false
+            },
+            {
+              "value": "Change Request",
+              "label": "Change Request",
+              "disabled": false
+            },
+            {
+              "value": "Maintenance",
+              "label": "Maintenance",
+              "disabled": false
+            },
+            {
+              "value": "Monitoring Alert",
+              "label": "Monitoring Alert",
+              "disabled": false
+            },
+            {
+              "value": "Escalation",
+              "label": "Escalation",
+              "disabled": false
+            },
+            {
+              "value": "Other",
+              "label": "Other",
+              "disabled": false
+            }
+          ],
+          "x": 407,
+          "y": 640.484375,
+          "width": 150,
+          "height": 34,
+          "top": 640.484375,
+          "right": 557,
+          "bottom": 674.484375,
+          "left": 407
+        },
+        {
+          "label": "Filter severity",
+          "value": "All Severities",
+          "options": [
+            {
+              "value": "All Severities",
+              "label": "All Severities",
+              "disabled": false
+            },
+            {
+              "value": "Critical",
+              "label": "Critical",
+              "disabled": false
+            },
+            {
+              "value": "High",
+              "label": "High",
+              "disabled": false
+            },
+            {
+              "value": "Medium",
+              "label": "Medium",
+              "disabled": false
+            },
+            {
+              "value": "Low",
+              "label": "Low",
+              "disabled": false
+            }
+          ],
+          "x": 565,
+          "y": 640.484375,
+          "width": 127,
+          "height": 34,
+          "top": 640.484375,
+          "right": 692,
+          "bottom": 674.484375,
+          "left": 565
+        },
+        {
+          "label": "Filter proyek",
+          "value": "All Projects",
+          "options": [
+            {
+              "value": "All Projects",
+              "label": "All Projects",
+              "disabled": false
+            },
+            {
+              "value": "EPC Tools",
+              "label": "EPC Tools",
+              "disabled": false
+            },
+            {
+              "value": "USIEM",
+              "label": "USIEM",
+              "disabled": false
+            },
+            {
+              "value": "SM",
+              "label": "SM",
+              "disabled": false
+            },
+            {
+              "value": "MB",
+              "label": "MB",
+              "disabled": false
+            },
+            {
+              "value": "B2B",
+              "label": "B2B",
+              "disabled": false
+            },
+            {
+              "value": "DM",
+              "label": "DM",
+              "disabled": false
+            },
+            {
+              "value": "UNEM",
+              "label": "UNEM",
+              "disabled": false
+            },
+            {
+              "value": "APH",
+              "label": "APH",
+              "disabled": false
+            }
+          ],
+          "x": 700,
+          "y": 640.484375,
+          "width": 119,
+          "height": 34,
+          "top": 640.484375,
+          "right": 819,
+          "bottom": 674.484375,
+          "left": 700
+        },
+        {
+          "label": "Filter shift tiket",
+          "value": "Semua Shift",
+          "options": [
+            {
+              "value": "Semua Shift",
+              "label": "Semua Shift",
+              "disabled": false
+            },
+            {
+              "value": "Shift Subuh",
+              "label": "Shift Subuh",
+              "disabled": false
+            },
+            {
+              "value": "Shift Pagi",
+              "label": "Shift Pagi",
+              "disabled": false
+            },
+            {
+              "value": "Shift Malam",
+              "label": "Shift Malam",
+              "disabled": false
+            }
+          ],
+          "x": 827,
+          "y": 640.484375,
+          "width": 124,
+          "height": 34,
+          "top": 640.484375,
+          "right": 951,
+          "bottom": 674.484375,
+          "left": 827
+        },
+        {
+          "label": "Urutkan tiket",
+          "value": "newest",
+          "options": [
+            {
+              "value": "newest",
+              "label": "Newest First",
+              "disabled": false
+            },
+            {
+              "value": "oldest",
+              "label": "Oldest First",
+              "disabled": false
+            },
+            {
+              "value": "priority",
+              "label": "Highest Severity",
+              "disabled": false
+            },
+            {
+              "value": "aging",
+              "label": "Longest Aging",
+              "disabled": false
+            }
+          ],
+          "x": 259,
+          "y": 682.484375,
+          "width": 148,
+          "height": 34,
+          "top": 682.484375,
+          "right": 407,
+          "bottom": 716.484375,
+          "left": 259
+        },
+        {
+          "label": "Jumlah tiket per halaman",
+          "value": "10",
+          "options": [
+            {
+              "value": "10",
+              "label": "10",
+              "disabled": false
+            },
+            {
+              "value": "30",
+              "label": "30",
+              "disabled": false
+            },
+            {
+              "value": "50",
+              "label": "50",
+              "disabled": false
+            },
+            {
+              "value": "100",
+              "label": "100",
+              "disabled": false
+            }
+          ],
+          "x": 350.25,
+          "y": 1481.484375,
+          "width": 77,
+          "height": 30,
+          "top": 1481.484375,
+          "right": 427.25,
+          "bottom": 1511.484375,
+          "left": 350.25
+        }
+      ],
+      "panels": [],
+      "staffRows": [],
+      "volume": null
+    },
+    {
+      "viewport": 1024,
+      "height": 1557,
+      "route": "/monitoring",
+      "width": 1024,
+      "selects": [],
+      "panels": [],
+      "staffRows": [],
+      "volume": null
+    },
+    {
+      "viewport": 1024,
+      "height": 2668,
+      "route": "/shift-log",
+      "width": 1024,
+      "selects": [
+        {
+          "label": "Filter berdasarkan shift",
+          "value": "",
+          "options": [
+            {
+              "value": "",
+              "label": "Semua Shift",
+              "disabled": false
+            },
+            {
+              "value": "subuh",
+              "label": "Shift Subuh",
+              "disabled": false
+            },
+            {
+              "value": "pagi",
+              "label": "Shift Pagi",
+              "disabled": false
+            },
+            {
+              "value": "malam",
+              "label": "Shift Malam",
+              "disabled": false
+            },
+            {
+              "value": "subuh → pagi",
+              "label": "Subuh → Pagi",
+              "disabled": false
+            },
+            {
+              "value": "pagi → malam",
+              "label": "Pagi → Malam",
+              "disabled": false
+            },
+            {
+              "value": "malam → subuh",
+              "label": "Malam → Subuh",
+              "disabled": false
+            }
+          ],
+          "x": 489,
+          "y": 269.1875,
+          "width": 190,
+          "height": 38,
+          "top": 269.1875,
+          "right": 679,
+          "bottom": 307.1875,
+          "left": 489
+        },
+        {
+          "label": "Jumlah catatan per halaman",
+          "value": "10",
+          "options": [
+            {
+              "value": "10",
+              "label": "10",
+              "disabled": false
+            },
+            {
+              "value": "30",
+              "label": "30",
+              "disabled": false
+            },
+            {
+              "value": "50",
+              "label": "50",
+              "disabled": false
+            },
+            {
+              "value": "100",
+              "label": "100",
+              "disabled": false
+            }
+          ],
+          "x": 368.25,
+          "y": 2541.15625,
+          "width": 60,
+          "height": 30,
+          "top": 2541.15625,
+          "right": 428.25,
+          "bottom": 2571.15625,
+          "left": 368.25
+        }
+      ],
+      "panels": [],
+      "staffRows": [],
+      "volume": null
+    },
+    {
+      "viewport": 1024,
+      "height": 2298,
+      "route": "/reports",
+      "width": 1024,
+      "selects": [
+        {
+          "label": "Filter proyek laporan",
+          "value": "all",
+          "options": [
+            {
+              "value": "all",
+              "label": "Semua proyek (11)",
+              "disabled": false
+            },
+            {
+              "value": "APH",
+              "label": "APH",
+              "disabled": false
+            },
+            {
+              "value": "B2B",
+              "label": "B2B",
+              "disabled": false
+            },
+            {
+              "value": "DM",
+              "label": "DM",
+              "disabled": false
+            },
+            {
+              "value": "EPC",
+              "label": "EPC",
+              "disabled": false
+            },
+            {
+              "value": "EPC Core",
+              "label": "EPC Core",
+              "disabled": false
+            },
+            {
+              "value": "EPC Tools",
+              "label": "EPC Tools",
+              "disabled": false
+            },
+            {
+              "value": "MB",
+              "label": "MB",
+              "disabled": false
+            },
+            {
+              "value": "SM",
+              "label": "SM",
+              "disabled": false
+            },
+            {
+              "value": "SM/ActiveMQ",
+              "label": "SM/ActiveMQ",
+              "disabled": false
+            },
+            {
+              "value": "UNEM",
+              "label": "UNEM",
+              "disabled": false
+            },
+            {
+              "value": "USIEM",
+              "label": "USIEM",
+              "disabled": false
+            }
+          ],
+          "x": 459,
+          "y": 593.78125,
+          "width": 165,
+          "height": 32,
+          "top": 593.78125,
+          "right": 624,
+          "bottom": 625.78125,
+          "left": 459
+        }
+      ],
+      "panels": [],
+      "staffRows": [],
+      "volume": null
+    },
+    {
+      "viewport": 1024,
+      "height": 1550,
+      "route": "/team-roster",
+      "width": 1024,
+      "selects": [
+        {
+          "label": "Filter role",
+          "value": "All",
+          "options": [
+            {
+              "value": "All",
+              "label": "All Roles (14)",
+              "disabled": false
+            },
+            {
+              "value": "Operator NOC",
+              "label": "Operator NOC",
+              "disabled": false
+            },
+            {
+              "value": "Shift Lead",
+              "label": "Shift Lead",
+              "disabled": false
+            },
+            {
+              "value": "Incident Coordinator",
+              "label": "Incident Coordinator",
+              "disabled": false
+            },
+            {
+              "value": "L2 Specialist",
+              "label": "L2 Specialist",
+              "disabled": false
+            },
+            {
+              "value": "Infrastructure Engineer",
+              "label": "Infrastructure Engineer",
+              "disabled": false
+            }
+          ],
+          "x": 484,
+          "y": 552.484375,
+          "width": 192,
+          "height": 36,
+          "top": 552.484375,
+          "right": 676,
+          "bottom": 588.484375,
+          "left": 484
+        },
+        {
+          "label": "Filter shift",
+          "value": "All",
+          "options": [
+            {
+              "value": "All",
+              "label": "All Shifts",
+              "disabled": false
+            },
+            {
+              "value": "Subuh",
+              "label": "Shift Subuh",
+              "disabled": false
+            },
+            {
+              "value": "Pagi",
+              "label": "Shift Pagi",
+              "disabled": false
+            },
+            {
+              "value": "Malam",
+              "label": "Shift Malam",
+              "disabled": false
+            }
+          ],
+          "x": 684,
+          "y": 552.484375,
+          "width": 128,
+          "height": 36,
+          "top": 552.484375,
+          "right": 812,
+          "bottom": 588.484375,
+          "left": 684
+        },
+        {
+          "label": "Filter status",
+          "value": "All",
+          "options": [
+            {
+              "value": "All",
+              "label": "All Statuses",
+              "disabled": false
+            },
+            {
+              "value": "Active",
+              "label": "Active (On Duty)",
+              "disabled": false
+            },
+            {
+              "value": "On Break",
+              "label": "On Break",
+              "disabled": false
+            },
+            {
+              "value": "Off Duty",
+              "label": "Off Duty",
+              "disabled": false
+            },
+            {
+              "value": "On Leave",
+              "label": "On Leave",
+              "disabled": false
+            }
+          ],
+          "x": 832,
+          "y": 552.484375,
+          "width": 153,
+          "height": 36,
+          "top": 552.484375,
+          "right": 985,
+          "bottom": 588.484375,
+          "left": 832
+        },
+        {
+          "label": "Jumlah baris per halaman",
+          "value": "10",
+          "options": [
+            {
+              "value": "10",
+              "label": "10",
+              "disabled": false
+            },
+            {
+              "value": "25",
+              "label": "25",
+              "disabled": false
+            },
+            {
+              "value": "50",
+              "label": "50",
+              "disabled": false
+            },
+            {
+              "value": "all",
+              "label": "All",
+              "disabled": false
+            }
+          ],
+          "x": 350.25,
+          "y": 1399.484375,
+          "width": 51,
+          "height": 30,
+          "top": 1399.484375,
+          "right": 401.25,
+          "bottom": 1429.484375,
+          "left": 350.25
+        }
+      ],
+      "panels": [],
+      "staffRows": [],
+      "volume": null
+    },
+    {
+      "viewport": 1024,
+      "height": 2110,
+      "route": "/master-data",
+      "width": 1024,
+      "selects": [
+        {
+          "label": "Filter status klien",
+          "value": "all",
+          "options": [
+            {
+              "value": "all",
+              "label": "Semua Status (8)",
+              "disabled": false
+            },
+            {
+              "value": "active",
+              "label": "Aktif (8)",
+              "disabled": false
+            },
+            {
+              "value": "inactive",
+              "label": "Nonaktif (0)",
+              "disabled": false
+            },
+            {
+              "value": "archived",
+              "label": "Arsip (0)",
+              "disabled": false
+            }
+          ],
+          "x": 664.34375,
+          "y": 481,
+          "width": 142,
+          "height": 36,
+          "top": 481,
+          "right": 806.34375,
+          "bottom": 517,
+          "left": 664.34375
+        }
+      ],
+      "panels": [],
+      "staffRows": [],
+      "volume": null
+    },
+    {
+      "viewport": 1024,
+      "height": 900,
+      "route": "/runbooks",
+      "width": 1024,
+      "selects": [],
+      "panels": [],
+      "staffRows": [],
+      "volume": null
+    },
+    {
+      "viewport": 1024,
+      "route": "/dashboard?shifter=Tahan",
+      "counter": "Menampilkan 0 dari 88 Tiket",
+      "recap": "Rekap Tiket per User\n1 Staf\nView\nTJ\nTahan Julianus Nadeak\nIncident Coordinator (Shift Pagi)\nDetail\nHARI INI\n0\nBULAN INI\n38\nTAHUN INI\n245\nHari Ini:\nTidak ada tiket baru hari ini"
+    },
+    {
+      "viewport": 1280,
+      "height": 3258,
+      "route": "/dashboard",
+      "width": 1280,
+      "selects": [
+        {
+          "label": "Filter proyek",
+          "value": "All",
+          "options": [
+            {
+              "value": "All",
+              "label": "Semua Proyek",
+              "disabled": false
+            },
+            {
+              "value": "APH",
+              "label": "APH",
+              "disabled": false
+            },
+            {
+              "value": "B2B",
+              "label": "B2B",
+              "disabled": false
+            },
+            {
+              "value": "DM",
+              "label": "DM",
+              "disabled": false
+            },
+            {
+              "value": "EPC Tools",
+              "label": "EPC Tools",
+              "disabled": false
+            },
+            {
+              "value": "MB",
+              "label": "MB",
+              "disabled": false
+            },
+            {
+              "value": "SM",
+              "label": "SM",
+              "disabled": false
+            },
+            {
+              "value": "UNEM",
+              "label": "UNEM",
+              "disabled": false
+            },
+            {
+              "value": "USIEM",
+              "label": "USIEM",
+              "disabled": false
+            }
+          ],
+          "x": 527.78125,
+          "y": 987.046875,
+          "width": 168.3125,
+          "height": 34,
+          "top": 987.046875,
+          "right": 696.09375,
+          "bottom": 1021.046875,
+          "left": 527.78125
+        },
+        {
+          "label": "Filter shift",
+          "value": "All",
+          "options": [
+            {
+              "value": "All",
+              "label": "Semua Shift",
+              "disabled": false
+            },
+            {
+              "value": "Subuh",
+              "label": "Shift Subuh (00:00–08:30)",
+              "disabled": false
+            },
+            {
+              "value": "Pagi",
+              "label": "Shift Pagi (08:00–16:30)",
+              "disabled": false
+            },
+            {
+              "value": "Malam",
+              "label": "Shift Malam (16:00–00:30)",
+              "disabled": false
+            }
+          ],
+          "x": 706.09375,
+          "y": 987.046875,
+          "width": 168.296875,
+          "height": 34,
+          "top": 987.046875,
+          "right": 874.390625,
+          "bottom": 1021.046875,
+          "left": 706.09375
+        },
+        {
+          "label": "Filter status tiket",
+          "value": "All",
+          "options": [
+            {
+              "value": "All",
+              "label": "Semua Status",
+              "disabled": false
+            },
+            {
+              "value": "Open",
+              "label": "Open",
+              "disabled": false
+            },
+            {
+              "value": "Closed",
+              "label": "Closed",
+              "disabled": false
+            },
+            {
+              "value": "Activity",
+              "label": "Activity",
+              "disabled": false
+            },
+            {
+              "value": "Meeting",
+              "label": "Meeting",
+              "disabled": false
+            },
+            {
+              "value": "Re-Open",
+              "label": "Re-Open",
+              "disabled": false
+            },
+            {
+              "value": "Pending",
+              "label": "Pending",
+              "disabled": false
+            },
+            {
+              "value": "RCA",
+              "label": "RCA",
+              "disabled": false
+            }
+          ],
+          "x": 1062.6875,
+          "y": 987.046875,
+          "width": 168.296875,
+          "height": 34,
+          "top": 987.046875,
+          "right": 1230.984375,
+          "bottom": 1021.046875,
+          "left": 1062.6875
+        },
+        {
+          "label": "Filter keparahan",
+          "value": "All",
+          "options": [
+            {
+              "value": "All",
+              "label": "Semua Severity",
+              "disabled": false
+            },
+            {
+              "value": "Critical",
+              "label": "Critical (Kritis)",
+              "disabled": false
+            },
+            {
+              "value": "High",
+              "label": "High (Tinggi)",
+              "disabled": false
+            },
+            {
+              "value": "Medium",
+              "label": "Medium (Sedang)",
+              "disabled": false
+            },
+            {
+              "value": "Low",
+              "label": "Low (Rendah)",
+              "disabled": false
+            }
+          ],
+          "x": 299,
+          "y": 1050.796875,
+          "width": 218.78125,
+          "height": 34,
+          "top": 1050.796875,
+          "right": 517.78125,
+          "bottom": 1084.796875,
+          "left": 299
+        }
+      ],
+      "panels": [
+        {
+          "title": "Tiket Hari Ini",
+          "x": 282,
+          "y": 229.796875,
+          "width": 540,
+          "height": 660,
+          "top": 229.796875,
+          "right": 822,
+          "bottom": 889.796875,
+          "left": 282
+        },
+        {
+          "title": "Memo & Catatan Shift",
+          "x": 838,
+          "y": 229.796875,
+          "width": 410,
+          "height": 221,
+          "top": 229.796875,
+          "right": 1248,
+          "bottom": 450.796875,
+          "left": 838
+        },
+        {
+          "title": "List Monitoring Shift",
+          "x": 838,
+          "y": 462.796875,
+          "width": 410,
+          "height": 427,
+          "top": 462.796875,
+          "right": 1248,
+          "bottom": 889.796875,
+          "left": 838
+        },
+        {
+          "title": "Ticket Volume per Project (Stacked by System)Volume Tiket",
+          "x": 282,
+          "y": 1125.796875,
+          "width": 570,
+          "height": 580,
+          "top": 1125.796875,
+          "right": 852,
+          "bottom": 1705.796875,
+          "left": 282
+        },
+        {
+          "title": "Rekap Tiket per User",
+          "x": 868,
+          "y": 1125.796875,
+          "width": 380,
+          "height": 580,
+          "top": 1125.796875,
+          "right": 1248,
+          "bottom": 1705.796875,
+          "left": 868
+        },
+        {
+          "title": "Distribusi Kategori / Tipe TiketDistribusi Kategori",
+          "x": 282,
+          "y": 1725.796875,
+          "width": 474,
+          "height": 470.5,
+          "top": 1725.796875,
+          "right": 756,
+          "bottom": 2196.296875,
+          "left": 282
+        },
+        {
+          "title": "Distribusi Berdasarkan SeverityDistribusi Severity",
+          "x": 774,
+          "y": 1725.796875,
+          "width": 474,
+          "height": 470.5,
+          "top": 1725.796875,
+          "right": 1248,
+          "bottom": 2196.296875,
+          "left": 774
+        },
+        {
+          "title": "Tren Durasi Penyelesaian (Resolution Velocity)Tren Durasi",
+          "x": 282,
+          "y": 2216.296875,
+          "width": 966,
+          "height": 425.5,
+          "top": 2216.296875,
+          "right": 1248,
+          "bottom": 2641.796875,
+          "left": 282
+        },
+        {
+          "title": "Tren Trafik Beban per Shift (Shift Traffic Velocity)Tren Trafik",
+          "x": 282,
+          "y": 2679.796875,
+          "width": 966,
+          "height": 534.640625,
+          "top": 2679.796875,
+          "right": 1248,
+          "bottom": 3214.4375,
+          "left": 282
+        }
+      ],
+      "staffRows": [
+        {
+          "x": 885,
+          "y": 1199.796875,
+          "width": 342,
+          "height": 115,
+          "top": 1199.796875,
+          "right": 1227,
+          "bottom": 1314.796875,
+          "left": 885
+        },
+        {
+          "x": 885,
+          "y": 1322.796875,
+          "width": 342,
+          "height": 117,
+          "top": 1322.796875,
+          "right": 1227,
+          "bottom": 1439.796875,
+          "left": 885
+        },
+        {
+          "x": 885,
+          "y": 1447.796875,
+          "width": 342,
+          "height": 115,
+          "top": 1447.796875,
+          "right": 1227,
+          "bottom": 1562.796875,
+          "left": 885
+        },
+        {
+          "x": 885,
+          "y": 1570.796875,
+          "width": 342,
+          "height": 115,
+          "top": 1570.796875,
+          "right": 1227,
+          "bottom": 1685.796875,
+          "left": 885
+        },
+        {
+          "x": 885,
+          "y": 1693.796875,
+          "width": 342,
+          "height": 117,
+          "top": 1693.796875,
+          "right": 1227,
+          "bottom": 1810.796875,
+          "left": 885
+        },
+        {
+          "x": 885,
+          "y": 1818.796875,
+          "width": 342,
+          "height": 117,
+          "top": 1818.796875,
+          "right": 1227,
+          "bottom": 1935.796875,
+          "left": 885
+        },
+        {
+          "x": 885,
+          "y": 1943.796875,
+          "width": 342,
+          "height": 134.75,
+          "top": 1943.796875,
+          "right": 1227,
+          "bottom": 2078.546875,
+          "left": 885
+        },
+        {
+          "x": 885,
+          "y": 2086.546875,
+          "width": 342,
+          "height": 115,
+          "top": 2086.546875,
+          "right": 1227,
+          "bottom": 2201.546875,
+          "left": 885
+        },
+        {
+          "x": 885,
+          "y": 2209.546875,
+          "width": 342,
+          "height": 115,
+          "top": 2209.546875,
+          "right": 1227,
+          "bottom": 2324.546875,
+          "left": 885
+        },
+        {
+          "x": 885,
+          "y": 2332.546875,
+          "width": 342,
+          "height": 117,
+          "top": 2332.546875,
+          "right": 1227,
+          "bottom": 2449.546875,
+          "left": 885
+        },
+        {
+          "x": 885,
+          "y": 2457.546875,
+          "width": 342,
+          "height": 117,
+          "top": 2457.546875,
+          "right": 1227,
+          "bottom": 2574.546875,
+          "left": 885
+        },
+        {
+          "x": 885,
+          "y": 2582.546875,
+          "width": 342,
+          "height": 115,
+          "top": 2582.546875,
+          "right": 1227,
+          "bottom": 2697.546875,
+          "left": 885
+        },
+        {
+          "x": 885,
+          "y": 2705.546875,
+          "width": 342,
+          "height": 115,
+          "top": 2705.546875,
+          "right": 1227,
+          "bottom": 2820.546875,
+          "left": 885
+        },
+        {
+          "x": 885,
+          "y": 2828.546875,
+          "width": 342,
+          "height": 115,
+          "top": 2828.546875,
+          "right": 1227,
+          "bottom": 2943.546875,
+          "left": 885
+        }
+      ],
+      "volume": {
+        "scroll": 0,
+        "client": 528,
+        "total": 528,
+        "x": 303,
+        "y": 1240.046875,
+        "width": 528,
+        "height": 367.25,
+        "top": 1240.046875,
+        "right": 831,
+        "bottom": 1607.296875,
+        "left": 303
+      }
+    },
+    {
+      "viewport": 1440,
+      "height": 3073,
+      "route": "/dashboard",
+      "width": 1440,
+      "selects": [
+        {
+          "label": "Filter proyek",
+          "value": "All",
+          "options": [
+            {
+              "value": "All",
+              "label": "Semua Proyek",
+              "disabled": false
+            },
+            {
+              "value": "APH",
+              "label": "APH",
+              "disabled": false
+            },
+            {
+              "value": "B2B",
+              "label": "B2B",
+              "disabled": false
+            },
+            {
+              "value": "DM",
+              "label": "DM",
+              "disabled": false
+            },
+            {
+              "value": "EPC Tools",
+              "label": "EPC Tools",
+              "disabled": false
+            },
+            {
+              "value": "MB",
+              "label": "MB",
+              "disabled": false
+            },
+            {
+              "value": "SM",
+              "label": "SM",
+              "disabled": false
+            },
+            {
+              "value": "UNEM",
+              "label": "UNEM",
+              "disabled": false
+            },
+            {
+              "value": "USIEM",
+              "label": "USIEM",
+              "disabled": false
+            }
+          ],
+          "x": 524.015625,
+          "y": 987.046875,
+          "width": 165.390625,
+          "height": 34,
+          "top": 987.046875,
+          "right": 689.40625,
+          "bottom": 1021.046875,
+          "left": 524.015625
+        },
+        {
+          "label": "Filter shift",
+          "value": "All",
+          "options": [
+            {
+              "value": "All",
+              "label": "Semua Shift",
+              "disabled": false
+            },
+            {
+              "value": "Subuh",
+              "label": "Shift Subuh (00:00–08:30)",
+              "disabled": false
+            },
+            {
+              "value": "Pagi",
+              "label": "Shift Pagi (08:00–16:30)",
+              "disabled": false
+            },
+            {
+              "value": "Malam",
+              "label": "Shift Malam (16:00–00:30)",
+              "disabled": false
+            }
+          ],
+          "x": 699.40625,
+          "y": 987.046875,
+          "width": 165.390625,
+          "height": 34,
+          "top": 987.046875,
+          "right": 864.796875,
+          "bottom": 1021.046875,
+          "left": 699.40625
+        },
+        {
+          "label": "Filter status tiket",
+          "value": "All",
+          "options": [
+            {
+              "value": "All",
+              "label": "Semua Status",
+              "disabled": false
+            },
+            {
+              "value": "Open",
+              "label": "Open",
+              "disabled": false
+            },
+            {
+              "value": "Closed",
+              "label": "Closed",
+              "disabled": false
+            },
+            {
+              "value": "Activity",
+              "label": "Activity",
+              "disabled": false
+            },
+            {
+              "value": "Meeting",
+              "label": "Meeting",
+              "disabled": false
+            },
+            {
+              "value": "Re-Open",
+              "label": "Re-Open",
+              "disabled": false
+            },
+            {
+              "value": "Pending",
+              "label": "Pending",
+              "disabled": false
+            },
+            {
+              "value": "RCA",
+              "label": "RCA",
+              "disabled": false
+            }
+          ],
+          "x": 1050.203125,
+          "y": 987.046875,
+          "width": 165.390625,
+          "height": 34,
+          "top": 987.046875,
+          "right": 1215.59375,
+          "bottom": 1021.046875,
+          "left": 1050.203125
+        },
+        {
+          "label": "Filter keparahan",
+          "value": "All",
+          "options": [
+            {
+              "value": "All",
+              "label": "Semua Severity",
+              "disabled": false
+            },
+            {
+              "value": "Critical",
+              "label": "Critical (Kritis)",
+              "disabled": false
+            },
+            {
+              "value": "High",
+              "label": "High (Tinggi)",
+              "disabled": false
+            },
+            {
+              "value": "Medium",
+              "label": "Medium (Sedang)",
+              "disabled": false
+            },
+            {
+              "value": "Low",
+              "label": "Low (Rendah)",
+              "disabled": false
+            }
+          ],
+          "x": 1225.59375,
+          "y": 987.046875,
+          "width": 165.390625,
+          "height": 34,
+          "top": 987.046875,
+          "right": 1390.984375,
+          "bottom": 1021.046875,
+          "left": 1225.59375
+        }
+      ],
+      "panels": [
+        {
+          "title": "Tiket Hari Ini",
+          "x": 282,
+          "y": 229.796875,
+          "width": 700,
+          "height": 660,
+          "top": 229.796875,
+          "right": 982,
+          "bottom": 889.796875,
+          "left": 282
+        },
+        {
+          "title": "Memo & Catatan Shift",
+          "x": 998,
+          "y": 229.796875,
+          "width": 410,
+          "height": 221,
+          "top": 229.796875,
+          "right": 1408,
+          "bottom": 450.796875,
+          "left": 998
+        },
+        {
+          "title": "List Monitoring Shift",
+          "x": 998,
+          "y": 462.796875,
+          "width": 410,
+          "height": 427,
+          "top": 462.796875,
+          "right": 1408,
+          "bottom": 889.796875,
+          "left": 998
+        },
+        {
+          "title": "Ticket Volume per Project (Stacked by System)Volume Tiket",
+          "x": 282,
+          "y": 1062.046875,
+          "width": 730,
+          "height": 580,
+          "top": 1062.046875,
+          "right": 1012,
+          "bottom": 1642.046875,
+          "left": 282
+        },
+        {
+          "title": "Rekap Tiket per User",
+          "x": 1028,
+          "y": 1062.046875,
+          "width": 380,
+          "height": 580,
+          "top": 1062.046875,
+          "right": 1408,
+          "bottom": 1642.046875,
+          "left": 1028
+        },
+        {
+          "title": "Distribusi Kategori / Tipe TiketDistribusi Kategori",
+          "x": 282,
+          "y": 1662.046875,
+          "width": 554,
+          "height": 330.75,
+          "top": 1662.046875,
+          "right": 836,
+          "bottom": 1992.796875,
+          "left": 282
+        },
+        {
+          "title": "Distribusi Berdasarkan SeverityDistribusi Severity",
+          "x": 854,
+          "y": 1662.046875,
+          "width": 554,
+          "height": 330.75,
+          "top": 1662.046875,
+          "right": 1408,
+          "bottom": 1992.796875,
+          "left": 854
+        },
+        {
+          "title": "Tren Durasi Penyelesaian (Resolution Velocity)Tren Durasi",
+          "x": 282,
+          "y": 2012.796875,
+          "width": 1126,
+          "height": 434.5625,
+          "top": 2012.796875,
+          "right": 1408,
+          "bottom": 2447.359375,
+          "left": 282
+        },
+        {
+          "title": "Tren Trafik Beban per Shift (Shift Traffic Velocity)Tren Trafik",
+          "x": 282,
+          "y": 2485.359375,
+          "width": 1126,
+          "height": 543.8125,
+          "top": 2485.359375,
+          "right": 1408,
+          "bottom": 3029.171875,
+          "left": 282
+        }
+      ],
+      "staffRows": [
+        {
+          "x": 1045,
+          "y": 1136.046875,
+          "width": 342,
+          "height": 115,
+          "top": 1136.046875,
+          "right": 1387,
+          "bottom": 1251.046875,
+          "left": 1045
+        },
+        {
+          "x": 1045,
+          "y": 1259.046875,
+          "width": 342,
+          "height": 117,
+          "top": 1259.046875,
+          "right": 1387,
+          "bottom": 1376.046875,
+          "left": 1045
+        },
+        {
+          "x": 1045,
+          "y": 1384.046875,
+          "width": 342,
+          "height": 115,
+          "top": 1384.046875,
+          "right": 1387,
+          "bottom": 1499.046875,
+          "left": 1045
+        },
+        {
+          "x": 1045,
+          "y": 1507.046875,
+          "width": 342,
+          "height": 115,
+          "top": 1507.046875,
+          "right": 1387,
+          "bottom": 1622.046875,
+          "left": 1045
+        },
+        {
+          "x": 1045,
+          "y": 1630.046875,
+          "width": 342,
+          "height": 117,
+          "top": 1630.046875,
+          "right": 1387,
+          "bottom": 1747.046875,
+          "left": 1045
+        },
+        {
+          "x": 1045,
+          "y": 1755.046875,
+          "width": 342,
+          "height": 117,
+          "top": 1755.046875,
+          "right": 1387,
+          "bottom": 1872.046875,
+          "left": 1045
+        },
+        {
+          "x": 1045,
+          "y": 1880.046875,
+          "width": 342,
+          "height": 134.75,
+          "top": 1880.046875,
+          "right": 1387,
+          "bottom": 2014.796875,
+          "left": 1045
+        },
+        {
+          "x": 1045,
+          "y": 2022.796875,
+          "width": 342,
+          "height": 115,
+          "top": 2022.796875,
+          "right": 1387,
+          "bottom": 2137.796875,
+          "left": 1045
+        },
+        {
+          "x": 1045,
+          "y": 2145.796875,
+          "width": 342,
+          "height": 115,
+          "top": 2145.796875,
+          "right": 1387,
+          "bottom": 2260.796875,
+          "left": 1045
+        },
+        {
+          "x": 1045,
+          "y": 2268.796875,
+          "width": 342,
+          "height": 117,
+          "top": 2268.796875,
+          "right": 1387,
+          "bottom": 2385.796875,
+          "left": 1045
+        },
+        {
+          "x": 1045,
+          "y": 2393.796875,
+          "width": 342,
+          "height": 117,
+          "top": 2393.796875,
+          "right": 1387,
+          "bottom": 2510.796875,
+          "left": 1045
+        },
+        {
+          "x": 1045,
+          "y": 2518.796875,
+          "width": 342,
+          "height": 115,
+          "top": 2518.796875,
+          "right": 1387,
+          "bottom": 2633.796875,
+          "left": 1045
+        },
+        {
+          "x": 1045,
+          "y": 2641.796875,
+          "width": 342,
+          "height": 115,
+          "top": 2641.796875,
+          "right": 1387,
+          "bottom": 2756.796875,
+          "left": 1045
+        },
+        {
+          "x": 1045,
+          "y": 2764.796875,
+          "width": 342,
+          "height": 115,
+          "top": 2764.796875,
+          "right": 1387,
+          "bottom": 2879.796875,
+          "left": 1045
+        }
+      ],
+      "volume": {
+        "scroll": 0,
+        "client": 688,
+        "total": 688,
+        "x": 303,
+        "y": 1176.296875,
+        "width": 688,
+        "height": 400.5,
+        "top": 1176.296875,
+        "right": 991,
+        "bottom": 1576.796875,
+        "left": 303
+      }
+    },
+    {
+      "viewport": 1440,
+      "height": 1330,
+      "route": "/tickets",
+      "width": 1440,
+      "selects": [
+        {
+          "label": "Filter kategori tiket",
+          "value": "All Types",
+          "options": [
+            {
+              "value": "All Types",
+              "label": "All Types",
+              "disabled": false
+            },
+            {
+              "value": "Incident",
+              "label": "Incident",
+              "disabled": false
+            },
+            {
+              "value": "Ad-hoc Request",
+              "label": "Ad-hoc Request",
+              "disabled": false
+            },
+            {
+              "value": "Change Request",
+              "label": "Change Request",
+              "disabled": false
+            },
+            {
+              "value": "Maintenance",
+              "label": "Maintenance",
+              "disabled": false
+            },
+            {
+              "value": "Monitoring Alert",
+              "label": "Monitoring Alert",
+              "disabled": false
+            },
+            {
+              "value": "Escalation",
+              "label": "Escalation",
+              "disabled": false
+            },
+            {
+              "value": "Other",
+              "label": "Other",
+              "disabled": false
+            }
+          ],
+          "x": 670,
+          "y": 423.640625,
+          "width": 150,
+          "height": 34,
+          "top": 423.640625,
+          "right": 820,
+          "bottom": 457.640625,
+          "left": 670
+        },
+        {
+          "label": "Filter severity",
+          "value": "All Severities",
+          "options": [
+            {
+              "value": "All Severities",
+              "label": "All Severities",
+              "disabled": false
+            },
+            {
+              "value": "Critical",
+              "label": "Critical",
+              "disabled": false
+            },
+            {
+              "value": "High",
+              "label": "High",
+              "disabled": false
+            },
+            {
+              "value": "Medium",
+              "label": "Medium",
+              "disabled": false
+            },
+            {
+              "value": "Low",
+              "label": "Low",
+              "disabled": false
+            }
+          ],
+          "x": 828,
+          "y": 423.640625,
+          "width": 127,
+          "height": 34,
+          "top": 423.640625,
+          "right": 955,
+          "bottom": 457.640625,
+          "left": 828
+        },
+        {
+          "label": "Filter proyek",
+          "value": "All Projects",
+          "options": [
+            {
+              "value": "All Projects",
+              "label": "All Projects",
+              "disabled": false
+            },
+            {
+              "value": "EPC Tools",
+              "label": "EPC Tools",
+              "disabled": false
+            },
+            {
+              "value": "USIEM",
+              "label": "USIEM",
+              "disabled": false
+            },
+            {
+              "value": "SM",
+              "label": "SM",
+              "disabled": false
+            },
+            {
+              "value": "MB",
+              "label": "MB",
+              "disabled": false
+            },
+            {
+              "value": "B2B",
+              "label": "B2B",
+              "disabled": false
+            },
+            {
+              "value": "DM",
+              "label": "DM",
+              "disabled": false
+            },
+            {
+              "value": "UNEM",
+              "label": "UNEM",
+              "disabled": false
+            },
+            {
+              "value": "APH",
+              "label": "APH",
+              "disabled": false
+            }
+          ],
+          "x": 963,
+          "y": 423.640625,
+          "width": 119,
+          "height": 34,
+          "top": 423.640625,
+          "right": 1082,
+          "bottom": 457.640625,
+          "left": 963
+        },
+        {
+          "label": "Filter shift tiket",
+          "value": "Semua Shift",
+          "options": [
+            {
+              "value": "Semua Shift",
+              "label": "Semua Shift",
+              "disabled": false
+            },
+            {
+              "value": "Shift Subuh",
+              "label": "Shift Subuh",
+              "disabled": false
+            },
+            {
+              "value": "Shift Pagi",
+              "label": "Shift Pagi",
+              "disabled": false
+            },
+            {
+              "value": "Shift Malam",
+              "label": "Shift Malam",
+              "disabled": false
+            }
+          ],
+          "x": 1090,
+          "y": 423.640625,
+          "width": 124,
+          "height": 34,
+          "top": 423.640625,
+          "right": 1214,
+          "bottom": 457.640625,
+          "left": 1090
+        },
+        {
+          "label": "Urutkan tiket",
+          "value": "newest",
+          "options": [
+            {
+              "value": "newest",
+              "label": "Newest First",
+              "disabled": false
+            },
+            {
+              "value": "oldest",
+              "label": "Oldest First",
+              "disabled": false
+            },
+            {
+              "value": "priority",
+              "label": "Highest Severity",
+              "disabled": false
+            },
+            {
+              "value": "aging",
+              "label": "Longest Aging",
+              "disabled": false
+            }
+          ],
+          "x": 1239,
+          "y": 423.640625,
+          "width": 148,
+          "height": 34,
+          "top": 423.640625,
+          "right": 1387,
+          "bottom": 457.640625,
+          "left": 1239
+        },
+        {
+          "label": "Jumlah tiket per halaman",
+          "value": "10",
+          "options": [
+            {
+              "value": "10",
+              "label": "10",
+              "disabled": false
+            },
+            {
+              "value": "30",
+              "label": "30",
+              "disabled": false
+            },
+            {
+              "value": "50",
+              "label": "50",
+              "disabled": false
+            },
+            {
+              "value": "100",
+              "label": "100",
+              "disabled": false
+            }
+          ],
+          "x": 394.25,
+          "y": 1222.640625,
+          "width": 77,
+          "height": 30,
+          "top": 1222.640625,
+          "right": 471.25,
+          "bottom": 1252.640625,
+          "left": 394.25
+        }
+      ],
+      "panels": [],
+      "staffRows": [],
+      "volume": null
+    },
+    {
+      "viewport": 1440,
+      "height": 1503,
+      "route": "/monitoring",
+      "width": 1440,
+      "selects": [],
+      "panels": [],
+      "staffRows": [],
+      "volume": null
+    },
+    {
+      "viewport": 1440,
+      "height": 2317,
+      "route": "/shift-log",
+      "width": 1440,
+      "selects": [
+        {
+          "label": "Filter berdasarkan shift",
+          "value": "",
+          "options": [
+            {
+              "value": "",
+              "label": "Semua Shift",
+              "disabled": false
+            },
+            {
+              "value": "subuh",
+              "label": "Shift Subuh",
+              "disabled": false
+            },
+            {
+              "value": "pagi",
+              "label": "Shift Pagi",
+              "disabled": false
+            },
+            {
+              "value": "malam",
+              "label": "Shift Malam",
+              "disabled": false
+            },
+            {
+              "value": "subuh → pagi",
+              "label": "Subuh → Pagi",
+              "disabled": false
+            },
+            {
+              "value": "pagi → malam",
+              "label": "Pagi → Malam",
+              "disabled": false
+            },
+            {
+              "value": "malam → subuh",
+              "label": "Malam → Subuh",
+              "disabled": false
+            }
+          ],
+          "x": 533,
+          "y": 269.1875,
+          "width": 190,
+          "height": 38,
+          "top": 269.1875,
+          "right": 723,
+          "bottom": 307.1875,
+          "left": 533
+        },
+        {
+          "label": "Jumlah catatan per halaman",
+          "value": "10",
+          "options": [
+            {
+              "value": "10",
+              "label": "10",
+              "disabled": false
+            },
+            {
+              "value": "30",
+              "label": "30",
+              "disabled": false
+            },
+            {
+              "value": "50",
+              "label": "50",
+              "disabled": false
+            },
+            {
+              "value": "100",
+              "label": "100",
+              "disabled": false
+            }
+          ],
+          "x": 412.25,
+          "y": 2189.65625,
+          "width": 60,
+          "height": 30,
+          "top": 2189.65625,
+          "right": 472.25,
+          "bottom": 2219.65625,
+          "left": 412.25
+        }
+      ],
+      "panels": [],
+      "staffRows": [],
+      "volume": null
+    },
+    {
+      "viewport": 1440,
+      "height": 2051,
+      "route": "/reports",
+      "width": 1440,
+      "selects": [
+        {
+          "label": "Filter proyek laporan",
+          "value": "all",
+          "options": [
+            {
+              "value": "all",
+              "label": "Semua proyek (11)",
+              "disabled": false
+            },
+            {
+              "value": "APH",
+              "label": "APH",
+              "disabled": false
+            },
+            {
+              "value": "B2B",
+              "label": "B2B",
+              "disabled": false
+            },
+            {
+              "value": "DM",
+              "label": "DM",
+              "disabled": false
+            },
+            {
+              "value": "EPC",
+              "label": "EPC",
+              "disabled": false
+            },
+            {
+              "value": "EPC Core",
+              "label": "EPC Core",
+              "disabled": false
+            },
+            {
+              "value": "EPC Tools",
+              "label": "EPC Tools",
+              "disabled": false
+            },
+            {
+              "value": "MB",
+              "label": "MB",
+              "disabled": false
+            },
+            {
+              "value": "SM",
+              "label": "SM",
+              "disabled": false
+            },
+            {
+              "value": "SM/ActiveMQ",
+              "label": "SM/ActiveMQ",
+              "disabled": false
+            },
+            {
+              "value": "UNEM",
+              "label": "UNEM",
+              "disabled": false
+            },
+            {
+              "value": "USIEM",
+              "label": "USIEM",
+              "disabled": false
+            }
+          ],
+          "x": 1036.328125,
+          "y": 393.4375,
+          "width": 165,
+          "height": 32,
+          "top": 393.4375,
+          "right": 1201.328125,
+          "bottom": 425.4375,
+          "left": 1036.328125
+        }
+      ],
+      "panels": [],
+      "staffRows": [],
+      "volume": null
+    },
+    {
+      "viewport": 1440,
+      "height": 1325,
+      "route": "/team-roster",
+      "width": 1440,
+      "selects": [
+        {
+          "label": "Filter role",
+          "value": "All",
+          "options": [
+            {
+              "value": "All",
+              "label": "All Roles (14)",
+              "disabled": false
+            },
+            {
+              "value": "Operator NOC",
+              "label": "Operator NOC",
+              "disabled": false
+            },
+            {
+              "value": "Shift Lead",
+              "label": "Shift Lead",
+              "disabled": false
+            },
+            {
+              "value": "Incident Coordinator",
+              "label": "Incident Coordinator",
+              "disabled": false
+            },
+            {
+              "value": "L2 Specialist",
+              "label": "L2 Specialist",
+              "disabled": false
+            },
+            {
+              "value": "Infrastructure Engineer",
+              "label": "Infrastructure Engineer",
+              "disabled": false
+            }
+          ],
+          "x": 589,
+          "y": 377.640625,
+          "width": 192,
+          "height": 36,
+          "top": 377.640625,
+          "right": 781,
+          "bottom": 413.640625,
+          "left": 589
+        },
+        {
+          "label": "Filter shift",
+          "value": "All",
+          "options": [
+            {
+              "value": "All",
+              "label": "All Shifts",
+              "disabled": false
+            },
+            {
+              "value": "Subuh",
+              "label": "Shift Subuh",
+              "disabled": false
+            },
+            {
+              "value": "Pagi",
+              "label": "Shift Pagi",
+              "disabled": false
+            },
+            {
+              "value": "Malam",
+              "label": "Shift Malam",
+              "disabled": false
+            }
+          ],
+          "x": 789,
+          "y": 377.640625,
+          "width": 128,
+          "height": 36,
+          "top": 377.640625,
+          "right": 917,
+          "bottom": 413.640625,
+          "left": 789
+        },
+        {
+          "label": "Filter status",
+          "value": "All",
+          "options": [
+            {
+              "value": "All",
+              "label": "All Statuses",
+              "disabled": false
+            },
+            {
+              "value": "Active",
+              "label": "Active (On Duty)",
+              "disabled": false
+            },
+            {
+              "value": "On Break",
+              "label": "On Break",
+              "disabled": false
+            },
+            {
+              "value": "Off Duty",
+              "label": "Off Duty",
+              "disabled": false
+            },
+            {
+              "value": "On Leave",
+              "label": "On Leave",
+              "disabled": false
+            }
+          ],
+          "x": 937,
+          "y": 377.640625,
+          "width": 153,
+          "height": 36,
+          "top": 377.640625,
+          "right": 1090,
+          "bottom": 413.640625,
+          "left": 937
+        },
+        {
+          "label": "Jumlah baris per halaman",
+          "value": "10",
+          "options": [
+            {
+              "value": "10",
+              "label": "10",
+              "disabled": false
+            },
+            {
+              "value": "25",
+              "label": "25",
+              "disabled": false
+            },
+            {
+              "value": "50",
+              "label": "50",
+              "disabled": false
+            },
+            {
+              "value": "all",
+              "label": "All",
+              "disabled": false
+            }
+          ],
+          "x": 394.25,
+          "y": 1173.640625,
+          "width": 51,
+          "height": 30,
+          "top": 1173.640625,
+          "right": 445.25,
+          "bottom": 1203.640625,
+          "left": 394.25
+        }
+      ],
+      "panels": [],
+      "staffRows": [],
+      "volume": null
+    },
+    {
+      "viewport": 1440,
+      "height": 1636,
+      "route": "/master-data",
+      "width": 1440,
+      "selects": [
+        {
+          "label": "Filter status klien",
+          "value": "all",
+          "options": [
+            {
+              "value": "all",
+              "label": "Semua Status (8)",
+              "disabled": false
+            },
+            {
+              "value": "active",
+              "label": "Aktif (8)",
+              "disabled": false
+            },
+            {
+              "value": "inactive",
+              "label": "Nonaktif (0)",
+              "disabled": false
+            },
+            {
+              "value": "archived",
+              "label": "Arsip (0)",
+              "disabled": false
+            }
+          ],
+          "x": 1070.34375,
+          "y": 383.5,
+          "width": 142,
+          "height": 36,
+          "top": 383.5,
+          "right": 1212.34375,
+          "bottom": 419.5,
+          "left": 1070.34375
+        }
+      ],
+      "panels": [],
+      "staffRows": [],
+      "volume": null
+    },
+    {
+      "viewport": 1440,
+      "height": 900,
+      "route": "/runbooks",
+      "width": 1440,
+      "selects": [],
+      "panels": [],
+      "staffRows": [],
+      "volume": null
+    },
+    {
+      "viewport": 1440,
+      "route": "/dashboard?shifter=Tahan",
+      "counter": "Menampilkan 0 dari 88 Tiket",
+      "recap": "Rekap Tiket per User\n1 Staf\nView\nTJ\nTahan Julianus Nadeak\nIncident Coordinator (Shift Pagi)\nDetail\nHARI INI\n0\nBULAN INI\n38\nTAHUN INI\n245\nHari Ini:\nTidak ada tiket baru hari ini"
+    },
+    {
+      "viewport": 1920,
+      "height": 3183,
+      "route": "/dashboard",
+      "width": 1920,
+      "selects": [
+        {
+          "label": "Filter proyek",
+          "value": "All",
+          "options": [
+            {
+              "value": "All",
+              "label": "Semua Proyek",
+              "disabled": false
+            },
+            {
+              "value": "APH",
+              "label": "APH",
+              "disabled": false
+            },
+            {
+              "value": "B2B",
+              "label": "B2B",
+              "disabled": false
+            },
+            {
+              "value": "DM",
+              "label": "DM",
+              "disabled": false
+            },
+            {
+              "value": "EPC Tools",
+              "label": "EPC Tools",
+              "disabled": false
+            },
+            {
+              "value": "MB",
+              "label": "MB",
+              "disabled": false
+            },
+            {
+              "value": "SM",
+              "label": "SM",
+              "disabled": false
+            },
+            {
+              "value": "UNEM",
+              "label": "UNEM",
+              "disabled": false
+            },
+            {
+              "value": "USIEM",
+              "label": "USIEM",
+              "disabled": false
+            }
+          ],
+          "x": 643.609375,
+          "y": 987.046875,
+          "width": 230.484375,
+          "height": 34,
+          "top": 987.046875,
+          "right": 874.09375,
+          "bottom": 1021.046875,
+          "left": 643.609375
+        },
+        {
+          "label": "Filter shift",
+          "value": "All",
+          "options": [
+            {
+              "value": "All",
+              "label": "Semua Shift",
+              "disabled": false
+            },
+            {
+              "value": "Subuh",
+              "label": "Shift Subuh (00:00–08:30)",
+              "disabled": false
+            },
+            {
+              "value": "Pagi",
+              "label": "Shift Pagi (08:00–16:30)",
+              "disabled": false
+            },
+            {
+              "value": "Malam",
+              "label": "Shift Malam (16:00–00:30)",
+              "disabled": false
+            }
+          ],
+          "x": 884.09375,
+          "y": 987.046875,
+          "width": 230.46875,
+          "height": 34,
+          "top": 987.046875,
+          "right": 1114.5625,
+          "bottom": 1021.046875,
+          "left": 884.09375
+        },
+        {
+          "label": "Filter status tiket",
+          "value": "All",
+          "options": [
+            {
+              "value": "All",
+              "label": "Semua Status",
+              "disabled": false
+            },
+            {
+              "value": "Open",
+              "label": "Open",
+              "disabled": false
+            },
+            {
+              "value": "Closed",
+              "label": "Closed",
+              "disabled": false
+            },
+            {
+              "value": "Activity",
+              "label": "Activity",
+              "disabled": false
+            },
+            {
+              "value": "Meeting",
+              "label": "Meeting",
+              "disabled": false
+            },
+            {
+              "value": "Re-Open",
+              "label": "Re-Open",
+              "disabled": false
+            },
+            {
+              "value": "Pending",
+              "label": "Pending",
+              "disabled": false
+            },
+            {
+              "value": "RCA",
+              "label": "RCA",
+              "disabled": false
+            }
+          ],
+          "x": 1365.046875,
+          "y": 987.046875,
+          "width": 230.46875,
+          "height": 34,
+          "top": 987.046875,
+          "right": 1595.515625,
+          "bottom": 1021.046875,
+          "left": 1365.046875
+        },
+        {
+          "label": "Filter keparahan",
+          "value": "All",
+          "options": [
+            {
+              "value": "All",
+              "label": "Semua Severity",
+              "disabled": false
+            },
+            {
+              "value": "Critical",
+              "label": "Critical (Kritis)",
+              "disabled": false
+            },
+            {
+              "value": "High",
+              "label": "High (Tinggi)",
+              "disabled": false
+            },
+            {
+              "value": "Medium",
+              "label": "Medium (Sedang)",
+              "disabled": false
+            },
+            {
+              "value": "Low",
+              "label": "Low (Rendah)",
+              "disabled": false
+            }
+          ],
+          "x": 1605.515625,
+          "y": 987.046875,
+          "width": 230.46875,
+          "height": 34,
+          "top": 987.046875,
+          "right": 1835.984375,
+          "bottom": 1021.046875,
+          "left": 1605.515625
+        }
+      ],
+      "panels": [
+        {
+          "title": "Tiket Hari Ini",
+          "x": 317,
+          "y": 229.796875,
+          "width": 1110,
+          "height": 660,
+          "top": 229.796875,
+          "right": 1427,
+          "bottom": 889.796875,
+          "left": 317
+        },
+        {
+          "title": "Memo & Catatan Shift",
+          "x": 1443,
+          "y": 229.796875,
+          "width": 410,
+          "height": 221,
+          "top": 229.796875,
+          "right": 1853,
+          "bottom": 450.796875,
+          "left": 1443
+        },
+        {
+          "title": "List Monitoring Shift",
+          "x": 1443,
+          "y": 462.796875,
+          "width": 410,
+          "height": 427,
+          "top": 462.796875,
+          "right": 1853,
+          "bottom": 889.796875,
+          "left": 1443
+        },
+        {
+          "title": "Ticket Volume per Project (Stacked by System)Volume Tiket",
+          "x": 317,
+          "y": 1062.046875,
+          "width": 1140,
+          "height": 580,
+          "top": 1062.046875,
+          "right": 1457,
+          "bottom": 1642.046875,
+          "left": 317
+        },
+        {
+          "title": "Rekap Tiket per User",
+          "x": 1473,
+          "y": 1062.046875,
+          "width": 380,
+          "height": 580,
+          "top": 1062.046875,
+          "right": 1853,
+          "bottom": 1642.046875,
+          "left": 1473
+        },
+        {
+          "title": "Distribusi Kategori / Tipe TiketDistribusi Kategori",
+          "x": 317,
+          "y": 1662.046875,
+          "width": 759,
+          "height": 330.75,
+          "top": 1662.046875,
+          "right": 1076,
+          "bottom": 1992.796875,
+          "left": 317
+        },
+        {
+          "title": "Distribusi Berdasarkan SeverityDistribusi Severity",
+          "x": 1094,
+          "y": 1662.046875,
+          "width": 759,
+          "height": 330.75,
+          "top": 1662.046875,
+          "right": 1853,
+          "bottom": 1992.796875,
+          "left": 1094
+        },
+        {
+          "title": "Tren Durasi Penyelesaian (Resolution Velocity)Tren Durasi",
+          "x": 317,
+          "y": 2012.796875,
+          "width": 1536,
+          "height": 543.890625,
+          "top": 2012.796875,
+          "right": 1853,
+          "bottom": 2556.6875,
+          "left": 317
+        },
+        {
+          "title": "Tren Trafik Beban per Shift (Shift Traffic Velocity)Tren Trafik",
+          "x": 317,
+          "y": 2594.6875,
+          "width": 1536,
+          "height": 543.8125,
+          "top": 2594.6875,
+          "right": 1853,
+          "bottom": 3138.5,
+          "left": 317
+        }
+      ],
+      "staffRows": [
+        {
+          "x": 1490,
+          "y": 1136.046875,
+          "width": 342,
+          "height": 115,
+          "top": 1136.046875,
+          "right": 1832,
+          "bottom": 1251.046875,
+          "left": 1490
+        },
+        {
+          "x": 1490,
+          "y": 1259.046875,
+          "width": 342,
+          "height": 117,
+          "top": 1259.046875,
+          "right": 1832,
+          "bottom": 1376.046875,
+          "left": 1490
+        },
+        {
+          "x": 1490,
+          "y": 1384.046875,
+          "width": 342,
+          "height": 115,
+          "top": 1384.046875,
+          "right": 1832,
+          "bottom": 1499.046875,
+          "left": 1490
+        },
+        {
+          "x": 1490,
+          "y": 1507.046875,
+          "width": 342,
+          "height": 115,
+          "top": 1507.046875,
+          "right": 1832,
+          "bottom": 1622.046875,
+          "left": 1490
+        },
+        {
+          "x": 1490,
+          "y": 1630.046875,
+          "width": 342,
+          "height": 117,
+          "top": 1630.046875,
+          "right": 1832,
+          "bottom": 1747.046875,
+          "left": 1490
+        },
+        {
+          "x": 1490,
+          "y": 1755.046875,
+          "width": 342,
+          "height": 117,
+          "top": 1755.046875,
+          "right": 1832,
+          "bottom": 1872.046875,
+          "left": 1490
+        },
+        {
+          "x": 1490,
+          "y": 1880.046875,
+          "width": 342,
+          "height": 134.75,
+          "top": 1880.046875,
+          "right": 1832,
+          "bottom": 2014.796875,
+          "left": 1490
+        },
+        {
+          "x": 1490,
+          "y": 2022.796875,
+          "width": 342,
+          "height": 115,
+          "top": 2022.796875,
+          "right": 1832,
+          "bottom": 2137.796875,
+          "left": 1490
+        },
+        {
+          "x": 1490,
+          "y": 2145.796875,
+          "width": 342,
+          "height": 115,
+          "top": 2145.796875,
+          "right": 1832,
+          "bottom": 2260.796875,
+          "left": 1490
+        },
+        {
+          "x": 1490,
+          "y": 2268.796875,
+          "width": 342,
+          "height": 117,
+          "top": 2268.796875,
+          "right": 1832,
+          "bottom": 2385.796875,
+          "left": 1490
+        },
+        {
+          "x": 1490,
+          "y": 2393.796875,
+          "width": 342,
+          "height": 117,
+          "top": 2393.796875,
+          "right": 1832,
+          "bottom": 2510.796875,
+          "left": 1490
+        },
+        {
+          "x": 1490,
+          "y": 2518.796875,
+          "width": 342,
+          "height": 115,
+          "top": 2518.796875,
+          "right": 1832,
+          "bottom": 2633.796875,
+          "left": 1490
+        },
+        {
+          "x": 1490,
+          "y": 2641.796875,
+          "width": 342,
+          "height": 115,
+          "top": 2641.796875,
+          "right": 1832,
+          "bottom": 2756.796875,
+          "left": 1490
+        },
+        {
+          "x": 1490,
+          "y": 2764.796875,
+          "width": 342,
+          "height": 115,
+          "top": 2764.796875,
+          "right": 1832,
+          "bottom": 2879.796875,
+          "left": 1490
+        }
+      ],
+      "volume": {
+        "scroll": 0,
+        "client": 1098,
+        "total": 1098,
+        "x": 338,
+        "y": 1143.296875,
+        "width": 1098,
+        "height": 433.5,
+        "top": 1143.296875,
+        "right": 1436,
+        "bottom": 1576.796875,
+        "left": 338
+      }
+    },
+    {
+      "viewport": 1920,
+      "height": 1330,
+      "route": "/tickets",
+      "width": 1920,
+      "selects": [
+        {
+          "label": "Filter kategori tiket",
+          "value": "All Types",
+          "options": [
+            {
+              "value": "All Types",
+              "label": "All Types",
+              "disabled": false
+            },
+            {
+              "value": "Incident",
+              "label": "Incident",
+              "disabled": false
+            },
+            {
+              "value": "Ad-hoc Request",
+              "label": "Ad-hoc Request",
+              "disabled": false
+            },
+            {
+              "value": "Change Request",
+              "label": "Change Request",
+              "disabled": false
+            },
+            {
+              "value": "Maintenance",
+              "label": "Maintenance",
+              "disabled": false
+            },
+            {
+              "value": "Monitoring Alert",
+              "label": "Monitoring Alert",
+              "disabled": false
+            },
+            {
+              "value": "Escalation",
+              "label": "Escalation",
+              "disabled": false
+            },
+            {
+              "value": "Other",
+              "label": "Other",
+              "disabled": false
+            }
+          ],
+          "x": 1115,
+          "y": 423.640625,
+          "width": 150,
+          "height": 34,
+          "top": 423.640625,
+          "right": 1265,
+          "bottom": 457.640625,
+          "left": 1115
+        },
+        {
+          "label": "Filter severity",
+          "value": "All Severities",
+          "options": [
+            {
+              "value": "All Severities",
+              "label": "All Severities",
+              "disabled": false
+            },
+            {
+              "value": "Critical",
+              "label": "Critical",
+              "disabled": false
+            },
+            {
+              "value": "High",
+              "label": "High",
+              "disabled": false
+            },
+            {
+              "value": "Medium",
+              "label": "Medium",
+              "disabled": false
+            },
+            {
+              "value": "Low",
+              "label": "Low",
+              "disabled": false
+            }
+          ],
+          "x": 1273,
+          "y": 423.640625,
+          "width": 127,
+          "height": 34,
+          "top": 423.640625,
+          "right": 1400,
+          "bottom": 457.640625,
+          "left": 1273
+        },
+        {
+          "label": "Filter proyek",
+          "value": "All Projects",
+          "options": [
+            {
+              "value": "All Projects",
+              "label": "All Projects",
+              "disabled": false
+            },
+            {
+              "value": "EPC Tools",
+              "label": "EPC Tools",
+              "disabled": false
+            },
+            {
+              "value": "USIEM",
+              "label": "USIEM",
+              "disabled": false
+            },
+            {
+              "value": "SM",
+              "label": "SM",
+              "disabled": false
+            },
+            {
+              "value": "MB",
+              "label": "MB",
+              "disabled": false
+            },
+            {
+              "value": "B2B",
+              "label": "B2B",
+              "disabled": false
+            },
+            {
+              "value": "DM",
+              "label": "DM",
+              "disabled": false
+            },
+            {
+              "value": "UNEM",
+              "label": "UNEM",
+              "disabled": false
+            },
+            {
+              "value": "APH",
+              "label": "APH",
+              "disabled": false
+            }
+          ],
+          "x": 1408,
+          "y": 423.640625,
+          "width": 119,
+          "height": 34,
+          "top": 423.640625,
+          "right": 1527,
+          "bottom": 457.640625,
+          "left": 1408
+        },
+        {
+          "label": "Filter shift tiket",
+          "value": "Semua Shift",
+          "options": [
+            {
+              "value": "Semua Shift",
+              "label": "Semua Shift",
+              "disabled": false
+            },
+            {
+              "value": "Shift Subuh",
+              "label": "Shift Subuh",
+              "disabled": false
+            },
+            {
+              "value": "Shift Pagi",
+              "label": "Shift Pagi",
+              "disabled": false
+            },
+            {
+              "value": "Shift Malam",
+              "label": "Shift Malam",
+              "disabled": false
+            }
+          ],
+          "x": 1535,
+          "y": 423.640625,
+          "width": 124,
+          "height": 34,
+          "top": 423.640625,
+          "right": 1659,
+          "bottom": 457.640625,
+          "left": 1535
+        },
+        {
+          "label": "Urutkan tiket",
+          "value": "newest",
+          "options": [
+            {
+              "value": "newest",
+              "label": "Newest First",
+              "disabled": false
+            },
+            {
+              "value": "oldest",
+              "label": "Oldest First",
+              "disabled": false
+            },
+            {
+              "value": "priority",
+              "label": "Highest Severity",
+              "disabled": false
+            },
+            {
+              "value": "aging",
+              "label": "Longest Aging",
+              "disabled": false
+            }
+          ],
+          "x": 1684,
+          "y": 423.640625,
+          "width": 148,
+          "height": 34,
+          "top": 423.640625,
+          "right": 1832,
+          "bottom": 457.640625,
+          "left": 1684
+        },
+        {
+          "label": "Jumlah tiket per halaman",
+          "value": "10",
+          "options": [
+            {
+              "value": "10",
+              "label": "10",
+              "disabled": false
+            },
+            {
+              "value": "30",
+              "label": "30",
+              "disabled": false
+            },
+            {
+              "value": "50",
+              "label": "50",
+              "disabled": false
+            },
+            {
+              "value": "100",
+              "label": "100",
+              "disabled": false
+            }
+          ],
+          "x": 429.25,
+          "y": 1222.640625,
+          "width": 77,
+          "height": 30,
+          "top": 1222.640625,
+          "right": 506.25,
+          "bottom": 1252.640625,
+          "left": 429.25
+        }
+      ],
+      "panels": [],
+      "staffRows": [],
+      "volume": null
+    },
+    {
+      "viewport": 1920,
+      "height": 1409,
+      "route": "/monitoring",
+      "width": 1920,
+      "selects": [],
+      "panels": [],
+      "staffRows": [],
+      "volume": null
+    },
+    {
+      "viewport": 1920,
+      "height": 2317,
+      "route": "/shift-log",
+      "width": 1920,
+      "selects": [
+        {
+          "label": "Filter berdasarkan shift",
+          "value": "",
+          "options": [
+            {
+              "value": "",
+              "label": "Semua Shift",
+              "disabled": false
+            },
+            {
+              "value": "subuh",
+              "label": "Shift Subuh",
+              "disabled": false
+            },
+            {
+              "value": "pagi",
+              "label": "Shift Pagi",
+              "disabled": false
+            },
+            {
+              "value": "malam",
+              "label": "Shift Malam",
+              "disabled": false
+            },
+            {
+              "value": "subuh → pagi",
+              "label": "Subuh → Pagi",
+              "disabled": false
+            },
+            {
+              "value": "pagi → malam",
+              "label": "Pagi → Malam",
+              "disabled": false
+            },
+            {
+              "value": "malam → subuh",
+              "label": "Malam → Subuh",
+              "disabled": false
+            }
+          ],
+          "x": 568,
+          "y": 269.1875,
+          "width": 190,
+          "height": 38,
+          "top": 269.1875,
+          "right": 758,
+          "bottom": 307.1875,
+          "left": 568
+        },
+        {
+          "label": "Jumlah catatan per halaman",
+          "value": "10",
+          "options": [
+            {
+              "value": "10",
+              "label": "10",
+              "disabled": false
+            },
+            {
+              "value": "30",
+              "label": "30",
+              "disabled": false
+            },
+            {
+              "value": "50",
+              "label": "50",
+              "disabled": false
+            },
+            {
+              "value": "100",
+              "label": "100",
+              "disabled": false
+            }
+          ],
+          "x": 447.25,
+          "y": 2189.65625,
+          "width": 60,
+          "height": 30,
+          "top": 2189.65625,
+          "right": 507.25,
+          "bottom": 2219.65625,
+          "left": 447.25
+        }
+      ],
+      "panels": [],
+      "staffRows": [],
+      "volume": null
+    },
+    {
+      "viewport": 1920,
+      "height": 2097,
+      "route": "/reports",
+      "width": 1920,
+      "selects": [
+        {
+          "label": "Filter proyek laporan",
+          "value": "all",
+          "options": [
+            {
+              "value": "all",
+              "label": "Semua proyek (11)",
+              "disabled": false
+            },
+            {
+              "value": "APH",
+              "label": "APH",
+              "disabled": false
+            },
+            {
+              "value": "B2B",
+              "label": "B2B",
+              "disabled": false
+            },
+            {
+              "value": "DM",
+              "label": "DM",
+              "disabled": false
+            },
+            {
+              "value": "EPC",
+              "label": "EPC",
+              "disabled": false
+            },
+            {
+              "value": "EPC Core",
+              "label": "EPC Core",
+              "disabled": false
+            },
+            {
+              "value": "EPC Tools",
+              "label": "EPC Tools",
+              "disabled": false
+            },
+            {
+              "value": "MB",
+              "label": "MB",
+              "disabled": false
+            },
+            {
+              "value": "SM",
+              "label": "SM",
+              "disabled": false
+            },
+            {
+              "value": "SM/ActiveMQ",
+              "label": "SM/ActiveMQ",
+              "disabled": false
+            },
+            {
+              "value": "UNEM",
+              "label": "UNEM",
+              "disabled": false
+            },
+            {
+              "value": "USIEM",
+              "label": "USIEM",
+              "disabled": false
+            }
+          ],
+          "x": 1481.328125,
+          "y": 393.4375,
+          "width": 165,
+          "height": 32,
+          "top": 393.4375,
+          "right": 1646.328125,
+          "bottom": 425.4375,
+          "left": 1481.328125
+        }
+      ],
+      "panels": [],
+      "staffRows": [],
+      "volume": null
+    },
+    {
+      "viewport": 1920,
+      "height": 1325,
+      "route": "/team-roster",
+      "width": 1920,
+      "selects": [
+        {
+          "label": "Filter role",
+          "value": "All",
+          "options": [
+            {
+              "value": "All",
+              "label": "All Roles (14)",
+              "disabled": false
+            },
+            {
+              "value": "Operator NOC",
+              "label": "Operator NOC",
+              "disabled": false
+            },
+            {
+              "value": "Shift Lead",
+              "label": "Shift Lead",
+              "disabled": false
+            },
+            {
+              "value": "Incident Coordinator",
+              "label": "Incident Coordinator",
+              "disabled": false
+            },
+            {
+              "value": "L2 Specialist",
+              "label": "L2 Specialist",
+              "disabled": false
+            },
+            {
+              "value": "Infrastructure Engineer",
+              "label": "Infrastructure Engineer",
+              "disabled": false
+            }
+          ],
+          "x": 624,
+          "y": 377.640625,
+          "width": 192,
+          "height": 36,
+          "top": 377.640625,
+          "right": 816,
+          "bottom": 413.640625,
+          "left": 624
+        },
+        {
+          "label": "Filter shift",
+          "value": "All",
+          "options": [
+            {
+              "value": "All",
+              "label": "All Shifts",
+              "disabled": false
+            },
+            {
+              "value": "Subuh",
+              "label": "Shift Subuh",
+              "disabled": false
+            },
+            {
+              "value": "Pagi",
+              "label": "Shift Pagi",
+              "disabled": false
+            },
+            {
+              "value": "Malam",
+              "label": "Shift Malam",
+              "disabled": false
+            }
+          ],
+          "x": 824,
+          "y": 377.640625,
+          "width": 128,
+          "height": 36,
+          "top": 377.640625,
+          "right": 952,
+          "bottom": 413.640625,
+          "left": 824
+        },
+        {
+          "label": "Filter status",
+          "value": "All",
+          "options": [
+            {
+              "value": "All",
+              "label": "All Statuses",
+              "disabled": false
+            },
+            {
+              "value": "Active",
+              "label": "Active (On Duty)",
+              "disabled": false
+            },
+            {
+              "value": "On Break",
+              "label": "On Break",
+              "disabled": false
+            },
+            {
+              "value": "Off Duty",
+              "label": "Off Duty",
+              "disabled": false
+            },
+            {
+              "value": "On Leave",
+              "label": "On Leave",
+              "disabled": false
+            }
+          ],
+          "x": 972,
+          "y": 377.640625,
+          "width": 153,
+          "height": 36,
+          "top": 377.640625,
+          "right": 1125,
+          "bottom": 413.640625,
+          "left": 972
+        },
+        {
+          "label": "Jumlah baris per halaman",
+          "value": "10",
+          "options": [
+            {
+              "value": "10",
+              "label": "10",
+              "disabled": false
+            },
+            {
+              "value": "25",
+              "label": "25",
+              "disabled": false
+            },
+            {
+              "value": "50",
+              "label": "50",
+              "disabled": false
+            },
+            {
+              "value": "all",
+              "label": "All",
+              "disabled": false
+            }
+          ],
+          "x": 429.25,
+          "y": 1173.640625,
+          "width": 51,
+          "height": 30,
+          "top": 1173.640625,
+          "right": 480.25,
+          "bottom": 1203.640625,
+          "left": 429.25
+        }
+      ],
+      "panels": [],
+      "staffRows": [],
+      "volume": null
+    },
+    {
+      "viewport": 1920,
+      "height": 1597,
+      "route": "/master-data",
+      "width": 1920,
+      "selects": [
+        {
+          "label": "Filter status klien",
+          "value": "all",
+          "options": [
+            {
+              "value": "all",
+              "label": "Semua Status (8)",
+              "disabled": false
+            },
+            {
+              "value": "active",
+              "label": "Aktif (8)",
+              "disabled": false
+            },
+            {
+              "value": "inactive",
+              "label": "Nonaktif (0)",
+              "disabled": false
+            },
+            {
+              "value": "archived",
+              "label": "Arsip (0)",
+              "disabled": false
+            }
+          ],
+          "x": 1515.34375,
+          "y": 383.5,
+          "width": 142,
+          "height": 36,
+          "top": 383.5,
+          "right": 1657.34375,
+          "bottom": 419.5,
+          "left": 1515.34375
+        }
+      ],
+      "panels": [],
+      "staffRows": [],
+      "volume": null
+    },
+    {
+      "viewport": 1920,
+      "height": 900,
+      "route": "/runbooks",
+      "width": 1920,
+      "selects": [],
+      "panels": [],
+      "staffRows": [],
+      "volume": null
+    },
+    {
+      "viewport": 1920,
+      "route": "/dashboard?shifter=Tahan",
+      "counter": "Menampilkan 0 dari 88 Tiket",
+      "recap": "Rekap Tiket per User\n1 Staf\nView\nTJ\nTahan Julianus Nadeak\nIncident Coordinator (Shift Pagi)\nDetail\nHARI INI\n0\nBULAN INI\n38\nTAHUN INI\n245\nHari Ini:\nTidak ada tiket baru hari ini"
+    }
+  ],
+  "errors": []
+}

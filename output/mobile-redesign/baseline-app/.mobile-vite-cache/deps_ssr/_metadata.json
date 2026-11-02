@@ -1,0 +1,210 @@
+{
+  "hash": "62709207",
+  "configHash": "2e966211",
+  "lockfileHash": "4b2767fc",
+  "browserHash": "2a0e181d",
+  "optimized": {
+    "@pdf-lib/fontkit": {
+      "src": "../../../../../frontend/node_modules/@pdf-lib/fontkit/dist/fontkit.es.js",
+      "file": "@pdf-lib_fontkit.js",
+      "fileHash": "10746d2b",
+      "needsInterop": false
+    },
+    "drizzle-orm": {
+      "src": "../../../../../frontend/node_modules/drizzle-orm/index.js",
+      "file": "drizzle-orm.js",
+      "fileHash": "74a335ff",
+      "needsInterop": false
+    },
+    "drizzle-orm/d1": {
+      "src": "../../../../../frontend/node_modules/drizzle-orm/d1/index.js",
+      "file": "drizzle-orm_d1.js",
+      "fileHash": "3c24117d",
+      "needsInterop": false
+    },
+    "drizzle-orm/sqlite-core": {
+      "src": "../../../../../frontend/node_modules/drizzle-orm/sqlite-core/index.js",
+      "file": "drizzle-orm_sqlite-core.js",
+      "fileHash": "df7e09d7",
+      "needsInterop": false
+    },
+    "next/dynamic": {
+      "src": "../../../../../frontend/node_modules/vinext/dist/shims/dynamic.js",
+      "file": "next_dynamic.js",
+      "fileHash": "d04fb99c",
+      "needsInterop": false
+    },
+    "next/headers": {
+      "src": "../../../../../frontend/node_modules/vinext/dist/shims/headers.js",
+      "file": "next_headers.js",
+      "fileHash": "88a33a53",
+      "needsInterop": false
+    },
+    "next/image": {
+      "src": "../../../../../frontend/node_modules/vinext/dist/shims/image.js",
+      "file": "next_image.js",
+      "fileHash": "897aeae2",
+      "needsInterop": false
+    },
+    "next/link": {
+      "src": "../../../../../frontend/node_modules/vinext/dist/shims/link.js",
+      "file": "next_link.js",
+      "fileHash": "b96c0305",
+      "needsInterop": false
+    },
+    "next/navigation": {
+      "src": "../../../../../frontend/node_modules/vinext/dist/shims/navigation.js",
+      "file": "next_navigation.js",
+      "fileHash": "a865769d",
+      "needsInterop": false
+    },
+    "pdf-lib": {
+      "src": "../../../../../frontend/node_modules/pdf-lib/es/index.js",
+      "file": "pdf-lib.js",
+      "fileHash": "faff6199",
+      "needsInterop": false
+    },
+    "pdfjs-dist": {
+      "src": "../../../../../frontend/node_modules/pdfjs-dist/build/pdf.mjs",
+      "file": "pdfjs-dist.js",
+      "fileHash": "3c95a281",
+      "needsInterop": false
+    },
+    "react-dom": {
+      "src": "../../../../../frontend/node_modules/react-dom/index.js",
+      "file": "react-dom.js",
+      "fileHash": "207bad18",
+      "needsInterop": true
+    },
+    "react-dom/server.edge": {
+      "src": "../../../../../frontend/node_modules/react-dom/server.edge.js",
+      "file": "react-dom_server__edge.js",
+      "fileHash": "2177c6b6",
+      "needsInterop": true
+    },
+    "react-dom/static.edge": {
+      "src": "../../../../../frontend/node_modules/react-dom/static.edge.js",
+      "file": "react-dom_static__edge.js",
+      "fileHash": "96908495",
+      "needsInterop": true
+    },
+    "react-server-dom-webpack/client.edge": {
+      "src": "../../../../../frontend/node_modules/react-server-dom-webpack/client.edge.js",
+      "file": "react-server-dom-webpack_client__edge.js",
+      "fileHash": "457f75b8",
+      "needsInterop": true
+    },
+    "react": {
+      "src": "../../../../../frontend/node_modules/react/index.js",
+      "file": "react.js",
+      "fileHash": "4883df96",
+      "needsInterop": true
+    },
+    "react/jsx-dev-runtime": {
+      "src": "../../../../../frontend/node_modules/react/jsx-dev-runtime.js",
+      "file": "react_jsx-dev-runtime.js",
+      "fileHash": "490f5677",
+      "needsInterop": true
+    },
+    "react/jsx-runtime": {
+      "src": "../../../../../frontend/node_modules/react/jsx-runtime.js",
+      "file": "react_jsx-runtime.js",
+      "fileHash": "8845d30c",
+      "needsInterop": true
+    }
+  },
+  "chunks": {
+    "app-elements-CuboyArv": {
+      "file": "app-elements-CuboyArv.js",
+      "isDynamicEntry": false
+    },
+    "app-prefetch-fetch-queue-DNONto9g": {
+      "file": "app-prefetch-fetch-queue-DNONto9g.js",
+      "isDynamicEntry": false
+    },
+    "app-rsc-cache-busting-D4tJ3qR1": {
+      "file": "app-rsc-cache-busting-D4tJ3qR1.js",
+      "isDynamicEntry": false
+    },
+    "app-rsc-render-mode-C80FZ6gr": {
+      "file": "app-rsc-render-mode-C80FZ6gr.js",
+      "isDynamicEntry": false
+    },
+    "chunk-CYJPkc-J": {
+      "file": "chunk-CYJPkc-J.js",
+      "isDynamicEntry": false
+    },
+    "client-locale-6bszu-jh": {
+      "file": "client-locale-6bszu-jh.js",
+      "isDynamicEntry": false
+    },
+    "config-matchers-1Cd9WJC_": {
+      "file": "config-matchers-1Cd9WJC_.js",
+      "isDynamicEntry": true
+    },
+    "deployment-id-Ctqw21wm": {
+      "file": "deployment-id-Ctqw21wm.js",
+      "isDynamicEntry": false
+    },
+    "hash-C84YwIw6": {
+      "file": "hash-C84YwIw6.js",
+      "isDynamicEntry": false
+    },
+    "headers-DiYH7g16": {
+      "file": "headers-DiYH7g16.js",
+      "isDynamicEntry": false
+    },
+    "hybrid-client-route-owner-CeYRc0n0": {
+      "file": "hybrid-client-route-owner-CeYRc0n0.js",
+      "isDynamicEntry": true
+    },
+    "hybrid-client-route-owner-direct-BwOwzEXt": {
+      "file": "hybrid-client-route-owner-direct-BwOwzEXt.js",
+      "isDynamicEntry": false
+    },
+    "logger--nhmPUPq": {
+      "file": "logger--nhmPUPq.js",
+      "isDynamicEntry": false
+    },
+    "middleware-request-headers-CnvfrPCu": {
+      "file": "middleware-request-headers-CnvfrPCu.js",
+      "isDynamicEntry": false
+    },
+    "parse-cookie-Br5LKGNJ": {
+      "file": "parse-cookie-Br5LKGNJ.js",
+      "isDynamicEntry": false
+    },
+    "ppr-fallback-shell-DfNDitNP": {
+      "file": "ppr-fallback-shell-DfNDitNP.js",
+      "isDynamicEntry": false
+    },
+    "protocol-headers-BrU4B1nn": {
+      "file": "protocol-headers-BrU4B1nn.js",
+      "isDynamicEntry": false
+    },
+    "query-CYiQARKZ": {
+      "file": "query-CYiQARKZ.js",
+      "isDynamicEntry": false
+    },
+    "react-dom-server.edge.development-Drgt4PLQ": {
+      "file": "react-dom-server.edge.development-Drgt4PLQ.js",
+      "isDynamicEntry": false
+    },
+    "relations-X1Yk8rLZ": {
+      "file": "relations-X1Yk8rLZ.js",
+      "isDynamicEntry": false
+    },
+    "router-BKCB78m7": {
+      "file": "router-BKCB78m7.js",
+      "isDynamicEntry": true
+    },
+    "sqlite-core-DNITXS0J": {
+      "file": "sqlite-core-DNITXS0J.js",
+      "isDynamicEntry": false
+    },
+    "window-next-DcInMZ14": {
+      "file": "window-next-DcInMZ14.js",
+      "isDynamicEntry": false
+    }
+  }
+}

@@ -1,0 +1,683 @@
+/*
+ * Tailwind v4 migration of layout.css (Fase 4 & Fase 5 complete).
+ *
+ * Migrated to direct Tailwind utilities in JSX:
+ * - Sidebar container, logo row, toggle tab & badge -> Sidebar.tsx
+ * - 36+ .sidebar-collapsed overrides -> Sidebar.tsx
+ * - Sidebar User Profile card, dropdown, and status presence picker -> Sidebar.tsx
+ * - Workspace and responsive transitions -> app/page.tsx
+ * - Topbar header, breadcrumbs, actions, refresh button -> Topbar.tsx
+ * - Multi-tenant ClientSwitcher button, badges & dropdown menu -> ClientSwitcher.tsx
+ * - NotificationDropdown bell, badge, popover, tabs & item cards -> NotificationDropdown.tsx
+ * - ShiftTransitionBadge status pills, countdown & responsive popover -> ShiftTransitionBadge.tsx
+ * - FloatingNewTicketButton (FAB) states, animations, expanded & mobile rules -> FloatingNewTicketButton.tsx
+ * - ShiftCoveragePanel container, toggle tab, header, content, footer & backdrop -> ShiftCoveragePanel.tsx
+ * - Keyframes (@keyframes profileDropdownUp, clientDropdownFadeIn, liveDotPulse, transitionPopoverFade,
+ *   fab-entrance, shift-backdrop-in, ack-pulse, revealName) -> moved to theme.css
+ *
+ * Category (b) Shared rules retained below for non-dashboard views & modals:
+ * - Shared mobile drawer and navigation (used in MobileNav.tsx)
+ * - Universal Concentric Avatar Status Ring Wrappers across pages (used in RosterTable.tsx,
+ *   MemberDetailDrawer.tsx, TicketReportView.tsx, RosterCalendarView.tsx, ProfileView.tsx)
+ * - Topbar Shift Badges (used by shifts.ts / fallback)
+ * - Shared helper utilities (.live-dot, .icon-button, .full-width-button)
+ */
+
+/* ═══════════════════════════════════════════════
+   CATEGORY (B) SHARED: MOBILE DRAWER & NAVIGATION (MobileNav.tsx)
+═══════════════════════════════════════════════ */
+.mobile-nav-backdrop {
+  @apply [position:fixed];
+  @apply [inset:0];
+  @apply [z-index:70];
+  @apply [display:flex];
+  @apply [justify-content:flex-start];
+  @apply [background:var(--overlay-bg)];
+}
+
+.mobile-drawer {
+  @apply [display:flex];
+  @apply [flex-direction:column];
+  @apply [gap:14px];
+  @apply [width:min(300px,_86vw)];
+  @apply [height:100%];
+  @apply [padding:20px_14px_18px];
+  @apply [overflow-y:auto];
+  @apply [color:var(--sidebar-text)];
+  @apply [background:var(--sidebar-bg)];
+  @apply [box-shadow:var(--shadow-elevated)];
+}
+
+.mobile-drawer-head {
+  @apply [display:flex];
+  @apply [align-items:center];
+  @apply [justify-content:space-between];
+  @apply [gap:8px];
+}
+
+.mobile-drawer-close {
+  @apply [display:grid];
+  @apply [place-items:center];
+  @apply [width:44px];
+  @apply [height:44px];
+  @apply [min-width:44px];
+  @apply [padding:0];
+  @apply [color:var(--sidebar-muted)];
+  @apply ![border:1px_solid_rgba(56,_189,_248,_0.2)];
+  @apply [border-radius:7px];
+}
+
+.mobile-drawer .nav-list {
+  @apply [display:grid];
+  @apply [gap:2px];
+}
+
+.mobile-drawer .nav-item {
+  @apply [display:flex];
+  @apply [align-items:center];
+  @apply [gap:11px];
+  @apply [width:100%];
+  @apply [padding:9px_12px];
+  @apply [border-radius:8px];
+  @apply [color:var(--sidebar-muted)];
+  @apply [background:transparent];
+  @apply [border:none];
+  @apply [font-size:13px];
+  @apply [font-weight:500];
+  @apply [text-align:left];
+  @apply [cursor:pointer];
+  @apply [transition:color_0.15s_ease,_background_0.15s_ease,_border-color_0.15s_ease];
+  @apply [position:relative];
+  @apply [overflow:hidden];
+}
+
+.mobile-drawer .nav-item:hover {
+  @apply [color:var(--sidebar-active-text)];
+  @apply [background:var(--sidebar-hover)];
+}
+
+.mobile-drawer .nav-item.active {
+  @apply [color:var(--sidebar-active-text)];
+  @apply [background:var(--sidebar-active)];
+  @apply [font-weight:600];
+  @apply [border-left:3px_solid_var(--sidebar-active-border)];
+}
+
+.nav-icon {
+  @apply [display:flex];
+  @apply [align-items:center];
+  @apply [justify-content:center];
+  @apply [width:20px];
+  @apply [height:20px];
+  @apply [flex-shrink:0];
+  @apply [transition:color_0.15s_ease];
+}
+
+.nav-icon svg {
+  @apply [display:block];
+  @apply [width:18px];
+  @apply [height:18px];
+}
+
+.nav-count {
+  @apply [margin-left:auto];
+  @apply [display:inline-flex];
+  @apply [align-items:center];
+  @apply [justify-content:center];
+  @apply [min-width:20px];
+  @apply [height:20px];
+  @apply [padding:0_6px];
+  @apply ![color:#090d16];
+  @apply [background:#f59e0b];
+  @apply [border-radius:9999px];
+  @apply [font-size:11px];
+  @apply [font-weight:800];
+  @apply [font-family:var(--font-mono)];
+  @apply [line-height:1];
+  @apply [text-align:center];
+  @apply [box-shadow:0_1px_3px_rgba(0,_0,_0,_0.4)];
+  @apply [box-sizing:border-box];
+}
+
+.nav-item.active .nav-count {
+  @apply ![color:#090d16];
+  @apply [background:#fbbf24];
+  @apply [box-shadow:0_0_8px_rgba(251,_191,_36,_0.45)];
+}
+
+.icon-button {
+  @apply [position:relative];
+  @apply [width:34px];
+  @apply [height:34px];
+  @apply [display:grid];
+  @apply [place-items:center];
+  @apply [color:var(--ink-secondary)];
+  @apply [border:1px_solid_var(--panel-border)];
+  @apply [border-radius:7px];
+  @apply [background:var(--panel-bg)];
+  @apply [font-size:14px];
+  @apply [transition:all_0.15s_ease];
+}
+
+.icon-button:hover {
+  @apply [color:var(--accent-blue)];
+  @apply [border-color:var(--accent-blue-border)];
+  @apply [background:var(--accent-blue-soft)];
+}
+
+.icon-button svg,
+.notification-modal-icon svg {
+  @apply [display:block];
+}
+
+.mobile-drawer .shift-card {
+  @apply [margin-top:auto];
+  @apply [margin-bottom:16px];
+  @apply [padding:16px];
+  @apply [border-radius:10px];
+  @apply [border:1px_solid_rgba(255,_255,_255,_0.08)];
+  @apply [background:rgba(255,_255,_255,_0.04)];
+  @apply [color:#e2e8f0];
+}
+
+.mobile-drawer .shift-card-top {
+  @apply [display:flex];
+  @apply [align-items:center];
+  @apply [gap:7px];
+  @apply [margin-bottom:8px];
+  @apply [font-size:9px];
+  @apply [line-height:1.5];
+  @apply [font-weight:700];
+  @apply [letter-spacing:1px];
+  @apply [font-family:var(--font-mono)];
+}
+
+.mobile-drawer .shift-card strong {
+  @apply [display:block];
+  @apply [color:#ffffff];
+  @apply [font-size:13px];
+  @apply [line-height:1.5];
+}
+
+.mobile-drawer .shift-card p {
+  @apply [margin:2px_0_10px];
+  @apply [color:#94a3b8];
+  @apply [font-size:11px];
+  @apply [line-height:1.5];
+  @apply [font-family:var(--font-mono)];
+}
+
+.mobile-drawer .shift-card button {
+  @apply [display:flex];
+  @apply [align-items:center];
+  @apply [justify-content:space-between];
+  @apply [width:100%];
+  @apply [padding:6px_10px];
+  @apply [border-radius:6px];
+  @apply [border:1px_solid];
+  @apply [font-size:11px];
+  @apply [line-height:1.5];
+  @apply [font-weight:600];
+  @apply [cursor:pointer];
+  @apply [transition:all_0.15s_ease];
+}
+
+.mobile-drawer .shift-card button:hover {
+  @apply [opacity:0.9];
+}
+
+.mobile-drawer .shift-card button span {
+  @apply [display:block];
+  @apply [transition:all];
+}
+
+.mobile-drawer .shift-card button:hover span {
+  @apply [transform:translateX(2px)];
+}
+
+.shift-card-subuh .shift-card-top,
+.shift-card-subuh button {
+  @apply [color:var(--accent-blue)];
+}
+
+.shift-card-subuh .live-dot {
+  @apply [background:var(--accent-blue)];
+}
+
+.shift-card-subuh button {
+  @apply [background:var(--accent-blue-soft)];
+  @apply ![border-color:var(--accent-blue-border)];
+}
+
+.shift-card-pagi .shift-card-top,
+.shift-card-pagi button {
+  @apply [color:var(--orange)];
+}
+
+.shift-card-pagi .live-dot {
+  @apply [background:var(--orange)];
+}
+
+.shift-card-pagi button {
+  @apply [background:var(--orange-soft)];
+  @apply ![border-color:var(--orange-border)];
+}
+
+.shift-card-malam .shift-card-top,
+.shift-card-malam button {
+  @apply [color:var(--purple)];
+}
+
+.shift-card-malam .live-dot {
+  @apply [background:var(--purple)];
+}
+
+.shift-card-malam button {
+  @apply [background:var(--purple-soft)];
+  @apply ![border-color:var(--purple-border)];
+}
+
+.shift-people span {
+  @apply [display:grid];
+  @apply [place-items:center];
+  @apply [width:25px];
+  @apply [height:25px];
+  @apply [margin-right:-6px];
+  @apply [border:2px_solid_var(--sidebar-bg)];
+  @apply [border-radius:99px];
+  @apply [background:var(--avatar-bg,_#3a3a3e)];
+  @apply [font-size:9px];
+  @apply [font-weight:700];
+  @apply [font-family:var(--font-mono)];
+  @apply [filter:grayscale(100%)];
+}
+
+.mobile-drawer .profile {
+  @apply [display:flex];
+  @apply [align-items:center];
+  @apply [gap:10px];
+  @apply [padding:10px_12px];
+  @apply [border-radius:10px];
+  @apply [background:rgba(255,_255,_255,_0.04)];
+  @apply [border:1px_solid_rgba(255,_255,_255,_0.08)];
+  @apply [box-sizing:border-box];
+  @apply [cursor:pointer];
+  @apply [text-align:left];
+  @apply [color:#ffffff];
+  @apply [transition:background-color_0.15s,_border-color_0.15s];
+}
+
+.mobile-drawer .profile:hover {
+  @apply [background:rgba(255,_255,_255,_0.065)];
+  @apply [border-color:rgba(255,_255,_255,_0.14)];
+}
+
+/* ═══════════════════════════════════════════════
+   CATEGORY (B) SHARED: UNIVERSAL CONCENTRIC AVATAR STATUS RING WRAPPERS
+═══════════════════════════════════════════════ */
+.profile-avatar-ring-wrapper,
+.roster-avatar-ring-wrapper,
+.roster-table-avatar-ring-wrapper,
+.coverage-avatar-ring-wrapper,
+.drawer-avatar-ring-wrapper,
+.shift-people-ring-wrapper {
+  @apply [position:relative];
+  @apply [display:inline-flex];
+  @apply [align-items:center];
+  @apply [justify-content:center];
+  @apply [border-radius:50%];
+  @apply [flex-shrink:0];
+  @apply [box-sizing:border-box];
+  @apply [background:transparent];
+  @apply [box-shadow:0_0_0_1.5px_#090d16,_0_0_0_3.5px_var(--status-ring-color,_#22c55e),_0_0_8px_var(--status-ring-glow,_rgba(34,_197,_94,_0.45))];
+  @apply [transition:box-shadow_0.25s_ease];
+}
+
+.profile-avatar-ring-wrapper > .ui-avatar,
+.roster-avatar-ring-wrapper > .ui-avatar,
+.roster-table-avatar-ring-wrapper > .ui-avatar,
+.coverage-avatar-ring-wrapper > .ui-avatar,
+.drawer-avatar-ring-wrapper > .ui-avatar,
+.shift-people-ring-wrapper > .ui-avatar,
+.profile-avatar-ring-wrapper > .profile-avatar {
+  @apply ![width:100%];
+  @apply ![height:100%];
+  @apply ![min-width:100%];
+  @apply ![min-height:100%];
+  @apply ![border-radius:50%];
+  @apply ![margin:0];
+  @apply ![box-sizing:border-box];
+  @apply ![box-shadow:none];
+  @apply ![outline:none];
+}
+
+.profile-avatar-ring-wrapper {
+  @apply [width:32px];
+  @apply [height:32px];
+  @apply [min-width:32px];
+  @apply [min-height:32px];
+  @apply [cursor:pointer];
+}
+
+.profile-avatar {
+  @apply [display:grid];
+  @apply [place-items:center];
+  @apply ![width:32px];
+  @apply ![height:32px];
+  @apply [border-radius:50%];
+  @apply [background:var(--avatar-bg,_#3a3a3e)];
+  @apply [color:var(--avatar-text,_#f8fafc)];
+  @apply [font-weight:700];
+  @apply [font-size:11px];
+  @apply [font-family:var(--font-mono)];
+  @apply ![box-shadow:none];
+  @apply ![border:1px_solid_rgba(148,_163,_184,_0.22)];
+  @apply [filter:grayscale(100%)];
+  @apply [flex-shrink:0];
+  @apply [box-sizing:border-box];
+}
+
+.roster-table-avatar-ring-wrapper {
+  @apply [width:32px];
+  @apply [height:32px];
+  @apply [min-width:32px];
+  @apply [min-height:32px];
+}
+
+.coverage-avatar-ring-wrapper {
+  @apply [width:28px];
+  @apply [height:28px];
+  @apply [min-width:28px];
+  @apply [min-height:28px];
+}
+
+.roster-avatar-ring-wrapper {
+  @apply [width:26px];
+  @apply [height:26px];
+  @apply [min-width:26px];
+  @apply [min-height:26px];
+}
+
+.drawer-avatar-ring-wrapper {
+  @apply [width:42px];
+  @apply [height:42px];
+  @apply [min-width:42px];
+  @apply [min-height:42px];
+  @apply [box-shadow:0_0_0_2px_#090d16,_0_0_0_4.5px_var(--status-ring-color,_#22c55e),_0_0_10px_var(--status-ring-glow,_rgba(34,_197,_94,_0.45))];
+}
+
+.shift-people-ring-wrapper {
+  @apply [width:25px];
+  @apply [height:25px];
+  @apply [min-width:25px];
+  @apply [min-height:25px];
+  @apply [margin-right:-6px];
+  @apply [z-index:2];
+  @apply [box-shadow:0_0_0_1px_#090d16,_0_0_0_3px_var(--status-ring-color,_#22c55e),_0_0_7px_var(--status-ring-glow,_rgba(34,_197,_94,_0.5))];
+}
+
+.profile-status-badge,
+.roster-avatar-status-badge,
+.roster-table-status-badge,
+.coverage-avatar-status-badge {
+  @apply [position:absolute];
+  @apply [bottom:-1px];
+  @apply [right:-1px];
+  @apply [width:8px];
+  @apply [height:8px];
+  @apply [border-radius:50%];
+  @apply [border:1.5px_solid_#090d16];
+  @apply [background-color:var(--status-ring-color,_#22c55e)];
+  @apply [box-shadow:0_1px_2px_rgba(0,_0,_0,_0.5)];
+  @apply [transition:background-color_0.25s_ease];
+  @apply [z-index:2];
+  @apply [pointer-events:none];
+}
+
+.drawer-avatar-status-badge {
+  @apply [position:absolute];
+  @apply [bottom:0px];
+  @apply [right:0px];
+  @apply [width:10.5px];
+  @apply [height:10.5px];
+  @apply [border-radius:50%];
+  @apply [border:2px_solid_#090d16];
+  @apply [background-color:var(--status-ring-color,_#22c55e)];
+  @apply [box-shadow:0_1px_2px_rgba(0,_0,_0,_0.5)];
+  @apply [transition:background-color_0.25s_ease];
+  @apply [z-index:2];
+  @apply [pointer-events:none];
+}
+
+.profile-info {
+  @apply [display:flex];
+  @apply [flex-direction:column];
+  @apply [min-width:0];
+  @apply [flex:1];
+}
+
+.profile-info strong,
+.profile strong {
+  @apply [display:block];
+  @apply [font-size:12.5px];
+  @apply [font-weight:600];
+  @apply [color:#ffffff];
+  @apply [white-space:nowrap];
+  @apply [overflow:hidden];
+  @apply [text-overflow:ellipsis];
+  @apply [line-height:1.25];
+}
+
+.profile-info small,
+.profile small {
+  @apply [display:block];
+  @apply [margin-top:2px];
+  @apply [color:#94a3b8];
+  @apply [font-size:10.5px];
+  @apply [white-space:nowrap];
+  @apply [overflow:hidden];
+  @apply [text-overflow:ellipsis];
+  @apply [line-height:1.2];
+}
+
+.profile-status-row {
+  @apply [display:flex];
+  @apply [align-items:center];
+  @apply [gap:5px];
+  @apply [font-size:10.5px];
+  @apply [margin-top:2px];
+}
+
+.profile-status-indicator-dot {
+  @apply [width:6px];
+  @apply [height:6px];
+  @apply [border-radius:50%];
+  @apply [flex-shrink:0];
+  @apply [transition:background-color_0.25s_ease];
+}
+
+.profile-status-sep {
+  @apply [color:#64748b];
+  @apply [opacity:0.7];
+}
+
+/* ═══════════════════════════════════════════════
+   CATEGORY (B) SHARED: TOPBAR SHIFT BADGES (shifts.ts fallback)
+═══════════════════════════════════════════════ */
+.topbar-shift-badge {
+  @apply [display:flex];
+  @apply [align-items:center];
+  @apply [gap:7px];
+  @apply [padding:4px_10px];
+  @apply [border-radius:7px];
+  @apply [font-size:11px];
+  @apply [line-height:1.2];
+  @apply [transition:all_0.15s_ease];
+  @apply [cursor:default];
+  @apply [user-select:none];
+}
+
+.topbar-shift-subuh {
+  @apply [background:var(--accent-blue-soft)];
+  @apply [color:var(--accent-blue)];
+  @apply [border:1px_solid_var(--accent-blue-border)];
+}
+
+.topbar-shift-pagi {
+  @apply [background:var(--orange-soft)];
+  @apply [color:var(--orange)];
+  @apply [border:1px_solid_var(--orange-border)];
+}
+
+.topbar-shift-malam {
+  @apply [background:var(--purple-soft)];
+  @apply [color:var(--purple)];
+  @apply [border:1px_solid_var(--purple-border)];
+}
+
+.shift-badge-icon {
+  @apply [flex-shrink:0];
+}
+
+.shift-badge-label {
+  @apply [display:flex];
+  @apply [flex-direction:column];
+}
+
+.shift-badge-label strong {
+  @apply [font-size:11px];
+  @apply [font-weight:700];
+  @apply [letter-spacing:0.2px];
+}
+
+.shift-badge-label small {
+  @apply [font-size:9.5px];
+  @apply [font-family:var(--font-mono)];
+  @apply [opacity:0.85];
+}
+
+/* ═══════════════════════════════════════════════
+   CATEGORY (B) SHARED: HELPER UTILITIES
+═══════════════════════════════════════════════ */
+.live-dot {
+  @apply [display:inline-block];
+  @apply [width:7px];
+  @apply [height:7px];
+  @apply [border-radius:99px];
+  @apply [background:var(--green)];
+}
+
+
+.full-width-button {
+  @apply [width:100%];
+}
+
+/* ═══════════════════════════════════════════════
+   CATEGORY (B) SHARED: SHIFT COVERAGE PANEL CONTENT
+═══════════════════════════════════════════════ */
+.shift-panel-content .shift-coverage-donut-section {
+  @apply [margin:0_auto];
+  @apply [max-width:180px];
+}
+
+.shift-panel-content .shift-coverage-donut-wrap {
+  @apply [width:140px];
+  @apply [height:140px];
+}
+
+.shift-panel-content .shift-coverage-stats-row {
+  @apply [justify-content:center];
+  @apply [gap:6px];
+  @apply [flex-wrap:wrap];
+  @apply [padding:6px_0_10px];
+}
+
+.shift-panel-content .roster-filter-tabs-wrapper {
+  @apply [margin-bottom:10px];
+  @apply [padding:0];
+  @apply [border-top:none];
+}
+
+.shift-panel-content .filter-tabs.roster-filter-tabs {
+  @apply [display:grid];
+  @apply [grid-template-columns:repeat(4,_1fr)];
+  @apply [gap:4px];
+  @apply [padding:3px];
+  @apply [border-radius:8px];
+}
+
+.shift-panel-content .filter-tabs.roster-filter-tabs button {
+  @apply [font-size:11px];
+  @apply [padding:6px_4px];
+  @apply [display:inline-flex];
+  @apply [align-items:center];
+  @apply [justify-content:center];
+  @apply [gap:4px];
+}
+
+.shift-panel-content .coverage-team {
+  @apply [max-height:none];
+  @apply [padding:0];
+}
+
+.shift-panel-content .roster-member-row {
+  @apply [padding:7px_8px];
+  @apply [border-radius:8px];
+}
+
+.shift-panel-content .roster-member-name {
+  @apply [font-size:12.5px];
+}
+
+.shift-panel-content .roster-member-role {
+  @apply [font-size:10.5px];
+}
+
+/* ═══════════════════════════════════════════════
+   CATEGORY (B) SHARED: SIDEBAR COLLAPSED SHIFT CARD
+═══════════════════════════════════════════════ */
+.sidebar-collapsed .shift-card {
+  @apply [padding:0];
+  @apply [margin:auto_auto_12px_auto];
+  @apply [width:44px];
+  @apply [height:44px];
+  @apply [min-height:44px];
+}
+
+.sidebar-collapsed .shift-card strong,
+.sidebar-collapsed .shift-card p,
+.sidebar-collapsed .shift-card .shift-people,
+.sidebar-collapsed .shift-card button,
+.sidebar-collapsed .shift-card-top,
+.sidebar-collapsed .shift-card-title-text {
+  @apply [display:none];
+}
+
+.sidebar-collapsed .shift-card-collapsed-dot {
+  @apply [width:6px];
+  @apply [height:6px];
+}
+
+.sidebar-collapsed .profile-card {
+  @apply [padding:0];
+  @apply [min-height:44px];
+  @apply [height:44px];
+  @apply [width:44px];
+  @apply [color:#ffffff];
+  @apply [gap:10px];
+}
+
+.sidebar-collapsed .profile-info {
+  @apply [display:none];
+}
+
+.sidebar-collapsed .profile-more-btn {
+  @apply [display:none];
+}
+
+.sidebar-collapsed .profile-avatar-ring-wrapper {
+  @apply [margin:0_auto];
+}
+
+
+

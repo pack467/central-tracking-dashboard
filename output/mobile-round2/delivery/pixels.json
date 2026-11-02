@@ -1,0 +1,66 @@
+[
+  {
+    "width": 1024,
+    "before": [
+      1024,
+      4591
+    ],
+    "after": [
+      1024,
+      4591
+    ],
+    "exactPercent": 0.0,
+    "tolerance16Percent": 0.0,
+    "tolerance1Percent": 0.0,
+    "tolerance2Percent": 0.0,
+    "maxChannelDifference": 0
+  },
+  {
+    "width": 1280,
+    "before": [
+      1280,
+      3258
+    ],
+    "after": [
+      1280,
+      3258
+    ],
+    "exactPercent": 0.0,
+    "tolerance16Percent": 0.0,
+    "tolerance1Percent": 0.0,
+    "tolerance2Percent": 0.0,
+    "maxChannelDifference": 0
+  },
+  {
+    "width": 1440,
+    "before": [
+      1440,
+      3073
+    ],
+    "after": [
+      1440,
+      3073
+    ],
+    "exactPercent": 0.00020338431500162705,
+    "tolerance16Percent": 0.0,
+    "tolerance1Percent": 0.0,
+    "tolerance2Percent": 0.0,
+    "maxChannelDifference": 1
+  },
+  {
+    "width": 1920,
+    "before": [
+      1920,
+      3183
+    ],
+    "after": [
+      1920,
+      3183
+    ],
+    "exactPercent": 0.514762671483925,
+    "tolerance16Percent": 0.0,
+    "tolerance1Percent": 0.013024924075819459,
+    "tolerance2Percent": 1.6362969944496808e-05,
+    "maxChannelDifference": 6
+  }
+]

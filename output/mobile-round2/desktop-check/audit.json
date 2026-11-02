@@ -1,0 +1,3719 @@
+{
+  "rows": [
+    {
+      "width": 1920,
+      "height": 3183,
+      "route": "/dashboard",
+      "clientWidth": 1920,
+      "grids": [
+        {
+          "tag": "DIV",
+          "cls": "grid grid-cols-[minmax(0,1fr)_410px] max-[1140px]:grid-cols-1 gap-[16px] items-stretch w-full ops-focus-grid max-lg:gap-3 max-lg:grid-cols-1 max-lg:items-start",
+          "text": "Tiket Hari Ini33 tiket#86d40sep14● APH[APH] Pemeliharaan Perangkat Switch Spine DC CikarangEscalation Muhammad Ihsanul A",
+          "x": 317,
+          "y": 229.796875,
+          "w": 1536,
+          "h": 660,
+          "columns": "1110px 410px",
+          "gap": "16px"
+        },
+        {
+          "tag": "DIV",
+          "cls": "flex flex-col gap-[12px] h-full min-h-[580px] max-h-[660px] max-[1140px]:min-h-0 max-[1140px]:h-auto ops-right-column max-lg:min-h-0 max-lg:max-h-none",
+          "text": "Memo & Catatan ShiftView• Pantau koneksi gateway B2B sekunder menjelang lonjakan transaksi pagi.\n• Antrean ActiveMQ brok",
+          "x": 1443,
+          "y": 229.796875,
+          "w": 410,
+          "h": 660,
+          "columns": "none",
+          "gap": "12px"
+        },
+        {
+          "tag": "DIV",
+          "cls": "grid grid-cols-[minmax(0,1fr)_380px] max-[1140px]:grid-cols-1 gap-[16px] items-stretch w-full max-lg:items-start max-lg:gap-3 report-primary-chart-grid",
+          "text": "Ticket Volume per Project (Stacked by System)Volume TiketVolume per ProjectVolBulan Lalu vs Bulan IniMoMView015304560015",
+          "x": 317,
+          "y": 1062.046875,
+          "w": 1536,
+          "h": 580,
+          "columns": "1140px 380px",
+          "gap": "16px"
+        }
+      ],
+      "panels": [
+        {
+          "title": "Tiket Hari Ini",
+          "x": 317,
+          "y": 229.796875,
+          "w": 1110,
+          "h": 660,
+          "body": {
+            "x": 318,
+            "y": 280.796875,
+            "w": 1108,
+            "h": 608
+          }
+        },
+        {
+          "title": "Memo & Catatan Shift",
+          "x": 1443,
+          "y": 229.796875,
+          "w": 410,
+          "h": 221,
+          "body": {
+            "x": 1444,
+            "y": 287.796875,
+            "w": 408,
+            "h": 162
+          }
+        },
+        {
+          "title": "List Monitoring Shift",
+          "x": 1443,
+          "y": 462.796875,
+          "w": 410,
+          "h": 427,
+          "body": {
+            "x": 1444,
+            "y": 514.546875,
+            "w": 408,
+            "h": 374.25
+          }
+        },
+        {
+          "title": "Ticket Volume per Project (Stacked by System)Volume Tiket",
+          "x": 317,
+          "y": 1062.046875,
+          "w": 1140,
+          "h": 580,
+          "body": {
+            "x": 318,
+            "y": 1127.296875,
+            "w": 1138,
+            "h": 513.75
+          }
+        },
+        {
+          "title": "Rekap Tiket per User",
+          "x": 1473,
+          "y": 1062.046875,
+          "w": 380,
+          "h": 580,
+          "body": {
+            "x": 1474,
+            "y": 1120.046875,
+            "w": 378,
+            "h": 521
+          }
+        },
+        {
+          "title": "Distribusi Kategori / Tipe TiketDistribusi Kategori",
+          "x": 317,
+          "y": 1662.046875,
+          "w": 759,
+          "h": 330.75,
+          "body": {
+            "x": 318,
+            "y": 1720.046875,
+            "w": 757,
+            "h": 271.75
+          }
+        },
+        {
+          "title": "Distribusi Berdasarkan SeverityDistribusi Severity",
+          "x": 1094,
+          "y": 1662.046875,
+          "w": 759,
+          "h": 330.75,
+          "body": {
+            "x": 1095,
+            "y": 1720.046875,
+            "w": 757,
+            "h": 271.75
+          }
+        },
+        {
+          "title": "Tren Durasi Penyelesaian (Resolution Velocity)Tren Durasi",
+          "x": 317,
+          "y": 2012.796875,
+          "w": 1536,
+          "h": 543.890625,
+          "body": {
+            "x": 318,
+            "y": 2070.796875,
+            "w": 1534,
+            "h": 484.890625
+          }
+        },
+        {
+          "title": "Tren Trafik Beban per Shift (Shift Traffic Velocity)Tren Trafik",
+          "x": 317,
+          "y": 2594.6875,
+          "w": 1536,
+          "h": 543.8125,
+          "body": {
+            "x": 318,
+            "y": 2652.6875,
+            "w": 1534,
+            "h": 484.8125
+          }
+        }
+      ],
+      "sections": [
+        {
+          "tag": "SECTION",
+          "cls": "page-heading flex justify-between items-end mb-[22px] max-lg:mb-0 max-[660px]:flex-col max-[660px]:items-start max-[660px]:gap-[12px] max-[640px]:mb-0",
+          "text": "DASHBOARD · TRITDashboard",
+          "x": 317,
+          "y": 88,
+          "w": 1536,
+          "h": 53.796875
+        },
+        {
+          "tag": "DIV",
+          "cls": "flex flex-col gap-[14px] bg-transparent border-none rounded-none p-0 ops-focus-section max-lg:gap-3",
+          "text": "LIVE OPS VIEWOperational Focus — Pantauan Real-Time & Koordinasi ShiftShift Aktif: Shift MalamTiket Hari Ini33 tiket#86d",
+          "x": 317,
+          "y": 183.796875,
+          "w": 1536,
+          "h": 706
+        },
+        {
+          "tag": "DIV",
+          "cls": "flex flex-col gap-[12px] p-[14px_16px] bg-[var(--panel-bg)] border border-[var(--panel-border)] rounded-[12px] shadow-[var(--shadow-panel)] [transition:all_0.2s_ease] my-[6px] max-lg:my-0 hover:border-[rgba(56,189,248,0.25)] analytics-filte",
+          "text": "Filter Laporan & Analitik TiketFilterUbahMenampilkan 88 dari 88 Tiket88 tiketRentang TanggalPilih Rentang TanggalProyekS",
+          "x": 317,
+          "y": 915.796875,
+          "w": 1536,
+          "h": 120.25
+        },
+        {
+          "tag": "DIV",
+          "cls": "grid grid-cols-[minmax(0,1fr)_380px] max-[1140px]:grid-cols-1 gap-[16px] items-stretch w-full max-lg:items-start max-lg:gap-3 report-primary-chart-grid",
+          "text": "Ticket Volume per Project (Stacked by System)Volume TiketVolume per ProjectVolBulan Lalu vs Bulan IniMoMView015304560015",
+          "x": 317,
+          "y": 1062.046875,
+          "w": 1536,
+          "h": 580
+        },
+        {
+          "tag": "DIV",
+          "cls": "grid grid-cols-2 max-[960px]:grid-cols-1 gap-[18px] max-lg:gap-3 report-charts-grid max-lg:block max-lg:[scrollbar-width:none] max-lg:[&::-webkit-scrollbar]:hidden max-lg:items-start max-lg:[&>article]:w-full max-lg:[&>article]:min-w-full m",
+          "text": "Distribusi Kategori / Tipe TiketDistribusi Kategori7 KategoriView88TOTAL Maintenance20 (23%) Incident20 (23%) Change Req",
+          "x": 317,
+          "y": 1662.046875,
+          "w": 1536,
+          "h": 330.75
+        },
+        {
+          "tag": "ARTICLE",
+          "cls": "bg-[var(--panel-bg)] border border-[var(--panel-border)] rounded-[12px] shadow-[var(--shadow-panel)] overflow-hidden flex flex-col max-lg:min-w-0 flex flex-col w-full mgmt-velocity-panel",
+          "text": "Tren Durasi Penyelesaian (Resolution Velocity)Tren DurasiRata-rata ResolusiTarget SLA (60m)Batas Kritis / Breach (90m)Vi",
+          "x": 317,
+          "y": 2012.796875,
+          "w": 1536,
+          "h": 543.890625
+        },
+        {
+          "tag": "DIV",
+          "cls": "heatmap-standalone-section mt-[18px] max-lg:mt-0",
+          "text": "Tren Trafik Beban per Shift (Shift Traffic Velocity)Tren TrafikViewShift Pagi(08:00–16:30)38 tiket51% dari total bebanSh",
+          "x": 317,
+          "y": 2594.6875,
+          "w": 1536,
+          "h": 543.8125
+        }
+      ],
+      "smallText": [
+        {
+          "tag": "DIV",
+          "cls": "eyebrow flex items-center gap-[8px] text-[var(--ink-muted)] text-[10px] max-lg:text-[11px] tracking-[1px] font-bold font-mono uppercase",
+          "text": "DASHBOARD · TRIT",
+          "font": "10px",
+          "x": 317,
+          "y": 88,
+          "w": 127,
+          "h": 15
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center justify-center gap-[6px] h-[22px] px-[9px] bg-[rgba(16,185,129,0.14)] border border-[rgba(16,185,129,0.32)] rounded-[99px] text-[10px] max-lg:text-[11px] font-extrabold text-[#10b981] tracking-[0.04em] whitespace-no",
+          "text": "LIVE OPS VIEW",
+          "font": "10px",
+          "x": 317,
+          "y": 187.796875,
+          "w": 111.09375,
+          "h": 22
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex px-[10px] py-[2px] rounded-[99px] text-[10px] max-lg:text-[11px] font-bold text-[#38bdf8] bg-[rgba(56,189,248,0.12)] border border-[rgba(56,189,248,0.25)] whitespace-nowrap shrink-0 ops-count-badge",
+          "text": "33 tiket",
+          "font": "10px",
+          "x": 1347.40625,
+          "y": 244.796875,
+          "w": 58.59375,
+          "h": 21
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[10px] max-lg:text-[11px] font-semibold today-ticket-proj",
+          "text": "● APH",
+          "font": "10px",
+          "x": 347,
+          "y": 324.046875,
+          "w": 88,
+          "h": 15
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[10px] max-lg:text-[11px] text-[#94a3b8] today-ticket-type",
+          "text": "Escalation",
+          "font": "10px",
+          "x": 447,
+          "y": 324.796875,
+          "w": 49.203125,
+          "h": 15
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center gap-[3px] text-[#cbd5e1] font-medium compact-today-ticket-owner",
+          "text": "Muhammad Ihsanul Arifin",
+          "font": "10px",
+          "x": 504.203125,
+          "y": 324.796875,
+          "w": 130.6875,
+          "h": 15
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] max-lg:text-[11px] font-bold whitespace-nowrap bg-[rgba(249,115,22,0.15)] text-[#fb923c] border border-[rgba(249,115,22,0.3)] priority-pill priority-pill-high",
+          "text": "High",
+          "font": "9.5px",
+          "x": 1272.578125,
+          "y": 312.171875,
+          "w": 38.8125,
+          "h": 20.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] max-lg:text-[11px] font-bold whitespace-nowrap bg-[rgba(56,189,248,0.15)] text-[#38bdf8] border border-[rgba(56,189,248,0.25)] status-pill status-pill-activity",
+          "text": "Activity",
+          "font": "9.5px",
+          "x": 1317.390625,
+          "y": 312.171875,
+          "w": 61.609375,
+          "h": 20.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[10px] max-lg:text-[11px] font-semibold today-ticket-proj",
+          "text": "● APH",
+          "font": "10px",
+          "x": 347,
+          "y": 381.046875,
+          "w": 88,
+          "h": 15
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[10px] max-lg:text-[11px] text-[#94a3b8] today-ticket-type",
+          "text": "Monitoring",
+          "font": "10px",
+          "x": 447,
+          "y": 381.796875,
+          "w": 51.1875,
+          "h": 15
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center gap-[3px] text-[#cbd5e1] font-medium compact-today-ticket-owner",
+          "text": "Mhd. Galih Khairi",
+          "font": "10px",
+          "x": 506.1875,
+          "y": 381.796875,
+          "w": 91.546875,
+          "h": 15
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] max-lg:text-[11px] font-bold whitespace-nowrap bg-[rgba(245,158,11,0.15)] text-[#fbbf24] border border-[rgba(245,158,11,0.3)] priority-pill priority-pill-med",
+          "text": "Medium",
+          "font": "9.5px",
+          "x": 1283.984375,
+          "y": 369.171875,
+          "w": 50.203125,
+          "h": 20.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] max-lg:text-[11px] font-bold whitespace-nowrap bg-[rgba(56,189,248,0.15)] text-[#38bdf8] border border-[rgba(56,189,248,0.25)] status-pill status-pill-open",
+          "text": "Open",
+          "font": "9.5px",
+          "x": 1340.1875,
+          "y": 369.171875,
+          "w": 38.8125,
+          "h": 20.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[10px] max-lg:text-[11px] font-semibold today-ticket-proj",
+          "text": "● USIEM",
+          "font": "10px",
+          "x": 347,
+          "y": 438.046875,
+          "w": 88,
+          "h": 15
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[10px] max-lg:text-[11px] text-[#94a3b8] today-ticket-type",
+          "text": "Incident",
+          "font": "10px",
+          "x": 447,
+          "y": 438.796875,
+          "w": 39.015625,
+          "h": 15
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center gap-[3px] text-[#cbd5e1] font-medium compact-today-ticket-owner",
+          "text": "Muhammad Ihsanul Arifin",
+          "font": "10px",
+          "x": 494.015625,
+          "y": 438.796875,
+          "w": 130.6875,
+          "h": 15
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] max-lg:text-[11px] font-bold whitespace-nowrap bg-[rgba(249,115,22,0.15)] text-[#fb923c] border border-[rgba(249,115,22,0.3)] priority-pill priority-pill-high",
+          "text": "High",
+          "font": "9.5px",
+          "x": 1272.578125,
+          "y": 426.171875,
+          "w": 38.8125,
+          "h": 20.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] max-lg:text-[11px] font-bold whitespace-nowrap bg-[rgba(56,189,248,0.15)] text-[#38bdf8] border border-[rgba(56,189,248,0.25)] status-pill status-pill-activity",
+          "text": "Activity",
+          "font": "9.5px",
+          "x": 1317.390625,
+          "y": 426.171875,
+          "w": 61.609375,
+          "h": 20.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[10px] max-lg:text-[11px] font-semibold today-ticket-proj",
+          "text": "● UNEM",
+          "font": "10px",
+          "x": 347,
+          "y": 495.046875,
+          "w": 88,
+          "h": 15
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[10px] max-lg:text-[11px] text-[#94a3b8] today-ticket-type",
+          "text": "Maintenance",
+          "font": "10px",
+          "x": 447,
+          "y": 495.796875,
+          "w": 61.265625,
+          "h": 15
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center gap-[3px] text-[#cbd5e1] font-medium compact-today-ticket-owner",
+          "text": "Muhammad Ihsanul Arifin",
+          "font": "10px",
+          "x": 516.265625,
+          "y": 495.796875,
+          "w": 130.6875,
+          "h": 15
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] max-lg:text-[11px] font-bold whitespace-nowrap bg-[rgba(245,158,11,0.15)] text-[#fbbf24] border border-[rgba(245,158,11,0.3)] priority-pill priority-pill-med",
+          "text": "Medium",
+          "font": "9.5px",
+          "x": 1266.890625,
+          "y": 483.171875,
+          "w": 50.203125,
+          "h": 20.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] max-lg:text-[11px] font-bold whitespace-nowrap bg-[rgba(245,158,11,0.15)] text-[#fbbf24] border border-[rgba(245,158,11,0.25)] status-pill status-pill-pending",
+          "text": "Pending",
+          "font": "9.5px",
+          "x": 1323.09375,
+          "y": 483.171875,
+          "w": 55.90625,
+          "h": 20.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[10px] max-lg:text-[11px] font-semibold today-ticket-proj",
+          "text": "● MB",
+          "font": "10px",
+          "x": 347,
+          "y": 552.046875,
+          "w": 88,
+          "h": 15
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[10px] max-lg:text-[11px] text-[#94a3b8] today-ticket-type",
+          "text": "Incident",
+          "font": "10px",
+          "x": 447,
+          "y": 552.796875,
+          "w": 39.015625,
+          "h": 15
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center gap-[3px] text-[#cbd5e1] font-medium compact-today-ticket-owner",
+          "text": "Mhd. Galih Khairi",
+          "font": "10px",
+          "x": 494.015625,
+          "y": 552.796875,
+          "w": 91.546875,
+          "h": 15
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] max-lg:text-[11px] font-bold whitespace-nowrap bg-[rgba(239,68,68,0.15)] text-[#f87171] border border-[rgba(239,68,68,0.3)] priority-pill priority-pill-crit",
+          "text": "Critical",
+          "font": "9.5px",
+          "x": 1255.484375,
+          "y": 540.171875,
+          "w": 61.609375,
+          "h": 20.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] max-lg:text-[11px] font-bold whitespace-nowrap bg-[rgba(248,113,113,0.15)] text-[#f87171] border border-[rgba(248,113,113,0.25)] status-pill status-pill-reopen",
+          "text": "Re-Open",
+          "font": "9.5px",
+          "x": 1323.09375,
+          "y": 540.171875,
+          "w": 55.90625,
+          "h": 20.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[10px] max-lg:text-[11px] font-semibold today-ticket-proj",
+          "text": "● EPC Tools",
+          "font": "10px",
+          "x": 347,
+          "y": 609.046875,
+          "w": 88,
+          "h": 15
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[10px] max-lg:text-[11px] text-[#94a3b8] today-ticket-type",
+          "text": "Escalation",
+          "font": "10px",
+          "x": 447,
+          "y": 609.796875,
+          "w": 49.203125,
+          "h": 15
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center gap-[3px] text-[#cbd5e1] font-medium compact-today-ticket-owner",
+          "text": "Muhammad Ihsanul Arifin",
+          "font": "10px",
+          "x": 504.203125,
+          "y": 609.796875,
+          "w": 130.6875,
+          "h": 15
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] max-lg:text-[11px] font-bold whitespace-nowrap bg-[rgba(249,115,22,0.15)] text-[#fb923c] border border-[rgba(249,115,22,0.3)] priority-pill priority-pill-high",
+          "text": "High",
+          "font": "9.5px",
+          "x": 1301.078125,
+          "y": 597.171875,
+          "w": 38.8125,
+          "h": 20.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] max-lg:text-[11px] font-bold whitespace-nowrap bg-[rgba(249,115,22,0.15)] text-[#fb923c] border border-[rgba(249,115,22,0.25)] status-pill status-pill-rca",
+          "text": "RCA",
+          "font": "9.5px",
+          "x": 1345.890625,
+          "y": 597.171875,
+          "w": 33.109375,
+          "h": 20.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[10px] max-lg:text-[11px] font-semibold today-ticket-proj",
+          "text": "● SM",
+          "font": "10px",
+          "x": 347,
+          "y": 666.046875,
+          "w": 88,
+          "h": 15
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[10px] max-lg:text-[11px] text-[#94a3b8] today-ticket-type",
+          "text": "Incident",
+          "font": "10px",
+          "x": 447,
+          "y": 666.796875,
+          "w": 39.015625,
+          "h": 15
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center gap-[3px] text-[#cbd5e1] font-medium compact-today-ticket-owner",
+          "text": "Muhammad Ihsanul Arifin",
+          "font": "10px",
+          "x": 494.015625,
+          "y": 666.796875,
+          "w": 130.6875,
+          "h": 15
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] max-lg:text-[11px] font-bold whitespace-nowrap bg-[rgba(249,115,22,0.15)] text-[#fb923c] border border-[rgba(249,115,22,0.3)] priority-pill priority-pill-high",
+          "text": "High",
+          "font": "9.5px",
+          "x": 1295.375,
+          "y": 654.171875,
+          "w": 38.8125,
+          "h": 20.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] max-lg:text-[11px] font-bold whitespace-nowrap bg-[rgba(56,189,248,0.15)] text-[#38bdf8] border border-[rgba(56,189,248,0.25)] status-pill status-pill-open",
+          "text": "Open",
+          "font": "9.5px",
+          "x": 1340.1875,
+          "y": 654.171875,
+          "w": 38.8125,
+          "h": 20.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[10px] max-lg:text-[11px] font-semibold today-ticket-proj",
+          "text": "● USIEM",
+          "font": "10px",
+          "x": 347,
+          "y": 723.046875,
+          "w": 88,
+          "h": 15
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[10px] max-lg:text-[11px] text-[#94a3b8] today-ticket-type",
+          "text": "Incident",
+          "font": "10px",
+          "x": 447,
+          "y": 723.796875,
+          "w": 39.015625,
+          "h": 15
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center gap-[3px] text-[#cbd5e1] font-medium compact-today-ticket-owner",
+          "text": "Mhd. Galih Khairi",
+          "font": "10px",
+          "x": 494.015625,
+          "y": 723.796875,
+          "w": 91.546875,
+          "h": 15
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] max-lg:text-[11px] font-bold whitespace-nowrap bg-[rgba(249,115,22,0.15)] text-[#fb923c] border border-[rgba(249,115,22,0.3)] priority-pill priority-pill-high",
+          "text": "High",
+          "font": "9.5px",
+          "x": 1301.078125,
+          "y": 711.171875,
+          "w": 38.8125,
+          "h": 20.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] max-lg:text-[11px] font-bold whitespace-nowrap bg-[rgba(249,115,22,0.15)] text-[#fb923c] border border-[rgba(249,115,22,0.25)] status-pill status-pill-rca",
+          "text": "RCA",
+          "font": "9.5px",
+          "x": 1345.890625,
+          "y": 711.171875,
+          "w": 33.109375,
+          "h": 20.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[10px] max-lg:text-[11px] font-semibold today-ticket-proj",
+          "text": "● B2B",
+          "font": "10px",
+          "x": 347,
+          "y": 780.046875,
+          "w": 88,
+          "h": 15
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[10px] max-lg:text-[11px] text-[#94a3b8] today-ticket-type",
+          "text": "Incident",
+          "font": "10px",
+          "x": 447,
+          "y": 780.796875,
+          "w": 39.015625,
+          "h": 15
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center gap-[3px] text-[#cbd5e1] font-medium compact-today-ticket-owner",
+          "text": "Pangondion Kurniawan Naibaho",
+          "font": "10px",
+          "x": 494.015625,
+          "y": 780.796875,
+          "w": 164.15625,
+          "h": 15
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] max-lg:text-[11px] font-bold whitespace-nowrap bg-[rgba(239,68,68,0.15)] text-[#f87171] border border-[rgba(239,68,68,0.3)] priority-pill priority-pill-crit",
+          "text": "Critical",
+          "font": "9.5px",
+          "x": 1249.78125,
+          "y": 768.171875,
+          "w": 61.609375,
+          "h": 20.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] max-lg:text-[11px] font-bold whitespace-nowrap bg-[rgba(56,189,248,0.15)] text-[#38bdf8] border border-[rgba(56,189,248,0.25)] status-pill status-pill-activity",
+          "text": "Activity",
+          "font": "9.5px",
+          "x": 1317.390625,
+          "y": 768.171875,
+          "w": 61.609375,
+          "h": 20.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[10px] max-lg:text-[11px] font-semibold today-ticket-proj",
+          "text": "● USIEM",
+          "font": "10px",
+          "x": 347,
+          "y": 837.046875,
+          "w": 88,
+          "h": 15
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[10px] max-lg:text-[11px] text-[#94a3b8] today-ticket-type",
+          "text": "Escalation",
+          "font": "10px",
+          "x": 447,
+          "y": 837.796875,
+          "w": 49.203125,
+          "h": 15
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center gap-[3px] text-[#cbd5e1] font-medium compact-today-ticket-owner",
+          "text": "Mhd. Galih Khairi",
+          "font": "10px",
+          "x": 504.203125,
+          "y": 837.796875,
+          "w": 91.546875,
+          "h": 15
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] max-lg:text-[11px] font-bold whitespace-nowrap bg-[rgba(239,68,68,0.15)] text-[#f87171] border border-[rgba(239,68,68,0.3)] priority-pill priority-pill-crit",
+          "text": "Critical",
+          "font": "9.5px",
+          "x": 1255.484375,
+          "y": 825.171875,
+          "w": 61.609375,
+          "h": 20.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center px-[7px] py-[2px] rounded-[99px] font-mono text-[9.5px] max-lg:text-[11px] font-bold whitespace-nowrap bg-[rgba(248,113,113,0.15)] text-[#f87171] border border-[rgba(248,113,113,0.25)] status-pill status-pill-reopen",
+          "text": "Re-Open",
+          "font": "9.5px",
+          "x": 1323.09375,
+          "y": 825.171875,
+          "w": 55.90625,
+          "h": 20.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[10px] max-lg:text-[11px] text-[#94a3b8] font-medium mr-[2px] pl-[2px] page-size-label",
+          "text": "Tampilkan:",
+          "font": "10px",
+          "x": 529.25,
+          "y": 848.796875,
+          "w": 53.234375,
+          "h": 15
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "border-none p-[2px_6px] rounded-[4px] cursor-pointer text-[10px] max-lg:text-[11px] font-bold font-mono transition-all duration-150 ease-[ease] bg-[rgba(56,189,248,0.22)] text-[#38bdf8] page-size-btn active",
+          "text": "10",
+          "font": "10px",
+          "x": 587.484375,
+          "y": 846.796875,
+          "w": 24,
+          "h": 19
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "border-none p-[2px_6px] rounded-[4px] cursor-pointer text-[10px] max-lg:text-[11px] font-semibold font-mono transition-all duration-150 ease-[ease] bg-transparent text-[#cbd5e1] hover:bg-[rgba(56,189,248,0.12)] hover:text-[#38bdf8] page-siz",
+          "text": "15",
+          "font": "10px",
+          "x": 614.484375,
+          "y": 846.796875,
+          "w": 24,
+          "h": 19
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "border-none p-[2px_6px] rounded-[4px] cursor-pointer text-[10px] max-lg:text-[11px] font-semibold font-mono transition-all duration-150 ease-[ease] bg-transparent text-[#cbd5e1] hover:bg-[rgba(56,189,248,0.12)] hover:text-[#38bdf8] page-siz",
+          "text": "25",
+          "font": "10px",
+          "x": 641.484375,
+          "y": 846.796875,
+          "w": 24,
+          "h": 19
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "border-none p-[2px_6px] rounded-[4px] cursor-pointer text-[10px] max-lg:text-[11px] font-semibold font-mono transition-all duration-150 ease-[ease] bg-transparent text-[#cbd5e1] hover:bg-[rgba(56,189,248,0.12)] hover:text-[#38bdf8] page-siz",
+          "text": "Semua",
+          "font": "10px",
+          "x": 668.484375,
+          "y": 846.796875,
+          "w": 42,
+          "h": 19
+        },
+        {
+          "tag": "SPAN",
+          "text": "Prev",
+          "font": "10.5px",
+          "x": 1201.59375,
+          "y": 848.421875,
+          "w": 25.203125,
+          "h": 15.75
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center justify-center gap-[3px] min-w-[24px] h-[24px] p-0 rounded-[6px] text-[10.5px] max-lg:text-[11px] font-bold font-mono cursor-pointer transition-all duration-150 ease-[ease] select-none bg-[rgba(56,189,248,0.18)] bor",
+          "text": "1",
+          "font": "10.5px",
+          "x": 1240.796875,
+          "y": 844.296875,
+          "w": 24,
+          "h": 24
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center justify-center gap-[3px] min-w-[24px] h-[24px] p-0 rounded-[6px] text-[10.5px] max-lg:text-[11px] font-semibold font-mono cursor-pointer transition-all duration-150 ease-[ease] select-none bg-[rgba(148,163,184,0.06)",
+          "text": "2",
+          "font": "10.5px",
+          "x": 1267.796875,
+          "y": 844.296875,
+          "w": 24,
+          "h": 24
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center justify-center gap-[3px] min-w-[24px] h-[24px] p-0 rounded-[6px] text-[10.5px] max-lg:text-[11px] font-semibold font-mono cursor-pointer transition-all duration-150 ease-[ease] select-none bg-[rgba(148,163,184,0.06)",
+          "text": "3",
+          "font": "10.5px",
+          "x": 1294.796875,
+          "y": 844.296875,
+          "w": 24,
+          "h": 24
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center justify-center gap-[3px] min-w-[24px] h-[24px] p-0 rounded-[6px] text-[10.5px] max-lg:text-[11px] font-semibold font-mono cursor-pointer transition-all duration-150 ease-[ease] select-none bg-[rgba(148,163,184,0.06)",
+          "text": "4",
+          "font": "10.5px",
+          "x": 1321.796875,
+          "y": 844.296875,
+          "w": 24,
+          "h": 24
+        },
+        {
+          "tag": "SPAN",
+          "text": "Next",
+          "font": "10.5px",
+          "x": 1359.796875,
+          "y": 848.421875,
+          "w": 25.203125,
+          "h": 15.75
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center gap-[4px] p-[2px_8px] rounded-[99px] text-[10.5px] max-lg:text-[11px] font-bold bg-[rgba(16,185,129,0.14)] text-[#34d399] border border-[rgba(16,185,129,0.3)] mon-counter-badge ok max-lg:hidden",
+          "text": "11 OK",
+          "font": "10.5px",
+          "x": 1703.03125,
+          "y": 477.796875,
+          "w": 58.6875,
+          "h": 21.75
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center gap-[4px] p-[2px_8px] rounded-[99px] text-[10.5px] max-lg:text-[11px] font-bold bg-[rgba(244,63,94,0.15)] text-[#fb7185] border border-[rgba(244,63,94,0.35)] mon-counter-badge nok max-lg:hidden",
+          "text": "2 NOK",
+          "font": "10.5px",
+          "x": 1767.71875,
+          "y": 477.796875,
+          "w": 64.28125,
+          "h": 21.75
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center justify-center min-w-[62px] p-[2.5px_8px] rounded-[5px] text-[10px] max-lg:text-[11px] font-bold font-mono bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.09)] text-[#cbd5e1] shrink-0 whitespace-nowrap",
+          "text": "B2B",
+          "font": "10px",
+          "x": 1472,
+          "y": 539.546875,
+          "w": 62,
+          "h": 22
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center justify-center gap-[5px] h-[24px] p-[0_9px] rounded-[6px] text-[10.5px] max-lg:text-[11px] font-bold font-mono cursor-default select-none shrink-0 tracking-[0.02em] monitoring-status-btn max-lg:h-10 max-lg:w-14 max-",
+          "text": "OK",
+          "font": "10.5px",
+          "x": 1758.96875,
+          "y": 538.546875,
+          "w": 49.03125,
+          "h": 24
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center justify-center min-w-[62px] p-[2.5px_8px] rounded-[5px] text-[10px] max-lg:text-[11px] font-bold font-mono bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.09)] text-[#cbd5e1] shrink-0 whitespace-nowrap",
+          "text": "SM",
+          "font": "10px",
+          "x": 1472,
+          "y": 586.546875,
+          "w": 62,
+          "h": 22
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center justify-center gap-[5px] h-[24px] p-[0_9px] rounded-[6px] text-[10.5px] max-lg:text-[11px] font-bold font-mono cursor-default select-none shrink-0 tracking-[0.02em] monitoring-status-btn max-lg:h-10 max-lg:w-14 max-",
+          "text": "OK",
+          "font": "10.5px",
+          "x": 1758.96875,
+          "y": 585.546875,
+          "w": 49.03125,
+          "h": 24
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center justify-center min-w-[62px] p-[2.5px_8px] rounded-[5px] text-[10px] max-lg:text-[11px] font-bold font-mono bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.09)] text-[#cbd5e1] shrink-0 whitespace-nowrap",
+          "text": "USIEM",
+          "font": "10px",
+          "x": 1472,
+          "y": 633.546875,
+          "w": 62,
+          "h": 22
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center justify-center gap-[5px] h-[24px] p-[0_9px] rounded-[6px] text-[10.5px] max-lg:text-[11px] font-bold font-mono cursor-default select-none shrink-0 tracking-[0.02em] monitoring-status-btn max-lg:h-10 max-lg:w-14 max-",
+          "text": "OK",
+          "font": "10.5px",
+          "x": 1758.96875,
+          "y": 632.546875,
+          "w": 49.03125,
+          "h": 24
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center justify-center min-w-[62px] p-[2.5px_8px] rounded-[5px] text-[10px] max-lg:text-[11px] font-bold font-mono bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.09)] text-[#cbd5e1] shrink-0 whitespace-nowrap",
+          "text": "ActiveMQ",
+          "font": "10px",
+          "x": 1474,
+          "y": 683.015625,
+          "w": 66,
+          "h": 22
+        },
+        {
+          "tag": "SPAN",
+          "text": "Antrean naik",
+          "font": "10px",
+          "x": 1564,
+          "y": 696.484375,
+          "w": 59.6875,
+          "h": 12
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center justify-center gap-[5px] h-[24px] p-[0_9px] rounded-[6px] text-[10.5px] max-lg:text-[11px] font-bold font-mono cursor-default select-none shrink-0 tracking-[0.02em] monitoring-status-btn max-lg:h-10 max-lg:w-14 max-",
+          "text": "NOK",
+          "font": "10.5px",
+          "x": 1752.46875,
+          "y": 682.015625,
+          "w": 55.53125,
+          "h": 24
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center justify-center min-w-[62px] p-[2.5px_8px] rounded-[5px] text-[10px] max-lg:text-[11px] font-bold font-mono bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.09)] text-[#cbd5e1] shrink-0 whitespace-nowrap",
+          "text": "EPC Tools",
+          "font": "10px",
+          "x": 1472,
+          "y": 732.484375,
+          "w": 72,
+          "h": 22
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center justify-center gap-[5px] h-[24px] p-[0_9px] rounded-[6px] text-[10.5px] max-lg:text-[11px] font-bold font-mono cursor-default select-none shrink-0 tracking-[0.02em] monitoring-status-btn max-lg:h-10 max-lg:w-14 max-",
+          "text": "OK",
+          "font": "10.5px",
+          "x": 1758.96875,
+          "y": 731.484375,
+          "w": 49.03125,
+          "h": 24
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center justify-center min-w-[62px] p-[2.5px_8px] rounded-[5px] text-[10px] max-lg:text-[11px] font-bold font-mono bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.09)] text-[#cbd5e1] shrink-0 whitespace-nowrap",
+          "text": "DM",
+          "font": "10px",
+          "x": 1472,
+          "y": 779.484375,
+          "w": 62,
+          "h": 22
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center justify-center gap-[5px] h-[24px] p-[0_9px] rounded-[6px] text-[10.5px] max-lg:text-[11px] font-bold font-mono cursor-default select-none shrink-0 tracking-[0.02em] monitoring-status-btn max-lg:h-10 max-lg:w-14 max-",
+          "text": "OK",
+          "font": "10.5px",
+          "x": 1758.96875,
+          "y": 778.484375,
+          "w": 49.03125,
+          "h": 24
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center justify-center min-w-[62px] p-[2.5px_8px] rounded-[5px] text-[10px] max-lg:text-[11px] font-bold font-mono bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.09)] text-[#cbd5e1] shrink-0 whitespace-nowrap",
+          "text": "MB",
+          "font": "10px",
+          "x": 1474,
+          "y": 828.953125,
+          "w": 62,
+          "h": 22
+        },
+        {
+          "tag": "SPAN",
+          "text": "Latensi > 200ms",
+          "font": "10px",
+          "x": 1560,
+          "y": 842.421875,
+          "w": 79.125,
+          "h": 12
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center justify-center gap-[5px] h-[24px] p-[0_9px] rounded-[6px] text-[10.5px] max-lg:text-[11px] font-bold font-mono cursor-default select-none shrink-0 tracking-[0.02em] monitoring-status-btn max-lg:h-10 max-lg:w-14 max-",
+          "text": "NOK",
+          "font": "10.5px",
+          "x": 1752.46875,
+          "y": 827.953125,
+          "w": 55.53125,
+          "h": 24
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center justify-center min-w-[62px] p-[2.5px_8px] rounded-[5px] text-[10px] max-lg:text-[11px] font-bold font-mono bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.09)] text-[#cbd5e1] shrink-0 whitespace-nowrap",
+          "text": "APH",
+          "font": "10px",
+          "x": 1472,
+          "y": 878.421875,
+          "w": 62,
+          "h": 22
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center justify-center gap-[5px] h-[24px] p-[0_9px] rounded-[6px] text-[10.5px] max-lg:text-[11px] font-bold font-mono cursor-default select-none shrink-0 tracking-[0.02em] monitoring-status-btn max-lg:h-10 max-lg:w-14 max-",
+          "text": "OK",
+          "font": "10.5px",
+          "x": 1758.96875,
+          "y": 877.421875,
+          "w": 49.03125,
+          "h": 24
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center justify-center min-w-[62px] p-[2.5px_8px] rounded-[5px] text-[10px] max-lg:text-[11px] font-bold font-mono bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.09)] text-[#cbd5e1] shrink-0 whitespace-nowrap",
+          "text": "UNEM",
+          "font": "10px",
+          "x": 1472,
+          "y": 925.421875,
+          "w": 62,
+          "h": 22
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center justify-center gap-[5px] h-[24px] p-[0_9px] rounded-[6px] text-[10.5px] max-lg:text-[11px] font-bold font-mono cursor-default select-none shrink-0 tracking-[0.02em] monitoring-status-btn max-lg:h-10 max-lg:w-14 max-",
+          "text": "OK",
+          "font": "10.5px",
+          "x": 1758.96875,
+          "y": 924.421875,
+          "w": 49.03125,
+          "h": 24
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center justify-center min-w-[62px] p-[2.5px_8px] rounded-[5px] text-[10px] max-lg:text-[11px] font-bold font-mono bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.09)] text-[#cbd5e1] shrink-0 whitespace-nowrap",
+          "text": "B2B",
+          "font": "10px",
+          "x": 1472,
+          "y": 972.421875,
+          "w": 62,
+          "h": 22
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center justify-center gap-[5px] h-[24px] p-[0_9px] rounded-[6px] text-[10.5px] max-lg:text-[11px] font-bold font-mono cursor-default select-none shrink-0 tracking-[0.02em] monitoring-status-btn max-lg:h-10 max-lg:w-14 max-",
+          "text": "OK",
+          "font": "10.5px",
+          "x": 1758.96875,
+          "y": 971.421875,
+          "w": 49.03125,
+          "h": 24
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center justify-center min-w-[62px] p-[2.5px_8px] rounded-[5px] text-[10px] max-lg:text-[11px] font-bold font-mono bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.09)] text-[#cbd5e1] shrink-0 whitespace-nowrap",
+          "text": "ActiveMQ",
+          "font": "10px",
+          "x": 1472,
+          "y": 1019.421875,
+          "w": 66,
+          "h": 22
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center justify-center gap-[5px] h-[24px] p-[0_9px] rounded-[6px] text-[10.5px] max-lg:text-[11px] font-bold font-mono cursor-default select-none shrink-0 tracking-[0.02em] monitoring-status-btn max-lg:h-10 max-lg:w-14 max-",
+          "text": "OK",
+          "font": "10.5px",
+          "x": 1758.96875,
+          "y": 1018.421875,
+          "w": 49.03125,
+          "h": 24
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center justify-center min-w-[62px] p-[2.5px_8px] rounded-[5px] text-[10px] max-lg:text-[11px] font-bold font-mono bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.09)] text-[#cbd5e1] shrink-0 whitespace-nowrap",
+          "text": "USIEM",
+          "font": "10px",
+          "x": 1472,
+          "y": 1066.421875,
+          "w": 62,
+          "h": 22
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center justify-center gap-[5px] h-[24px] p-[0_9px] rounded-[6px] text-[10.5px] max-lg:text-[11px] font-bold font-mono cursor-default select-none shrink-0 tracking-[0.02em] monitoring-status-btn max-lg:h-10 max-lg:w-14 max-",
+          "text": "OK",
+          "font": "10.5px",
+          "x": 1758.96875,
+          "y": 1065.421875,
+          "w": 49.03125,
+          "h": 24
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center justify-center min-w-[62px] p-[2.5px_8px] rounded-[5px] text-[10px] max-lg:text-[11px] font-bold font-mono bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.09)] text-[#cbd5e1] shrink-0 whitespace-nowrap",
+          "text": "SM",
+          "font": "10px",
+          "x": 1472,
+          "y": 1113.421875,
+          "w": 62,
+          "h": 22
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center justify-center gap-[5px] h-[24px] p-[0_9px] rounded-[6px] text-[10.5px] max-lg:text-[11px] font-bold font-mono cursor-default select-none shrink-0 tracking-[0.02em] monitoring-status-btn max-lg:h-10 max-lg:w-14 max-",
+          "text": "OK",
+          "font": "10.5px",
+          "x": 1758.96875,
+          "y": 1112.421875,
+          "w": 49.03125,
+          "h": 24
+        },
+        {
+          "tag": "SPAN",
+          "cls": "hidden lg:inline",
+          "text": "Total: 13 dari 13 Checklist",
+          "font": "10.5px",
+          "x": 1460,
+          "y": 853.046875,
+          "w": 170.125,
+          "h": 14
+        },
+        {
+          "tag": "STRONG",
+          "text": "13 dari 13 Checklist",
+          "font": "10.5px",
+          "x": 1504.109375,
+          "y": 853.046875,
+          "w": 126.015625,
+          "h": 14
+        },
+        {
+          "tag": "SPAN",
+          "cls": "engineer-workload-stat-item",
+          "text": "Rata-rata: 85% Kesiapan",
+          "font": "10.5px",
+          "x": 1691.0625,
+          "y": 853.046875,
+          "w": 144.9375,
+          "h": 15.75
+        },
+        {
+          "tag": "SPAN",
+          "cls": "hidden lg:inline",
+          "text": "Rata-rata:",
+          "font": "10.5px",
+          "x": 1691.0625,
+          "y": 853.046875,
+          "w": 69.3125,
+          "h": 14
+        },
+        {
+          "tag": "STRONG",
+          "text": "85%",
+          "font": "10.5px",
+          "x": 1760.375,
+          "y": 853.046875,
+          "w": 18.921875,
+          "h": 14
+        },
+        {
+          "tag": "LABEL",
+          "cls": "text-[10.5px] max-lg:text-[11px] font-semibold text-[#94a3b8] tracking-[0.02em] analytics-filter-label",
+          "text": "Rentang Tanggal",
+          "font": "10.5px",
+          "x": 334,
+          "y": 967.296875,
+          "w": 299.609375,
+          "h": 15.75
+        },
+        {
+          "tag": "LABEL",
+          "cls": "text-[10.5px] max-lg:text-[11px] font-semibold text-[#94a3b8] tracking-[0.02em] analytics-filter-label",
+          "text": "Proyek",
+          "font": "10.5px",
+          "x": 643.609375,
+          "y": 967.296875,
+          "w": 230.484375,
+          "h": 15.75
+        },
+        {
+          "tag": "LABEL",
+          "cls": "text-[10.5px] max-lg:text-[11px] font-semibold text-[#94a3b8] tracking-[0.02em] analytics-filter-label",
+          "text": "Shift",
+          "font": "10.5px",
+          "x": 884.09375,
+          "y": 967.296875,
+          "w": 230.46875,
+          "h": 15.75
+        },
+        {
+          "tag": "LABEL",
+          "cls": "text-[10.5px] max-lg:text-[11px] font-semibold text-[#94a3b8] tracking-[0.02em] analytics-filter-label",
+          "text": "Shifter (PIC)",
+          "font": "10.5px",
+          "x": 1124.5625,
+          "y": 967.296875,
+          "w": 230.484375,
+          "h": 15.75
+        },
+        {
+          "tag": "LABEL",
+          "cls": "text-[10.5px] max-lg:text-[11px] font-semibold text-[#94a3b8] tracking-[0.02em] analytics-filter-label",
+          "text": "Status Tiket",
+          "font": "10.5px",
+          "x": 1365.046875,
+          "y": 967.296875,
+          "w": 230.46875,
+          "h": 15.75
+        },
+        {
+          "tag": "LABEL",
+          "cls": "text-[10.5px] max-lg:text-[11px] font-semibold text-[#94a3b8] tracking-[0.02em] analytics-filter-label",
+          "text": "Keparahan",
+          "font": "10.5px",
+          "x": 1605.515625,
+          "y": 967.296875,
+          "w": 230.46875,
+          "h": 15.75
+        },
+        {
+          "tag": "text",
+          "cls": "max-lg:hidden",
+          "text": "0",
+          "font": "10px",
+          "x": 371.7821044921875,
+          "y": 1459.23193359375,
+          "w": 6.337127685546875,
+          "h": 19.40966796875
+        },
+        {
+          "tag": "text",
+          "cls": "max-lg:hidden",
+          "text": "15",
+          "font": "10px",
+          "x": 365.4449768066406,
+          "y": 1385.5653076171875,
+          "w": 12.67425537109375,
+          "h": 19.40966796875
+        },
+        {
+          "tag": "text",
+          "cls": "max-lg:hidden",
+          "text": "30",
+          "font": "10px",
+          "x": 365.4449768066406,
+          "y": 1311.898681640625,
+          "w": 12.67425537109375,
+          "h": 19.40966796875
+        },
+        {
+          "tag": "text",
+          "cls": "max-lg:hidden",
+          "text": "45",
+          "font": "10px",
+          "x": 365.4449768066406,
+          "y": 1239.6763916015625,
+          "w": 12.67425537109375,
+          "h": 19.40966796875
+        },
+        {
+          "tag": "text",
+          "cls": "max-lg:hidden",
+          "text": "60",
+          "font": "10px",
+          "x": 365.4449768066406,
+          "y": 1166.009765625,
+          "w": 12.67425537109375,
+          "h": 19.40966796875
+        },
+        {
+          "tag": "text",
+          "text": "07-20",
+          "font": "10.5px",
+          "x": 379.4421081542969,
+          "y": 1484.09033203125,
+          "w": 33.27392578125,
+          "h": 20.55126953125
+        },
+        {
+          "tag": "text",
+          "text": "07-25",
+          "font": "10.5px",
+          "x": 432.2305908203125,
+          "y": 1484.09033203125,
+          "w": 33.273895263671875,
+          "h": 20.55126953125
+        },
+        {
+          "tag": "text",
+          "text": "08-25",
+          "font": "10.5px",
+          "x": 486.0748291015625,
+          "y": 1484.09033203125,
+          "w": 33.27392578125,
+          "h": 20.55126953125
+        },
+        {
+          "tag": "text",
+          "text": "08-26",
+          "font": "10.5px",
+          "x": 538.86328125,
+          "y": 1484.09033203125,
+          "w": 33.27392578125,
+          "h": 20.55126953125
+        },
+        {
+          "tag": "text",
+          "text": "08-27",
+          "font": "10.5px",
+          "x": 591.6517333984375,
+          "y": 1484.09033203125,
+          "w": 33.27392578125,
+          "h": 20.55126953125
+        },
+        {
+          "tag": "text",
+          "text": "08-28",
+          "font": "10.5px",
+          "x": 644.440185546875,
+          "y": 1484.09033203125,
+          "w": 33.27392578125,
+          "h": 20.55126953125
+        },
+        {
+          "tag": "text",
+          "text": "08-29",
+          "font": "10.5px",
+          "x": 698.284423828125,
+          "y": 1484.09033203125,
+          "w": 33.27392578125,
+          "h": 20.55126953125
+        },
+        {
+          "tag": "text",
+          "text": "08-30",
+          "font": "10.5px",
+          "x": 751.0728759765625,
+          "y": 1484.09033203125,
+          "w": 33.27392578125,
+          "h": 20.55126953125
+        },
+        {
+          "tag": "text",
+          "text": "08-31",
+          "font": "10.5px",
+          "x": 803.861328125,
+          "y": 1484.09033203125,
+          "w": 33.27392578125,
+          "h": 20.55126953125
+        },
+        {
+          "tag": "text",
+          "text": "09-01",
+          "font": "10.5px",
+          "x": 856.6498413085938,
+          "y": 1484.09033203125,
+          "w": 33.27386474609375,
+          "h": 20.55126953125
+        },
+        {
+          "tag": "text",
+          "text": "09-02",
+          "font": "10.5px",
+          "x": 910.4940185546875,
+          "y": 1484.09033203125,
+          "w": 33.27392578125,
+          "h": 20.55126953125
+        },
+        {
+          "tag": "text",
+          "text": "09-03",
+          "font": "10.5px",
+          "x": 963.282470703125,
+          "y": 1484.09033203125,
+          "w": 33.27392578125,
+          "h": 20.55126953125
+        },
+        {
+          "tag": "text",
+          "text": "09-04",
+          "font": "10.5px",
+          "x": 1016.0709228515625,
+          "y": 1484.09033203125,
+          "w": 33.2740478515625,
+          "h": 20.55126953125
+        },
+        {
+          "tag": "text",
+          "text": "09-05",
+          "font": "10.5px",
+          "x": 1068.859375,
+          "y": 1484.09033203125,
+          "w": 33.27392578125,
+          "h": 20.55126953125
+        },
+        {
+          "tag": "text",
+          "text": "09-06",
+          "font": "10.5px",
+          "x": 1122.70361328125,
+          "y": 1484.09033203125,
+          "w": 33.2740478515625,
+          "h": 20.55126953125
+        },
+        {
+          "tag": "text",
+          "text": "09-07",
+          "font": "10.5px",
+          "x": 1175.4921875,
+          "y": 1484.09033203125,
+          "w": 33.27392578125,
+          "h": 20.55126953125
+        },
+        {
+          "tag": "text",
+          "text": "09-08",
+          "font": "10.5px",
+          "x": 1228.2806396484375,
+          "y": 1484.09033203125,
+          "w": 33.27392578125,
+          "h": 20.55126953125
+        },
+        {
+          "tag": "text",
+          "text": "09-09",
+          "font": "10.5px",
+          "x": 1281.069091796875,
+          "y": 1484.09033203125,
+          "w": 33.27392578125,
+          "h": 20.55126953125
+        },
+        {
+          "tag": "text",
+          "text": "09-10",
+          "font": "10.5px",
+          "x": 1334.913330078125,
+          "y": 1484.09033203125,
+          "w": 33.27392578125,
+          "h": 20.55126953125
+        },
+        {
+          "tag": "text",
+          "text": "09-11",
+          "font": "10.5px",
+          "x": 1387.7017822265625,
+          "y": 1484.09033203125,
+          "w": 33.27392578125,
+          "h": 20.55126953125
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[9px] max-lg:text-[11px] text-[var(--ink-muted)] whitespace-nowrap overflow-hidden text-ellipsis user-summary-role",
+          "text": "L2 Specialist (Shift Pagi)",
+          "font": "9px",
+          "x": 1534,
+          "y": 1163.546875,
+          "w": 104.875,
+          "h": 13.5
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center gap-[2px] text-[9.5px] max-lg:text-[11px] font-semibold text-[#38bdf8] shrink-0 user-detail-link max-lg:min-h-10 max-lg:min-w-10 max-lg:justify-end",
+          "text": "Detail",
+          "font": "9.5px",
+          "x": 1781.1875,
+          "y": 1154.921875,
+          "w": 39.8125,
+          "h": 14.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[7.5px] max-lg:text-[11px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl",
+          "text": "HARI INI",
+          "font": "7.5px",
+          "x": 1538.75,
+          "y": 1187.046875,
+          "w": 37.8125,
+          "h": 11.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[7.5px] max-lg:text-[11px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl",
+          "text": "BULAN INI",
+          "font": "7.5px",
+          "x": 1639.71875,
+          "y": 1187.046875,
+          "w": 42.53125,
+          "h": 11.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[7.5px] max-lg:text-[11px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl",
+          "text": "TAHUN INI",
+          "font": "7.5px",
+          "x": 1743.0625,
+          "y": 1187.046875,
+          "w": 42.53125,
+          "h": 11.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[8.5px] max-lg:text-[11px] text-[var(--ink-muted)] font-semibold shrink-0 user-proj-label",
+          "text": "Hari Ini:",
+          "font": "8.5px",
+          "x": 1501,
+          "y": 1227.296875,
+          "w": 30.125,
+          "h": 12.75
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[8.5px] max-lg:text-[11px] text-[var(--ink-muted)] italic user-proj-none",
+          "text": "Tidak ada tiket baru hari ini",
+          "font": "8.5px",
+          "x": 1535.125,
+          "y": 1227.296875,
+          "w": 104.046875,
+          "h": 12.75
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[9px] max-lg:text-[11px] text-[var(--ink-muted)] whitespace-nowrap overflow-hidden text-ellipsis user-summary-role",
+          "text": "Shift Lead (Shift Pagi)",
+          "font": "9px",
+          "x": 1534,
+          "y": 1286.546875,
+          "w": 90.171875,
+          "h": 13.5
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center gap-[2px] text-[9.5px] max-lg:text-[11px] font-semibold text-[#38bdf8] shrink-0 user-detail-link max-lg:min-h-10 max-lg:min-w-10 max-lg:justify-end",
+          "text": "Detail",
+          "font": "9.5px",
+          "x": 1781.1875,
+          "y": 1277.921875,
+          "w": 39.8125,
+          "h": 14.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[7.5px] max-lg:text-[11px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl",
+          "text": "HARI INI",
+          "font": "7.5px",
+          "x": 1538.75,
+          "y": 1310.046875,
+          "w": 37.8125,
+          "h": 11.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[7.5px] max-lg:text-[11px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl",
+          "text": "BULAN INI",
+          "font": "7.5px",
+          "x": 1639.71875,
+          "y": 1310.046875,
+          "w": 42.53125,
+          "h": 11.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[7.5px] max-lg:text-[11px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl",
+          "text": "TAHUN INI",
+          "font": "7.5px",
+          "x": 1743.0625,
+          "y": 1310.046875,
+          "w": 42.53125,
+          "h": 11.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[8.5px] max-lg:text-[11px] text-[var(--ink-muted)] font-semibold shrink-0 user-proj-label",
+          "text": "Hari Ini:",
+          "font": "8.5px",
+          "x": 1501,
+          "y": 1351.296875,
+          "w": 30.125,
+          "h": 12.75
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center gap-[2px] p-[1px_4px] rounded-[3px] text-[8.5px] max-lg:text-[11px] font-mono font-semibold bg-[rgba(255,255,255,0.06)] text-[var(--ink-secondary)] user-proj-badge",
+          "text": "EPC Tools ×1",
+          "font": "8.5px",
+          "x": 1535.125,
+          "y": 1350.296875,
+          "w": 80.21875,
+          "h": 14.75
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center gap-[2px] p-[1px_4px] rounded-[3px] text-[8.5px] max-lg:text-[11px] font-mono font-semibold bg-[rgba(255,255,255,0.06)] text-[var(--ink-secondary)] user-proj-badge",
+          "text": "SM ×1",
+          "font": "8.5px",
+          "x": 1618.34375,
+          "y": 1350.296875,
+          "w": 44.515625,
+          "h": 14.75
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center gap-[2px] p-[1px_4px] rounded-[3px] text-[8.5px] max-lg:text-[11px] font-mono font-semibold bg-[rgba(255,255,255,0.06)] text-[var(--ink-secondary)] user-proj-badge",
+          "text": "USIEM ×1",
+          "font": "8.5px",
+          "x": 1665.859375,
+          "y": 1350.296875,
+          "w": 59.8125,
+          "h": 14.75
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[9px] max-lg:text-[11px] text-[var(--ink-muted)] whitespace-nowrap overflow-hidden text-ellipsis user-summary-role",
+          "text": "Operator NOC (Shift Subuh)",
+          "font": "9px",
+          "x": 1534,
+          "y": 1411.546875,
+          "w": 136.28125,
+          "h": 13.5
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center gap-[2px] text-[9.5px] max-lg:text-[11px] font-semibold text-[#38bdf8] shrink-0 user-detail-link max-lg:min-h-10 max-lg:min-w-10 max-lg:justify-end",
+          "text": "Detail",
+          "font": "9.5px",
+          "x": 1781.1875,
+          "y": 1402.921875,
+          "w": 39.8125,
+          "h": 14.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[7.5px] max-lg:text-[11px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl",
+          "text": "HARI INI",
+          "font": "7.5px",
+          "x": 1538.75,
+          "y": 1435.046875,
+          "w": 37.8125,
+          "h": 11.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[7.5px] max-lg:text-[11px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl",
+          "text": "BULAN INI",
+          "font": "7.5px",
+          "x": 1639.71875,
+          "y": 1435.046875,
+          "w": 42.53125,
+          "h": 11.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[7.5px] max-lg:text-[11px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl",
+          "text": "TAHUN INI",
+          "font": "7.5px",
+          "x": 1743.0625,
+          "y": 1435.046875,
+          "w": 42.53125,
+          "h": 11.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[8.5px] max-lg:text-[11px] text-[var(--ink-muted)] font-semibold shrink-0 user-proj-label",
+          "text": "Hari Ini:",
+          "font": "8.5px",
+          "x": 1501,
+          "y": 1475.296875,
+          "w": 30.125,
+          "h": 12.75
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[8.5px] max-lg:text-[11px] text-[var(--ink-muted)] italic user-proj-none",
+          "text": "Tidak ada tiket baru hari ini",
+          "font": "8.5px",
+          "x": 1535.125,
+          "y": 1475.296875,
+          "w": 104.046875,
+          "h": 12.75
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[9px] max-lg:text-[11px] text-[var(--ink-muted)] whitespace-nowrap overflow-hidden text-ellipsis user-summary-role",
+          "text": "Infrastructure Engineer (Shift Subuh)",
+          "font": "9px",
+          "x": 1534,
+          "y": 1534.546875,
+          "w": 153.296875,
+          "h": 13.5
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center gap-[2px] text-[9.5px] max-lg:text-[11px] font-semibold text-[#38bdf8] shrink-0 user-detail-link max-lg:min-h-10 max-lg:min-w-10 max-lg:justify-end",
+          "text": "Detail",
+          "font": "9.5px",
+          "x": 1781.1875,
+          "y": 1525.921875,
+          "w": 39.8125,
+          "h": 14.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[7.5px] max-lg:text-[11px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl",
+          "text": "HARI INI",
+          "font": "7.5px",
+          "x": 1538.75,
+          "y": 1558.046875,
+          "w": 37.8125,
+          "h": 11.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[7.5px] max-lg:text-[11px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl",
+          "text": "BULAN INI",
+          "font": "7.5px",
+          "x": 1639.71875,
+          "y": 1558.046875,
+          "w": 42.53125,
+          "h": 11.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[7.5px] max-lg:text-[11px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl",
+          "text": "TAHUN INI",
+          "font": "7.5px",
+          "x": 1743.0625,
+          "y": 1558.046875,
+          "w": 42.53125,
+          "h": 11.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[8.5px] max-lg:text-[11px] text-[var(--ink-muted)] font-semibold shrink-0 user-proj-label",
+          "text": "Hari Ini:",
+          "font": "8.5px",
+          "x": 1501,
+          "y": 1598.296875,
+          "w": 30.125,
+          "h": 12.75
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[8.5px] max-lg:text-[11px] text-[var(--ink-muted)] italic user-proj-none",
+          "text": "Tidak ada tiket baru hari ini",
+          "font": "8.5px",
+          "x": 1535.125,
+          "y": 1598.296875,
+          "w": 104.046875,
+          "h": 12.75
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[9px] max-lg:text-[11px] text-[var(--ink-muted)] whitespace-nowrap overflow-hidden text-ellipsis user-summary-role",
+          "text": "Operator NOC (Shift Malam)",
+          "font": "9px",
+          "x": 1534,
+          "y": 1657.546875,
+          "w": 119.453125,
+          "h": 13.5
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center gap-[2px] text-[9.5px] max-lg:text-[11px] font-semibold text-[#38bdf8] shrink-0 user-detail-link max-lg:min-h-10 max-lg:min-w-10 max-lg:justify-end",
+          "text": "Detail",
+          "font": "9.5px",
+          "x": 1781.1875,
+          "y": 1648.921875,
+          "w": 39.8125,
+          "h": 14.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[7.5px] max-lg:text-[11px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl",
+          "text": "HARI INI",
+          "font": "7.5px",
+          "x": 1538.75,
+          "y": 1681.046875,
+          "w": 37.8125,
+          "h": 11.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[7.5px] max-lg:text-[11px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl",
+          "text": "BULAN INI",
+          "font": "7.5px",
+          "x": 1639.71875,
+          "y": 1681.046875,
+          "w": 42.53125,
+          "h": 11.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[7.5px] max-lg:text-[11px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl",
+          "text": "TAHUN INI",
+          "font": "7.5px",
+          "x": 1743.0625,
+          "y": 1681.046875,
+          "w": 42.53125,
+          "h": 11.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[8.5px] max-lg:text-[11px] text-[var(--ink-muted)] font-semibold shrink-0 user-proj-label",
+          "text": "Hari Ini:",
+          "font": "8.5px",
+          "x": 1501,
+          "y": 1722.296875,
+          "w": 30.125,
+          "h": 12.75
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center gap-[2px] p-[1px_4px] rounded-[3px] text-[8.5px] max-lg:text-[11px] font-mono font-semibold bg-[rgba(255,255,255,0.06)] text-[var(--ink-secondary)] user-proj-badge",
+          "text": "DM ×2",
+          "font": "8.5px",
+          "x": 1535.125,
+          "y": 1721.296875,
+          "w": 44.515625,
+          "h": 14.75
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center gap-[2px] p-[1px_4px] rounded-[3px] text-[8.5px] max-lg:text-[11px] font-mono font-semibold bg-[rgba(255,255,255,0.06)] text-[var(--ink-secondary)] user-proj-badge",
+          "text": "USIEM ×2",
+          "font": "8.5px",
+          "x": 1582.640625,
+          "y": 1721.296875,
+          "w": 59.8125,
+          "h": 14.75
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center gap-[2px] p-[1px_4px] rounded-[3px] text-[8.5px] max-lg:text-[11px] font-mono font-semibold bg-[rgba(255,255,255,0.06)] text-[var(--ink-secondary)] user-proj-badge",
+          "text": "B2B ×1",
+          "font": "8.5px",
+          "x": 1645.453125,
+          "y": 1721.296875,
+          "w": 49.625,
+          "h": 14.75
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[9px] max-lg:text-[11px] text-[var(--ink-muted)] whitespace-nowrap overflow-hidden text-ellipsis user-summary-role",
+          "text": "Operator NOC (Shift Malam)",
+          "font": "9px",
+          "x": 1534,
+          "y": 1782.546875,
+          "w": 119.453125,
+          "h": 13.5
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center gap-[2px] text-[9.5px] max-lg:text-[11px] font-semibold text-[#38bdf8] shrink-0 user-detail-link max-lg:min-h-10 max-lg:min-w-10 max-lg:justify-end",
+          "text": "Detail",
+          "font": "9.5px",
+          "x": 1781.1875,
+          "y": 1773.921875,
+          "w": 39.8125,
+          "h": 14.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[7.5px] max-lg:text-[11px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl",
+          "text": "HARI INI",
+          "font": "7.5px",
+          "x": 1538.75,
+          "y": 1806.046875,
+          "w": 37.8125,
+          "h": 11.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[7.5px] max-lg:text-[11px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl",
+          "text": "BULAN INI",
+          "font": "7.5px",
+          "x": 1639.71875,
+          "y": 1806.046875,
+          "w": 42.53125,
+          "h": 11.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[7.5px] max-lg:text-[11px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl",
+          "text": "TAHUN INI",
+          "font": "7.5px",
+          "x": 1743.0625,
+          "y": 1806.046875,
+          "w": 42.53125,
+          "h": 11.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[8.5px] max-lg:text-[11px] text-[var(--ink-muted)] font-semibold shrink-0 user-proj-label",
+          "text": "Hari Ini:",
+          "font": "8.5px",
+          "x": 1501,
+          "y": 1847.296875,
+          "w": 30.125,
+          "h": 12.75
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center gap-[2px] p-[1px_4px] rounded-[3px] text-[8.5px] max-lg:text-[11px] font-mono font-semibold bg-[rgba(255,255,255,0.06)] text-[var(--ink-secondary)] user-proj-badge",
+          "text": "USIEM ×5",
+          "font": "8.5px",
+          "x": 1535.125,
+          "y": 1846.296875,
+          "w": 59.8125,
+          "h": 14.75
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center gap-[2px] p-[1px_4px] rounded-[3px] text-[8.5px] max-lg:text-[11px] font-mono font-semibold bg-[rgba(255,255,255,0.06)] text-[var(--ink-secondary)] user-proj-badge",
+          "text": "APH ×2",
+          "font": "8.5px",
+          "x": 1597.9375,
+          "y": 1846.296875,
+          "w": 49.625,
+          "h": 14.75
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center gap-[2px] p-[1px_4px] rounded-[3px] text-[8.5px] max-lg:text-[11px] font-mono font-semibold bg-[rgba(255,255,255,0.06)] text-[var(--ink-secondary)] user-proj-badge",
+          "text": "MB ×1",
+          "font": "8.5px",
+          "x": 1650.5625,
+          "y": 1846.296875,
+          "w": 44.515625,
+          "h": 14.75
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center gap-[2px] p-[1px_4px] rounded-[3px] text-[8.5px] max-lg:text-[11px] font-mono font-semibold bg-[rgba(255,255,255,0.06)] text-[var(--ink-secondary)] user-proj-badge",
+          "text": "SM ×1",
+          "font": "8.5px",
+          "x": 1698.078125,
+          "y": 1846.296875,
+          "w": 44.515625,
+          "h": 14.75
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[9px] max-lg:text-[11px] text-[var(--ink-muted)] whitespace-nowrap overflow-hidden text-ellipsis user-summary-role",
+          "text": "L2 Specialist (Shift Malam)",
+          "font": "9px",
+          "x": 1534,
+          "y": 1907.546875,
+          "w": 132.828125,
+          "h": 13.5
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center gap-[2px] text-[9.5px] max-lg:text-[11px] font-semibold text-[#38bdf8] shrink-0 user-detail-link max-lg:min-h-10 max-lg:min-w-10 max-lg:justify-end",
+          "text": "Detail",
+          "font": "9.5px",
+          "x": 1781.1875,
+          "y": 1898.921875,
+          "w": 39.8125,
+          "h": 14.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[7.5px] max-lg:text-[11px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl",
+          "text": "HARI INI",
+          "font": "7.5px",
+          "x": 1538.75,
+          "y": 1931.046875,
+          "w": 37.8125,
+          "h": 11.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[7.5px] max-lg:text-[11px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl",
+          "text": "BULAN INI",
+          "font": "7.5px",
+          "x": 1639.71875,
+          "y": 1931.046875,
+          "w": 42.53125,
+          "h": 11.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[7.5px] max-lg:text-[11px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl",
+          "text": "TAHUN INI",
+          "font": "7.5px",
+          "x": 1743.0625,
+          "y": 1931.046875,
+          "w": 42.53125,
+          "h": 11.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[8.5px] max-lg:text-[11px] text-[var(--ink-muted)] font-semibold shrink-0 user-proj-label",
+          "text": "Hari Ini:",
+          "font": "8.5px",
+          "x": 1501,
+          "y": 1981.171875,
+          "w": 30.125,
+          "h": 12.75
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center gap-[2px] p-[1px_4px] rounded-[3px] text-[8.5px] max-lg:text-[11px] font-mono font-semibold bg-[rgba(255,255,255,0.06)] text-[var(--ink-secondary)] user-proj-badge",
+          "text": "B2B ×2",
+          "font": "8.5px",
+          "x": 1535.125,
+          "y": 1971.296875,
+          "w": 49.625,
+          "h": 14.75
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center gap-[2px] p-[1px_4px] rounded-[3px] text-[8.5px] max-lg:text-[11px] font-mono font-semibold bg-[rgba(255,255,255,0.06)] text-[var(--ink-secondary)] user-proj-badge",
+          "text": "USIEM ×1",
+          "font": "8.5px",
+          "x": 1587.75,
+          "y": 1971.296875,
+          "w": 59.8125,
+          "h": 14.75
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center gap-[2px] p-[1px_4px] rounded-[3px] text-[8.5px] max-lg:text-[11px] font-mono font-semibold bg-[rgba(255,255,255,0.06)] text-[var(--ink-secondary)] user-proj-badge",
+          "text": "SM ×3",
+          "font": "8.5px",
+          "x": 1650.5625,
+          "y": 1971.296875,
+          "w": 44.515625,
+          "h": 14.75
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center gap-[2px] p-[1px_4px] rounded-[3px] text-[8.5px] max-lg:text-[11px] font-mono font-semibold bg-[rgba(255,255,255,0.06)] text-[var(--ink-secondary)] user-proj-badge",
+          "text": "EPC Tools ×1",
+          "font": "8.5px",
+          "x": 1698.078125,
+          "y": 1971.296875,
+          "w": 80.21875,
+          "h": 14.75
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center gap-[2px] p-[1px_4px] rounded-[3px] text-[8.5px] max-lg:text-[11px] font-mono font-semibold bg-[rgba(255,255,255,0.06)] text-[var(--ink-secondary)] user-proj-badge",
+          "text": "APH ×1",
+          "font": "8.5px",
+          "x": 1535.125,
+          "y": 1989.046875,
+          "w": 49.625,
+          "h": 14.75
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center gap-[2px] p-[1px_4px] rounded-[3px] text-[8.5px] max-lg:text-[11px] font-mono font-semibold bg-[rgba(255,255,255,0.06)] text-[var(--ink-secondary)] user-proj-badge",
+          "text": "UNEM ×1",
+          "font": "8.5px",
+          "x": 1587.75,
+          "y": 1989.046875,
+          "w": 54.71875,
+          "h": 14.75
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center gap-[2px] p-[1px_4px] rounded-[3px] text-[8.5px] max-lg:text-[11px] font-mono font-semibold bg-[rgba(255,255,255,0.06)] text-[var(--ink-secondary)] user-proj-badge",
+          "text": "MB ×1",
+          "font": "8.5px",
+          "x": 1645.46875,
+          "y": 1989.046875,
+          "w": 44.515625,
+          "h": 14.75
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[9px] max-lg:text-[11px] text-[var(--ink-muted)] whitespace-nowrap overflow-hidden text-ellipsis user-summary-role",
+          "text": "Shift Lead (Shift Subuh)",
+          "font": "9px",
+          "x": 1534,
+          "y": 2050.296875,
+          "w": 98.875,
+          "h": 13.5
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center gap-[2px] text-[9.5px] max-lg:text-[11px] font-semibold text-[#38bdf8] shrink-0 user-detail-link max-lg:min-h-10 max-lg:min-w-10 max-lg:justify-end",
+          "text": "Detail",
+          "font": "9.5px",
+          "x": 1781.1875,
+          "y": 2041.671875,
+          "w": 39.8125,
+          "h": 14.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[7.5px] max-lg:text-[11px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl",
+          "text": "HARI INI",
+          "font": "7.5px",
+          "x": 1538.75,
+          "y": 2073.796875,
+          "w": 37.8125,
+          "h": 11.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[7.5px] max-lg:text-[11px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl",
+          "text": "BULAN INI",
+          "font": "7.5px",
+          "x": 1639.71875,
+          "y": 2073.796875,
+          "w": 42.53125,
+          "h": 11.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[7.5px] max-lg:text-[11px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl",
+          "text": "TAHUN INI",
+          "font": "7.5px",
+          "x": 1743.0625,
+          "y": 2073.796875,
+          "w": 42.53125,
+          "h": 11.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[8.5px] max-lg:text-[11px] text-[var(--ink-muted)] font-semibold shrink-0 user-proj-label",
+          "text": "Hari Ini:",
+          "font": "8.5px",
+          "x": 1501,
+          "y": 2114.046875,
+          "w": 30.125,
+          "h": 12.75
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[8.5px] max-lg:text-[11px] text-[var(--ink-muted)] italic user-proj-none",
+          "text": "Tidak ada tiket baru hari ini",
+          "font": "8.5px",
+          "x": 1535.125,
+          "y": 2114.046875,
+          "w": 104.046875,
+          "h": 12.75
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[9px] max-lg:text-[11px] text-[var(--ink-muted)] whitespace-nowrap overflow-hidden text-ellipsis user-summary-role",
+          "text": "Infrastructure Engineer (Shift Pagi)",
+          "font": "9px",
+          "x": 1534,
+          "y": 2173.296875,
+          "w": 144.59375,
+          "h": 13.5
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center gap-[2px] text-[9.5px] max-lg:text-[11px] font-semibold text-[#38bdf8] shrink-0 user-detail-link max-lg:min-h-10 max-lg:min-w-10 max-lg:justify-end",
+          "text": "Detail",
+          "font": "9.5px",
+          "x": 1781.1875,
+          "y": 2164.671875,
+          "w": 39.8125,
+          "h": 14.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[7.5px] max-lg:text-[11px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl",
+          "text": "HARI INI",
+          "font": "7.5px",
+          "x": 1538.75,
+          "y": 2196.796875,
+          "w": 37.8125,
+          "h": 11.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[7.5px] max-lg:text-[11px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl",
+          "text": "BULAN INI",
+          "font": "7.5px",
+          "x": 1639.71875,
+          "y": 2196.796875,
+          "w": 42.53125,
+          "h": 11.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[7.5px] max-lg:text-[11px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl",
+          "text": "TAHUN INI",
+          "font": "7.5px",
+          "x": 1743.0625,
+          "y": 2196.796875,
+          "w": 42.53125,
+          "h": 11.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[8.5px] max-lg:text-[11px] text-[var(--ink-muted)] font-semibold shrink-0 user-proj-label",
+          "text": "Hari Ini:",
+          "font": "8.5px",
+          "x": 1501,
+          "y": 2237.046875,
+          "w": 30.125,
+          "h": 12.75
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[8.5px] max-lg:text-[11px] text-[var(--ink-muted)] italic user-proj-none",
+          "text": "Tidak ada tiket baru hari ini",
+          "font": "8.5px",
+          "x": 1535.125,
+          "y": 2237.046875,
+          "w": 104.046875,
+          "h": 12.75
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[9px] max-lg:text-[11px] text-[var(--ink-muted)] whitespace-nowrap overflow-hidden text-ellipsis user-summary-role",
+          "text": "Shift Lead (Shift Malam)",
+          "font": "9px",
+          "x": 1534,
+          "y": 2296.296875,
+          "w": 169.265625,
+          "h": 13.5
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center gap-[2px] text-[9.5px] max-lg:text-[11px] font-semibold text-[#38bdf8] shrink-0 user-detail-link max-lg:min-h-10 max-lg:min-w-10 max-lg:justify-end",
+          "text": "Detail",
+          "font": "9.5px",
+          "x": 1781.1875,
+          "y": 2287.671875,
+          "w": 39.8125,
+          "h": 14.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[7.5px] max-lg:text-[11px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl",
+          "text": "HARI INI",
+          "font": "7.5px",
+          "x": 1538.75,
+          "y": 2319.796875,
+          "w": 37.8125,
+          "h": 11.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[7.5px] max-lg:text-[11px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl",
+          "text": "BULAN INI",
+          "font": "7.5px",
+          "x": 1639.71875,
+          "y": 2319.796875,
+          "w": 42.53125,
+          "h": 11.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[7.5px] max-lg:text-[11px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl",
+          "text": "TAHUN INI",
+          "font": "7.5px",
+          "x": 1743.0625,
+          "y": 2319.796875,
+          "w": 42.53125,
+          "h": 11.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[8.5px] max-lg:text-[11px] text-[var(--ink-muted)] font-semibold shrink-0 user-proj-label",
+          "text": "Hari Ini:",
+          "font": "8.5px",
+          "x": 1501,
+          "y": 2361.046875,
+          "w": 30.125,
+          "h": 12.75
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center gap-[2px] p-[1px_4px] rounded-[3px] text-[8.5px] max-lg:text-[11px] font-mono font-semibold bg-[rgba(255,255,255,0.06)] text-[var(--ink-secondary)] user-proj-badge",
+          "text": "B2B ×2",
+          "font": "8.5px",
+          "x": 1535.125,
+          "y": 2360.046875,
+          "w": 49.625,
+          "h": 14.75
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center gap-[2px] p-[1px_4px] rounded-[3px] text-[8.5px] max-lg:text-[11px] font-mono font-semibold bg-[rgba(255,255,255,0.06)] text-[var(--ink-secondary)] user-proj-badge",
+          "text": "SM ×1",
+          "font": "8.5px",
+          "x": 1587.75,
+          "y": 2360.046875,
+          "w": 44.515625,
+          "h": 14.75
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center gap-[2px] p-[1px_4px] rounded-[3px] text-[8.5px] max-lg:text-[11px] font-mono font-semibold bg-[rgba(255,255,255,0.06)] text-[var(--ink-secondary)] user-proj-badge",
+          "text": "DM ×1",
+          "font": "8.5px",
+          "x": 1635.265625,
+          "y": 2360.046875,
+          "w": 44.515625,
+          "h": 14.75
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[9px] max-lg:text-[11px] text-[var(--ink-muted)] whitespace-nowrap overflow-hidden text-ellipsis user-summary-role",
+          "text": "Incident Coordinator (Shift Malam)",
+          "font": "9px",
+          "x": 1534,
+          "y": 2421.296875,
+          "w": 145.515625,
+          "h": 13.5
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center gap-[2px] text-[9.5px] max-lg:text-[11px] font-semibold text-[#38bdf8] shrink-0 user-detail-link max-lg:min-h-10 max-lg:min-w-10 max-lg:justify-end",
+          "text": "Detail",
+          "font": "9.5px",
+          "x": 1781.1875,
+          "y": 2412.671875,
+          "w": 39.8125,
+          "h": 14.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[7.5px] max-lg:text-[11px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl",
+          "text": "HARI INI",
+          "font": "7.5px",
+          "x": 1538.75,
+          "y": 2444.796875,
+          "w": 37.8125,
+          "h": 11.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[7.5px] max-lg:text-[11px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl",
+          "text": "BULAN INI",
+          "font": "7.5px",
+          "x": 1639.71875,
+          "y": 2444.796875,
+          "w": 42.53125,
+          "h": 11.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[7.5px] max-lg:text-[11px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl",
+          "text": "TAHUN INI",
+          "font": "7.5px",
+          "x": 1743.0625,
+          "y": 2444.796875,
+          "w": 42.53125,
+          "h": 11.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[8.5px] max-lg:text-[11px] text-[var(--ink-muted)] font-semibold shrink-0 user-proj-label",
+          "text": "Hari Ini:",
+          "font": "8.5px",
+          "x": 1501,
+          "y": 2486.046875,
+          "w": 30.125,
+          "h": 12.75
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center gap-[2px] p-[1px_4px] rounded-[3px] text-[8.5px] max-lg:text-[11px] font-mono font-semibold bg-[rgba(255,255,255,0.06)] text-[var(--ink-secondary)] user-proj-badge",
+          "text": "USIEM ×1",
+          "font": "8.5px",
+          "x": 1535.125,
+          "y": 2485.046875,
+          "w": 59.8125,
+          "h": 14.75
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center gap-[2px] p-[1px_4px] rounded-[3px] text-[8.5px] max-lg:text-[11px] font-mono font-semibold bg-[rgba(255,255,255,0.06)] text-[var(--ink-secondary)] user-proj-badge",
+          "text": "MB ×1",
+          "font": "8.5px",
+          "x": 1597.9375,
+          "y": 2485.046875,
+          "w": 44.515625,
+          "h": 14.75
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[9px] max-lg:text-[11px] text-[var(--ink-muted)] whitespace-nowrap overflow-hidden text-ellipsis user-summary-role",
+          "text": "Incident Coordinator (Shift Pagi)",
+          "font": "9px",
+          "x": 1534,
+          "y": 2546.296875,
+          "w": 136.0625,
+          "h": 13.5
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center gap-[2px] text-[9.5px] max-lg:text-[11px] font-semibold text-[#38bdf8] shrink-0 user-detail-link max-lg:min-h-10 max-lg:min-w-10 max-lg:justify-end",
+          "text": "Detail",
+          "font": "9.5px",
+          "x": 1781.1875,
+          "y": 2537.671875,
+          "w": 39.8125,
+          "h": 14.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[7.5px] max-lg:text-[11px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl",
+          "text": "HARI INI",
+          "font": "7.5px",
+          "x": 1538.75,
+          "y": 2569.796875,
+          "w": 37.8125,
+          "h": 11.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[7.5px] max-lg:text-[11px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl",
+          "text": "BULAN INI",
+          "font": "7.5px",
+          "x": 1639.71875,
+          "y": 2569.796875,
+          "w": 42.53125,
+          "h": 11.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[7.5px] max-lg:text-[11px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl",
+          "text": "TAHUN INI",
+          "font": "7.5px",
+          "x": 1743.0625,
+          "y": 2569.796875,
+          "w": 42.53125,
+          "h": 11.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[8.5px] max-lg:text-[11px] text-[var(--ink-muted)] font-semibold shrink-0 user-proj-label",
+          "text": "Hari Ini:",
+          "font": "8.5px",
+          "x": 1501,
+          "y": 2610.046875,
+          "w": 30.125,
+          "h": 12.75
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[8.5px] max-lg:text-[11px] text-[var(--ink-muted)] italic user-proj-none",
+          "text": "Tidak ada tiket baru hari ini",
+          "font": "8.5px",
+          "x": 1535.125,
+          "y": 2610.046875,
+          "w": 104.046875,
+          "h": 12.75
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[9px] max-lg:text-[11px] text-[var(--ink-muted)] whitespace-nowrap overflow-hidden text-ellipsis user-summary-role",
+          "text": "Operator NOC (On Leave)",
+          "font": "9px",
+          "x": 1534,
+          "y": 2669.296875,
+          "w": 109.6875,
+          "h": 13.5
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center gap-[2px] text-[9.5px] max-lg:text-[11px] font-semibold text-[#38bdf8] shrink-0 user-detail-link max-lg:min-h-10 max-lg:min-w-10 max-lg:justify-end",
+          "text": "Detail",
+          "font": "9.5px",
+          "x": 1781.1875,
+          "y": 2660.671875,
+          "w": 39.8125,
+          "h": 14.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[7.5px] max-lg:text-[11px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl",
+          "text": "HARI INI",
+          "font": "7.5px",
+          "x": 1538.75,
+          "y": 2692.796875,
+          "w": 37.8125,
+          "h": 11.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[7.5px] max-lg:text-[11px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl",
+          "text": "BULAN INI",
+          "font": "7.5px",
+          "x": 1639.71875,
+          "y": 2692.796875,
+          "w": 42.53125,
+          "h": 11.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[7.5px] max-lg:text-[11px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl",
+          "text": "TAHUN INI",
+          "font": "7.5px",
+          "x": 1743.0625,
+          "y": 2692.796875,
+          "w": 42.53125,
+          "h": 11.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[8.5px] max-lg:text-[11px] text-[var(--ink-muted)] font-semibold shrink-0 user-proj-label",
+          "text": "Hari Ini:",
+          "font": "8.5px",
+          "x": 1501,
+          "y": 2733.046875,
+          "w": 30.125,
+          "h": 12.75
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[8.5px] max-lg:text-[11px] text-[var(--ink-muted)] italic user-proj-none",
+          "text": "Tidak ada tiket baru hari ini",
+          "font": "8.5px",
+          "x": 1535.125,
+          "y": 2733.046875,
+          "w": 104.046875,
+          "h": 12.75
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[9px] max-lg:text-[11px] text-[var(--ink-muted)] whitespace-nowrap overflow-hidden text-ellipsis user-summary-role",
+          "text": "Operator NOC (Shift Pagi)",
+          "font": "9px",
+          "x": 1534,
+          "y": 2792.296875,
+          "w": 114.0625,
+          "h": 13.5
+        },
+        {
+          "tag": "SPAN",
+          "cls": "inline-flex items-center gap-[2px] text-[9.5px] max-lg:text-[11px] font-semibold text-[#38bdf8] shrink-0 user-detail-link max-lg:min-h-10 max-lg:min-w-10 max-lg:justify-end",
+          "text": "Detail",
+          "font": "9.5px",
+          "x": 1781.1875,
+          "y": 2783.671875,
+          "w": 39.8125,
+          "h": 14.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[7.5px] max-lg:text-[11px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl",
+          "text": "HARI INI",
+          "font": "7.5px",
+          "x": 1538.75,
+          "y": 2815.796875,
+          "w": 37.8125,
+          "h": 11.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[7.5px] max-lg:text-[11px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl",
+          "text": "BULAN INI",
+          "font": "7.5px",
+          "x": 1639.71875,
+          "y": 2815.796875,
+          "w": 42.53125,
+          "h": 11.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[7.5px] max-lg:text-[11px] font-bold text-[var(--ink-muted)] font-mono tracking-[0.03em] metric-lbl",
+          "text": "TAHUN INI",
+          "font": "7.5px",
+          "x": 1743.0625,
+          "y": 2815.796875,
+          "w": 42.53125,
+          "h": 11.25
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[8.5px] max-lg:text-[11px] text-[var(--ink-muted)] font-semibold shrink-0 user-proj-label",
+          "text": "Hari Ini:",
+          "font": "8.5px",
+          "x": 1501,
+          "y": 2856.046875,
+          "w": 30.125,
+          "h": 12.75
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[8.5px] max-lg:text-[11px] text-[var(--ink-muted)] italic user-proj-none",
+          "text": "Tidak ada tiket baru hari ini",
+          "font": "8.5px",
+          "x": 1535.125,
+          "y": 2856.046875,
+          "w": 104.046875,
+          "h": 12.75
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[8px] max-lg:text-[11px] font-bold font-mono tracking-[0.8px] text-[var(--ink-muted)] mt-[2px] donut-total-label",
+          "text": "TOTAL",
+          "font": "8px",
+          "x": 394,
+          "y": 1860.921875,
+          "w": 28,
+          "h": 12
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[10px] max-lg:text-[11px] font-mono uppercase tracking-[0.12em] text-[#94a3b8] mt-1 donut-total-label",
+          "text": "CRIT/HIGH",
+          "font": "10px",
+          "x": 1156.59375,
+          "y": 1864.421875,
+          "w": 64.8125,
+          "h": 15
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[10px] max-lg:text-[11px] text-[var(--ink-muted)] font-semibold whitespace-nowrap overflow-hidden text-ellipsis velocity-metric-label",
+          "text": "Rata-rata Resolusi",
+          "font": "10px",
+          "x": 351,
+          "y": 2095.796875,
+          "w": 340,
+          "h": 15
+        },
+        {
+          "tag": "SMALL",
+          "text": "menit",
+          "font": "10px",
+          "x": 378,
+          "y": 2116.796875,
+          "w": 30,
+          "h": 13
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[10px] max-lg:text-[11px] text-[var(--ink-muted)] font-semibold whitespace-nowrap overflow-hidden text-ellipsis velocity-metric-label max-lg:whitespace-normal",
+          "text": "Kepatuhan SLA (≤60m)",
+          "font": "10px",
+          "x": 727,
+          "y": 2095.796875,
+          "w": 340,
+          "h": 15
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[10px] max-lg:text-[11px] text-[var(--ink-muted)] font-semibold whitespace-nowrap overflow-hidden text-ellipsis velocity-metric-label",
+          "text": "Durasi Tercepat",
+          "font": "10px",
+          "x": 1103,
+          "y": 2095.796875,
+          "w": 340,
+          "h": 15
+        },
+        {
+          "tag": "SMALL",
+          "text": "menit",
+          "font": "10px",
+          "x": 1130,
+          "y": 2116.796875,
+          "w": 30,
+          "h": 13
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[10px] max-lg:text-[11px] text-[var(--ink-muted)] font-semibold whitespace-nowrap overflow-hidden text-ellipsis velocity-metric-label",
+          "text": "Durasi Tertinggi",
+          "font": "10px",
+          "x": 1479,
+          "y": 2095.796875,
+          "w": 340,
+          "h": 15
+        },
+        {
+          "tag": "SMALL",
+          "text": "menit",
+          "font": "10px",
+          "x": 1506,
+          "y": 2116.796875,
+          "w": 30,
+          "h": 13
+        },
+        {
+          "tag": "text",
+          "text": "0m",
+          "font": "9px",
+          "x": 390.9219665527344,
+          "y": 2454.8349609375,
+          "w": 15.68768310546875,
+          "h": 17
+        },
+        {
+          "tag": "text",
+          "text": "20m",
+          "font": "9px",
+          "x": 383.234375,
+          "y": 2399.344970703125,
+          "w": 23.375274658203125,
+          "h": 16.999755859375
+        },
+        {
+          "tag": "text",
+          "text": "40m",
+          "font": "9px",
+          "x": 383.234375,
+          "y": 2343.854736328125,
+          "w": 23.375274658203125,
+          "h": 16.999755859375
+        },
+        {
+          "tag": "text",
+          "text": "60m",
+          "font": "10.5px",
+          "x": 379.40618896484375,
+          "y": 2287.78759765625,
+          "w": 26.922210693359375,
+          "h": 18.999755859375
+        },
+        {
+          "tag": "text",
+          "text": "80m",
+          "font": "9px",
+          "x": 383.234375,
+          "y": 2234.29736328125,
+          "w": 23.375274658203125,
+          "h": 16.999755859375
+        },
+        {
+          "tag": "text",
+          "text": "100m",
+          "font": "9px",
+          "x": 375.5624084472656,
+          "y": 2178.807373046875,
+          "w": 31.0472412109375,
+          "h": 16.999755859375
+        },
+        {
+          "tag": "text",
+          "text": "Breach 90m",
+          "font": "8.5px",
+          "x": 1730.2747802734375,
+          "y": 2206.12939453125,
+          "w": 72.547607421875,
+          "h": 16
+        },
+        {
+          "tag": "text",
+          "text": "Target 60m",
+          "font": "8.5px",
+          "x": 1730.2747802734375,
+          "y": 2290.076171875,
+          "w": 72.547607421875,
+          "h": 15.999755859375
+        },
+        {
+          "tag": "text",
+          "text": "07-20",
+          "font": "9px",
+          "x": 409.8594970703125,
+          "y": 2475.466064453125,
+          "w": 38.406707763671875,
+          "h": 16.999755859375
+        },
+        {
+          "tag": "text",
+          "text": "60m Max",
+          "font": "8.5px",
+          "x": 470.54620361328125,
+          "y": 2266.3310546875,
+          "w": 51.52459716796875,
+          "h": 15.999755859375
+        },
+        {
+          "tag": "text",
+          "text": "08-25",
+          "font": "9px",
+          "x": 543.6080322265625,
+          "y": 2475.466064453125,
+          "w": 38.40673828125,
+          "h": 16.999755859375
+        },
+        {
+          "tag": "text",
+          "text": "08-27",
+          "font": "9px",
+          "x": 678.779541015625,
+          "y": 2475.466064453125,
+          "w": 38.72039794921875,
+          "h": 16.999755859375
+        },
+        {
+          "tag": "text",
+          "text": "08-29",
+          "font": "9px",
+          "x": 812.528076171875,
+          "y": 2475.466064453125,
+          "w": 38.720458984375,
+          "h": 16.999755859375
+        },
+        {
+          "tag": "text",
+          "text": "08-31",
+          "font": "9px",
+          "x": 946.276611328125,
+          "y": 2475.466064453125,
+          "w": 38.720458984375,
+          "h": 16.999755859375
+        },
+        {
+          "tag": "text",
+          "text": "09-02",
+          "font": "9px",
+          "x": 1081.447998046875,
+          "y": 2475.466064453125,
+          "w": 38.720458984375,
+          "h": 16.999755859375
+        },
+        {
+          "tag": "text",
+          "text": "09-04",
+          "font": "9px",
+          "x": 1215.1966552734375,
+          "y": 2475.466064453125,
+          "w": 38.4066162109375,
+          "h": 16.999755859375
+        },
+        {
+          "tag": "text",
+          "text": "20m Min",
+          "font": "8.5px",
+          "x": 1275.88330078125,
+          "y": 2422.841552734375,
+          "w": 50.781982421875,
+          "h": 15.999755859375
+        },
+        {
+          "tag": "text",
+          "text": "09-06",
+          "font": "9px",
+          "x": 1348.9453125,
+          "y": 2475.466064453125,
+          "w": 38.7203369140625,
+          "h": 16.999755859375
+        },
+        {
+          "tag": "text",
+          "text": "09-08",
+          "font": "9px",
+          "x": 1484.11669921875,
+          "y": 2475.466064453125,
+          "w": 38.7203369140625,
+          "h": 16.999755859375
+        },
+        {
+          "tag": "text",
+          "text": "09-10",
+          "font": "9px",
+          "x": 1617.865234375,
+          "y": 2475.466064453125,
+          "w": 38.40673828125,
+          "h": 16.999755859375
+        },
+        {
+          "tag": "text",
+          "text": "09-11",
+          "font": "9px",
+          "x": 1684.739501953125,
+          "y": 2475.466064453125,
+          "w": 38.7203369140625,
+          "h": 16.999755859375
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[10px] max-lg:text-[11px] text-[var(--ink-muted,#94a3b8)] font-mono font-medium opacity-80 ml-[2px] shift-traffic-metric-hours",
+          "text": "(08:00–16:30)",
+          "font": "10px",
+          "x": 431.265625,
+          "y": 2682.328125,
+          "w": 78,
+          "h": 13
+        },
+        {
+          "tag": "DIV",
+          "cls": "text-[10.5px] max-lg:text-[11px] text-[var(--ink-muted,#94a3b8)] font-mono leading-[1.35] whitespace-nowrap overflow-hidden text-ellipsis shift-traffic-metric-sub",
+          "text": "51% dari total beban",
+          "font": "10.5px",
+          "x": 354,
+          "y": 2733.578125,
+          "w": 332.5,
+          "h": 14.171875
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[10px] max-lg:text-[11px] text-[var(--ink-muted,#94a3b8)] font-mono font-medium opacity-80 ml-[2px] shift-traffic-metric-hours",
+          "text": "(16:00–00:30)",
+          "font": "10px",
+          "x": 819.921875,
+          "y": 2682.328125,
+          "w": 78,
+          "h": 13
+        },
+        {
+          "tag": "DIV",
+          "cls": "text-[10.5px] max-lg:text-[11px] text-[var(--ink-muted,#94a3b8)] font-mono leading-[1.35] whitespace-nowrap overflow-hidden text-ellipsis shift-traffic-metric-sub",
+          "text": "41% dari total beban",
+          "font": "10.5px",
+          "x": 730.5,
+          "y": 2733.578125,
+          "w": 332.5,
+          "h": 14.171875
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[10px] max-lg:text-[11px] text-[var(--ink-muted,#94a3b8)] font-mono font-medium opacity-80 ml-[2px] shift-traffic-metric-hours",
+          "text": "(00:00–08:30)",
+          "font": "10px",
+          "x": 1195.109375,
+          "y": 2682.328125,
+          "w": 78,
+          "h": 13
+        },
+        {
+          "tag": "DIV",
+          "cls": "text-[10.5px] max-lg:text-[11px] text-[var(--ink-muted,#94a3b8)] font-mono leading-[1.35] whitespace-nowrap overflow-hidden text-ellipsis shift-traffic-metric-sub",
+          "text": "8% dari total beban",
+          "font": "10.5px",
+          "x": 1107,
+          "y": 2733.578125,
+          "w": 332.5,
+          "h": 14.171875
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[10px] max-lg:text-[11px] text-[var(--ink-muted,#94a3b8)] font-mono font-medium opacity-80 ml-[2px] shift-traffic-metric-hours",
+          "text": "(Kumulatif)",
+          "font": "10px",
+          "x": 1629,
+          "y": 2682.328125,
+          "w": 66,
+          "h": 13
+        },
+        {
+          "tag": "DIV",
+          "cls": "text-[10.5px] max-lg:text-[11px] text-[var(--ink-muted,#94a3b8)] font-mono leading-[1.35] whitespace-nowrap overflow-hidden text-ellipsis shift-traffic-metric-sub",
+          "text": "38 tiket (51% total)",
+          "font": "10.5px",
+          "x": 1483.5,
+          "y": 2733.578125,
+          "w": 332.5,
+          "h": 14.171875
+        },
+        {
+          "tag": "SPAN",
+          "cls": "hidden lg:inline",
+          "text": "Semua Shift",
+          "font": "10.5px",
+          "x": 442.8125,
+          "y": 3102.75,
+          "w": 61.15625,
+          "h": 15.75
+        },
+        {
+          "tag": "SPAN",
+          "cls": "hidden lg:inline",
+          "text": "Shift Pagi",
+          "font": "10.5px",
+          "x": 538.96875,
+          "y": 3102.75,
+          "w": 47.984375,
+          "h": 15.75
+        },
+        {
+          "tag": "SPAN",
+          "cls": "hidden lg:inline",
+          "text": "Shift Malam",
+          "font": "10.5px",
+          "x": 621.953125,
+          "y": 3102.75,
+          "w": 59.578125,
+          "h": 15.75
+        },
+        {
+          "tag": "SPAN",
+          "cls": "hidden lg:inline",
+          "text": "Shift Subuh",
+          "font": "10.5px",
+          "x": 716.53125,
+          "y": 3102.75,
+          "w": 58.328125,
+          "h": 15.75
+        }
+      ],
+      "smallTargets": [
+        {
+          "tag": "BUTTON",
+          "cls": "border-none p-[2px_6px] rounded-[4px] cursor-pointer text-[10px] max-lg:text-[11px] font-bold font-mono transition-all duration-150 ease-[ease] bg-[rgba(56,189,248,0.22)] text-[#38bdf8] page-size-btn active",
+          "text": "10",
+          "x": 587.484375,
+          "y": 846.796875,
+          "w": 24,
+          "h": 19
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "border-none p-[2px_6px] rounded-[4px] cursor-pointer text-[10px] max-lg:text-[11px] font-semibold font-mono transition-all duration-150 ease-[ease] bg-transparent text-[#cbd5e1] hover:bg-[rgba(56,189,248,0.12)] hover:text-[#38bdf8] page-siz",
+          "text": "15",
+          "x": 614.484375,
+          "y": 846.796875,
+          "w": 24,
+          "h": 19
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "border-none p-[2px_6px] rounded-[4px] cursor-pointer text-[10px] max-lg:text-[11px] font-semibold font-mono transition-all duration-150 ease-[ease] bg-transparent text-[#cbd5e1] hover:bg-[rgba(56,189,248,0.12)] hover:text-[#38bdf8] page-siz",
+          "text": "25",
+          "x": 641.484375,
+          "y": 846.796875,
+          "w": 24,
+          "h": 19
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "border-none p-[2px_6px] rounded-[4px] cursor-pointer text-[10px] max-lg:text-[11px] font-semibold font-mono transition-all duration-150 ease-[ease] bg-transparent text-[#cbd5e1] hover:bg-[rgba(56,189,248,0.12)] hover:text-[#38bdf8] page-siz",
+          "text": "Semua",
+          "x": 668.484375,
+          "y": 846.796875,
+          "w": 42,
+          "h": 19
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center justify-center gap-[3px] p-[3px_8px] rounded-[6px] text-[10.5px] max-lg:text-[11px] font-semibold font-mono bg-[rgba(148,163,184,0.06)] border border-[rgba(148,163,184,0.15)] text-[#cbd5e1] cursor-pointer transition",
+          "text": "Prev",
+          "x": 1176.59375,
+          "y": 844.421875,
+          "w": 59.203125,
+          "h": 23.75
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center justify-center gap-[3px] min-w-[24px] h-[24px] p-0 rounded-[6px] text-[10.5px] max-lg:text-[11px] font-bold font-mono cursor-pointer transition-all duration-150 ease-[ease] select-none bg-[rgba(56,189,248,0.18)] bor",
+          "text": "1",
+          "x": 1240.796875,
+          "y": 844.296875,
+          "w": 24,
+          "h": 24
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center justify-center gap-[3px] min-w-[24px] h-[24px] p-0 rounded-[6px] text-[10.5px] max-lg:text-[11px] font-semibold font-mono cursor-pointer transition-all duration-150 ease-[ease] select-none bg-[rgba(148,163,184,0.06)",
+          "text": "2",
+          "x": 1267.796875,
+          "y": 844.296875,
+          "w": 24,
+          "h": 24
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center justify-center gap-[3px] min-w-[24px] h-[24px] p-0 rounded-[6px] text-[10.5px] max-lg:text-[11px] font-semibold font-mono cursor-pointer transition-all duration-150 ease-[ease] select-none bg-[rgba(148,163,184,0.06)",
+          "text": "3",
+          "x": 1294.796875,
+          "y": 844.296875,
+          "w": 24,
+          "h": 24
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center justify-center gap-[3px] min-w-[24px] h-[24px] p-0 rounded-[6px] text-[10.5px] max-lg:text-[11px] font-semibold font-mono cursor-pointer transition-all duration-150 ease-[ease] select-none bg-[rgba(148,163,184,0.06)",
+          "text": "4",
+          "x": 1321.796875,
+          "y": 844.296875,
+          "w": 24,
+          "h": 24
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center justify-center gap-[3px] p-[3px_8px] rounded-[6px] text-[10.5px] max-lg:text-[11px] font-semibold font-mono bg-[rgba(148,163,184,0.06)] border border-[rgba(148,163,184,0.15)] text-[#cbd5e1] cursor-pointer transition",
+          "text": "Next",
+          "x": 1350.796875,
+          "y": 844.421875,
+          "w": 59.203125,
+          "h": 23.75
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center justify-center gap-1.5 h-[28px] min-h-[28px] min-w-[32px] sm:min-w-fit px-2 sm:px-2.5 rounded-[8px] border border-[#334155] bg-slate-900/60 hover:bg-[#243044] text-[#cbd5e1] hover:text-[#f8fafc] cursor-pointer text-",
+          "text": "View",
+          "x": 1764.03125,
+          "y": 244.796875,
+          "w": 67.96875,
+          "h": 28
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center justify-center gap-[5px] h-[24px] p-[0_9px] rounded-[6px] text-[10.5px] max-lg:text-[11px] font-bold font-mono cursor-default select-none shrink-0 tracking-[0.02em] monitoring-status-btn max-lg:h-10 max-lg:w-14 max-",
+          "text": "OK",
+          "x": 1758.96875,
+          "y": 538.546875,
+          "w": 49.03125,
+          "h": 24
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center justify-center gap-[5px] h-[24px] p-[0_9px] rounded-[6px] text-[10.5px] max-lg:text-[11px] font-bold font-mono cursor-default select-none shrink-0 tracking-[0.02em] monitoring-status-btn max-lg:h-10 max-lg:w-14 max-",
+          "text": "OK",
+          "x": 1758.96875,
+          "y": 585.546875,
+          "w": 49.03125,
+          "h": 24
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center justify-center gap-[5px] h-[24px] p-[0_9px] rounded-[6px] text-[10.5px] max-lg:text-[11px] font-bold font-mono cursor-default select-none shrink-0 tracking-[0.02em] monitoring-status-btn max-lg:h-10 max-lg:w-14 max-",
+          "text": "OK",
+          "x": 1758.96875,
+          "y": 632.546875,
+          "w": 49.03125,
+          "h": 24
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center justify-center gap-[5px] h-[24px] p-[0_9px] rounded-[6px] text-[10.5px] max-lg:text-[11px] font-bold font-mono cursor-default select-none shrink-0 tracking-[0.02em] monitoring-status-btn max-lg:h-10 max-lg:w-14 max-",
+          "text": "NOK",
+          "x": 1752.46875,
+          "y": 682.015625,
+          "w": 55.53125,
+          "h": 24
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center justify-center gap-[5px] h-[24px] p-[0_9px] rounded-[6px] text-[10.5px] max-lg:text-[11px] font-bold font-mono cursor-default select-none shrink-0 tracking-[0.02em] monitoring-status-btn max-lg:h-10 max-lg:w-14 max-",
+          "text": "OK",
+          "x": 1758.96875,
+          "y": 731.484375,
+          "w": 49.03125,
+          "h": 24
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center justify-center gap-[5px] h-[24px] p-[0_9px] rounded-[6px] text-[10.5px] max-lg:text-[11px] font-bold font-mono cursor-default select-none shrink-0 tracking-[0.02em] monitoring-status-btn max-lg:h-10 max-lg:w-14 max-",
+          "text": "OK",
+          "x": 1758.96875,
+          "y": 778.484375,
+          "w": 49.03125,
+          "h": 24
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center justify-center gap-[5px] h-[24px] p-[0_9px] rounded-[6px] text-[10.5px] max-lg:text-[11px] font-bold font-mono cursor-default select-none shrink-0 tracking-[0.02em] monitoring-status-btn max-lg:h-10 max-lg:w-14 max-",
+          "text": "NOK",
+          "x": 1752.46875,
+          "y": 827.953125,
+          "w": 55.53125,
+          "h": 24
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center justify-center gap-[5px] h-[24px] p-[0_9px] rounded-[6px] text-[10.5px] max-lg:text-[11px] font-bold font-mono cursor-default select-none shrink-0 tracking-[0.02em] monitoring-status-btn max-lg:h-10 max-lg:w-14 max-",
+          "text": "OK",
+          "x": 1758.96875,
+          "y": 877.421875,
+          "w": 49.03125,
+          "h": 24
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center justify-center gap-[5px] h-[24px] p-[0_9px] rounded-[6px] text-[10.5px] max-lg:text-[11px] font-bold font-mono cursor-default select-none shrink-0 tracking-[0.02em] monitoring-status-btn max-lg:h-10 max-lg:w-14 max-",
+          "text": "OK",
+          "x": 1758.96875,
+          "y": 924.421875,
+          "w": 49.03125,
+          "h": 24
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center justify-center gap-[5px] h-[24px] p-[0_9px] rounded-[6px] text-[10.5px] max-lg:text-[11px] font-bold font-mono cursor-default select-none shrink-0 tracking-[0.02em] monitoring-status-btn max-lg:h-10 max-lg:w-14 max-",
+          "text": "OK",
+          "x": 1758.96875,
+          "y": 971.421875,
+          "w": 49.03125,
+          "h": 24
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center justify-center gap-[5px] h-[24px] p-[0_9px] rounded-[6px] text-[10.5px] max-lg:text-[11px] font-bold font-mono cursor-default select-none shrink-0 tracking-[0.02em] monitoring-status-btn max-lg:h-10 max-lg:w-14 max-",
+          "text": "OK",
+          "x": 1758.96875,
+          "y": 1018.421875,
+          "w": 49.03125,
+          "h": 24
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center justify-center gap-[5px] h-[24px] p-[0_9px] rounded-[6px] text-[10.5px] max-lg:text-[11px] font-bold font-mono cursor-default select-none shrink-0 tracking-[0.02em] monitoring-status-btn max-lg:h-10 max-lg:w-14 max-",
+          "text": "OK",
+          "x": 1758.96875,
+          "y": 1065.421875,
+          "w": 49.03125,
+          "h": 24
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center justify-center gap-[5px] h-[24px] p-[0_9px] rounded-[6px] text-[10.5px] max-lg:text-[11px] font-bold font-mono cursor-default select-none shrink-0 tracking-[0.02em] monitoring-status-btn max-lg:h-10 max-lg:w-14 max-",
+          "text": "OK",
+          "x": 1758.96875,
+          "y": 1112.421875,
+          "w": 49.03125,
+          "h": 24
+        },
+        {
+          "tag": "DIV",
+          "cls": "group flex items-center justify-between w-full h-[38px] p-[0_10px_0_12px] bg-[var(--input-bg)] border rounded-[7px] text-[var(--ink-primary)] text-[11.5px] font-normal cursor-pointer transition-colors duration-150 motion-reduce:transition-n",
+          "text": "Pilih Rentang Tanggal",
+          "x": 334,
+          "y": 987.046875,
+          "w": 299.609375,
+          "h": 34
+        },
+        {
+          "tag": "SELECT",
+          "cls": "w-full h-[34px] p-[0_28px_0_30px] bg-[rgba(15,23,42,0.85)] border border-[rgba(148,163,184,0.16)] rounded-[7px] text-[11.5px] text-[#f8fafc] [appearance:none] [-webkit-appearance:none] cursor-pointer [transition:all_0.15s_ease] [outline:non",
+          "text": "Semua ProyekAPHB2BDMEPC ToolsMBSMUNEMUSIEM",
+          "x": 643.609375,
+          "y": 987.046875,
+          "w": 230.484375,
+          "h": 34
+        },
+        {
+          "tag": "SELECT",
+          "cls": "w-full h-[34px] p-[0_28px_0_30px] bg-[rgba(15,23,42,0.85)] border border-[rgba(148,163,184,0.16)] rounded-[7px] text-[11.5px] text-[#f8fafc] [appearance:none] [-webkit-appearance:none] cursor-pointer [transition:all_0.15s_ease] [outline:non",
+          "text": "Semua ShiftShift Subuh (00:00–08:30)Shift Pagi (08:00–16:30)Shift Malam (16:00–00:30)",
+          "x": 884.09375,
+          "y": 987.046875,
+          "w": 230.46875,
+          "h": 34
+        },
+        {
+          "tag": "DIV",
+          "cls": "relative flex items-center justify-between gap-[6px] w-full h-[34px] p-[0_10px_0_30px] bg-[rgba(15,23,42,0.85)] border border-[rgba(148,163,184,0.16)] rounded-[7px] text-[11.5px] text-[#f8fafc] cursor-pointer select-none [transition:all_0.1",
+          "text": "Semua Shifter (14 Staf)",
+          "x": 1124.5625,
+          "y": 987.046875,
+          "w": 230.484375,
+          "h": 34
+        },
+        {
+          "tag": "SELECT",
+          "cls": "w-full h-[34px] p-[0_28px_0_30px] bg-[rgba(15,23,42,0.85)] border border-[rgba(148,163,184,0.16)] rounded-[7px] text-[11.5px] text-[#f8fafc] [appearance:none] [-webkit-appearance:none] cursor-pointer [transition:all_0.15s_ease] [outline:non",
+          "text": "Semua StatusOpenClosedActivityMeetingRe-OpenPendingRCA",
+          "x": 1365.046875,
+          "y": 987.046875,
+          "w": 230.46875,
+          "h": 34
+        },
+        {
+          "tag": "SELECT",
+          "cls": "w-full h-[34px] p-[0_28px_0_30px] bg-[rgba(15,23,42,0.85)] border border-[rgba(148,163,184,0.16)] rounded-[7px] text-[11.5px] text-[#f8fafc] [appearance:none] [-webkit-appearance:none] cursor-pointer [transition:all_0.15s_ease] [outline:non",
+          "text": "Semua SeverityCritical (Kritis)High (Tinggi)Medium (Sedang)Low (Rendah)",
+          "x": 1605.515625,
+          "y": 987.046875,
+          "w": 230.46875,
+          "h": 34
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center gap-[6px] p-[5px_11px] rounded-[6px] text-[11.5px] border-none cursor-pointer [transition:all_0.15s_ease] bg-[var(--accent-blue)] text-[#0f172a] font-bold active chart-tab-btn max-lg:px-2",
+          "text": "Volume per ProjectVol",
+          "x": 1046.453125,
+          "y": 1081.046875,
+          "w": 146.421875,
+          "h": 27.25
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center gap-[6px] p-[5px_11px] rounded-[6px] text-[11.5px] border-none cursor-pointer [transition:all_0.15s_ease] bg-transparent text-[var(--ink-secondary)] font-semibold hover:text-[var(--ink-primary)] chart-tab-btn max-lg",
+          "text": "Bulan Lalu vs Bulan IniMoM",
+          "x": 1198.875,
+          "y": 1081.046875,
+          "w": 157.15625,
+          "h": 27.25
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center justify-center gap-1.5 h-[28px] min-h-[28px] min-w-[32px] sm:min-w-fit px-2 sm:px-2.5 rounded-[8px] border border-[#334155] bg-slate-900/60 hover:bg-[#243044] text-[#cbd5e1] hover:text-[#f8fafc] cursor-pointer text-",
+          "text": "View",
+          "x": 1368.03125,
+          "y": 1080.671875,
+          "w": 67.96875,
+          "h": 28
+        },
+        {
+          "tag": "g",
+          "cls": "max-lg:snap-center max-lg:touch-pan-y max-lg:focus-visible:outline-2 max-lg:focus-visible:outline-sky-400 stacked-bar-group [cursor:pointer]! [&_rect]:[transition:opacity_0.15s_ease,fill_0.15s_ease] [&_rect]:hover:opacity-100 ",
+          "text": "Klik untuk melihat rincian tiket tanggal 2026-07-20107-20",
+          "x": 379.17498779296875,
+          "y": 1433.53466796875,
+          "w": 33.784637451171875,
+          "h": 71.10693359375
+        },
+        {
+          "tag": "g",
+          "cls": "max-lg:snap-center max-lg:touch-pan-y max-lg:focus-visible:outline-2 max-lg:focus-visible:outline-sky-400 stacked-bar-group [cursor:pointer]! [&_rect]:[transition:opacity_0.15s_ease,fill_0.15s_ease] [&_rect]:hover:opacity-100 ",
+          "text": "Klik untuk melihat rincian tiket tanggal 2026-07-25107-25",
+          "x": 431.9634704589844,
+          "y": 1433.53466796875,
+          "w": 33.78460693359375,
+          "h": 71.10693359375
+        },
+        {
+          "tag": "g",
+          "cls": "max-lg:snap-center max-lg:touch-pan-y max-lg:focus-visible:outline-2 max-lg:focus-visible:outline-sky-400 stacked-bar-group [cursor:pointer]! [&_rect]:[transition:opacity_0.15s_ease,fill_0.15s_ease] [&_rect]:hover:opacity-100 ",
+          "text": "Klik untuk melihat rincian tiket tanggal 2026-08-25208-25",
+          "x": 485.80767822265625,
+          "y": 1426.3125,
+          "w": 33.78460693359375,
+          "h": 78.3291015625
+        },
+        {
+          "tag": "g",
+          "cls": "max-lg:snap-center max-lg:touch-pan-y max-lg:focus-visible:outline-2 max-lg:focus-visible:outline-sky-400 stacked-bar-group [cursor:pointer]! [&_rect]:[transition:opacity_0.15s_ease,fill_0.15s_ease] [&_rect]:hover:opacity-100 ",
+          "text": "Klik untuk melihat rincian tiket tanggal 2026-08-26208-26",
+          "x": 538.59619140625,
+          "y": 1426.3125,
+          "w": 33.7845458984375,
+          "h": 78.3291015625
+        },
+        {
+          "tag": "g",
+          "cls": "max-lg:snap-center max-lg:touch-pan-y max-lg:focus-visible:outline-2 max-lg:focus-visible:outline-sky-400 stacked-bar-group [cursor:pointer]! [&_rect]:[transition:opacity_0.15s_ease,fill_0.15s_ease] [&_rect]:hover:opacity-100 ",
+          "text": "Klik untuk melihat rincian tiket tanggal 2026-08-27308-27",
+          "x": 591.3846435546875,
+          "y": 1419.0902099609375,
+          "w": 33.7845458984375,
+          "h": 85.5513916015625
+        },
+        {
+          "tag": "g",
+          "cls": "max-lg:snap-center max-lg:touch-pan-y max-lg:focus-visible:outline-2 max-lg:focus-visible:outline-sky-400 stacked-bar-group [cursor:pointer]! [&_rect]:[transition:opacity_0.15s_ease,fill_0.15s_ease] [&_rect]:hover:opacity-100 ",
+          "text": "Klik untuk melihat rincian tiket tanggal 2026-08-28408-28",
+          "x": 644.173095703125,
+          "y": 1416.201416015625,
+          "w": 33.78460693359375,
+          "h": 88.440185546875
+        },
+        {
+          "tag": "g",
+          "cls": "max-lg:snap-center max-lg:touch-pan-y max-lg:focus-visible:outline-2 max-lg:focus-visible:outline-sky-400 stacked-bar-group [cursor:pointer]! [&_rect]:[transition:opacity_0.15s_ease,fill_0.15s_ease] [&_rect]:hover:opacity-100 ",
+          "text": "Klik untuk melihat rincian tiket tanggal 2026-08-29208-29",
+          "x": 698.017333984375,
+          "y": 1426.3125,
+          "w": 33.7845458984375,
+          "h": 78.3291015625
+        },
+        {
+          "tag": "g",
+          "cls": "max-lg:snap-center max-lg:touch-pan-y max-lg:focus-visible:outline-2 max-lg:focus-visible:outline-sky-400 stacked-bar-group [cursor:pointer]! [&_rect]:[transition:opacity_0.15s_ease,fill_0.15s_ease] [&_rect]:hover:opacity-100 ",
+          "text": "Klik untuk melihat rincian tiket tanggal 2026-08-30408-30",
+          "x": 750.8057861328125,
+          "y": 1411.8680419921875,
+          "w": 33.78460693359375,
+          "h": 92.7735595703125
+        },
+        {
+          "tag": "g",
+          "cls": "max-lg:snap-center max-lg:touch-pan-y max-lg:focus-visible:outline-2 max-lg:focus-visible:outline-sky-400 stacked-bar-group [cursor:pointer]! [&_rect]:[transition:opacity_0.15s_ease,fill_0.15s_ease] [&_rect]:hover:opacity-100 ",
+          "text": "Klik untuk melihat rincian tiket tanggal 2026-08-314408-31",
+          "x": 803.59423828125,
+          "y": 1224.0902099609375,
+          "w": 33.78460693359375,
+          "h": 280.5513916015625
+        },
+        {
+          "tag": "g",
+          "cls": "max-lg:snap-center max-lg:touch-pan-y max-lg:focus-visible:outline-2 max-lg:focus-visible:outline-sky-400 stacked-bar-group [cursor:pointer]! [&_rect]:[transition:opacity_0.15s_ease,fill_0.15s_ease] [&_rect]:hover:opacity-100 ",
+          "text": "Klik untuk melihat rincian tiket tanggal 2026-09-01409-01",
+          "x": 856.3826904296875,
+          "y": 1411.8680419921875,
+          "w": 33.78460693359375,
+          "h": 92.7735595703125
+        },
+        {
+          "tag": "g",
+          "cls": "max-lg:snap-center max-lg:touch-pan-y max-lg:focus-visible:outline-2 max-lg:focus-visible:outline-sky-400 stacked-bar-group [cursor:pointer]! [&_rect]:[transition:opacity_0.15s_ease,fill_0.15s_ease] [&_rect]:hover:opacity-100 ",
+          "text": "Klik untuk melihat rincian tiket tanggal 2026-09-02209-02",
+          "x": 910.2269287109375,
+          "y": 1426.3125,
+          "w": 33.78460693359375,
+          "h": 78.3291015625
+        },
+        {
+          "tag": "g",
+          "cls": "max-lg:snap-center max-lg:touch-pan-y max-lg:focus-visible:outline-2 max-lg:focus-visible:outline-sky-400 stacked-bar-group [cursor:pointer]! [&_rect]:[transition:opacity_0.15s_ease,fill_0.15s_ease] [&_rect]:hover:opacity-100 ",
+          "text": "Klik untuk melihat rincian tiket tanggal 2026-09-03109-03",
+          "x": 963.015380859375,
+          "y": 1433.53466796875,
+          "w": 33.78460693359375,
+          "h": 71.10693359375
+        },
+        {
+          "tag": "g",
+          "cls": "max-lg:snap-center max-lg:touch-pan-y max-lg:focus-visible:outline-2 max-lg:focus-visible:outline-sky-400 stacked-bar-group [cursor:pointer]! [&_rect]:[transition:opacity_0.15s_ease,fill_0.15s_ease] [&_rect]:hover:opacity-100 ",
+          "text": "Klik untuk melihat rincian tiket tanggal 2026-09-04109-04",
+          "x": 1015.8038330078125,
+          "y": 1433.53466796875,
+          "w": 33.7845458984375,
+          "h": 71.10693359375
+        },
+        {
+          "tag": "g",
+          "cls": "max-lg:snap-center max-lg:touch-pan-y max-lg:focus-visible:outline-2 max-lg:focus-visible:outline-sky-400 stacked-bar-group [cursor:pointer]! [&_rect]:[transition:opacity_0.15s_ease,fill_0.15s_ease] [&_rect]:hover:opacity-100 ",
+          "text": "Klik untuk melihat rincian tiket tanggal 2026-09-05109-05",
+          "x": 1068.59228515625,
+          "y": 1433.53466796875,
+          "w": 33.78466796875,
+          "h": 71.10693359375
+        },
+        {
+          "tag": "g",
+          "cls": "max-lg:snap-center max-lg:touch-pan-y max-lg:focus-visible:outline-2 max-lg:focus-visible:outline-sky-400 stacked-bar-group [cursor:pointer]! [&_rect]:[transition:opacity_0.15s_ease,fill_0.15s_ease] [&_rect]:hover:opacity-100 ",
+          "text": "Klik untuk melihat rincian tiket tanggal 2026-09-06209-06",
+          "x": 1122.4365234375,
+          "y": 1426.3125,
+          "w": 33.78466796875,
+          "h": 78.3291015625
+        },
+        {
+          "tag": "g",
+          "cls": "max-lg:snap-center max-lg:touch-pan-y max-lg:focus-visible:outline-2 max-lg:focus-visible:outline-sky-400 stacked-bar-group [cursor:pointer]! [&_rect]:[transition:opacity_0.15s_ease,fill_0.15s_ease] [&_rect]:hover:opacity-100 ",
+          "text": "Klik untuk melihat rincian tiket tanggal 2026-09-07209-07",
+          "x": 1175.2249755859375,
+          "y": 1426.3125,
+          "w": 33.78466796875,
+          "h": 78.3291015625
+        },
+        {
+          "tag": "g",
+          "cls": "max-lg:snap-center max-lg:touch-pan-y max-lg:focus-visible:outline-2 max-lg:focus-visible:outline-sky-400 stacked-bar-group [cursor:pointer]! [&_rect]:[transition:opacity_0.15s_ease,fill_0.15s_ease] [&_rect]:hover:opacity-100 ",
+          "text": "Klik untuk melihat rincian tiket tanggal 2026-09-08209-08",
+          "x": 1228.013427734375,
+          "y": 1426.3125,
+          "w": 33.78466796875,
+          "h": 78.3291015625
+        },
+        {
+          "tag": "g",
+          "cls": "max-lg:snap-center max-lg:touch-pan-y max-lg:focus-visible:outline-2 max-lg:focus-visible:outline-sky-400 stacked-bar-group [cursor:pointer]! [&_rect]:[transition:opacity_0.15s_ease,fill_0.15s_ease] [&_rect]:hover:opacity-100 ",
+          "text": "Klik untuk melihat rincian tiket tanggal 2026-09-09209-09",
+          "x": 1280.802001953125,
+          "y": 1426.3125,
+          "w": 33.7845458984375,
+          "h": 78.3291015625
+        },
+        {
+          "tag": "g",
+          "cls": "max-lg:snap-center max-lg:touch-pan-y max-lg:focus-visible:outline-2 max-lg:focus-visible:outline-sky-400 stacked-bar-group [cursor:pointer]! [&_rect]:[transition:opacity_0.15s_ease,fill_0.15s_ease] [&_rect]:hover:opacity-100 ",
+          "text": "Klik untuk melihat rincian tiket tanggal 2026-09-10309-10",
+          "x": 1334.646240234375,
+          "y": 1419.0902099609375,
+          "w": 33.7845458984375,
+          "h": 85.5513916015625
+        },
+        {
+          "tag": "g",
+          "cls": "max-lg:snap-center max-lg:touch-pan-y max-lg:focus-visible:outline-2 max-lg:focus-visible:outline-sky-400 stacked-bar-group [cursor:pointer]! [&_rect]:[transition:opacity_0.15s_ease,fill_0.15s_ease] [&_rect]:hover:opacity-100 ",
+          "text": "Klik untuk melihat rincian tiket tanggal 2026-09-11509-11",
+          "x": 1387.4345703125,
+          "y": 1404.645751953125,
+          "w": 33.78466796875,
+          "h": 99.995849609375
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center justify-center gap-1.5 h-[28px] min-h-[28px] min-w-[32px] sm:min-w-fit px-2 sm:px-2.5 rounded-[8px] border border-[#334155] bg-slate-900/60 hover:bg-[#243044] text-[#cbd5e1] hover:text-[#f8fafc] cursor-pointer text-",
+          "text": "View",
+          "x": 1764.03125,
+          "y": 1077.046875,
+          "w": 67.96875,
+          "h": 28
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center justify-center gap-1.5 h-[28px] min-h-[28px] min-w-[32px] sm:min-w-fit px-2 sm:px-2.5 rounded-[8px] border border-[#334155] bg-slate-900/60 hover:bg-[#243044] text-[#cbd5e1] hover:text-[#f8fafc] cursor-pointer text-",
+          "text": "View",
+          "x": 987.03125,
+          "y": 1677.046875,
+          "w": 67.96875,
+          "h": 28
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center justify-center gap-1.5 h-[28px] min-h-[28px] min-w-[32px] sm:min-w-fit px-2 sm:px-2.5 rounded-[8px] border border-[#334155] bg-slate-900/60 hover:bg-[#243044] text-[#cbd5e1] hover:text-[#f8fafc] cursor-pointer text-",
+          "text": "View",
+          "x": 1764.03125,
+          "y": 1677.046875,
+          "w": 67.96875,
+          "h": 28
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center justify-center gap-1.5 h-[28px] min-h-[28px] min-w-[32px] sm:min-w-fit px-2 sm:px-2.5 rounded-[8px] border border-[#334155] bg-slate-900/60 hover:bg-[#243044] text-[#cbd5e1] hover:text-[#f8fafc] cursor-pointer text-",
+          "text": "View",
+          "x": 1764.03125,
+          "y": 2027.796875,
+          "w": 67.96875,
+          "h": 28
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center justify-center gap-1.5 h-[28px] min-h-[28px] min-w-[32px] sm:min-w-fit px-2 sm:px-2.5 rounded-[8px] border border-[#334155] bg-slate-900/60 hover:bg-[#243044] text-[#cbd5e1] hover:text-[#f8fafc] cursor-pointer text-",
+          "text": "View",
+          "x": 1764.03125,
+          "y": 2609.6875,
+          "w": 67.96875,
+          "h": 28
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center gap-[4px] p-[2px_8px] rounded-[5px] text-[10.5px] max-lg:text-[11px] font-semibold cursor-pointer transition-all duration-150 ease-out select-none border shift-filter-btn max-lg:min-h-10 bg-[rgba(56,189,248,0.18)] t",
+          "text": "Semua ShiftSemua",
+          "x": 433.8125,
+          "y": 3099.75,
+          "w": 79.15625,
+          "h": 21.75
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center gap-[4px] p-[2px_8px] rounded-[5px] text-[10.5px] max-lg:text-[11px] font-semibold cursor-pointer transition-all duration-150 ease-out select-none border shift-filter-btn max-lg:min-h-10 bg-[rgba(148,163,184,0.06)] ",
+          "text": "Shift PagiPagi",
+          "x": 517.96875,
+          "y": 3099.75,
+          "w": 77.984375,
+          "h": 21.75
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center gap-[4px] p-[2px_8px] rounded-[5px] text-[10.5px] max-lg:text-[11px] font-semibold cursor-pointer transition-all duration-150 ease-out select-none border shift-filter-btn max-lg:min-h-10 bg-[rgba(148,163,184,0.06)] ",
+          "text": "Shift MalamMalam",
+          "x": 600.953125,
+          "y": 3099.75,
+          "w": 89.578125,
+          "h": 21.75
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center gap-[4px] p-[2px_8px] rounded-[5px] text-[10.5px] max-lg:text-[11px] font-semibold cursor-pointer transition-all duration-150 ease-out select-none border shift-filter-btn max-lg:min-h-10 bg-[rgba(148,163,184,0.06)] ",
+          "text": "Shift SubuhSubuh",
+          "x": 695.53125,
+          "y": 3099.75,
+          "w": 88.328125,
+          "h": 21.75
+        }
+      ],
+      "ellipsis": [
+        {
+          "tag": "SPAN",
+          "cls": "text-[11.5px] font-medium text-[#f8fafc] whitespace-nowrap overflow-hidden text-ellipsis leading-[1.3] monitoring-task-text max-lg:text-[13px]",
+          "text": "Webhook payment endpoint availability",
+          "title": "Webhook payment endpoint availability — Latensi > 200ms",
+          "x": 1546,
+          "y": 825.484375,
+          "w": 196.46875,
+          "h": 14.9375
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[11.5px] font-medium text-[#f8fafc] whitespace-nowrap overflow-hidden text-ellipsis leading-[1.3] monitoring-task-text max-lg:text-[13px]",
+          "text": "API gateway ISO8583 response latency",
+          "title": "API gateway ISO8583 response latency",
+          "x": 1544,
+          "y": 975.953125,
+          "w": 204.96875,
+          "h": 14.9375
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[11.5px] font-medium text-[#f8fafc] whitespace-nowrap overflow-hidden text-ellipsis leading-[1.3] monitoring-task-text max-lg:text-[13px]",
+          "text": "Dead letter queue monitor & consumer",
+          "title": "Dead letter queue monitor & consumer",
+          "x": 1548,
+          "y": 1022.953125,
+          "w": 200.96875,
+          "h": 14.9375
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[11.5px] font-medium text-[#f8fafc] whitespace-nowrap overflow-hidden text-ellipsis leading-[1.3] monitoring-task-text max-lg:text-[13px]",
+          "text": "SMS gateway notification delivery rate",
+          "title": "SMS gateway notification delivery rate",
+          "x": 1544,
+          "y": 1116.953125,
+          "w": 204.96875,
+          "h": 14.9375
+        },
+        {
+          "tag": "SPAN",
+          "cls": "whitespace-nowrap overflow-hidden text-ellipsis flex-1 min-w-0 mr-[8px] leading-none tracking-[0.1px] text-[11.5px] font-normal text-[var(--ink-muted)] ",
+          "text": "Pilih Rentang Tanggal",
+          "title": null,
+          "x": 347,
+          "y": 998.296875,
+          "w": 247.609375,
+          "h": 11.5
+        }
+      ],
+      "scrollers": [],
+      "charts": [
+        {
+          "tag": "svg",
+          "cls": "w-full h-full min-h-[270px] max-h-[390px] block compact-report-bar-svg-lg max-lg:min-h-[252px] max-lg:h-[252px]",
+          "text": "015304560Klik untuk melihat rincian tiket tanggal 2026-07-20107-20Klik untuk melihat rincian tiket tanggal 2026-07-25107",
+          "x": 338,
+          "y": 1143.296875,
+          "w": 1098,
+          "h": 390,
+          "viewBox": "0 0 1040 270",
+          "minFont": 10
+        },
+        {
+          "tag": "svg",
+          "cls": "w-full h-full donut-svg",
+          "text": "",
+          "x": 343,
+          "y": 1790.921875,
+          "w": 130,
+          "h": 130,
+          "viewBox": "0 0 160 160",
+          "minFont": null
+        },
+        {
+          "tag": "svg",
+          "cls": "w-full h-full donut-svg",
+          "text": "",
+          "x": 1115,
+          "y": 1781.921875,
+          "w": 148,
+          "h": 148,
+          "viewBox": "0 0 160 160",
+          "minFont": null
+        },
+        {
+          "tag": "svg",
+          "cls": "w-full h-full min-h-[280px] block select-none !overflow-visible compact-velocity-chart-svg max-lg:min-h-[252px] max-lg:[&_text]:text-[11px]",
+          "text": "0m20m40m60m80m100mBreach 90mTarget 60m07-2060m Max08-2508-2708-2908-3109-0209-0420m Min09-0609-0809-1009-11",
+          "x": 338,
+          "y": 2141.296875,
+          "w": 1494,
+          "h": 398.390625,
+          "viewBox": "0 0 1050 280",
+          "minFont": 8.5
+        },
+        {
+          "tag": "svg",
+          "cls": "w-full h-full min-h-[265px] block select-none overflow-visible compact-shift-traffic-chart-svg max-lg:min-h-[252px] max-lg:[&_text]:text-[11px]",
+          "text": "",
+          "x": 338,
+          "y": 2774.75,
+          "w": 1494,
+          "h": 310,
+          "viewBox": "0 0 860 280",
+          "minFont": null
+        }
+      ],
+      "fab": {
+        "x": 1842,
+        "y": 1004,
+        "w": 50,
+        "h": 48
+      },
+      "nav": []
+    }
+  ],
+  "errors": []
+}

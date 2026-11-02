@@ -1,0 +1,309 @@
+{
+  "before": {
+    "height": 4420,
+    "panels": [
+      {
+        "title": "Tiket Hari Ini",
+        "y": 467.890625,
+        "h": 728,
+        "header": 53,
+        "body": 673,
+        "wrapper": 645
+      },
+      {
+        "title": "Memo & Catatan Shift",
+        "y": 168.890625,
+        "h": 287,
+        "header": 77,
+        "body": 208,
+        "wrapper": 176
+      },
+      {
+        "title": "List Monitoring Shift",
+        "y": 1207.890625,
+        "h": 458.5,
+        "header": 73,
+        "body": 383.5,
+        "wrapper": 355.5
+      },
+      {
+        "title": "Ticket Volume per Project (Stacked by System)Volume Tiket",
+        "y": 1764.390625,
+        "h": 406,
+        "header": 73,
+        "body": 331,
+        "wrapper": 303
+      },
+      {
+        "title": "Rekap Tiket per User",
+        "y": 2182.390625,
+        "h": 451,
+        "header": 69,
+        "body": 380,
+        "wrapper": 352
+      },
+      {
+        "title": "Distribusi Kategori / Tipe TiketDistribusi Kategori",
+        "y": 2701.390625,
+        "h": 507,
+        "header": 73,
+        "body": 432,
+        "wrapper": 404
+      },
+      {
+        "title": "Tren Durasi Penyelesaian (Resolution Velocity)Tren Durasi",
+        "y": 3220.390625,
+        "h": 484,
+        "header": 73,
+        "body": 409,
+        "wrapper": 381
+      },
+      {
+        "title": "Tren Trafik Beban per Shift (Shift Traffic Velocity)Tren Trafik",
+        "y": 3716.390625,
+        "h": 556,
+        "header": 73,
+        "body": 481,
+        "wrapper": 453
+      }
+    ],
+    "sections": [
+      {
+        "cls": "page-heading flex justify-between items-end mb-[22px] max-lg:mb-0 max-[660p",
+        "y": 64,
+        "h": 52.890625
+      },
+      {
+        "cls": "flex flex-col gap-[14px] bg-transparent border-none rounded-none p-0 ops-fo",
+        "y": 128.890625,
+        "h": 1537.5
+      },
+      {
+        "cls": "flex flex-col gap-[12px] p-[14px_16px] bg-[var(--panel-bg)] border border-[",
+        "y": 1678.390625,
+        "h": 74
+      },
+      {
+        "cls": "grid grid-cols-[minmax(0,1fr)_380px] max-[1140px]:grid-cols-1 gap-[16px] it",
+        "y": 1764.390625,
+        "h": 869
+      },
+      {
+        "cls": "flex gap-2 lg:hidden",
+        "y": 2645.390625,
+        "h": 44
+      },
+      {
+        "cls": "grid grid-cols-2 max-[960px]:grid-cols-1 gap-[18px] max-lg:gap-3 report-cha",
+        "y": 2701.390625,
+        "h": 507
+      },
+      {
+        "cls": "bg-[var(--panel-bg)] border border-[var(--panel-border)] rounded-[12px] sha",
+        "y": 3220.390625,
+        "h": 484
+      },
+      {
+        "cls": "heatmap-standalone-section mt-[18px] max-lg:mt-0",
+        "y": 3716.390625,
+        "h": 556
+      }
+    ]
+  },
+  "after": {
+    "height": 4420,
+    "panels": [
+      {
+        "title": "Tiket Hari Ini",
+        "y": 467.890625,
+        "h": 728,
+        "header": 53,
+        "body": 673,
+        "wrapper": 645
+      },
+      {
+        "title": "Memo & Catatan Shift",
+        "y": 168.890625,
+        "h": 287,
+        "header": 77,
+        "body": 208,
+        "wrapper": 176
+      },
+      {
+        "title": "List Monitoring Shift",
+        "y": 1207.890625,
+        "h": 458.5,
+        "header": 73,
+        "body": 383.5,
+        "wrapper": 355.5
+      },
+      {
+        "title": "Ticket Volume per Project (Stacked by System)Volume Tiket",
+        "y": 1764.390625,
+        "h": 406,
+        "header": 73,
+        "body": 331,
+        "wrapper": 303
+      },
+      {
+        "title": "Rekap Tiket per User",
+        "y": 2182.390625,
+        "h": 451,
+        "header": 69,
+        "body": 380,
+        "wrapper": 352
+      },
+      {
+        "title": "Distribusi Kategori / Tipe TiketDistribusi Kategori",
+        "y": 2701.390625,
+        "h": 507,
+        "header": 73,
+        "body": 432,
+        "wrapper": 404
+      },
+      {
+        "title": "Tren Durasi Penyelesaian (Resolution Velocity)Tren Durasi",
+        "y": 3220.390625,
+        "h": 484,
+        "header": 73,
+        "body": 409,
+        "wrapper": 381
+      },
+      {
+        "title": "Tren Trafik Beban per Shift (Shift Traffic Velocity)Tren Trafik",
+        "y": 3716.390625,
+        "h": 556,
+        "header": 73,
+        "body": 481,
+        "wrapper": 453
+      }
+    ],
+    "sections": [
+      {
+        "cls": "page-heading flex justify-between items-end mb-[22px] max-lg:mb-0 max-[660p",
+        "y": 64,
+        "h": 52.890625
+      },
+      {
+        "cls": "flex flex-col gap-[14px] bg-transparent border-none rounded-none p-0 ops-fo",
+        "y": 128.890625,
+        "h": 1537.5
+      },
+      {
+        "cls": "flex flex-col gap-[12px] p-[14px_16px] bg-[var(--panel-bg)] border border-[",
+        "y": 1678.390625,
+        "h": 74
+      },
+      {
+        "cls": "grid grid-cols-[minmax(0,1fr)_380px] max-[1140px]:grid-cols-1 gap-[16px] it",
+        "y": 1764.390625,
+        "h": 869
+      },
+      {
+        "cls": "flex gap-2 lg:hidden",
+        "y": 2645.390625,
+        "h": 44
+      },
+      {
+        "cls": "grid grid-cols-2 max-[960px]:grid-cols-1 gap-[18px] max-lg:gap-3 report-cha",
+        "y": 2701.390625,
+        "h": 507
+      },
+      {
+        "cls": "bg-[var(--panel-bg)] border border-[var(--panel-border)] rounded-[12px] sha",
+        "y": 3220.390625,
+        "h": 484
+      },
+      {
+        "cls": "heatmap-standalone-section mt-[18px] max-lg:mt-0",
+        "y": 3716.390625,
+        "h": 556
+      }
+    ]
+  },
+  "quality": {
+    "cls": 0.00018861156489677298,
+    "dashboardCls": 0.000011224805896842688,
+    "shifts": [
+      {
+        "value": 0.0001773867589999303,
+        "bootVisible": true,
+        "sources": [
+          {
+            "before": {
+              "x": 65,
+              "y": 399.875,
+              "width": 260,
+              "height": 24,
+              "top": 399.875,
+              "right": 325,
+              "bottom": 423.875,
+              "left": 65
+            },
+            "after": {
+              "x": 65,
+              "y": 400.875,
+              "width": 260,
+              "height": 24,
+              "top": 400.875,
+              "right": 325,
+              "bottom": 424.875,
+              "left": 65
+            }
+          },
+          {
+            "before": {
+              "x": 78,
+              "y": 502.5,
+              "width": 220,
+              "height": 16,
+              "top": 502.5,
+              "right": 298,
+              "bottom": 518.5,
+              "left": 78
+            },
+            "after": {
+              "x": 78,
+              "y": 503.5,
+              "width": 220,
+              "height": 16,
+              "top": 503.5,
+              "right": 298,
+              "bottom": 519.5,
+              "left": 78
+            }
+          }
+        ]
+      },
+      {
+        "value": 0.000011224805896842688,
+        "bootVisible": false,
+        "sources": [
+          {
+            "before": {
+              "x": 241,
+              "y": 18.5,
+              "width": 38,
+              "height": 13,
+              "top": 18.5,
+              "right": 279,
+              "bottom": 31.5,
+              "left": 241
+            },
+            "after": {
+              "x": 241,
+              "y": 18.5,
+              "width": 38,
+              "height": 13,
+              "top": 18.5,
+              "right": 279,
+              "bottom": 31.5,
+              "left": 241
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "scrollLongTasks": []
+}

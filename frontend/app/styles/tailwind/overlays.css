@@ -281,6 +281,19 @@
   @apply [line-height:1.2];
 }
 
+.ticket-optional-hint {
+  @apply [font-size:9px];
+  @apply [font-weight:600];
+  @apply [color:var(--ink-muted)];
+  @apply [background:rgba(255,_255,_255,_0.04)];
+  @apply [border:1px_solid_rgba(255,_255,_255,_0.1)];
+  @apply [padding:1px_6px];
+  @apply [border-radius:3.5px];
+  @apply [text-transform:none];
+  @apply [letter-spacing:0];
+  @apply [line-height:1.2];
+}
+
 /* Base form controls: strictly centered height and symmetrical padding */
 .ticket-modal input:not([type="checkbox"]):not([data-select-value]) {
   @apply [width:100%];
@@ -419,6 +432,16 @@
   @apply [display:grid];
   @apply [grid-template-columns:1fr_1fr];
   @apply [gap:12px];
+}
+
+
+.ticket-field-system {
+  @apply [display:flex];
+  @apply [flex-direction:column];
+  @apply [gap:5px];
+  @apply [width:100%];
+  @apply [grid-column:1_/_-1];
+  @apply [margin-top:6px];
 }
 
 .selected-category {

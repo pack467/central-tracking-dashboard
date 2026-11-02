@@ -1,0 +1,2930 @@
+{
+  "rows": [
+    {
+      "width": 320,
+      "height": 3845,
+      "route": "/dashboard",
+      "scrollWidth": 320,
+      "clientWidth": 320,
+      "smallText": [],
+      "smallTargets": [],
+      "overflow": [
+        {
+          "tag": "svg",
+          "cls": "w-full h-full min-h-[270px] max-h-[390px] block compact-report-bar-svg-lg max-lg:min-h-[220px] max-lg:h-[220px]",
+          "text": "015304560Klik untuk melihat rincian tiket tanggal 2026-07-20107-20Klik untuk mel"
+        },
+        {
+          "tag": "g",
+          "cls": null,
+          "text": "0"
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "0"
+        },
+        {
+          "tag": "g",
+          "cls": null,
+          "text": "15"
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "15"
+        },
+        {
+          "tag": "g",
+          "cls": null,
+          "text": "30"
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "30"
+        },
+        {
+          "tag": "g",
+          "cls": null,
+          "text": "45"
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "45"
+        },
+        {
+          "tag": "g",
+          "cls": null,
+          "text": "60"
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "60"
+        },
+        {
+          "tag": "g",
+          "cls": "stacked-bar-group [cursor:pointer]! [&_rect]:[transition:opacity_0.15s_ease,fill_0.15s_ease] [&_rect]:hover:opacity-100 ",
+          "text": "Klik untuk melihat rincian tiket tanggal 2026-07-20107-20"
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "1"
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "07-20"
+        },
+        {
+          "tag": "g",
+          "cls": "stacked-bar-group [cursor:pointer]! [&_rect]:[transition:opacity_0.15s_ease,fill_0.15s_ease] [&_rect]:hover:opacity-100 ",
+          "text": "Klik untuk melihat rincian tiket tanggal 2026-07-25107-25"
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "1"
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "07-25"
+        },
+        {
+          "tag": "g",
+          "cls": "stacked-bar-group [cursor:pointer]! [&_rect]:[transition:opacity_0.15s_ease,fill_0.15s_ease] [&_rect]:hover:opacity-100 ",
+          "text": "Klik untuk melihat rincian tiket tanggal 2026-08-25208-25"
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "2"
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "08-25"
+        },
+        {
+          "tag": "g",
+          "cls": "stacked-bar-group [cursor:pointer]! [&_rect]:[transition:opacity_0.15s_ease,fill_0.15s_ease] [&_rect]:hover:opacity-100 ",
+          "text": "Klik untuk melihat rincian tiket tanggal 2026-08-26208-26"
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "2"
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "08-26"
+        },
+        {
+          "tag": "g",
+          "cls": "stacked-bar-group [cursor:pointer]! [&_rect]:[transition:opacity_0.15s_ease,fill_0.15s_ease] [&_rect]:hover:opacity-100 ",
+          "text": "Klik untuk melihat rincian tiket tanggal 2026-08-27308-27"
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "3"
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "08-27"
+        },
+        {
+          "tag": "g",
+          "cls": "stacked-bar-group [cursor:pointer]! [&_rect]:[transition:opacity_0.15s_ease,fill_0.15s_ease] [&_rect]:hover:opacity-100 ",
+          "text": "Klik untuk melihat rincian tiket tanggal 2026-08-28408-28"
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "4"
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "08-28"
+        },
+        {
+          "tag": "g",
+          "cls": "stacked-bar-group [cursor:pointer]! [&_rect]:[transition:opacity_0.15s_ease,fill_0.15s_ease] [&_rect]:hover:opacity-100 ",
+          "text": "Klik untuk melihat rincian tiket tanggal 2026-08-29208-29"
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "2"
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "08-29"
+        },
+        {
+          "tag": "g",
+          "cls": "stacked-bar-group [cursor:pointer]! [&_rect]:[transition:opacity_0.15s_ease,fill_0.15s_ease] [&_rect]:hover:opacity-100 ",
+          "text": "Klik untuk melihat rincian tiket tanggal 2026-08-30408-30"
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "4"
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "08-30"
+        },
+        {
+          "tag": "g",
+          "cls": "stacked-bar-group [cursor:pointer]! [&_rect]:[transition:opacity_0.15s_ease,fill_0.15s_ease] [&_rect]:hover:opacity-100 ",
+          "text": "Klik untuk melihat rincian tiket tanggal 2026-08-314408-31"
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "44"
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "08-31"
+        },
+        {
+          "tag": "g",
+          "cls": "stacked-bar-group [cursor:pointer]! [&_rect]:[transition:opacity_0.15s_ease,fill_0.15s_ease] [&_rect]:hover:opacity-100 ",
+          "text": "Klik untuk melihat rincian tiket tanggal 2026-09-01409-01"
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "4"
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "09-01"
+        },
+        {
+          "tag": "g",
+          "cls": "stacked-bar-group [cursor:pointer]! [&_rect]:[transition:opacity_0.15s_ease,fill_0.15s_ease] [&_rect]:hover:opacity-100 ",
+          "text": "Klik untuk melihat rincian tiket tanggal 2026-09-02209-02"
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "2"
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "09-02"
+        },
+        {
+          "tag": "g",
+          "cls": "stacked-bar-group [cursor:pointer]! [&_rect]:[transition:opacity_0.15s_ease,fill_0.15s_ease] [&_rect]:hover:opacity-100 ",
+          "text": "Klik untuk melihat rincian tiket tanggal 2026-09-03109-03"
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "1"
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "09-03"
+        },
+        {
+          "tag": "g",
+          "cls": "stacked-bar-group [cursor:pointer]! [&_rect]:[transition:opacity_0.15s_ease,fill_0.15s_ease] [&_rect]:hover:opacity-100 ",
+          "text": "Klik untuk melihat rincian tiket tanggal 2026-09-04109-04"
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "1"
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "09-04"
+        },
+        {
+          "tag": "g",
+          "cls": "stacked-bar-group [cursor:pointer]! [&_rect]:[transition:opacity_0.15s_ease,fill_0.15s_ease] [&_rect]:hover:opacity-100 ",
+          "text": "Klik untuk melihat rincian tiket tanggal 2026-09-05109-05"
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "1"
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "09-05"
+        },
+        {
+          "tag": "DIV",
+          "cls": "15s_ease] hover:border-[rgba(56,189,248,0.4)] hover:bg-[rgba(15,23,42,0.7)] project-legend-pill max-lg:min-h-10 max-lg:min-w-10 max-lg:cursor-pointer ",
+          "text": "EPC Tools"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "legend-proj-name",
+          "text": "EPC Tools"
+        },
+        {
+          "tag": "DIV",
+          "cls": "15s_ease] hover:border-[rgba(56,189,248,0.4)] hover:bg-[rgba(15,23,42,0.7)] project-legend-pill max-lg:min-h-10 max-lg:min-w-10 max-lg:cursor-pointer ",
+          "text": "MB"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "w-[9px] h-[9px] rounded-[2.5px] inline-block shrink-0 legend-color-dot",
+          "text": ""
+        },
+        {
+          "tag": "SPAN",
+          "cls": "legend-proj-name",
+          "text": "MB"
+        },
+        {
+          "tag": "DIV",
+          "cls": "15s_ease] hover:border-[rgba(56,189,248,0.4)] hover:bg-[rgba(15,23,42,0.7)] project-legend-pill max-lg:min-h-10 max-lg:min-w-10 max-lg:cursor-pointer ",
+          "text": "SM"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "w-[9px] h-[9px] rounded-[2.5px] inline-block shrink-0 legend-color-dot",
+          "text": ""
+        },
+        {
+          "tag": "SPAN",
+          "cls": "legend-proj-name",
+          "text": "SM"
+        },
+        {
+          "tag": "DIV",
+          "cls": "15s_ease] hover:border-[rgba(56,189,248,0.4)] hover:bg-[rgba(15,23,42,0.7)] project-legend-pill max-lg:min-h-10 max-lg:min-w-10 max-lg:cursor-pointer ",
+          "text": "UNEM"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "w-[9px] h-[9px] rounded-[2.5px] inline-block shrink-0 legend-color-dot",
+          "text": ""
+        },
+        {
+          "tag": "SPAN",
+          "cls": "legend-proj-name",
+          "text": "UNEM"
+        },
+        {
+          "tag": "DIV",
+          "cls": "15s_ease] hover:border-[rgba(56,189,248,0.4)] hover:bg-[rgba(15,23,42,0.7)] project-legend-pill max-lg:min-h-10 max-lg:min-w-10 max-lg:cursor-pointer ",
+          "text": "USIEM"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "w-[9px] h-[9px] rounded-[2.5px] inline-block shrink-0 legend-color-dot",
+          "text": ""
+        },
+        {
+          "tag": "SPAN",
+          "cls": "legend-proj-name",
+          "text": "USIEM"
+        },
+        {
+          "tag": "ARTICLE",
+          "cls": "var(--panel-bg)] border border-[var(--panel-border)] rounded-[12px] shadow-[var(--shadow-panel)] overflow-hidden flex flex-col report-panel @container",
+          "text": "Distribusi Berdasarkan SeverityDistribusi SeveritySeverity RatiosView32CRIT/HIGH"
+        },
+        {
+          "tag": "DIV",
+          "cls": "en items-center flex-wrap gap-[12px] max-[768px]:gap-[10px] p-[14px_20px] max-[768px]:p-[12px_14px] border-b border-[var(--line)] report-panel-heading",
+          "text": "Distribusi Berdasarkan SeverityDistribusi SeveritySeverity RatiosView"
+        },
+        {
+          "tag": "DIV",
+          "cls": "flex items-center gap-[8px] text-[14px] font-bold text-[var(--ink-primary)] panel-title",
+          "text": "Distribusi Berdasarkan SeverityDistribusi Severity"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "lg:hidden",
+          "text": "Distribusi Severity"
+        },
+        {
+          "tag": "DIV",
+          "cls": "flex items-center gap-2",
+          "text": "Severity RatiosView"
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-1 focus-visible:ring-offset-slate-900 shrink-0 select-none panel-view-action-btn ",
+          "text": "View"
+        },
+        {
+          "tag": "svg",
+          "cls": "lucide lucide-maximize2 lucide-maximize-2 shrink-0 text-sky-400 group-hover:text-sky-300",
+          "text": ""
+        },
+        {
+          "tag": "path",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "path",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "path",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "path",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "SPAN",
+          "cls": "hidden sm:inline leading-none",
+          "text": "View"
+        },
+        {
+          "tag": "DIV",
+          "cls": "flex flex-col flex-1 min-h-0 p-5 report-panel-body",
+          "text": "32CRIT/HIGHCritical1113% shareHigh2124% shareMedium2528% shareLow3135% share"
+        },
+        {
+          "tag": "DIV",
+          "cls": "w-full flex-1 min-h-0 flex flex-col transition-opacity duration-180 ease-out h-full",
+          "text": "32CRIT/HIGHCritical1113% shareHigh2124% shareMedium2528% shareLow3135% share"
+        },
+        {
+          "tag": "DIV",
+          "cls": "flex flex-col @[520px]:grid @[520px]:grid-cols-[auto_1fr] @[520px]:items-stretch gap-4 @[520px]:gap-6 flex-1 min-h-0 justify-center",
+          "text": "32CRIT/HIGHCritical1113% shareHigh2124% shareMedium2528% shareLow3135% share"
+        },
+        {
+          "tag": "DIV",
+          "cls": "flex items-center justify-center shrink-0",
+          "text": "32CRIT/HIGH"
+        },
+        {
+          "tag": "DIV",
+          "cls": "relative shrink-0 w-[120px] h-[120px] max-lg:size-[120px] @[340px]:w-[132px] @[340px]:h-[132px] @[520px]:w-[148px] @[520px]:h-[148px] donut-chart-wrap",
+          "text": "32CRIT/HIGH"
+        },
+        {
+          "tag": "svg",
+          "cls": "w-full h-full donut-svg",
+          "text": ""
+        },
+        {
+          "tag": "circle",
+          "cls": "donut-segment [transition:stroke-width_0.2s_ease,opacity_0.2s_ease] hover:[stroke-width:17] hover:opacity-95",
+          "text": ""
+        },
+        {
+          "tag": "circle",
+          "cls": "donut-segment [transition:stroke-width_0.2s_ease,opacity_0.2s_ease] hover:[stroke-width:17] hover:opacity-95",
+          "text": ""
+        },
+        {
+          "tag": "circle",
+          "cls": "donut-segment [transition:stroke-width_0.2s_ease,opacity_0.2s_ease] hover:[stroke-width:17] hover:opacity-95",
+          "text": ""
+        },
+        {
+          "tag": "circle",
+          "cls": "donut-segment [transition:stroke-width_0.2s_ease,opacity_0.2s_ease] hover:[stroke-width:17] hover:opacity-95",
+          "text": ""
+        },
+        {
+          "tag": "DIV",
+          "cls": "absolute inset-0 flex flex-col items-center justify-center pointer-events-none donut-center-content",
+          "text": "32CRIT/HIGH"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[28px] font-bold font-mono text-[#f8fafc] leading-none tabular-nums donut-total-num",
+          "text": "32"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[10px] max-lg:text-[11px] font-mono uppercase tracking-[0.12em] text-[#94a3b8] mt-1 donut-total-label",
+          "text": "CRIT/HIGH"
+        },
+        {
+          "tag": "DIV",
+          "cls": "grid grid-cols-1 @[340px]:grid-cols-2 @[520px]:grid-rows-2 gap-3 w-full h-full priority-spectrum-list max-lg:grid-cols-2 max-lg:gap-2",
+          "text": "Critical1113% shareHigh2124% shareMedium2528% shareLow3135% share"
+        },
+        {
+          "tag": "DIV",
+          "cls": "er-[#334155] border-l-[3px] border-l-[#ef4444] flex flex-col justify-between min-w-0 h-full max-lg:p-2 max-lg:h-[72px] priority-spec-box priority-crit",
+          "text": "Critical1113% share"
+        },
+        {
+          "tag": "DIV",
+          "cls": "flex items-center gap-1.5 min-w-0 spec-top",
+          "text": "Critical"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "w-2 h-2 rounded-full shrink-0 bg-[#ef4444]",
+          "text": ""
+        },
+        {
+          "tag": "STRONG",
+          "cls": "text-xs font-semibold text-[#f8fafc] truncate",
+          "text": "Critical"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[28px] font-bold font-mono text-[#f8fafc] leading-none tabular-nums my-1 spec-count max-lg:text-[22px]",
+          "text": "11"
+        },
+        {
+          "tag": "DIV",
+          "cls": "flex flex-col gap-1.5 w-full mt-auto",
+          "text": "13% share"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[11px] font-mono text-[#94a3b8] tabular-nums leading-tight spec-pct",
+          "text": "13% share"
+        },
+        {
+          "tag": "DIV",
+          "cls": "w-full h-1 bg-[#334155] rounded-full overflow-hidden",
+          "text": ""
+        },
+        {
+          "tag": "DIV",
+          "cls": "h-full rounded-full bg-[#ef4444]",
+          "text": ""
+        },
+        {
+          "tag": "DIV",
+          "cls": "er-[#334155] border-l-[3px] border-l-[#f97316] flex flex-col justify-between min-w-0 h-full max-lg:p-2 max-lg:h-[72px] priority-spec-box priority-high",
+          "text": "High2124% share"
+        },
+        {
+          "tag": "DIV",
+          "cls": "flex items-center gap-1.5 min-w-0 spec-top",
+          "text": "High"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "w-2 h-2 rounded-full shrink-0 bg-[#f97316]",
+          "text": ""
+        },
+        {
+          "tag": "STRONG",
+          "cls": "text-xs font-semibold text-[#f8fafc] truncate",
+          "text": "High"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[28px] font-bold font-mono text-[#f8fafc] leading-none tabular-nums my-1 spec-count max-lg:text-[22px]",
+          "text": "21"
+        },
+        {
+          "tag": "DIV",
+          "cls": "flex flex-col gap-1.5 w-full mt-auto",
+          "text": "24% share"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[11px] font-mono text-[#94a3b8] tabular-nums leading-tight spec-pct",
+          "text": "24% share"
+        },
+        {
+          "tag": "DIV",
+          "cls": "w-full h-1 bg-[#334155] rounded-full overflow-hidden",
+          "text": ""
+        },
+        {
+          "tag": "DIV",
+          "cls": "h-full rounded-full bg-[#f97316]",
+          "text": ""
+        },
+        {
+          "tag": "DIV",
+          "cls": "er-[#334155] border-l-[3px] border-l-[#f59e0b] flex flex-col justify-between min-w-0 h-full max-lg:p-2 max-lg:h-[72px] priority-spec-box priority-medi",
+          "text": "Medium2528% share"
+        },
+        {
+          "tag": "DIV",
+          "cls": "flex items-center gap-1.5 min-w-0 spec-top",
+          "text": "Medium"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "w-2 h-2 rounded-full shrink-0 bg-[#f59e0b]",
+          "text": ""
+        },
+        {
+          "tag": "STRONG",
+          "cls": "text-xs font-semibold text-[#f8fafc] truncate",
+          "text": "Medium"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[28px] font-bold font-mono text-[#f8fafc] leading-none tabular-nums my-1 spec-count max-lg:text-[22px]",
+          "text": "25"
+        },
+        {
+          "tag": "DIV",
+          "cls": "flex flex-col gap-1.5 w-full mt-auto",
+          "text": "28% share"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[11px] font-mono text-[#94a3b8] tabular-nums leading-tight spec-pct",
+          "text": "28% share"
+        },
+        {
+          "tag": "DIV",
+          "cls": "w-full h-1 bg-[#334155] rounded-full overflow-hidden",
+          "text": ""
+        },
+        {
+          "tag": "DIV",
+          "cls": "h-full rounded-full bg-[#f59e0b]",
+          "text": ""
+        },
+        {
+          "tag": "DIV",
+          "cls": "der-[#334155] border-l-[3px] border-l-[#2dd4bf] flex flex-col justify-between min-w-0 h-full max-lg:p-2 max-lg:h-[72px] priority-spec-box priority-low",
+          "text": "Low3135% share"
+        },
+        {
+          "tag": "DIV",
+          "cls": "flex items-center gap-1.5 min-w-0 spec-top",
+          "text": "Low"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "w-2 h-2 rounded-full shrink-0 bg-[#2dd4bf]",
+          "text": ""
+        },
+        {
+          "tag": "STRONG",
+          "cls": "text-xs font-semibold text-[#f8fafc] truncate",
+          "text": "Low"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[28px] font-bold font-mono text-[#f8fafc] leading-none tabular-nums my-1 spec-count max-lg:text-[22px]",
+          "text": "31"
+        },
+        {
+          "tag": "DIV",
+          "cls": "flex flex-col gap-1.5 w-full mt-auto",
+          "text": "35% share"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[11px] font-mono text-[#94a3b8] tabular-nums leading-tight spec-pct",
+          "text": "35% share"
+        },
+        {
+          "tag": "DIV",
+          "cls": "w-full h-1 bg-[#334155] rounded-full overflow-hidden",
+          "text": ""
+        },
+        {
+          "tag": "DIV",
+          "cls": "h-full rounded-full bg-[#2dd4bf]",
+          "text": ""
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "] border-[rgba(148,163,184,0.15)] text-[var(--ink-secondary)] hover:bg-[rgba(56,189,248,0.1)] hover:text-[#38bdf8] hover:border-[rgba(56,189,248,0.3)]",
+          "text": "Shift Subuh"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "",
+          "text": "Shift Subuh"
+        }
+      ],
+      "panels": [
+        {
+          "title": "Tiket Hari Ini",
+          "height": 592.5
+        },
+        {
+          "title": "Memo & Catatan Shift",
+          "height": 169
+        },
+        {
+          "title": "List Monitoring Shift",
+          "height": 348
+        },
+        {
+          "title": "Ticket Volume per Project (Stacked by System)Volume Tiket",
+          "height": 378
+        },
+        {
+          "title": "Rekap Tiket per User",
+          "height": 467
+        },
+        {
+          "title": "Distribusi Kategori / Tipe TiketDistribusi Kategori",
+          "height": 397.75
+        },
+        {
+          "title": "Distribusi Berdasarkan SeverityDistribusi Severity",
+          "height": 397.75
+        },
+        {
+          "title": "Tren Durasi Penyelesaian (Resolution Velocity)Tren Durasi",
+          "height": 440
+        },
+        {
+          "title": "Tren Trafik Beban per Shift (Shift Traffic Velocity)Tren Trafik",
+          "height": 512
+        }
+      ],
+      "charts": [
+        {
+          "cls": "lucide lucide-list-checks text-sky-400",
+          "w": 15,
+          "h": 15,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-user",
+          "w": 10,
+          "h": 10,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-user",
+          "w": 10,
+          "h": 10,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-user",
+          "w": 10,
+          "h": 10,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-user",
+          "w": 10,
+          "h": 10,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-user",
+          "w": 10,
+          "h": 10,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-user",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-user",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-user",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-user",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-user",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-chevron-left",
+          "w": 16,
+          "h": 16,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-chevron-right",
+          "w": 16,
+          "h": 16,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-chevron-left",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-chevron-right",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-sticky-note text-amber-400",
+          "w": 14,
+          "h": 14,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-maximize2 lucide-maximize-2 shrink-0 text-sky-400 group-hover:text-sky-300",
+          "w": 13,
+          "h": 13,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-shield-check text-emerald-400",
+          "w": 0,
+          "h": 14,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-check",
+          "w": 10,
+          "h": 10,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-triangle-alert",
+          "w": 10,
+          "h": 10,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-check",
+          "w": 11,
+          "h": 11,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-check",
+          "w": 11,
+          "h": 11,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-check",
+          "w": 11,
+          "h": 11,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-triangle-alert text-rose-400",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-x",
+          "w": 11,
+          "h": 11,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-check",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-check",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-triangle-alert text-rose-400",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-x",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-check",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-check",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-check",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-check",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-check",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-check",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-sliders-horizontal text-sky-400",
+          "w": 14,
+          "h": 14,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-chart-column max-lg:hidden",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-trending-up max-lg:hidden",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-maximize2 lucide-maximize-2 shrink-0 text-sky-400 group-hover:text-sky-300",
+          "w": 13,
+          "h": 13,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "w-full h-full min-h-[270px] max-h-[390px] block compact-report-bar-svg-lg max-lg:min-h-[220px] max-lg:h-[220px]",
+          "w": 928,
+          "h": 220,
+          "viewBox": "0 0 928 220",
+          "fonts": [
+            "11px"
+          ]
+        },
+        {
+          "cls": "lucide lucide-users text-sky-400",
+          "w": 14,
+          "h": 14,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-maximize2 lucide-maximize-2 shrink-0 text-sky-400 group-hover:text-sky-300",
+          "w": 13,
+          "h": 13,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-chevron-right",
+          "w": 11,
+          "h": 11,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-chevron-right",
+          "w": 11,
+          "h": 11,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-chevron-right",
+          "w": 11,
+          "h": 11,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-chevron-right",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-chevron-right",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-chevron-right",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-chevron-right",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-chevron-right",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-chevron-right",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-chevron-right",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-chevron-right",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-chevron-right",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-chevron-right",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-chevron-right",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-maximize2 lucide-maximize-2 shrink-0 text-sky-400 group-hover:text-sky-300",
+          "w": 13,
+          "h": 13,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "w-full h-full donut-svg",
+          "w": 150,
+          "h": 150,
+          "viewBox": "0 0 160 160",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-maximize2 lucide-maximize-2 shrink-0 text-sky-400 group-hover:text-sky-300",
+          "w": 13,
+          "h": 13,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "w-full h-full donut-svg",
+          "w": 120,
+          "h": 120,
+          "viewBox": "0 0 160 160",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-maximize2 lucide-maximize-2 shrink-0 text-sky-400 group-hover:text-sky-300",
+          "w": 13,
+          "h": 13,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "w-full h-full min-h-[280px] block select-none !overflow-visible compact-velocity-chart-svg max-lg:min-h-[220px] max-lg:[&_text]:text-[11px]",
+          "w": 270,
+          "h": 220,
+          "viewBox": "0 0 270 220",
+          "fonts": [
+            "11px"
+          ]
+        },
+        {
+          "cls": "lucide lucide-activity text-emerald-400",
+          "w": 16,
+          "h": 16,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-maximize2 lucide-maximize-2 shrink-0 text-sky-400 group-hover:text-sky-300",
+          "w": 13,
+          "h": 13,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-sun [color:#fbbf24]! [flex-shrink:0]!",
+          "w": 13,
+          "h": 13,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-sunset [color:#c084fc]! [flex-shrink:0]!",
+          "w": 13,
+          "h": 13,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-moon [color:#38bdf8]! [flex-shrink:0]!",
+          "w": 13,
+          "h": 13,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-zap [color:#f87171]! [flex-shrink:0]!",
+          "w": 13,
+          "h": 13,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "w-full h-full min-h-[265px] block select-none overflow-visible compact-shift-traffic-chart-svg max-lg:min-h-[220px] max-lg:[&_text]:text-[11px]",
+          "w": 270,
+          "h": 220,
+          "viewBox": "0 0 270 220",
+          "fonts": []
+        }
+      ],
+      "shell": [
+        {
+          "s": ".app-topbar",
+          "visible": true,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 320,
+            "height": 52,
+            "top": 0,
+            "right": 320,
+            "bottom": 52,
+            "left": 0
+          }
+        },
+        {
+          "s": ".hamburger-button",
+          "visible": null
+        },
+        {
+          "s": ".fab-new-ticket",
+          "visible": true,
+          "rect": {
+            "x": 256,
+            "y": 448,
+            "width": 52,
+            "height": 52,
+            "top": 448,
+            "right": 308,
+            "bottom": 500,
+            "left": 256
+          }
+        },
+        {
+          "s": ".shift-panel-toggle-tab",
+          "visible": false,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+          }
+        },
+        {
+          "s": ".sidebar",
+          "visible": false,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+          }
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "height": 3845,
+      "route": "/dashboard",
+      "scrollWidth": 390,
+      "clientWidth": 390,
+      "smallText": [],
+      "smallTargets": [],
+      "overflow": [
+        {
+          "tag": "svg",
+          "cls": "w-full h-full min-h-[270px] max-h-[390px] block compact-report-bar-svg-lg max-lg:min-h-[220px] max-lg:h-[220px]",
+          "text": "015304560Klik untuk melihat rincian tiket tanggal 2026-07-20107-20Klik untuk mel"
+        },
+        {
+          "tag": "g",
+          "cls": null,
+          "text": "0"
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "0"
+        },
+        {
+          "tag": "g",
+          "cls": null,
+          "text": "15"
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "15"
+        },
+        {
+          "tag": "g",
+          "cls": null,
+          "text": "30"
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "30"
+        },
+        {
+          "tag": "g",
+          "cls": null,
+          "text": "45"
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "45"
+        },
+        {
+          "tag": "g",
+          "cls": null,
+          "text": "60"
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "60"
+        },
+        {
+          "tag": "g",
+          "cls": "stacked-bar-group [cursor:pointer]! [&_rect]:[transition:opacity_0.15s_ease,fill_0.15s_ease] [&_rect]:hover:opacity-100 ",
+          "text": "Klik untuk melihat rincian tiket tanggal 2026-07-20107-20"
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "1"
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "07-20"
+        },
+        {
+          "tag": "g",
+          "cls": "stacked-bar-group [cursor:pointer]! [&_rect]:[transition:opacity_0.15s_ease,fill_0.15s_ease] [&_rect]:hover:opacity-100 ",
+          "text": "Klik untuk melihat rincian tiket tanggal 2026-07-25107-25"
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "1"
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "07-25"
+        },
+        {
+          "tag": "g",
+          "cls": "stacked-bar-group [cursor:pointer]! [&_rect]:[transition:opacity_0.15s_ease,fill_0.15s_ease] [&_rect]:hover:opacity-100 ",
+          "text": "Klik untuk melihat rincian tiket tanggal 2026-08-25208-25"
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "2"
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "08-25"
+        },
+        {
+          "tag": "g",
+          "cls": "stacked-bar-group [cursor:pointer]! [&_rect]:[transition:opacity_0.15s_ease,fill_0.15s_ease] [&_rect]:hover:opacity-100 ",
+          "text": "Klik untuk melihat rincian tiket tanggal 2026-08-26208-26"
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "2"
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "08-26"
+        },
+        {
+          "tag": "g",
+          "cls": "stacked-bar-group [cursor:pointer]! [&_rect]:[transition:opacity_0.15s_ease,fill_0.15s_ease] [&_rect]:hover:opacity-100 ",
+          "text": "Klik untuk melihat rincian tiket tanggal 2026-08-27308-27"
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "3"
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "08-27"
+        },
+        {
+          "tag": "g",
+          "cls": "stacked-bar-group [cursor:pointer]! [&_rect]:[transition:opacity_0.15s_ease,fill_0.15s_ease] [&_rect]:hover:opacity-100 ",
+          "text": "Klik untuk melihat rincian tiket tanggal 2026-08-28408-28"
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "4"
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "08-28"
+        },
+        {
+          "tag": "g",
+          "cls": "stacked-bar-group [cursor:pointer]! [&_rect]:[transition:opacity_0.15s_ease,fill_0.15s_ease] [&_rect]:hover:opacity-100 ",
+          "text": "Klik untuk melihat rincian tiket tanggal 2026-08-29208-29"
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "2"
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "08-29"
+        },
+        {
+          "tag": "g",
+          "cls": "stacked-bar-group [cursor:pointer]! [&_rect]:[transition:opacity_0.15s_ease,fill_0.15s_ease] [&_rect]:hover:opacity-100 ",
+          "text": "Klik untuk melihat rincian tiket tanggal 2026-08-30408-30"
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "4"
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "08-30"
+        },
+        {
+          "tag": "g",
+          "cls": "stacked-bar-group [cursor:pointer]! [&_rect]:[transition:opacity_0.15s_ease,fill_0.15s_ease] [&_rect]:hover:opacity-100 ",
+          "text": "Klik untuk melihat rincian tiket tanggal 2026-08-314408-31"
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "44"
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "08-31"
+        },
+        {
+          "tag": "g",
+          "cls": "stacked-bar-group [cursor:pointer]! [&_rect]:[transition:opacity_0.15s_ease,fill_0.15s_ease] [&_rect]:hover:opacity-100 ",
+          "text": "Klik untuk melihat rincian tiket tanggal 2026-09-01409-01"
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "4"
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "09-01"
+        },
+        {
+          "tag": "g",
+          "cls": "stacked-bar-group [cursor:pointer]! [&_rect]:[transition:opacity_0.15s_ease,fill_0.15s_ease] [&_rect]:hover:opacity-100 ",
+          "text": "Klik untuk melihat rincian tiket tanggal 2026-09-02209-02"
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "2"
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "09-02"
+        },
+        {
+          "tag": "g",
+          "cls": "stacked-bar-group [cursor:pointer]! [&_rect]:[transition:opacity_0.15s_ease,fill_0.15s_ease] [&_rect]:hover:opacity-100 ",
+          "text": "Klik untuk melihat rincian tiket tanggal 2026-09-03109-03"
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "rect",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "1"
+        },
+        {
+          "tag": "text",
+          "cls": null,
+          "text": "09-03"
+        },
+        {
+          "tag": "DIV",
+          "cls": "15s_ease] hover:border-[rgba(56,189,248,0.4)] hover:bg-[rgba(15,23,42,0.7)] project-legend-pill max-lg:min-h-10 max-lg:min-w-10 max-lg:cursor-pointer ",
+          "text": "MB"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "legend-proj-name",
+          "text": "MB"
+        },
+        {
+          "tag": "DIV",
+          "cls": "15s_ease] hover:border-[rgba(56,189,248,0.4)] hover:bg-[rgba(15,23,42,0.7)] project-legend-pill max-lg:min-h-10 max-lg:min-w-10 max-lg:cursor-pointer ",
+          "text": "SM"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "w-[9px] h-[9px] rounded-[2.5px] inline-block shrink-0 legend-color-dot",
+          "text": ""
+        },
+        {
+          "tag": "SPAN",
+          "cls": "legend-proj-name",
+          "text": "SM"
+        },
+        {
+          "tag": "DIV",
+          "cls": "15s_ease] hover:border-[rgba(56,189,248,0.4)] hover:bg-[rgba(15,23,42,0.7)] project-legend-pill max-lg:min-h-10 max-lg:min-w-10 max-lg:cursor-pointer ",
+          "text": "UNEM"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "w-[9px] h-[9px] rounded-[2.5px] inline-block shrink-0 legend-color-dot",
+          "text": ""
+        },
+        {
+          "tag": "SPAN",
+          "cls": "legend-proj-name",
+          "text": "UNEM"
+        },
+        {
+          "tag": "DIV",
+          "cls": "15s_ease] hover:border-[rgba(56,189,248,0.4)] hover:bg-[rgba(15,23,42,0.7)] project-legend-pill max-lg:min-h-10 max-lg:min-w-10 max-lg:cursor-pointer ",
+          "text": "USIEM"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "w-[9px] h-[9px] rounded-[2.5px] inline-block shrink-0 legend-color-dot",
+          "text": ""
+        },
+        {
+          "tag": "SPAN",
+          "cls": "legend-proj-name",
+          "text": "USIEM"
+        },
+        {
+          "tag": "ARTICLE",
+          "cls": "var(--panel-bg)] border border-[var(--panel-border)] rounded-[12px] shadow-[var(--shadow-panel)] overflow-hidden flex flex-col report-panel @container",
+          "text": "Distribusi Berdasarkan SeverityDistribusi SeveritySeverity RatiosView32CRIT/HIGH"
+        },
+        {
+          "tag": "DIV",
+          "cls": "en items-center flex-wrap gap-[12px] max-[768px]:gap-[10px] p-[14px_20px] max-[768px]:p-[12px_14px] border-b border-[var(--line)] report-panel-heading",
+          "text": "Distribusi Berdasarkan SeverityDistribusi SeveritySeverity RatiosView"
+        },
+        {
+          "tag": "DIV",
+          "cls": "flex items-center gap-[8px] text-[14px] font-bold text-[var(--ink-primary)] panel-title",
+          "text": "Distribusi Berdasarkan SeverityDistribusi Severity"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "lg:hidden",
+          "text": "Distribusi Severity"
+        },
+        {
+          "tag": "DIV",
+          "cls": "flex items-center gap-2",
+          "text": "Severity RatiosView"
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-1 focus-visible:ring-offset-slate-900 shrink-0 select-none panel-view-action-btn ",
+          "text": "View"
+        },
+        {
+          "tag": "svg",
+          "cls": "lucide lucide-maximize2 lucide-maximize-2 shrink-0 text-sky-400 group-hover:text-sky-300",
+          "text": ""
+        },
+        {
+          "tag": "path",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "path",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "path",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "path",
+          "cls": null,
+          "text": ""
+        },
+        {
+          "tag": "SPAN",
+          "cls": "hidden sm:inline leading-none",
+          "text": "View"
+        },
+        {
+          "tag": "DIV",
+          "cls": "flex flex-col flex-1 min-h-0 p-5 report-panel-body",
+          "text": "32CRIT/HIGHCritical1113% shareHigh2124% shareMedium2528% shareLow3135% share"
+        },
+        {
+          "tag": "DIV",
+          "cls": "w-full flex-1 min-h-0 flex flex-col transition-opacity duration-180 ease-out h-full",
+          "text": "32CRIT/HIGHCritical1113% shareHigh2124% shareMedium2528% shareLow3135% share"
+        },
+        {
+          "tag": "DIV",
+          "cls": "flex flex-col @[520px]:grid @[520px]:grid-cols-[auto_1fr] @[520px]:items-stretch gap-4 @[520px]:gap-6 flex-1 min-h-0 justify-center",
+          "text": "32CRIT/HIGHCritical1113% shareHigh2124% shareMedium2528% shareLow3135% share"
+        },
+        {
+          "tag": "DIV",
+          "cls": "flex items-center justify-center shrink-0",
+          "text": "32CRIT/HIGH"
+        },
+        {
+          "tag": "DIV",
+          "cls": "relative shrink-0 w-[120px] h-[120px] max-lg:size-[120px] @[340px]:w-[132px] @[340px]:h-[132px] @[520px]:w-[148px] @[520px]:h-[148px] donut-chart-wrap",
+          "text": "32CRIT/HIGH"
+        },
+        {
+          "tag": "svg",
+          "cls": "w-full h-full donut-svg",
+          "text": ""
+        },
+        {
+          "tag": "circle",
+          "cls": "donut-segment [transition:stroke-width_0.2s_ease,opacity_0.2s_ease] hover:[stroke-width:17] hover:opacity-95",
+          "text": ""
+        },
+        {
+          "tag": "circle",
+          "cls": "donut-segment [transition:stroke-width_0.2s_ease,opacity_0.2s_ease] hover:[stroke-width:17] hover:opacity-95",
+          "text": ""
+        },
+        {
+          "tag": "circle",
+          "cls": "donut-segment [transition:stroke-width_0.2s_ease,opacity_0.2s_ease] hover:[stroke-width:17] hover:opacity-95",
+          "text": ""
+        },
+        {
+          "tag": "circle",
+          "cls": "donut-segment [transition:stroke-width_0.2s_ease,opacity_0.2s_ease] hover:[stroke-width:17] hover:opacity-95",
+          "text": ""
+        },
+        {
+          "tag": "DIV",
+          "cls": "absolute inset-0 flex flex-col items-center justify-center pointer-events-none donut-center-content",
+          "text": "32CRIT/HIGH"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[28px] font-bold font-mono text-[#f8fafc] leading-none tabular-nums donut-total-num",
+          "text": "32"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[10px] max-lg:text-[11px] font-mono uppercase tracking-[0.12em] text-[#94a3b8] mt-1 donut-total-label",
+          "text": "CRIT/HIGH"
+        },
+        {
+          "tag": "DIV",
+          "cls": "grid grid-cols-1 @[340px]:grid-cols-2 @[520px]:grid-rows-2 gap-3 w-full h-full priority-spectrum-list max-lg:grid-cols-2 max-lg:gap-2",
+          "text": "Critical1113% shareHigh2124% shareMedium2528% shareLow3135% share"
+        },
+        {
+          "tag": "DIV",
+          "cls": "er-[#334155] border-l-[3px] border-l-[#ef4444] flex flex-col justify-between min-w-0 h-full max-lg:p-2 max-lg:h-[72px] priority-spec-box priority-crit",
+          "text": "Critical1113% share"
+        },
+        {
+          "tag": "DIV",
+          "cls": "flex items-center gap-1.5 min-w-0 spec-top",
+          "text": "Critical"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "w-2 h-2 rounded-full shrink-0 bg-[#ef4444]",
+          "text": ""
+        },
+        {
+          "tag": "STRONG",
+          "cls": "text-xs font-semibold text-[#f8fafc] truncate",
+          "text": "Critical"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[28px] font-bold font-mono text-[#f8fafc] leading-none tabular-nums my-1 spec-count max-lg:text-[22px]",
+          "text": "11"
+        },
+        {
+          "tag": "DIV",
+          "cls": "flex flex-col gap-1.5 w-full mt-auto",
+          "text": "13% share"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[11px] font-mono text-[#94a3b8] tabular-nums leading-tight spec-pct",
+          "text": "13% share"
+        },
+        {
+          "tag": "DIV",
+          "cls": "w-full h-1 bg-[#334155] rounded-full overflow-hidden",
+          "text": ""
+        },
+        {
+          "tag": "DIV",
+          "cls": "h-full rounded-full bg-[#ef4444]",
+          "text": ""
+        },
+        {
+          "tag": "DIV",
+          "cls": "er-[#334155] border-l-[3px] border-l-[#f97316] flex flex-col justify-between min-w-0 h-full max-lg:p-2 max-lg:h-[72px] priority-spec-box priority-high",
+          "text": "High2124% share"
+        },
+        {
+          "tag": "DIV",
+          "cls": "flex items-center gap-1.5 min-w-0 spec-top",
+          "text": "High"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "w-2 h-2 rounded-full shrink-0 bg-[#f97316]",
+          "text": ""
+        },
+        {
+          "tag": "STRONG",
+          "cls": "text-xs font-semibold text-[#f8fafc] truncate",
+          "text": "High"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[28px] font-bold font-mono text-[#f8fafc] leading-none tabular-nums my-1 spec-count max-lg:text-[22px]",
+          "text": "21"
+        },
+        {
+          "tag": "DIV",
+          "cls": "flex flex-col gap-1.5 w-full mt-auto",
+          "text": "24% share"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[11px] font-mono text-[#94a3b8] tabular-nums leading-tight spec-pct",
+          "text": "24% share"
+        },
+        {
+          "tag": "DIV",
+          "cls": "w-full h-1 bg-[#334155] rounded-full overflow-hidden",
+          "text": ""
+        },
+        {
+          "tag": "DIV",
+          "cls": "h-full rounded-full bg-[#f97316]",
+          "text": ""
+        },
+        {
+          "tag": "DIV",
+          "cls": "er-[#334155] border-l-[3px] border-l-[#f59e0b] flex flex-col justify-between min-w-0 h-full max-lg:p-2 max-lg:h-[72px] priority-spec-box priority-medi",
+          "text": "Medium2528% share"
+        },
+        {
+          "tag": "DIV",
+          "cls": "flex items-center gap-1.5 min-w-0 spec-top",
+          "text": "Medium"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "w-2 h-2 rounded-full shrink-0 bg-[#f59e0b]",
+          "text": ""
+        },
+        {
+          "tag": "STRONG",
+          "cls": "text-xs font-semibold text-[#f8fafc] truncate",
+          "text": "Medium"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[28px] font-bold font-mono text-[#f8fafc] leading-none tabular-nums my-1 spec-count max-lg:text-[22px]",
+          "text": "25"
+        },
+        {
+          "tag": "DIV",
+          "cls": "flex flex-col gap-1.5 w-full mt-auto",
+          "text": "28% share"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[11px] font-mono text-[#94a3b8] tabular-nums leading-tight spec-pct",
+          "text": "28% share"
+        },
+        {
+          "tag": "DIV",
+          "cls": "w-full h-1 bg-[#334155] rounded-full overflow-hidden",
+          "text": ""
+        },
+        {
+          "tag": "DIV",
+          "cls": "h-full rounded-full bg-[#f59e0b]",
+          "text": ""
+        },
+        {
+          "tag": "DIV",
+          "cls": "der-[#334155] border-l-[3px] border-l-[#2dd4bf] flex flex-col justify-between min-w-0 h-full max-lg:p-2 max-lg:h-[72px] priority-spec-box priority-low",
+          "text": "Low3135% share"
+        },
+        {
+          "tag": "DIV",
+          "cls": "flex items-center gap-1.5 min-w-0 spec-top",
+          "text": "Low"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "w-2 h-2 rounded-full shrink-0 bg-[#2dd4bf]",
+          "text": ""
+        },
+        {
+          "tag": "STRONG",
+          "cls": "text-xs font-semibold text-[#f8fafc] truncate",
+          "text": "Low"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[28px] font-bold font-mono text-[#f8fafc] leading-none tabular-nums my-1 spec-count max-lg:text-[22px]",
+          "text": "31"
+        },
+        {
+          "tag": "DIV",
+          "cls": "flex flex-col gap-1.5 w-full mt-auto",
+          "text": "35% share"
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[11px] font-mono text-[#94a3b8] tabular-nums leading-tight spec-pct",
+          "text": "35% share"
+        },
+        {
+          "tag": "DIV",
+          "cls": "w-full h-1 bg-[#334155] rounded-full overflow-hidden",
+          "text": ""
+        },
+        {
+          "tag": "DIV",
+          "cls": "h-full rounded-full bg-[#2dd4bf]",
+          "text": ""
+        }
+      ],
+      "panels": [
+        {
+          "title": "Tiket Hari Ini",
+          "height": 592.5
+        },
+        {
+          "title": "Memo & Catatan Shift",
+          "height": 169
+        },
+        {
+          "title": "List Monitoring Shift",
+          "height": 348
+        },
+        {
+          "title": "Ticket Volume per Project (Stacked by System)Volume Tiket",
+          "height": 378
+        },
+        {
+          "title": "Rekap Tiket per User",
+          "height": 467
+        },
+        {
+          "title": "Distribusi Kategori / Tipe TiketDistribusi Kategori",
+          "height": 397.75
+        },
+        {
+          "title": "Distribusi Berdasarkan SeverityDistribusi Severity",
+          "height": 397.75
+        },
+        {
+          "title": "Tren Durasi Penyelesaian (Resolution Velocity)Tren Durasi",
+          "height": 440
+        },
+        {
+          "title": "Tren Trafik Beban per Shift (Shift Traffic Velocity)Tren Trafik",
+          "height": 512
+        }
+      ],
+      "charts": [
+        {
+          "cls": "lucide lucide-list-checks text-sky-400",
+          "w": 15,
+          "h": 15,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-user",
+          "w": 10,
+          "h": 10,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-user",
+          "w": 10,
+          "h": 10,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-user",
+          "w": 10,
+          "h": 10,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-user",
+          "w": 10,
+          "h": 10,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-user",
+          "w": 10,
+          "h": 10,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-user",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-user",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-user",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-user",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-user",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-chevron-left",
+          "w": 16,
+          "h": 16,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-chevron-right",
+          "w": 16,
+          "h": 16,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-chevron-left",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-chevron-right",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-sticky-note text-amber-400",
+          "w": 14,
+          "h": 14,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-maximize2 lucide-maximize-2 shrink-0 text-sky-400 group-hover:text-sky-300",
+          "w": 13,
+          "h": 13,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-shield-check text-emerald-400",
+          "w": 14,
+          "h": 14,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-check",
+          "w": 10,
+          "h": 10,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-triangle-alert",
+          "w": 10,
+          "h": 10,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-check",
+          "w": 11,
+          "h": 11,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-check",
+          "w": 11,
+          "h": 11,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-check",
+          "w": 11,
+          "h": 11,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-triangle-alert text-rose-400",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-x",
+          "w": 11,
+          "h": 11,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-check",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-check",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-triangle-alert text-rose-400",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-x",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-check",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-check",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-check",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-check",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-check",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-check",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-sliders-horizontal text-sky-400",
+          "w": 14,
+          "h": 14,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-chart-column max-lg:hidden",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-trending-up max-lg:hidden",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-maximize2 lucide-maximize-2 shrink-0 text-sky-400 group-hover:text-sky-300",
+          "w": 13,
+          "h": 13,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "w-full h-full min-h-[270px] max-h-[390px] block compact-report-bar-svg-lg max-lg:min-h-[220px] max-lg:h-[220px]",
+          "w": 928,
+          "h": 220,
+          "viewBox": "0 0 928 220",
+          "fonts": [
+            "11px"
+          ]
+        },
+        {
+          "cls": "lucide lucide-users text-sky-400",
+          "w": 14,
+          "h": 14,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-maximize2 lucide-maximize-2 shrink-0 text-sky-400 group-hover:text-sky-300",
+          "w": 13,
+          "h": 13,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-chevron-right",
+          "w": 11,
+          "h": 11,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-chevron-right",
+          "w": 11,
+          "h": 11,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-chevron-right",
+          "w": 11,
+          "h": 11,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-chevron-right",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-chevron-right",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-chevron-right",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-chevron-right",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-chevron-right",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-chevron-right",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-chevron-right",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-chevron-right",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-chevron-right",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-chevron-right",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-chevron-right",
+          "w": 0,
+          "h": 0,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-maximize2 lucide-maximize-2 shrink-0 text-sky-400 group-hover:text-sky-300",
+          "w": 13,
+          "h": 13,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "w-full h-full donut-svg",
+          "w": 150,
+          "h": 150,
+          "viewBox": "0 0 160 160",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-maximize2 lucide-maximize-2 shrink-0 text-sky-400 group-hover:text-sky-300",
+          "w": 13,
+          "h": 13,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "w-full h-full donut-svg",
+          "w": 132,
+          "h": 132,
+          "viewBox": "0 0 160 160",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-maximize2 lucide-maximize-2 shrink-0 text-sky-400 group-hover:text-sky-300",
+          "w": 13,
+          "h": 13,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "w-full h-full min-h-[280px] block select-none !overflow-visible compact-velocity-chart-svg max-lg:min-h-[220px] max-lg:[&_text]:text-[11px]",
+          "w": 340,
+          "h": 220,
+          "viewBox": "0 0 340 220",
+          "fonts": [
+            "11px"
+          ]
+        },
+        {
+          "cls": "lucide lucide-activity text-emerald-400",
+          "w": 16,
+          "h": 16,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-maximize2 lucide-maximize-2 shrink-0 text-sky-400 group-hover:text-sky-300",
+          "w": 13,
+          "h": 13,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-sun [color:#fbbf24]! [flex-shrink:0]!",
+          "w": 13,
+          "h": 13,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-sunset [color:#c084fc]! [flex-shrink:0]!",
+          "w": 13,
+          "h": 13,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-moon [color:#38bdf8]! [flex-shrink:0]!",
+          "w": 13,
+          "h": 13,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "lucide lucide-zap [color:#f87171]! [flex-shrink:0]!",
+          "w": 13,
+          "h": 13,
+          "viewBox": "0 0 24 24",
+          "fonts": []
+        },
+        {
+          "cls": "w-full h-full min-h-[265px] block select-none overflow-visible compact-shift-traffic-chart-svg max-lg:min-h-[220px] max-lg:[&_text]:text-[11px]",
+          "w": 340,
+          "h": 220,
+          "viewBox": "0 0 340 220",
+          "fonts": []
+        }
+      ],
+      "shell": [
+        {
+          "s": ".app-topbar",
+          "visible": true,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 390,
+            "height": 52,
+            "top": 0,
+            "right": 390,
+            "bottom": 52,
+            "left": 0
+          }
+        },
+        {
+          "s": ".hamburger-button",
+          "visible": null
+        },
+        {
+          "s": ".fab-new-ticket",
+          "visible": true,
+          "rect": {
+            "x": 326,
+            "y": 724,
+            "width": 52,
+            "height": 52,
+            "top": 724,
+            "right": 378,
+            "bottom": 776,
+            "left": 326
+          }
+        },
+        {
+          "s": ".shift-panel-toggle-tab",
+          "visible": false,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+          }
+        },
+        {
+          "s": ".sidebar",
+          "visible": false,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0
+          }
+        }
+      ]
+    }
+  ],
+  "errors": []
+}

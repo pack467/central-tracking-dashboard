@@ -1,0 +1,388 @@
+{
+  "closePaths": {
+    "DashboardButton": {
+      "whileOpen": {
+        "label": "While Open (Path 1)",
+        "scrollY": 1362,
+        "scrolledDelta": 100,
+        "canScroll": true,
+        "html": {
+          "overflow": "visible",
+          "overflowY": "visible",
+          "inlineOverflow": "",
+          "hasInert": false,
+          "ariaHidden": null
+        },
+        "body": {
+          "overflow": "hidden",
+          "overflowY": "hidden",
+          "inlineOverflow": "hidden",
+          "hasInert": false,
+          "ariaHidden": null
+        },
+        "appRoot": {
+          "hasInert": false,
+          "ariaHidden": null
+        },
+        "modalInDOM": true,
+        "centerElement": {
+          "tagName": "rect",
+          "className": "[object SVGAnimatedString]",
+          "id": ""
+        }
+      },
+      "afterClose": {
+        "label": "After Close (Dashboard button)",
+        "scrollY": 1362,
+        "scrolledDelta": 100,
+        "canScroll": true,
+        "html": {
+          "overflow": "visible",
+          "overflowY": "visible",
+          "inlineOverflow": "",
+          "hasInert": false,
+          "ariaHidden": null
+        },
+        "body": {
+          "overflow": "hidden",
+          "overflowY": "hidden",
+          "inlineOverflow": "hidden",
+          "hasInert": false,
+          "ariaHidden": null
+        },
+        "appRoot": {
+          "hasInert": false,
+          "ariaHidden": null
+        },
+        "modalInDOM": true,
+        "centerElement": {
+          "tagName": "rect",
+          "className": "[object SVGAnimatedString]",
+          "id": ""
+        }
+      },
+      "wheelScrollWorked": false,
+      "keyScrollWorked": true
+    },
+    "CloseXButton": {
+      "whileOpen": {
+        "label": "While Open (Path 2)",
+        "scrollY": 1362,
+        "scrolledDelta": 100,
+        "canScroll": true,
+        "html": {
+          "overflow": "visible",
+          "overflowY": "visible",
+          "inlineOverflow": "",
+          "hasInert": false,
+          "ariaHidden": null
+        },
+        "body": {
+          "overflow": "hidden",
+          "overflowY": "hidden",
+          "inlineOverflow": "hidden",
+          "hasInert": false,
+          "ariaHidden": null
+        },
+        "appRoot": {
+          "hasInert": false,
+          "ariaHidden": null
+        },
+        "modalInDOM": true,
+        "centerElement": {
+          "tagName": "rect",
+          "className": "[object SVGAnimatedString]",
+          "id": ""
+        }
+      },
+      "afterClose": {
+        "label": "After Close (X button)",
+        "scrollY": 1362,
+        "scrolledDelta": 100,
+        "canScroll": true,
+        "html": {
+          "overflow": "visible",
+          "overflowY": "visible",
+          "inlineOverflow": "",
+          "hasInert": false,
+          "ariaHidden": null
+        },
+        "body": {
+          "overflow": "hidden",
+          "overflowY": "hidden",
+          "inlineOverflow": "hidden",
+          "hasInert": false,
+          "ariaHidden": null
+        },
+        "appRoot": {
+          "hasInert": false,
+          "ariaHidden": null
+        },
+        "modalInDOM": true,
+        "centerElement": {
+          "tagName": "rect",
+          "className": "[object SVGAnimatedString]",
+          "id": ""
+        }
+      }
+    },
+    "EscapeKey": {
+      "whileOpen": {
+        "label": "While Open (Path 3)",
+        "scrollY": 1362,
+        "scrolledDelta": 100,
+        "canScroll": true,
+        "html": {
+          "overflow": "visible",
+          "overflowY": "visible",
+          "inlineOverflow": "",
+          "hasInert": false,
+          "ariaHidden": null
+        },
+        "body": {
+          "overflow": "hidden",
+          "overflowY": "hidden",
+          "inlineOverflow": "hidden",
+          "hasInert": false,
+          "ariaHidden": null
+        },
+        "appRoot": {
+          "hasInert": false,
+          "ariaHidden": null
+        },
+        "modalInDOM": true,
+        "centerElement": {
+          "tagName": "rect",
+          "className": "[object SVGAnimatedString]",
+          "id": ""
+        }
+      },
+      "afterClose": {
+        "label": "After Close (Escape key)",
+        "scrollY": 1362,
+        "scrolledDelta": 100,
+        "canScroll": true,
+        "html": {
+          "overflow": "visible",
+          "overflowY": "visible",
+          "inlineOverflow": "",
+          "hasInert": false,
+          "ariaHidden": null
+        },
+        "body": {
+          "overflow": "hidden",
+          "overflowY": "hidden",
+          "inlineOverflow": "hidden",
+          "hasInert": false,
+          "ariaHidden": null
+        },
+        "appRoot": {
+          "hasInert": false,
+          "ariaHidden": null
+        },
+        "modalInDOM": true,
+        "centerElement": {
+          "tagName": "rect",
+          "className": "[object SVGAnimatedString]",
+          "id": ""
+        }
+      }
+    },
+    "FilterLink": {
+      "afterClose": {
+        "label": "After Close (Ubah filter link)",
+        "scrollY": 1362,
+        "scrolledDelta": 100,
+        "canScroll": true,
+        "html": {
+          "overflow": "visible",
+          "overflowY": "visible",
+          "inlineOverflow": "",
+          "hasInert": false,
+          "ariaHidden": null
+        },
+        "body": {
+          "overflow": "visible",
+          "overflowY": "visible",
+          "inlineOverflow": "",
+          "hasInert": false,
+          "ariaHidden": null
+        },
+        "appRoot": {
+          "hasInert": false,
+          "ariaHidden": null
+        },
+        "modalInDOM": false,
+        "centerElement": {
+          "tagName": "DIV",
+          "className": "flex justify-between items-center flex-wrap gap-[12px] max-[768px]:gap-[10px] p-",
+          "id": ""
+        }
+      }
+    },
+    "BrowserBack": {
+      "whileOpen": {
+        "label": "While Open (Deep Link)",
+        "scrollY": 0,
+        "scrolledDelta": 100,
+        "canScroll": true,
+        "html": {
+          "overflow": "visible",
+          "overflowY": "visible",
+          "inlineOverflow": "",
+          "hasInert": false,
+          "ariaHidden": null
+        },
+        "body": {
+          "overflow": "hidden",
+          "overflowY": "hidden",
+          "inlineOverflow": "hidden",
+          "hasInert": false,
+          "ariaHidden": null
+        },
+        "appRoot": {
+          "hasInert": false,
+          "ariaHidden": null
+        },
+        "modalInDOM": true,
+        "centerElement": {
+          "tagName": "rect",
+          "className": "[object SVGAnimatedString]",
+          "id": ""
+        }
+      },
+      "afterClose": {
+        "label": "After Browser Back from Deep Link",
+        "scrollY": 0,
+        "scrolledDelta": 0,
+        "canScroll": false,
+        "html": {
+          "overflow": "hidden",
+          "overflowY": "hidden",
+          "inlineOverflow": "",
+          "hasInert": false,
+          "ariaHidden": null
+        },
+        "body": {
+          "overflow": "hidden",
+          "overflowY": "hidden",
+          "inlineOverflow": "",
+          "hasInert": false,
+          "ariaHidden": null
+        },
+        "appRoot": {
+          "hasInert": true,
+          "ariaHidden": null
+        },
+        "modalInDOM": false,
+        "centerElement": {
+          "tagName": "H1",
+          "className": "mt-[28px] text-[19px] sm:text-[26px] font-bold tracking-[-0.01em] text-[#f8fafc]",
+          "id": ""
+        }
+      }
+    }
+  },
+  "stressScenarios": {
+    "PanelSwitch": {
+      "label": "After Switch Panels and Close",
+      "scrollY": 800,
+      "scrolledDelta": 100,
+      "canScroll": true,
+      "html": {
+        "overflow": "visible",
+        "overflowY": "visible",
+        "inlineOverflow": "",
+        "hasInert": false,
+        "ariaHidden": null
+      },
+      "body": {
+        "overflow": "hidden",
+        "overflowY": "hidden",
+        "inlineOverflow": "hidden",
+        "hasInert": false,
+        "ariaHidden": null
+      },
+      "appRoot": {
+        "hasInert": false,
+        "ariaHidden": null
+      },
+      "modalInDOM": true,
+      "centerElement": {
+        "tagName": "rect",
+        "className": "[object SVGAnimatedString]",
+        "id": ""
+      }
+    },
+    "Consecutive2x": {
+      "label": "After 2x Consecutive Open/Close",
+      "scrollY": 921,
+      "scrolledDelta": 100,
+      "canScroll": true,
+      "html": {
+        "overflow": "visible",
+        "overflowY": "visible",
+        "inlineOverflow": "",
+        "hasInert": false,
+        "ariaHidden": null
+      },
+      "body": {
+        "overflow": "hidden",
+        "overflowY": "hidden",
+        "inlineOverflow": "hidden",
+        "hasInert": false,
+        "ariaHidden": null
+      },
+      "appRoot": {
+        "hasInert": false,
+        "ariaHidden": null
+      },
+      "modalInDOM": true,
+      "centerElement": {
+        "tagName": "rect",
+        "className": "[object SVGAnimatedString]",
+        "id": ""
+      }
+    },
+    "Rapid20x": {
+      "label": "After 20x Rapid Open/Close",
+      "scrollY": 921,
+      "scrolledDelta": 100,
+      "canScroll": true,
+      "html": {
+        "overflow": "visible",
+        "overflowY": "visible",
+        "inlineOverflow": "",
+        "hasInert": false,
+        "ariaHidden": null
+      },
+      "body": {
+        "overflow": "visible",
+        "overflowY": "visible",
+        "inlineOverflow": "",
+        "hasInert": false,
+        "ariaHidden": null
+      },
+      "appRoot": {
+        "hasInert": false,
+        "ariaHidden": null
+      },
+      "modalInDOM": false,
+      "centerElement": {
+        "tagName": "DIV",
+        "className": "flex items-center gap-[8px] flex-wrap pt-[10px] mt-0 [border-top:1px_solid_var(-",
+        "id": ""
+      }
+    }
+  },
+  "rootCauses": [],
+  "mechanismAudit": {
+    "bodyInlineOverflow": "",
+    "htmlInlineOverflow": "",
+    "documentActiveElement": {
+      "tagName": "BUTTON",
+      "className": "inline-flex items-center justify-center gap-1.5 h-",
+      "id": ""
+    }
+  }
+}

@@ -1,0 +1,801 @@
+{
+  "rows": [
+    {
+      "width": 320,
+      "height": 568,
+      "overflow": 0,
+      "order": [
+        {
+          "name": "Memo & Catatan Shift",
+          "x": 12,
+          "y": 168.890625,
+          "w": 296,
+          "h": 287
+        },
+        {
+          "name": "Tiket Hari Ini",
+          "x": 12,
+          "y": 467.890625,
+          "w": 296,
+          "h": 728
+        },
+        {
+          "name": "List Monitoring Shift",
+          "x": 12,
+          "y": 1207.890625,
+          "w": 296,
+          "h": 458.5
+        }
+      ],
+      "memo": {
+        "x": 29,
+        "y": 262.890625,
+        "w": 262,
+        "h": 176,
+        "font": "14px",
+        "line": "24px",
+        "preview": {
+          "x": 48,
+          "y": 279.890625,
+          "w": 226,
+          "h": 120,
+          "scroll": 288,
+          "gap": "normal"
+        }
+      },
+      "monitoring": [
+        {
+          "status": "OK",
+          "h": 46,
+          "label": "Health check gateway B2B sekunder, OK",
+          "color": "rgba(255, 255, 255, 0.07)"
+        },
+        {
+          "status": "OK",
+          "h": 46,
+          "label": "Queue distributor check & routing, OK",
+          "color": "rgba(255, 255, 255, 0.07)"
+        },
+        {
+          "status": "OK",
+          "h": 46,
+          "label": "Graylog indexer rate & pipeline buffer, OK",
+          "color": "rgba(255, 255, 255, 0.07)"
+        },
+        {
+          "status": "NOK",
+          "h": 46,
+          "label": "Broker health check broker #228, NOK",
+          "color": "rgb(244, 63, 94)"
+        },
+        {
+          "status": "OK",
+          "h": 46,
+          "label": "Validation worker cluster FMC, OK",
+          "color": "rgba(255, 255, 255, 0.07)"
+        }
+      ],
+      "pagination": {
+        "h": 44,
+        "w": 92,
+        "valueW": 18,
+        "text": "15",
+        "gap": 8,
+        "right": 8
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "overflow": 0,
+      "order": [
+        {
+          "name": "Memo & Catatan Shift",
+          "x": 12,
+          "y": 168.890625,
+          "w": 336,
+          "h": 287
+        },
+        {
+          "name": "Tiket Hari Ini",
+          "x": 12,
+          "y": 467.890625,
+          "w": 336,
+          "h": 728
+        },
+        {
+          "name": "List Monitoring Shift",
+          "x": 12,
+          "y": 1207.890625,
+          "w": 336,
+          "h": 458.5
+        }
+      ],
+      "memo": {
+        "x": 29,
+        "y": 262.890625,
+        "w": 302,
+        "h": 176,
+        "font": "14px",
+        "line": "24px",
+        "preview": {
+          "x": 48,
+          "y": 279.890625,
+          "w": 266,
+          "h": 120,
+          "scroll": 264,
+          "gap": "normal"
+        }
+      },
+      "monitoring": [
+        {
+          "status": "OK",
+          "h": 46,
+          "label": "Health check gateway B2B sekunder, OK",
+          "color": "rgba(255, 255, 255, 0.07)"
+        },
+        {
+          "status": "OK",
+          "h": 46,
+          "label": "Queue distributor check & routing, OK",
+          "color": "rgba(255, 255, 255, 0.07)"
+        },
+        {
+          "status": "OK",
+          "h": 46,
+          "label": "Graylog indexer rate & pipeline buffer, OK",
+          "color": "rgba(255, 255, 255, 0.07)"
+        },
+        {
+          "status": "NOK",
+          "h": 46,
+          "label": "Broker health check broker #228, NOK",
+          "color": "rgb(244, 63, 94)"
+        },
+        {
+          "status": "OK",
+          "h": 46,
+          "label": "Validation worker cluster FMC, OK",
+          "color": "rgba(255, 255, 255, 0.07)"
+        }
+      ],
+      "pagination": {
+        "h": 44,
+        "w": 92,
+        "valueW": 18,
+        "text": "15",
+        "gap": 8,
+        "right": 8
+      }
+    },
+    {
+      "width": 375,
+      "height": 667,
+      "overflow": 0,
+      "order": [
+        {
+          "name": "Memo & Catatan Shift",
+          "x": 12,
+          "y": 168.890625,
+          "w": 351,
+          "h": 287
+        },
+        {
+          "name": "Tiket Hari Ini",
+          "x": 12,
+          "y": 467.890625,
+          "w": 351,
+          "h": 728
+        },
+        {
+          "name": "List Monitoring Shift",
+          "x": 12,
+          "y": 1207.890625,
+          "w": 351,
+          "h": 458.5
+        }
+      ],
+      "memo": {
+        "x": 29,
+        "y": 262.890625,
+        "w": 317,
+        "h": 176,
+        "font": "14px",
+        "line": "24px",
+        "preview": {
+          "x": 48,
+          "y": 279.890625,
+          "w": 281,
+          "h": 120,
+          "scroll": 216,
+          "gap": "normal"
+        }
+      },
+      "monitoring": [
+        {
+          "status": "OK",
+          "h": 46,
+          "label": "Health check gateway B2B sekunder, OK",
+          "color": "rgba(255, 255, 255, 0.07)"
+        },
+        {
+          "status": "OK",
+          "h": 46,
+          "label": "Queue distributor check & routing, OK",
+          "color": "rgba(255, 255, 255, 0.07)"
+        },
+        {
+          "status": "OK",
+          "h": 46,
+          "label": "Graylog indexer rate & pipeline buffer, OK",
+          "color": "rgba(255, 255, 255, 0.07)"
+        },
+        {
+          "status": "NOK",
+          "h": 46,
+          "label": "Broker health check broker #228, NOK",
+          "color": "rgb(244, 63, 94)"
+        },
+        {
+          "status": "OK",
+          "h": 46,
+          "label": "Validation worker cluster FMC, OK",
+          "color": "rgba(255, 255, 255, 0.07)"
+        }
+      ],
+      "pagination": {
+        "h": 44,
+        "w": 92,
+        "valueW": 18,
+        "text": "15",
+        "gap": 8,
+        "right": 8
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "overflow": 0,
+      "order": [
+        {
+          "name": "Memo & Catatan Shift",
+          "x": 12,
+          "y": 168.890625,
+          "w": 366,
+          "h": 287
+        },
+        {
+          "name": "Tiket Hari Ini",
+          "x": 12,
+          "y": 467.890625,
+          "w": 366,
+          "h": 728
+        },
+        {
+          "name": "List Monitoring Shift",
+          "x": 12,
+          "y": 1207.890625,
+          "w": 366,
+          "h": 458.5
+        }
+      ],
+      "memo": {
+        "x": 29,
+        "y": 262.890625,
+        "w": 332,
+        "h": 176,
+        "font": "14px",
+        "line": "24px",
+        "preview": {
+          "x": 48,
+          "y": 279.890625,
+          "w": 296,
+          "h": 120,
+          "scroll": 216,
+          "gap": "normal"
+        }
+      },
+      "monitoring": [
+        {
+          "status": "OK",
+          "h": 46,
+          "label": "Health check gateway B2B sekunder, OK",
+          "color": "rgba(255, 255, 255, 0.07)"
+        },
+        {
+          "status": "OK",
+          "h": 46,
+          "label": "Queue distributor check & routing, OK",
+          "color": "rgba(255, 255, 255, 0.07)"
+        },
+        {
+          "status": "OK",
+          "h": 46,
+          "label": "Graylog indexer rate & pipeline buffer, OK",
+          "color": "rgba(255, 255, 255, 0.07)"
+        },
+        {
+          "status": "NOK",
+          "h": 46,
+          "label": "Broker health check broker #228, NOK",
+          "color": "rgb(244, 63, 94)"
+        },
+        {
+          "status": "OK",
+          "h": 46,
+          "label": "Validation worker cluster FMC, OK",
+          "color": "rgba(255, 255, 255, 0.07)"
+        }
+      ],
+      "pagination": {
+        "h": 44,
+        "w": 92,
+        "valueW": 18,
+        "text": "15",
+        "gap": 8,
+        "right": 4.7071533203125
+      }
+    },
+    {
+      "width": 412,
+      "height": 915,
+      "overflow": 0,
+      "order": [
+        {
+          "name": "Memo & Catatan Shift",
+          "x": 16,
+          "y": 168.890625,
+          "w": 380,
+          "h": 287
+        },
+        {
+          "name": "Tiket Hari Ini",
+          "x": 16,
+          "y": 467.890625,
+          "w": 380,
+          "h": 728
+        },
+        {
+          "name": "List Monitoring Shift",
+          "x": 16,
+          "y": 1207.890625,
+          "w": 380,
+          "h": 458.5
+        }
+      ],
+      "memo": {
+        "x": 33,
+        "y": 262.890625,
+        "w": 346,
+        "h": 176,
+        "font": "14px",
+        "line": "24px",
+        "preview": {
+          "x": 52,
+          "y": 279.890625,
+          "w": 310,
+          "h": 120,
+          "scroll": 216,
+          "gap": "normal"
+        }
+      },
+      "monitoring": [
+        {
+          "status": "OK",
+          "h": 46,
+          "label": "Health check gateway B2B sekunder, OK",
+          "color": "rgba(255, 255, 255, 0.07)"
+        },
+        {
+          "status": "OK",
+          "h": 46,
+          "label": "Queue distributor check & routing, OK",
+          "color": "rgba(255, 255, 255, 0.07)"
+        },
+        {
+          "status": "OK",
+          "h": 46,
+          "label": "Graylog indexer rate & pipeline buffer, OK",
+          "color": "rgba(255, 255, 255, 0.07)"
+        },
+        {
+          "status": "NOK",
+          "h": 46,
+          "label": "Broker health check broker #228, NOK",
+          "color": "rgb(244, 63, 94)"
+        },
+        {
+          "status": "OK",
+          "h": 46,
+          "label": "Validation worker cluster FMC, OK",
+          "color": "rgba(255, 255, 255, 0.07)"
+        }
+      ],
+      "pagination": {
+        "h": 44,
+        "w": 92,
+        "valueW": 18,
+        "text": "15",
+        "gap": 8,
+        "right": 7.0084228515625
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "overflow": 0,
+      "order": [
+        {
+          "name": "Memo & Catatan Shift",
+          "x": 16,
+          "y": 168.890625,
+          "w": 398,
+          "h": 287
+        },
+        {
+          "name": "Tiket Hari Ini",
+          "x": 16,
+          "y": 467.890625,
+          "w": 398,
+          "h": 728
+        },
+        {
+          "name": "List Monitoring Shift",
+          "x": 16,
+          "y": 1207.890625,
+          "w": 398,
+          "h": 458.5
+        }
+      ],
+      "memo": {
+        "x": 33,
+        "y": 262.890625,
+        "w": 364,
+        "h": 176,
+        "font": "14px",
+        "line": "24px",
+        "preview": {
+          "x": 52,
+          "y": 279.890625,
+          "w": 328,
+          "h": 120,
+          "scroll": 216,
+          "gap": "normal"
+        }
+      },
+      "monitoring": [
+        {
+          "status": "OK",
+          "h": 46,
+          "label": "Health check gateway B2B sekunder, OK",
+          "color": "rgba(255, 255, 255, 0.07)"
+        },
+        {
+          "status": "OK",
+          "h": 46,
+          "label": "Queue distributor check & routing, OK",
+          "color": "rgba(255, 255, 255, 0.07)"
+        },
+        {
+          "status": "OK",
+          "h": 46,
+          "label": "Graylog indexer rate & pipeline buffer, OK",
+          "color": "rgba(255, 255, 255, 0.07)"
+        },
+        {
+          "status": "NOK",
+          "h": 46,
+          "label": "Broker health check broker #228, NOK",
+          "color": "rgb(244, 63, 94)"
+        },
+        {
+          "status": "OK",
+          "h": 46,
+          "label": "Validation worker cluster FMC, OK",
+          "color": "rgba(255, 255, 255, 0.07)"
+        }
+      ],
+      "pagination": {
+        "h": 44,
+        "w": 92,
+        "valueW": 18,
+        "text": "15",
+        "gap": 8,
+        "right": 7.0201416015625
+      }
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "overflow": 0,
+      "order": [
+        {
+          "name": "Memo & Catatan Shift",
+          "x": 22,
+          "y": 188.890625,
+          "w": 724,
+          "h": 287
+        },
+        {
+          "name": "Tiket Hari Ini",
+          "x": 22,
+          "y": 487.890625,
+          "w": 724,
+          "h": 728
+        },
+        {
+          "name": "List Monitoring Shift",
+          "x": 22,
+          "y": 1227.890625,
+          "w": 724,
+          "h": 458.5
+        }
+      ],
+      "memo": {
+        "x": 39,
+        "y": 282.890625,
+        "w": 690,
+        "h": 176,
+        "font": "14px",
+        "line": "24px",
+        "preview": {
+          "x": 58,
+          "y": 299.890625,
+          "w": 654,
+          "h": 120,
+          "scroll": 120,
+          "gap": "normal"
+        }
+      },
+      "monitoring": [
+        {
+          "status": "OK",
+          "h": 46,
+          "label": "Health check gateway B2B sekunder, OK",
+          "color": "rgba(255, 255, 255, 0.07)"
+        },
+        {
+          "status": "OK",
+          "h": 46,
+          "label": "Queue distributor check & routing, OK",
+          "color": "rgba(255, 255, 255, 0.07)"
+        },
+        {
+          "status": "OK",
+          "h": 46,
+          "label": "Graylog indexer rate & pipeline buffer, OK",
+          "color": "rgba(255, 255, 255, 0.07)"
+        },
+        {
+          "status": "NOK",
+          "h": 46,
+          "label": "Broker health check broker #228, NOK",
+          "color": "rgb(244, 63, 94)"
+        },
+        {
+          "status": "OK",
+          "h": 46,
+          "label": "Validation worker cluster FMC, OK",
+          "color": "rgba(255, 255, 255, 0.07)"
+        }
+      ],
+      "pagination": {
+        "h": 44,
+        "w": 92,
+        "valueW": 18,
+        "text": "15",
+        "gap": 8,
+        "right": 6.9176025390625
+      }
+    },
+    {
+      "width": 844,
+      "height": 390,
+      "overflow": 0,
+      "order": [
+        {
+          "name": "Memo & Catatan Shift",
+          "x": 22,
+          "y": 188.890625,
+          "w": 800,
+          "h": 287
+        },
+        {
+          "name": "Tiket Hari Ini",
+          "x": 22,
+          "y": 487.890625,
+          "w": 800,
+          "h": 728
+        },
+        {
+          "name": "List Monitoring Shift",
+          "x": 22,
+          "y": 1227.890625,
+          "w": 800,
+          "h": 458.5
+        }
+      ],
+      "memo": {
+        "x": 39,
+        "y": 282.890625,
+        "w": 766,
+        "h": 176,
+        "font": "14px",
+        "line": "24px",
+        "preview": {
+          "x": 58,
+          "y": 299.890625,
+          "w": 730,
+          "h": 120,
+          "scroll": 120,
+          "gap": "normal"
+        }
+      },
+      "monitoring": [
+        {
+          "status": "OK",
+          "h": 46,
+          "label": "Health check gateway B2B sekunder, OK",
+          "color": "rgba(255, 255, 255, 0.07)"
+        },
+        {
+          "status": "OK",
+          "h": 46,
+          "label": "Queue distributor check & routing, OK",
+          "color": "rgba(255, 255, 255, 0.07)"
+        },
+        {
+          "status": "OK",
+          "h": 46,
+          "label": "Graylog indexer rate & pipeline buffer, OK",
+          "color": "rgba(255, 255, 255, 0.07)"
+        },
+        {
+          "status": "NOK",
+          "h": 46,
+          "label": "Broker health check broker #228, NOK",
+          "color": "rgb(244, 63, 94)"
+        },
+        {
+          "status": "OK",
+          "h": 46,
+          "label": "Validation worker cluster FMC, OK",
+          "color": "rgba(255, 255, 255, 0.07)"
+        }
+      ],
+      "pagination": {
+        "h": 44,
+        "w": 92,
+        "valueW": 18,
+        "text": "15",
+        "gap": 8,
+        "right": 6.270263671875
+      }
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "overflow": 0,
+      "order": [
+        {
+          "name": "Tiket Hari Ini",
+          "x": 317,
+          "y": 229.796875,
+          "w": 1110,
+          "h": 660
+        },
+        {
+          "name": "Memo & Catatan Shift",
+          "x": 1443,
+          "y": 229.796875,
+          "w": 410,
+          "h": 221
+        },
+        {
+          "name": "List Monitoring Shift",
+          "x": 1443,
+          "y": 462.796875,
+          "w": 410,
+          "h": 427
+        }
+      ],
+      "memo": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "font": "14px",
+        "line": "24px",
+        "preview": {
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0,
+          "scroll": 0,
+          "gap": "normal"
+        }
+      },
+      "monitoring": [
+        {
+          "status": "OK",
+          "h": 40,
+          "label": "Health check gateway B2B sekunder, OK",
+          "color": "rgba(255, 255, 255, 0.07)"
+        },
+        {
+          "status": "OK",
+          "h": 40,
+          "label": "Queue distributor check & routing, OK",
+          "color": "rgba(255, 255, 255, 0.07)"
+        },
+        {
+          "status": "OK",
+          "h": 40,
+          "label": "Graylog indexer rate & pipeline buffer, OK",
+          "color": "rgba(255, 255, 255, 0.07)"
+        },
+        {
+          "status": "NOK",
+          "h": 40,
+          "label": "Broker health check broker #228, NOK",
+          "color": "rgb(244, 63, 94)"
+        },
+        {
+          "status": "OK",
+          "h": 40,
+          "label": "Validation worker cluster FMC, OK",
+          "color": "rgba(255, 255, 255, 0.07)"
+        },
+        {
+          "status": "OK",
+          "h": 40,
+          "label": "Database replication sync & latency, OK",
+          "color": "rgba(255, 255, 255, 0.07)"
+        },
+        {
+          "status": "NOK",
+          "h": 40,
+          "label": "Webhook payment endpoint availability, NOK",
+          "color": "rgb(244, 63, 94)"
+        },
+        {
+          "status": "OK",
+          "h": 40,
+          "label": "Core switch spine DC Cikarang trunk, OK",
+          "color": "rgba(255, 255, 255, 0.07)"
+        },
+        {
+          "status": "OK",
+          "h": 40,
+          "label": "Router edge peering Telkomsel link, OK",
+          "color": "rgba(255, 255, 255, 0.07)"
+        },
+        {
+          "status": "OK",
+          "h": 40,
+          "label": "API gateway ISO8583 response latency, OK",
+          "color": "rgba(255, 255, 255, 0.07)"
+        },
+        {
+          "status": "OK",
+          "h": 40,
+          "label": "Dead letter queue monitor & consumer, OK",
+          "color": "rgba(255, 255, 255, 0.07)"
+        },
+        {
+          "status": "OK",
+          "h": 40,
+          "label": "Kafka event stream SIEM ingestion, OK",
+          "color": "rgba(255, 255, 255, 0.07)"
+        },
+        {
+          "status": "OK",
+          "h": 40,
+          "label": "SMS gateway notification delivery rate, OK",
+          "color": "rgba(255, 255, 255, 0.07)"
+        }
+      ]
+    }
+  ],
+  "errors": []
+}

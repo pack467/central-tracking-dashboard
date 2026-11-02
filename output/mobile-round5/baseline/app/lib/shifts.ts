@@ -1,0 +1,258 @@
+export type ShiftId = "subuh" | "pagi" | "malam";
+
+export interface ShiftInfo {
+  id: ShiftId;
+  name: string;
+  label: string;
+  shortLabel: "Subuh" | "Pagi" | "Malam";
+  period: string;
+  tag: "SUBUH" | "PAGI" | "MALAM";
+  color: string;
+  badgeClass: `topbar-shift-${ShiftId}`;
+}
+
+export const shiftDefinitions: Record<ShiftId, ShiftInfo> = {
+  subuh: {
+    id: "subuh",
+    name: "Shift Subuh (00:00 – 08:30)",
+    label: "Shift Subuh",
+    shortLabel: "Subuh",
+    period: "00:00 – 08:30 WIB",
+    tag: "SUBUH",
+    color: "var(--accent-blue)",
+    badgeClass: "topbar-shift-subuh",
+  },
+  pagi: {
+    id: "pagi",
+    name: "Shift Pagi (08:00 – 16:30)",
+    label: "Shift Pagi",
+    shortLabel: "Pagi",
+    period: "08:00 – 16:30 WIB",
+    tag: "PAGI",
+    color: "var(--orange)",
+    badgeClass: "topbar-shift-pagi",
+  },
+  malam: {
+    id: "malam",
+    name: "Shift Malam (16:00 – 00:30)",
+    label: "Shift Malam",
+    shortLabel: "Malam",
+    period: "16:00 – 00:30 WIB",
+    tag: "MALAM",
+    color: "var(--purple)",
+    badgeClass: "topbar-shift-malam",
+  },
+};
+
+/**
+ * The published handover windows overlap by 30 minutes. Live ownership is
+ * unambiguous: the most recently started shift takes precedence at 08:00 and
+ * 16:00, and Subuh starts again at midnight.
+ */
+export function getShiftInfoForMinutes(totalMinutes: number): ShiftInfo {
+  const minuteOfDay = ((totalMinutes % 1_440) + 1_440) % 1_440;
+
+  if (minuteOfDay >= 16 * 60) return shiftDefinitions.malam;
+  if (minuteOfDay >= 8 * 60) return shiftDefinitions.pagi;
+  return shiftDefinitions.subuh;
+}
+
+export function getShiftType(shiftName: string): "subuh" | "pagi" | "malam" | "default" {
+  const s = (shiftName || "").toLowerCase().trim();
+  if (s.includes("subuh") || s.includes("dawn")) return "subuh";
+  if (s.includes("pagi") || s.includes("morning")) return "pagi";
+  if (s.includes("malam") || s.includes("night") || s.includes("sore")) return "malam";
+  return "default";
+}
+
+export function getShiftTagClass(shiftName: string): string {
+  const type = getShiftType(shiftName);
+  return `shift-tag-${type}`;
+}
+
+export function getShiftInfo(date: Date = new Date()): ShiftInfo {
+  return getShiftInfoForMinutes(date.getHours() * 60 + date.getMinutes());
+}
+
+export interface ShiftTransitionState {
+  isActive: boolean;
+  isUpcoming: boolean;
+  fromShift: ShiftInfo;
+  toShift: ShiftInfo;
+  label: string;
+  windowStart: string;
+  windowEnd: string;
+  windowPeriod: string;
+  minutesRemaining: number;
+  minutesUntilStart: number;
+  progressPercent: number;
+}
+
+export function getShiftTransitionStateForMinutes(totalMinutes: number): ShiftTransitionState {
+  const minuteOfDay = ((totalMinutes % 1_440) + 1_440) % 1_440;
+
+  // Window 1: Malam -> Subuh (00:00 - 00:30)
+  if (minuteOfDay < 30) {
+    return {
+      isActive: true,
+      isUpcoming: false,
+      fromShift: shiftDefinitions.malam,
+      toShift: shiftDefinitions.subuh,
+      label: "Malam → Subuh",
+      windowStart: "00:00",
+      windowEnd: "00:30",
+      windowPeriod: "00:00 – 00:30 WIB",
+      minutesRemaining: Math.max(1, 30 - minuteOfDay),
+      minutesUntilStart: 0,
+      progressPercent: Math.min(100, Math.round((minuteOfDay / 30) * 100)),
+    };
+  }
+
+  // Window 2: Subuh -> Pagi (08:00 - 08:30)
+  if (minuteOfDay >= 8 * 60 && minuteOfDay < 8 * 60 + 30) {
+    const elapsed = minuteOfDay - 8 * 60;
+    return {
+      isActive: true,
+      isUpcoming: false,
+      fromShift: shiftDefinitions.subuh,
+      toShift: shiftDefinitions.pagi,
+      label: "Subuh → Pagi",
+      windowStart: "08:00",
+      windowEnd: "08:30",
+      windowPeriod: "08:00 – 08:30 WIB",
+      minutesRemaining: Math.max(1, 30 - elapsed),
+      minutesUntilStart: 0,
+      progressPercent: Math.min(100, Math.round((elapsed / 30) * 100)),
+    };
+  }
+
+  // Window 3: Pagi -> Malam (16:00 - 16:30)
+  if (minuteOfDay >= 16 * 60 && minuteOfDay < 16 * 60 + 30) {
+    const elapsed = minuteOfDay - 16 * 60;
+    return {
+      isActive: true,
+      isUpcoming: false,
+      fromShift: shiftDefinitions.pagi,
+      toShift: shiftDefinitions.malam,
+      label: "Pagi → Malam",
+      windowStart: "16:00",
+      windowEnd: "16:30",
+      windowPeriod: "16:00 – 16:30 WIB",
+      minutesRemaining: Math.max(1, 30 - elapsed),
+      minutesUntilStart: 0,
+      progressPercent: Math.min(100, Math.round((elapsed / 30) * 100)),
+    };
+  }
+
+  // Outside active window: Determine next upcoming handover window
+  if (minuteOfDay < 8 * 60) {
+    const minutesUntil = 8 * 60 - minuteOfDay;
+    return {
+      isActive: false,
+      isUpcoming: minutesUntil <= 30,
+      fromShift: shiftDefinitions.subuh,
+      toShift: shiftDefinitions.pagi,
+      label: "Subuh → Pagi",
+      windowStart: "08:00",
+      windowEnd: "08:30",
+      windowPeriod: "08:00 – 08:30 WIB",
+      minutesRemaining: 0,
+      minutesUntilStart: minutesUntil,
+      progressPercent: 0,
+    };
+  }
+
+  if (minuteOfDay < 16 * 60) {
+    const minutesUntil = 16 * 60 - minuteOfDay;
+    return {
+      isActive: false,
+      isUpcoming: minutesUntil <= 30,
+      fromShift: shiftDefinitions.pagi,
+      toShift: shiftDefinitions.malam,
+      label: "Pagi → Malam",
+      windowStart: "16:00",
+      windowEnd: "16:30",
+      windowPeriod: "16:00 – 16:30 WIB",
+      minutesRemaining: 0,
+      minutesUntilStart: minutesUntil,
+      progressPercent: 0,
+    };
+  }
+
+  // minuteOfDay >= 16:30
+  const minutesUntil = 24 * 60 - minuteOfDay;
+  return {
+    isActive: false,
+    isUpcoming: minutesUntil <= 30,
+    fromShift: shiftDefinitions.malam,
+    toShift: shiftDefinitions.subuh,
+    label: "Malam → Subuh",
+    windowStart: "00:00",
+    windowEnd: "00:30",
+    windowPeriod: "00:00 – 00:30 WIB",
+    minutesRemaining: 0,
+    minutesUntilStart: minutesUntil,
+    progressPercent: 0,
+  };
+}
+
+export function getShiftTransitionState(date: Date = new Date()): ShiftTransitionState {
+  return getShiftTransitionStateForMinutes(date.getHours() * 60 + date.getMinutes());
+}
+
+export function getNextShiftChange(date: Date = new Date()): Date {
+  const next = new Date(date);
+  const totalMinutes = date.getHours() * 60 + date.getMinutes();
+
+  if (totalMinutes < 8 * 60) {
+    next.setHours(8, 0, 0, 20);
+  } else if (totalMinutes < 16 * 60) {
+    next.setHours(16, 0, 0, 20);
+  } else {
+    next.setDate(next.getDate() + 1);
+    next.setHours(0, 0, 0, 20);
+  }
+
+  return next;
+}
+
+/**
+ * Checks if a member's assigned shift matches the active shift.
+ */
+export function isShiftActiveForMember(memberShift: string, activeShift: ShiftInfo | ShiftId): boolean {
+  const activeId = typeof activeShift === "string" ? activeShift : activeShift.id;
+  const s = memberShift.toLowerCase();
+  if (s.includes("cuti") || s.includes("leave")) return false;
+  if (activeId === "subuh") return s.includes("subuh");
+  if (activeId === "pagi") return s.includes("pagi");
+  if (activeId === "malam") return s.includes("malam");
+  return false;
+}
+
+/**
+ * Derives a staff member's real-time status:
+ * - If manually marked "On Leave" or "On Break", that explicit status takes priority.
+ * - Otherwise, status is "Active" if currentShift matches activeShift, else "Off Duty".
+ */
+export function getDerivedMemberStatus(
+  member: { currentShift: string; status: "Active" | "On Break" | "Off Duty" | "On Leave" },
+  activeShift: ShiftInfo | ShiftId
+): "Active" | "On Break" | "Off Duty" | "On Leave" {
+  // Explicit manual statuses take priority
+  if (
+    member.status === "On Leave" ||
+    member.currentShift.toLowerCase().includes("leave") ||
+    member.currentShift.toLowerCase().includes("cuti")
+  ) {
+    return "On Leave";
+  }
+
+  if (member.status === "On Break") {
+    // If on break during their shift, stay On Break; if shift is inactive, they are Off Duty
+    return isShiftActiveForMember(member.currentShift, activeShift) ? "On Break" : "Off Duty";
+  }
+
+  // Automatic time-derived calculation
+  return isShiftActiveForMember(member.currentShift, activeShift) ? "Active" : "Off Duty";
+}
+

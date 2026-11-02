@@ -80,6 +80,7 @@ export interface Ticket {
   project: string;
   projectId?: string;
   systemId?: string;
+  systemComponent?: string;
   severity: string;
   priority?: string;
   category?: string;

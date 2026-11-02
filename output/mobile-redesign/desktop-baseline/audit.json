@@ -1,0 +1,3077 @@
+{
+  "rows": [
+    {
+      "width": 1280,
+      "height": 800,
+      "route": "/dashboard",
+      "scrollWidth": 1280,
+      "clientWidth": 1280,
+      "smallText": [],
+      "smallTargets": [
+        {
+          "tag": "A",
+          "cls": " p-[9px_12px] active text-[var(--sidebar-active-text)] bg-[var(--sidebar-active)] font-semibold border-l-[3px] border-l-[var(--sidebar-active-border)]",
+          "text": "Dashboard",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Tickets",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Monitoring",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Shift Log",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Reports",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Team Roster",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Master Data",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Runbooks",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "r-[10px] focus-visible:outline-2 focus-visible:outline-[var(--accent-blue,#38bdf8)] focus-visible:outline-offset-2 [transform:translate3d(0,_-50%,_0)]",
+          "text": "10",
+          "w": 34,
+          "h": 86
+        }
+      ],
+      "overflow": [],
+      "panels": [],
+      "charts": [],
+      "shell": [
+        {
+          "s": ".topbar",
+          "visible": null
+        },
+        {
+          "s": ".hamburger-button",
+          "visible": null
+        },
+        {
+          "s": ".fab-new-ticket",
+          "visible": true,
+          "rect": {
+            "x": 1202,
+            "y": 724,
+            "width": 50,
+            "height": 48,
+            "top": 724,
+            "right": 1252,
+            "bottom": 772,
+            "left": 1202
+          }
+        },
+        {
+          "s": ".shift-panel-toggle-tab",
+          "visible": true,
+          "rect": {
+            "x": 1246,
+            "y": 357,
+            "width": 34,
+            "height": 86,
+            "top": 357,
+            "right": 1280,
+            "bottom": 443,
+            "left": 1246
+          }
+        },
+        {
+          "s": ".sidebar",
+          "visible": true,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 250,
+            "height": 800,
+            "top": 0,
+            "right": 250,
+            "bottom": 800,
+            "left": 0
+          }
+        }
+      ]
+    },
+    {
+      "width": 1280,
+      "height": 800,
+      "route": "/tickets",
+      "scrollWidth": 1280,
+      "clientWidth": 1280,
+      "smallText": [],
+      "smallTargets": [
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Dashboard",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": " p-[9px_12px] active text-[var(--sidebar-active-text)] bg-[var(--sidebar-active)] font-semibold border-l-[3px] border-l-[var(--sidebar-active-border)]",
+          "text": "Tickets",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Monitoring",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Shift Log",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Reports",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Team Roster",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Master Data",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Runbooks",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "r-[10px] focus-visible:outline-2 focus-visible:outline-[var(--accent-blue,#38bdf8)] focus-visible:outline-offset-2 [transform:translate3d(0,_-50%,_0)]",
+          "text": "10",
+          "w": 34,
+          "h": 86
+        }
+      ],
+      "overflow": [],
+      "panels": [],
+      "charts": [],
+      "shell": [
+        {
+          "s": ".topbar",
+          "visible": null
+        },
+        {
+          "s": ".hamburger-button",
+          "visible": null
+        },
+        {
+          "s": ".fab-new-ticket",
+          "visible": true,
+          "rect": {
+            "x": 1202,
+            "y": 724,
+            "width": 50,
+            "height": 48,
+            "top": 724,
+            "right": 1252,
+            "bottom": 772,
+            "left": 1202
+          }
+        },
+        {
+          "s": ".shift-panel-toggle-tab",
+          "visible": true,
+          "rect": {
+            "x": 1246,
+            "y": 357,
+            "width": 34,
+            "height": 86,
+            "top": 357,
+            "right": 1280,
+            "bottom": 443,
+            "left": 1246
+          }
+        },
+        {
+          "s": ".sidebar",
+          "visible": true,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 250,
+            "height": 800,
+            "top": 0,
+            "right": 250,
+            "bottom": 800,
+            "left": 0
+          }
+        }
+      ]
+    },
+    {
+      "width": 1280,
+      "height": 800,
+      "route": "/monitoring",
+      "scrollWidth": 1280,
+      "clientWidth": 1280,
+      "smallText": [],
+      "smallTargets": [
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Dashboard",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Tickets",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": " p-[9px_12px] active text-[var(--sidebar-active-text)] bg-[var(--sidebar-active)] font-semibold border-l-[3px] border-l-[var(--sidebar-active-border)]",
+          "text": "Monitoring",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Shift Log",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Reports",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Team Roster",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Master Data",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Runbooks",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "r-[10px] focus-visible:outline-2 focus-visible:outline-[var(--accent-blue,#38bdf8)] focus-visible:outline-offset-2 [transform:translate3d(0,_-50%,_0)]",
+          "text": "10",
+          "w": 34,
+          "h": 86
+        }
+      ],
+      "overflow": [],
+      "panels": [],
+      "charts": [],
+      "shell": [
+        {
+          "s": ".topbar",
+          "visible": null
+        },
+        {
+          "s": ".hamburger-button",
+          "visible": null
+        },
+        {
+          "s": ".fab-new-ticket",
+          "visible": true,
+          "rect": {
+            "x": 1202,
+            "y": 724,
+            "width": 50,
+            "height": 48,
+            "top": 724,
+            "right": 1252,
+            "bottom": 772,
+            "left": 1202
+          }
+        },
+        {
+          "s": ".shift-panel-toggle-tab",
+          "visible": true,
+          "rect": {
+            "x": 1246,
+            "y": 357,
+            "width": 34,
+            "height": 86,
+            "top": 357,
+            "right": 1280,
+            "bottom": 443,
+            "left": 1246
+          }
+        },
+        {
+          "s": ".sidebar",
+          "visible": true,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 250,
+            "height": 800,
+            "top": 0,
+            "right": 250,
+            "bottom": 800,
+            "left": 0
+          }
+        }
+      ]
+    },
+    {
+      "width": 1280,
+      "height": 800,
+      "route": "/shift-log",
+      "scrollWidth": 1280,
+      "clientWidth": 1280,
+      "smallText": [],
+      "smallTargets": [
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Dashboard",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Tickets",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Monitoring",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": " p-[9px_12px] active text-[var(--sidebar-active-text)] bg-[var(--sidebar-active)] font-semibold border-l-[3px] border-l-[var(--sidebar-active-border)]",
+          "text": "Shift Log",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Reports",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Team Roster",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Master Data",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Runbooks",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "r-[10px] focus-visible:outline-2 focus-visible:outline-[var(--accent-blue,#38bdf8)] focus-visible:outline-offset-2 [transform:translate3d(0,_-50%,_0)]",
+          "text": "10",
+          "w": 34,
+          "h": 86
+        }
+      ],
+      "overflow": [],
+      "panels": [],
+      "charts": [],
+      "shell": [
+        {
+          "s": ".topbar",
+          "visible": null
+        },
+        {
+          "s": ".hamburger-button",
+          "visible": null
+        },
+        {
+          "s": ".fab-new-ticket",
+          "visible": true,
+          "rect": {
+            "x": 1202,
+            "y": 724,
+            "width": 50,
+            "height": 48,
+            "top": 724,
+            "right": 1252,
+            "bottom": 772,
+            "left": 1202
+          }
+        },
+        {
+          "s": ".shift-panel-toggle-tab",
+          "visible": true,
+          "rect": {
+            "x": 1246,
+            "y": 357,
+            "width": 34,
+            "height": 86,
+            "top": 357,
+            "right": 1280,
+            "bottom": 443,
+            "left": 1246
+          }
+        },
+        {
+          "s": ".sidebar",
+          "visible": true,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 250,
+            "height": 800,
+            "top": 0,
+            "right": 250,
+            "bottom": 800,
+            "left": 0
+          }
+        }
+      ]
+    },
+    {
+      "width": 1280,
+      "height": 800,
+      "route": "/reports",
+      "scrollWidth": 1280,
+      "clientWidth": 1280,
+      "smallText": [],
+      "smallTargets": [
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Dashboard",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Tickets",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Monitoring",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Shift Log",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": " p-[9px_12px] active text-[var(--sidebar-active-text)] bg-[var(--sidebar-active)] font-semibold border-l-[3px] border-l-[var(--sidebar-active-border)]",
+          "text": "Reports",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Team Roster",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Master Data",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Runbooks",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "r-[10px] focus-visible:outline-2 focus-visible:outline-[var(--accent-blue,#38bdf8)] focus-visible:outline-offset-2 [transform:translate3d(0,_-50%,_0)]",
+          "text": "10",
+          "w": 34,
+          "h": 86
+        }
+      ],
+      "overflow": [],
+      "panels": [],
+      "charts": [],
+      "shell": [
+        {
+          "s": ".topbar",
+          "visible": null
+        },
+        {
+          "s": ".hamburger-button",
+          "visible": null
+        },
+        {
+          "s": ".fab-new-ticket",
+          "visible": true,
+          "rect": {
+            "x": 1202,
+            "y": 724,
+            "width": 50,
+            "height": 48,
+            "top": 724,
+            "right": 1252,
+            "bottom": 772,
+            "left": 1202
+          }
+        },
+        {
+          "s": ".shift-panel-toggle-tab",
+          "visible": true,
+          "rect": {
+            "x": 1246,
+            "y": 357,
+            "width": 34,
+            "height": 86,
+            "top": 357,
+            "right": 1280,
+            "bottom": 443,
+            "left": 1246
+          }
+        },
+        {
+          "s": ".sidebar",
+          "visible": true,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 250,
+            "height": 800,
+            "top": 0,
+            "right": 250,
+            "bottom": 800,
+            "left": 0
+          }
+        }
+      ]
+    },
+    {
+      "width": 1280,
+      "height": 800,
+      "route": "/team-roster",
+      "scrollWidth": 1280,
+      "clientWidth": 1280,
+      "smallText": [],
+      "smallTargets": [
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Dashboard",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Tickets",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Monitoring",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Shift Log",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Reports",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": " p-[9px_12px] active text-[var(--sidebar-active-text)] bg-[var(--sidebar-active)] font-semibold border-l-[3px] border-l-[var(--sidebar-active-border)]",
+          "text": "Team Roster",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Master Data",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Runbooks",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "r-[10px] focus-visible:outline-2 focus-visible:outline-[var(--accent-blue,#38bdf8)] focus-visible:outline-offset-2 [transform:translate3d(0,_-50%,_0)]",
+          "text": "10",
+          "w": 34,
+          "h": 86
+        }
+      ],
+      "overflow": [],
+      "panels": [],
+      "charts": [],
+      "shell": [
+        {
+          "s": ".topbar",
+          "visible": null
+        },
+        {
+          "s": ".hamburger-button",
+          "visible": null
+        },
+        {
+          "s": ".fab-new-ticket",
+          "visible": true,
+          "rect": {
+            "x": 1202,
+            "y": 724,
+            "width": 50,
+            "height": 48,
+            "top": 724,
+            "right": 1252,
+            "bottom": 772,
+            "left": 1202
+          }
+        },
+        {
+          "s": ".shift-panel-toggle-tab",
+          "visible": true,
+          "rect": {
+            "x": 1246,
+            "y": 357,
+            "width": 34,
+            "height": 86,
+            "top": 357,
+            "right": 1280,
+            "bottom": 443,
+            "left": 1246
+          }
+        },
+        {
+          "s": ".sidebar",
+          "visible": true,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 250,
+            "height": 800,
+            "top": 0,
+            "right": 250,
+            "bottom": 800,
+            "left": 0
+          }
+        }
+      ]
+    },
+    {
+      "width": 1280,
+      "height": 800,
+      "route": "/master-data",
+      "scrollWidth": 1280,
+      "clientWidth": 1280,
+      "smallText": [],
+      "smallTargets": [
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Dashboard",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Tickets",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Monitoring",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Shift Log",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Reports",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Team Roster",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": " p-[9px_12px] active text-[var(--sidebar-active-text)] bg-[var(--sidebar-active)] font-semibold border-l-[3px] border-l-[var(--sidebar-active-border)]",
+          "text": "Master Data",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Runbooks",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "r-[10px] focus-visible:outline-2 focus-visible:outline-[var(--accent-blue,#38bdf8)] focus-visible:outline-offset-2 [transform:translate3d(0,_-50%,_0)]",
+          "text": "10",
+          "w": 34,
+          "h": 86
+        }
+      ],
+      "overflow": [],
+      "panels": [],
+      "charts": [],
+      "shell": [
+        {
+          "s": ".topbar",
+          "visible": null
+        },
+        {
+          "s": ".hamburger-button",
+          "visible": null
+        },
+        {
+          "s": ".fab-new-ticket",
+          "visible": true,
+          "rect": {
+            "x": 1202,
+            "y": 724,
+            "width": 50,
+            "height": 48,
+            "top": 724,
+            "right": 1252,
+            "bottom": 772,
+            "left": 1202
+          }
+        },
+        {
+          "s": ".shift-panel-toggle-tab",
+          "visible": true,
+          "rect": {
+            "x": 1246,
+            "y": 357,
+            "width": 34,
+            "height": 86,
+            "top": 357,
+            "right": 1280,
+            "bottom": 443,
+            "left": 1246
+          }
+        },
+        {
+          "s": ".sidebar",
+          "visible": true,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 250,
+            "height": 800,
+            "top": 0,
+            "right": 250,
+            "bottom": 800,
+            "left": 0
+          }
+        }
+      ]
+    },
+    {
+      "width": 1280,
+      "height": 800,
+      "route": "/runbooks",
+      "scrollWidth": 1280,
+      "clientWidth": 1280,
+      "smallText": [],
+      "smallTargets": [
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Dashboard",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Tickets",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Monitoring",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Shift Log",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Reports",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Team Roster",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Master Data",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": " p-[9px_12px] active text-[var(--sidebar-active-text)] bg-[var(--sidebar-active)] font-semibold border-l-[3px] border-l-[var(--sidebar-active-border)]",
+          "text": "Runbooks",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "r-[10px] focus-visible:outline-2 focus-visible:outline-[var(--accent-blue,#38bdf8)] focus-visible:outline-offset-2 [transform:translate3d(0,_-50%,_0)]",
+          "text": "10",
+          "w": 34,
+          "h": 86
+        }
+      ],
+      "overflow": [],
+      "panels": [],
+      "charts": [],
+      "shell": [
+        {
+          "s": ".topbar",
+          "visible": null
+        },
+        {
+          "s": ".hamburger-button",
+          "visible": null
+        },
+        {
+          "s": ".fab-new-ticket",
+          "visible": true,
+          "rect": {
+            "x": 1202,
+            "y": 724,
+            "width": 50,
+            "height": 48,
+            "top": 724,
+            "right": 1252,
+            "bottom": 772,
+            "left": 1202
+          }
+        },
+        {
+          "s": ".shift-panel-toggle-tab",
+          "visible": true,
+          "rect": {
+            "x": 1246,
+            "y": 357,
+            "width": 34,
+            "height": 86,
+            "top": 357,
+            "right": 1280,
+            "bottom": 443,
+            "left": 1246
+          }
+        },
+        {
+          "s": ".sidebar",
+          "visible": true,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 250,
+            "height": 800,
+            "top": 0,
+            "right": 250,
+            "bottom": 800,
+            "left": 0
+          }
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "route": "/dashboard",
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "smallText": [],
+      "smallTargets": [
+        {
+          "tag": "A",
+          "cls": " p-[9px_12px] active text-[var(--sidebar-active-text)] bg-[var(--sidebar-active)] font-semibold border-l-[3px] border-l-[var(--sidebar-active-border)]",
+          "text": "Dashboard",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Tickets",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Monitoring",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Shift Log",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Reports",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Team Roster",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Master Data",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Runbooks",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "r-[10px] focus-visible:outline-2 focus-visible:outline-[var(--accent-blue,#38bdf8)] focus-visible:outline-offset-2 [transform:translate3d(0,_-50%,_0)]",
+          "text": "10",
+          "w": 34,
+          "h": 86
+        }
+      ],
+      "overflow": [],
+      "panels": [],
+      "charts": [],
+      "shell": [
+        {
+          "s": ".topbar",
+          "visible": null
+        },
+        {
+          "s": ".hamburger-button",
+          "visible": null
+        },
+        {
+          "s": ".fab-new-ticket",
+          "visible": true,
+          "rect": {
+            "x": 1362,
+            "y": 824,
+            "width": 50,
+            "height": 48,
+            "top": 824,
+            "right": 1412,
+            "bottom": 872,
+            "left": 1362
+          }
+        },
+        {
+          "s": ".shift-panel-toggle-tab",
+          "visible": true,
+          "rect": {
+            "x": 1406,
+            "y": 407,
+            "width": 34,
+            "height": 86,
+            "top": 407,
+            "right": 1440,
+            "bottom": 493,
+            "left": 1406
+          }
+        },
+        {
+          "s": ".sidebar",
+          "visible": true,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 250,
+            "height": 900,
+            "top": 0,
+            "right": 250,
+            "bottom": 900,
+            "left": 0
+          }
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "route": "/tickets",
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "smallText": [],
+      "smallTargets": [
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Dashboard",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": " p-[9px_12px] active text-[var(--sidebar-active-text)] bg-[var(--sidebar-active)] font-semibold border-l-[3px] border-l-[var(--sidebar-active-border)]",
+          "text": "Tickets",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Monitoring",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Shift Log",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Reports",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Team Roster",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Master Data",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Runbooks",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "r-[10px] focus-visible:outline-2 focus-visible:outline-[var(--accent-blue,#38bdf8)] focus-visible:outline-offset-2 [transform:translate3d(0,_-50%,_0)]",
+          "text": "10",
+          "w": 34,
+          "h": 86
+        }
+      ],
+      "overflow": [],
+      "panels": [],
+      "charts": [],
+      "shell": [
+        {
+          "s": ".topbar",
+          "visible": null
+        },
+        {
+          "s": ".hamburger-button",
+          "visible": null
+        },
+        {
+          "s": ".fab-new-ticket",
+          "visible": true,
+          "rect": {
+            "x": 1362,
+            "y": 824,
+            "width": 50,
+            "height": 48,
+            "top": 824,
+            "right": 1412,
+            "bottom": 872,
+            "left": 1362
+          }
+        },
+        {
+          "s": ".shift-panel-toggle-tab",
+          "visible": true,
+          "rect": {
+            "x": 1406,
+            "y": 407,
+            "width": 34,
+            "height": 86,
+            "top": 407,
+            "right": 1440,
+            "bottom": 493,
+            "left": 1406
+          }
+        },
+        {
+          "s": ".sidebar",
+          "visible": true,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 250,
+            "height": 900,
+            "top": 0,
+            "right": 250,
+            "bottom": 900,
+            "left": 0
+          }
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "route": "/monitoring",
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "smallText": [],
+      "smallTargets": [
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Dashboard",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Tickets",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": " p-[9px_12px] active text-[var(--sidebar-active-text)] bg-[var(--sidebar-active)] font-semibold border-l-[3px] border-l-[var(--sidebar-active-border)]",
+          "text": "Monitoring",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Shift Log",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Reports",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Team Roster",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Master Data",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Runbooks",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "r-[10px] focus-visible:outline-2 focus-visible:outline-[var(--accent-blue,#38bdf8)] focus-visible:outline-offset-2 [transform:translate3d(0,_-50%,_0)]",
+          "text": "10",
+          "w": 34,
+          "h": 86
+        }
+      ],
+      "overflow": [],
+      "panels": [],
+      "charts": [],
+      "shell": [
+        {
+          "s": ".topbar",
+          "visible": null
+        },
+        {
+          "s": ".hamburger-button",
+          "visible": null
+        },
+        {
+          "s": ".fab-new-ticket",
+          "visible": true,
+          "rect": {
+            "x": 1362,
+            "y": 824,
+            "width": 50,
+            "height": 48,
+            "top": 824,
+            "right": 1412,
+            "bottom": 872,
+            "left": 1362
+          }
+        },
+        {
+          "s": ".shift-panel-toggle-tab",
+          "visible": true,
+          "rect": {
+            "x": 1406,
+            "y": 407,
+            "width": 34,
+            "height": 86,
+            "top": 407,
+            "right": 1440,
+            "bottom": 493,
+            "left": 1406
+          }
+        },
+        {
+          "s": ".sidebar",
+          "visible": true,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 250,
+            "height": 900,
+            "top": 0,
+            "right": 250,
+            "bottom": 900,
+            "left": 0
+          }
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "route": "/shift-log",
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "smallText": [],
+      "smallTargets": [
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Dashboard",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Tickets",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Monitoring",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": " p-[9px_12px] active text-[var(--sidebar-active-text)] bg-[var(--sidebar-active)] font-semibold border-l-[3px] border-l-[var(--sidebar-active-border)]",
+          "text": "Shift Log",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Reports",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Team Roster",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Master Data",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Runbooks",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "r-[10px] focus-visible:outline-2 focus-visible:outline-[var(--accent-blue,#38bdf8)] focus-visible:outline-offset-2 [transform:translate3d(0,_-50%,_0)]",
+          "text": "10",
+          "w": 34,
+          "h": 86
+        }
+      ],
+      "overflow": [],
+      "panels": [],
+      "charts": [],
+      "shell": [
+        {
+          "s": ".topbar",
+          "visible": null
+        },
+        {
+          "s": ".hamburger-button",
+          "visible": null
+        },
+        {
+          "s": ".fab-new-ticket",
+          "visible": true,
+          "rect": {
+            "x": 1362,
+            "y": 824,
+            "width": 50,
+            "height": 48,
+            "top": 824,
+            "right": 1412,
+            "bottom": 872,
+            "left": 1362
+          }
+        },
+        {
+          "s": ".shift-panel-toggle-tab",
+          "visible": true,
+          "rect": {
+            "x": 1406,
+            "y": 407,
+            "width": 34,
+            "height": 86,
+            "top": 407,
+            "right": 1440,
+            "bottom": 493,
+            "left": 1406
+          }
+        },
+        {
+          "s": ".sidebar",
+          "visible": true,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 250,
+            "height": 900,
+            "top": 0,
+            "right": 250,
+            "bottom": 900,
+            "left": 0
+          }
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "route": "/reports",
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "smallText": [],
+      "smallTargets": [
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Dashboard",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Tickets",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Monitoring",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Shift Log",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": " p-[9px_12px] active text-[var(--sidebar-active-text)] bg-[var(--sidebar-active)] font-semibold border-l-[3px] border-l-[var(--sidebar-active-border)]",
+          "text": "Reports",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Team Roster",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Master Data",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Runbooks",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "r-[10px] focus-visible:outline-2 focus-visible:outline-[var(--accent-blue,#38bdf8)] focus-visible:outline-offset-2 [transform:translate3d(0,_-50%,_0)]",
+          "text": "10",
+          "w": 34,
+          "h": 86
+        }
+      ],
+      "overflow": [],
+      "panels": [],
+      "charts": [],
+      "shell": [
+        {
+          "s": ".topbar",
+          "visible": null
+        },
+        {
+          "s": ".hamburger-button",
+          "visible": null
+        },
+        {
+          "s": ".fab-new-ticket",
+          "visible": true,
+          "rect": {
+            "x": 1362,
+            "y": 824,
+            "width": 50,
+            "height": 48,
+            "top": 824,
+            "right": 1412,
+            "bottom": 872,
+            "left": 1362
+          }
+        },
+        {
+          "s": ".shift-panel-toggle-tab",
+          "visible": true,
+          "rect": {
+            "x": 1406,
+            "y": 407,
+            "width": 34,
+            "height": 86,
+            "top": 407,
+            "right": 1440,
+            "bottom": 493,
+            "left": 1406
+          }
+        },
+        {
+          "s": ".sidebar",
+          "visible": true,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 250,
+            "height": 900,
+            "top": 0,
+            "right": 250,
+            "bottom": 900,
+            "left": 0
+          }
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "route": "/team-roster",
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "smallText": [],
+      "smallTargets": [
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Dashboard",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Tickets",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Monitoring",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Shift Log",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Reports",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": " p-[9px_12px] active text-[var(--sidebar-active-text)] bg-[var(--sidebar-active)] font-semibold border-l-[3px] border-l-[var(--sidebar-active-border)]",
+          "text": "Team Roster",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Master Data",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Runbooks",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "r-[10px] focus-visible:outline-2 focus-visible:outline-[var(--accent-blue,#38bdf8)] focus-visible:outline-offset-2 [transform:translate3d(0,_-50%,_0)]",
+          "text": "10",
+          "w": 34,
+          "h": 86
+        }
+      ],
+      "overflow": [],
+      "panels": [],
+      "charts": [],
+      "shell": [
+        {
+          "s": ".topbar",
+          "visible": null
+        },
+        {
+          "s": ".hamburger-button",
+          "visible": null
+        },
+        {
+          "s": ".fab-new-ticket",
+          "visible": true,
+          "rect": {
+            "x": 1362,
+            "y": 824,
+            "width": 50,
+            "height": 48,
+            "top": 824,
+            "right": 1412,
+            "bottom": 872,
+            "left": 1362
+          }
+        },
+        {
+          "s": ".shift-panel-toggle-tab",
+          "visible": true,
+          "rect": {
+            "x": 1406,
+            "y": 407,
+            "width": 34,
+            "height": 86,
+            "top": 407,
+            "right": 1440,
+            "bottom": 493,
+            "left": 1406
+          }
+        },
+        {
+          "s": ".sidebar",
+          "visible": true,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 250,
+            "height": 900,
+            "top": 0,
+            "right": 250,
+            "bottom": 900,
+            "left": 0
+          }
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "route": "/master-data",
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "smallText": [],
+      "smallTargets": [
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Dashboard",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Tickets",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Monitoring",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Shift Log",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Reports",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Team Roster",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": " p-[9px_12px] active text-[var(--sidebar-active-text)] bg-[var(--sidebar-active)] font-semibold border-l-[3px] border-l-[var(--sidebar-active-border)]",
+          "text": "Master Data",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Runbooks",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "r-[10px] focus-visible:outline-2 focus-visible:outline-[var(--accent-blue,#38bdf8)] focus-visible:outline-offset-2 [transform:translate3d(0,_-50%,_0)]",
+          "text": "10",
+          "w": 34,
+          "h": 86
+        }
+      ],
+      "overflow": [],
+      "panels": [],
+      "charts": [],
+      "shell": [
+        {
+          "s": ".topbar",
+          "visible": null
+        },
+        {
+          "s": ".hamburger-button",
+          "visible": null
+        },
+        {
+          "s": ".fab-new-ticket",
+          "visible": true,
+          "rect": {
+            "x": 1362,
+            "y": 824,
+            "width": 50,
+            "height": 48,
+            "top": 824,
+            "right": 1412,
+            "bottom": 872,
+            "left": 1362
+          }
+        },
+        {
+          "s": ".shift-panel-toggle-tab",
+          "visible": true,
+          "rect": {
+            "x": 1406,
+            "y": 407,
+            "width": 34,
+            "height": 86,
+            "top": 407,
+            "right": 1440,
+            "bottom": 493,
+            "left": 1406
+          }
+        },
+        {
+          "s": ".sidebar",
+          "visible": true,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 250,
+            "height": 900,
+            "top": 0,
+            "right": 250,
+            "bottom": 900,
+            "left": 0
+          }
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "route": "/runbooks",
+      "scrollWidth": 1440,
+      "clientWidth": 1440,
+      "smallText": [],
+      "smallTargets": [
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Dashboard",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Tickets",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Monitoring",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Shift Log",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Reports",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Team Roster",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Master Data",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": " p-[9px_12px] active text-[var(--sidebar-active-text)] bg-[var(--sidebar-active)] font-semibold border-l-[3px] border-l-[var(--sidebar-active-border)]",
+          "text": "Runbooks",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "r-[10px] focus-visible:outline-2 focus-visible:outline-[var(--accent-blue,#38bdf8)] focus-visible:outline-offset-2 [transform:translate3d(0,_-50%,_0)]",
+          "text": "10",
+          "w": 34,
+          "h": 86
+        }
+      ],
+      "overflow": [],
+      "panels": [],
+      "charts": [],
+      "shell": [
+        {
+          "s": ".topbar",
+          "visible": null
+        },
+        {
+          "s": ".hamburger-button",
+          "visible": null
+        },
+        {
+          "s": ".fab-new-ticket",
+          "visible": true,
+          "rect": {
+            "x": 1362,
+            "y": 824,
+            "width": 50,
+            "height": 48,
+            "top": 824,
+            "right": 1412,
+            "bottom": 872,
+            "left": 1362
+          }
+        },
+        {
+          "s": ".shift-panel-toggle-tab",
+          "visible": true,
+          "rect": {
+            "x": 1406,
+            "y": 407,
+            "width": 34,
+            "height": 86,
+            "top": 407,
+            "right": 1440,
+            "bottom": 493,
+            "left": 1406
+          }
+        },
+        {
+          "s": ".sidebar",
+          "visible": true,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 250,
+            "height": 900,
+            "top": 0,
+            "right": 250,
+            "bottom": 900,
+            "left": 0
+          }
+        }
+      ]
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "route": "/dashboard",
+      "scrollWidth": 1920,
+      "clientWidth": 1920,
+      "smallText": [],
+      "smallTargets": [
+        {
+          "tag": "A",
+          "cls": " p-[9px_12px] active text-[var(--sidebar-active-text)] bg-[var(--sidebar-active)] font-semibold border-l-[3px] border-l-[var(--sidebar-active-border)]",
+          "text": "Dashboard",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Tickets",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Monitoring",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Shift Log",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Reports",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Team Roster",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Master Data",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Runbooks",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "r-[10px] focus-visible:outline-2 focus-visible:outline-[var(--accent-blue,#38bdf8)] focus-visible:outline-offset-2 [transform:translate3d(0,_-50%,_0)]",
+          "text": "10",
+          "w": 34,
+          "h": 86
+        }
+      ],
+      "overflow": [],
+      "panels": [],
+      "charts": [],
+      "shell": [
+        {
+          "s": ".topbar",
+          "visible": null
+        },
+        {
+          "s": ".hamburger-button",
+          "visible": null
+        },
+        {
+          "s": ".fab-new-ticket",
+          "visible": true,
+          "rect": {
+            "x": 1842,
+            "y": 1004,
+            "width": 50,
+            "height": 48,
+            "top": 1004,
+            "right": 1892,
+            "bottom": 1052,
+            "left": 1842
+          }
+        },
+        {
+          "s": ".shift-panel-toggle-tab",
+          "visible": true,
+          "rect": {
+            "x": 1886,
+            "y": 497,
+            "width": 34,
+            "height": 86,
+            "top": 497,
+            "right": 1920,
+            "bottom": 583,
+            "left": 1886
+          }
+        },
+        {
+          "s": ".sidebar",
+          "visible": true,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 250,
+            "height": 1080,
+            "top": 0,
+            "right": 250,
+            "bottom": 1080,
+            "left": 0
+          }
+        }
+      ]
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "route": "/tickets",
+      "scrollWidth": 1920,
+      "clientWidth": 1920,
+      "smallText": [],
+      "smallTargets": [
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Dashboard",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": " p-[9px_12px] active text-[var(--sidebar-active-text)] bg-[var(--sidebar-active)] font-semibold border-l-[3px] border-l-[var(--sidebar-active-border)]",
+          "text": "Tickets",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Monitoring",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Shift Log",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Reports",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Team Roster",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Master Data",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Runbooks",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "r-[10px] focus-visible:outline-2 focus-visible:outline-[var(--accent-blue,#38bdf8)] focus-visible:outline-offset-2 [transform:translate3d(0,_-50%,_0)]",
+          "text": "10",
+          "w": 34,
+          "h": 86
+        }
+      ],
+      "overflow": [],
+      "panels": [],
+      "charts": [],
+      "shell": [
+        {
+          "s": ".topbar",
+          "visible": null
+        },
+        {
+          "s": ".hamburger-button",
+          "visible": null
+        },
+        {
+          "s": ".fab-new-ticket",
+          "visible": true,
+          "rect": {
+            "x": 1842,
+            "y": 1004,
+            "width": 50,
+            "height": 48,
+            "top": 1004,
+            "right": 1892,
+            "bottom": 1052,
+            "left": 1842
+          }
+        },
+        {
+          "s": ".shift-panel-toggle-tab",
+          "visible": true,
+          "rect": {
+            "x": 1886,
+            "y": 497,
+            "width": 34,
+            "height": 86,
+            "top": 497,
+            "right": 1920,
+            "bottom": 583,
+            "left": 1886
+          }
+        },
+        {
+          "s": ".sidebar",
+          "visible": true,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 250,
+            "height": 1080,
+            "top": 0,
+            "right": 250,
+            "bottom": 1080,
+            "left": 0
+          }
+        }
+      ]
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "route": "/monitoring",
+      "scrollWidth": 1920,
+      "clientWidth": 1920,
+      "smallText": [],
+      "smallTargets": [
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Dashboard",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Tickets",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": " p-[9px_12px] active text-[var(--sidebar-active-text)] bg-[var(--sidebar-active)] font-semibold border-l-[3px] border-l-[var(--sidebar-active-border)]",
+          "text": "Monitoring",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Shift Log",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Reports",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Team Roster",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Master Data",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Runbooks",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "r-[10px] focus-visible:outline-2 focus-visible:outline-[var(--accent-blue,#38bdf8)] focus-visible:outline-offset-2 [transform:translate3d(0,_-50%,_0)]",
+          "text": "10",
+          "w": 34,
+          "h": 86
+        }
+      ],
+      "overflow": [],
+      "panels": [],
+      "charts": [],
+      "shell": [
+        {
+          "s": ".topbar",
+          "visible": null
+        },
+        {
+          "s": ".hamburger-button",
+          "visible": null
+        },
+        {
+          "s": ".fab-new-ticket",
+          "visible": true,
+          "rect": {
+            "x": 1842,
+            "y": 1004,
+            "width": 50,
+            "height": 48,
+            "top": 1004,
+            "right": 1892,
+            "bottom": 1052,
+            "left": 1842
+          }
+        },
+        {
+          "s": ".shift-panel-toggle-tab",
+          "visible": true,
+          "rect": {
+            "x": 1886,
+            "y": 497,
+            "width": 34,
+            "height": 86,
+            "top": 497,
+            "right": 1920,
+            "bottom": 583,
+            "left": 1886
+          }
+        },
+        {
+          "s": ".sidebar",
+          "visible": true,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 250,
+            "height": 1080,
+            "top": 0,
+            "right": 250,
+            "bottom": 1080,
+            "left": 0
+          }
+        }
+      ]
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "route": "/shift-log",
+      "scrollWidth": 1920,
+      "clientWidth": 1920,
+      "smallText": [],
+      "smallTargets": [
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Dashboard",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Tickets",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Monitoring",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": " p-[9px_12px] active text-[var(--sidebar-active-text)] bg-[var(--sidebar-active)] font-semibold border-l-[3px] border-l-[var(--sidebar-active-border)]",
+          "text": "Shift Log",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Reports",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Team Roster",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Master Data",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Runbooks",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "r-[10px] focus-visible:outline-2 focus-visible:outline-[var(--accent-blue,#38bdf8)] focus-visible:outline-offset-2 [transform:translate3d(0,_-50%,_0)]",
+          "text": "10",
+          "w": 34,
+          "h": 86
+        }
+      ],
+      "overflow": [],
+      "panels": [],
+      "charts": [],
+      "shell": [
+        {
+          "s": ".topbar",
+          "visible": null
+        },
+        {
+          "s": ".hamburger-button",
+          "visible": null
+        },
+        {
+          "s": ".fab-new-ticket",
+          "visible": true,
+          "rect": {
+            "x": 1842,
+            "y": 1004,
+            "width": 50,
+            "height": 48,
+            "top": 1004,
+            "right": 1892,
+            "bottom": 1052,
+            "left": 1842
+          }
+        },
+        {
+          "s": ".shift-panel-toggle-tab",
+          "visible": true,
+          "rect": {
+            "x": 1886,
+            "y": 497,
+            "width": 34,
+            "height": 86,
+            "top": 497,
+            "right": 1920,
+            "bottom": 583,
+            "left": 1886
+          }
+        },
+        {
+          "s": ".sidebar",
+          "visible": true,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 250,
+            "height": 1080,
+            "top": 0,
+            "right": 250,
+            "bottom": 1080,
+            "left": 0
+          }
+        }
+      ]
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "route": "/reports",
+      "scrollWidth": 1920,
+      "clientWidth": 1920,
+      "smallText": [],
+      "smallTargets": [
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Dashboard",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Tickets",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Monitoring",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Shift Log",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": " p-[9px_12px] active text-[var(--sidebar-active-text)] bg-[var(--sidebar-active)] font-semibold border-l-[3px] border-l-[var(--sidebar-active-border)]",
+          "text": "Reports",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Team Roster",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Master Data",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Runbooks",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "r-[10px] focus-visible:outline-2 focus-visible:outline-[var(--accent-blue,#38bdf8)] focus-visible:outline-offset-2 [transform:translate3d(0,_-50%,_0)]",
+          "text": "10",
+          "w": 34,
+          "h": 86
+        }
+      ],
+      "overflow": [],
+      "panels": [],
+      "charts": [],
+      "shell": [
+        {
+          "s": ".topbar",
+          "visible": null
+        },
+        {
+          "s": ".hamburger-button",
+          "visible": null
+        },
+        {
+          "s": ".fab-new-ticket",
+          "visible": true,
+          "rect": {
+            "x": 1842,
+            "y": 1004,
+            "width": 50,
+            "height": 48,
+            "top": 1004,
+            "right": 1892,
+            "bottom": 1052,
+            "left": 1842
+          }
+        },
+        {
+          "s": ".shift-panel-toggle-tab",
+          "visible": true,
+          "rect": {
+            "x": 1886,
+            "y": 497,
+            "width": 34,
+            "height": 86,
+            "top": 497,
+            "right": 1920,
+            "bottom": 583,
+            "left": 1886
+          }
+        },
+        {
+          "s": ".sidebar",
+          "visible": true,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 250,
+            "height": 1080,
+            "top": 0,
+            "right": 250,
+            "bottom": 1080,
+            "left": 0
+          }
+        }
+      ]
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "route": "/team-roster",
+      "scrollWidth": 1920,
+      "clientWidth": 1920,
+      "smallText": [],
+      "smallTargets": [
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Dashboard",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Tickets",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Monitoring",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Shift Log",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Reports",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": " p-[9px_12px] active text-[var(--sidebar-active-text)] bg-[var(--sidebar-active)] font-semibold border-l-[3px] border-l-[var(--sidebar-active-border)]",
+          "text": "Team Roster",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Master Data",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Runbooks",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "r-[10px] focus-visible:outline-2 focus-visible:outline-[var(--accent-blue,#38bdf8)] focus-visible:outline-offset-2 [transform:translate3d(0,_-50%,_0)]",
+          "text": "10",
+          "w": 34,
+          "h": 86
+        }
+      ],
+      "overflow": [],
+      "panels": [],
+      "charts": [],
+      "shell": [
+        {
+          "s": ".topbar",
+          "visible": null
+        },
+        {
+          "s": ".hamburger-button",
+          "visible": null
+        },
+        {
+          "s": ".fab-new-ticket",
+          "visible": true,
+          "rect": {
+            "x": 1842,
+            "y": 1004,
+            "width": 50,
+            "height": 48,
+            "top": 1004,
+            "right": 1892,
+            "bottom": 1052,
+            "left": 1842
+          }
+        },
+        {
+          "s": ".shift-panel-toggle-tab",
+          "visible": true,
+          "rect": {
+            "x": 1886,
+            "y": 497,
+            "width": 34,
+            "height": 86,
+            "top": 497,
+            "right": 1920,
+            "bottom": 583,
+            "left": 1886
+          }
+        },
+        {
+          "s": ".sidebar",
+          "visible": true,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 250,
+            "height": 1080,
+            "top": 0,
+            "right": 250,
+            "bottom": 1080,
+            "left": 0
+          }
+        }
+      ]
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "route": "/master-data",
+      "scrollWidth": 1920,
+      "clientWidth": 1920,
+      "smallText": [],
+      "smallTargets": [
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Dashboard",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Tickets",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Monitoring",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Shift Log",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Reports",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Team Roster",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": " p-[9px_12px] active text-[var(--sidebar-active-text)] bg-[var(--sidebar-active)] font-semibold border-l-[3px] border-l-[var(--sidebar-active-border)]",
+          "text": "Master Data",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Runbooks",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "r-[10px] focus-visible:outline-2 focus-visible:outline-[var(--accent-blue,#38bdf8)] focus-visible:outline-offset-2 [transform:translate3d(0,_-50%,_0)]",
+          "text": "10",
+          "w": 34,
+          "h": 86
+        }
+      ],
+      "overflow": [],
+      "panels": [],
+      "charts": [],
+      "shell": [
+        {
+          "s": ".topbar",
+          "visible": null
+        },
+        {
+          "s": ".hamburger-button",
+          "visible": null
+        },
+        {
+          "s": ".fab-new-ticket",
+          "visible": true,
+          "rect": {
+            "x": 1842,
+            "y": 1004,
+            "width": 50,
+            "height": 48,
+            "top": 1004,
+            "right": 1892,
+            "bottom": 1052,
+            "left": 1842
+          }
+        },
+        {
+          "s": ".shift-panel-toggle-tab",
+          "visible": true,
+          "rect": {
+            "x": 1886,
+            "y": 497,
+            "width": 34,
+            "height": 86,
+            "top": 497,
+            "right": 1920,
+            "bottom": 583,
+            "left": 1886
+          }
+        },
+        {
+          "s": ".sidebar",
+          "visible": true,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 250,
+            "height": 1080,
+            "top": 0,
+            "right": 250,
+            "bottom": 1080,
+            "left": 0
+          }
+        }
+      ]
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "route": "/runbooks",
+      "scrollWidth": 1920,
+      "clientWidth": 1920,
+      "smallText": [],
+      "smallTargets": [
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Dashboard",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Tickets",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Monitoring",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Shift Log",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Reports",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Team Roster",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": "ext-[var(--sidebar-active-text)] hover:bg-[var(--sidebar-hover)] w-full gap-[11px] p-[9px_12px] bg-transparent text-[var(--sidebar-muted)] font-medium",
+          "text": "Master Data",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "A",
+          "cls": " p-[9px_12px] active text-[var(--sidebar-active-text)] bg-[var(--sidebar-active)] font-semibold border-l-[3px] border-l-[var(--sidebar-active-border)]",
+          "text": "Runbooks",
+          "w": 225,
+          "h": 38
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "r-[10px] focus-visible:outline-2 focus-visible:outline-[var(--accent-blue,#38bdf8)] focus-visible:outline-offset-2 [transform:translate3d(0,_-50%,_0)]",
+          "text": "10",
+          "w": 34,
+          "h": 86
+        }
+      ],
+      "overflow": [],
+      "panels": [],
+      "charts": [],
+      "shell": [
+        {
+          "s": ".topbar",
+          "visible": null
+        },
+        {
+          "s": ".hamburger-button",
+          "visible": null
+        },
+        {
+          "s": ".fab-new-ticket",
+          "visible": true,
+          "rect": {
+            "x": 1842,
+            "y": 1004,
+            "width": 50,
+            "height": 48,
+            "top": 1004,
+            "right": 1892,
+            "bottom": 1052,
+            "left": 1842
+          }
+        },
+        {
+          "s": ".shift-panel-toggle-tab",
+          "visible": true,
+          "rect": {
+            "x": 1886,
+            "y": 497,
+            "width": 34,
+            "height": 86,
+            "top": 497,
+            "right": 1920,
+            "bottom": 583,
+            "left": 1886
+          }
+        },
+        {
+          "s": ".sidebar",
+          "visible": true,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 250,
+            "height": 1080,
+            "top": 0,
+            "right": 250,
+            "bottom": 1080,
+            "left": 0
+          }
+        }
+      ]
+    }
+  ],
+  "errors": []
+}

@@ -1,0 +1,138 @@
+{
+  "checks": [
+    "tab arrow navigation",
+    "relations, history, impact + menu keyboard 1440",
+    "category + filter sheets",
+    "relations, history, impact + menu keyboard 390",
+    "keyboard + touch scrolling after overlays"
+  ],
+  "errors": [],
+  "contrast": [
+    {
+      "badge": "active",
+      "text": [
+        164,
+        244,
+        207
+      ],
+      "background": [
+        0,
+        44,
+        34
+      ],
+      "ratio": 11.869389391850511
+    },
+    {
+      "badge": "inactive",
+      "text": [
+        241,
+        245,
+        249
+      ],
+      "background": [
+        49,
+        65,
+        88
+      ],
+      "ratio": 9.45391586956334
+    },
+    {
+      "badge": "archived",
+      "text": [
+        255,
+        204,
+        211
+      ],
+      "background": [
+        77,
+        2,
+        24
+      ],
+      "ratio": 11.08827181828862
+    },
+    {
+      "badge": "critical",
+      "text": [
+        255,
+        201,
+        201
+      ],
+      "background": [
+        70,
+        8,
+        9
+      ],
+      "ratio": 11.123170472466263
+    },
+    {
+      "badge": "high",
+      "text": [
+        254,
+        230,
+        133
+      ],
+      "background": [
+        70,
+        25,
+        1
+      ],
+      "ratio": 12.051915666503737
+    },
+    {
+      "badge": "medium",
+      "text": [
+        184,
+        230,
+        254
+      ],
+      "background": [
+        5,
+        47,
+        74
+      ],
+      "ratio": 10.44216741987931
+    },
+    {
+      "badge": "low",
+      "text": [
+        241,
+        245,
+        249
+      ],
+      "background": [
+        49,
+        65,
+        88
+      ],
+      "ratio": 9.45391586956334
+    },
+    {
+      "badge": "tenant",
+      "text": [
+        221,
+        214,
+        255
+      ],
+      "background": [
+        47,
+        13,
+        104
+      ],
+      "ratio": 10.982153620210703
+    },
+    {
+      "badge": "client",
+      "text": [
+        184,
+        230,
+        254
+      ],
+      "background": [
+        5,
+        47,
+        74
+      ],
+      "ratio": 10.44216741987931
+    }
+  ]
+}

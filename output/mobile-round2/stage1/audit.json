@@ -1,0 +1,801 @@
+{
+  "rows": [
+    {
+      "width": 390,
+      "height": 4159,
+      "route": "/dashboard",
+      "clientWidth": 390,
+      "grids": [
+        {
+          "tag": "DIV",
+          "cls": "grid grid-cols-[minmax(0,1fr)_410px] max-[1140px]:grid-cols-1 gap-[16px] items-stretch w-full ops-focus-grid max-lg:gap-3 max-lg:grid-cols-1 max-lg:items-start",
+          "text": "Tiket Hari Ini33 tiket#86d40sep14● APH[APH] Pemeliharaan Perangkat Switch Spine DC CikarangEscalation Muhammad Ihsanul A",
+          "x": 12,
+          "y": 174.890625,
+          "w": 366,
+          "h": 1295.5,
+          "columns": "366px",
+          "gap": "12px"
+        },
+        {
+          "tag": "DIV",
+          "cls": "flex flex-col gap-[12px] h-full min-h-[580px] max-h-[660px] max-[1140px]:min-h-0 max-[1140px]:h-auto ops-right-column max-lg:min-h-0 max-lg:max-h-none",
+          "text": "Memo & Catatan ShiftView• Pantau koneksi gateway B2B sekunder menjelang lonjakan transaksi pagi.\n• Antrean ActiveMQ brok",
+          "x": 12,
+          "y": 842.890625,
+          "w": 366,
+          "h": 627.5,
+          "columns": "none",
+          "gap": "12px"
+        },
+        {
+          "tag": "DIV",
+          "cls": "grid grid-cols-[minmax(0,1fr)_380px] max-[1140px]:grid-cols-1 gap-[16px] items-stretch w-full max-lg:items-start max-lg:gap-3 report-primary-chart-grid",
+          "text": "Ticket Volume per Project (Stacked by System)Volume TiketVolume per ProjectVolBulan Lalu vs Bulan IniMoMView015304560Kli",
+          "x": 12,
+          "y": 1576.390625,
+          "w": 366,
+          "h": 981,
+          "columns": "366px",
+          "gap": "12px"
+        }
+      ],
+      "panels": [
+        {
+          "title": "Tiket Hari Ini",
+          "x": 12,
+          "y": 174.890625,
+          "w": 366,
+          "h": 656,
+          "body": {
+            "x": 13,
+            "y": 248.890625,
+            "w": 364,
+            "h": 581
+          }
+        },
+        {
+          "title": "Memo & Catatan Shift",
+          "x": 12,
+          "y": 842.890625,
+          "w": 366,
+          "h": 181,
+          "body": {
+            "x": 13,
+            "y": 916.890625,
+            "w": 364,
+            "h": 106
+          }
+        },
+        {
+          "title": "List Monitoring Shift",
+          "x": 12,
+          "y": 1035.890625,
+          "w": 366,
+          "h": 434.5,
+          "body": {
+            "x": 13,
+            "y": 1109.890625,
+            "w": 364,
+            "h": 359.5
+          }
+        },
+        {
+          "title": "Ticket Volume per Project (Stacked by System)Volume Tiket",
+          "x": 12,
+          "y": 1576.390625,
+          "w": 366,
+          "h": 382,
+          "body": {
+            "x": 13,
+            "y": 1650.390625,
+            "w": 364,
+            "h": 307
+          }
+        },
+        {
+          "title": "Rekap Tiket per User",
+          "x": 12,
+          "y": 1970.390625,
+          "w": 366,
+          "h": 587,
+          "body": {
+            "x": 13,
+            "y": 2044.390625,
+            "w": 364,
+            "h": 512
+          }
+        },
+        {
+          "title": "Distribusi Kategori / Tipe TiketDistribusi Kategori",
+          "x": 12,
+          "y": 2621.390625,
+          "w": 366,
+          "h": 409.75,
+          "body": {
+            "x": 13,
+            "y": 2695.390625,
+            "w": 364,
+            "h": 334.75
+          }
+        },
+        {
+          "title": "Distribusi Berdasarkan SeverityDistribusi Severity",
+          "x": 390,
+          "y": 2621.390625,
+          "w": 366,
+          "h": 409.75,
+          "body": {
+            "x": 391,
+            "y": 2695.390625,
+            "w": 364,
+            "h": 334.75
+          }
+        },
+        {
+          "title": "Tren Durasi Penyelesaian (Resolution Velocity)Tren Durasi",
+          "x": 12,
+          "y": 3043.140625,
+          "w": 366,
+          "h": 448,
+          "body": {
+            "x": 13,
+            "y": 3117.140625,
+            "w": 364,
+            "h": 373
+          }
+        },
+        {
+          "title": "Tren Trafik Beban per Shift (Shift Traffic Velocity)Tren Trafik",
+          "x": 12,
+          "y": 3503.140625,
+          "w": 366,
+          "h": 520,
+          "body": {
+            "x": 13,
+            "y": 3577.140625,
+            "w": 364,
+            "h": 445
+          }
+        }
+      ],
+      "sections": [
+        {
+          "tag": "SECTION",
+          "cls": "page-heading flex justify-between items-end mb-[22px] max-lg:mb-0 max-[660px]:flex-col max-[660px]:items-start max-[660px]:gap-[12px] max-[640px]:mb-0",
+          "text": "DASHBOARD · TRITDashboard",
+          "x": 12,
+          "y": 70,
+          "w": 366,
+          "h": 52.890625
+        },
+        {
+          "tag": "DIV",
+          "cls": "flex flex-col gap-[14px] bg-transparent border-none rounded-none p-0 ops-focus-section max-lg:gap-3",
+          "text": "LIVE OPS VIEWOperational Focus — Pantauan Real-Time & Koordinasi ShiftShift Aktif: Shift MalamTiket Hari Ini33 tiket#86d",
+          "x": 12,
+          "y": 134.890625,
+          "w": 366,
+          "h": 1335.5
+        },
+        {
+          "tag": "DIV",
+          "cls": "flex flex-col gap-[12px] p-[14px_16px] bg-[var(--panel-bg)] border border-[var(--panel-border)] rounded-[12px] shadow-[var(--shadow-panel)] [transition:all_0.2s_ease] my-[6px] hover:border-[rgba(56,189,248,0.25)] analytics-filter-section",
+          "text": "Filter Laporan & Analitik TiketFilterUbahMenampilkan 88 dari 88 Tiket88 tiket",
+          "x": 12,
+          "y": 1488.390625,
+          "w": 366,
+          "h": 70
+        },
+        {
+          "tag": "DIV",
+          "cls": "grid grid-cols-[minmax(0,1fr)_380px] max-[1140px]:grid-cols-1 gap-[16px] items-stretch w-full max-lg:items-start max-lg:gap-3 report-primary-chart-grid",
+          "text": "Ticket Volume per Project (Stacked by System)Volume TiketVolume per ProjectVolBulan Lalu vs Bulan IniMoMView015304560Kli",
+          "x": 12,
+          "y": 1576.390625,
+          "w": 366,
+          "h": 981
+        },
+        {
+          "tag": "DIV",
+          "cls": "flex gap-2 lg:hidden",
+          "text": "KategoriSeverity",
+          "x": 12,
+          "y": 2569.390625,
+          "w": 366,
+          "h": 40
+        },
+        {
+          "tag": "DIV",
+          "cls": "grid grid-cols-2 max-[960px]:grid-cols-1 gap-[18px] max-lg:gap-3 report-charts-grid max-lg:flex max-lg:overflow-x-auto max-lg:overscroll-x-contain max-lg:snap-x max-lg:snap-mandatory max-lg:[scrollbar-width:thin] max-lg:[&>article]:w-full m",
+          "text": "Distribusi Kategori / Tipe TiketDistribusi Kategori7 KategoriView88TOTAL Maintenance20 (23%) Incident20 (23%) Change Req",
+          "x": 12,
+          "y": 2621.390625,
+          "w": 366,
+          "h": 409.75
+        },
+        {
+          "tag": "ARTICLE",
+          "cls": "bg-[var(--panel-bg)] border border-[var(--panel-border)] rounded-[12px] shadow-[var(--shadow-panel)] overflow-hidden flex flex-col max-lg:min-w-0 flex flex-col w-full mgmt-velocity-panel",
+          "text": "Tren Durasi Penyelesaian (Resolution Velocity)Tren DurasiRata-rata ResolusiTarget SLA (60m)Batas Kritis / Breach (90m)Vi",
+          "x": 12,
+          "y": 3043.140625,
+          "w": 366,
+          "h": 448
+        },
+        {
+          "tag": "DIV",
+          "cls": "heatmap-standalone-section mt-[18px] max-lg:mt-0",
+          "text": "Tren Trafik Beban per Shift (Shift Traffic Velocity)Tren TrafikViewShift Pagi(08:00–16:30)38 tiket51% dari total bebanSh",
+          "x": 12,
+          "y": 3503.140625,
+          "w": 366,
+          "h": 520
+        }
+      ],
+      "smallText": [],
+      "smallTargets": [],
+      "ellipsis": [
+        {
+          "tag": "P",
+          "cls": "line-clamp-3 whitespace-pre-line text-[13px] leading-5 text-slate-300 lg:hidden",
+          "text": "• Pantau koneksi gateway B2B sekunder menjelang lonjakan transaksi pagi.\n• Antrean ActiveMQ broker #228 masih dalam bata",
+          "title": null,
+          "x": 36,
+          "y": 939.890625,
+          "w": 318,
+          "h": 60
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[11.5px] font-medium text-[#f8fafc] whitespace-nowrap overflow-hidden text-ellipsis leading-[1.3] monitoring-task-text max-lg:text-[13px]",
+          "text": "Health check gateway B2B sekunder",
+          "title": "Health check gateway B2B sekunder",
+          "x": 92,
+          "y": 1136.4375,
+          "w": 206,
+          "h": 16.890625
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[11.5px] font-medium text-[#f8fafc] whitespace-nowrap overflow-hidden text-ellipsis leading-[1.3] monitoring-task-text max-lg:text-[13px]",
+          "text": "Queue distributor check & routing",
+          "title": "Queue distributor check & routing",
+          "x": 92,
+          "y": 1185.4375,
+          "w": 206,
+          "h": 16.890625
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[11.5px] font-medium text-[#f8fafc] whitespace-nowrap overflow-hidden text-ellipsis leading-[1.3] monitoring-task-text max-lg:text-[13px]",
+          "text": "Graylog indexer rate & pipeline buffer",
+          "title": "Graylog indexer rate & pipeline buffer",
+          "x": 92,
+          "y": 1234.4375,
+          "w": 206,
+          "h": 16.890625
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[11.5px] font-medium text-[#f8fafc] whitespace-nowrap overflow-hidden text-ellipsis leading-[1.3] monitoring-task-text max-lg:text-[13px]",
+          "text": "Broker health check broker #228",
+          "title": "Broker health check broker #228 — Antrean naik",
+          "x": 108.8125,
+          "y": 1283.4375,
+          "w": 189.1875,
+          "h": 16.890625
+        }
+      ],
+      "scrollers": [
+        {
+          "tag": "DIV",
+          "cls": "w-full overflow-x-auto overflow-y-hidden flex-1 flex flex-col justify-start min-h-[270px] compact-svg-barchart-wrap max-lg:min-h-[220px] max-lg:h-[220px] max-lg:flex-none max-lg:overscroll-x-contain max-lg:snap-x max-lg:snap-proximity max-l",
+          "text": "015304560Klik untuk melihat rincian tiket tanggal 2026-07-20107-20Klik untuk melihat rincian tiket tanggal 2026-07-25107",
+          "x": 25,
+          "y": 1662.390625,
+          "w": 340,
+          "h": 220,
+          "scrollWidth": 928,
+          "scrollLeft": 588,
+          "scrollbar": "thin"
+        },
+        {
+          "tag": "DIV",
+          "cls": "flex items-center gap-[8px] flex-wrap pt-[10px] mt-0 [border-top:1px_solid_var(--line)] project-legend-pills max-lg:flex-nowrap max-lg:overflow-x-auto max-lg:overscroll-x-contain max-lg:[&_.project-legend-pill]:shrink-0",
+          "text": "Sistem:APHB2BDMEPC ToolsMBSMUNEMUSIEM",
+          "x": 25,
+          "y": 1894.390625,
+          "w": 340,
+          "h": 51,
+          "scrollWidth": 611,
+          "scrollLeft": 0,
+          "scrollbar": "auto"
+        },
+        {
+          "tag": "DIV",
+          "cls": "grid grid-cols-2 max-[960px]:grid-cols-1 gap-[18px] max-lg:gap-3 report-charts-grid max-lg:flex max-lg:overflow-x-auto max-lg:overscroll-x-contain max-lg:snap-x max-lg:snap-mandatory max-lg:[scrollbar-width:thin] max-lg:[&>article]:w-full m",
+          "text": "Distribusi Kategori / Tipe TiketDistribusi Kategori7 KategoriView88TOTAL Maintenance20 (23%) Incident20 (23%) Change Req",
+          "x": 12,
+          "y": 2621.390625,
+          "w": 366,
+          "h": 409.75,
+          "scrollWidth": 744,
+          "scrollLeft": 0,
+          "scrollbar": "thin"
+        },
+        {
+          "tag": "DIV",
+          "cls": "flex items-center justify-between flex-wrap gap-[8px] mt-[4px] pt-[10px] pr-[20px] border-t border-[rgba(148,163,184,0.1)] shift-traffic-filter-bar max-lg:flex-nowrap max-lg:[&_.shift-filter-buttons]:flex-nowrap max-lg:overflow-x-auto max-l",
+          "text": "Tampilkan Garis:Semua ShiftShift PagiShift MalamShift Subuh",
+          "x": 25,
+          "y": 3959.140625,
+          "w": 340,
+          "h": 51,
+          "scrollWidth": 361,
+          "scrollLeft": 0,
+          "scrollbar": "auto"
+        }
+      ],
+      "charts": [
+        {
+          "tag": "svg",
+          "cls": "w-full h-full min-h-[270px] max-h-[390px] block compact-report-bar-svg-lg max-lg:min-h-[220px] max-lg:h-[220px]",
+          "text": "015304560Klik untuk melihat rincian tiket tanggal 2026-07-20107-20Klik untuk melihat rincian tiket tanggal 2026-07-25107",
+          "x": -563,
+          "y": 1662.390625,
+          "w": 928,
+          "h": 220,
+          "viewBox": "0 0 928 220",
+          "minFont": 11
+        },
+        {
+          "tag": "svg",
+          "cls": "w-full h-full donut-svg",
+          "text": "",
+          "x": 120,
+          "y": 2709.390625,
+          "w": 150,
+          "h": 150,
+          "viewBox": "0 0 160 160",
+          "minFont": null
+        },
+        {
+          "tag": "svg",
+          "cls": "w-full h-full donut-svg",
+          "text": "",
+          "x": 507,
+          "y": 2709.390625,
+          "w": 132,
+          "h": 132,
+          "viewBox": "0 0 160 160",
+          "minFont": null
+        },
+        {
+          "tag": "svg",
+          "cls": "w-full h-full min-h-[280px] block select-none !overflow-visible compact-velocity-chart-svg max-lg:min-h-[220px] max-lg:[&_text]:text-[11px]",
+          "text": "0m20m40m60m80m100mBreach 90mTarget 60m07-2008-2809-0209-0709-11",
+          "x": 25,
+          "y": 3258.140625,
+          "w": 340,
+          "h": 220,
+          "viewBox": "0 0 340 220",
+          "minFont": 11
+        },
+        {
+          "tag": "svg",
+          "cls": "w-full h-full min-h-[265px] block select-none overflow-visible compact-shift-traffic-chart-svg max-lg:min-h-[220px] max-lg:[&_text]:text-[11px]",
+          "text": "",
+          "x": 25,
+          "y": 3735.140625,
+          "w": 340,
+          "h": 220,
+          "viewBox": "0 0 340 220",
+          "minFont": null
+        }
+      ],
+      "fab": {
+        "x": 326,
+        "y": 724,
+        "w": 52,
+        "h": 52
+      },
+      "nav": [
+        {
+          "tag": "A",
+          "cls": "relative flex flex-col items-center justify-center flex-1 h-full py-1 min-w-[56px] transition-colors text-sky-400",
+          "text": "Dashboard",
+          "x": 4,
+          "y": 788,
+          "w": 76.390625,
+          "h": 56
+        },
+        {
+          "tag": "A",
+          "cls": "relative flex flex-col items-center justify-center flex-1 h-full py-1 min-w-[56px] transition-colors text-slate-400 hover:text-slate-200",
+          "text": "20Tickets",
+          "x": 80.390625,
+          "y": 788,
+          "w": 76.40625,
+          "h": 56
+        },
+        {
+          "tag": "A",
+          "cls": "relative flex flex-col items-center justify-center flex-1 h-full py-1 min-w-[56px] transition-colors text-slate-400 hover:text-slate-200",
+          "text": "Monitoring",
+          "x": 156.796875,
+          "y": 788,
+          "w": 76.390625,
+          "h": 56
+        },
+        {
+          "tag": "A",
+          "cls": "relative flex flex-col items-center justify-center flex-1 h-full py-1 min-w-[56px] transition-colors text-slate-400 hover:text-slate-200",
+          "text": "Shift Log",
+          "x": 233.1875,
+          "y": 788,
+          "w": 76.40625,
+          "h": 56
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "relative flex flex-col items-center justify-center flex-1 h-full py-1 min-w-[56px] transition-colors cursor-pointer text-slate-400 hover:text-slate-200",
+          "text": "Lainnya",
+          "x": 309.59375,
+          "y": 788,
+          "w": 76.40625,
+          "h": 56
+        }
+      ]
+    },
+    {
+      "width": 768,
+      "height": 4162,
+      "route": "/dashboard",
+      "clientWidth": 768,
+      "grids": [
+        {
+          "tag": "DIV",
+          "cls": "grid grid-cols-[minmax(0,1fr)_410px] max-[1140px]:grid-cols-1 gap-[16px] items-stretch w-full ops-focus-grid max-lg:gap-3 max-lg:grid-cols-1 max-lg:items-start",
+          "text": "Tiket Hari Ini33 tiket#86d40sep14● APH[APH] Pemeliharaan Perangkat Switch Spine DC CikarangEscalation Muhammad Ihsanul A",
+          "x": 22,
+          "y": 188.890625,
+          "w": 724,
+          "h": 1295.5,
+          "columns": "724px",
+          "gap": "12px"
+        },
+        {
+          "tag": "DIV",
+          "cls": "flex flex-col gap-[12px] h-full min-h-[580px] max-h-[660px] max-[1140px]:min-h-0 max-[1140px]:h-auto ops-right-column max-lg:min-h-0 max-lg:max-h-none",
+          "text": "Memo & Catatan ShiftView• Pantau koneksi gateway B2B sekunder menjelang lonjakan transaksi pagi.\n• Antrean ActiveMQ brok",
+          "x": 22,
+          "y": 856.890625,
+          "w": 724,
+          "h": 627.5,
+          "columns": "none",
+          "gap": "12px"
+        },
+        {
+          "tag": "DIV",
+          "cls": "grid grid-cols-[minmax(0,1fr)_380px] max-[1140px]:grid-cols-1 gap-[16px] items-stretch w-full max-lg:items-start max-lg:gap-3 report-primary-chart-grid",
+          "text": "Ticket Volume per Project (Stacked by System)Volume TiketVolume per ProjectVolBulan Lalu vs Bulan IniMoMView015304560Kli",
+          "x": 22,
+          "y": 1804.390625,
+          "w": 724,
+          "h": 985,
+          "columns": "724px",
+          "gap": "12px"
+        }
+      ],
+      "panels": [
+        {
+          "title": "Tiket Hari Ini",
+          "x": 22,
+          "y": 188.890625,
+          "w": 724,
+          "h": 656,
+          "body": {
+            "x": 23,
+            "y": 262.890625,
+            "w": 722,
+            "h": 581
+          }
+        },
+        {
+          "title": "Memo & Catatan Shift",
+          "x": 22,
+          "y": 856.890625,
+          "w": 724,
+          "h": 181,
+          "body": {
+            "x": 23,
+            "y": 930.890625,
+            "w": 722,
+            "h": 106
+          }
+        },
+        {
+          "title": "List Monitoring Shift",
+          "x": 22,
+          "y": 1049.890625,
+          "w": 724,
+          "h": 434.5,
+          "body": {
+            "x": 23,
+            "y": 1123.890625,
+            "w": 722,
+            "h": 359.5
+          }
+        },
+        {
+          "title": "Ticket Volume per Project (Stacked by System)Volume Tiket",
+          "x": 22,
+          "y": 1804.390625,
+          "w": 724,
+          "h": 386,
+          "body": {
+            "x": 23,
+            "y": 1878.390625,
+            "w": 722,
+            "h": 311
+          }
+        },
+        {
+          "title": "Rekap Tiket per User",
+          "x": 22,
+          "y": 2202.390625,
+          "w": 724,
+          "h": 587,
+          "body": {
+            "x": 23,
+            "y": 2276.390625,
+            "w": 722,
+            "h": 512
+          }
+        },
+        {
+          "title": "Distribusi Kategori / Tipe TiketDistribusi Kategori",
+          "x": 22,
+          "y": 2853.390625,
+          "w": 724,
+          "h": 255,
+          "body": {
+            "x": 23,
+            "y": 2927.390625,
+            "w": 722,
+            "h": 180
+          }
+        },
+        {
+          "title": "Distribusi Berdasarkan SeverityDistribusi Severity",
+          "x": 758,
+          "y": 2853.390625,
+          "w": 724,
+          "h": 255,
+          "body": {
+            "x": 759,
+            "y": 2927.390625,
+            "w": 722,
+            "h": 180
+          }
+        },
+        {
+          "title": "Tren Durasi Penyelesaian (Resolution Velocity)Tren Durasi",
+          "x": 22,
+          "y": 3120.390625,
+          "w": 724,
+          "h": 454,
+          "body": {
+            "x": 23,
+            "y": 3194.390625,
+            "w": 722,
+            "h": 379
+          }
+        },
+        {
+          "title": "Tren Trafik Beban per Shift (Shift Traffic Velocity)Tren Trafik",
+          "x": 22,
+          "y": 3586.390625,
+          "w": 724,
+          "h": 532,
+          "body": {
+            "x": 23,
+            "y": 3660.390625,
+            "w": 722,
+            "h": 457
+          }
+        }
+      ],
+      "sections": [
+        {
+          "tag": "SECTION",
+          "cls": "page-heading flex justify-between items-end mb-[22px] max-lg:mb-0 max-[660px]:flex-col max-[660px]:items-start max-[660px]:gap-[12px] max-[640px]:mb-0",
+          "text": "DASHBOARD · TRITDashboard",
+          "x": 22,
+          "y": 84,
+          "w": 724,
+          "h": 52.890625
+        },
+        {
+          "tag": "DIV",
+          "cls": "flex flex-col gap-[14px] bg-transparent border-none rounded-none p-0 ops-focus-section max-lg:gap-3",
+          "text": "LIVE OPS VIEWOperational Focus — Pantauan Real-Time & Koordinasi ShiftShift Aktif: Shift MalamTiket Hari Ini33 tiket#86d",
+          "x": 22,
+          "y": 148.890625,
+          "w": 724,
+          "h": 1335.5
+        },
+        {
+          "tag": "DIV",
+          "cls": "flex flex-col gap-[12px] p-[14px_16px] bg-[var(--panel-bg)] border border-[var(--panel-border)] rounded-[12px] shadow-[var(--shadow-panel)] [transition:all_0.2s_ease] my-[6px] hover:border-[rgba(56,189,248,0.25)] analytics-filter-section",
+          "text": "Filter Laporan & Analitik TiketFilterUbahMenampilkan 88 dari 88 Tiket88 tiketRentang TanggalPilih Rentang TanggalProyekS",
+          "x": 22,
+          "y": 1502.390625,
+          "w": 724,
+          "h": 284
+        },
+        {
+          "tag": "DIV",
+          "cls": "grid grid-cols-[minmax(0,1fr)_380px] max-[1140px]:grid-cols-1 gap-[16px] items-stretch w-full max-lg:items-start max-lg:gap-3 report-primary-chart-grid",
+          "text": "Ticket Volume per Project (Stacked by System)Volume TiketVolume per ProjectVolBulan Lalu vs Bulan IniMoMView015304560Kli",
+          "x": 22,
+          "y": 1804.390625,
+          "w": 724,
+          "h": 985
+        },
+        {
+          "tag": "DIV",
+          "cls": "flex gap-2 lg:hidden",
+          "text": "KategoriSeverity",
+          "x": 22,
+          "y": 2801.390625,
+          "w": 724,
+          "h": 40
+        },
+        {
+          "tag": "DIV",
+          "cls": "grid grid-cols-2 max-[960px]:grid-cols-1 gap-[18px] max-lg:gap-3 report-charts-grid max-lg:flex max-lg:overflow-x-auto max-lg:overscroll-x-contain max-lg:snap-x max-lg:snap-mandatory max-lg:[scrollbar-width:thin] max-lg:[&>article]:w-full m",
+          "text": "Distribusi Kategori / Tipe TiketDistribusi Kategori7 KategoriView88TOTAL Maintenance20 (23%) Incident20 (23%) Change Req",
+          "x": 22,
+          "y": 2853.390625,
+          "w": 724,
+          "h": 255
+        },
+        {
+          "tag": "ARTICLE",
+          "cls": "bg-[var(--panel-bg)] border border-[var(--panel-border)] rounded-[12px] shadow-[var(--shadow-panel)] overflow-hidden flex flex-col max-lg:min-w-0 flex flex-col w-full mgmt-velocity-panel",
+          "text": "Tren Durasi Penyelesaian (Resolution Velocity)Tren DurasiRata-rata ResolusiTarget SLA (60m)Batas Kritis / Breach (90m)Vi",
+          "x": 22,
+          "y": 3120.390625,
+          "w": 724,
+          "h": 454
+        },
+        {
+          "tag": "DIV",
+          "cls": "heatmap-standalone-section mt-[18px] max-lg:mt-0",
+          "text": "Tren Trafik Beban per Shift (Shift Traffic Velocity)Tren TrafikViewShift Pagi(08:00–16:30)38 tiket51% dari total bebanSh",
+          "x": 22,
+          "y": 3586.390625,
+          "w": 724,
+          "h": 532
+        }
+      ],
+      "smallText": [],
+      "smallTargets": [],
+      "ellipsis": [
+        {
+          "tag": "P",
+          "cls": "line-clamp-3 whitespace-pre-line text-[13px] leading-5 text-slate-300 lg:hidden",
+          "text": "• Pantau koneksi gateway B2B sekunder menjelang lonjakan transaksi pagi.\n• Antrean ActiveMQ broker #228 masih dalam bata",
+          "title": null,
+          "x": 46,
+          "y": 953.890625,
+          "w": 676,
+          "h": 60
+        },
+        {
+          "tag": "SPAN",
+          "cls": "whitespace-nowrap overflow-hidden text-ellipsis flex-1 min-w-0 mr-[8px] leading-none tracking-[0.1px] text-[11.5px] font-normal text-[var(--ink-muted)] ",
+          "text": "Pilih Rentang Tanggal",
+          "title": null,
+          "x": 52,
+          "y": 1590.640625,
+          "w": 287,
+          "h": 11.5
+        }
+      ],
+      "scrollers": [
+        {
+          "tag": "DIV",
+          "cls": "w-full overflow-x-auto overflow-y-hidden flex-1 flex flex-col justify-start min-h-[270px] compact-svg-barchart-wrap max-lg:min-h-[220px] max-lg:h-[220px] max-lg:flex-none max-lg:overscroll-x-contain max-lg:snap-x max-lg:snap-proximity max-l",
+          "text": "015304560Klik untuk melihat rincian tiket tanggal 2026-07-20107-20Klik untuk melihat rincian tiket tanggal 2026-07-25107",
+          "x": 37,
+          "y": 1892.390625,
+          "w": 694,
+          "h": 220,
+          "scrollWidth": 928,
+          "scrollLeft": 234,
+          "scrollbar": "thin"
+        },
+        {
+          "tag": "DIV",
+          "cls": "grid grid-cols-2 max-[960px]:grid-cols-1 gap-[18px] max-lg:gap-3 report-charts-grid max-lg:flex max-lg:overflow-x-auto max-lg:overscroll-x-contain max-lg:snap-x max-lg:snap-mandatory max-lg:[scrollbar-width:thin] max-lg:[&>article]:w-full m",
+          "text": "Distribusi Kategori / Tipe TiketDistribusi Kategori7 KategoriView88TOTAL Maintenance20 (23%) Incident20 (23%) Change Req",
+          "x": 22,
+          "y": 2853.390625,
+          "w": 724,
+          "h": 255,
+          "scrollWidth": 1460,
+          "scrollLeft": 0,
+          "scrollbar": "thin"
+        }
+      ],
+      "charts": [
+        {
+          "tag": "svg",
+          "cls": "w-full h-full min-h-[270px] max-h-[390px] block compact-report-bar-svg-lg max-lg:min-h-[220px] max-lg:h-[220px]",
+          "text": "015304560Klik untuk melihat rincian tiket tanggal 2026-07-20107-20Klik untuk melihat rincian tiket tanggal 2026-07-25107",
+          "x": -197,
+          "y": 1892.390625,
+          "w": 928,
+          "h": 220,
+          "viewBox": "0 0 928 220",
+          "minFont": 11
+        },
+        {
+          "tag": "svg",
+          "cls": "w-full h-full donut-svg",
+          "text": "",
+          "x": 37,
+          "y": 2942.390625,
+          "w": 140,
+          "h": 150,
+          "viewBox": "0 0 160 160",
+          "minFont": null
+        },
+        {
+          "tag": "svg",
+          "cls": "w-full h-full donut-svg",
+          "text": "",
+          "x": 773,
+          "y": 2943.390625,
+          "w": 148,
+          "h": 148,
+          "viewBox": "0 0 160 160",
+          "minFont": null
+        },
+        {
+          "tag": "svg",
+          "cls": "w-full h-full min-h-[280px] block select-none !overflow-visible compact-velocity-chart-svg max-lg:min-h-[220px] max-lg:[&_text]:text-[11px]",
+          "text": "0m20m40m60m80m100mBreach 90mTarget 60m07-2008-2809-0209-0709-11",
+          "x": 37,
+          "y": 3339.390625,
+          "w": 694,
+          "h": 220,
+          "viewBox": "0 0 694 220",
+          "minFont": 11
+        },
+        {
+          "tag": "svg",
+          "cls": "w-full h-full min-h-[265px] block select-none overflow-visible compact-shift-traffic-chart-svg max-lg:min-h-[220px] max-lg:[&_text]:text-[11px]",
+          "text": "",
+          "x": 37,
+          "y": 3828.390625,
+          "w": 694,
+          "h": 220,
+          "viewBox": "0 0 694 220",
+          "minFont": null
+        }
+      ],
+      "fab": {
+        "x": 698,
+        "y": 958,
+        "w": 50,
+        "h": 46
+      },
+      "nav": []
+    }
+  ],
+  "errors": []
+}

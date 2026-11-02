@@ -1,0 +1,200 @@
+[
+  {
+    "file": "dashboard-1440.png",
+    "size": [
+      1440,
+      3073,
+      1440,
+      2808
+    ],
+    "exactPercent": 48.5449,
+    "over16Percent": 24.0089
+  },
+  {
+    "file": "tickets-1440.png",
+    "size": [
+      1440,
+      1376,
+      1440,
+      1376
+    ],
+    "exactPercent": 0.2106,
+    "over16Percent": 0.0422
+  },
+  {
+    "file": "monitoring-1440.png",
+    "size": [
+      1440,
+      1505,
+      1440,
+      1505
+    ],
+    "exactPercent": 6.6243,
+    "over16Percent": 2.9821
+  },
+  {
+    "file": "shift-log-1440.png",
+    "size": [
+      1440,
+      2317,
+      1440,
+      2317
+    ],
+    "exactPercent": 0.4044,
+    "over16Percent": 0.021
+  },
+  {
+    "file": "reports-1440.png",
+    "size": [
+      1440,
+      2053,
+      1440,
+      2053
+    ],
+    "exactPercent": 0.1481,
+    "over16Percent": 0.0321
+  },
+  {
+    "file": "team-roster-1440.png",
+    "size": [
+      1440,
+      1329,
+      1440,
+      1329
+    ],
+    "exactPercent": 0.2317,
+    "over16Percent": 0.0427
+  },
+  {
+    "file": "runbooks-1440.png",
+    "size": [
+      1440,
+      900,
+      1440,
+      900
+    ],
+    "exactPercent": 0.0405,
+    "over16Percent": 0.0118
+  },
+  {
+    "file": "notifications-1440.png",
+    "size": [
+      1440,
+      1728,
+      1440,
+      1728
+    ],
+    "exactPercent": 0.1747,
+    "over16Percent": 0.0319
+  },
+  {
+    "file": "profile-1440.png",
+    "size": [
+      1440,
+      1241,
+      1440,
+      1241
+    ],
+    "exactPercent": 0.2741,
+    "over16Percent": 0.0551
+  },
+  {
+    "file": "dashboard-390.png",
+    "size": [
+      390,
+      4422,
+      390,
+      4422
+    ],
+    "exactPercent": 1.3043,
+    "over16Percent": 0
+  },
+  {
+    "file": "tickets-390.png",
+    "size": [
+      390,
+      3573,
+      390,
+      3573
+    ],
+    "exactPercent": 0.0055,
+    "over16Percent": 0.0032
+  },
+  {
+    "file": "monitoring-390.png",
+    "size": [
+      390,
+      3895,
+      390,
+      3895
+    ],
+    "exactPercent": 0.2078,
+    "over16Percent": 0.0051
+  },
+  {
+    "file": "shift-log-390.png",
+    "size": [
+      390,
+      5321,
+      390,
+      5321
+    ],
+    "exactPercent": 0.0079,
+    "over16Percent": 0.0067
+  },
+  {
+    "file": "reports-390.png",
+    "size": [
+      390,
+      3124,
+      390,
+      3124
+    ],
+    "exactPercent": 0.1186,
+    "over16Percent": 0.0037
+  },
+  {
+    "file": "team-roster-390.png",
+    "size": [
+      390,
+      2026,
+      390,
+      2026
+    ],
+    "exactPercent": 0.4788,
+    "over16Percent": 0.0204
+  },
+  {
+    "file": "runbooks-390.png",
+    "size": [
+      390,
+      1473,
+      390,
+      1473
+    ],
+    "exactPercent": 0.0876,
+    "over16Percent": 0
+  },
+  {
+    "file": "notifications-390.png",
+    "size": [
+      390,
+      2428,
+      390,
+      2428
+    ],
+    "exactPercent": 0.0123,
+    "over16Percent": 0.0106
+  },
+  {
+    "file": "profile-390.png",
+    "size": [
+      390,
+      2730,
+      390,
+      2730
+    ],
+    "exactPercent": 0.0017,
+    "over16Percent": 0
+  }
+]

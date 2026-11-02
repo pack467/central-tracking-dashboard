@@ -1,0 +1,10 @@
+import {readFileSync,writeFileSync,copyFileSync} from 'node:fs';import {resolve,join} from 'node:path';
+const root=resolve('output/mobile-round2');const read=p=>JSON.parse(readFileSync(join(root,p),'utf8'));
+const delivery=read('delivery/audit.json'),stable=read('hydration-check/audit.json');
+if(stable.errors.length)throw Error('Stable hydration check failed: '+JSON.stringify(stable.errors));
+writeFileSync(join(root,'transient-hmr-audit.json'),JSON.stringify({note:'This capture crossed a source HMR edit; the stable reload replaces only that viewport.',errors:delivery.errors},null,2));
+delivery.rows=delivery.rows.map(r=>stable.rows.find(s=>s.width===r.width&&s.route===r.route)??r);
+delivery.errors=delivery.errors.filter(e=>!stable.rows.some(r=>r.width===e.width));
+writeFileSync(join(root,'delivery/audit.json'),JSON.stringify(delivery,null,2));
+copyFileSync(join(root,'hydration-check/dashboard-1280.png'),join(root,'delivery/dashboard-1280.png'));
+console.log(JSON.stringify({stableHydrationErrors:stable.errors.length,deliveryErrors:delivery.errors.length}));

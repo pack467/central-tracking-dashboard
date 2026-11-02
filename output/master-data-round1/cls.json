@@ -1,0 +1,153 @@
+[
+  {
+    "w": 1440,
+    "shifts": [
+      {
+        "at": 1834.7000000178814,
+        "value": 0.00012979660138835305,
+        "sources": [
+          {
+            "master": false,
+            "node": "H1",
+            "cls": "mt-[28px] text-[19px] sm:text-[26px] font-bold tracking-[-0.01em] text-[#f8fafc] leading-snug select-none animate-boot-fade-up max-w-[260px] max-sm:w-[260px] sm:max-w-none text-center",
+            "text": "Central Tracking Dashboard",
+            "prev": {
+              "x": 553.703125,
+              "y": 431.375,
+              "width": 331.65625,
+              "height": 35.75,
+              "top": 431.375,
+              "right": 885.359375,
+              "bottom": 467.125,
+              "left": 553.703125
+            },
+            "current": {
+              "x": 548.703125,
+              "y": 431.375,
+              "width": 342.59375,
+              "height": 35.75,
+              "top": 431.375,
+              "right": 891.296875,
+              "bottom": 467.125,
+              "left": 548.703125
+            }
+          },
+          {
+            "master": false,
+            "node": "DIV",
+            "cls": "app-topbar-actions flex items-center gap-[10px] max-md:gap-2 max-md:min-w-0 max-md:flex-1 max-md:justify-end",
+            "text": "TritronikTRITShift PagiPagi08:00 – 16:30 WIB",
+            "prev": {
+              "x": 1100.4375,
+              "y": 11.90625,
+              "width": 307.5625,
+              "height": 35.1875,
+              "top": 11.90625,
+              "right": 1408,
+              "bottom": 47.09375,
+              "left": 1100.4375
+            },
+            "current": {
+              "x": 1091.359375,
+              "y": 11.90625,
+              "width": 316.640625,
+              "height": 35.1875,
+              "top": 11.90625,
+              "right": 1408,
+              "bottom": 47.09375,
+              "left": 1091.359375
+            }
+          },
+          {
+            "master": false,
+            "node": "P",
+            "cls": "mt-[16px] min-h-[20px] h-[20px] max-sm:w-[260px] text-[13px] text-[#94a3b8] font-sans flex items-center justify-center leading-[20px] select-none m-0",
+            "text": "Menyiapkan dashboard...",
+            "prev": {
+              "x": 645.453125,
+              "y": 542.625,
+              "width": 149.09375,
+              "height": 20,
+              "top": 542.625,
+              "right": 794.546875,
+              "bottom": 562.625,
+              "left": 645.453125
+            },
+            "current": {
+              "x": 639.28125,
+              "y": 542.625,
+              "width": 161.421875,
+              "height": 20,
+              "top": 542.625,
+              "right": 800.703125,
+              "bottom": 562.625,
+              "left": 639.28125
+            }
+          },
+          {
+            "master": false,
+            "node": "DIV",
+            "cls": "w-6 sm:w-8 h-[1px] bg-gradient-to-r from-[#334155] to-transparent shrink-0",
+            "text": "",
+            "prev": {
+              "x": 769.703125,
+              "y": 480.375,
+              "width": 32,
+              "height": 1,
+              "top": 480.375,
+              "right": 801.703125,
+              "bottom": 481.375,
+              "left": 769.703125
+            },
+            "current": {
+              "x": 774.3125,
+              "y": 480.375,
+              "width": 32,
+              "height": 1,
+              "top": 480.375,
+              "right": 806.3125,
+              "bottom": 481.375,
+              "left": 774.3125
+            }
+          }
+        ]
+      },
+      {
+        "at": 3366.9000000059605,
+        "value": 0.0030731257685908562,
+        "sources": [
+          {
+            "master": false,
+            "node": "DIV",
+            "cls": "app-topbar-actions flex items-center gap-[10px] max-md:gap-2 max-md:min-w-0 max-md:flex-1 max-md:justify-end",
+            "text": "TritronikTRITShift MalamMalam16:00 – 00:30 WIB26 Oktober 202626 Okt 2026·20:17:0020:17 WIB",
+            "prev": {
+              "x": 1091.359375,
+              "y": 11.90625,
+              "width": 316.640625,
+              "height": 35.1875,
+              "top": 11.90625,
+              "right": 1408,
+              "bottom": 47.09375,
+              "left": 1091.359375
+            },
+            "current": {
+              "x": 815.03125,
+              "y": 11.90625,
+              "width": 592.96875,
+              "height": 35.1875,
+              "top": 11.90625,
+              "right": 1408,
+              "bottom": 47.09375,
+              "left": 815.03125
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "w": 390,
+    "shifts": []
+  }
+]

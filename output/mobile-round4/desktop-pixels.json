@@ -1,0 +1,762 @@
+[
+  {
+    "width": 1024,
+    "panel": "Tiket Hari Ini",
+    "size": [
+      764,
+      690
+    ],
+    "positionBefore": [
+      238,
+      229.796875
+    ],
+    "positionAfter": [
+      238,
+      229.796875
+    ],
+    "exactPct": 0.0,
+    "tolerance16Pct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1024,
+    "panel": "Memo & Catatan Shift",
+    "size": [
+      764,
+      221
+    ],
+    "positionBefore": [
+      238,
+      935.796875
+    ],
+    "positionAfter": [
+      238,
+      935.796875
+    ],
+    "exactPct": 0.0,
+    "tolerance16Pct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1024,
+    "panel": "Ticket Volume per Project (Stacked by System)Volume Tiket",
+    "size": [
+      764,
+      580
+    ],
+    "positionBefore": [
+      238,
+      1831.796875
+    ],
+    "positionAfter": [
+      238,
+      1831.796875
+    ],
+    "exactPct": 0.0,
+    "tolerance16Pct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1024,
+    "panel": "Rekap Tiket per User",
+    "size": [
+      764,
+      580
+    ],
+    "positionBefore": [
+      238,
+      2427.796875
+    ],
+    "positionAfter": [
+      238,
+      2427.796875
+    ],
+    "exactPct": 0.0,
+    "tolerance16Pct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1024,
+    "panel": "Distribusi Kategori / Tipe TiketDistribusi Kategori",
+    "size": [
+      373,
+      503
+    ],
+    "positionBefore": [
+      238,
+      3027.796875
+    ],
+    "positionAfter": [
+      238,
+      3027.796875
+    ],
+    "exactPct": 0.0,
+    "tolerance16Pct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1024,
+    "panel": "Distribusi Berdasarkan SeverityDistribusi Severity",
+    "size": [
+      373,
+      503
+    ],
+    "positionBefore": [
+      629,
+      3027.796875
+    ],
+    "positionAfter": [
+      629,
+      3027.796875
+    ],
+    "exactPct": 0.0,
+    "tolerance16Pct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1024,
+    "panel": "Tren Durasi Penyelesaian (Resolution Velocity)Tren Durasi",
+    "size": [
+      764,
+      459
+    ],
+    "positionBefore": [
+      238,
+      3551.296875
+    ],
+    "positionAfter": [
+      238,
+      3551.296875
+    ],
+    "exactPct": 0.0,
+    "tolerance16Pct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1024,
+    "panel": "Tren Trafik Beban per Shift (Shift Traffic Velocity)Tren Trafik",
+    "size": [
+      764,
+      499
+    ],
+    "positionBefore": [
+      238,
+      4047.796875
+    ],
+    "positionAfter": [
+      238,
+      4047.796875
+    ],
+    "exactPct": 0.0,
+    "tolerance16Pct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1366,
+    "panel": "Tiket Hari Ini",
+    "size": [
+      626,
+      660
+    ],
+    "positionBefore": [
+      282,
+      229.796875
+    ],
+    "positionAfter": [
+      282,
+      229.796875
+    ],
+    "exactPct": 0.0,
+    "tolerance16Pct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1366,
+    "panel": "Memo & Catatan Shift",
+    "size": [
+      410,
+      221
+    ],
+    "positionBefore": [
+      924,
+      229.796875
+    ],
+    "positionAfter": [
+      924,
+      229.796875
+    ],
+    "exactPct": 0.0,
+    "tolerance16Pct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1366,
+    "panel": "Ticket Volume per Project (Stacked by System)Volume Tiket",
+    "size": [
+      656,
+      580
+    ],
+    "positionBefore": [
+      282,
+      1062.046875
+    ],
+    "positionAfter": [
+      282,
+      1062.046875
+    ],
+    "exactPct": 0.0,
+    "tolerance16Pct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1366,
+    "panel": "Rekap Tiket per User",
+    "size": [
+      380,
+      580
+    ],
+    "positionBefore": [
+      954,
+      1062.046875
+    ],
+    "positionAfter": [
+      954,
+      1062.046875
+    ],
+    "exactPct": 0.0,
+    "tolerance16Pct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1366,
+    "panel": "Distribusi Kategori / Tipe TiketDistribusi Kategori",
+    "size": [
+      517,
+      471
+    ],
+    "positionBefore": [
+      282,
+      1662.046875
+    ],
+    "positionAfter": [
+      282,
+      1662.046875
+    ],
+    "exactPct": 0.0,
+    "tolerance16Pct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1366,
+    "panel": "Distribusi Berdasarkan SeverityDistribusi Severity",
+    "size": [
+      517,
+      471
+    ],
+    "positionBefore": [
+      817,
+      1662.046875
+    ],
+    "positionAfter": [
+      817,
+      1662.046875
+    ],
+    "exactPct": 0.0,
+    "tolerance16Pct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1366,
+    "panel": "Tren Durasi Penyelesaian (Resolution Velocity)Tren Durasi",
+    "size": [
+      1052,
+      425
+    ],
+    "positionBefore": [
+      282,
+      2152.546875
+    ],
+    "positionAfter": [
+      282,
+      2152.546875
+    ],
+    "exactPct": 0.0,
+    "tolerance16Pct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1366,
+    "panel": "Tren Trafik Beban per Shift (Shift Traffic Velocity)Tren Trafik",
+    "size": [
+      1052,
+      544
+    ],
+    "positionBefore": [
+      282,
+      2616.046875
+    ],
+    "positionAfter": [
+      282,
+      2616.046875
+    ],
+    "exactPct": 0.0,
+    "tolerance16Pct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1440,
+    "panel": "Tiket Hari Ini",
+    "size": [
+      700,
+      660
+    ],
+    "positionBefore": [
+      282,
+      229.796875
+    ],
+    "positionAfter": [
+      282,
+      229.796875
+    ],
+    "exactPct": 0.0,
+    "tolerance16Pct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1440,
+    "panel": "Memo & Catatan Shift",
+    "size": [
+      410,
+      221
+    ],
+    "positionBefore": [
+      998,
+      229.796875
+    ],
+    "positionAfter": [
+      998,
+      229.796875
+    ],
+    "exactPct": 0.0,
+    "tolerance16Pct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1440,
+    "panel": "Ticket Volume per Project (Stacked by System)Volume Tiket",
+    "size": [
+      730,
+      580
+    ],
+    "positionBefore": [
+      282,
+      1062.046875
+    ],
+    "positionAfter": [
+      282,
+      1062.046875
+    ],
+    "exactPct": 0.0,
+    "tolerance16Pct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1440,
+    "panel": "Rekap Tiket per User",
+    "size": [
+      380,
+      580
+    ],
+    "positionBefore": [
+      1028,
+      1062.046875
+    ],
+    "positionAfter": [
+      1028,
+      1062.046875
+    ],
+    "exactPct": 0.0,
+    "tolerance16Pct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1440,
+    "panel": "Distribusi Kategori / Tipe TiketDistribusi Kategori",
+    "size": [
+      554,
+      331
+    ],
+    "positionBefore": [
+      282,
+      1662.046875
+    ],
+    "positionAfter": [
+      282,
+      1662.046875
+    ],
+    "exactPct": 0.0,
+    "tolerance16Pct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1440,
+    "panel": "Distribusi Berdasarkan SeverityDistribusi Severity",
+    "size": [
+      554,
+      331
+    ],
+    "positionBefore": [
+      854,
+      1662.046875
+    ],
+    "positionAfter": [
+      854,
+      1662.046875
+    ],
+    "exactPct": 0.0,
+    "tolerance16Pct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1440,
+    "panel": "Tren Durasi Penyelesaian (Resolution Velocity)Tren Durasi",
+    "size": [
+      1126,
+      434
+    ],
+    "positionBefore": [
+      282,
+      2012.796875
+    ],
+    "positionAfter": [
+      282,
+      2012.796875
+    ],
+    "exactPct": 0.0,
+    "tolerance16Pct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1440,
+    "panel": "Tren Trafik Beban per Shift (Shift Traffic Velocity)Tren Trafik",
+    "size": [
+      1126,
+      544
+    ],
+    "positionBefore": [
+      282,
+      2485.359375
+    ],
+    "positionAfter": [
+      282,
+      2485.359375
+    ],
+    "exactPct": 0.0,
+    "tolerance16Pct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1920,
+    "panel": "Tiket Hari Ini",
+    "size": [
+      1110,
+      660
+    ],
+    "positionBefore": [
+      317,
+      229.796875
+    ],
+    "positionAfter": [
+      317,
+      229.796875
+    ],
+    "exactPct": 0.0,
+    "tolerance16Pct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1920,
+    "panel": "Memo & Catatan Shift",
+    "size": [
+      410,
+      221
+    ],
+    "positionBefore": [
+      1443,
+      229.796875
+    ],
+    "positionAfter": [
+      1443,
+      229.796875
+    ],
+    "exactPct": 0.0,
+    "tolerance16Pct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1920,
+    "panel": "Ticket Volume per Project (Stacked by System)Volume Tiket",
+    "size": [
+      1140,
+      580
+    ],
+    "positionBefore": [
+      317,
+      1062.046875
+    ],
+    "positionAfter": [
+      317,
+      1062.046875
+    ],
+    "exactPct": 0.0,
+    "tolerance16Pct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1920,
+    "panel": "Rekap Tiket per User",
+    "size": [
+      380,
+      580
+    ],
+    "positionBefore": [
+      1473,
+      1062.046875
+    ],
+    "positionAfter": [
+      1473,
+      1062.046875
+    ],
+    "exactPct": 0.0,
+    "tolerance16Pct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1920,
+    "panel": "Distribusi Kategori / Tipe TiketDistribusi Kategori",
+    "size": [
+      759,
+      331
+    ],
+    "positionBefore": [
+      317,
+      1662.046875
+    ],
+    "positionAfter": [
+      317,
+      1662.046875
+    ],
+    "exactPct": 0.0,
+    "tolerance16Pct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1920,
+    "panel": "Distribusi Berdasarkan SeverityDistribusi Severity",
+    "size": [
+      759,
+      331
+    ],
+    "positionBefore": [
+      1094,
+      1662.046875
+    ],
+    "positionAfter": [
+      1094,
+      1662.046875
+    ],
+    "exactPct": 0.0,
+    "tolerance16Pct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1920,
+    "panel": "Tren Durasi Penyelesaian (Resolution Velocity)Tren Durasi",
+    "size": [
+      1536,
+      544
+    ],
+    "positionBefore": [
+      317,
+      2012.796875
+    ],
+    "positionAfter": [
+      317,
+      2012.796875
+    ],
+    "exactPct": 0.0,
+    "tolerance16Pct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1920,
+    "panel": "Tren Trafik Beban per Shift (Shift Traffic Velocity)Tren Trafik",
+    "size": [
+      1536,
+      543
+    ],
+    "positionBefore": [
+      317,
+      2594.6875
+    ],
+    "positionAfter": [
+      317,
+      2594.6875
+    ],
+    "exactPct": 0.0,
+    "tolerance16Pct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 2560,
+    "panel": "Tiket Hari Ini",
+    "size": [
+      1110,
+      660
+    ],
+    "positionBefore": [
+      637,
+      229.796875
+    ],
+    "positionAfter": [
+      637,
+      229.796875
+    ],
+    "exactPct": 0.0,
+    "tolerance16Pct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 2560,
+    "panel": "Memo & Catatan Shift",
+    "size": [
+      410,
+      221
+    ],
+    "positionBefore": [
+      1763,
+      229.796875
+    ],
+    "positionAfter": [
+      1763,
+      229.796875
+    ],
+    "exactPct": 0.0,
+    "tolerance16Pct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 2560,
+    "panel": "Ticket Volume per Project (Stacked by System)Volume Tiket",
+    "size": [
+      1140,
+      580
+    ],
+    "positionBefore": [
+      637,
+      1062.046875
+    ],
+    "positionAfter": [
+      637,
+      1062.046875
+    ],
+    "exactPct": 0.0,
+    "tolerance16Pct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 2560,
+    "panel": "Rekap Tiket per User",
+    "size": [
+      380,
+      580
+    ],
+    "positionBefore": [
+      1793,
+      1062.046875
+    ],
+    "positionAfter": [
+      1793,
+      1062.046875
+    ],
+    "exactPct": 0.0,
+    "tolerance16Pct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 2560,
+    "panel": "Distribusi Kategori / Tipe TiketDistribusi Kategori",
+    "size": [
+      759,
+      331
+    ],
+    "positionBefore": [
+      637,
+      1662.046875
+    ],
+    "positionAfter": [
+      637,
+      1662.046875
+    ],
+    "exactPct": 0.0,
+    "tolerance16Pct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 2560,
+    "panel": "Distribusi Berdasarkan SeverityDistribusi Severity",
+    "size": [
+      759,
+      331
+    ],
+    "positionBefore": [
+      1414,
+      1662.046875
+    ],
+    "positionAfter": [
+      1414,
+      1662.046875
+    ],
+    "exactPct": 0.0,
+    "tolerance16Pct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 2560,
+    "panel": "Tren Durasi Penyelesaian (Resolution Velocity)Tren Durasi",
+    "size": [
+      1536,
+      544
+    ],
+    "positionBefore": [
+      637,
+      2012.796875
+    ],
+    "positionAfter": [
+      637,
+      2012.796875
+    ],
+    "exactPct": 0.0,
+    "tolerance16Pct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 2560,
+    "panel": "Tren Trafik Beban per Shift (Shift Traffic Velocity)Tren Trafik",
+    "size": [
+      1536,
+      543
+    ],
+    "positionBefore": [
+      637,
+      2594.6875
+    ],
+    "positionAfter": [
+      637,
+      2594.6875
+    ],
+    "exactPct": 0.0,
+    "tolerance16Pct": 0.0,
+    "pass": true
+  }
+]

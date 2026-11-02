@@ -1,0 +1,230 @@
+{
+  "hash": "a074706a",
+  "configHash": "2c363e14",
+  "lockfileHash": "4b2767fc",
+  "browserHash": "542972ef",
+  "optimized": {
+    "@pdf-lib/fontkit": {
+      "src": "../../../../../frontend/node_modules/@pdf-lib/fontkit/dist/fontkit.es.js",
+      "file": "@pdf-lib_fontkit.js",
+      "fileHash": "d96cb4b7",
+      "needsInterop": false
+    },
+    "drizzle-orm": {
+      "src": "../../../../../frontend/node_modules/drizzle-orm/index.js",
+      "file": "drizzle-orm.js",
+      "fileHash": "4cc69ddc",
+      "needsInterop": false
+    },
+    "drizzle-orm/d1": {
+      "src": "../../../../../frontend/node_modules/drizzle-orm/d1/index.js",
+      "file": "drizzle-orm_d1.js",
+      "fileHash": "f69576b9",
+      "needsInterop": false
+    },
+    "drizzle-orm/sqlite-core": {
+      "src": "../../../../../frontend/node_modules/drizzle-orm/sqlite-core/index.js",
+      "file": "drizzle-orm_sqlite-core.js",
+      "fileHash": "cc0411d6",
+      "needsInterop": false
+    },
+    "next/dynamic": {
+      "src": "../../../../../frontend/node_modules/vinext/dist/shims/dynamic.js",
+      "file": "next_dynamic.js",
+      "fileHash": "d5789938",
+      "needsInterop": false
+    },
+    "next/headers": {
+      "src": "../../../../../frontend/node_modules/vinext/dist/shims/headers.js",
+      "file": "next_headers.js",
+      "fileHash": "21730a6a",
+      "needsInterop": false
+    },
+    "next/image": {
+      "src": "../../../../../frontend/node_modules/vinext/dist/shims/image.js",
+      "file": "next_image.js",
+      "fileHash": "8cb81292",
+      "needsInterop": false
+    },
+    "next/link": {
+      "src": "../../../../../frontend/node_modules/vinext/dist/shims/link.js",
+      "file": "next_link.js",
+      "fileHash": "67b2e845",
+      "needsInterop": false
+    },
+    "next/navigation": {
+      "src": "../../../../../frontend/node_modules/vinext/dist/shims/navigation.react-server.js",
+      "file": "next_navigation.js",
+      "fileHash": "bb5e4f6e",
+      "needsInterop": false
+    },
+    "pdf-lib": {
+      "src": "../../../../../frontend/node_modules/pdf-lib/es/index.js",
+      "file": "pdf-lib.js",
+      "fileHash": "c9eeacab",
+      "needsInterop": false
+    },
+    "pdfjs-dist": {
+      "src": "../../../../../frontend/node_modules/pdfjs-dist/build/pdf.mjs",
+      "file": "pdfjs-dist.js",
+      "fileHash": "2a3fc558",
+      "needsInterop": false
+    },
+    "react-dom": {
+      "src": "../../../../../frontend/node_modules/react-dom/react-dom.react-server.js",
+      "file": "react-dom.js",
+      "fileHash": "01a05396",
+      "needsInterop": true
+    },
+    "react-server-dom-webpack/client.edge": {
+      "src": "../../../../../frontend/node_modules/react-server-dom-webpack/client.edge.js",
+      "file": "react-server-dom-webpack_client__edge.js",
+      "fileHash": "f8a9d74c",
+      "needsInterop": true
+    },
+    "react-server-dom-webpack/server.edge": {
+      "src": "../../../../../frontend/node_modules/react-server-dom-webpack/server.edge.js",
+      "file": "react-server-dom-webpack_server__edge.js",
+      "fileHash": "805eb146",
+      "needsInterop": true
+    },
+    "react-server-dom-webpack/static.edge": {
+      "src": "../../../../../frontend/node_modules/react-server-dom-webpack/static.edge.js",
+      "file": "react-server-dom-webpack_static__edge.js",
+      "fileHash": "a44e88f8",
+      "needsInterop": true
+    },
+    "react": {
+      "src": "../../../../../frontend/node_modules/react/react.react-server.js",
+      "file": "react.js",
+      "fileHash": "76d42855",
+      "needsInterop": true
+    },
+    "react/jsx-dev-runtime": {
+      "src": "../../../../../frontend/node_modules/react/jsx-dev-runtime.react-server.js",
+      "file": "react_jsx-dev-runtime.js",
+      "fileHash": "73021d6c",
+      "needsInterop": true
+    },
+    "react/jsx-runtime": {
+      "src": "../../../../../frontend/node_modules/react/jsx-runtime.react-server.js",
+      "file": "react_jsx-runtime.js",
+      "fileHash": "481e5146",
+      "needsInterop": true
+    }
+  },
+  "chunks": {
+    "app-elements-CgPbKKcH": {
+      "file": "app-elements-CgPbKKcH.js",
+      "isDynamicEntry": true
+    },
+    "app-prefetch-fetch-queue-jp9O8Mh3": {
+      "file": "app-prefetch-fetch-queue-jp9O8Mh3.js",
+      "isDynamicEntry": false
+    },
+    "app-rsc-cache-busting-C1VJmK5Z": {
+      "file": "app-rsc-cache-busting-C1VJmK5Z.js",
+      "isDynamicEntry": true
+    },
+    "app-rsc-render-mode-BXHh-SkV": {
+      "file": "app-rsc-render-mode-BXHh-SkV.js",
+      "isDynamicEntry": false
+    },
+    "chunk-CYJPkc-J": {
+      "file": "chunk-CYJPkc-J.js",
+      "isDynamicEntry": false
+    },
+    "client-locale-VjID1xdL": {
+      "file": "client-locale-VjID1xdL.js",
+      "isDynamicEntry": false
+    },
+    "config-matchers-DiOuw9ds": {
+      "file": "config-matchers-DiOuw9ds.js",
+      "isDynamicEntry": true
+    },
+    "deployment-id-Ctqw21wm": {
+      "file": "deployment-id-Ctqw21wm.js",
+      "isDynamicEntry": false
+    },
+    "domain-locale-CmOjdifF": {
+      "file": "domain-locale-CmOjdifF.js",
+      "isDynamicEntry": false
+    },
+    "hash-d8llqFJ_": {
+      "file": "hash-d8llqFJ_.js",
+      "isDynamicEntry": false
+    },
+    "headers-DiYH7g16": {
+      "file": "headers-DiYH7g16.js",
+      "isDynamicEntry": false
+    },
+    "hybrid-client-route-owner-CMlPO8jQ": {
+      "file": "hybrid-client-route-owner-CMlPO8jQ.js",
+      "isDynamicEntry": true
+    },
+    "hybrid-client-route-owner-direct-BQX8XrU4": {
+      "file": "hybrid-client-route-owner-direct-BQX8XrU4.js",
+      "isDynamicEntry": false
+    },
+    "logger--nhmPUPq": {
+      "file": "logger--nhmPUPq.js",
+      "isDynamicEntry": false
+    },
+    "middleware-request-headers-CnvfrPCu": {
+      "file": "middleware-request-headers-CnvfrPCu.js",
+      "isDynamicEntry": false
+    },
+    "navigation-DTj22dkw": {
+      "file": "navigation-DTj22dkw.js",
+      "isDynamicEntry": true
+    },
+    "parse-cookie-Br5LKGNJ": {
+      "file": "parse-cookie-Br5LKGNJ.js",
+      "isDynamicEntry": false
+    },
+    "ppr-fallback-shell-DfNDitNP": {
+      "file": "ppr-fallback-shell-DfNDitNP.js",
+      "isDynamicEntry": false
+    },
+    "protocol-headers-BrU4B1nn": {
+      "file": "protocol-headers-BrU4B1nn.js",
+      "isDynamicEntry": false
+    },
+    "query-B6FPSbL4": {
+      "file": "query-B6FPSbL4.js",
+      "isDynamicEntry": false
+    },
+    "react-server-dom-webpack-server.edge.development-BHD36Mvg": {
+      "file": "react-server-dom-webpack-server.edge.development-BHD36Mvg.js",
+      "isDynamicEntry": false
+    },
+    "readonly-url-search-params-DPvBE-en": {
+      "file": "readonly-url-search-params-DPvBE-en.js",
+      "isDynamicEntry": false
+    },
+    "record-ybEiyKbN": {
+      "file": "record-ybEiyKbN.js",
+      "isDynamicEntry": false
+    },
+    "relations-X1Yk8rLZ": {
+      "file": "relations-X1Yk8rLZ.js",
+      "isDynamicEntry": false
+    },
+    "router-BerV4BmR": {
+      "file": "router-BerV4BmR.js",
+      "isDynamicEntry": true
+    },
+    "sqlite-core-DNITXS0J": {
+      "file": "sqlite-core-DNITXS0J.js",
+      "isDynamicEntry": false
+    },
+    "url-utils-CnJ-qw27": {
+      "file": "url-utils-CnJ-qw27.js",
+      "isDynamicEntry": false
+    },
+    "window-next-BW7_idfX": {
+      "file": "window-next-BW7_idfX.js",
+      "isDynamicEntry": false
+    }
+  }
+}

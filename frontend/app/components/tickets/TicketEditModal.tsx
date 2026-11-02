@@ -69,7 +69,7 @@ export function TicketEditModal({ open, ticket, onClose, onSave }: TicketEditMod
     if (ticket && open) {
       setSubject(ticket.subject);
       setProject(ticketProject);
-      setSystemId(ticket.systemId || "");
+      setSystemId(ticket.systemComponent || ticket.systemId || "");
       setSeverity(ticket.severity);
       setStatus(ticket.status);
       setCategory(ticket.type || (ticket.category && ticket.category !== "--" ? ticket.category : ""));
@@ -92,13 +92,22 @@ export function TicketEditModal({ open, ticket, onClose, onSave }: TicketEditMod
     const owners = owner.trim() ? owner.trim().split(",").map((s) => s.trim()).filter(Boolean) : ticket.owners;
     const changedOwner = !!owner.trim() && owner.trim() !== ticket.owner;
     const ownerIds = changedOwner ? ownerIdsFor(owners ?? [], assignees) : ticket.ownerIds;
+    const matchingSystem = master.catalog.systems.find(
+      (s) =>
+        s.id === systemId.trim() ||
+        s.name.toLowerCase() === systemId.trim().toLowerCase() ||
+        s.code.toLowerCase() === systemId.trim().toLowerCase()
+    );
+    const resolvedSystemId = matchingSystem ? matchingSystem.id : (systemId.trim() || undefined);
+
     const updatedTicket: Ticket = {
       ...ticket,
       subject: trimmedSubject,
       ...(backend
         ? { backend: { ...ticket.backend, projectId: project, projectName: backend.projectName(project) } }
         : { project, projectId: projectFor(project, ticket.clientId || activeClientId)?.id }),
-      systemId: systemId || undefined,
+      systemId: resolvedSystemId,
+      systemComponent: systemId.trim() || undefined,
       severity,
       status,
       category: category || undefined,
@@ -208,7 +217,7 @@ export function TicketEditModal({ open, ticket, onClose, onSave }: TicketEditMod
         {/* Row 3: Assignee / Owner + Category (2 columns) */}
         <div className="[display:grid]! [grid-template-columns:1fr_1fr]! [gap:12px]! [grid-column:1_/_-1]!">
           <label>
-            <span>PENANGGUNG JAWAB (ASSIGNEE)</span>
+            <span>ASSIGNEE</span>
             <Select allowCustom value={owner} onValueChange={setOwner} label="Penanggung jawab" aria-label="Penanggung jawab (Assignee)" listboxId="roster-assignees-list" placeholder="Nama penanggung jawab" options={assignees.map(person => ({ value: person.fullName, label: person.fullName }))} size="form" className="w-full" />
           </label>
 

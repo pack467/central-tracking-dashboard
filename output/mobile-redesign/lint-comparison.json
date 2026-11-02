@@ -1,0 +1,207 @@
+{
+  "rows": [
+    {
+      "file": "app\\(app)\\template.tsx",
+      "before": 0,
+      "after": 0,
+      "warningsBefore": 0,
+      "warningsAfter": 0,
+      "added": []
+    },
+    {
+      "file": "app\\components\\dashboard\\MemoModal.tsx",
+      "before": 4,
+      "after": 4,
+      "warningsBefore": 0,
+      "warningsAfter": 0,
+      "added": []
+    },
+    {
+      "file": "app\\components\\layout\\BottomNav.tsx",
+      "before": 2,
+      "after": 0,
+      "warningsBefore": 0,
+      "warningsAfter": 0,
+      "added": []
+    },
+    {
+      "file": "app\\components\\layout\\ClientSwitcher.tsx",
+      "before": 0,
+      "after": 0,
+      "warningsBefore": 0,
+      "warningsAfter": 0,
+      "added": []
+    },
+    {
+      "file": "app\\components\\layout\\MobileNav.tsx",
+      "before": 1,
+      "after": 1,
+      "warningsBefore": 0,
+      "warningsAfter": 0,
+      "added": []
+    },
+    {
+      "file": "app\\components\\layout\\ShiftCoveragePanel.tsx",
+      "before": 2,
+      "after": 2,
+      "warningsBefore": 0,
+      "warningsAfter": 0,
+      "added": []
+    },
+    {
+      "file": "app\\components\\layout\\ShiftTransitionBadge.tsx",
+      "before": 2,
+      "after": 2,
+      "warningsBefore": 0,
+      "warningsAfter": 0,
+      "added": []
+    },
+    {
+      "file": "app\\components\\layout\\Topbar.tsx",
+      "before": 1,
+      "after": 1,
+      "warningsBefore": 0,
+      "warningsAfter": 0,
+      "added": []
+    },
+    {
+      "file": "app\\components\\routing\\AppShell.tsx",
+      "before": 0,
+      "after": 0,
+      "warningsBefore": 0,
+      "warningsAfter": 0,
+      "added": []
+    },
+    {
+      "file": "app\\components\\tickets\\TicketReportView.tsx",
+      "before": 43,
+      "after": 42,
+      "warningsBefore": 10,
+      "warningsAfter": 10,
+      "added": [
+        {
+          "rule": "react-hooks/exhaustive-deps",
+          "line": 460,
+          "message": "The 'tickets' logical expression could make the dependencies of useMemo Hook (at line 461) change on every render. To fix this, wrap the initialization of 'tickets' in its own useMemo() Hook."
+        },
+        {
+          "rule": "react-hooks/exhaustive-deps",
+          "line": 460,
+          "message": "The 'tickets' logical expression could make the dependencies of useMemo Hook (at line 737) change on every render. To fix this, wrap the initialization of 'tickets' in its own useMemo() Hook."
+        },
+        {
+          "rule": "react-hooks/exhaustive-deps",
+          "line": 460,
+          "message": "The 'tickets' logical expression could make the dependencies of useMemo Hook (at line 806) change on every render. To fix this, wrap the initialization of 'tickets' in its own useMemo() Hook."
+        },
+        {
+          "rule": "react-hooks/exhaustive-deps",
+          "line": 460,
+          "message": "The 'tickets' logical expression could make the dependencies of useMemo Hook (at line 1070) change on every render. To fix this, wrap the initialization of 'tickets' in its own useMemo() Hook."
+        },
+        {
+          "rule": "react-hooks/exhaustive-deps",
+          "line": 460,
+          "message": "The 'tickets' logical expression could make the dependencies of useMemo Hook (at line 1087) change on every render. To fix this, wrap the initialization of 'tickets' in its own useMemo() Hook."
+        },
+        {
+          "rule": "react-hooks/exhaustive-deps",
+          "line": 460,
+          "message": "The 'tickets' logical expression could make the dependencies of useMemo Hook (at line 1225) change on every render. To fix this, wrap the initialization of 'tickets' in its own useMemo() Hook."
+        },
+        {
+          "rule": "react-hooks/exhaustive-deps",
+          "line": 460,
+          "message": "The 'tickets' logical expression could make the dependencies of useMemo Hook (at line 1245) change on every render. To fix this, wrap the initialization of 'tickets' in its own useMemo() Hook."
+        },
+        {
+          "rule": "jsx-a11y/no-noninteractive-element-interactions",
+          "line": 4526,
+          "message": "Non-interactive elements should not be assigned mouse or keyboard event listeners."
+        }
+      ]
+    },
+    {
+      "file": "app\\components\\ui\\AppSplash.tsx",
+      "before": 0,
+      "after": 0,
+      "warningsBefore": 1,
+      "warningsAfter": 1,
+      "added": []
+    },
+    {
+      "file": "app\\components\\ui\\BottomSheet.tsx",
+      "before": 2,
+      "after": 0,
+      "warningsBefore": 0,
+      "warningsAfter": 0,
+      "added": []
+    },
+    {
+      "file": "app\\components\\ui\\DatePicker.tsx",
+      "before": 2,
+      "after": 2,
+      "warningsBefore": 0,
+      "warningsAfter": 0,
+      "added": []
+    },
+    {
+      "file": "app\\components\\ui\\FloatingNewTicketButton.tsx",
+      "before": 1,
+      "after": 1,
+      "warningsBefore": 0,
+      "warningsAfter": 0,
+      "added": []
+    },
+    {
+      "file": "app\\components\\ui\\skeleton\\DashboardSkeleton.tsx",
+      "before": 1,
+      "after": 1,
+      "warningsBefore": 0,
+      "warningsAfter": 0,
+      "added": []
+    },
+    {
+      "file": "app\\components\\ui\\skeleton\\PanelSkeletonWrapper.tsx",
+      "before": 3,
+      "after": 3,
+      "warningsBefore": 0,
+      "warningsAfter": 0,
+      "added": []
+    },
+    {
+      "file": "app\\components\\ui\\Toast.tsx",
+      "before": 6,
+      "after": 6,
+      "warningsBefore": 0,
+      "warningsAfter": 0,
+      "added": []
+    },
+    {
+      "file": "app\\hooks\\useContainerDimensions.ts",
+      "before": 0,
+      "after": 0,
+      "warningsBefore": 0,
+      "warningsAfter": 0,
+      "added": []
+    },
+    {
+      "file": "app\\layout.tsx",
+      "before": 0,
+      "after": 0,
+      "warningsBefore": 0,
+      "warningsAfter": 0,
+      "added": []
+    },
+    {
+      "file": "app\\lib\\routes.ts",
+      "before": 0,
+      "after": 0,
+      "warningsBefore": 0,
+      "warningsAfter": 0,
+      "added": []
+    }
+  ],
+  "totalBefore": 70,
+  "totalAfter": 65
+}

@@ -1,0 +1,162 @@
+[
+  {
+    "name": "SM/ActiveMQ slug and Reports copied URL reproduce CSV data",
+    "pass": true
+  },
+  {
+    "name": "console and hydration",
+    "pass": false,
+    "errors": [
+      {
+        "type": "console",
+        "message": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+      },
+      {
+        "type": "console",
+        "message": "[vinext] RSC prefetch setup error: TypeError: x is not a function\n    at http://localhost:3001/_next/static/chunks/link-UN1TCRhN.js:2:5127"
+      },
+      {
+        "type": "console",
+        "message": "[vinext] RSC prefetch setup error: TypeError: x is not a function\n    at http://localhost:3001/_next/static/chunks/link-UN1TCRhN.js:2:5127"
+      },
+      {
+        "type": "console",
+        "message": "[vinext] RSC prefetch setup error: TypeError: x is not a function\n    at http://localhost:3001/_next/static/chunks/link-UN1TCRhN.js:2:5127"
+      },
+      {
+        "type": "console",
+        "message": "[vinext] RSC prefetch setup error: TypeError: x is not a function\n    at http://localhost:3001/_next/static/chunks/link-UN1TCRhN.js:2:5127"
+      },
+      {
+        "type": "console",
+        "message": "[vinext] RSC prefetch setup error: TypeError: x is not a function\n    at http://localhost:3001/_next/static/chunks/link-UN1TCRhN.js:2:5127"
+      },
+      {
+        "type": "console",
+        "message": "[vinext] RSC prefetch setup error: TypeError: x is not a function\n    at http://localhost:3001/_next/static/chunks/link-UN1TCRhN.js:2:5127"
+      },
+      {
+        "type": "console",
+        "message": "[vinext] RSC prefetch setup error: TypeError: x is not a function\n    at http://localhost:3001/_next/static/chunks/link-UN1TCRhN.js:2:5127"
+      },
+      {
+        "type": "console",
+        "message": "[vinext] RSC prefetch setup error: TypeError: x is not a function\n    at http://localhost:3001/_next/static/chunks/link-UN1TCRhN.js:2:5127"
+      },
+      {
+        "type": "console",
+        "message": "[vinext] RSC prefetch setup error: TypeError: x is not a function\n    at http://localhost:3001/_next/static/chunks/link-UN1TCRhN.js:2:5127"
+      },
+      {
+        "type": "console",
+        "message": "[vinext] RSC prefetch setup error: TypeError: S is not a function\n    at http://localhost:3001/_next/static/chunks/link-UN1TCRhN.js:2:5103"
+      },
+      {
+        "type": "console",
+        "message": "[vinext] RSC prefetch setup error: TypeError: S is not a function\n    at http://localhost:3001/_next/static/chunks/link-UN1TCRhN.js:2:5103"
+      },
+      {
+        "type": "console",
+        "message": "[vinext] RSC prefetch setup error: TypeError: S is not a function\n    at http://localhost:3001/_next/static/chunks/link-UN1TCRhN.js:2:5103"
+      },
+      {
+        "type": "console",
+        "message": "[vinext] RSC prefetch setup error: TypeError: x is not a function\n    at http://localhost:3001/_next/static/chunks/link-UN1TCRhN.js:2:5127"
+      },
+      {
+        "type": "console",
+        "message": "[vinext] RSC prefetch setup error: TypeError: x is not a function\n    at http://localhost:3001/_next/static/chunks/link-UN1TCRhN.js:2:5127"
+      },
+      {
+        "type": "console",
+        "message": "[vinext] RSC prefetch setup error: TypeError: x is not a function\n    at http://localhost:3001/_next/static/chunks/link-UN1TCRhN.js:2:5127"
+      },
+      {
+        "type": "console",
+        "message": "[vinext] RSC prefetch setup error: TypeError: x is not a function\n    at http://localhost:3001/_next/static/chunks/link-UN1TCRhN.js:2:5127"
+      },
+      {
+        "type": "console",
+        "message": "[vinext] RSC prefetch setup error: TypeError: x is not a function\n    at http://localhost:3001/_next/static/chunks/link-UN1TCRhN.js:2:5127"
+      },
+      {
+        "type": "console",
+        "message": "[vinext] RSC prefetch setup error: TypeError: x is not a function\n    at http://localhost:3001/_next/static/chunks/link-UN1TCRhN.js:2:5127"
+      },
+      {
+        "type": "console",
+        "message": "[vinext] RSC prefetch setup error: TypeError: x is not a function\n    at http://localhost:3001/_next/static/chunks/link-UN1TCRhN.js:2:5127"
+      },
+      {
+        "type": "console",
+        "message": "[vinext] RSC prefetch setup error: TypeError: x is not a function\n    at http://localhost:3001/_next/static/chunks/link-UN1TCRhN.js:2:5127"
+      },
+      {
+        "type": "console",
+        "message": "[vinext] RSC prefetch setup error: TypeError: x is not a function\n    at http://localhost:3001/_next/static/chunks/link-UN1TCRhN.js:2:5127"
+      },
+      {
+        "type": "console",
+        "message": "[vinext] RSC prefetch setup error: TypeError: S is not a function\n    at http://localhost:3001/_next/static/chunks/link-UN1TCRhN.js:2:5103"
+      },
+      {
+        "type": "console",
+        "message": "[vinext] RSC prefetch setup error: TypeError: S is not a function\n    at http://localhost:3001/_next/static/chunks/link-UN1TCRhN.js:2:5103"
+      },
+      {
+        "type": "console",
+        "message": "[vinext] RSC prefetch setup error: TypeError: S is not a function\n    at http://localhost:3001/_next/static/chunks/link-UN1TCRhN.js:2:5103"
+      },
+      {
+        "type": "console",
+        "message": "[vinext] RSC prefetch setup error: TypeError: x is not a function\n    at http://localhost:3001/_next/static/chunks/link-UN1TCRhN.js:2:5127"
+      },
+      {
+        "type": "console",
+        "message": "[vinext] RSC prefetch setup error: TypeError: x is not a function\n    at http://localhost:3001/_next/static/chunks/link-UN1TCRhN.js:2:5127"
+      },
+      {
+        "type": "console",
+        "message": "[vinext] RSC prefetch setup error: TypeError: x is not a function\n    at http://localhost:3001/_next/static/chunks/link-UN1TCRhN.js:2:5127"
+      },
+      {
+        "type": "console",
+        "message": "[vinext] RSC prefetch setup error: TypeError: x is not a function\n    at http://localhost:3001/_next/static/chunks/link-UN1TCRhN.js:2:5127"
+      },
+      {
+        "type": "console",
+        "message": "[vinext] RSC prefetch setup error: TypeError: x is not a function\n    at http://localhost:3001/_next/static/chunks/link-UN1TCRhN.js:2:5127"
+      },
+      {
+        "type": "console",
+        "message": "[vinext] RSC prefetch setup error: TypeError: x is not a function\n    at http://localhost:3001/_next/static/chunks/link-UN1TCRhN.js:2:5127"
+      },
+      {
+        "type": "console",
+        "message": "[vinext] RSC prefetch setup error: TypeError: x is not a function\n    at http://localhost:3001/_next/static/chunks/link-UN1TCRhN.js:2:5127"
+      },
+      {
+        "type": "console",
+        "message": "[vinext] RSC prefetch setup error: TypeError: x is not a function\n    at http://localhost:3001/_next/static/chunks/link-UN1TCRhN.js:2:5127"
+      },
+      {
+        "type": "console",
+        "message": "[vinext] RSC prefetch setup error: TypeError: x is not a function\n    at http://localhost:3001/_next/static/chunks/link-UN1TCRhN.js:2:5127"
+      },
+      {
+        "type": "console",
+        "message": "[vinext] RSC prefetch setup error: TypeError: S is not a function\n    at http://localhost:3001/_next/static/chunks/link-UN1TCRhN.js:2:5103"
+      },
+      {
+        "type": "console",
+        "message": "[vinext] RSC prefetch setup error: TypeError: S is not a function\n    at http://localhost:3001/_next/static/chunks/link-UN1TCRhN.js:2:5103"
+      },
+      {
+        "type": "console",
+        "message": "[vinext] RSC prefetch setup error: TypeError: S is not a function\n    at http://localhost:3001/_next/static/chunks/link-UN1TCRhN.js:2:5103"
+      }
+    ],
+    "failedResponses": [],
+    "expected404": []
+  }
+]

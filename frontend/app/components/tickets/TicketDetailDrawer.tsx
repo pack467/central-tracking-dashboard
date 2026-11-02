@@ -3,7 +3,7 @@ import { useMasterReferences } from "@/app/hooks/useMasterReferences";
 import { usePeople } from "@/app/hooks/useMasterData";
 import { ownerNames } from "@/app/lib/ticket-owner";
 
-import { X, PlusCircle, MessageSquare, Headphones, CheckCircle2, Edit3, Clock, Tag, Zap } from "lucide-react";
+import { X, PlusCircle, MessageSquare, Headphones, CheckCircle2, Edit3, Clock, Tag, Zap, Cpu } from "lucide-react";
 import { Badge } from "@/app/components/ui/Badge";
 import { Avatar } from "@/app/components/ui/Avatar";
 import { ConfirmDialog } from "@/app/components/ui/ConfirmDialog";
@@ -178,7 +178,7 @@ interface TicketDetailDrawerProps {
 
 export function TicketDetailDrawer({ ticket, onClose, onUpdate, readOnlyReason }: TicketDetailDrawerProps) {
   const notify = useToast();
-  const { categoryLabel, projectFor } = useMasterReferences();
+  const { catalog, categoryLabel, projectFor } = useMasterReferences();
   const people = usePeople();
   const { user } = useAuth();
   const operatorName = user?.name || "Operator NOC";
@@ -322,12 +322,26 @@ export function TicketDetailDrawer({ ticket, onClose, onUpdate, readOnlyReason }
                       </div>
                     </div>
                   )}
+
+                  {(ticket.systemComponent || ticket.systemId) && (
+                    <div className="[display:flex]! [align-items:center]! [gap:8px]! [padding-left:16px]! [border-left:1px_solid_var(--line,_rgba(255,_255,_255,_0.08))]!">
+                      <div>
+                        <strong className="[display:flex]! [align-items:center]! [gap:5px]! [font-size:13px]! [color:var(--ink-primary)]!">
+                          <Cpu size={12} className="[color:var(--accent-blue)]!" />
+                          {catalog.systems.find((s) => s.id === ticket.systemId)?.name || ticket.systemComponent || ticket.systemId}
+                        </strong>
+                        <span className="[font-size:11px]! [color:var(--ink-muted)]!">
+                          Sistem / Komponen
+                        </span>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Assignees (All Owners / PIC) */}
                 <div className="[margin-top:2px]!">
                   <span className="[font-size:11px]! [color:var(--ink-muted)]! [display:block]! [margin-bottom:6px]! [font-weight:500]!">
-                    Pemilik Tiket ({ownersList.length > 1 ? `${ownersList.length} PIC` : "PIC"}):
+                    Assignee ({ownersList.length > 1 ? `${ownersList.length} orang` : "PIC"}):
                   </span>
                   <div className="drawer-owners-list">
                     {ownersList.map((ownerName, idx) => (

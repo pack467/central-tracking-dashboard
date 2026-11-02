@@ -1,0 +1,24 @@
+[
+  {
+    "width": 1440,
+    "errors": [],
+    "url": "http://localhost:3000/master-data?group=services&tab=organizations&mock=instant",
+    "scroll": {
+      "width": 1440,
+      "inner": 1440,
+      "body": "",
+      "html": ""
+    }
+  },
+  {
+    "width": 390,
+    "errors": [],
+    "url": "http://localhost:3000/master-data?group=services&tab=organizations&mock=instant",
+    "scroll": {
+      "width": 390,
+      "inner": 390,
+      "body": "",
+      "html": ""
+    }
+  }
+]

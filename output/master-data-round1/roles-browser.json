@@ -1,0 +1,30 @@
+[
+  {
+    "role": "manager",
+    "add": 1,
+    "edit": 8,
+    "adapterStatus": 201,
+    "passed": true
+  },
+  {
+    "role": "lead",
+    "add": 0,
+    "edit": 0,
+    "adapterStatus": 403,
+    "passed": true
+  },
+  {
+    "role": "operator",
+    "add": 0,
+    "edit": 0,
+    "adapterStatus": 403,
+    "passed": true
+  },
+  {
+    "role": "viewer",
+    "add": 0,
+    "edit": 0,
+    "adapterStatus": 403,
+    "passed": true
+  }
+]

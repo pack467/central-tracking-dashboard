@@ -1,0 +1,66 @@
+{
+  "generatedAt": "2026-10-28",
+  "route": "/master-data",
+  "desktop": {
+    "1440x900": {
+      "contentTop": 88,
+      "firstRowTop": 422,
+      "firstRowFromContentTop": 334,
+      "rowHeight": 64,
+      "toolbarHeight": 66,
+      "headerHeight": 104,
+      "fullyVisibleRows": { "organization": 7, "project": 7, "system": 7, "category": 7, "severity": 4 }
+    },
+    "1920x1080": {
+      "firstRowTop": 422,
+      "fullyVisibleRows": { "organization": 8, "project": 10, "system": 10, "category": 7, "severity": 4 }
+    },
+    "1280x800": { "firstRowTop": 446, "fullyVisibleRows": 5 },
+    "1024x768": { "firstRowTop": 498, "fullyVisibleRows": 4 }
+  },
+  "table": {
+    "hasColumnOnlyDash": false,
+    "toolbarControlHeights": [40, 40, 40, 40, 40],
+    "badgeBackground": "opaque dark tints (slate-950 family)",
+    "rowActions": { "restOpacity": 0, "hoverOpacity": 1, "focusWithinOpacity": 1, "coarsePointerOpacity": 1 }
+  },
+  "forms": {
+    "desktopWidth": 760,
+    "drawerWidth": 560,
+    "initialSaveDisabled": true,
+    "firstInvalidFocus": true,
+    "requiredLegendInFooter": true,
+    "segmentedControls": ["Environment", "Criticality", "Status administrasi", "Status", "Urutan"]
+  },
+  "drawer": {
+    "tabs": ["Ringkasan", "Relasi", "Riwayat"],
+    "scrollLockReleased": true,
+    "focusReturnedToTrigger": true,
+    "categorySummaryScrollHeight": 723,
+    "categorySummaryClientHeight": 687,
+    "relationsContentBottom": 815,
+    "relationsPanelBottom": 835,
+    "emptyHistoryHeight": 647
+  },
+  "mobile": {
+    "390x844": { "headerHeight": 172, "toolbarHeight": 122, "firstCardTop": 447, "horizontalOverflow": 0, "fullyVisibleCards": 2 },
+    "844x390": { "headerHeight": 94, "toolbarHeight": 70, "firstCardTop": 337, "horizontalOverflow": 0 },
+    "minTouchTarget": 44,
+    "textInputFontSize": 16
+  },
+  "accessibility": {
+    "lowestTextContrast": 5.56,
+    "lowestBadgeContrast": 9.18,
+    "minComputedFontSize": 11,
+    "reducedMotionTransitionProperty": "none",
+    "consoleErrors": 0,
+    "knownConsoleWarning": "<link rel=preload> must have a valid `as` value (pre-existing)",
+    "cls": { "1440x900": 0.0031, "390x844": 0.0002 }
+  },
+  "checks": {
+    "typecheck": "pass",
+    "lintChangedFiles": "pass",
+    "repoLint": "169 pre-existing errors outside the changed files",
+    "build": "pass"
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "results": [
+    {
+      "name": "single-select keyboard, group navigation, typeahead, focus and Tab",
+      "pass": true,
+      "detail": {
+        "controls": "select-_r_2_-listbox",
+        "selected": "Shift Pagi (08:00–16:30)"
+      }
+    },
+    {
+      "name": "long-list search, selected tint, pointer hover and outside close",
+      "pass": true,
+      "detail": {
+        "focus": {
+          "outline": "none",
+          "shadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(56, 189, 248, 0.15) 0px 0px 0px 3px",
+          "bg": "oklab(0.753499 -0.0842682 -0.11049 / 0.1)"
+        },
+        "selected": {
+          "bg": "rgba(56, 189, 248, 0.14)",
+          "color": "rgb(248, 250, 252)"
+        }
+      }
+    },
+    {
+      "name": "multi-select preserves Tahan zero-count and baseline recap",
+      "pass": true,
+      "detail": {
+        "count": "Menampilkan 0 dari 88 Tiket",
+        "recap": "Rekap Tiket per User\n1 Staf\nView\nTJ\nTahan Julianus Nadeak\nIncident Coordinator (Shift Pagi)\nDetail\nHARI INI\n0\nBULAN INI\n38\nTAHUN INI\n245\nHari Ini:\nTidak ada tiket baru hari ini"
+      }
+    },
+    {
+      "name": "20 rapid cycles and scroll, blur, route cleanup",
+      "pass": true,
+      "detail": {
+        "html": "visible",
+        "body": "visible",
+        "inert": 0
+      }
+    },
+    {
+      "name": "mobile nested sheets, 48px rows, search16, Tab and Escape focus",
+      "pass": true,
+      "detail": {
+        "heights": [
+          48,
+          48,
+          48,
+          48,
+          48,
+          48,
+          48,
+          48,
+          48
+        ],
+        "font": "16px",
+        "released": {
+          "html": "visible",
+          "body": "visible",
+          "inert": 0
+        }
+      }
+    },
+    {
+      "name": "ticket form PIC custom values, deduplication and Backspace",
+      "pass": true,
+      "detail": {
+        "nativeSelects": 0
+      }
+    }
+  ],
+  "errors": []
+}

@@ -150,6 +150,13 @@ export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModal
     const created = nowClockLabel();
     const isAdhoc = category === "Ad-hoc Request";
     const primaryOwner = owners.length > 0 ? owners.join(", ") : "Unassigned";
+    const matchingSystem = master.catalog.systems.find(
+      (s) =>
+        s.id === systemId.trim() ||
+        s.name.toLowerCase() === systemId.trim().toLowerCase() ||
+        s.code.toLowerCase() === systemId.trim().toLowerCase()
+    );
+    const resolvedSystemId = matchingSystem ? matchingSystem.id : (systemId.trim() || undefined);
 
     const draft: TicketType = {
       id: cleanCode,
@@ -167,7 +174,8 @@ export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModal
       category,
       type: category,
       projectId: backend ? undefined : projectFor(project, activeClientId)?.id,
-      systemId: systemId || undefined,
+      systemId: resolvedSystemId,
+      systemComponent: systemId.trim() || undefined,
       status,
       created,
       description:
@@ -180,7 +188,7 @@ export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModal
         {
           time: created,
           type: "created",
-          action: `Ticket #${cleanCode} dibuat oleh ${operatorName} (PIC: ${primaryOwner}, Kategori: ${category}, Status: ${status})`,
+          action: `Ticket #${cleanCode} dibuat oleh ${operatorName} (Assignee: ${primaryOwner}, Kategori: ${category}, Status: ${status})`,
           author: operatorName,
         },
       ],
@@ -280,14 +288,14 @@ export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModal
             <div className="ticket-field-label-wrapper">
               <span className="ticket-field-label">
                 <Users size={12} className="ticket-field-icon" />
-                PEMILIK TIKET / PIC
+                ASSIGNEE
               </span>
-              <span className="ticket-field-hint">Dapat menambahkan lebih dari satu PIC</span>
+              <span className="ticket-field-hint">Dapat menambahkan lebih dari satu assignee</span>
             </div>
             <OwnerTagInput
               owners={owners}
               onChange={setOwners}
-              placeholder="Ketik nama operator atau pilih dari daftar..."
+              placeholder="Ketik nama operator atau pilih assignee..."
             />
           </div>
         </div>

@@ -1,0 +1,258 @@
+[
+  {
+    "width": 1024,
+    "scope": "whole Dashboard",
+    "size": [
+      1024,
+      4591
+    ],
+    "exactPct": 0.2221355301132651,
+    "pass": true
+  },
+  {
+    "width": 1024,
+    "scope": "Tiket Hari Ini",
+    "exactPct": 0.0009484786402610213,
+    "pass": true
+  },
+  {
+    "width": 1024,
+    "scope": "Memo & Catatan Shift",
+    "exactPct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1024,
+    "scope": "List Monitoring Shift",
+    "exactPct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1024,
+    "scope": "Ticket Volume per Project (Stacked by System)Volume Tiket",
+    "exactPct": 0.004513450081242101,
+    "pass": true
+  },
+  {
+    "width": 1024,
+    "scope": "Rekap Tiket per User",
+    "exactPct": 0.004062105073117891,
+    "pass": true
+  },
+  {
+    "width": 1024,
+    "scope": "Distribusi Kategori / Tipe TiketDistribusi Kategori",
+    "exactPct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1024,
+    "scope": "Distribusi Berdasarkan SeverityDistribusi Severity",
+    "exactPct": 0.0015989851774074056,
+    "pass": true
+  },
+  {
+    "width": 1024,
+    "scope": "Tren Durasi Penyelesaian (Resolution Velocity)Tren Durasi",
+    "exactPct": 2.0580250715760418,
+    "pass": false
+  },
+  {
+    "width": 1024,
+    "scope": "Tren Trafik Beban per Shift (Shift Traffic Velocity)Tren Trafik",
+    "exactPct": 0.8341289909662257,
+    "pass": false
+  },
+  {
+    "width": 1280,
+    "scope": "whole Dashboard",
+    "size": [
+      1280,
+      3258
+    ],
+    "exactPct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1280,
+    "scope": "Tiket Hari Ini",
+    "exactPct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1280,
+    "scope": "Memo & Catatan Shift",
+    "exactPct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1280,
+    "scope": "List Monitoring Shift",
+    "exactPct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1280,
+    "scope": "Ticket Volume per Project (Stacked by System)Volume Tiket",
+    "exactPct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1280,
+    "scope": "Rekap Tiket per User",
+    "exactPct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1280,
+    "scope": "Distribusi Kategori / Tipe TiketDistribusi Kategori",
+    "exactPct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1280,
+    "scope": "Distribusi Berdasarkan SeverityDistribusi Severity",
+    "exactPct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1280,
+    "scope": "Tren Durasi Penyelesaian (Resolution Velocity)Tren Durasi",
+    "exactPct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1280,
+    "scope": "Tren Trafik Beban per Shift (Shift Traffic Velocity)Tren Trafik",
+    "exactPct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1440,
+    "scope": "whole Dashboard",
+    "size": [
+      1440,
+      3073
+    ],
+    "exactPct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1440,
+    "scope": "Tiket Hari Ini",
+    "exactPct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1440,
+    "scope": "Memo & Catatan Shift",
+    "exactPct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1440,
+    "scope": "List Monitoring Shift",
+    "exactPct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1440,
+    "scope": "Ticket Volume per Project (Stacked by System)Volume Tiket",
+    "exactPct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1440,
+    "scope": "Rekap Tiket per User",
+    "exactPct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1440,
+    "scope": "Distribusi Kategori / Tipe TiketDistribusi Kategori",
+    "exactPct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1440,
+    "scope": "Distribusi Berdasarkan SeverityDistribusi Severity",
+    "exactPct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1440,
+    "scope": "Tren Durasi Penyelesaian (Resolution Velocity)Tren Durasi",
+    "exactPct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1440,
+    "scope": "Tren Trafik Beban per Shift (Shift Traffic Velocity)Tren Trafik",
+    "exactPct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1920,
+    "scope": "whole Dashboard",
+    "size": [
+      1920,
+      3183
+    ],
+    "exactPct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1920,
+    "scope": "Tiket Hari Ini",
+    "exactPct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1920,
+    "scope": "Memo & Catatan Shift",
+    "exactPct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1920,
+    "scope": "List Monitoring Shift",
+    "exactPct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1920,
+    "scope": "Ticket Volume per Project (Stacked by System)Volume Tiket",
+    "exactPct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1920,
+    "scope": "Rekap Tiket per User",
+    "exactPct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1920,
+    "scope": "Distribusi Kategori / Tipe TiketDistribusi Kategori",
+    "exactPct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1920,
+    "scope": "Distribusi Berdasarkan SeverityDistribusi Severity",
+    "exactPct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1920,
+    "scope": "Tren Durasi Penyelesaian (Resolution Velocity)Tren Durasi",
+    "exactPct": 0.0,
+    "pass": true
+  },
+  {
+    "width": 1920,
+    "scope": "Tren Trafik Beban per Shift (Shift Traffic Velocity)Tren Trafik",
+    "exactPct": 0.0,
+    "pass": true
+  }
+]

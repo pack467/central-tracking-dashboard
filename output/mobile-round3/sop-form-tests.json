@@ -1,0 +1,25 @@
+{
+  "rows": [
+    {
+      "width": 390,
+      "pass": true
+    },
+    {
+      "width": 768,
+      "pass": true
+    },
+    {
+      "width": 1024,
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "pass": true
+    },
+    {
+      "width": 1920,
+      "pass": true
+    }
+  ],
+  "errors": []
+}
