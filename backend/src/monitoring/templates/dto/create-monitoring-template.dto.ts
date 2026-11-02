@@ -1,8 +1,5 @@
 import { applyDecorators } from '@nestjs/common';
 import {
-  ArrayNotEmpty,
-  ArrayUnique,
-  IsArray,
   IsBoolean,
   IsISO8601,
   IsNotEmpty,
@@ -42,12 +39,10 @@ export class CreateMonitoringTemplateDto {
   @IsString()
   instructions?: string | null;
 
-  /** Local times of day ("HH:mm", in `timezone`) when the check is due, every day, e.g. ["09:00", "13:00", "17:00"]. */
-  @IsArray()
-  @ArrayNotEmpty()
-  @ArrayUnique()
-  @Matches(TIME_OF_DAY, { each: true, message: 'each value in times must be a time of day as HH:mm, e.g. 09:00' })
-  times: string[];
+  /** Local time of day ("HH:mm", in `timezone`) when the check is due, every day, e.g. "09:00". A check due several times a day is one template per time. */
+  @IsString()
+  @Matches(TIME_OF_DAY, { message: 'times must be a time of day as HH:mm, e.g. 09:00' })
+  times: string;
 
   /** IANA time zone of `times`. Defaults to Asia/Jakarta (WIB). */
   @IfSent()

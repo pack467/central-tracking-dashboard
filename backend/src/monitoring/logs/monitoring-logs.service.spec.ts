@@ -8,15 +8,7 @@ import { MonitoringLogsService } from './monitoring-logs.service.js';
 const lead: AuthUser = { id: 10n, role: 'TEAM_LEAD', permissions: seededPermissions('TEAM_LEAD') };
 const agent: AuthUser = { id: 20n, role: 'AGENT', permissions: seededPermissions('AGENT') };
 
-// Due at 09:00 and 17:00 WIB (UTC+7), from 1 November 2026.
-const template = (over: Record<string, unknown> = {}) => ({
-  times: ['09:00', '17:00'],
-  timezone: 'Asia/Jakarta',
-  is_active: true,
-  active_from: new Date('2026-11-01T00:00:00Z'),
-  active_until: null,
-  ...over,
-});
+// 09:00 WIB (UTC+7) on 2 November 2026.
 const SLOT = '2026-11-02T09:00:00+07:00';
 
 describe('MonitoringLogsService', () => {
@@ -43,7 +35,7 @@ describe('MonitoringLogsService', () => {
     vi.resetAllMocks();
     prisma.$transaction.mockImplementation((ops: Promise<unknown>[]) => Promise.all(ops));
     // The template exists, the slot is free and every ticket exists, unless a test says otherwise.
-    prisma.monitoringTemplate.findUnique.mockResolvedValue(template());
+    prisma.monitoringTemplate.findUnique.mockResolvedValue({ id: 12n });
     prisma.monitoringLog.findUnique.mockResolvedValue(null);
     prisma.ticketLog.findUnique.mockResolvedValue({ id: 1n });
     prisma.monitoringLog.create.mockImplementation(({ data }) => Promise.resolve({ id: 1n, ...data }));
@@ -104,46 +96,17 @@ describe('MonitoringLogsService', () => {
       });
     });
 
-    it('accepts a slot written in any offset', async () => {
-      await log({ scheduled_at: '2026-11-02T10:00:00Z' }); // 17:00 WIB
+    it("doesn't check scheduled_at against the template (templates only drive the dashboard)", async () => {
+      await log({ scheduled_at: '2026-11-02T10:17:00+07:00' });
+      expect(prisma.monitoringTemplate.findUnique).toHaveBeenCalledWith({ where: { id: 12n }, select: { id: true } });
       expect(prisma.monitoringLog.create).toHaveBeenCalled();
-    });
-
-    it.each([
-      ['a time the template does not have', '2026-11-02T10:00:00+07:00'],
-      ['the slot time in UTC instead of WIB', '2026-11-02T09:00:00Z'],
-      ['a time past the minute', '2026-11-02T09:00:30+07:00'],
-    ])('rejects %s', async (_case, scheduled_at) => {
-      await expect(log({ scheduled_at })).rejects.toThrow("scheduled_at must be one of the template's times");
-      expect(prisma.monitoringLog.create).not.toHaveBeenCalled();
-    });
-
-    it('rejects a day before active_from, using the local date', async () => {
-      await expect(log({ scheduled_at: '2026-10-31T09:00:00+07:00' })).rejects.toThrow(
-        'The template is not active on 2026-10-31',
-      );
-    });
-
-    it('rejects a day after active_until, even when it is still that day in UTC', async () => {
-      prisma.monitoringTemplate.findUnique.mockResolvedValue(
-        template({ times: ['00:30'], active_until: new Date('2026-11-01T00:00:00Z') }),
-      );
-      // 00:30 WIB on 2 November is 17:30 UTC on 1 November.
-      await expect(log({ scheduled_at: '2026-11-01T17:30:00Z' })).rejects.toThrow(
-        'The template is not active on 2026-11-02',
-      );
-    });
-
-    it('rejects a switched-off template', async () => {
-      prisma.monitoringTemplate.findUnique.mockResolvedValue(template({ is_active: false }));
-      await expect(log()).rejects.toThrow('The template is switched off');
     });
 
     it('rejects an unknown template or ticket', async () => {
       prisma.monitoringTemplate.findUnique.mockResolvedValue(null);
       await expect(log()).rejects.toThrow('template_id 12 does not exist');
 
-      prisma.monitoringTemplate.findUnique.mockResolvedValue(template());
+      prisma.monitoringTemplate.findUnique.mockResolvedValue({ id: 12n });
       prisma.ticketLog.findUnique.mockResolvedValue(null);
       await expect(log({ ticket_id: '99' })).rejects.toThrow('ticket_id 99 does not exist');
     });

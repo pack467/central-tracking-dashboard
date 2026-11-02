@@ -305,8 +305,11 @@ model RoutineReport {
   @@map("routine_reports")
 }
 
-// Monitoring template: what to check and when, e.g. "check node lastcoll on
-// smng232" for a project at 09:00, 13:00 and 17:00 WIB every day.
+// Monitoring template: master data telling the dashboard what to check and
+// when, e.g. "check node lastcoll on smng232" for a project at 09:00 WIB every
+// day. One time per template: a check due at 09:00 and 17:00 is two templates,
+// so checks can be listed in order of the day. Logs refer to a template but
+// aren't validated against its schedule.
 // The tenant comes from the project (no tenant_id).
 model MonitoringTemplate {
   id              BigInt    @id @default(autoincrement())
@@ -314,8 +317,8 @@ model MonitoringTemplate {
   name            String    @db.VarChar(255)
   // How to check and what counts as OK.
   instructions    String?
-  // Local times of day, "HH:mm" (e.g. ["09:00","13:00","17:00"]), in `timezone`.
-  times           String[]
+  // Local time of day, "HH:mm" (e.g. "09:00"), in `timezone`. Sorts in order of the day.
+  times           String    @db.VarChar(5)
   timezone        String    @default("Asia/Jakarta") @db.VarChar(64)
   // Temporary templates: limited by a date range, and/or switched off when
   // the client no longer needs them.

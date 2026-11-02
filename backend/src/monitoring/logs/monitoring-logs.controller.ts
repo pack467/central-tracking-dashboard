@@ -67,12 +67,10 @@ export class MonitoringLogsController {
   @ApiOperation({
     summary: 'Record a check (create a monitoring log)',
     description:
-      "Requires monitoring.check. You are recorded as the checker. scheduled_at must be one of the template's times (in its time zone) on a day it is active; one log per slot. NOK needs a note.",
+      "Requires monitoring.check. You are recorded as the checker, and checked_at is now. scheduled_at is the slot checked (usually that day at the template's time); it isn't validated against the template. One log per template and slot. NOK needs a note.",
   })
   @ApiCreatedResponse({ type: MonitoringLog })
-  @ApiBadRequestResponse({
-    description: 'Invalid body, unknown template or ticket, not a slot of the template, template switched off or not active that day, or NOK without a note',
-  })
+  @ApiBadRequestResponse({ description: 'Invalid body, unknown template or ticket, or NOK without a note' })
   @ApiForbiddenResponse({ description: 'Missing monitoring.check' })
   @ApiConflictResponse({ description: 'The slot is already logged' })
   create(@Body() dto: CreateMonitoringLogDto, @CurrentUser() actor: AuthUser) {

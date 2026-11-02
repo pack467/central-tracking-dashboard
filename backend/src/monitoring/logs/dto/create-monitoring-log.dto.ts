@@ -7,7 +7,7 @@ export class CreateMonitoringLogDto {
   @BigIntId()
   template_id: string;
 
-  /** The slot that was checked, as an exact instant (ISO 8601), e.g. 2026-11-02T09:00:00+07:00 for 09:00 WIB. Must be one of the template's times, on a day it is active. */
+  /** The slot that was checked, as an exact instant (ISO 8601): usually that day at the template's time, e.g. 2026-11-02T09:00:00+07:00 for 09:00 WIB. Not validated against the template; one log per template and slot. */
   @IsISO8601()
   scheduled_at: string;
 

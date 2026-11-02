@@ -24,15 +24,18 @@ export class MonitoringTemplatesService {
   constructor(private readonly prisma: PrismaService) {}
 
   async findAll(query: QueryMonitoringTemplatesDto) {
-    const { page = 1, limit = 20, sort = 'name', order = 'asc' } = query;
+    const { page = 1, limit = 20, sort = 'times', order = 'asc' } = query;
     const where = this.buildWhere(query);
-    const primary: Prisma.MonitoringTemplateOrderByWithRelationInput = { [sort]: order };
+    // By time (the default), checks due at the same time are listed by name:
+    // the order of the day, as the dashboard shows it.
+    const orderBy: Prisma.MonitoringTemplateOrderByWithRelationInput[] =
+      sort === 'times' ? [{ times: order }, { name: order }, { id: order }] : [{ [sort]: order }, { id: order }];
 
     const [data, total] = await this.prisma.$transaction([
       this.prisma.monitoringTemplate.findMany({
         where,
         include: templateInclude,
-        orderBy: [primary, { id: order }],
+        orderBy,
         skip: (page - 1) * limit,
         take: limit,
       }),
@@ -61,7 +64,7 @@ export class MonitoringTemplatesService {
         project_id: projectId,
         name: dto.name,
         instructions: dto.instructions ?? null,
-        times: sortTimes(dto.times),
+        times: dto.times,
         // Not sent: the column defaults (Asia/Jakarta, not temporary, active).
         timezone: dto.timezone,
         is_temporary: dto.is_temporary,
@@ -90,7 +93,7 @@ export class MonitoringTemplatesService {
     if (dto.client_id !== undefined) data.client_id = toBigInt(dto.client_id);
     if (dto.name !== undefined) data.name = dto.name;
     if (dto.instructions !== undefined) data.instructions = dto.instructions;
-    if (dto.times !== undefined) data.times = sortTimes(dto.times);
+    if (dto.times !== undefined) data.times = dto.times;
     if (dto.timezone !== undefined) data.timezone = dto.timezone;
     if (dto.is_temporary !== undefined) data.is_temporary = dto.is_temporary;
     if (dto.is_active !== undefined) data.is_active = dto.is_active;
@@ -124,6 +127,7 @@ export class MonitoringTemplatesService {
     const where: Prisma.MonitoringTemplateWhereInput = {};
     if (f.project_id) where.project_id = BigInt(f.project_id);
     if (f.client_id) where.client_id = BigInt(f.client_id);
+    if (f.times) where.times = f.times;
     if (f.project) where.project = { name: { contains: f.project, mode: 'insensitive' } };
     if (f.is_active !== undefined) where.is_active = f.is_active;
     if (f.is_temporary !== undefined) where.is_temporary = f.is_temporary;
@@ -144,9 +148,6 @@ export class MonitoringTemplatesService {
     if (refs.client_id && !client) throw new BadRequestException(`client_id ${refs.client_id} does not exist`);
   }
 }
-
-// Stored sorted, so the slots read in order of the day.
-const sortTimes = (times: string[]) => [...times].sort();
 
 // "YYYY-MM-DD" → a Date at UTC midnight (what a @db.Date column stores).
 const toDate = (day: string | null | undefined) =>

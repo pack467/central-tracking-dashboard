@@ -11,7 +11,6 @@ import { PrismaService } from '../../prisma/prisma.service.js';
 import type { AuthUser } from '../../auth/auth.types.js';
 import { toBigInt } from '../../common/validators/bigint-id.js';
 import { MONITORING_CHECK_ANY } from '../monitoring.permissions.js';
-import { localDateTime, toDateOnly } from '../monitoring-schedule.js';
 import { CreateMonitoringLogDto } from './dto/create-monitoring-log.dto.js';
 import { UpdateMonitoringLogDto } from './dto/update-monitoring-log.dto.js';
 import { ReviewMonitoringLogDto } from './dto/review-monitoring-log.dto.js';
@@ -36,14 +35,6 @@ const logInclude = {
 
 // With monitoring.check.any you correct anyone's log; without it, only your own.
 const canCorrectAny = (actor: AuthUser) => actor.permissions.has(MONITORING_CHECK_ANY);
-
-type Schedule = {
-  times: string[];
-  timezone: string;
-  is_active: boolean;
-  active_from: Date | null;
-  active_until: Date | null;
-};
 
 @Injectable()
 export class MonitoringLogsService {
@@ -73,16 +64,17 @@ export class MonitoringLogsService {
     return log;
   }
 
-  // The check is recorded as done by the actor, now.
+  // The check is recorded as done by the actor, now (checked_at). Templates only
+  // tell the dashboard what to show, so scheduled_at isn't checked against the
+  // template's time, active days or switch.
   async create(dto: CreateMonitoringLogDto, actor: AuthUser) {
     const templateId = BigInt(dto.template_id);
     const scheduledAt = new Date(dto.scheduled_at);
     const template = await this.prisma.monitoringTemplate.findUnique({
       where: { id: templateId },
-      select: { times: true, timezone: true, is_active: true, active_from: true, active_until: true },
+      select: { id: true },
     });
     if (!template) throw new BadRequestException(`template_id ${templateId} does not exist`);
-    assertSlot(template, scheduledAt);
     assertNote(dto.result, dto.note);
     const ticketId = toBigInt(dto.ticket_id);
     if (ticketId) await this.assertTicketExists(ticketId);
@@ -176,23 +168,6 @@ export class MonitoringLogsService {
   private async assertTicketExists(id: bigint) {
     const ticket = await this.prisma.ticketLog.findUnique({ where: { id }, select: { id: true } });
     if (!ticket) throw new BadRequestException(`ticket_id ${id} does not exist`);
-  }
-}
-
-// scheduled_at must be one of the template's slots: one of its times, on the
-// minute, in its time zone, on a day it is active.
-function assertSlot(template: Schedule, scheduledAt: Date) {
-  if (!template.is_active) throw new BadRequestException('The template is switched off');
-  const local = localDateTime(scheduledAt, template.timezone);
-  if (!local.onTheMinute || !template.times.includes(local.time)) {
-    throw new BadRequestException(
-      `scheduled_at must be one of the template's times (${template.times.join(', ')} ${template.timezone})`,
-    );
-  }
-  const from = template.active_from && toDateOnly(template.active_from);
-  const until = template.active_until && toDateOnly(template.active_until);
-  if ((from && local.date < from) || (until && local.date > until)) {
-    throw new BadRequestException(`The template is not active on ${local.date}`);
   }
 }
 

@@ -71,15 +71,26 @@ describe('MonitoringTemplatesService', () => {
     });
   });
 
+  it('lists in order of the day by default: by time, then by name', async () => {
+    prisma.monitoringTemplate.findMany.mockResolvedValue([]);
+    prisma.monitoringTemplate.count.mockResolvedValue(0);
+
+    await service.findAll({ project_id: '1', times: '09:00' });
+
+    const args = prisma.monitoringTemplate.findMany.mock.calls[0][0];
+    expect(args.orderBy).toEqual([{ times: 'asc' }, { name: 'asc' }, { id: 'asc' }]);
+    expect(args.where).toEqual({ project_id: 1n, times: '09:00' });
+  });
+
   describe('create', () => {
-    it('records the creator, sorts the times and leaves unsent settings to the column defaults', async () => {
-      await service.create({ project_id: '1', name: 'Check lastcoll', times: ['17:00', '09:00', '13:00'] }, lead);
+    it('records the creator and leaves unsent settings to the column defaults', async () => {
+      await service.create({ project_id: '1', name: 'Check lastcoll', times: '09:00' }, lead);
 
       const { data } = prisma.monitoringTemplate.create.mock.calls[0][0];
       expect(data).toMatchObject({
         project_id: 1n,
         user_creator_id: lead.id,
-        times: ['09:00', '13:00', '17:00'],
+        times: '09:00',
         instructions: null,
         client_id: null,
         active_from: null,
@@ -91,7 +102,7 @@ describe('MonitoringTemplatesService', () => {
 
     it('stores the active dates as calendar days', async () => {
       await service.create(
-        { project_id: '1', name: 'n', times: ['09:00'], active_from: '2026-11-01', active_until: '2026-11-30' },
+        { project_id: '1', name: 'n', times: '09:00', active_from: '2026-11-01', active_until: '2026-11-30' },
         lead,
       );
       const { data } = prisma.monitoringTemplate.create.mock.calls[0][0];
@@ -101,14 +112,14 @@ describe('MonitoringTemplatesService', () => {
 
     it('rejects an unknown project or client', async () => {
       prisma.project.findUnique.mockResolvedValue(null);
-      await expect(service.create({ project_id: '9', name: 'n', times: ['09:00'] }, lead)).rejects.toThrow(
+      await expect(service.create({ project_id: '9', name: 'n', times: '09:00' }, lead)).rejects.toThrow(
         'project_id 9 does not exist',
       );
 
       prisma.project.findUnique.mockResolvedValue({ id: 1n });
       prisma.client.findUnique.mockResolvedValue(null);
       await expect(
-        service.create({ project_id: '1', name: 'n', times: ['09:00'], client_id: '4' }, lead),
+        service.create({ project_id: '1', name: 'n', times: '09:00', client_id: '4' }, lead),
       ).rejects.toThrow('client_id 4 does not exist');
       expect(prisma.monitoringTemplate.create).not.toHaveBeenCalled();
     });
@@ -116,7 +127,7 @@ describe('MonitoringTemplatesService', () => {
     it('rejects active_until before active_from', async () => {
       await expect(
         service.create(
-          { project_id: '1', name: 'n', times: ['09:00'], active_from: '2026-11-10', active_until: '2026-11-01' },
+          { project_id: '1', name: 'n', times: '09:00', active_from: '2026-11-10', active_until: '2026-11-01' },
           lead,
         ),
       ).rejects.toThrow('active_until cannot be before active_from');
@@ -133,11 +144,11 @@ describe('MonitoringTemplatesService', () => {
 
     it('changes only what is sent', async () => {
       prisma.monitoringTemplate.findUnique.mockResolvedValue(stored());
-      await service.update(1n, { name: 'x', is_active: false, times: ['14:00', '08:00'] });
+      await service.update(1n, { name: 'x', is_active: false, times: '14:00' });
       expect(prisma.monitoringTemplate.update.mock.calls[0][0].data).toEqual({
         name: 'x',
         is_active: false,
-        times: ['08:00', '14:00'],
+        times: '14:00',
       });
     });
 

@@ -1,9 +1,10 @@
 import { Type } from 'class-transformer';
-import { IsIn, IsInt, IsOptional, IsString, Max, MaxLength, Min } from 'class-validator';
+import { IsIn, IsInt, IsOptional, IsString, Matches, Max, MaxLength, Min } from 'class-validator';
 import { BigIntId } from '../../../common/validators/bigint-id.js';
 import { QueryBoolean } from '../../../common/validators/query-boolean.js';
+import { TIME_OF_DAY } from '../../monitoring-schedule.js';
 
-export const MONITORING_TEMPLATE_SORT_FIELDS = ['name', 'created_at', 'updated_at', 'id'] as const;
+export const MONITORING_TEMPLATE_SORT_FIELDS = ['times', 'name', 'created_at', 'updated_at', 'id'] as const;
 
 export class QueryMonitoringTemplatesDto {
   @IsOptional()
@@ -19,6 +20,11 @@ export class QueryMonitoringTemplatesDto {
   @IsOptional()
   @BigIntId()
   client_id?: string;
+
+  /** Only templates due at this time ("HH:mm"). */
+  @IsOptional()
+  @Matches(TIME_OF_DAY, { message: 'times must be a time of day as HH:mm, e.g. 09:00' })
+  times?: string;
 
   /** true: switched-on templates only; false: switched-off ones. */
   @IsOptional()
@@ -50,9 +56,10 @@ export class QueryMonitoringTemplatesDto {
   @Max(100)
   limit?: number = 20;
 
+  /** Default times: in order of the day, then by name. */
   @IsOptional()
   @IsIn(MONITORING_TEMPLATE_SORT_FIELDS)
-  sort?: (typeof MONITORING_TEMPLATE_SORT_FIELDS)[number] = 'name';
+  sort?: (typeof MONITORING_TEMPLATE_SORT_FIELDS)[number] = 'times';
 
   @IsOptional()
   @IsIn(['asc', 'desc'])

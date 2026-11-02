@@ -22,20 +22,20 @@ The split mirrors tickets (`write` / `write.any` / `delete`) and the names plann
 
 - **Body** (`CreateMonitoringTemplateDto`; `UpdateMonitoringTemplateDto` = `PartialType(..., { skipNullProperties: false })`):
   - `project_id` (required) and `name` (required, ≤255)
-  - `times` (required): non-empty array of unique local `HH:mm`, stored sorted (`["09:00","13:00","17:00"]`)
+  - `times` (required): **one** local time of day, `HH:mm` (`"09:00"`). A check due at 09:00 and 17:00 is two templates (user's choice, 2026-11-02), so the admin and the dashboard can order checks by time.
   - `timezone` (IANA, `@IsTimeZone`), `is_temporary`, `is_active`: optional but never null (NOT NULL columns); not sent = the column default (`Asia/Jakarta`, false, true)
   - `instructions`, `client_id`, `active_from` / `active_until` (`YYYY-MM-DD`, calendar-checked): optional, `null` clears
 - **Creator:** `user_creator_id` is always the logged-in user; it isn't in the body.
 - **Checks:** project and client must exist (400 `project_id 9 does not exist`); `active_until` before `active_from` → 400, checked against the values after an update.
 - **Switch off, don't delete:** `DELETE` → 409 "has N logs; switch it off (is_active: false) instead" when it has logs. Changing `times` or `timezone` leaves existing logs as they are.
-- **List** (`QueryMonitoringTemplatesDto`): `project_id`, `project` (project name contains, case-insensitive), `client_id`, `is_active` / `is_temporary` (`true`/`false` in the query string, via `@QueryBoolean()`), `q` (name or instructions), `page`/`limit` (1–100, default 20), `sort` (`name` default, `created_at`, `updated_at`, `id`), `order` (`asc` default). Tie-break on `id`.
+- **List** (`QueryMonitoringTemplatesDto`): `project_id`, `project` (project name contains, case-insensitive), `client_id`, `times` (exactly `HH:mm`), `is_active` / `is_temporary` (`true`/`false` in the query string, via `@QueryBoolean()`), `q` (name or instructions), `page`/`limit` (1–100, default 20), `sort`, `order` (`asc` default). `sort=times` (the default) orders by time, then name, then id: the order of the day, as the dashboard shows it. `name`, `created_at`, `updated_at` and `id` tie-break on `id`.
 - **Each template includes** `project {id,name,code_prefix}`, `client {id,name}`, `creator {id,name,email}`. Logs are **not** included (they grow every day); use `GET /monitoring-logs?template_id=`.
 
 ## Logs
 
 - **Create** (`CreateMonitoringLogDto`): `template_id`, `scheduled_at` (ISO 8601 instant), `result` (`OK`/`NOK`), optional `note`, `evidence_url` (URL), `ticket_id`. `checked_by` = you, `checked_at` = now.
-- **Slot rule** (`assertSlot`): the template must exist (400) and be switched on; `scheduled_at`, read in the template's `timezone`, must be one of its `times` exactly on the minute, on a local day within `active_from`/`active_until`. So `2026-11-02T09:00:00+07:00` (= `02:00Z`) is the 09:00 WIB slot, while `09:00Z` is not. Uses `Intl` (no date library).
-- **One log per slot:** a second one → 409 "already logged (#id); correct that log instead" (pre-checked; the unique index backs it up).
+- **Templates and logs are separate** (user's choice, 2026-11-02): templates are master data that tell the frontend what to display; a log is the input and only refers to its template. The template must exist (400), but `scheduled_at` is **not** validated against the template's time, active days or `is_active`. The client sends the slot it checked, normally that day at the template's time: `2026-11-02T09:00:00+07:00` (= `02:00Z`) for 09:00 WIB.
+- **One log per template and `scheduled_at`:** a second one → 409 "already logged (#id); correct that log instead" (pre-checked; the unique index backs it up).
 - **NOK needs a note** (non-blank), on create and against the values after an update. `ticket_id` must exist (400).
 - **Correct** (`UpdateMonitoringLogDto` = partial of `result`, `note`, `evidence_url`, `ticket_id`): the slot can't change (sending `template_id`/`scheduled_at` → 400). `updated_at` shows the last correction.
 - **Review** (`PATCH :id/review`, `{ review_note? }`): sets `reviewed_by` = you and `reviewed_at` = now; reviewing again replaces the earlier review. Review is optional per log.
@@ -45,13 +45,12 @@ The split mirrors tickets (`write` / `write.any` / `delete`) and the names plann
 
 ## Shared helpers
 
-- `src/monitoring/monitoring-schedule.ts`: `TIME_OF_DAY`, `DATE_ONLY`, `localDateTime(instant, timeZone)` (local date, `HH:mm`, and whether it's on the minute) and `toDateOnly(date)`.
+- `src/monitoring/monitoring-schedule.ts`: the formats `TIME_OF_DAY` (`HH:mm`) and `DATE_ONLY` (`YYYY-MM-DD`).
 - `src/common/validators/query-boolean.ts`: `@QueryBoolean()` for boolean query parameters.
 - Swagger response classes: `templates/entities/monitoring-template.entity.ts` and `logs/entities/monitoring-log.entity.ts`. Their ref classes are prefixed `Monitoring…`, because Swagger keys schemas by class name and the tickets entity already has `Ref`, `UserRef`, `PageMeta`.
 
 ## Not covered yet
 
-- **Missed slots and the day grid** (templates × slots for one project and day, with missed ones computed): the API that `todo-monitoring-live.md` and the metrics build on.
-- **Future slots** aren't refused: a log for a slot later today or on a later day is accepted. Decide whether to allow early checks (and how early).
+- **Missed slots and the day grid** (a project's templates for one day, by time, with each one's log, and on time / late / missed from `checked_at` vs `scheduled_at`): the API that `todo-monitoring-live.md` and the metrics build on. All templates are WIB (no daylight saving), so a slot is that day's local time − 7 h.
 - **Correcting a reviewed log** keeps the review; decide whether a correction should clear it.
 - Optimistic locking (`monitoring_logs.version`) is part of the live-page design, not built.

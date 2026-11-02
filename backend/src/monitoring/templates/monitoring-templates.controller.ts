@@ -36,7 +36,8 @@ export class MonitoringTemplatesController {
   @Can(MONITORING_READ)
   @ApiOperation({
     summary: 'List monitoring templates',
-    description: 'Paginated, with filters and search. Requires monitoring.read.',
+    description:
+      'Paginated, with filters and search. Sorted by time, then name, by default (the order of the day on the dashboard). Requires monitoring.read.',
   })
   @ApiForbiddenResponse({ description: 'Missing monitoring.read' })
   @ApiOkResponse({ type: MonitoringTemplatePage })
@@ -61,7 +62,7 @@ export class MonitoringTemplatesController {
   @ApiOperation({
     summary: 'Create a monitoring template',
     description:
-      'Requires monitoring.templates.manage. You are recorded as its creator. times are local HH:mm in timezone (default Asia/Jakarta), due every day between active_from and active_until.',
+      'Requires monitoring.templates.manage. You are recorded as its creator. times is one local HH:mm in timezone (default Asia/Jakarta), due every day between active_from and active_until; a check due several times a day is one template per time.',
   })
   @ApiCreatedResponse({ type: MonitoringTemplate })
   @ApiBadRequestResponse({ description: 'Invalid body, unknown project or client, or active_until before active_from' })
@@ -75,7 +76,7 @@ export class MonitoringTemplatesController {
   @ApiOperation({
     summary: 'Update a monitoring template',
     description:
-      'Requires monitoring.templates.manage. Send is_active: false to switch it off. Existing logs keep their slots when times change.',
+      'Requires monitoring.templates.manage. Send is_active: false to switch it off. Existing logs keep their scheduled_at when times changes.',
   })
   @ApiParam(ID_PARAM)
   @ApiOkResponse({ type: MonitoringTemplate })

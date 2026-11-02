@@ -29,12 +29,8 @@ export class MonitoringTemplate {
   @ApiProperty({ example: 'Check node lastcoll on smng232' }) name: string;
   @ApiProperty({ type: String, nullable: true }) instructions: string | null;
 
-  @ApiProperty({
-    type: [String],
-    example: ['09:00', '13:00', '17:00'],
-    description: 'Local times of day (HH:mm) in `timezone`, sorted',
-  })
-  times: string[];
+  @ApiProperty({ example: '09:00', description: 'Local time of day (HH:mm) in `timezone`' })
+  times: string;
 
   @ApiProperty({ example: 'Asia/Jakarta' }) timezone: string;
   @ApiProperty() is_temporary: boolean;

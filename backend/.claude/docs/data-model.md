@@ -31,7 +31,7 @@ Conventions:
 | `Handover` → `handover` | updated_user_id, acknowledge_user_id, project_id, content(text), status `RoutineStatus` (default Open), category `HandoverCategory`, is_repeatable (default false), monitoring_log_id (for a Monitoring handover: the check it hands over) | updatedBy, acknowledgedBy (User), project, monitoringLog |
 | `RoutineMeeting` → `routine_meetings` | project_id, pic_user_id, meeting_name(255), start_at, target_completed_at, status_update(500), meeting_room_url(text), status `RoutineStatus`, is_temporary (default false) | pic (User), project |
 | `RoutineReport` → `routine_reports` | project_id, pic_user_id, report_name(255), start_at, target_completed_at, status_update(500), doc_url(text), status `RoutineStatus` | pic (User), project |
-| `MonitoringTemplate` → `monitoring_templates` | **project_id**, **name**(255), instructions(text), **times** (`text[]` of local "HH:mm", e.g. `{09:00,13:00,17:00}`), **timezone**(64, default `Asia/Jakarta`), is_temporary (default false), active_from / active_until (`Date`, null = open), **is_active** (default true), client_id, user_creator_id (set by the API to the logged-in user) | project, client, creator (User), logs |
+| `MonitoringTemplate` → `monitoring_templates` | **project_id**, **name**(255), instructions(text), **times**(5, one local "HH:mm", e.g. `09:00`), **timezone**(64, default `Asia/Jakarta`), is_temporary (default false), active_from / active_until (`Date`, null = open), **is_active** (default true), client_id, user_creator_id (set by the API to the logged-in user) | project, client, creator (User), logs |
 | `MonitoringLog` → `monitoring_logs` | **template_id**, **scheduled_at** (timestamptz: the slot as an instant), **checked_at** (default now), **checked_by**, **result** `MonitoringResult`, note (required for NOK, by the API), evidence_url (image link), ticket_id (optional ticket for a NOK), reviewed_by, reviewed_at, review_note; **unique (template_id, scheduled_at)** | template, checker (User), reviewer (User), ticket (TicketLog), handovers |
 
 Enums (with their Postgres type names):
@@ -43,11 +43,11 @@ There is no `requesters` table. `ticket_logs.requester` is a free-text column, a
 
 ## Monitoring (redesigned 2026-10-10, renamed to templates/logs 2026-10-11; API built 2026-11-02, see `monitoring.md`)
 
-`times` was briefly a single `TEXT` (2026-10-19) and went back to `text[]` on 2026-11-02 (user's choice), as designed: one template covers all of a day's slots.
+`times` is **one** `HH:mm` per template (`VARCHAR(5)`; user's choice, 2026-11-02, after a short-lived `text[]`): a check due several times a day is one template per time, so templates sort in order of the day. Templates are master data for the dashboard; logs refer to them but aren't validated against their schedule.
 
 The old `monitoring_logs` / `monitoring_template` (both empty) were rebuilt: they had copied fields, no link between them, no performer, no result status, everything nullable, and both project and tenant. The names template/log were kept because the team knows them.
 
-- A **monitoring template** defines *what* to check for a project and *when*: e.g. "check node lastcoll on smng232" at `{09:00,13:00,17:00}` WIB every day. The tenant comes from the project.
+- A **monitoring template** defines *what* to check for a project and *when*: e.g. "check node lastcoll on smng232" at 09:00 WIB every day. The tenant comes from the project.
 - **Temporary** templates (`is_temporary`) are limited by `active_from`/`active_until` and/or switched off with `is_active = false` when the client no longer needs them; `client_id` records who asked. Switch off instead of deleting, so history stays.
 - A **monitoring log** is one check of a template at one scheduled slot (`scheduled_at`, an exact instant): done by an **AGENT** (`checked_by`), result **OK/NOK**, optionally reviewed by a **TEAM_LEAD** (`reviewed_by`, `reviewed_at`, `review_note`). One log per slot (unique).
 - **Missed checks are not stored**: they are the scheduled slots (from active templates' `times` in their `timezone`) with no log row; to be computed by the API (not built yet).
@@ -56,7 +56,7 @@ The old `monitoring_logs` / `monitoring_template` (both empty) were rebuilt: the
   - **Review is light**: not required per log; reviewing is optional (`reviewed_by` stays null until someone reviews).
   - **NOK requires a `note`**; linking a ticket (`ticket_id`) and an image (`evidence_url`) is optional.
   - **Agents can correct a log after saving it** (`updated_at` shows the last change).
-  - **Schedules are daily, several times a day** (e.g. `{08:00,14:00}`); no weekday-only schedules, so no `days_of_week`.
+  - **Schedules are daily**; no weekday-only schedules, so no `days_of_week`. Several times a day = several templates (one `times` each, since 2026-11-02).
   - **Handover link**: a `Monitoring` handover can point to the monitoring log it hands over (`handover.monitoring_log_id`), mainly for NOK; for OK logs it rarely matters.
 - These rules are enforced by `MonitoringLogsService` / `MonitoringTemplatesService` (see `monitoring.md`).
 - "NOK needs a note" is a rule for the API, not a DB `CHECK` constraint: Prisma can't express CHECK constraints, and raw SQL added to a migration would be lost on the next `db:reset`.
