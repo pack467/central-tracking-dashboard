@@ -56,7 +56,7 @@ function MountedRouteView({ page }: { page: Parameters<typeof RouteView>[0]['pag
 
   return (
     <Suspense fallback={fallback}>
-      {page === 'overview' && <OverviewView tickets={d.clientTickets} allTickets={d.tickets} onGoToTickets={() => d.handleNavigate('Tickets')} assessments={d.assessments} />}
+      {page === 'overview' && <OverviewView tickets={d.clientTickets} allTickets={d.tickets} onGoToTickets={() => d.handleNavigate('Tickets')} onGoToMonitoring={() => d.handleNavigate('Monitoring')} assessments={d.assessments} />}
       {page === 'tickets' && <TicketsView tickets={d.clientTickets} onSelectTicket={d.selectTicket} onNewTicket={d.ticketWritable ? d.openTicketCreate : undefined} />}
       {page === 'monitoring' && <MonitoringView assessments={d.assessments} onAssess={d.handleAssess} onRequestNote={d.setPendingNoteKey} onUpdateNote={d.handleUpdateNote} onOpenGuide={() => d.setGuideOpen(true)} currentHour={d.currentHour} />}
       {page === 'shiftLog' && <ShiftLogView workflow={d.handover} />}

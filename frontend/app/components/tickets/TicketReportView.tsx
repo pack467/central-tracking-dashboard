@@ -54,17 +54,19 @@ import { ChartEmptyState } from "@/app/components/ui/ChartEmptyState";
 import { useActivePeople, useRoles } from "@/app/hooks/useMasterData";
 import { useOrgCatalog } from "@/app/hooks/useOrgCatalog";
 import { itemOf } from "@/app/lib/org-catalog";
-import { getClientMonitoringSchedule } from "@/app/lib/clientData";
+import { getClientMonitoringSchedule, getClientHistoricalAssessments } from "@/app/lib/clientData";
 import { rowKey as checkpointKey } from "@/app/components/dashboard/MonitoringSchedule";
+import { MonitoringNoteDetailModal } from "@/app/components/dashboard/MonitoringNoteDetailModal";
 import { isTicketDone, matchesPerson, newestFirst, normalizeName, periodCounts, slaCompliance, ticketDateOf } from "@/app/lib/ticket-metrics";
 import { buildMomComparison } from "@/app/lib/mom-comparison";
 import { MomComparison } from "@/app/components/dashboard/MomComparison";
-import type { CheckpointAssessment, Ticket } from "@/app/lib/types";
+import type { CheckpointAssessment, MonitoringEntry, Ticket } from "@/app/lib/types";
 import { ticketCode } from "@/app/lib/ticket-code";
 
 interface TicketReportViewProps {
   tickets: Ticket[];
   onGoToTickets?: () => void;
+  onGoToMonitoring?: () => void;
   /** The checkpoint verdicts operators gave on the Monitoring page (read only here). */
   assessments?: Record<string, CheckpointAssessment>;
 }
@@ -227,7 +229,7 @@ function compactVolumeGeometry(count: number, available: number) {
   return { fits, width, bar, step, start: count > 1 ? 8 + bar / 2 : width / 2 };
 }
 
-export function TicketReportView({ tickets: propTickets, assessments }: TicketReportViewProps) {
+export function TicketReportView({ tickets: propTickets, onGoToMonitoring, assessments }: TicketReportViewProps) {
   const mobile = useCompactLayout();
   const phone = useMobileLayout();
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -279,6 +281,19 @@ export function TicketReportView({ tickets: propTickets, assessments }: TicketRe
   // Memo Modal open state
   const [memoModalOpen, setMemoModalOpen] = useState(false);
 
+  // Monitoring detail modal state (read-only monitoring message)
+  const [selectedMonitoringDetail, setSelectedMonitoringDetail] = useState<{
+    id: string;
+    project: string;
+    task: string;
+    time: string;
+    owner: string;
+    status: "OK" | "NOK" | "Belum";
+    note: string;
+    entry: MonitoringEntry;
+    assessment?: CheckpointAssessment | null;
+  } | null>(null);
+
   // Panel Viewer state from URL
   const activePanelId = (url.values.panel as PanelId) || null;
   const viewerMode = (url.values.mode as "chart" | "table") || "chart";
@@ -298,14 +313,30 @@ export function TicketReportView({ tickets: propTickets, assessments }: TicketRe
   // List Monitoring Shift: the day's checkpoints with the verdicts the operators gave on the Monitoring page. The list only shows them;
   // assessing happens there. A checkpoint nobody has assessed yet says so ("Belum") instead of showing a made-up result.
   const monitoringItems = useMemo(
-    () => [...getClientMonitoringSchedule(activeClientId)]
-      .sort((a, b) => a.time.localeCompare(b.time) || a.task.localeCompare(b.task))
-      .map((entry) => {
-        const key = checkpointKey(entry);
-        const verdict = assessments?.[key]?.verdict;
-        const status: "OK" | "NOK" | "Belum" = verdict === "ok" || verdict === "adequate" ? "OK" : verdict === "nok" || verdict === "not-adequate" ? "NOK" : "Belum";
-        return { id: key, project: entry.project, task: entry.task, time: entry.time, status };
-      }),
+    () => {
+      const historicalList = getClientHistoricalAssessments(activeClientId);
+      return [...getClientMonitoringSchedule(activeClientId)]
+        .sort((a, b) => a.time.localeCompare(b.time) || a.task.localeCompare(b.task))
+        .map((entry) => {
+          const key = checkpointKey(entry);
+          const assessment = assessments?.[key];
+          const verdict = assessment?.verdict;
+          const status: "OK" | "NOK" | "Belum" = verdict === "ok" || verdict === "adequate" ? "OK" : verdict === "nok" || verdict === "not-adequate" ? "NOK" : "Belum";
+          const fallbackNote = historicalList.find((h) => h.task === entry.task && h.time === entry.time)?.note;
+          const note = assessment ? (assessment.note || "") : (fallbackNote || "");
+          return {
+            id: key,
+            project: entry.project,
+            task: entry.task,
+            time: entry.time,
+            owner: entry.owner,
+            status,
+            note,
+            entry,
+            assessment,
+          };
+        });
+    },
     [activeClientId, assessments]
   );
   const okCount = monitoringItems.filter((i) => i.status === "OK").length;
@@ -1300,11 +1331,21 @@ export function TicketReportView({ tickets: propTickets, assessments }: TicketRe
                       return (
                         <div
                           key={item.id}
-                          role="listitem" aria-label={`${item.task}, ${item.status}`}
-                          className={`flex items-center justify-between gap-[10px] p-[7px_11px] rounded-[8px] shrink-0 cursor-default monitoring-check-card max-lg:p-0 max-lg:pl-1.5 max-lg:gap-2 ${!monitoringExpanded && monitoringIndex >= 5 ? "max-lg:hidden" : ""} ${
+                          role="button"
+                          tabIndex={0}
+                          aria-label={`${item.task}, status ${item.status}. Klik untuk melihat pesan monitoring shifter.`}
+                          title="Klik untuk membuka pesan hasil monitoring shifter"
+                          onClick={() => setSelectedMonitoringDetail(item)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              setSelectedMonitoringDetail(item);
+                            }
+                          }}
+                          className={`group flex items-center justify-between gap-[10px] p-[7px_11px] rounded-[8px] shrink-0 cursor-pointer select-none transition-all duration-150 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 monitoring-check-card max-lg:p-1 max-lg:pl-1.5 max-lg:gap-2 ${!monitoringExpanded && monitoringIndex >= 5 ? "max-lg:hidden" : ""} ${
                             isOk || isPending
-                              ? "bg-[rgba(255,255,255,0.025)] border border-[rgba(255,255,255,0.07)] hover:bg-[rgba(255,255,255,0.04)] hover:border-[rgba(255,255,255,0.12)]"
-                              : "bg-[rgba(244,63,94,0.05)] border border-[rgba(244,63,94,0.25)] border-l-[3.5px] max-lg:border-l-[3px] [&.is-nok.is-nok]:border-l-[#f43f5e] hover:bg-[rgba(244,63,94,0.08)] hover:border-[rgba(244,63,94,0.32)] is-nok"
+                              ? "bg-[rgba(255,255,255,0.025)] border border-[rgba(255,255,255,0.07)] hover:bg-[rgba(56,189,248,0.06)] hover:border-sky-500/40 hover:shadow-[0_2px_10px_rgba(56,189,248,0.1)]"
+                              : "bg-[rgba(244,63,94,0.05)] border border-[rgba(244,63,94,0.25)] border-l-[3.5px] max-lg:border-l-[3px] [&.is-nok.is-nok]:border-l-[#f43f5e] hover:bg-[rgba(244,63,94,0.1)] hover:border-[rgba(244,63,94,0.45)] hover:shadow-[0_2px_10px_rgba(244,63,94,0.15)] is-nok"
                           }`}
                         >
                           <div className="flex items-center gap-[10px] min-w-0 flex-1 monitoring-card-left">
@@ -1312,25 +1353,26 @@ export function TicketReportView({ tickets: propTickets, assessments }: TicketRe
                               {item.project}
                             </span>
                             <div className="flex flex-col min-w-0 flex-1 gap-[1px] monitoring-card-content">
-                              <span className="text-[11.5px] font-medium text-[#f8fafc] whitespace-nowrap overflow-hidden text-ellipsis leading-[1.3] monitoring-task-text max-lg:text-[13px]" title={item.task}>
+                              <span className="text-[11.5px] font-medium text-[#f8fafc] group-hover:text-sky-300 transition-colors whitespace-nowrap overflow-hidden text-ellipsis leading-[1.3] monitoring-task-text max-lg:text-[13px]" title={item.task}>
                                 {item.task}
                               </span>
-
                             </div>
                           </div>
-                          <span
-                            className={`inline-flex items-center justify-center gap-[5px] h-[24px] p-[0_9px] rounded-[6px] text-[10.5px] max-lg:text-[11px] font-bold font-mono cursor-default select-none shrink-0 tracking-[0.02em] monitoring-status-btn max-lg:h-11 max-lg:min-h-11 max-lg:w-14 max-lg:min-w-14 max-lg:px-1 ${
-                              isOk
-                                ? "bg-[rgba(16,185,129,0.12)] border border-[rgba(16,185,129,0.3)] text-[#34d399] btn-ok"
-                                : isPending
-                                ? "bg-[rgba(148,163,184,0.08)] border border-[rgba(148,163,184,0.22)] text-[#94a3b8] btn-pending"
-                                : "bg-[rgba(244,63,94,0.14)] border border-[rgba(244,63,94,0.35)] text-[#fb7185] btn-nok"
-                            }`}
-                            title={isPending ? "Belum dinilai di halaman Monitoring" : `Status: ${item.status}`}
-                          >
-                            {isOk ? <Check size={11} strokeWidth={2.5} /> : isPending ? <Clock size={11} strokeWidth={2.5} /> : <X size={11} strokeWidth={2.5} />}
-                            {item.status}
-                          </span>
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <span
+                              className={`inline-flex items-center justify-center gap-[5px] h-[24px] p-[0_9px] rounded-[6px] text-[10.5px] max-lg:text-[11px] font-bold font-mono select-none shrink-0 tracking-[0.02em] monitoring-status-btn max-lg:h-11 max-lg:min-h-11 max-lg:w-14 max-lg:min-w-14 max-lg:px-1 transition-all ${
+                                isOk
+                                  ? "bg-[rgba(16,185,129,0.12)] border border-[rgba(16,185,129,0.3)] text-[#34d399] group-hover:border-emerald-400/50 btn-ok"
+                                  : isPending
+                                  ? "bg-[rgba(148,163,184,0.08)] border border-[rgba(148,163,184,0.22)] text-[#94a3b8] group-hover:border-slate-500/50 btn-pending"
+                                  : "bg-[rgba(244,63,94,0.14)] border border-[rgba(244,63,94,0.35)] text-[#fb7185] group-hover:border-rose-400/60 btn-nok"
+                              }`}
+                              title={isPending ? "Belum dinilai di halaman Monitoring. Klik untuk detail." : `Status: ${item.status}. Klik untuk detail pesan.`}
+                            >
+                              {isOk ? <Check size={11} strokeWidth={2.5} /> : isPending ? <Clock size={11} strokeWidth={2.5} /> : <X size={11} strokeWidth={2.5} />}
+                              {item.status}
+                            </span>
+                          </div>
                         </div>
                       );
                     })}
@@ -3558,6 +3600,19 @@ export function TicketReportView({ tickets: propTickets, assessments }: TicketRe
 
       {/* Memo Modal (large window) */}
       <MemoModal isOpen={memoModalOpen} onClose={() => setMemoModalOpen(false)} />
+
+      {/* Monitoring Note Detail Modal (Read-Only) */}
+      {selectedMonitoringDetail && (
+        <MonitoringNoteDetailModal
+          open={Boolean(selectedMonitoringDetail)}
+          onClose={() => setSelectedMonitoringDetail(null)}
+          entry={selectedMonitoringDetail.entry}
+          assessment={selectedMonitoringDetail.assessment}
+          status={selectedMonitoringDetail.status}
+          note={selectedMonitoringDetail.note}
+          onGoToMonitoring={onGoToMonitoring}
+        />
+      )}
 
       {/* Grafana-style Full-screen Panel Viewer */}
       {activePanelId && (

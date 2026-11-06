@@ -31,14 +31,16 @@ interface OverviewViewProps {
   tickets: Ticket[];
   allTickets?: Ticket[];
   onGoToTickets: () => void;
+  onGoToMonitoring?: () => void;
   assessments?: Record<string, CheckpointAssessment>;
 }
 
-export function OverviewView({ tickets, onGoToTickets, assessments }: OverviewViewProps) {
+export function OverviewView({ tickets, onGoToTickets, onGoToMonitoring, assessments }: OverviewViewProps) {
   return (
     <TicketReportView
       tickets={tickets}
       onGoToTickets={onGoToTickets}
+      onGoToMonitoring={onGoToMonitoring}
       assessments={assessments}
     />
   );
