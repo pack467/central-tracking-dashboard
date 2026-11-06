@@ -1,8 +1,0 @@
-{
-  "checks": [
-    "browser v1 migration + untouched backup",
-    "browser corrupt v2 recovery",
-    "browser blocked storage saves in memory + one warning"
-  ],
-  "errors": []
-}

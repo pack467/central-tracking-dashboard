@@ -1,6 +1,0 @@
-{
-  "checks": [
-    "React.StrictMode async read + modal effect cleanup"
-  ],
-  "errors": []
-}

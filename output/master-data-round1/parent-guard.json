@@ -1,7 +1,0 @@
-{
-  "checks": [
-    "active organization archived: auto-switch + toast",
-    "status form impact confirmation + blocked child restore"
-  ],
-  "errors": []
-}
