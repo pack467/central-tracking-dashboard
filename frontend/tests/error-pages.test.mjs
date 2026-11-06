@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
 import test from "node:test";
+import { BASE, needsServer } from "./live-server.mjs";
 
 import { pathToFileURL } from "node:url";
 
@@ -54,11 +55,11 @@ test("Config and component architecture exists and exports expected types/values
   assert.ok(!errorContentCode.includes("error.message"), "error.tsx should not render raw error.message to user");
 });
 
-test("Server renders dynamic error routes (/error/[code]) for 400, 401, 403, 404, 429, 500, 503", async () => {
+test("Server renders dynamic error routes (/error/[code]) for 400, 401, 403, 404, 429, 500, 503", needsServer, async () => {
   const codes = ["400", "401", "403", "404", "429", "500", "503"];
 
   for (const code of codes) {
-    const res = await fetch(`http://localhost:3000/error/${code}`);
+    const res = await fetch(`${BASE}/error/${code}`);
     assert.equal(res.status, 200, `/error/${code} should respond with 200`);
 
     const html = await res.text();
@@ -68,8 +69,8 @@ test("Server renders dynamic error routes (/error/[code]) for 400, 401, 403, 404
   }
 });
 
-test("Server renders /offline page with 200 status and offline elements", async () => {
-  const res = await fetch("http://localhost:3000/offline");
+test("Server renders /offline page with 200 status and offline elements", needsServer, async () => {
+  const res = await fetch(`${BASE}/offline`);
   assert.equal(res.status, 200, "/offline should respond with 200");
 
   const html = await res.text();
@@ -77,8 +78,8 @@ test("Server renders /offline page with 200 status and offline elements", async 
   assert.ok(html.includes("Muat Ulang"), "/offline should render retry button");
 });
 
-test("Server renders 404 page for unknown non-existent routes", async () => {
-  const res = await fetch("http://localhost:3000/non-existent-random-route-xyz");
+test("Server renders 404 page for unknown non-existent routes", needsServer, async () => {
+  const res = await fetch(`${BASE}/non-existent-random-route-xyz`);
   assert.equal(res.status, 404, "Unknown route should return 404");
 
   const html = await res.text();

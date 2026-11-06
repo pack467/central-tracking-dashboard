@@ -1,0 +1,70 @@
+[
+  {
+    "phase": "before",
+    "height": 5982,
+    "card": {
+      "x": 16,
+      "y": 261.296875,
+      "width": 358,
+      "height": 1191.5,
+      "top": 261.296875,
+      "right": 374,
+      "bottom": 1452.796875,
+      "left": 16
+    },
+    "charts": [
+      {
+        "width": 332,
+        "height": 220,
+        "viewBox": "0 0 1040 270",
+        "cardWidth": 358
+      },
+      {
+        "width": 332,
+        "height": 220,
+        "viewBox": "0 0 1050 280",
+        "cardWidth": 358
+      },
+      {
+        "width": 332,
+        "height": 220,
+        "viewBox": "0 0 860 280",
+        "cardWidth": 358
+      }
+    ]
+  },
+  {
+    "phase": "after",
+    "height": 3845,
+    "card": {
+      "x": 12,
+      "y": 174.890625,
+      "width": 366,
+      "height": 592.5,
+      "top": 174.890625,
+      "right": 378,
+      "bottom": 767.390625,
+      "left": 12
+    },
+    "charts": [
+      {
+        "width": 928,
+        "height": 220,
+        "viewBox": "0 0 928 220",
+        "cardWidth": 366
+      },
+      {
+        "width": 340,
+        "height": 220,
+        "viewBox": "0 0 340 220",
+        "cardWidth": 366
+      },
+      {
+        "width": 340,
+        "height": 220,
+        "viewBox": "0 0 340 220",
+        "cardWidth": 366
+      }
+    ]
+  }
+]

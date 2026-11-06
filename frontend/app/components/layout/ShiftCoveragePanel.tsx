@@ -5,7 +5,6 @@ import { paths } from "@/app/lib/routes";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Users, ChevronLeft, ChevronRight } from "lucide-react";
-import { useActiveShift } from "@/app/hooks/useLiveClock";
 import {
   defaultRosterMembers,
   CoverageDonutChart,
@@ -27,7 +26,6 @@ export function ShiftCoveragePanel({
   isOpen,
   onToggle,
 }: ShiftCoveragePanelProps) {
-  const activeShift = useActiveShift();
   const [activeTab, setActiveTab] = useState<FilterTabOption>("Semua");
 
   const listScrollRef = useRef<HTMLDivElement>(null);
@@ -150,7 +148,6 @@ export function ShiftCoveragePanel({
           isOpen ? "shift-panel-open [transform:translateX(0)]" : "shift-panel-closed [transform:translateX(100%)] pointer-events-none"
         }`}
         aria-label="Panel Roster Tim & Shift Coverage"
-        role="complementary"
       >
         {/* Header Drawer (Tetap diam di atas) */}
         <div className="shift-panel-header shift-coverage-header flex flex-col items-center justify-center text-center p-[16px_20px_14px] [border-bottom:1px_solid_var(--line)] bg-[var(--panel-bg,#1e293b)] shrink-0">

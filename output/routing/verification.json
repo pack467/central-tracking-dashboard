@@ -1,0 +1,251 @@
+[
+  {
+    "name": "hard reload /dashboard",
+    "pass": true,
+    "detail": {
+      "title": "Dashboard · Central Tracking Dashboard",
+      "url": "http://localhost:3000/dashboard"
+    }
+  },
+  {
+    "name": "hard reload /tickets",
+    "pass": true,
+    "detail": {
+      "title": "Tickets · Central Tracking Dashboard",
+      "url": "http://localhost:3000/tickets"
+    }
+  },
+  {
+    "name": "hard reload /tickets/escalations",
+    "pass": true,
+    "detail": {
+      "title": "Escalations · Tickets · Central Tracking Dashboard",
+      "url": "http://localhost:3000/tickets/escalations"
+    }
+  },
+  {
+    "name": "hard reload /monitoring",
+    "pass": true,
+    "detail": {
+      "title": "Monitoring · Central Tracking Dashboard",
+      "url": "http://localhost:3000/monitoring"
+    }
+  },
+  {
+    "name": "hard reload /monitoring/history",
+    "pass": true,
+    "detail": {
+      "title": "History · Monitoring · Central Tracking Dashboard",
+      "url": "http://localhost:3000/monitoring/history"
+    }
+  },
+  {
+    "name": "hard reload /shift-log",
+    "pass": true,
+    "detail": {
+      "title": "Shift Log · Central Tracking Dashboard",
+      "url": "http://localhost:3000/shift-log"
+    }
+  },
+  {
+    "name": "hard reload /reports",
+    "pass": true,
+    "detail": {
+      "title": "Reports · Central Tracking Dashboard",
+      "url": "http://localhost:3000/reports"
+    }
+  },
+  {
+    "name": "hard reload /reports/ticket-log",
+    "pass": true,
+    "detail": {
+      "title": "Ticket log · Reports · Central Tracking Dashboard",
+      "url": "http://localhost:3000/reports/ticket-log"
+    }
+  },
+  {
+    "name": "hard reload /reports/monitoring-log",
+    "pass": true,
+    "detail": {
+      "title": "Monitoring log · Reports · Central Tracking Dashboard",
+      "url": "http://localhost:3000/reports/monitoring-log"
+    }
+  },
+  {
+    "name": "hard reload /reports/pdf-preview",
+    "pass": true,
+    "detail": {
+      "title": "Pratinjau PDF · Reports · Central Tracking Dashboard",
+      "url": "http://localhost:3000/reports/pdf-preview"
+    }
+  },
+  {
+    "name": "hard reload /team-roster",
+    "pass": true,
+    "detail": {
+      "title": "Team Roster · Central Tracking Dashboard",
+      "url": "http://localhost:3000/team-roster"
+    }
+  },
+  {
+    "name": "hard reload /team-roster?view=weekly&week=2026-W34",
+    "pass": true,
+    "detail": {
+      "title": "Team Roster · Central Tracking Dashboard",
+      "url": "http://localhost:3000/team-roster?view=weekly&week=2026-W34"
+    }
+  },
+  {
+    "name": "hard reload /team-roster?view=monthly&month=2026-09",
+    "pass": true,
+    "detail": {
+      "title": "Team Roster · Central Tracking Dashboard",
+      "url": "http://localhost:3000/team-roster?view=monthly&month=2026-09"
+    }
+  },
+  {
+    "name": "hard reload /runbooks",
+    "pass": true,
+    "detail": {
+      "title": "Runbooks · Central Tracking Dashboard",
+      "url": "http://localhost:3000/runbooks"
+    }
+  },
+  {
+    "name": "hard reload /runbooks/credentials",
+    "pass": true,
+    "detail": {
+      "title": "Akses & Kredensial · Runbooks · Central Tracking Dashboard",
+      "url": "http://localhost:3000/runbooks/credentials"
+    }
+  },
+  {
+    "name": "hard reload /runbooks/links",
+    "pass": true,
+    "detail": {
+      "title": "Link & Tools · Runbooks · Central Tracking Dashboard",
+      "url": "http://localhost:3000/runbooks/links"
+    }
+  },
+  {
+    "name": "hard reload /runbooks/escalation",
+    "pass": true,
+    "detail": {
+      "title": "Kontak Eskalasi · Runbooks · Central Tracking Dashboard",
+      "url": "http://localhost:3000/runbooks/escalation"
+    }
+  },
+  {
+    "name": "hard reload /notifications",
+    "pass": true,
+    "detail": {
+      "title": "Notifications · Central Tracking Dashboard",
+      "url": "http://localhost:3000/notifications"
+    }
+  },
+  {
+    "name": "hard reload /profile",
+    "pass": true,
+    "detail": {
+      "title": "Profile · Central Tracking Dashboard",
+      "url": "http://localhost:3000/profile"
+    }
+  },
+  {
+    "name": "reports global filters and tab links",
+    "pass": true
+  },
+  {
+    "name": "sidebar SPA and shell identity, Back/Forward, new tab",
+    "pass": true
+  },
+  {
+    "name": "query validation and single canonical replace",
+    "pass": false,
+    "error": "Expected values to be strictly equal:\n\n'?from=abc' !== ''\n"
+  },
+  {
+    "name": "debounced search replaces history; pagination pushes",
+    "pass": false,
+    "error": "Expected values to be strictly equal:\n\nnull !== 'aph'\n"
+  },
+  {
+    "name": "roster modes and periods push history",
+    "pass": false,
+    "error": "The input did not match the regular expression /17 Aug/. Input:\n\n'TEAM ROSTER\\n' +\n  'Team Roster\\n' +\n  'Shift Swaps (1)\\n' +\n  '＋\\n' +\n  'Tambah Anggota\\n' +\n  'TOTAL MEMBERS\\n' +\n  '14\\n' +\n  '5 Ops · 5 Leads · 4 Specialists\\n' +\n  'Full NOC Roster\\n' +\n  'ACTIVE ON SHIFT\\n' +\n  '5\\n' +\n  'Shift Pagi · 08:00 – 16:30 WIB\\n' +\n  '100% Minimum Quorum\\n' +\n  'OFF / ON LEAVE TODAY\\n' +\n  '9\\n' +\n  '1 On Leave · 8 Off Duty\\n' +\n  '1 Planned Leave\\n' +\n  'SHIFT SWAPS (NEXT 24H)\\n' +\n  '1\\n' +\n  '1 request pending review\\n' +\n  'Needs Approval\\n' +\n  'Review →\\n' +\n  'All Roles (14)\\n' +\n  'Operator NOC\\n' +\n  'Shift Lead\\n' +\n  'Incident Coordinator\\n' +\n  'L2 Specialist\\n' +\n  'Infrastructure Engineer\\n' +\n  'All Shifts\\n' +\n  'Shift Subuh\\n' +\n  'Shift Pagi\\n' +\n  'Shift Malam\\n' +\n  'All Statuses\\n' +\n  'Active (On Duty)\\n' +\n  'On Break\\n' +\n  'Off Duty\\n' +\n  'On Leave\\n' +\n  'Table\\n' +\n  'Weekly Calendar'\n"
+  },
+  {
+    "name": "ticket drawer preserves list and filters; invalid ID",
+    "pass": false,
+    "error": "Expected values to be strictly equal:\n+ actual - expected\n\n+ '/tickets/86d40sep05'\n- '/tickets'\n           ^\n"
+  },
+  {
+    "name": "roster detail deep link and missing ID",
+    "pass": false,
+    "error": "page.waitForURL: Timeout 30000ms exceeded.\n=========================== logs ===========================\nwaiting for navigation until \"load\"\n============================================================"
+  },
+  {
+    "name": "runbook detail deep link and missing ID",
+    "pass": true
+  },
+  {
+    "name": "scroll preserved for query, reset for pages, restored on history",
+    "pass": false,
+    "error": "Expected values to be strictly equal:\n\n400 !== 0\n"
+  },
+  {
+    "name": "canonical redirects (one response) and unknown URL",
+    "pass": true
+  },
+  {
+    "name": "monitoring verdicts, notes, clock, sidebar and panel persist",
+    "pass": true
+  },
+  {
+    "name": "SM/ActiveMQ slug and Reports copied URL reproduce CSV data",
+    "pass": false,
+    "error": "Expected values to be strictly equal:\n+ actual - expected\n\n+ 'All Projects'\n- 'SM/ActiveMQ'\n"
+  },
+  {
+    "name": "signed-out deep link retains safe login destination",
+    "pass": true
+  },
+  {
+    "name": "console and hydration",
+    "pass": false,
+    "errors": [
+      {
+        "type": "console",
+        "message": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      },
+      {
+        "type": "console",
+        "message": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+      }
+    ],
+    "failedResponses": [
+      {
+        "status": 500,
+        "url": "http://localhost:3000/api/handovers?date=&shift=&pic=&page=1&limit=200",
+        "type": "fetch"
+      },
+      {
+        "status": 500,
+        "url": "http://localhost:3000/api/handovers?date=&shift=&pic=&page=1&limit=200",
+        "type": "fetch"
+      },
+      {
+        "status": 404,
+        "url": "http://localhost:3000/does-not-exist",
+        "type": "document"
+      }
+    ],
+    "expected404": [
+      {
+        "status": 404,
+        "url": "http://localhost:3000/does-not-exist",
+        "type": "document"
+      }
+    ]
+  }
+]

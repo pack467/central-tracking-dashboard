@@ -1,0 +1,442 @@
+{
+  "rows": [
+    {
+      "width": 390,
+      "height": 4349,
+      "route": "/dashboard",
+      "clientWidth": 390,
+      "grids": [
+        {
+          "tag": "DIV",
+          "cls": "grid grid-cols-[minmax(0,1fr)_410px] max-[1140px]:grid-cols-1 gap-[16px] items-stretch w-full ops-focus-grid max-lg:gap-3 max-lg:grid-cols-1 max-lg:items-start",
+          "text": "Tiket Hari Ini33 tiket#86d40sep14● APH[APH] Pemeliharaan Perangkat Switch Spine DC CikarangEscalation Muhammad Ihsanul A",
+          "x": 12,
+          "y": 168.890625,
+          "w": 366,
+          "h": 1303.5,
+          "columns": "366px",
+          "gap": "12px"
+        },
+        {
+          "tag": "DIV",
+          "cls": "flex flex-col gap-[12px] h-full min-h-[580px] max-h-[660px] max-[1140px]:min-h-0 max-[1140px]:h-auto ops-right-column max-lg:min-h-0 max-lg:max-h-none",
+          "text": "Memo & Catatan ShiftView• Pantau koneksi gateway B2B sekunder menjelang lonjakan transaksi pagi.\n• Antrean ActiveMQ brok",
+          "x": 12,
+          "y": 840.890625,
+          "w": 366,
+          "h": 631.5,
+          "columns": "none",
+          "gap": "12px"
+        },
+        {
+          "tag": "DIV",
+          "cls": "grid grid-cols-[minmax(0,1fr)_380px] max-[1140px]:grid-cols-1 gap-[16px] items-stretch w-full max-lg:items-start max-lg:gap-3 report-primary-chart-grid",
+          "text": "Ticket Volume per Project (Stacked by System)Volume TiketVolume per ProjectVolBulan Lalu vs Bulan IniMoMView012253749012",
+          "x": 12,
+          "y": 1570.390625,
+          "w": 366,
+          "h": 1017,
+          "columns": "366px",
+          "gap": "12px"
+        }
+      ],
+      "panels": [
+        {
+          "title": "Tiket Hari Ini",
+          "x": 12,
+          "y": 168.890625,
+          "w": 366,
+          "h": 660,
+          "body": {
+            "x": 13,
+            "y": 242.890625,
+            "w": 364,
+            "h": 585
+          }
+        },
+        {
+          "title": "Memo & Catatan Shift",
+          "x": 12,
+          "y": 840.890625,
+          "w": 366,
+          "h": 181,
+          "body": {
+            "x": 13,
+            "y": 914.890625,
+            "w": 364,
+            "h": 106
+          }
+        },
+        {
+          "title": "List Monitoring Shift",
+          "x": 12,
+          "y": 1033.890625,
+          "w": 366,
+          "h": 438.5,
+          "body": {
+            "x": 13,
+            "y": 1107.890625,
+            "w": 364,
+            "h": 363.5
+          }
+        },
+        {
+          "title": "Ticket Volume per Project (Stacked by System)Volume Tiket",
+          "x": 12,
+          "y": 1570.390625,
+          "w": 366,
+          "h": 414,
+          "body": {
+            "x": 13,
+            "y": 1644.390625,
+            "w": 364,
+            "h": 339
+          }
+        },
+        {
+          "title": "Rekap Tiket per User",
+          "x": 12,
+          "y": 1996.390625,
+          "w": 366,
+          "h": 591,
+          "body": {
+            "x": 13,
+            "y": 2070.390625,
+            "w": 364,
+            "h": 516
+          }
+        },
+        {
+          "title": "Distribusi Kategori / Tipe TiketDistribusi Kategori",
+          "x": 12,
+          "y": 2655.390625,
+          "w": 366,
+          "h": 507,
+          "body": {
+            "x": 13,
+            "y": 2729.390625,
+            "w": 364,
+            "h": 432
+          }
+        },
+        {
+          "title": "Tren Durasi Penyelesaian (Resolution Velocity)Tren Durasi",
+          "x": 12,
+          "y": 3174.390625,
+          "w": 366,
+          "h": 480,
+          "body": {
+            "x": 13,
+            "y": 3248.390625,
+            "w": 364,
+            "h": 405
+          }
+        },
+        {
+          "title": "Tren Trafik Beban per Shift (Shift Traffic Velocity)Tren Trafik",
+          "x": 12,
+          "y": 3666.390625,
+          "w": 366,
+          "h": 534.5,
+          "body": {
+            "x": 13,
+            "y": 3740.390625,
+            "w": 364,
+            "h": 459.5
+          }
+        }
+      ],
+      "sections": [
+        {
+          "tag": "SECTION",
+          "cls": "page-heading flex justify-between items-end mb-[22px] max-lg:mb-0 max-[660px]:flex-col max-[660px]:items-start max-[660px]:gap-[12px] max-[640px]:mb-0",
+          "text": "DASHBOARD · TRITDashboard",
+          "x": 12,
+          "y": 64,
+          "w": 366,
+          "h": 52.890625
+        },
+        {
+          "tag": "DIV",
+          "cls": "flex flex-col gap-[14px] bg-transparent border-none rounded-none p-0 ops-focus-section max-lg:gap-3",
+          "text": "LIVE OPS VIEWOperational Focus — Pantauan Real-Time & Koordinasi ShiftShift Aktif: Shift MalamTiket Hari Ini33 tiket#86d",
+          "x": 12,
+          "y": 128.890625,
+          "w": 366,
+          "h": 1343.5
+        },
+        {
+          "tag": "DIV",
+          "cls": "flex flex-col gap-[12px] p-[14px_16px] bg-[var(--panel-bg)] border border-[var(--panel-border)] rounded-[12px] shadow-[var(--shadow-panel)] [transition:all_0.2s_ease] my-[6px] max-lg:my-0 hover:border-[rgba(56,189,248,0.25)] analytics-filte",
+          "text": "Filter Laporan & Analitik TiketFilterUbahMenampilkan 88 dari 88 Tiket88 tiket",
+          "x": 12,
+          "y": 1484.390625,
+          "w": 366,
+          "h": 74
+        },
+        {
+          "tag": "DIV",
+          "cls": "grid grid-cols-[minmax(0,1fr)_380px] max-[1140px]:grid-cols-1 gap-[16px] items-stretch w-full max-lg:items-start max-lg:gap-3 report-primary-chart-grid",
+          "text": "Ticket Volume per Project (Stacked by System)Volume TiketVolume per ProjectVolBulan Lalu vs Bulan IniMoMView012253749012",
+          "x": 12,
+          "y": 1570.390625,
+          "w": 366,
+          "h": 1017
+        },
+        {
+          "tag": "DIV",
+          "cls": "flex gap-2 lg:hidden",
+          "text": "KategoriSeverity",
+          "x": 12,
+          "y": 2599.390625,
+          "w": 366,
+          "h": 44
+        },
+        {
+          "tag": "DIV",
+          "cls": "grid grid-cols-2 max-[960px]:grid-cols-1 gap-[18px] max-lg:gap-3 report-charts-grid max-lg:block max-lg:[scrollbar-width:none] max-lg:[&::-webkit-scrollbar]:hidden max-lg:items-start max-lg:[&>article]:w-full max-lg:[&>article]:min-w-full m",
+          "text": "Distribusi Kategori / Tipe TiketDistribusi Kategori7 KategoriView88TOTAL Maintenance20 (23%) Incident20 (23%) Change Req",
+          "x": 12,
+          "y": 2655.390625,
+          "w": 366,
+          "h": 507
+        },
+        {
+          "tag": "ARTICLE",
+          "cls": "bg-[var(--panel-bg)] border border-[var(--panel-border)] rounded-[12px] shadow-[var(--shadow-panel)] overflow-hidden flex flex-col max-lg:min-w-0 flex flex-col w-full mgmt-velocity-panel",
+          "text": "Tren Durasi Penyelesaian (Resolution Velocity)Tren DurasiRata-rata ResolusiTarget SLA (60m)Batas Kritis / Breach (90m)Vi",
+          "x": 12,
+          "y": 3174.390625,
+          "w": 366,
+          "h": 480
+        },
+        {
+          "tag": "DIV",
+          "cls": "heatmap-standalone-section mt-[18px] max-lg:mt-0",
+          "text": "Tren Trafik Beban per Shift (Shift Traffic Velocity)Tren TrafikViewShift Pagi(08:00–16:30)38 tiket51% dari total bebanSh",
+          "x": 12,
+          "y": 3666.390625,
+          "w": 366,
+          "h": 534.5
+        }
+      ],
+      "smallText": [],
+      "smallTargets": [
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center gap-[4px] p-[2px_8px] rounded-[5px] text-[10.5px] max-lg:text-[11px] font-semibold cursor-pointer transition-all duration-150 ease-out select-none border shift-filter-btn bg-[rgba(56,189,248,0.18)] text-white border",
+          "text": "Semua ShiftSemua",
+          "x": 25,
+          "y": 4165.390625,
+          "w": 79,
+          "h": 22.5
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center gap-[4px] p-[2px_8px] rounded-[5px] text-[10.5px] max-lg:text-[11px] font-semibold cursor-pointer transition-all duration-150 ease-out select-none border shift-filter-btn bg-[rgba(148,163,184,0.06)] border-[rgba(148",
+          "text": "Shift PagiPagi",
+          "x": 112,
+          "y": 4165.390625,
+          "w": 79,
+          "h": 22.5
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center gap-[4px] p-[2px_8px] rounded-[5px] text-[10.5px] max-lg:text-[11px] font-semibold cursor-pointer transition-all duration-150 ease-out select-none border shift-filter-btn bg-[rgba(148,163,184,0.06)] border-[rgba(148",
+          "text": "Shift MalamMalam",
+          "x": 199,
+          "y": 4165.390625,
+          "w": 79,
+          "h": 22.5
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "inline-flex items-center gap-[4px] p-[2px_8px] rounded-[5px] text-[10.5px] max-lg:text-[11px] font-semibold cursor-pointer transition-all duration-150 ease-out select-none border shift-filter-btn bg-[rgba(148,163,184,0.06)] border-[rgba(148",
+          "text": "Shift SubuhSubuh",
+          "x": 286,
+          "y": 4165.390625,
+          "w": 79,
+          "h": 22.5
+        }
+      ],
+      "ellipsis": [
+        {
+          "tag": "P",
+          "cls": "line-clamp-3 whitespace-pre-line text-[13px] leading-5 text-slate-300 lg:hidden",
+          "text": "• Pantau koneksi gateway B2B sekunder menjelang lonjakan transaksi pagi.\n• Antrean ActiveMQ broker #228 masih dalam bata",
+          "title": "• Pantau koneksi gateway B2B sekunder menjelang lonjakan transaksi pagi.\n• Antrean ActiveMQ broker #228 masih dalam batas investigasi failover.\n• Jadwal checklist checkpoint berikutnya pukul 06:30 WIB (USIEM & SM).\n• Status failover DR cluster standby normal tanpa kendala.",
+          "x": 36,
+          "y": 937.890625,
+          "w": 318,
+          "h": 60
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[11.5px] font-medium text-[#f8fafc] whitespace-nowrap overflow-hidden text-ellipsis leading-[1.3] monitoring-task-text max-lg:text-[13px]",
+          "text": "Health check gateway B2B sekunder",
+          "title": "Health check gateway B2B sekunder",
+          "x": 92,
+          "y": 1134.4375,
+          "w": 206,
+          "h": 16.890625
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[11.5px] font-medium text-[#f8fafc] whitespace-nowrap overflow-hidden text-ellipsis leading-[1.3] monitoring-task-text max-lg:text-[13px]",
+          "text": "Queue distributor check & routing",
+          "title": "Queue distributor check & routing",
+          "x": 92,
+          "y": 1183.4375,
+          "w": 206,
+          "h": 16.890625
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[11.5px] font-medium text-[#f8fafc] whitespace-nowrap overflow-hidden text-ellipsis leading-[1.3] monitoring-task-text max-lg:text-[13px]",
+          "text": "Graylog indexer rate & pipeline buffer",
+          "title": "Graylog indexer rate & pipeline buffer",
+          "x": 92,
+          "y": 1232.4375,
+          "w": 206,
+          "h": 16.890625
+        },
+        {
+          "tag": "SPAN",
+          "cls": "text-[11.5px] font-medium text-[#f8fafc] whitespace-nowrap overflow-hidden text-ellipsis leading-[1.3] monitoring-task-text max-lg:text-[13px]",
+          "text": "Broker health check broker #228",
+          "title": "Broker health check broker #228 — Antrean naik",
+          "x": 108.8125,
+          "y": 1281.4375,
+          "w": 189.1875,
+          "h": 16.890625
+        }
+      ],
+      "scrollers": [
+        {
+          "tag": "DIV",
+          "cls": "w-full overflow-x-auto overflow-y-hidden flex-1 flex flex-col justify-start min-h-[270px] compact-svg-barchart-wrap max-lg:min-h-[252px] max-lg:h-[252px] max-lg:flex-none max-lg:overscroll-x-contain max-lg:snap-x max-lg:snap-proximity max-l",
+          "text": "012253749Klik untuk melihat rincian tiket tanggal 2026-07-2007-20Klik untuk melihat rincian tiket tanggal 2026-07-25Klik",
+          "x": 61,
+          "y": 1656.390625,
+          "w": 304,
+          "h": 252,
+          "scrollWidth": 892,
+          "scrollLeft": 588,
+          "scrollbar": "none"
+        },
+        {
+          "tag": "DIV",
+          "cls": "flex items-center gap-[8px] flex-wrap pt-[10px] mt-0 [border-top:1px_solid_var(--line)] project-legend-pills max-lg:flex-nowrap max-lg:overflow-x-auto max-lg:overscroll-x-contain max-lg:[&_.project-legend-pill]:shrink-0 max-lg:[scrollbar-wi",
+          "text": "Sistem:APHB2BDMEPC ToolsMBSMUNEMUSIEM",
+          "x": 25,
+          "y": 1920.390625,
+          "w": 340,
+          "h": 51,
+          "scrollWidth": 611,
+          "scrollLeft": 0,
+          "scrollbar": "none"
+        }
+      ],
+      "charts": [
+        {
+          "tag": "svg",
+          "cls": "w-full h-full min-h-[270px] max-h-[390px] block compact-report-bar-svg-lg max-lg:min-h-[252px] max-lg:h-[252px]",
+          "text": "012253749Klik untuk melihat rincian tiket tanggal 2026-07-2007-20Klik untuk melihat rincian tiket tanggal 2026-07-25Klik",
+          "x": -527,
+          "y": 1656.390625,
+          "w": 892,
+          "h": 252,
+          "viewBox": "0 0 892 252",
+          "minFont": 11
+        },
+        {
+          "tag": "svg",
+          "cls": "w-full h-full donut-svg",
+          "text": "",
+          "x": 125,
+          "y": 2743.390625,
+          "w": 140,
+          "h": 140,
+          "viewBox": "0 0 160 160",
+          "minFont": null
+        },
+        {
+          "tag": "svg",
+          "cls": "w-full h-full min-h-[280px] block select-none !overflow-visible compact-velocity-chart-svg max-lg:min-h-[252px] max-lg:[&_text]:text-[11px]",
+          "text": "0m20m40m60m80m100mBreach 90mTarget 60m07-2060m Max08-2809-0220m Min09-0709-11",
+          "x": 25,
+          "y": 3389.390625,
+          "w": 340,
+          "h": 252,
+          "viewBox": "0 0 340 252",
+          "minFont": 11
+        },
+        {
+          "tag": "svg",
+          "cls": "w-full h-full min-h-[265px] block select-none overflow-visible compact-shift-traffic-chart-svg max-lg:min-h-[252px] max-lg:[&_text]:text-[11px]",
+          "text": "",
+          "x": 25,
+          "y": 3898.390625,
+          "w": 340,
+          "h": 252,
+          "viewBox": "0 0 340 252",
+          "minFont": null
+        }
+      ],
+      "fab": {
+        "x": 326,
+        "y": 724,
+        "w": 52,
+        "h": 52
+      },
+      "nav": [
+        {
+          "tag": "A",
+          "cls": "relative flex flex-col items-center justify-center flex-1 h-full py-1 min-w-[56px] transition-colors text-sky-400",
+          "text": "Dashboard",
+          "x": 4,
+          "y": 788,
+          "w": 76.390625,
+          "h": 56
+        },
+        {
+          "tag": "A",
+          "cls": "relative flex flex-col items-center justify-center flex-1 h-full py-1 min-w-[56px] transition-colors text-slate-400 hover:text-slate-200",
+          "text": "20Tickets",
+          "x": 80.390625,
+          "y": 788,
+          "w": 76.40625,
+          "h": 56
+        },
+        {
+          "tag": "A",
+          "cls": "relative flex flex-col items-center justify-center flex-1 h-full py-1 min-w-[56px] transition-colors text-slate-400 hover:text-slate-200",
+          "text": "Monitoring",
+          "x": 156.796875,
+          "y": 788,
+          "w": 76.390625,
+          "h": 56
+        },
+        {
+          "tag": "A",
+          "cls": "relative flex flex-col items-center justify-center flex-1 h-full py-1 min-w-[56px] transition-colors text-slate-400 hover:text-slate-200",
+          "text": "Shift Log",
+          "x": 233.1875,
+          "y": 788,
+          "w": 76.40625,
+          "h": 56
+        },
+        {
+          "tag": "BUTTON",
+          "cls": "relative flex flex-col items-center justify-center flex-1 h-full py-1 min-w-[56px] transition-colors cursor-pointer text-slate-400 hover:text-slate-200",
+          "text": "Lainnya",
+          "x": 309.59375,
+          "y": 788,
+          "w": 76.40625,
+          "h": 56
+        }
+      ]
+    }
+  ],
+  "errors": []
+}

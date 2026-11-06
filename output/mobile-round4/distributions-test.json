@@ -1,0 +1,2269 @@
+{
+  "rows": [
+    {
+      "width": 2560,
+      "height": 1440,
+      "panel": "category",
+      "geometry": {
+        "main": {
+          "x": 320,
+          "y": 56,
+          "width": 1920,
+          "height": 1384,
+          "top": 56,
+          "right": 2240,
+          "bottom": 1440,
+          "left": 320,
+          "scroll": 1384,
+          "client": 1384,
+          "overflow": "hidden"
+        },
+        "left": {
+          "x": 340,
+          "y": 148,
+          "width": 776.65625,
+          "height": 1272,
+          "top": 148,
+          "right": 1116.65625,
+          "bottom": 1420,
+          "left": 340
+        },
+        "right": {
+          "x": 1132.65625,
+          "y": 148,
+          "width": 1087.328125,
+          "height": 1272,
+          "top": 148,
+          "right": 2219.984375,
+          "bottom": 1420,
+          "left": 1132.65625
+        },
+        "donut": {
+          "x": 468.328125,
+          "y": 468,
+          "width": 520,
+          "height": 520,
+          "top": 468,
+          "right": 988.328125,
+          "bottom": 988,
+          "left": 468.328125
+        },
+        "list": {
+          "rect": {
+            "x": 1157.65625,
+            "y": 217,
+            "width": 1037.328125,
+            "height": 1178,
+            "top": 217,
+            "right": 2194.984375,
+            "bottom": 1395,
+            "left": 1157.65625
+          },
+          "scroll": 1178,
+          "client": 1178
+        },
+        "rows": [
+          {
+            "label": "Maintenance",
+            "count": 20,
+            "rect": {
+              "x": 1157.65625,
+              "y": 217,
+              "width": 1037.328125,
+              "height": 161.421875,
+              "top": 217,
+              "right": 2194.984375,
+              "bottom": 378.421875,
+              "left": 1157.65625
+            }
+          },
+          {
+            "label": "Incident",
+            "count": 20,
+            "rect": {
+              "x": 1157.65625,
+              "y": 386.421875,
+              "width": 1037.328125,
+              "height": 161.4375,
+              "top": 386.421875,
+              "right": 2194.984375,
+              "bottom": 547.859375,
+              "left": 1157.65625
+            }
+          },
+          {
+            "label": "Change Request",
+            "count": 13,
+            "rect": {
+              "x": 1157.65625,
+              "y": 555.859375,
+              "width": 1037.328125,
+              "height": 161.421875,
+              "top": 555.859375,
+              "right": 2194.984375,
+              "bottom": 717.28125,
+              "left": 1157.65625
+            }
+          },
+          {
+            "label": "Escalation",
+            "count": 13,
+            "rect": {
+              "x": 1157.65625,
+              "y": 725.28125,
+              "width": 1037.328125,
+              "height": 161.4375,
+              "top": 725.28125,
+              "right": 2194.984375,
+              "bottom": 886.71875,
+              "left": 1157.65625
+            }
+          },
+          {
+            "label": "Ad-hoc Request",
+            "count": 9,
+            "rect": {
+              "x": 1157.65625,
+              "y": 894.71875,
+              "width": 1037.328125,
+              "height": 161.421875,
+              "top": 894.71875,
+              "right": 2194.984375,
+              "bottom": 1056.140625,
+              "left": 1157.65625
+            }
+          },
+          {
+            "label": "Monitoring",
+            "count": 7,
+            "rect": {
+              "x": 1157.65625,
+              "y": 1064.140625,
+              "width": 1037.328125,
+              "height": 161.4375,
+              "top": 1064.140625,
+              "right": 2194.984375,
+              "bottom": 1225.578125,
+              "left": 1157.65625
+            }
+          },
+          {
+            "label": "Monitoring Alert",
+            "count": 6,
+            "rect": {
+              "x": 1157.65625,
+              "y": 1233.578125,
+              "width": 1037.328125,
+              "height": 161.421875,
+              "top": 1233.578125,
+              "right": 2194.984375,
+              "bottom": 1395,
+              "left": 1157.65625
+            }
+          }
+        ],
+        "overflow": 0
+      },
+      "physicalHit": "Maintenance",
+      "expected": "Maintenance",
+      "center": "20\nMaintenance · 23%",
+      "before": "88\nTotal tiket"
+    },
+    {
+      "width": 2560,
+      "height": 1440,
+      "panel": "severity",
+      "geometry": {
+        "main": {
+          "x": 320,
+          "y": 56,
+          "width": 1920,
+          "height": 1384,
+          "top": 56,
+          "right": 2240,
+          "bottom": 1440,
+          "left": 320,
+          "scroll": 1384,
+          "client": 1384,
+          "overflow": "hidden"
+        },
+        "left": {
+          "x": 340,
+          "y": 148,
+          "width": 776.65625,
+          "height": 1272,
+          "top": 148,
+          "right": 1116.65625,
+          "bottom": 1420,
+          "left": 340
+        },
+        "right": {
+          "x": 1132.65625,
+          "y": 148,
+          "width": 1087.328125,
+          "height": 1272,
+          "top": 148,
+          "right": 2219.984375,
+          "bottom": 1420,
+          "left": 1132.65625
+        },
+        "donut": {
+          "x": 468.328125,
+          "y": 494,
+          "width": 520,
+          "height": 520,
+          "top": 494,
+          "right": 988.328125,
+          "bottom": 1014,
+          "left": 468.328125
+        },
+        "list": null,
+        "rows": [
+          {
+            "label": "Critical",
+            "count": 11,
+            "rect": {
+              "x": 1158.65625,
+              "y": 1097,
+              "width": 1035.328125,
+              "height": 62.25,
+              "top": 1097,
+              "right": 2193.984375,
+              "bottom": 1159.25,
+              "left": 1158.65625
+            }
+          },
+          {
+            "label": "High",
+            "count": 21,
+            "rect": {
+              "x": 1158.65625,
+              "y": 1160.25,
+              "width": 1035.328125,
+              "height": 62.25,
+              "top": 1160.25,
+              "right": 2193.984375,
+              "bottom": 1222.5,
+              "left": 1158.65625
+            }
+          },
+          {
+            "label": "Medium",
+            "count": 25,
+            "rect": {
+              "x": 1158.65625,
+              "y": 1223.5,
+              "width": 1035.328125,
+              "height": 62.25,
+              "top": 1223.5,
+              "right": 2193.984375,
+              "bottom": 1285.75,
+              "left": 1158.65625
+            }
+          },
+          {
+            "label": "Low",
+            "count": 31,
+            "rect": {
+              "x": 1158.65625,
+              "y": 1286.75,
+              "width": 1035.328125,
+              "height": 62.25,
+              "top": 1286.75,
+              "right": 2193.984375,
+              "bottom": 1349,
+              "left": 1158.65625
+            }
+          }
+        ],
+        "overflow": 0
+      },
+      "physicalHit": "Critical",
+      "expected": "Critical",
+      "center": "11\nCritical · 13%",
+      "before": "88\nTotal tiket"
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "panel": "category",
+      "geometry": {
+        "main": {
+          "x": 0,
+          "y": 56,
+          "width": 1920,
+          "height": 1024,
+          "top": 56,
+          "right": 1920,
+          "bottom": 1080,
+          "left": 0,
+          "scroll": 1024,
+          "client": 1024,
+          "overflow": "hidden"
+        },
+        "left": {
+          "x": 20,
+          "y": 148,
+          "width": 776.65625,
+          "height": 912,
+          "top": 148,
+          "right": 796.65625,
+          "bottom": 1060,
+          "left": 20
+        },
+        "right": {
+          "x": 812.65625,
+          "y": 148,
+          "width": 1087.328125,
+          "height": 912,
+          "top": 148,
+          "right": 1899.984375,
+          "bottom": 1060,
+          "left": 812.65625
+        },
+        "donut": {
+          "x": 148.328125,
+          "y": 288,
+          "width": 520,
+          "height": 520,
+          "top": 288,
+          "right": 668.328125,
+          "bottom": 808,
+          "left": 148.328125
+        },
+        "list": {
+          "rect": {
+            "x": 837.65625,
+            "y": 217,
+            "width": 1037.328125,
+            "height": 818,
+            "top": 217,
+            "right": 1874.984375,
+            "bottom": 1035,
+            "left": 837.65625
+          },
+          "scroll": 818,
+          "client": 818
+        },
+        "rows": [
+          {
+            "label": "Maintenance",
+            "count": 20,
+            "rect": {
+              "x": 837.65625,
+              "y": 217,
+              "width": 1037.328125,
+              "height": 110,
+              "top": 217,
+              "right": 1874.984375,
+              "bottom": 327,
+              "left": 837.65625
+            }
+          },
+          {
+            "label": "Incident",
+            "count": 20,
+            "rect": {
+              "x": 837.65625,
+              "y": 335,
+              "width": 1037.328125,
+              "height": 110,
+              "top": 335,
+              "right": 1874.984375,
+              "bottom": 445,
+              "left": 837.65625
+            }
+          },
+          {
+            "label": "Change Request",
+            "count": 13,
+            "rect": {
+              "x": 837.65625,
+              "y": 453,
+              "width": 1037.328125,
+              "height": 110,
+              "top": 453,
+              "right": 1874.984375,
+              "bottom": 563,
+              "left": 837.65625
+            }
+          },
+          {
+            "label": "Escalation",
+            "count": 13,
+            "rect": {
+              "x": 837.65625,
+              "y": 571,
+              "width": 1037.328125,
+              "height": 110,
+              "top": 571,
+              "right": 1874.984375,
+              "bottom": 681,
+              "left": 837.65625
+            }
+          },
+          {
+            "label": "Ad-hoc Request",
+            "count": 9,
+            "rect": {
+              "x": 837.65625,
+              "y": 689,
+              "width": 1037.328125,
+              "height": 110,
+              "top": 689,
+              "right": 1874.984375,
+              "bottom": 799,
+              "left": 837.65625
+            }
+          },
+          {
+            "label": "Monitoring",
+            "count": 7,
+            "rect": {
+              "x": 837.65625,
+              "y": 807,
+              "width": 1037.328125,
+              "height": 110,
+              "top": 807,
+              "right": 1874.984375,
+              "bottom": 917,
+              "left": 837.65625
+            }
+          },
+          {
+            "label": "Monitoring Alert",
+            "count": 6,
+            "rect": {
+              "x": 837.65625,
+              "y": 925,
+              "width": 1037.328125,
+              "height": 110,
+              "top": 925,
+              "right": 1874.984375,
+              "bottom": 1035,
+              "left": 837.65625
+            }
+          }
+        ],
+        "overflow": 0
+      },
+      "physicalHit": "Maintenance",
+      "expected": "Maintenance",
+      "center": "20\nMaintenance · 23%",
+      "before": "88\nTotal tiket"
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "panel": "severity",
+      "geometry": {
+        "main": {
+          "x": 0,
+          "y": 56,
+          "width": 1920,
+          "height": 1024,
+          "top": 56,
+          "right": 1920,
+          "bottom": 1080,
+          "left": 0,
+          "scroll": 1024,
+          "client": 1024,
+          "overflow": "hidden"
+        },
+        "left": {
+          "x": 20,
+          "y": 148,
+          "width": 776.65625,
+          "height": 912,
+          "top": 148,
+          "right": 796.65625,
+          "bottom": 1060,
+          "left": 20
+        },
+        "right": {
+          "x": 812.65625,
+          "y": 148,
+          "width": 1087.328125,
+          "height": 912,
+          "top": 148,
+          "right": 1899.984375,
+          "bottom": 1060,
+          "left": 812.65625
+        },
+        "donut": {
+          "x": 148.328125,
+          "y": 314,
+          "width": 520,
+          "height": 520,
+          "top": 314,
+          "right": 668.328125,
+          "bottom": 834,
+          "left": 148.328125
+        },
+        "list": null,
+        "rows": [
+          {
+            "label": "Critical",
+            "count": 11,
+            "rect": {
+              "x": 838.65625,
+              "y": 745,
+              "width": 1035.328125,
+              "height": 60.25,
+              "top": 745,
+              "right": 1873.984375,
+              "bottom": 805.25,
+              "left": 838.65625
+            }
+          },
+          {
+            "label": "High",
+            "count": 21,
+            "rect": {
+              "x": 838.65625,
+              "y": 806.25,
+              "width": 1035.328125,
+              "height": 60.25,
+              "top": 806.25,
+              "right": 1873.984375,
+              "bottom": 866.5,
+              "left": 838.65625
+            }
+          },
+          {
+            "label": "Medium",
+            "count": 25,
+            "rect": {
+              "x": 838.65625,
+              "y": 867.5,
+              "width": 1035.328125,
+              "height": 60.25,
+              "top": 867.5,
+              "right": 1873.984375,
+              "bottom": 927.75,
+              "left": 838.65625
+            }
+          },
+          {
+            "label": "Low",
+            "count": 31,
+            "rect": {
+              "x": 838.65625,
+              "y": 928.75,
+              "width": 1035.328125,
+              "height": 60.25,
+              "top": 928.75,
+              "right": 1873.984375,
+              "bottom": 989,
+              "left": 838.65625
+            }
+          }
+        ],
+        "overflow": 0
+      },
+      "physicalHit": "Critical",
+      "expected": "Critical",
+      "center": "11\nCritical · 13%",
+      "before": "88\nTotal tiket"
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "panel": "category",
+      "geometry": {
+        "main": {
+          "x": 0,
+          "y": 56,
+          "width": 1440,
+          "height": 844,
+          "top": 56,
+          "right": 1440,
+          "bottom": 900,
+          "left": 0,
+          "scroll": 844,
+          "client": 844,
+          "overflow": "hidden"
+        },
+        "left": {
+          "x": 20,
+          "y": 148,
+          "width": 576.65625,
+          "height": 732,
+          "top": 148,
+          "right": 596.65625,
+          "bottom": 880,
+          "left": 20
+        },
+        "right": {
+          "x": 612.65625,
+          "y": 148,
+          "width": 807.34375,
+          "height": 732,
+          "top": 148,
+          "right": 1420,
+          "bottom": 880,
+          "left": 612.65625
+        },
+        "donut": {
+          "x": 52.828125,
+          "y": 202.5,
+          "width": 511,
+          "height": 511,
+          "top": 202.5,
+          "right": 563.828125,
+          "bottom": 713.5,
+          "left": 52.828125
+        },
+        "list": {
+          "rect": {
+            "x": 637.65625,
+            "y": 217,
+            "width": 757.34375,
+            "height": 638,
+            "top": 217,
+            "right": 1395,
+            "bottom": 855,
+            "left": 637.65625
+          },
+          "scroll": 638,
+          "client": 638
+        },
+        "rows": [
+          {
+            "label": "Maintenance",
+            "count": 20,
+            "rect": {
+              "x": 637.65625,
+              "y": 217,
+              "width": 757.34375,
+              "height": 84.28125,
+              "top": 217,
+              "right": 1395,
+              "bottom": 301.28125,
+              "left": 637.65625
+            }
+          },
+          {
+            "label": "Incident",
+            "count": 20,
+            "rect": {
+              "x": 637.65625,
+              "y": 309.28125,
+              "width": 757.34375,
+              "height": 84.296875,
+              "top": 309.28125,
+              "right": 1395,
+              "bottom": 393.578125,
+              "left": 637.65625
+            }
+          },
+          {
+            "label": "Change Request",
+            "count": 13,
+            "rect": {
+              "x": 637.65625,
+              "y": 401.578125,
+              "width": 757.34375,
+              "height": 84.28125,
+              "top": 401.578125,
+              "right": 1395,
+              "bottom": 485.859375,
+              "left": 637.65625
+            }
+          },
+          {
+            "label": "Escalation",
+            "count": 13,
+            "rect": {
+              "x": 637.65625,
+              "y": 493.859375,
+              "width": 757.34375,
+              "height": 84.296875,
+              "top": 493.859375,
+              "right": 1395,
+              "bottom": 578.15625,
+              "left": 637.65625
+            }
+          },
+          {
+            "label": "Ad-hoc Request",
+            "count": 9,
+            "rect": {
+              "x": 637.65625,
+              "y": 586.15625,
+              "width": 757.34375,
+              "height": 84.28125,
+              "top": 586.15625,
+              "right": 1395,
+              "bottom": 670.4375,
+              "left": 637.65625
+            }
+          },
+          {
+            "label": "Monitoring",
+            "count": 7,
+            "rect": {
+              "x": 637.65625,
+              "y": 678.4375,
+              "width": 757.34375,
+              "height": 84.28125,
+              "top": 678.4375,
+              "right": 1395,
+              "bottom": 762.71875,
+              "left": 637.65625
+            }
+          },
+          {
+            "label": "Monitoring Alert",
+            "count": 6,
+            "rect": {
+              "x": 637.65625,
+              "y": 770.71875,
+              "width": 757.34375,
+              "height": 84.28125,
+              "top": 770.71875,
+              "right": 1395,
+              "bottom": 855,
+              "left": 637.65625
+            }
+          }
+        ],
+        "overflow": 0
+      },
+      "physicalHit": "Maintenance",
+      "expected": "Maintenance",
+      "center": "20\nMaintenance · 23%",
+      "before": "88\nTotal tiket"
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "panel": "severity",
+      "geometry": {
+        "main": {
+          "x": 0,
+          "y": 56,
+          "width": 1440,
+          "height": 844,
+          "top": 56,
+          "right": 1440,
+          "bottom": 900,
+          "left": 0,
+          "scroll": 844,
+          "client": 844,
+          "overflow": "hidden"
+        },
+        "left": {
+          "x": 20,
+          "y": 148,
+          "width": 576.65625,
+          "height": 732,
+          "top": 148,
+          "right": 596.65625,
+          "bottom": 880,
+          "left": 20
+        },
+        "right": {
+          "x": 612.65625,
+          "y": 148,
+          "width": 807.34375,
+          "height": 732,
+          "top": 148,
+          "right": 1420,
+          "bottom": 880,
+          "left": 612.65625
+        },
+        "donut": {
+          "x": 52.828125,
+          "y": 228.5,
+          "width": 511,
+          "height": 511,
+          "top": 228.5,
+          "right": 563.828125,
+          "bottom": 739.5,
+          "left": 52.828125
+        },
+        "list": null,
+        "rows": [
+          {
+            "label": "Critical",
+            "count": 11,
+            "rect": {
+              "x": 638.65625,
+              "y": 619,
+              "width": 755.34375,
+              "height": 46.75,
+              "top": 619,
+              "right": 1394,
+              "bottom": 665.75,
+              "left": 638.65625
+            }
+          },
+          {
+            "label": "High",
+            "count": 21,
+            "rect": {
+              "x": 638.65625,
+              "y": 666.75,
+              "width": 755.34375,
+              "height": 46.75,
+              "top": 666.75,
+              "right": 1394,
+              "bottom": 713.5,
+              "left": 638.65625
+            }
+          },
+          {
+            "label": "Medium",
+            "count": 25,
+            "rect": {
+              "x": 638.65625,
+              "y": 714.5,
+              "width": 755.34375,
+              "height": 46.75,
+              "top": 714.5,
+              "right": 1394,
+              "bottom": 761.25,
+              "left": 638.65625
+            }
+          },
+          {
+            "label": "Low",
+            "count": 31,
+            "rect": {
+              "x": 638.65625,
+              "y": 762.25,
+              "width": 755.34375,
+              "height": 46.75,
+              "top": 762.25,
+              "right": 1394,
+              "bottom": 809,
+              "left": 638.65625
+            }
+          }
+        ],
+        "overflow": 0
+      },
+      "physicalHit": "Critical",
+      "expected": "Critical",
+      "center": "11\nCritical · 13%",
+      "before": "88\nTotal tiket"
+    },
+    {
+      "width": 1366,
+      "height": 768,
+      "panel": "category",
+      "geometry": {
+        "main": {
+          "x": 0,
+          "y": 56,
+          "width": 1366,
+          "height": 712,
+          "top": 56,
+          "right": 1366,
+          "bottom": 768,
+          "left": 0,
+          "scroll": 712,
+          "client": 712,
+          "overflow": "hidden"
+        },
+        "left": {
+          "x": 20,
+          "y": 148,
+          "width": 545.828125,
+          "height": 600,
+          "top": 148,
+          "right": 565.828125,
+          "bottom": 748,
+          "left": 20
+        },
+        "right": {
+          "x": 581.828125,
+          "y": 148,
+          "width": 764.15625,
+          "height": 600,
+          "top": 148,
+          "right": 1345.984375,
+          "bottom": 748,
+          "left": 581.828125
+        },
+        "donut": {
+          "x": 73.90625,
+          "y": 147,
+          "width": 438,
+          "height": 438,
+          "top": 147,
+          "right": 511.90625,
+          "bottom": 585,
+          "left": 73.90625
+        },
+        "list": {
+          "rect": {
+            "x": 606.828125,
+            "y": 217,
+            "width": 714.15625,
+            "height": 506,
+            "top": 217,
+            "right": 1320.984375,
+            "bottom": 723,
+            "left": 606.828125
+          },
+          "scroll": 506,
+          "client": 506
+        },
+        "rows": [
+          {
+            "label": "Maintenance",
+            "count": 20,
+            "rect": {
+              "x": 606.828125,
+              "y": 217,
+              "width": 714.15625,
+              "height": 65.421875,
+              "top": 217,
+              "right": 1320.984375,
+              "bottom": 282.421875,
+              "left": 606.828125
+            }
+          },
+          {
+            "label": "Incident",
+            "count": 20,
+            "rect": {
+              "x": 606.828125,
+              "y": 290.421875,
+              "width": 714.15625,
+              "height": 65.4375,
+              "top": 290.421875,
+              "right": 1320.984375,
+              "bottom": 355.859375,
+              "left": 606.828125
+            }
+          },
+          {
+            "label": "Change Request",
+            "count": 13,
+            "rect": {
+              "x": 606.828125,
+              "y": 363.859375,
+              "width": 714.15625,
+              "height": 65.421875,
+              "top": 363.859375,
+              "right": 1320.984375,
+              "bottom": 429.28125,
+              "left": 606.828125
+            }
+          },
+          {
+            "label": "Escalation",
+            "count": 13,
+            "rect": {
+              "x": 606.828125,
+              "y": 437.28125,
+              "width": 714.15625,
+              "height": 65.4375,
+              "top": 437.28125,
+              "right": 1320.984375,
+              "bottom": 502.71875,
+              "left": 606.828125
+            }
+          },
+          {
+            "label": "Ad-hoc Request",
+            "count": 9,
+            "rect": {
+              "x": 606.828125,
+              "y": 510.71875,
+              "width": 714.15625,
+              "height": 65.421875,
+              "top": 510.71875,
+              "right": 1320.984375,
+              "bottom": 576.140625,
+              "left": 606.828125
+            }
+          },
+          {
+            "label": "Monitoring",
+            "count": 7,
+            "rect": {
+              "x": 606.828125,
+              "y": 584.140625,
+              "width": 714.15625,
+              "height": 65.4375,
+              "top": 584.140625,
+              "right": 1320.984375,
+              "bottom": 649.578125,
+              "left": 606.828125
+            }
+          },
+          {
+            "label": "Monitoring Alert",
+            "count": 6,
+            "rect": {
+              "x": 606.828125,
+              "y": 657.578125,
+              "width": 714.15625,
+              "height": 65.421875,
+              "top": 657.578125,
+              "right": 1320.984375,
+              "bottom": 723,
+              "left": 606.828125
+            }
+          }
+        ],
+        "overflow": 0
+      },
+      "physicalHit": "Maintenance",
+      "expected": "Maintenance",
+      "center": "20\nMaintenance · 23%",
+      "before": "88\nTotal tiket"
+    },
+    {
+      "width": 1366,
+      "height": 768,
+      "panel": "severity",
+      "geometry": {
+        "main": {
+          "x": 0,
+          "y": 56,
+          "width": 1366,
+          "height": 712,
+          "top": 56,
+          "right": 1366,
+          "bottom": 768,
+          "left": 0,
+          "scroll": 712,
+          "client": 712,
+          "overflow": "hidden"
+        },
+        "left": {
+          "x": 20,
+          "y": 148,
+          "width": 545.828125,
+          "height": 600,
+          "top": 148,
+          "right": 565.828125,
+          "bottom": 748,
+          "left": 20
+        },
+        "right": {
+          "x": 581.828125,
+          "y": 148,
+          "width": 764.15625,
+          "height": 600,
+          "top": 148,
+          "right": 1345.984375,
+          "bottom": 748,
+          "left": 581.828125
+        },
+        "donut": {
+          "x": 73.90625,
+          "y": 199,
+          "width": 438,
+          "height": 438,
+          "top": 199,
+          "right": 511.90625,
+          "bottom": 637,
+          "left": 73.90625
+        },
+        "list": null,
+        "rows": [
+          {
+            "label": "Critical",
+            "count": 11,
+            "rect": {
+              "x": 607.828125,
+              "y": 505,
+              "width": 712.15625,
+              "height": 44,
+              "top": 505,
+              "right": 1319.984375,
+              "bottom": 549,
+              "left": 607.828125
+            }
+          },
+          {
+            "label": "High",
+            "count": 21,
+            "rect": {
+              "x": 607.828125,
+              "y": 550,
+              "width": 712.15625,
+              "height": 44,
+              "top": 550,
+              "right": 1319.984375,
+              "bottom": 594,
+              "left": 607.828125
+            }
+          },
+          {
+            "label": "Medium",
+            "count": 25,
+            "rect": {
+              "x": 607.828125,
+              "y": 595,
+              "width": 712.15625,
+              "height": 44,
+              "top": 595,
+              "right": 1319.984375,
+              "bottom": 639,
+              "left": 607.828125
+            }
+          },
+          {
+            "label": "Low",
+            "count": 31,
+            "rect": {
+              "x": 607.828125,
+              "y": 640,
+              "width": 712.15625,
+              "height": 44,
+              "top": 640,
+              "right": 1319.984375,
+              "bottom": 684,
+              "left": 607.828125
+            }
+          }
+        ],
+        "overflow": 0
+      },
+      "physicalHit": "Critical",
+      "expected": "Critical",
+      "center": "11\nCritical · 13%",
+      "before": "88\nTotal tiket"
+    },
+    {
+      "width": 1024,
+      "height": 768,
+      "panel": "category",
+      "geometry": {
+        "main": {
+          "x": 0,
+          "y": 56,
+          "width": 1024,
+          "height": 712,
+          "top": 56,
+          "right": 1024,
+          "bottom": 768,
+          "left": 0,
+          "scroll": 712,
+          "client": 712,
+          "overflow": "hidden"
+        },
+        "left": {
+          "x": 20,
+          "y": 148,
+          "width": 403.328125,
+          "height": 600,
+          "top": 148,
+          "right": 423.328125,
+          "bottom": 748,
+          "left": 20
+        },
+        "right": {
+          "x": 439.328125,
+          "y": 148,
+          "width": 564.65625,
+          "height": 600,
+          "top": 148,
+          "right": 1003.984375,
+          "bottom": 748,
+          "left": 439.328125
+        },
+        "donut": {
+          "x": 53.15625,
+          "y": 171.5,
+          "width": 337,
+          "height": 337,
+          "top": 171.5,
+          "right": 390.15625,
+          "bottom": 508.5,
+          "left": 53.15625
+        },
+        "list": {
+          "rect": {
+            "x": 464.328125,
+            "y": 217,
+            "width": 514.65625,
+            "height": 506,
+            "top": 217,
+            "right": 978.984375,
+            "bottom": 723,
+            "left": 464.328125
+          },
+          "scroll": 506,
+          "client": 506
+        },
+        "rows": [
+          {
+            "label": "Maintenance",
+            "count": 20,
+            "rect": {
+              "x": 464.328125,
+              "y": 217,
+              "width": 514.65625,
+              "height": 65.421875,
+              "top": 217,
+              "right": 978.984375,
+              "bottom": 282.421875,
+              "left": 464.328125
+            }
+          },
+          {
+            "label": "Incident",
+            "count": 20,
+            "rect": {
+              "x": 464.328125,
+              "y": 290.421875,
+              "width": 514.65625,
+              "height": 65.4375,
+              "top": 290.421875,
+              "right": 978.984375,
+              "bottom": 355.859375,
+              "left": 464.328125
+            }
+          },
+          {
+            "label": "Change Request",
+            "count": 13,
+            "rect": {
+              "x": 464.328125,
+              "y": 363.859375,
+              "width": 514.65625,
+              "height": 65.421875,
+              "top": 363.859375,
+              "right": 978.984375,
+              "bottom": 429.28125,
+              "left": 464.328125
+            }
+          },
+          {
+            "label": "Escalation",
+            "count": 13,
+            "rect": {
+              "x": 464.328125,
+              "y": 437.28125,
+              "width": 514.65625,
+              "height": 65.4375,
+              "top": 437.28125,
+              "right": 978.984375,
+              "bottom": 502.71875,
+              "left": 464.328125
+            }
+          },
+          {
+            "label": "Ad-hoc Request",
+            "count": 9,
+            "rect": {
+              "x": 464.328125,
+              "y": 510.71875,
+              "width": 514.65625,
+              "height": 65.421875,
+              "top": 510.71875,
+              "right": 978.984375,
+              "bottom": 576.140625,
+              "left": 464.328125
+            }
+          },
+          {
+            "label": "Monitoring",
+            "count": 7,
+            "rect": {
+              "x": 464.328125,
+              "y": 584.140625,
+              "width": 514.65625,
+              "height": 65.4375,
+              "top": 584.140625,
+              "right": 978.984375,
+              "bottom": 649.578125,
+              "left": 464.328125
+            }
+          },
+          {
+            "label": "Monitoring Alert",
+            "count": 6,
+            "rect": {
+              "x": 464.328125,
+              "y": 657.578125,
+              "width": 514.65625,
+              "height": 65.421875,
+              "top": 657.578125,
+              "right": 978.984375,
+              "bottom": 723,
+              "left": 464.328125
+            }
+          }
+        ],
+        "overflow": 0
+      },
+      "physicalHit": "Maintenance",
+      "expected": "Maintenance",
+      "center": "20\nMaintenance · 23%",
+      "before": "88\nTotal tiket"
+    },
+    {
+      "width": 1024,
+      "height": 768,
+      "panel": "severity",
+      "geometry": {
+        "main": {
+          "x": 0,
+          "y": 56,
+          "width": 1024,
+          "height": 712,
+          "top": 56,
+          "right": 1024,
+          "bottom": 768,
+          "left": 0,
+          "scroll": 712,
+          "client": 712,
+          "overflow": "hidden"
+        },
+        "left": {
+          "x": 20,
+          "y": 148,
+          "width": 403.328125,
+          "height": 600,
+          "top": 148,
+          "right": 423.328125,
+          "bottom": 748,
+          "left": 20
+        },
+        "right": {
+          "x": 439.328125,
+          "y": 148,
+          "width": 564.65625,
+          "height": 600,
+          "top": 148,
+          "right": 1003.984375,
+          "bottom": 748,
+          "left": 439.328125
+        },
+        "donut": {
+          "x": 53.15625,
+          "y": 223.5,
+          "width": 337,
+          "height": 337,
+          "top": 223.5,
+          "right": 390.15625,
+          "bottom": 560.5,
+          "left": 53.15625
+        },
+        "list": null,
+        "rows": [
+          {
+            "label": "Critical",
+            "count": 11,
+            "rect": {
+              "x": 465.328125,
+              "y": 505,
+              "width": 512.65625,
+              "height": 44,
+              "top": 505,
+              "right": 977.984375,
+              "bottom": 549,
+              "left": 465.328125
+            }
+          },
+          {
+            "label": "High",
+            "count": 21,
+            "rect": {
+              "x": 465.328125,
+              "y": 550,
+              "width": 512.65625,
+              "height": 44,
+              "top": 550,
+              "right": 977.984375,
+              "bottom": 594,
+              "left": 465.328125
+            }
+          },
+          {
+            "label": "Medium",
+            "count": 25,
+            "rect": {
+              "x": 465.328125,
+              "y": 595,
+              "width": 512.65625,
+              "height": 44,
+              "top": 595,
+              "right": 977.984375,
+              "bottom": 639,
+              "left": 465.328125
+            }
+          },
+          {
+            "label": "Low",
+            "count": 31,
+            "rect": {
+              "x": 465.328125,
+              "y": 640,
+              "width": 512.65625,
+              "height": 44,
+              "top": 640,
+              "right": 977.984375,
+              "bottom": 684,
+              "left": 465.328125
+            }
+          }
+        ],
+        "overflow": 0
+      },
+      "physicalHit": "Critical",
+      "expected": "Critical",
+      "center": "11\nCritical · 13%",
+      "before": "88\nTotal tiket"
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "panel": "category",
+      "geometry": {
+        "main": {
+          "x": 0,
+          "y": 56,
+          "width": 768,
+          "height": 968,
+          "top": 56,
+          "right": 768,
+          "bottom": 1024,
+          "left": 0,
+          "scroll": 1302,
+          "client": 968,
+          "overflow": "auto"
+        },
+        "left": {
+          "x": 20,
+          "y": 218,
+          "width": 728,
+          "height": 446,
+          "top": 218,
+          "right": 748,
+          "bottom": 664,
+          "left": 20
+        },
+        "right": {
+          "x": 20,
+          "y": 680,
+          "width": 728,
+          "height": 658,
+          "top": 680,
+          "right": 748,
+          "bottom": 1338,
+          "left": 20
+        },
+        "donut": {
+          "x": 234,
+          "y": 235,
+          "width": 300,
+          "height": 300,
+          "top": 235,
+          "right": 534,
+          "bottom": 535,
+          "left": 234
+        },
+        "list": {
+          "rect": {
+            "x": 37,
+            "y": 741,
+            "width": 694,
+            "height": 580,
+            "top": 741,
+            "right": 731,
+            "bottom": 1321,
+            "left": 37
+          },
+          "scroll": 580,
+          "client": 580
+        },
+        "rows": [
+          {
+            "label": "Maintenance",
+            "count": 20,
+            "rect": {
+              "x": 37,
+              "y": 741,
+              "width": 694,
+              "height": 76,
+              "top": 741,
+              "right": 731,
+              "bottom": 817,
+              "left": 37
+            }
+          },
+          {
+            "label": "Incident",
+            "count": 20,
+            "rect": {
+              "x": 37,
+              "y": 825,
+              "width": 694,
+              "height": 76,
+              "top": 825,
+              "right": 731,
+              "bottom": 901,
+              "left": 37
+            }
+          },
+          {
+            "label": "Change Request",
+            "count": 13,
+            "rect": {
+              "x": 37,
+              "y": 909,
+              "width": 694,
+              "height": 76,
+              "top": 909,
+              "right": 731,
+              "bottom": 985,
+              "left": 37
+            }
+          },
+          {
+            "label": "Escalation",
+            "count": 13,
+            "rect": {
+              "x": 37,
+              "y": 993,
+              "width": 694,
+              "height": 76,
+              "top": 993,
+              "right": 731,
+              "bottom": 1069,
+              "left": 37
+            }
+          },
+          {
+            "label": "Ad-hoc Request",
+            "count": 9,
+            "rect": {
+              "x": 37,
+              "y": 1077,
+              "width": 694,
+              "height": 76,
+              "top": 1077,
+              "right": 731,
+              "bottom": 1153,
+              "left": 37
+            }
+          },
+          {
+            "label": "Monitoring",
+            "count": 7,
+            "rect": {
+              "x": 37,
+              "y": 1161,
+              "width": 694,
+              "height": 76,
+              "top": 1161,
+              "right": 731,
+              "bottom": 1237,
+              "left": 37
+            }
+          },
+          {
+            "label": "Monitoring Alert",
+            "count": 6,
+            "rect": {
+              "x": 37,
+              "y": 1245,
+              "width": 694,
+              "height": 76,
+              "top": 1245,
+              "right": 731,
+              "bottom": 1321,
+              "left": 37
+            }
+          }
+        ],
+        "overflow": 0
+      },
+      "physicalHit": "Maintenance",
+      "expected": "Maintenance",
+      "center": "20\nMaintenance · 23%",
+      "before": "88\nTotal tiket"
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "panel": "severity",
+      "geometry": {
+        "main": {
+          "x": 0,
+          "y": 56,
+          "width": 768,
+          "height": 968,
+          "top": 56,
+          "right": 768,
+          "bottom": 1024,
+          "left": 0,
+          "scroll": 1171,
+          "client": 968,
+          "overflow": "auto"
+        },
+        "left": {
+          "x": 20,
+          "y": 218,
+          "width": 728,
+          "height": 394,
+          "top": 218,
+          "right": 748,
+          "bottom": 612,
+          "left": 20
+        },
+        "right": {
+          "x": 20,
+          "y": 628,
+          "width": 728,
+          "height": 579,
+          "top": 628,
+          "right": 748,
+          "bottom": 1207,
+          "left": 20
+        },
+        "donut": {
+          "x": 234,
+          "y": 235,
+          "width": 300,
+          "height": 300,
+          "top": 235,
+          "right": 534,
+          "bottom": 535,
+          "left": 234
+        },
+        "list": null,
+        "rows": [
+          {
+            "label": "Critical",
+            "count": 11,
+            "rect": {
+              "x": 38,
+              "y": 965,
+              "width": 692,
+              "height": 44,
+              "top": 965,
+              "right": 730,
+              "bottom": 1009,
+              "left": 38
+            }
+          },
+          {
+            "label": "High",
+            "count": 21,
+            "rect": {
+              "x": 38,
+              "y": 1010,
+              "width": 692,
+              "height": 44,
+              "top": 1010,
+              "right": 730,
+              "bottom": 1054,
+              "left": 38
+            }
+          },
+          {
+            "label": "Medium",
+            "count": 25,
+            "rect": {
+              "x": 38,
+              "y": 1055,
+              "width": 692,
+              "height": 44,
+              "top": 1055,
+              "right": 730,
+              "bottom": 1099,
+              "left": 38
+            }
+          },
+          {
+            "label": "Low",
+            "count": 31,
+            "rect": {
+              "x": 38,
+              "y": 1100,
+              "width": 692,
+              "height": 44,
+              "top": 1100,
+              "right": 730,
+              "bottom": 1144,
+              "left": 38
+            }
+          }
+        ],
+        "overflow": 0
+      },
+      "physicalHit": "Critical",
+      "expected": "Critical",
+      "center": "11\nCritical · 13%",
+      "before": "88\nTotal tiket"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "panel": "category",
+      "geometry": {
+        "main": {
+          "x": 0,
+          "y": 56,
+          "width": 390,
+          "height": 788,
+          "top": 56,
+          "right": 390,
+          "bottom": 844,
+          "left": 0,
+          "scroll": 1310,
+          "client": 788,
+          "overflow": "auto"
+        },
+        "left": {
+          "x": 12,
+          "y": 210,
+          "width": 366,
+          "height": 470,
+          "top": 210,
+          "right": 378,
+          "bottom": 680,
+          "left": 12
+        },
+        "right": {
+          "x": 12,
+          "y": 696,
+          "width": 366,
+          "height": 658,
+          "top": 696,
+          "right": 378,
+          "bottom": 1354,
+          "left": 12
+        },
+        "donut": {
+          "x": 85,
+          "y": 227,
+          "width": 220,
+          "height": 220,
+          "top": 227,
+          "right": 305,
+          "bottom": 447,
+          "left": 85
+        },
+        "list": {
+          "rect": {
+            "x": 29,
+            "y": 757,
+            "width": 332,
+            "height": 580,
+            "top": 757,
+            "right": 361,
+            "bottom": 1337,
+            "left": 29
+          },
+          "scroll": 580,
+          "client": 580
+        },
+        "rows": [
+          {
+            "label": "Maintenance",
+            "count": 20,
+            "rect": {
+              "x": 29,
+              "y": 757,
+              "width": 332,
+              "height": 76,
+              "top": 757,
+              "right": 361,
+              "bottom": 833,
+              "left": 29
+            }
+          },
+          {
+            "label": "Incident",
+            "count": 20,
+            "rect": {
+              "x": 29,
+              "y": 841,
+              "width": 332,
+              "height": 76,
+              "top": 841,
+              "right": 361,
+              "bottom": 917,
+              "left": 29
+            }
+          },
+          {
+            "label": "Change Request",
+            "count": 13,
+            "rect": {
+              "x": 29,
+              "y": 925,
+              "width": 332,
+              "height": 76,
+              "top": 925,
+              "right": 361,
+              "bottom": 1001,
+              "left": 29
+            }
+          },
+          {
+            "label": "Escalation",
+            "count": 13,
+            "rect": {
+              "x": 29,
+              "y": 1009,
+              "width": 332,
+              "height": 76,
+              "top": 1009,
+              "right": 361,
+              "bottom": 1085,
+              "left": 29
+            }
+          },
+          {
+            "label": "Ad-hoc Request",
+            "count": 9,
+            "rect": {
+              "x": 29,
+              "y": 1093,
+              "width": 332,
+              "height": 76,
+              "top": 1093,
+              "right": 361,
+              "bottom": 1169,
+              "left": 29
+            }
+          },
+          {
+            "label": "Monitoring",
+            "count": 7,
+            "rect": {
+              "x": 29,
+              "y": 1177,
+              "width": 332,
+              "height": 76,
+              "top": 1177,
+              "right": 361,
+              "bottom": 1253,
+              "left": 29
+            }
+          },
+          {
+            "label": "Monitoring Alert",
+            "count": 6,
+            "rect": {
+              "x": 29,
+              "y": 1261,
+              "width": 332,
+              "height": 76,
+              "top": 1261,
+              "right": 361,
+              "bottom": 1337,
+              "left": 29
+            }
+          }
+        ],
+        "overflow": 0
+      },
+      "physicalHit": "Maintenance",
+      "expected": "Maintenance",
+      "center": "20\nMaintenance · 23%",
+      "before": "88\nTotal tiket"
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "panel": "severity",
+      "geometry": {
+        "main": {
+          "x": 0,
+          "y": 56,
+          "width": 390,
+          "height": 788,
+          "top": 56,
+          "right": 390,
+          "bottom": 844,
+          "left": 0,
+          "scroll": 1127,
+          "client": 788,
+          "overflow": "auto"
+        },
+        "left": {
+          "x": 12,
+          "y": 210,
+          "width": 366,
+          "height": 366,
+          "top": 210,
+          "right": 378,
+          "bottom": 576,
+          "left": 12
+        },
+        "right": {
+          "x": 12,
+          "y": 592,
+          "width": 366,
+          "height": 579,
+          "top": 592,
+          "right": 378,
+          "bottom": 1171,
+          "left": 12
+        },
+        "donut": {
+          "x": 85,
+          "y": 227,
+          "width": 220,
+          "height": 220,
+          "top": 227,
+          "right": 305,
+          "bottom": 447,
+          "left": 85
+        },
+        "list": null,
+        "rows": [
+          {
+            "label": "Critical",
+            "count": 11,
+            "rect": {
+              "x": 30,
+              "y": 929,
+              "width": 330,
+              "height": 44,
+              "top": 929,
+              "right": 360,
+              "bottom": 973,
+              "left": 30
+            }
+          },
+          {
+            "label": "High",
+            "count": 21,
+            "rect": {
+              "x": 30,
+              "y": 974,
+              "width": 330,
+              "height": 44,
+              "top": 974,
+              "right": 360,
+              "bottom": 1018,
+              "left": 30
+            }
+          },
+          {
+            "label": "Medium",
+            "count": 25,
+            "rect": {
+              "x": 30,
+              "y": 1019,
+              "width": 330,
+              "height": 44,
+              "top": 1019,
+              "right": 360,
+              "bottom": 1063,
+              "left": 30
+            }
+          },
+          {
+            "label": "Low",
+            "count": 31,
+            "rect": {
+              "x": 30,
+              "y": 1064,
+              "width": 330,
+              "height": 44,
+              "top": 1064,
+              "right": 360,
+              "bottom": 1108,
+              "left": 30
+            }
+          }
+        ],
+        "overflow": 0
+      },
+      "physicalHit": "Critical",
+      "expected": "Critical",
+      "center": "11\nCritical · 13%",
+      "before": "88\nTotal tiket"
+    },
+    {
+      "width": 844,
+      "height": 390,
+      "panel": "category",
+      "geometry": {
+        "main": {
+          "x": 0,
+          "y": 56,
+          "width": 844,
+          "height": 334,
+          "top": 56,
+          "right": 844,
+          "bottom": 390,
+          "left": 0,
+          "scroll": 1302,
+          "client": 334,
+          "overflow": "auto"
+        },
+        "left": {
+          "x": 20,
+          "y": 218,
+          "width": 804,
+          "height": 446,
+          "top": 218,
+          "right": 824,
+          "bottom": 664,
+          "left": 20
+        },
+        "right": {
+          "x": 20,
+          "y": 680,
+          "width": 804,
+          "height": 658,
+          "top": 680,
+          "right": 824,
+          "bottom": 1338,
+          "left": 20
+        },
+        "donut": {
+          "x": 272,
+          "y": 235,
+          "width": 300,
+          "height": 300,
+          "top": 235,
+          "right": 572,
+          "bottom": 535,
+          "left": 272
+        },
+        "list": {
+          "rect": {
+            "x": 37,
+            "y": 741,
+            "width": 770,
+            "height": 580,
+            "top": 741,
+            "right": 807,
+            "bottom": 1321,
+            "left": 37
+          },
+          "scroll": 580,
+          "client": 580
+        },
+        "rows": [
+          {
+            "label": "Maintenance",
+            "count": 20,
+            "rect": {
+              "x": 37,
+              "y": 741,
+              "width": 770,
+              "height": 76,
+              "top": 741,
+              "right": 807,
+              "bottom": 817,
+              "left": 37
+            }
+          },
+          {
+            "label": "Incident",
+            "count": 20,
+            "rect": {
+              "x": 37,
+              "y": 825,
+              "width": 770,
+              "height": 76,
+              "top": 825,
+              "right": 807,
+              "bottom": 901,
+              "left": 37
+            }
+          },
+          {
+            "label": "Change Request",
+            "count": 13,
+            "rect": {
+              "x": 37,
+              "y": 909,
+              "width": 770,
+              "height": 76,
+              "top": 909,
+              "right": 807,
+              "bottom": 985,
+              "left": 37
+            }
+          },
+          {
+            "label": "Escalation",
+            "count": 13,
+            "rect": {
+              "x": 37,
+              "y": 993,
+              "width": 770,
+              "height": 76,
+              "top": 993,
+              "right": 807,
+              "bottom": 1069,
+              "left": 37
+            }
+          },
+          {
+            "label": "Ad-hoc Request",
+            "count": 9,
+            "rect": {
+              "x": 37,
+              "y": 1077,
+              "width": 770,
+              "height": 76,
+              "top": 1077,
+              "right": 807,
+              "bottom": 1153,
+              "left": 37
+            }
+          },
+          {
+            "label": "Monitoring",
+            "count": 7,
+            "rect": {
+              "x": 37,
+              "y": 1161,
+              "width": 770,
+              "height": 76,
+              "top": 1161,
+              "right": 807,
+              "bottom": 1237,
+              "left": 37
+            }
+          },
+          {
+            "label": "Monitoring Alert",
+            "count": 6,
+            "rect": {
+              "x": 37,
+              "y": 1245,
+              "width": 770,
+              "height": 76,
+              "top": 1245,
+              "right": 807,
+              "bottom": 1321,
+              "left": 37
+            }
+          }
+        ],
+        "overflow": 0
+      },
+      "physicalHit": "Maintenance",
+      "expected": "Maintenance",
+      "center": "20\nMaintenance · 23%",
+      "before": "88\nTotal tiket"
+    },
+    {
+      "width": 844,
+      "height": 390,
+      "panel": "severity",
+      "geometry": {
+        "main": {
+          "x": 0,
+          "y": 56,
+          "width": 844,
+          "height": 334,
+          "top": 56,
+          "right": 844,
+          "bottom": 390,
+          "left": 0,
+          "scroll": 1171,
+          "client": 334,
+          "overflow": "auto"
+        },
+        "left": {
+          "x": 20,
+          "y": 218,
+          "width": 804,
+          "height": 394,
+          "top": 218,
+          "right": 824,
+          "bottom": 612,
+          "left": 20
+        },
+        "right": {
+          "x": 20,
+          "y": 628,
+          "width": 804,
+          "height": 579,
+          "top": 628,
+          "right": 824,
+          "bottom": 1207,
+          "left": 20
+        },
+        "donut": {
+          "x": 272,
+          "y": 235,
+          "width": 300,
+          "height": 300,
+          "top": 235,
+          "right": 572,
+          "bottom": 535,
+          "left": 272
+        },
+        "list": null,
+        "rows": [
+          {
+            "label": "Critical",
+            "count": 11,
+            "rect": {
+              "x": 38,
+              "y": 965,
+              "width": 768,
+              "height": 44,
+              "top": 965,
+              "right": 806,
+              "bottom": 1009,
+              "left": 38
+            }
+          },
+          {
+            "label": "High",
+            "count": 21,
+            "rect": {
+              "x": 38,
+              "y": 1010,
+              "width": 768,
+              "height": 44,
+              "top": 1010,
+              "right": 806,
+              "bottom": 1054,
+              "left": 38
+            }
+          },
+          {
+            "label": "Medium",
+            "count": 25,
+            "rect": {
+              "x": 38,
+              "y": 1055,
+              "width": 768,
+              "height": 44,
+              "top": 1055,
+              "right": 806,
+              "bottom": 1099,
+              "left": 38
+            }
+          },
+          {
+            "label": "Low",
+            "count": 31,
+            "rect": {
+              "x": 38,
+              "y": 1100,
+              "width": 768,
+              "height": 44,
+              "top": 1100,
+              "right": 806,
+              "bottom": 1144,
+              "left": 38
+            }
+          }
+        ],
+        "overflow": 0
+      },
+      "physicalHit": "Critical",
+      "expected": "Critical",
+      "center": "11\nCritical · 13%",
+      "before": "88\nTotal tiket"
+    }
+  ],
+  "errors": []
+}

@@ -5,7 +5,7 @@ import type { CheckpointAssessment, Ticket } from "@/app/lib/types";
 
 // Re-export getTicketShift for backward compatibility (used by TicketsView)
 export function getTicketShift(ticket: Ticket): "Subuh" | "Pagi" | "Malam" {
-  const rawShift = (ticket as any).createdDuringShift || ticket.shift;
+  const rawShift = (ticket as Ticket & { createdDuringShift?: string }).createdDuringShift || ticket.shift;
   if (rawShift) {
     if (typeof rawShift === "string") {
       if (rawShift.includes("Subuh")) return "Subuh";
@@ -34,7 +34,7 @@ interface OverviewViewProps {
   assessments?: Record<string, CheckpointAssessment>;
 }
 
-export function OverviewView({ tickets, allTickets, onGoToTickets, assessments }: OverviewViewProps) {
+export function OverviewView({ tickets, onGoToTickets, assessments }: OverviewViewProps) {
   return (
     <TicketReportView
       tickets={tickets}

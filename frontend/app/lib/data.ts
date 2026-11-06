@@ -2619,6 +2619,7 @@ export function createHandoverDraft(
 ): HandoverDraft {
   return {
     date,
+    organization: record.organization ?? "",
     sourceShift: record.sourceShift,
     targetShift: record.targetShift,
     sourcePic: record.sourcePic,
@@ -2634,6 +2635,7 @@ export function createHandoverDraft(
     closedTickets: record.closedTickets ? record.closedTickets.map((t) => ({ ...t })) : [],
     receiverEmail: record.receiverEmail ?? "",
     monitoringExceptions: (record.monitoringExceptions ?? []).map((item) => ({ ...item })),
+    monitoringCheckpoints: record.monitoringCheckpoints ? record.monitoringCheckpoints.map((cp) => ({ ...cp })) : undefined,
   };
 }
 
@@ -2643,6 +2645,7 @@ export function createShiftHandoverDraft(date = new Date()): HandoverDraft {
   // Reuse task instructions, not another shift's PICs or acceptance state.
   return {
     ...draft,
+    organization: "",
     sourceShift: getShiftInfo(date).shortLabel,
     targetShift: getShiftInfo(getNextShiftChange(date)).shortLabel,
     sourcePic: "",

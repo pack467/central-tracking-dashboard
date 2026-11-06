@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { backendTicketToModel } from '../app/services/backend-tickets.ts';
+import { backendProjectChoices, backendTicketToModel, SEEDED_BACKEND_LOOKUPS } from '../app/services/backend-tickets.ts';
+import { ticketFromTask } from '../app/lib/handover-ticket.ts';
 import { backendUserToPerson, backendRoleToRole } from '../app/services/backend-team.ts';
 import { apiModuleEnabled } from '../app/lib/config.ts';
 
@@ -65,7 +66,7 @@ test('modules switch on one by one, and USE_MOCK=false turns them all on', () =>
 });
 
 import { ticketCode } from '../app/lib/ticket-code.ts';
-import { fetchAllTickets, mergeRecentTickets, rememberTickets, setTicketCacheOwner, backendProjects, ticketToCreateBody, ticketToUpdateBody } from '../app/services/backend-tickets.ts';
+import { fetchAllTickets, mergeRecentTickets, rememberTickets, setTicketCacheOwner, backendProjects, backendProjectOptions, ticketToCreateBody, ticketToUpdateBody } from '../app/services/backend-tickets.ts';
 import { localDataNotice } from '../app/lib/local-data-notice.ts';
 import { bindSessionData } from '../app/lib/session-data.ts';
 
@@ -130,6 +131,69 @@ test('an edit sends only what changed, and escalation is refused rather than los
   assert.deepEqual(ticketToUpdateBody({ ...before, ownerIds: ['9'] }, before, lookups), { user_id: '9' });
   assert.deepEqual(ticketToUpdateBody({ ...before, description: '' }, before, lookups), { description: null });
   assert.throws(() => ticketToUpdateBody({ ...before, status: 'Escalated' }, before, lookups), /Status "Escalated" belum ada di backend/);
+});
+
+test('system/component, responseTime, and multiple assignees round-trip through backend ticket fields without changing the backend', () => {
+  const draft = {
+    id: 'REQ-5001',
+    subject: 'Cek Node Exporter & Grafana',
+    project: 'Single Mediation',
+    severity: 'High',
+    category: 'Ad-hoc Request',
+    status: 'Open',
+    owner: 'Mhd. Galih Khairi, Pedro Marcel Hutagaol',
+    owners: ['Mhd. Galih Khairi', 'Pedro Marcel Hutagaol'],
+    ownerIds: ['6', '8'],
+    systemId: 'Node Exporter',
+    systemComponent: 'Node Exporter',
+    requestTime: '17:18',
+    responseTime: '17:20',
+    isStillOpen: true,
+    created: '17:18',
+    description: 'Memory usage tinggi pada node',
+    backend: { projectId: '1', clientId: '1', thirdPartyId: 'REQ-5001' },
+  };
+  const body = ticketToCreateBody(draft, lookups);
+  assert.equal(body.project_id, '1');
+  assert.equal(body.user_id, '6');
+  assert.equal(body.requester, 'Mhd. Galih Khairi, Pedro Marcel Hutagaol');
+  assert.equal(body.third_party_ticket_id, 'REQ-5001');
+  assert.equal(body.description, '[Sistem/Komponen: Node Exporter] [Response: 17:20]\nMemory usage tinggi pada node');
+
+  const model = backendTicketToModel(ticket({
+    id: '3650',
+    third_party_ticket_id: body.third_party_ticket_id,
+    requester: body.requester,
+    description: body.description,
+    status: 'Open',
+    closed_at: null,
+  }));
+  assert.equal(model.systemComponent, 'Node Exporter');
+  assert.equal(model.systemId, 'Node Exporter');
+  assert.equal(model.responseTime, '17:20');
+  assert.equal(model.description, 'Memory usage tinggi pada node');
+  assert.deepEqual(model.owners, ['Mhd. Galih Khairi', 'Pedro Marcel Hutagaol']);
+  assert.equal(backendProjectOptions([]).length, 11, 'all 11 seeded database projects are available immediately');
+
+  // Test Escalated To packing & unpacking
+  const escDraft = {
+    ...draft,
+    id: 'REQ-5002',
+    escalatedTo: 'Dimas Suryo (L3 Lead)',
+    escalationLevel: 'Level 2',
+    backend: { projectId: '1', clientId: '1', thirdPartyId: 'REQ-5002' },
+  };
+  const escBody = ticketToCreateBody(escDraft, lookups);
+  assert.equal(escBody.description, '[Sistem/Komponen: Node Exporter] [Response: 17:20] [Eskalasi: Dimas Suryo (L3 Lead)]\nMemory usage tinggi pada node');
+  const escModel = backendTicketToModel(ticket({
+    id: '3651',
+    description: escBody.description,
+  }));
+  assert.equal(escModel.escalatedTo, 'Dimas Suryo (L3 Lead)');
+  assert.equal(escModel.escalationLevel, 'Level 2');
+  assert.equal(escModel.systemComponent, 'Node Exporter');
+  assert.equal(escModel.responseTime, '17:20');
+  assert.equal(escModel.description, 'Memory usage tinggi pada node');
 });
 
 test('pages that are not connected say so, only while the app is partly connected', () => {
@@ -200,4 +264,28 @@ test('every UI action maps to a permission the backend really has (GET /permissi
   const can = action => viewer.includes(ACTION_PERMISSION[action]);
   assert.deepEqual(['tickets.view', 'people.view'].map(can), [true, true]);
   assert.deepEqual(['tickets.create', 'tickets.update', 'tickets.delete', 'people.manage', 'roles.view', 'roles.manage'].map(can), [false, false, false, false, false, false]);
+});
+
+test('a handover names backend projects by the code a ticket shows, and every project can be chosen', () => {
+  const discovered = { project: 'NEW', backend: { projectId: '99', projectName: 'Proyek Baru' } };
+  const choices = backendProjectChoices([discovered]);
+  const named = name => choices.find(choice => choice.name === name)?.value;
+  assert.equal(named('Umbrella SIEM'), 'USIEM');
+  assert.equal(named('Proyek Baru'), 'NEW', 'a project only the tickets know about');
+  assert.equal(named('Enterprise Product Catalog - Tools'), 'EPC Tools');
+  assert.equal(named('ERICA'), 'ERICA', 'it shares that code, so it goes by its name');
+  assert.equal(new Set(choices.map(choice => choice.value)).size, choices.length);
+});
+
+test('a finished handover task is sent to the backend as a closed ticket assigned to the person who finished it', () => {
+  const ticket = ticketFromTask({ task: { id: 3, title: 'Periksa laporan', detail: '' }, noteId: 7, shifts: 'Pagi → Malam', actorName: 'Budi', clientId: 'tritronik', project: { name: 'SM', backendId: '1' }, severity: 'High', category: 'Others', now: '09:30' });
+  const body = ticketToCreateBody(ticket, SEEDED_BACKEND_LOOKUPS);
+  assert.equal(body.status, 'Closed');
+  assert.equal(body.project_id, '1');
+  assert.equal(body.third_party_ticket_id, 'HO-7-3');
+  assert.equal(body.severity_id, '3');
+  assert.equal(body.category_id, '7');
+  assert.equal(body.user_id, undefined, 'without one the backend assigns it to whoever creates it');
+  assert.match(body.open_at, /T09:30:00\+07:00$/);
+  assert.match(body.closed_at, /T09:30:00\+07:00$/);
 });

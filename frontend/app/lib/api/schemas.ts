@@ -32,6 +32,8 @@ export const authUserSchema = z.looseObject({
   permissions: z.array(z.string()).default([]),
   is_active: z.boolean().optional(),
   photo_url: maybeText.optional(),
+  department: maybeText.optional(),
+  created_at: maybeText.optional(),
 });
 export const loginResponseSchema = z.looseObject({ user: authUserSchema, csrf_token: z.string().min(1) });
 export const csrfResponseSchema = z.looseObject({ csrf_token: z.string().min(1) });

@@ -94,7 +94,7 @@ export function TicketsView({ tickets: propTickets, onSelectTicket, onNewTicket 
     }
   );
 
-  const tickets = fetchedTickets ?? (isLoading ? [] : propTickets);
+  const tickets = useMemo(() => fetchedTickets ?? (isLoading ? [] : propTickets), [fetchedTickets, isLoading, propTickets]);
   const categoryKeys = JSON.stringify([...new Set([...activeCategories.map(c => c.key), ...tickets.map(t => t.type || t.category || "Incident")])]);
   const ticketTypes: string[] = ["All Types", ...JSON.parse(categoryKeys)];
   const clientProjects = masterProjects.filter(p => p.clientId === activeClientId && p.status === "active").map(p => p.name);
@@ -410,7 +410,7 @@ export function TicketsView({ tickets: propTickets, onSelectTicket, onNewTicket 
           </div>
           <h1 className="text-[24px] font-bold text-[#f8fafc] leading-[1.2] tracking-[-0.4px] mt-[6px] mb-[4px]">Tickets</h1>
         </div>
-        <div className="flex gap-[9px]">
+        <div className="flex gap-[9px] md:hidden">
           {onNewTicket && <button
             type="button"
             className="inline-flex items-center justify-center gap-[7px] h-[36px] px-[15px] rounded-[7px] text-[12px] font-semibold text-white bg-[#38bdf8] shadow-[0_1px_2px_0_rgba(0,0,0,0.2)] cursor-pointer hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed"

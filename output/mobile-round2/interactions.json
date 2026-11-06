@@ -1,0 +1,215 @@
+{
+  "results": [
+    {
+      "name": "one column, spacing, fonts and five row previews",
+      "pass": true,
+      "detail": {
+        "columns": "366px",
+        "padding": "12px 12px 36px",
+        "gap": "12px",
+        "opsGap": "12px",
+        "rows": [
+          84,
+          84,
+          84,
+          84,
+          84
+        ],
+        "checks": 5
+      }
+    },
+    {
+      "name": "fixed volume axis, native scrolling, legend isolation",
+      "pass": true,
+      "detail": {
+        "left": 752,
+        "width": 1052,
+        "client": 300,
+        "scrollbar": "none"
+      }
+    },
+    {
+      "name": "chart touch tooltips stay inside chart and viewport; keyboard",
+      "pass": true,
+      "detail": [
+        {
+          "chart": ".compact-velocity-chart-container",
+          "box": {
+            "x": 29,
+            "y": 303.890625,
+            "width": 220,
+            "height": 88.5
+          }
+        },
+        {
+          "chart": ".compact-velocity-chart-container",
+          "box": {
+            "x": 141,
+            "y": 323.390625,
+            "width": 220,
+            "height": 69
+          }
+        },
+        {
+          "chart": ".compact-shift-traffic-chart-container",
+          "box": {
+            "x": 29,
+            "y": 627.890625,
+            "width": 220,
+            "height": 122.5
+          }
+        },
+        {
+          "chart": ".compact-shift-traffic-chart-container",
+          "box": {
+            "x": 141,
+            "y": 627.890625,
+            "width": 220,
+            "height": 122.5
+          }
+        }
+      ]
+    },
+    {
+      "name": "traffic segmented filtering and category severity tabs",
+      "pass": true,
+      "detail": {
+        "boxes": [
+          {
+            "w": 78,
+            "h": 40
+          },
+          {
+            "w": 78,
+            "h": 40
+          },
+          {
+            "w": 78,
+            "h": 40
+          },
+          {
+            "w": 78,
+            "h": 40
+          }
+        ],
+        "severityHeights": [
+          108,
+          108,
+          108,
+          108
+        ]
+      }
+    },
+    {
+      "name": "FAB direction, idle, keyboard focus, bottom content clearance",
+      "pass": true,
+      "detail": {
+        "fab": {
+          "x": 326,
+          "y": 724.650146484375,
+          "width": 52,
+          "height": 52,
+          "top": 724.650146484375,
+          "right": 378,
+          "bottom": 776.650146484375,
+          "left": 326
+        },
+        "last": {
+          "x": 27,
+          "y": 630.390625,
+          "width": 336,
+          "height": 51,
+          "top": 630.390625,
+          "right": 363,
+          "bottom": 681.390625,
+          "left": 27
+        },
+        "nav": {
+          "x": 0,
+          "y": 787,
+          "width": 390,
+          "height": 57,
+          "top": 787,
+          "right": 390,
+          "bottom": 844,
+          "left": 0
+        },
+        "transition": "0.2s"
+      }
+    },
+    {
+      "name": "visualViewport keyboard emulation hides nav and FAB",
+      "pass": true,
+      "detail": {
+        "html": "visible",
+        "body": "visible",
+        "inert": 0,
+        "hidden": 0,
+        "overlays": 0
+      }
+    },
+    {
+      "name": "20 rapid sheet cycles, focus trap, scroll restoration",
+      "pass": true,
+      "detail": {
+        "html": "visible",
+        "body": "visible",
+        "inert": 0,
+        "hidden": 0,
+        "overlays": 0
+      }
+    },
+    {
+      "name": "memo, panel viewer and staff detail retain scroll after close",
+      "pass": true,
+      "detail": [
+        {
+          "html": "visible",
+          "body": "visible",
+          "inert": 0,
+          "hidden": 0,
+          "overlays": 0
+        },
+        {
+          "html": "visible",
+          "body": "visible",
+          "inert": 0,
+          "hidden": 0,
+          "overlays": 0
+        },
+        {
+          "html": "visible",
+          "body": "visible",
+          "inert": 0,
+          "hidden": 0,
+          "overlays": 0
+        }
+      ]
+    },
+    {
+      "name": "pressed state, focus ring and reduced motion",
+      "pass": true,
+      "detail": {
+        "outline": {
+          "width": "2px",
+          "color": "oklab(0.78607 -0.0842574 -0.106792)"
+        },
+        "pressed": {
+          "bg": "rgb(36, 48, 68)",
+          "scale": "0.98"
+        },
+        "transition": "none"
+      }
+    },
+    {
+      "name": "landscape short navigation without labels",
+      "pass": true,
+      "detail": {
+        "height": 45,
+        "visible": true,
+        "labels": 0
+      }
+    }
+  ],
+  "errors": []
+}

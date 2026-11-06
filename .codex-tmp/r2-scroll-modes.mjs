@@ -1,0 +1,13 @@
+import {chromium,open,visit,root} from './r2-audit.mjs';import assert from 'node:assert/strict';import {writeFileSync} from 'node:fs';import {join} from 'node:path';
+const b=await chromium.launch({headless:true,channel:'chrome'});const {ctx,page}=await open(b);await visit(page);const cdp=await ctx.newCDPSession(page);
+await page.getByRole('button',{name:'Lainnya',exact:true}).click();const sheet=page.locator('[data-sheet-open]');await sheet.waitFor();const handle=await sheet.locator('.cursor-grab').boundingBox();
+await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:180,y:handle.y+8}]});
+for(let i=1;i<=6;i++)await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:180,y:handle.y+8+i*20}]});
+await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await sheet.waitFor({state:'detached'});
+await page.evaluate(()=>scrollTo({top:0,behavior:'instant'}));await page.keyboard.press('PageDown');await page.waitForFunction(()=>scrollY>50);const keyboardY=await page.evaluate(()=>scrollY);
+await page.evaluate(()=>scrollTo({top:0,behavior:'instant'}));await page.waitForTimeout(150);
+await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:180,y:550}]});
+for(let i=1;i<=8;i++)await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:180,y:550-i*25}]});
+await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await page.waitForFunction(()=>scrollY>50);const touchY=await page.evaluate(()=>scrollY);
+const locks=await page.evaluate(()=>({html:getComputedStyle(document.documentElement).overflowY,body:getComputedStyle(document.body).overflowY,inert:document.querySelectorAll('[inert]').length}));assert.notEqual(locks.html,'hidden');assert.notEqual(locks.body,'hidden');assert.equal(locks.inert,0);
+const result={pass:true,swipeClose:true,keyboardY,touchY,locks};writeFileSync(join(root,'scroll-modes.json'),JSON.stringify(result,null,2));console.log(JSON.stringify(result));await b.close();

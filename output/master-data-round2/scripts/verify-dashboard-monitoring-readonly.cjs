@@ -1,0 +1,37 @@
+// Dashboard "List Monitoring Shift": OK / NOK is only shown, it cannot be flipped from here.
+const fs = require("fs");
+const { launch, open } = require("./pw.cjs");
+const BASE = process.env.CTD_BASE || "http://localhost:3000";
+const ok = (c, l, e = "") => { console.log(`${c ? "PASS" : "FAIL"}  ${l}${e ? "  " + e : ""}`); if (!c) process.exitCode = 1; };
+const B = "E:/Website/Central Tracking Dashboard/Central_Tracking_Dashboard/backend/";
+const env = Object.fromEntries(fs.readFileSync(B + ".env", "utf8").split("\n").map(l => l.trim()).filter(l => /^[A-Z_]+=/.test(l)).map(l => [l.slice(0, l.indexOf("=")), l.slice(l.indexOf("=") + 1).replace(/^"|"$/g, "")]));
+const users = (l => l.users || l)(JSON.parse(fs.readFileSync(B + "prisma/seed-data/users.json", "utf8")));
+const account = users.find(u => u.role_id === "1" && u.email);
+(async () => {
+  const browser = await launch();
+  const page = await open(browser, { width: 1920, height: 1080, noAuth: true });
+  page.setDefaultTimeout(60000);
+  await page.goto(BASE + "/login", { waitUntil: "networkidle", timeout: 120000 }); await page.waitForTimeout(1200);
+  await page.getByLabel("Email atau ID Karyawan").fill(account.email);
+  await page.getByLabel("Kata sandi", { exact: true }).fill(env.SEED_DEFAULT_PASSWORD);
+  await page.getByRole("button", { name: "Masuk" }).click();
+  await page.waitForURL(u => u.pathname === "/dashboard", { timeout: 90000 });
+  const list = page.getByRole("list", { name: "Checklist monitoring shift" });
+  await list.waitFor({ timeout: 90000 });
+  const items = list.getByRole("listitem");
+  const n = await items.count();
+  ok(n >= 5, "the list is there", String(n));
+  ok(await list.getByRole("button").count() === 0, "no OK / NOK button in the list");
+  const labels = async () => items.evaluateAll(els => els.map(e => e.getAttribute("aria-label")));
+  const before = await labels();
+  const badges = list.locator(".monitoring-status-btn");
+  for (let i = 0; i < Math.min(await badges.count(), 6); i++) await badges.nth(i).click({ force: true }).catch(() => {});
+  await page.keyboard.press("Tab");
+  const after = await labels();
+  ok(JSON.stringify(before) === JSON.stringify(after), "clicking the statuses changes nothing");
+  const counts = await page.locator(".mon-counter-badge").allInnerTexts();
+  ok(counts.length >= 2, "the OK / NOK counters are still shown", counts.join(" | ").replace(/\s+/g, " "));
+  const errors = page.errors.filter(e => !/favicon|401|Failed to load resource|preload/.test(e));
+  ok(errors.length === 0, "no console errors", JSON.stringify(errors.slice(0, 2)));
+  await browser.close();
+})().catch(e => { console.log("FAIL", e.message.replace(/\s+/g, " ").slice(0, 400)); process.exitCode = 1; });

@@ -1,0 +1,162 @@
+[
+  {
+    "file": "dashboard-1440.png",
+    "exactPercent": 0.0,
+    "over16Percent": 0.0
+  },
+  {
+    "file": "dashboard-390.png",
+    "exactPercent": 0.0,
+    "over16Percent": 0.0
+  },
+  {
+    "file": "monitoring-1440.png",
+    "exactPercent": 0.0,
+    "over16Percent": 0.0
+  },
+  {
+    "file": "monitoring-390.png",
+    "exactPercent": 0.0,
+    "over16Percent": 0.0
+  },
+  {
+    "file": "notifications-1440.png",
+    "exactPercent": 0.0,
+    "over16Percent": 0.0
+  },
+  {
+    "file": "notifications-390.png",
+    "exactPercent": 0.0,
+    "over16Percent": 0.0
+  },
+  {
+    "file": "profile-1440.png",
+    "exactPercent": 0.0,
+    "over16Percent": 0.0
+  },
+  {
+    "file": "profile-390.png",
+    "exactPercent": 0.0,
+    "over16Percent": 0.0
+  },
+  {
+    "file": "reports-1440.png",
+    "exactPercent": 0.001015,
+    "over16Percent": 0.000575
+  },
+  {
+    "file": "reports-390.png",
+    "exactPercent": 0.543846,
+    "over16Percent": 0.000246
+  },
+  {
+    "file": "runbooks-1440.png",
+    "exactPercent": 0.0,
+    "over16Percent": 0.0
+  },
+  {
+    "file": "runbooks-390.png",
+    "exactPercent": 0.0,
+    "over16Percent": 0.0
+  },
+  {
+    "file": "shift-log-1440.png",
+    "exactPercent": 0.025266,
+    "over16Percent": 0.0
+  },
+  {
+    "file": "shift-log-390.png",
+    "exactPercent": 0.0,
+    "over16Percent": 0.0
+  },
+  {
+    "file": "team-roster-1440.png",
+    "exactPercent": 0.001045,
+    "over16Percent": 0.00047
+  },
+  {
+    "file": "team-roster-390.png",
+    "exactPercent": 0.0,
+    "over16Percent": 0.0
+  },
+  {
+    "file": "tickets-1440.png",
+    "exactPercent": 0.347323,
+    "over16Percent": 0.320373
+  },
+  {
+    "file": "tickets-390.png",
+    "exactPercent": 0.0,
+    "over16Percent": 0.0
+  },
+  {
+    "file": "viewer-category-distribution-1440.png",
+    "exactPercent": 0.0,
+    "over16Percent": 0.0
+  },
+  {
+    "file": "viewer-category-distribution-390.png",
+    "exactPercent": 0.0,
+    "over16Percent": 0.0
+  },
+  {
+    "file": "viewer-resolution-trend-1440.png",
+    "exactPercent": 0.0,
+    "over16Percent": 0.0
+  },
+  {
+    "file": "viewer-resolution-trend-390.png",
+    "exactPercent": 0.0,
+    "over16Percent": 0.0
+  },
+  {
+    "file": "viewer-severity-distribution-1440.png",
+    "exactPercent": 0.0,
+    "over16Percent": 0.0
+  },
+  {
+    "file": "viewer-severity-distribution-390.png",
+    "exactPercent": 0.0,
+    "over16Percent": 0.0
+  },
+  {
+    "file": "viewer-shift-traffic-1440.png",
+    "exactPercent": 0.0,
+    "over16Percent": 0.0
+  },
+  {
+    "file": "viewer-shift-traffic-390.png",
+    "exactPercent": 0.0,
+    "over16Percent": 0.0
+  },
+  {
+    "file": "viewer-ticket-mom-1440.png",
+    "exactPercent": 0.0,
+    "over16Percent": 0.0
+  },
+  {
+    "file": "viewer-ticket-mom-390.png",
+    "exactPercent": 0.0,
+    "over16Percent": 0.0
+  },
+  {
+    "file": "viewer-ticket-volume-1440.png",
+    "exactPercent": 0.0,
+    "over16Percent": 0.0
+  },
+  {
+    "file": "viewer-ticket-volume-390.png",
+    "exactPercent": 0.0,
+    "over16Percent": 0.0
+  },
+  {
+    "file": "viewer-user-recap-1440.png",
+    "exactPercent": 0.0,
+    "over16Percent": 0.0
+  },
+  {
+    "file": "viewer-user-recap-390.png",
+    "exactPercent": 0.0,
+    "over16Percent": 0.0
+  }
+]

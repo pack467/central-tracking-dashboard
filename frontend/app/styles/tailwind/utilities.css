@@ -97,26 +97,28 @@
    UNIFIED PAGE TRANSITION ENTRANCE
    Consistent, smooth page-switch transition for all views
 ═══════════════════════════════════════════════ */
-.page-view-enter {
-  @apply [width:100%];
-  @apply [animation:pageViewEnter_0.22s_cubic-bezier(0.16,_1,_0.3,_1)_both];
-  @apply [will-change:opacity,_transform];
-}
-
-@keyframes pageViewEnter {
+/*
+ * A page opening: its sections rise into place one just after the other. Opacity and transform only, which the compositor runs without touching the
+ * main thread. "backwards" and no "to" frame: when it ends nothing is left on the element, so nothing inside it is positioned against a transform.
+ */
+@keyframes routeEnter {
   from {
     opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+    transform: translate3d(0, 10px, 0);
   }
 }
+
+.route-enter > * > * {
+  animation: routeEnter 240ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  animation-delay: 90ms;
+}
+.route-enter > * > :nth-child(1) { animation-delay: 0ms; }
+.route-enter > * > :nth-child(2) { animation-delay: 30ms; }
+.route-enter > * > :nth-child(3) { animation-delay: 60ms; }
 
 @media (prefers-reduced-motion: reduce) {
   .anim-fade, .modal-pop, .anim-slide-left, .anim-slide-right,
-  .page-view-enter,
+  .route-enter > * > *,
   .live-dot-pulse, .sparkline-line, .toast-item, .toast-progress,
   .anim-spin, .spin {
     @apply ![animation:none];

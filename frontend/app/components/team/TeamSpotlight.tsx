@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { safeExternalUrl, safeMailto } from "@/app/lib/safe-url";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
@@ -70,8 +70,12 @@ export function TeamSpotlight({
   onOpenDetail,
   onBackToGroup,
 }: TeamSpotlightProps) {
-  const currentMember = members[activeIndex] || members[0];
+  const currentMember: TeamMember | undefined = members[activeIndex] ?? members[0];
   const [imgError, setImgError] = useState(false);
+
+  if (!currentMember) {
+    return null;
+  }
 
   // Wrap-around navigation
   const handlePrev = () => {
@@ -113,7 +117,7 @@ export function TeamSpotlight({
               scale: 1,
               transition: {
                 duration: 0.28,
-                ease: [0.16, 1, 0.3, 1],
+                ease: [0.16, 1, 0.3, 1] as [number, number, number, number],
               },
             }}
             exit={{
@@ -122,7 +126,7 @@ export function TeamSpotlight({
               scale: 0.98,
               transition: {
                 duration: 0.18,
-                ease: [0.32, 0, 0.67, 0],
+                ease: [0.32, 0, 0.67, 0] as [number, number, number, number],
               },
             }}
             className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center"

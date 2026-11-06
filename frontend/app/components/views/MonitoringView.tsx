@@ -12,10 +12,6 @@ import {
   Layers,
   Clock,
   Activity,
-  Server,
-  HardDrive,
-  Radio,
-  Cpu,
   BookOpen,
   Check,
   ChevronLeft,
@@ -23,9 +19,12 @@ import {
   Flame,
   Grid,
   SlidersHorizontal,
+  Globe,
 } from "lucide-react";
+import { ProjectTile } from "@/app/components/monitoring/ProjectTile";
 import { MonitoringSchedule, rowKey, matchesProject, CLIENT_MONITORING_SYSTEMS } from "@/app/components/dashboard/MonitoringSchedule";
 import { MonitoringHistorySection } from "@/app/components/monitoring/MonitoringHistorySection";
+import { MonitoringLinksModal } from "@/app/components/monitoring/MonitoringLinksModal";
 import { StatCard, type StatAccentColor } from "@/app/components/ui/StatCard";
 import { useActiveShift } from "@/app/hooks/useLiveClock";
 import type { CheckpointAssessment } from "@/app/lib/types";
@@ -84,7 +83,7 @@ export function MonitoringView({
   const schedule = fetchedMonitoring?.schedule ?? defaultSchedule;
   const projects = fetchedMonitoring?.projects ?? defaultProjects;
 
-  const schema = useMemo(() => monitoringSchema(projects.map(p => p.name), CLIENT_MONITORING_SYSTEMS[activeClientId] ?? CLIENT_MONITORING_SYSTEMS.tritronik), [projects, schedule]);
+  const schema = useMemo(() => monitoringSchema(projects.map(p => p.name), CLIENT_MONITORING_SYSTEMS[activeClientId] ?? CLIENT_MONITORING_SYSTEMS.tritronik), [projects, activeClientId]);
   const url = useUrlQuery(schema, paths.monitoring);
   const activeShift = useActiveShift();
   const shiftAccent: StatAccentColor = activeShift.id === "subuh" ? "blue" : activeShift.id === "pagi" ? "amber" : "purple";
@@ -104,6 +103,12 @@ export function MonitoringView({
   const [canScrollRight, setCanScrollRight] = useState(false);
   const [scrollIndex, setScrollIndex] = useState(0);
   const [visibleCardsCount, setVisibleCardsCount] = useState(4);
+  const [activeLinksModal, setActiveLinksModal] = useState<{
+    project: string;
+    task?: string;
+    clientId?: string;
+    url?: string;
+  } | null>(null);
 
   // Auto-reset project filter when active client changes
 
@@ -284,38 +289,10 @@ export function MonitoringView({
     window.setTimeout(updateScrollState, 350);
   };
 
-  // Project icon helper
-  const getProjectIcon = (name: string) => {
-    switch (name) {
-      case "Core Banking":
-      case "OCS Billing":
-      case "SM":
-        return <Server size={14} />;
-      case "Switching ATM":
-      case "SMSC Core":
-      case "B2B":
-        return <Radio size={14} />;
-      case "BNI Mobile":
-      case "MyTelkomsel":
-      case "MB":
-        return <Activity size={14} />;
-      case "Fraud Shield":
-      case "5G Edge":
-      case "USIEM":
-        return <Cpu size={14} />;
-      case "Card Mgmt":
-      case "HLR/HSS":
-      case "DM":
-        return <HardDrive size={14} />;
-      default:
-        return <Layers size={14} />;
-    }
-  };
-
   return (
     <>
       {/* ── Page Header ── */}
-      <section className="flex flex-wrap justify-between items-end gap-3 mb-6">
+      <section className="flex flex-wrap justify-between items-end gap-3 mb-6 max-sm:mb-4 max-sm:flex-nowrap">
         <div>
           <div className="flex items-center gap-2 text-[10px] font-mono font-bold tracking-[1px] text-[#94a3b8] uppercase">
             <span className="w-[7px] h-[7px] rounded-full bg-[#4ade80] animate-pulse shrink-0" />
@@ -330,13 +307,13 @@ export function MonitoringView({
             onClick={onOpenGuide}
           >
             <BookOpen size={14} className="text-[#38bdf8]" />
-            <span>Panduan Penilaian (Guide)</span>
+            <span>Panduan<span className="max-sm:hidden"> Penilaian (Guide)</span></span>
           </button>
         </div>
       </section>
 
       {/* ── Sub-Navigation Switcher (Monitoring Sekarang / Log Monitoring) ── */}
-      <div className="flex items-center gap-2 mb-6 border-b border-[#334155] pb-3 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="tablist" aria-label="Navigasi view monitoring">
+      <div className="flex items-center gap-2 mb-6 max-sm:mb-4 border-b border-[#334155] pb-3 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden max-sm:grid max-sm:grid-cols-2 max-sm:[&>a]:justify-center max-sm:[&>a]:whitespace-nowrap max-sm:[&>a]:h-10" role="tablist" aria-label="Navigasi view monitoring">
         <Link
 
           role="tab"
@@ -349,7 +326,7 @@ export function MonitoringView({
           href={withQuery(paths.monitoring, url.query)} scroll={false}
         >
           <Activity size={14} className={activeTab === "live" ? "text-[#38bdf8]" : "text-[#94a3b8]"} />
-          <span>Monitoring Sekarang</span>
+          <span><span className="max-sm:hidden">Monitoring </span>Sekarang</span>
           <span
             className={`inline-flex items-center px-1.5 py-[1px] rounded-full text-[10px] font-mono font-bold leading-none ${
               activeTab === "live"
@@ -373,7 +350,7 @@ export function MonitoringView({
           href={withQuery(paths.monitoringHistory, url.query)} scroll={false}
         >
           <Clock size={14} className={activeTab === "history" ? "text-[#38bdf8]" : "text-[#94a3b8]"} />
-          <span>Log Monitoring</span>
+          <span>Log<span className="max-sm:hidden"> Monitoring</span></span>
           {notAdequateCount > 0 ? (
             <span className="inline-flex items-center px-1.5 py-[1px] rounded-full text-[10px] font-mono font-bold leading-none bg-[rgba(248,113,113,0.15)] text-[#f87171] border border-[rgba(248,113,113,0.3)]">
               {notAdequateCount} NOK
@@ -386,7 +363,7 @@ export function MonitoringView({
                   : "bg-[rgba(148,163,184,0.12)] text-[#94a3b8]"
               }`}
             >
-              {totalAssessed > 0 ? `${totalAssessed} Selesai` : "Log Riwayat"}
+              {totalAssessed > 0 ? `${totalAssessed} Selesai` : "Riwayat"}
             </span>
           )}
         </Link>
@@ -404,7 +381,7 @@ export function MonitoringView({
       {activeTab === "live" && (
         <div className="animate-in fade-in duration-200 pb-24 md:pb-5">
           {/* ── 1. Top Stat Cards (OK / NOK / Checkpoint Hari Ini / Jam Pemeriksaan) ── */}
-          <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6" aria-label="Statistik pemeriksaan monitoring">
+          <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6 max-sm:gap-2 max-sm:mb-5 max-sm:[&_.sc]:p-3 max-sm:[&_.sc]:gap-1.5 max-sm:[&_.sc-subtitle]:hidden max-sm:[&_.sc-value]:text-[26px] max-sm:[&_.sc-icon]:size-6" aria-label="Statistik pemeriksaan monitoring">
             {/* Card 1: STATUS OK */}
             <StatCard
               label="STATUS OK"
@@ -488,7 +465,8 @@ export function MonitoringView({
               <div className="flex flex-col gap-[3px]">
                 <div className="flex items-center gap-2 flex-wrap min-h-6">
                   <span className="inline-flex items-center h-6 text-[11.5px] font-bold font-sans tracking-[0.04em] uppercase text-[#94a3b8] leading-none whitespace-nowrap">
-                    STATUS BERDASARKAN PROYEK/LAYANAN ({projectStats.length} TERPANTAU)
+                    <span className="sm:hidden">STATUS PER PROYEK ({projectStats.length})</span>
+                    <span className="max-sm:hidden">STATUS BERDASARKAN PROYEK/LAYANAN ({projectStats.length} TERPANTAU)</span>
                   </span>
 
                   {/* Triage Summary Badges */}
@@ -512,7 +490,7 @@ export function MonitoringView({
 
                     {/* Carousel Position Counter Badge */}
                     {!isExpanded && displayCount > 0 && (
-                      <span className="inline-flex items-center justify-center h-[26px] px-2.5 rounded-[6px] text-[10.5px] font-bold font-mono tracking-wide text-[#38bdf8] bg-[rgba(56,189,248,0.12)] border border-[rgba(56,189,248,0.28)] uppercase select-none whitespace-nowrap">
+                      <span className="max-sm:hidden inline-flex items-center justify-center h-[26px] px-2.5 rounded-[6px] text-[10.5px] font-bold font-mono tracking-wide text-[#38bdf8] bg-[rgba(56,189,248,0.12)] border border-[rgba(56,189,248,0.28)] uppercase select-none whitespace-nowrap">
                         {scrollIndex + 1}–{Math.min(scrollIndex + visibleCardsCount, displayCount)} DARI {displayCount}
                       </span>
                     )}
@@ -521,11 +499,11 @@ export function MonitoringView({
               </div>
 
               {/* Action Strip: Filter Chips + Carousel Nav & View Toggle Buttons */}
-              <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center gap-2 flex-wrap max-sm:w-full max-sm:flex-nowrap">
                 {/* Filter Chips */}
                 {projectStats.length > 3 && (
                   <div
-                    className="inline-flex items-center gap-[3px] h-[30px] bg-slate-900/60 px-[3px] py-[2px] rounded-[7px] border border-[#334155] select-none"
+                    className="max-sm:flex-1 max-sm:min-w-0 max-sm:h-9 max-sm:[&>button]:flex-1 max-sm:[&>button]:h-[30px] max-sm:[&>button]:px-1.5 inline-flex items-center gap-[3px] h-[30px] bg-slate-900/60 px-[3px] py-[2px] rounded-[7px] border border-[#334155] select-none"
                     role="tablist"
                     aria-label="Filter status proyek"
                   >
@@ -581,7 +559,7 @@ export function MonitoringView({
                 {/* Navigation Controls: Prev/Next Buttons + View Mode Toggle */}
                 <div className="flex items-center gap-2">
                   {!isExpanded && (
-                    <div className="relative z-10 inline-flex items-center gap-1" role="group" aria-label="Navigasi carousel proyek">
+                    <div className="relative z-10 inline-flex items-center gap-1 max-sm:hidden" role="group" aria-label="Navigasi carousel proyek">
                       <button
                         type="button"
                         className="inline-flex items-center justify-center w-7 h-7 rounded-[6px] bg-slate-800/80 border border-[#334155] text-[#cbd5e1] hover:text-[#38bdf8] hover:bg-[rgba(56,189,248,0.15)] hover:border-[rgba(56,189,248,0.4)] disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38bdf8]"
@@ -608,19 +586,20 @@ export function MonitoringView({
                   {/* View Mode Toggle */}
                   <button
                     type="button"
-                    className="inline-flex items-center justify-center gap-1.5 h-[30px] px-2.5 rounded-[7px] font-sans bg-slate-800/80 border border-[#334155] text-[#cbd5e1] hover:text-[#38bdf8] hover:bg-[rgba(56,189,248,0.12)] hover:border-[rgba(56,189,248,0.35)] text-[11.5px] font-semibold transition-all cursor-pointer whitespace-nowrap leading-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38bdf8]"
+                    className="max-sm:size-9 max-sm:px-0 shrink-0 inline-flex items-center justify-center gap-1.5 h-[30px] px-2.5 rounded-[7px] font-sans bg-slate-800/80 border border-[#334155] text-[#cbd5e1] hover:text-[#38bdf8] hover:bg-[rgba(56,189,248,0.12)] hover:border-[rgba(56,189,248,0.35)] text-[11.5px] font-semibold transition-all cursor-pointer whitespace-nowrap leading-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38bdf8]"
                     onClick={() => setIsExpanded(!isExpanded)}
                     title={isExpanded ? "Kembali ke mode baris geser" : "Buka semua proyek dalam grid bertingkat"}
+                    aria-label={isExpanded ? "Mode geser" : `Lihat semua proyek (${displayCount})`}
                   >
                     {isExpanded ? (
                       <>
                         <SlidersHorizontal size={13} />
-                        <span>Mode Geser</span>
+                        <span className="max-sm:hidden">Mode Geser</span>
                       </>
                     ) : (
                       <>
                         <Grid size={13} />
-                        <span>Lihat Semua ({displayCount})</span>
+                        <span className="max-sm:hidden">Lihat Semua ({displayCount})</span>
                       </>
                     )}
                   </button>
@@ -649,11 +628,12 @@ export function MonitoringView({
                   const isSelected = selectedProject?.toLowerCase() === project.toLowerCase();
 
                   return (
-                    <button
-                      type="button"
+                    <div
+                      role="button"
+                      tabIndex={0}
                       key={project}
                       className={[
-                        "system-compact-card flex flex-col gap-2 p-[13px_14px] rounded-[10px] border text-left cursor-pointer transition-all duration-200 select-none shadow-[0_2px_8px_rgba(0,0,0,0.18)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.28)] hover:-translate-y-[1px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38bdf8] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0f172a]",
+                        "system-compact-card flex flex-col gap-2 p-[13px_14px] rounded-[10px] border text-left cursor-pointer transition-colors duration-150 select-none shadow-[0_2px_8px_rgba(0,0,0,0.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38bdf8] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0f172a]",
                         isExpanded
                           ? "w-full"
                           : "flex-[0_0_calc((100%-60px)/6)] min-w-[190px] max-[1560px]:flex-[0_0_calc((100%-48px)/5)] max-[1200px]:flex-[0_0_calc((100%-36px)/4)] max-[900px]:flex-[0_0_calc((100%-24px)/3)] max-[640px]:flex-[0_0_calc((100%-12px)/2)] max-[480px]:min-w-[155px] max-[380px]:min-w-[140px] shrink-0 box-border",
@@ -662,27 +642,47 @@ export function MonitoringView({
                           : "border-[#334155] bg-[#1e293b] hover:border-[rgba(56,189,248,0.3)] hover:bg-[#243044]",
                       ].join(" ")}
                       onClick={() => setSelectedProject(isSelected ? null : project)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          setSelectedProject(isSelected ? null : project);
+                        }
+                      }}
                       aria-pressed={isSelected}
                       title={`Klik untuk memfilter checkpoint proyek ${project}`}
                     >
-                      <div className="flex items-center gap-[7px]">
-                        <span
-                          className={`w-[7px] h-[7px] rounded-full shrink-0 ${
-                            hasNok
-                              ? "bg-[#f87171] shadow-[0_0_0_2px_rgba(248,113,113,0.2)]"
-                              : "bg-[#4ade80] shadow-[0_0_0_2px_rgba(74,222,128,0.2)]"
-                          }`}
-                          aria-hidden="true"
-                        />
-                        <span className="inline-flex items-center justify-center text-[#cbd5e1]">
-                          {getProjectIcon(project)}
+                      <div className="flex items-center gap-2">
+                        <span className="relative shrink-0">
+                          <ProjectTile name={project} clientId={activeClientId} size="xs" />
+                          <span
+                            className={`absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full ring-2 ring-[#1e293b] ${hasNok ? "bg-[#f87171]" : "bg-[#4ade80]"}`}
+                            aria-hidden="true"
+                          />
                         </span>
-                        <span className="text-[12px] font-bold text-[#f8fafc] truncate"><MasterProjectName value={project} /></span>
-                        {isSelected && (
-                          <span className="ml-auto text-[9px] font-bold text-[#38bdf8] bg-[rgba(56,189,248,0.12)] border border-[rgba(56,189,248,0.3)] rounded-[4px] px-1.5 py-0.5 font-mono uppercase">
-                            Active
-                          </span>
-                        )}
+                        <span className="text-[12px] font-bold text-[#f8fafc] truncate min-w-0"><MasterProjectName value={project} /></span>
+                        <div className="ml-auto flex items-center gap-1 shrink-0">
+                          {isSelected && (
+                            <span className="text-[9px] font-bold text-[#38bdf8] bg-[rgba(56,189,248,0.12)] border border-[rgba(56,189,248,0.3)] rounded-[4px] px-1.5 py-0.5 font-mono uppercase">
+                              Active
+                            </span>
+                          )}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setActiveLinksModal({
+                                project,
+                                clientId: activeClientId,
+                              });
+                            }}
+                            aria-haspopup="dialog"
+                            title={`Buka link monitoring ${project}`}
+                            aria-label={`Buka link monitoring ${project}`}
+                            className="size-7 [@media(pointer:coarse)]:size-9 grid place-items-center [&>svg]:block rounded-lg border border-[#38bdf8]/30 bg-[#38bdf8]/10 text-[#38bdf8] hover:bg-[#38bdf8]/20 hover:border-[#38bdf8]/60 transition-colors duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38bdf8]"
+                          >
+                            <Globe size={16} strokeWidth={1.75} absoluteStrokeWidth />
+                          </button>
+                        </div>
                       </div>
 
                       <div className="flex items-baseline gap-[6px] mt-1">
@@ -716,7 +716,7 @@ export function MonitoringView({
                           {hasNok ? "Perlu mitigasi" : "All Normal"}
                         </span>
                       </div>
-                    </button>
+                    </div>
                   );
                 })}
               </div>
@@ -764,6 +764,17 @@ export function MonitoringView({
         </div>
       )}
       </PanelSkeletonWrapper>
+
+      {activeLinksModal && (
+        <MonitoringLinksModal
+          open
+          project={activeLinksModal.project}
+          task={activeLinksModal.task}
+          clientId={activeLinksModal.clientId}
+          explicitUrl={activeLinksModal.url}
+          onClose={() => setActiveLinksModal(null)}
+        />
+      )}
     </>
   );
 }

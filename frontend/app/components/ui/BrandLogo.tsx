@@ -28,6 +28,7 @@ export function BrandLogo({
         aria-hidden="true"
         style={{ width: size, height: size }}
       >
+        {/* eslint-disable-next-line @next/next/no-img-element -- a small local logo, nothing for the optimiser to do */}
         <img
           src="/hutabyte_icon_transparent.png"
           alt="Central Tracking Dashboard Logo"

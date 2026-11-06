@@ -1,0 +1,236 @@
+{
+  "results": [
+    {
+      "name": "mobile layout and newest bars",
+      "pass": true,
+      "detail": {
+        "height": 3845,
+        "volume": {
+          "scrollLeft": 588,
+          "scrollWidth": 928
+        },
+        "svg": [
+          {
+            "width": 340,
+            "height": 220,
+            "viewBox": "0 0 340 220",
+            "minFont": 11
+          },
+          {
+            "width": 340,
+            "height": 220,
+            "viewBox": "0 0 340 220",
+            "minFont": null
+          }
+        ]
+      }
+    },
+    {
+      "name": "More initial focus, Tab wrap, Shift Tab wrap, Escape return",
+      "pass": true,
+      "detail": {
+        "html": "visible",
+        "body": "visible",
+        "inert": 0,
+        "overlay": false
+      }
+    },
+    {
+      "name": "20 fast sheet cycles: close button, backdrop, Escape",
+      "pass": true,
+      "detail": {
+        "html": "visible",
+        "body": "visible",
+        "inert": 0,
+        "overlay": false
+      }
+    },
+    {
+      "name": "swipe down closes sheet and releases touch/keyboard scrolling",
+      "pass": true,
+      "detail": true
+    },
+    {
+      "name": "all 8 routes via navigation and correct active item",
+      "pass": true,
+      "detail": [
+        {
+          "route": "/tickets",
+          "active": [
+            "20Tickets"
+          ]
+        },
+        {
+          "route": "/monitoring",
+          "active": [
+            "Monitoring"
+          ]
+        },
+        {
+          "route": "/shift-log",
+          "active": [
+            "Shift Log"
+          ]
+        },
+        {
+          "route": "/reports",
+          "active": [
+            "Lainnya"
+          ]
+        },
+        {
+          "route": "/team-roster",
+          "active": [
+            "Lainnya"
+          ]
+        },
+        {
+          "route": "/master-data",
+          "active": [
+            "Lainnya"
+          ]
+        },
+        {
+          "route": "/runbooks",
+          "active": [
+            "Lainnya"
+          ]
+        },
+        {
+          "route": "/dashboard",
+          "active": [
+            "Dashboard"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "filter controls share values, inline calendar and reset",
+      "pass": true,
+      "detail": {
+        "value": "APH",
+        "counter": "12 tiket · 1 filter"
+      }
+    },
+    {
+      "name": "sheet closes on browser Back",
+      "pass": true,
+      "detail": {
+        "html": "visible",
+        "body": "visible",
+        "inert": 0,
+        "overlay": false
+      }
+    },
+    {
+      "name": "client selection sheet",
+      "pass": true,
+      "detail": {
+        "name": "PT Bank Negara Indonesia (Persero) Tbk\n0 Monitored Systems"
+      }
+    },
+    {
+      "name": "ticket/staff/monitoring expansion and distribution swipe tabs",
+      "pass": true,
+      "detail": true
+    },
+    {
+      "name": "touch tooltips and pan-y",
+      "pass": true,
+      "detail": true
+    },
+    {
+      "name": "volume touch detail, legend visibility and MoM sizing",
+      "pass": true,
+      "detail": {
+        "width": 564,
+        "viewBox": 564,
+        "minFont": 11
+      }
+    },
+    {
+      "name": "staff detail focus trap and release",
+      "pass": true,
+      "detail": {
+        "html": "visible",
+        "body": "visible",
+        "inert": 0,
+        "overlay": false
+      }
+    },
+    {
+      "name": "desktop filter matches mobile result",
+      "pass": true,
+      "detail": "Menampilkan 12 dari 88 Tiket"
+    },
+    {
+      "name": "memo 20 close cycles, focus and auto scroll release",
+      "pass": true,
+      "detail": {
+        "html": "visible",
+        "body": "visible",
+        "inert": 0,
+        "overlay": false
+      }
+    },
+    {
+      "name": "Panel Viewer deep link and close",
+      "pass": true,
+      "detail": {
+        "html": "visible",
+        "body": "visible",
+        "inert": 0,
+        "overlay": false
+      }
+    },
+    {
+      "name": "320px transition header, safe areas, bottom content, reduced motion",
+      "pass": true,
+      "detail": {
+        "header": {
+          "width": 320,
+          "scrollWidth": 320,
+          "children": [
+            {
+              "name": "TritronikTRIT",
+              "w": 52.265625,
+              "left": 49.828125,
+              "right": 102.09375
+            },
+            {
+              "name": "TRANSISI SHIFT·08:00–08:30Subuh (00:00 – 08:30)Pagi (08:00 – 16:30)Sisa 20m",
+              "w": 40,
+              "left": 110.09375,
+              "right": 150.09375
+            },
+            {
+              "name": "Shift PagiPagi08:00 – 16:30 WIB",
+              "w": 57.90625,
+              "left": 158.09375,
+              "right": 216
+            },
+            {
+              "name": "23 Oktober 202623 Okt 2026·08:10:0008:10 WIB",
+              "w": 36,
+              "left": 224,
+              "right": 260
+            },
+            {
+              "name": "",
+              "w": 40,
+              "left": 268,
+              "right": 308
+            }
+          ]
+        },
+        "safeArea": 96,
+        "bottom": {
+          "content": 398.140625,
+          "nav": 477,
+          "fab": 414
+        }
+      }
+    }
+  ],
+  "errors": []
+}

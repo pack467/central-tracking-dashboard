@@ -2,21 +2,26 @@
 import { MasterProjectName } from "@/app/components/ui/MasterProjectName";
 
 import { useMemo, useState } from "react";
-import { Activity, AlertTriangle, ArrowRight, Check, CheckCircle2, Eye, FileText, Info, ListChecks, Lock, ShieldCheck, Ticket as TicketIcon, Trash2, UserCheck, XCircle, type LucideIcon } from "lucide-react";
+import { Activity, AlertTriangle, ArrowRight, Building2, Check, CheckCircle2, Eye, FileText, Info, ListChecks, Lock, MessageSquare, ShieldCheck, Ticket as TicketIcon, Trash2, UserCheck, XCircle, type LucideIcon } from "lucide-react";
 import { Badge } from "@/app/components/ui/Badge";
 import { Modal } from "@/app/components/ui/Modal";
 import { ModalCloseButton } from "@/app/components/ui/ModalCloseButton";
 import { ConfirmDialog } from "@/app/components/ui/ConfirmDialog";
 import { Avatar } from "@/app/components/ui/Avatar";
+import { NotAdequateModal } from "@/app/components/dashboard/AssessmentModals";
 import { formatHandoverDate, isOpenTicket } from "@/app/lib/data";
 import { canDeleteHandover, canEditHandover, canReceiveHandover } from "@/app/lib/handover";
-import { getShiftTagClass } from "@/app/lib/shifts";
+import { getShiftInfoForMinutes, getShiftTagClass } from "@/app/lib/shifts";
 import { severityTone, statusTone } from "@/app/components/tickets/TicketTable";
 import { TaskStatusBadge } from "./TaskStatusBadge";
 import { TaskPriorityBadge } from "./TaskPriorityBadge";
 import type { useHandoverWorkflow } from "@/app/hooks/useHandoverWorkflow";
-import type { HandoverTask, Ticket } from "@/app/lib/types";
+import type { HandoverCheckpoint, HandoverTask, Ticket } from "@/app/lib/types";
 import { ticketCode } from "@/app/lib/ticket-code";
+import { useAppData } from "@/app/components/routing/AppShell";
+import { taskSourceTicketId, taskTicketCode, ticketFromTask } from "@/app/lib/handover-ticket";
+import { findBackendTicketByCode, ticketsFromBackend } from "@/app/services/backend-tickets";
+import { TaskTicketDialog, type TaskTicketChoice } from "./TaskTicketDialog";
 
 export type HandoverWorkflow = ReturnType<typeof useHandoverWorkflow>;
 
@@ -37,12 +42,27 @@ function formatDateTime(iso?: string) {
   }
 }
 
-const fallbackCheckpoints = [
-  { time: "07:00", project: "B2B", task: "Health check gateway B2B & failover", verdict: "ok" as const, note: "Response time normal < 180ms" },
-  { time: "07:15", project: "SM", task: "Queue distributor check", verdict: "ok" as const, note: "Trafik antrian stabil" },
-  { time: "07:30", project: "USIEM", task: "Log collector audit", verdict: "nok" as const, note: "Log direct MSS sempat tertumpuk" },
-  { time: "07:45", project: "DM", task: "Database sync check", verdict: "ok" as const, note: "Replika in sync" },
-  { time: "08:00", project: "ActiveMQ", task: "Broker heap & consumer count", verdict: "ok" as const, note: "Heap normal" },
+function resolveCheckpointShift(cp: HandoverCheckpoint, recordShift?: string): string {
+  if (cp.shift && cp.shift.trim()) {
+    return /^shift\s+/i.test(cp.shift.trim()) ? cp.shift.trim() : `Shift ${cp.shift.trim()}`;
+  }
+  if (recordShift && recordShift.trim()) {
+    return /^shift\s+/i.test(recordShift.trim()) ? recordShift.trim() : `Shift ${recordShift.trim()}`;
+  }
+  const match = /^(\d{1,2}):(\d{2})/.exec((cp.time || "").trim());
+  if (match) {
+    const mins = parseInt(match[1], 10) * 60 + parseInt(match[2], 10);
+    return getShiftInfoForMinutes(mins).label;
+  }
+  return "Shift Operasional";
+}
+
+const fallbackCheckpoints: HandoverCheckpoint[] = [
+  { time: "07:00", project: "B2B", task: "Health check gateway B2B & failover", verdict: "ok", note: "Response time normal < 180ms" },
+  { time: "07:15", project: "SM", task: "Queue distributor check", verdict: "ok", note: "Trafik antrian stabil" },
+  { time: "07:30", project: "USIEM", task: "Log collector audit", verdict: "nok", note: "Log direct MSS sempat tertumpuk" },
+  { time: "07:45", project: "DM", task: "Database sync check", verdict: "ok", note: "Replika in sync" },
+  { time: "08:00", project: "ActiveMQ", task: "Broker heap & consumer count", verdict: "ok", note: "Heap normal" },
 ];
 
 /** A project named in a list: plain text in a quiet chip, the same in every tab. */
@@ -97,7 +117,18 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
   const [filter, setFilter] = useState<"all" | "repeat" | "waiting" | "in-progress">("all");
   const [acceptanceNote, setAcceptanceNote] = useState("");
   const [taskToDelete, setTaskToDelete] = useState<HandoverTask | null>(null);
-  const isReceiver = canReceiveHandover(record, actor);
+  const [taskToClose, setTaskToClose] = useState<HandoverTask | null>(null);
+  const { tickets: allTickets, saveNewTicket, ticketWritable, ticketReadOnlyReason, activeClientId } = useAppData();
+  const [selectedCheckpoint, setSelectedCheckpoint] = useState<{
+    time: string;
+    project: string;
+    task: string;
+    verdict: "ok" | "nok";
+    note: string;
+    shift: string;
+    owner: string;
+  } | null>(null);
+  const isReceiver = actor ? canReceiveHandover(record, actor) : true;
   // sender or receiver, and on the handover's shifts
   const canDeleteTask = canDeleteHandover(record, actor) && workflow.canManage(record);
 
@@ -133,8 +164,29 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
     return [];
   }, [record.openTickets, record.tasks, tickets]);
 
+  /** The ticket a task became, or the one it was made from: the code to show and the ticket to open, when it is loaded. */
+  const ticketOfTask = (task: HandoverTask) => {
+    const id = task.ticketId ?? taskSourceTicketId(task);
+    if (!id) return null;
+    const ticket = allTickets.find((item) => item.id === id);
+    return { code: task.ticketCode || (ticket ? ticketCode(ticket) : id), ticket };
+  };
+  const closeTaskAsTicket = async (task: HandoverTask, choice: TaskTicketChoice) => {
+    if (!active) return;
+    const done = await workflow.completeTask(task.id, async () => {
+      const code = taskTicketCode(active.id, task.id);
+      // never a second ticket for one task: a failed search stops here, it does not go on to create
+      const ticket = allTickets.find((item) => ticketCode(item) === code) ?? (ticketsFromBackend() ? await findBackendTicketByCode(code) : null) ?? await saveNewTicket(ticketFromTask({
+        task, noteId: active.id, shifts: `${record.sourceShift} → ${record.targetShift}`, actorName: actor?.name || "Operator", clientId: activeClientId, ...choice,
+      }));
+      return { id: ticket.id, code: ticketCode(ticket) };
+    });
+    if (done) setTaskToClose(null);
+  };
+
   const tasks = record.tasks;
   const completedTasksCount = tasks.filter((task) => task.completed).length;
+  const remainingTasksCount = Math.max(0, tasks.length - completedTasksCount);
   const progressPercent = tasks.length
     ? Math.round((completedTasksCount / tasks.length) * 100)
     : 0;
@@ -211,6 +263,8 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
             )}
           </h2>
 
+          {active && record.organization && <div className="mb-1"><span className="inline-flex max-w-full items-center gap-1.5 rounded-md border border-slate-600/60 bg-slate-800/70 px-2 py-0.5 text-[11.5px] font-semibold text-slate-200 " title="Klien/Mitra atau tenant"><Building2 size={12} className="shrink-0 text-slate-400" aria-hidden="true" /><span className="truncate">{record.organization}</span></span></div>}
+
           {/* Subtitles */}
           {!isReadOnly ? (
             <p className="max-w-[640px] m-0 text-[11.5px] text-[var(--ink-secondary)]">
@@ -233,7 +287,7 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
               Edit Catatan
             </button>
           )}
-          {!isReadOnly && (
+          {!isReadOnly && workflow.isOnActiveShift && (
             <button
               className="inline-flex items-center justify-center min-h-[32px] p-[0_10px] max-[660px]:min-w-[76px] max-[660px]:p-[0_9px] max-[660px]:text-[10px] whitespace-nowrap leading-none shrink-0 box-border text-[var(--accent-blue)] border border-[var(--accent-blue-border)] rounded-[7px] bg-[var(--accent-blue-soft)] text-[10.5px] font-bold hover:text-white hover:border-[var(--accent-blue)] hover:bg-[var(--accent-blue)] cursor-pointer transition-all duration-150"
               disabled={busy}
@@ -290,26 +344,26 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
                 </div>
               </div>
 
-              <p className="text-[var(--ink-secondary)] m-[8px_0] max-[660px]:m-[10px_0] max-[660px]:text-[12px] max-[660px]:leading-[1.5]">
-                {isReadOnly ? (
-                  <span className="text-[var(--green)] font-medium">
-                    <CheckCircle2 size={13} style={{ display: "inline-block", verticalAlign: "middle", marginRight: "5px", color: "var(--green)" }} />
-                    Handover telah diserahkan dan diterima oleh {record.acceptance?.actor.name || record.targetPic}.
-                  </span>
-                ) : record.acceptance ? (
-                  `Diterima oleh ${record.acceptance.actor.name} · ${new Date(record.acceptance.at).toLocaleString("id-ID")}`
-                ) : (
-                  "Menunggu penerimaan akhir; checklist bukan persetujuan serah terima."
-                )}
-              </p>
+              {(isReadOnly || record.acceptance) && (
+                <p className="text-[var(--ink-secondary)] m-[8px_0] max-[660px]:m-[10px_0] max-[660px]:text-[12px] max-[660px]:leading-[1.5]">
+                  {isReadOnly ? (
+                    <span className="text-[var(--green)] font-medium">
+                      <CheckCircle2 size={13} style={{ display: "inline-block", verticalAlign: "middle", marginRight: "5px", color: "var(--green)" }} />
+                      Handover telah diserahkan dan diterima oleh {record.acceptance?.actor.name || record.targetPic}.
+                    </span>
+                  ) : (
+                    `Diterima oleh ${record.acceptance?.actor.name} · ${new Date(record.acceptance!.at).toLocaleString("id-ID")}`
+                  )}
+                </p>
+              )}
 
               {/* In Active mode: Progress bar. In Read-only mode: Static final summary line */}
               {!isReadOnly ? (
                 <div className="flex flex-col gap-[6px] pt-[10px] border-t border-[var(--line)]">
                   <div className="flex justify-between items-center text-[11.5px] text-[var(--ink-secondary)]">
-                    <span>Progres Peninjauan Tugas</span>
+                    <span>Progres Penyelesaian Tugas</span>
                     <strong className="text-[var(--ink-primary)] font-mono">
-                      {completedTasksCount} dari {tasks.length} Tugas Ditandai Lanjut ({progressPercent}%)
+                      {completedTasksCount} Selesai (Done) · {remainingTasksCount} Dilanjutkan ke Shift Berikutnya ({progressPercent}%)
                     </strong>
                   </div>
                   <div className="h-[6px] bg-[var(--line)] rounded-[99px] overflow-hidden" role="progressbar" aria-valuenow={progressPercent} aria-valuemin={0} aria-valuemax={100}>
@@ -320,7 +374,7 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
                 <div className="flex items-center justify-between gap-[12px] pt-[10px] border-t border-[var(--line)]">
                   <div className="flex items-center gap-[7px] text-[12px] text-[var(--ink-primary)]">
                     <CheckCircle2 size={15} style={{ color: "var(--green)" }} />
-                    <strong>{completedTasksCount} dari {tasks.length} tugas dikonfirmasi untuk dilanjutkan</strong>
+                    <strong>{completedTasksCount} dari {tasks.length} tugas selesai (Done) · {remainingTasksCount} dilanjutkan ke shift berikutnya</strong>
                   </div>
                   <span className="inline-flex items-center p-[3px_8px] rounded-[99px] text-[10px] font-bold uppercase tracking-[0.5px] bg-[rgba(148,163,184,0.14)] text-[#94a3b8] border border-[rgba(148,163,184,0.25)]">Arsip Permanen</span>
                 </div>
@@ -359,7 +413,7 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
                   <div className="flex items-start gap-2 rounded-lg border border-sky-400/20 bg-sky-400/[0.06] px-3 py-2.5" role="note">
                     <Info size={14} className="mt-[1px] shrink-0 text-sky-400" aria-hidden="true" />
                     <p className="m-0 text-[12px] leading-[1.5] text-sky-100/90">
-                      Tandai <b className="font-semibold text-emerald-300">Done</b> untuk tugas yang sudah ditinjau dan tetap dilanjutkan, atau <b className="font-semibold text-red-300">Delete</b> untuk tugas yang tidak diperlukan lagi.
+                      Klik <b className="font-semibold text-emerald-300">Done</b> jika tugas sudah selesai: tugas ditutup dan dicatat sebagai tiket, lalu tidak muncul lagi di shift selanjutnya. Klik <b className="font-semibold text-red-300">Delete</b> untuk menghapus tugas tanpa membuat tiket (misalnya salah input atau sudah tidak diperlukan lagi).
                     </p>
                   </div>
                 )}
@@ -380,11 +434,14 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
                       </button>
                     ))}
                   </div>
-                  <span className="text-[11.5px] text-slate-400"><b className="font-mono font-semibold text-emerald-300">{completedTasksCount}</b> dari {tasks.length} ditandai Done</span>
+                  <span className="text-[11.5px] text-slate-400"><b className="font-mono font-semibold text-emerald-300">{completedTasksCount}</b> selesai (Done) · <b className="font-mono font-semibold text-sky-300">{remainingTasksCount}</b> berlanjut ke shift berikutnya</span>
                 </div>
 
                 <div className="grid gap-2">
-                  {visibleTasks.map((task) => (
+                  {visibleTasks.map((task) => {
+                    const linked = ticketOfTask(task);
+                    const needsTicket = !task.completed && !taskSourceTicketId(task);
+                    return (
                     <article
                       key={task.id}
                       className={`grid grid-cols-[24px_minmax(0,1fr)_auto] items-start gap-x-3 gap-y-2.5 rounded-xl border p-3.5 transition-colors duration-150 max-[560px]:grid-cols-[24px_minmax(0,1fr)] ${
@@ -403,6 +460,11 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
                           <ProjectPill name={task.project} />
                           <TaskStatusBadge state={task.state} />
                           <TaskPriorityBadge priority={task.priority} />
+                          {linked && (
+                            <button type="button" disabled={!linked.ticket} onClick={() => { if (linked.ticket) onSelectTicket?.(linked.ticket); }} title={linked.ticket ? `Buka tiket #${linked.code}` : `Tiket #${linked.code}`} className="inline-flex max-w-full items-center gap-1 rounded-md border border-sky-400/30 bg-sky-400/10 px-1.5 py-0.5 font-mono text-[10.5px] font-semibold text-sky-300 enabled:cursor-pointer enabled:hover:border-sky-400/60 disabled:cursor-default">
+                              <TicketIcon size={11} className="shrink-0" aria-hidden="true" /><span className="truncate">#{linked.code}</span>
+                            </button>
+                          )}
                         </div>
 
                         {isReadOnly && (
@@ -411,11 +473,11 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
                             <span>
                               {task.completed ? (
                                 <>
-                                  Dikonfirmasi berlanjut oleh <strong>{task.confirmedBy || record.acceptance?.actor.name || record.targetPic}</strong> —{" "}
-                                  {task.confirmedAt ? formatDateTime(task.confirmedAt) : record.acceptance ? formatDateTime(record.acceptance.at) : `${formatHandoverDate(active?.handoverDate || "")}, 08:12 WIB`}
+                                  Diselesaikan (Done) oleh <strong>{task.confirmedBy || record.acceptance?.actor.name || record.sourcePic}</strong> —{" "}
+                                  {task.confirmedAt ? formatDateTime(task.confirmedAt) : record.acceptance ? formatDateTime(record.acceptance.at) : `${formatHandoverDate(active?.handoverDate || "")}, 08:12 WIB`} (tidak muncul di shift selanjutnya)
                                 </>
                               ) : (
-                                "Ditinjau saat serah terima (dihentikan / tidak dilanjutkan)."
+                                "Belum selesai saat serah terima — dilanjutkan ke shift selanjutnya."
                               )}
                             </span>
                           </div>
@@ -431,9 +493,9 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
                                 ? "border-emerald-500 bg-emerald-500 text-white hover:not-disabled:bg-emerald-600"
                                 : "border-emerald-500/40 bg-emerald-500/10 text-emerald-300 hover:not-disabled:border-emerald-400 hover:not-disabled:bg-emerald-500/20"
                             }`}
-                            onClick={() => onToggleTask(task.id)}
-                            disabled={busy || !isReceiver || Boolean(record.acceptance)}
-                            title={task.completed ? "Batal tandai Done" : "Tandai tugas ini Done (tetap berlaku dan dilanjutkan)"}
+                            onClick={() => { if (needsTicket) setTaskToClose(task); else onToggleTask(task.id); }}
+                            disabled={busy || !isReceiver || Boolean(record.acceptance) || Boolean(task.ticketId) || (needsTicket && !ticketWritable)}
+                            title={task.ticketId ? `Sudah menjadi tiket #${linked?.code}` : task.completed ? "Batal tandai Done (tugas akan tetap dilanjutkan ke shift berikutnya)" : needsTicket ? (ticketWritable ? "Tandai selesai dan buat tiket (tugas tidak akan muncul lagi di shift selanjutnya)" : ticketReadOnlyReason) : "Tandai selesai (tugas ini sudah punya tiket)"}
                             aria-label={task.completed ? "Tugas ditandai Done" : "Tandai Done"}
                             aria-pressed={task.completed}
                           >
@@ -444,8 +506,8 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
                             type="button"
                             className="inline-flex min-h-[30px] items-center justify-center gap-1.5 rounded-md border border-red-500/30 bg-red-500/10 px-3 text-[11.5px] font-bold text-red-300 transition-colors duration-150 hover:not-disabled:border-red-400 hover:not-disabled:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-40"
                             onClick={() => setTaskToDelete(task)}
-                            disabled={busy || !canDeleteTask || Boolean(record.acceptance)}
-                            title={canDeleteTask ? "Hapus tugas dari handover" : `Hanya pengirim atau penerima dari Shift ${record.sourceShift} / ${record.targetShift} yang dapat menghapus tugas`}
+                            disabled={busy || !canDeleteTask || Boolean(record.acceptance) || Boolean(task.ticketId)}
+                            title={task.ticketId ? "Tugas ini sudah menjadi tiket" : canDeleteTask ? "Hapus tugas dari handover (salah input atau tidak diperlukan lagi)" : `Hanya pengirim atau penerima dari Shift ${record.sourceShift} / ${record.targetShift} yang dapat menghapus tugas`}
                             aria-label="Hapus tugas"
                           >
                             <Trash2 size={13} aria-hidden="true" />
@@ -460,7 +522,8 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
                         )
                       )}
                     </article>
-                  ))}
+                    );
+                  })}
 
                   {visibleTasks.length === 0 && <EmptyNote icon={ListChecks} title="Tidak ada tugas pada filter ini" text="Pilih filter lain untuk melihat tugas yang ada." />}
                 </div>
@@ -479,41 +542,28 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
                         <span className="block text-[11.5px] text-slate-400">{senderShift ? `Catatan dari ${senderShift}` : "Catatan dari shift pengirim"}</span>
                       </div>
                     </header>
-                    <div className="border-l-[3px] border-sky-400/60 px-4 py-3.5 text-[13px] leading-[1.7] text-slate-200 whitespace-pre-wrap [word-break:break-word]">
-                      {noteContent}
-                    </div>
+                    <p className="m-0 whitespace-pre-wrap break-words px-4 py-3.5 text-[13px] leading-[1.6] text-slate-200">{noteContent}</p>
                   </article>
                 ) : (
-                  <EmptyNote icon={FileText} title="Tidak ada catatan" text="Shift sebelumnya tidak menulis catatan tambahan." />
+                  <EmptyNote icon={FileText} title="Tidak ada catatan shift" text="Pengirim tidak menambahkan catatan umum pada serah terima ini." />
                 )}
 
-                {/* Receiver acceptance note (its one place) */}
-                {!isReadOnly && isReceiver && !record.acceptance && (
-                  <div className="rounded-xl border border-slate-700/70 bg-slate-900/60 p-4">
-                    <label className="m-0 flex flex-col gap-1.5">
-                      <span className="text-[12.5px] font-semibold text-slate-100">Catatan Penerimaan Akhir <span className="font-normal text-slate-500">(opsional)</span></span>
-                      <textarea
-                        rows={2}
-                        disabled={busy}
-                        value={acceptanceNote}
-                        onChange={(event) => setAcceptanceNote(event.target.value)}
-                        placeholder="Hasil pemeriksaan penerima sebelum menerima serah terima"
-                        className="w-full resize-y rounded-lg border border-slate-700 bg-slate-950/60 px-3 py-2 text-[13px] text-slate-100 placeholder:text-slate-500 focus:border-sky-400 focus:outline-none"
-                      />
+                {!isReadOnly ? (
+                  <div className="flex flex-col gap-1.5 rounded-xl border border-slate-700/70 bg-slate-900/60 p-4">
+                    <label htmlFor="handover-acceptance-note" className="text-[12px] font-semibold text-slate-200">
+                      Catatan penerimaan <span className="font-normal text-slate-500">(opsional)</span>
                     </label>
-                    {actor && <p className="mb-0 mt-2 text-[11.5px] text-slate-500">Akun {actor.local ? "simulasi lokal" : "aktif"}: {actor.name}</p>}
+                    <input
+                      id="handover-acceptance-note"
+                      className="h-[38px] w-full rounded-lg border border-slate-700 bg-slate-950/70 px-3 text-[12.5px] text-slate-100 placeholder:text-slate-500 disabled:cursor-not-allowed disabled:opacity-50"
+                      value={acceptanceNote}
+                      onChange={(event) => setAcceptanceNote(event.target.value)}
+                      disabled={busy || !isReceiver || Boolean(record.acceptance)}
+                      placeholder="Tambahkan catatan singkat saat menerima handover ini…"
+                    />
                   </div>
-                )}
-
-                {!isReadOnly && !isReceiver && !record.acceptance && actor && (
-                  <p className="m-0 flex items-start gap-2 rounded-lg border border-slate-700/60 bg-slate-900/40 px-3 py-2.5 text-[12px] text-slate-400">
-                    <Info size={14} className="mt-[1px] shrink-0" aria-hidden="true" />
-                    <span>Akun {actor.local ? "simulasi lokal" : "aktif"}: {actor.name}. Checklist dan penerimaan menunggu akun penerima yang dituju ({record.targetPic}).</span>
-                  </p>
-                )}
-
-                {isReadOnly && record.validationNote && record.validationNote !== "Menunggu validasi shift penerima." && (
-                  <ValidationNote shift={record.targetShift} note={record.validationNote} />
+                ) : (
+                  record.validationNote && <ValidationNote shift={record.targetShift} note={record.validationNote} />
                 )}
               </div>
             )}
@@ -523,58 +573,63 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
               <div className="flex flex-col gap-3">
                 {record.findings.length ? (
                   <>
-                    <p className="m-0 text-[12px] text-slate-400">
-                      <b className="font-semibold text-amber-300">{findingsWaiting}</b> masih dipantau · <b className="font-semibold text-violet-300">{record.findings.length - findingsWaiting}</b> sedang ditindaklanjuti
-                    </p>
+                    <div className="grid grid-cols-3 gap-2">
+                      <MiniStat value={record.findings.length} label="Total temuan" tone="text-amber-300" ring="border-amber-400/30 bg-amber-400/[0.07]" />
+                      <MiniStat value={findingsWaiting} label="Perlu dipantau" tone="text-red-300" ring="border-red-400/30 bg-red-500/[0.07]" />
+                      <MiniStat value={record.findings.length - findingsWaiting} label="Sedang ditangani" tone="text-sky-300" ring="border-sky-400/30 bg-sky-400/[0.07]" />
+                    </div>
                     <div className="grid gap-2">
-                      {record.findings.map((finding, index) => {
+                      {record.findings.map((finding, idx) => {
                         const waiting = finding.state === "waiting";
                         return (
                           <article
-                            key={`${finding.title}-${index}`}
-                            className={`rounded-xl border border-l-[3px] p-3.5 ${waiting ? "border-amber-400/25 border-l-amber-400 bg-amber-400/[0.05]" : "border-violet-400/25 border-l-violet-400 bg-violet-400/[0.05]"}`}
+                            key={`${finding.project}-${finding.title}-${idx}`}
+                            className={`rounded-xl border border-slate-700/70 border-l-[3px] bg-slate-900/60 p-3.5 ${waiting ? "border-l-amber-400" : "border-l-sky-400"}`}
                           >
                             <div className="flex flex-wrap items-center justify-between gap-2">
-                              <ProjectPill name={finding.project || "NOC"} />
-                              <span className={`inline-flex items-center gap-1.5 rounded-md border px-2 py-[3px] text-[11px] font-bold ${waiting ? "border-amber-400/35 bg-amber-400/10 text-amber-300" : "border-violet-400/35 bg-violet-400/10 text-violet-300"}`}>
-                                {waiting ? <Eye size={12} aria-hidden="true" /> : <ArrowRight size={12} aria-hidden="true" />}
-                                {waiting ? "Dipantau" : "On Follow Up"}
-                              </span>
+                              <div className="flex min-w-0 items-center gap-2">
+                                <span className="font-mono text-[11px] font-bold text-slate-400">#{idx + 1}</span>
+                                <ProjectPill name={finding.project} />
+                              </div>
+                              <Badge tone={waiting ? "warning" : "info"}>
+                                {waiting ? "Perlu Dipantau" : "Sedang Ditindaklanjuti"}
+                              </Badge>
                             </div>
-                            <h4 className="m-0 mt-2 text-[13.5px] font-semibold leading-snug text-slate-100">{finding.title || "Temuan tanpa judul"}</h4>
-                            <p className="m-0 mt-1 text-[12.5px] leading-[1.5] text-slate-400">{finding.detail || "Belum ada rincian."}</p>
+                            <strong className="mt-2 block text-[13.5px] font-semibold leading-snug text-slate-100">{finding.title}</strong>
+                            <p className="m-0 mt-1 text-[12.5px] leading-[1.55] text-slate-400">{finding.detail}</p>
+                            <div className="mt-2.5 flex items-center gap-1.5 border-t border-slate-700/60 pt-2 text-[11.5px] text-slate-400">
+                              <Eye size={12} className="shrink-0 text-amber-300" aria-hidden="true" />
+                              <span>Tindak lanjut oleh <strong className="font-semibold text-slate-200">Shift {record.targetShift}</strong> ({record.targetPic})</span>
+                            </div>
                           </article>
                         );
                       })}
                     </div>
                   </>
                 ) : (
-                  <EmptyNote icon={ShieldCheck} tone="green" title="Tidak ada temuan" text="Tidak ada temuan khusus yang memerlukan tindak lanjut pada shift ini." />
+                  <EmptyNote icon={ShieldCheck} tone="green" title="Tidak ada temuan atau anomali" text="Seluruh layanan berjalan normal selama shift ini." />
                 )}
               </div>
             )}
 
             {/* TAB 4: STATUS MONITORING */}
             {activeTab === "monitoring" && (
-              <div className="flex flex-col gap-3">
-                <section className="rounded-xl border border-slate-700/70 bg-slate-900/60 p-4">
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div className="flex min-w-0 items-center gap-3">
-                      <Avatar size="md" name={record.monitoringOwner} />
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-3 rounded-xl border border-slate-700/70 bg-slate-900/60 p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex min-w-0 items-center gap-2.5">
+                      <Avatar size="sm" name={record.monitoringOwner || record.sourcePic} />
                       <div className="min-w-0">
-                        <span className="block text-[11.5px] text-slate-400">Penanggung jawab monitoring</span>
-                        <strong className="block truncate text-[13.5px] font-semibold text-slate-100">{record.monitoringOwner || "—"}</strong>
+                        <span className="block text-[11px] text-slate-400">Penanggung jawab monitoring</span>
+                        <strong className="block truncate text-[13px] font-semibold text-slate-100">{record.monitoringOwner || record.sourcePic}</strong>
                       </div>
                     </div>
-                    <Badge tone={record.acceptance ? "success" : "warning"}>{record.acceptance ? "Diterima & Diverifikasi" : "Menunggu penerimaan"}</Badge>
+                    <Badge tone={checkpointsOk === checkpoints.length ? "success" : "warning"}>
+                      {checkpointsOk}/{checkpoints.length} OK
+                    </Badge>
                   </div>
-                  {record.monitoringSummary && <p className="m-0 mt-3 text-[12.5px] leading-[1.6] text-slate-300">{record.monitoringSummary}</p>}
-                  <div className="mt-3 grid grid-cols-3 gap-2">
-                    <MiniStat value={record.monitoredProjects.length} label="Proyek dimonitor" tone="text-sky-300" ring="border-sky-400/25 bg-sky-400/[0.06]" />
-                    <MiniStat value={checkpointsOk} label="Checkpoint OK" tone="text-emerald-300" ring="border-emerald-400/25 bg-emerald-400/[0.06]" />
-                    <MiniStat value={checkpoints.length - checkpointsOk} label="Checkpoint NOK" tone={checkpoints.length - checkpointsOk ? "text-red-300" : "text-slate-400"} ring={checkpoints.length - checkpointsOk ? "border-red-400/30 bg-red-500/[0.06]" : "border-slate-600/50 bg-slate-800/40"} />
-                  </div>
-                </section>
+                  {record.monitoringSummary && <p className="m-0 border-t border-slate-700/60 pt-2.5 text-[12.5px] leading-[1.55] text-slate-300">{record.monitoringSummary}</p>}
+                </div>
 
                 <section>
                   <SectionTitle>Proyek yang dimonitor</SectionTitle>
@@ -592,6 +647,8 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
                   <div className="grid gap-1.5">
                     {checkpoints.map((cp, idx) => {
                       const ok = cp.verdict === "ok";
+                      const cpShift = resolveCheckpointShift(cp, record.sourceShift);
+                      const cpOwner = cp.owner || record.monitoringOwner || record.sourcePic;
                       return (
                         <div
                           key={`${cp.time}-${cp.project}-${idx}`}
@@ -605,10 +662,42 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
                             </div>
                             {cp.note && <small className={`mt-0.5 block truncate text-[11.5px] ${ok ? "text-slate-500" : "text-red-200/80"}`} title={cp.note}>{cp.note}</small>}
                           </div>
-                          <span className={`inline-flex min-w-[54px] items-center justify-center gap-1 rounded-md border px-2 py-[3px] text-[11px] font-extrabold tracking-[0.4px] ${ok ? "border-emerald-400/35 bg-emerald-500/15 text-emerald-300" : "border-red-400/40 bg-red-500/15 text-red-300"}`}>
-                            {ok ? <CheckCircle2 size={12} aria-hidden="true" /> : <XCircle size={12} aria-hidden="true" />}
-                            {ok ? "OK" : "NOK"}
-                          </span>
+                          <div className="inline-flex items-center gap-2 shrink-0">
+                            <span className={`inline-flex min-w-[54px] items-center justify-center gap-1 rounded-md border px-2 py-[3px] text-[11px] font-extrabold tracking-[0.4px] ${ok ? "border-emerald-400/35 bg-emerald-500/15 text-emerald-300" : "border-red-400/40 bg-red-500/15 text-red-300"}`}>
+                              {ok ? <CheckCircle2 size={12} aria-hidden="true" /> : <XCircle size={12} aria-hidden="true" />}
+                              {ok ? "OK" : "NOK"}
+                            </span>
+                            <button
+                              type="button"
+                              aria-haspopup="dialog"
+                              aria-label="Lihat pesan dan shift monitoring"
+                              title={cp.note ? `Lihat pesan monitoring (${cpShift}): ${cp.note.slice(0, 80)}` : `Lihat detail & shift monitoring (${cpShift})`}
+                              onClick={() =>
+                                setSelectedCheckpoint({
+                                  time: cp.time,
+                                  project: cp.project,
+                                  task: cp.task,
+                                  verdict: cp.verdict,
+                                  note: cp.note || "",
+                                  shift: cpShift,
+                                  owner: cpOwner,
+                                })
+                              }
+                              className={`relative inline-flex items-center justify-center w-8 h-8 rounded-lg border transition-all duration-150 cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38bdf8] ${
+                                cp.note
+                                  ? "border-[#38bdf8]/40 bg-[rgba(56,189,248,0.12)] text-[#38bdf8] hover:bg-[rgba(56,189,248,0.2)] hover:border-[#38bdf8]/70 shadow-[0_1px_3px_rgba(56,189,248,0.15)]"
+                                  : "border-[#334155] bg-transparent text-[#94a3b8] hover:bg-[#243044] hover:text-[#f8fafc] hover:border-[#475569]"
+                              }`}
+                            >
+                              <MessageSquare size={15} />
+                              {Boolean(cp.note) && (
+                                <span
+                                  className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[#38bdf8] ring-2 ring-[#1e293b]"
+                                  aria-hidden="true"
+                                />
+                              )}
+                            </button>
+                          </div>
                         </div>
                       );
                     })}
@@ -691,10 +780,7 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
         /* Active Confirmation Mode Footer: Shows Done tasks count vs remaining + Secondary Tutup + Primary Blue "Konfirmasi Handover" */
         <footer className="flex items-center justify-between gap-[16px] p-[14px_24px] border-t border-[var(--line)] bg-[var(--bg)] max-[660px]:items-stretch max-[660px]:flex-col max-[660px]:gap-[10px] max-[660px]:p-[12px_16px]">
           <span className="text-[10.5px] text-[var(--ink-secondary)]">
-            {tasks.filter((task) => task.completed).length} dari {tasks.length} tugas ditandai Done
-            {tasks.filter((task) => !task.completed).length > 0
-              ? ` (${tasks.filter((task) => !task.completed).length} belum ditinjau)`
-              : " — Siap dikonfirmasi"}
+            {completedTasksCount} tugas selesai (Done) · {remainingTasksCount} tugas dilanjutkan ke shift selanjutnya
           </span>
           <div className="flex gap-[8px] shrink-0 max-[660px]:grid max-[660px]:grid-cols-2 [&_.button]:max-[660px]:w-full [&_.button]:max-[660px]:min-w-0 [&_.button]:max-[660px]:px-[8px] [&_.button]:max-[660px]:text-[10.5px]">
             <button className="button button-secondary" onClick={onClose} disabled={busy}>
@@ -703,7 +789,7 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
             <button
               className="button button-primary"
               onClick={() => workflow.confirm(acceptanceNote)}
-              disabled={!active || busy || !isReceiver || Boolean(record.acceptance) || !tasks.length || tasks.some((task) => !task.completed)}
+              disabled={!active || busy || !isReceiver || Boolean(record.acceptance)}
             >
               <Check size={14} style={{ display: "inline-block", verticalAlign: "middle", marginRight: "4px" }} />
               {busy ? "Menyimpan…" : record.acceptance ? "Sudah Diterima" : "Konfirmasi Handover"}
@@ -725,12 +811,31 @@ export function HandoverModal({ workflow, tickets, onSelectTicket }: HandoverMod
         </footer>
       )}
 
+      {/* Read-Only Monitoring Checkpoint Message & Shift Modal */}
+      {selectedCheckpoint && (
+        <NotAdequateModal
+          open
+          readOnly
+          mode="catatan"
+          projectName={selectedCheckpoint.project}
+          checkpointName={selectedCheckpoint.task}
+          time={selectedCheckpoint.time}
+          verdict={selectedCheckpoint.verdict}
+          initialNote={selectedCheckpoint.note}
+          shift={selectedCheckpoint.shift}
+          owner={selectedCheckpoint.owner}
+          onClose={() => setSelectedCheckpoint(null)}
+        />
+      )}
+
+      {taskToClose && <TaskTicketDialog key={taskToClose.id} task={taskToClose} busy={busy} onCancel={() => setTaskToClose(null)} onConfirm={(choice) => void closeTaskAsTicket(taskToClose, choice)} />}
+
       {/* Task Deletion Confirmation Dialog */}
       <ConfirmDialog
         open={Boolean(taskToDelete)}
         danger
         title={`Hapus tugas "${taskToDelete?.title || ""}"?`}
-        message="Tugas ini akan dihapus dari checklist handover dan tidak akan dilanjutkan ke shift berikutnya."
+        message="Tugas ini akan dihapus dari daftar handover (misalnya karena salah input atau tugas sudah tidak diperlukan lagi meskipun belum selesai) dan tidak akan muncul di shift selanjutnya."
         confirmLabel="Hapus tugas"
         cancelLabel="Batal"
         onCancel={() => setTaskToDelete(null)}

@@ -35,6 +35,7 @@ import { ticketsService } from "@/app/services/tickets";
 import { Skeleton, PanelSkeletonWrapper, DashboardLiveOpsCommandBarSkeleton, TodayTicketsSkeleton, ShiftMemoNotesSkeleton, MonitoringChecklistSkeleton, TicketVolumeChartSkeleton, StaffRecapSkeleton, CategoryDistributionSkeleton, SeverityDistributionSkeleton, ResolutionVelocitySkeleton, ShiftTrafficSkeleton } from "@/app/components/ui/skeleton";
 
 import { useMemo, useState, useEffect, useRef, useCallback } from "react";
+import { useIsClient } from "@/app/hooks/useIsClient";
 
 import { createPortal } from "react-dom";
 import { Clock, CheckCircle2, AlertTriangle, ShieldCheck, Activity, TrendingUp, Calendar, Zap, BarChart3, ListChecks, Users, X, ChevronRight, ChevronLeft, Moon, Sun, Sunset, StickyNote, RotateCcw, Check, FolderKanban, SlidersHorizontal, ListFilter } from "lucide-react";
@@ -55,8 +56,7 @@ import { useOrgCatalog } from "@/app/hooks/useOrgCatalog";
 import { itemOf } from "@/app/lib/org-catalog";
 import { getClientMonitoringSchedule } from "@/app/lib/clientData";
 import { rowKey as checkpointKey } from "@/app/components/dashboard/MonitoringSchedule";
-import { isTicketDone, matchesPerson, newestFirst, normalizeName, periodCounts, slaCompliance, slaStatus, slaTargetFor, ticketDateOf } from "@/app/lib/ticket-metrics";
-import { csvLine } from "@/app/lib/csv";
+import { isTicketDone, matchesPerson, newestFirst, normalizeName, periodCounts, slaCompliance, ticketDateOf } from "@/app/lib/ticket-metrics";
 import { buildMomComparison } from "@/app/lib/mom-comparison";
 import { MomComparison } from "@/app/components/dashboard/MomComparison";
 import type { CheckpointAssessment, Ticket } from "@/app/lib/types";
@@ -160,21 +160,8 @@ function computeYTicks(maxVal: number) {
   return { yMax, ticks };
 }
 
-// Format ISO date (e.g. "2026-09-07") into short Indonesian day and date
-function formatHeatmapDate(dateStr: string) {
-  try {
-    const parts = dateStr.split("-");
-    if (parts.length === 3) {
-      const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
-      const days = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
-      return { dayName: days[d.getDay()], dateShort: `${parts[1]}-${parts[2]}` };
-    }
-  } catch {}
-  return { dayName: "", dateShort: dateStr.slice(5) };
-}
-
 function getTicketShiftLocal(ticket: Ticket): "Subuh" | "Pagi" | "Malam" {
-  const rawShift = (ticket as any).createdDuringShift || ticket.shift;
+  const rawShift = (ticket as Ticket & { createdDuringShift?: string }).createdDuringShift || ticket.shift;
   if (rawShift) {
     if (typeof rawShift === "string") {
       if (rawShift.includes("Subuh")) return "Subuh";
@@ -240,7 +227,7 @@ function compactVolumeGeometry(count: number, available: number) {
   return { fits, width, bar, step, start: count > 1 ? 8 + bar / 2 : width / 2 };
 }
 
-export function TicketReportView({ tickets: propTickets, onGoToTickets, assessments }: TicketReportViewProps) {
+export function TicketReportView({ tickets: propTickets, assessments }: TicketReportViewProps) {
   const mobile = useCompactLayout();
   const phone = useMobileLayout();
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -281,7 +268,7 @@ export function TicketReportView({ tickets: propTickets, onGoToTickets, assessme
     }
   );
 
-  const tickets = fetchedTickets ?? (isLoading ? [] : propTickets);
+  const tickets = useMemo(() => fetchedTickets ?? (isLoading ? [] : propTickets), [fetchedTickets, isLoading, propTickets]);
   const newProjectFilters = catalog.projects.filter(p => !p.legacy && p.organizationId === activeClientId && p.status === "active").map(p => p.legacyKey);
   const schema = dashboardSchema([...new Set([...tickets.map(t => t.project), ...newProjectFilters])]);
   const url = useUrlQuery(schema, paths.dashboard);
@@ -495,8 +482,6 @@ export function TicketReportView({ tickets: propTickets, onGoToTickets, assessme
 
   // 1. Overall Aggregates (Downstream charts use analyticsTickets)
   const total = analyticsTickets.length;
-  const closedTickets = useMemo(() => analyticsTickets.filter(isTicketDone), [analyticsTickets]);
-  const activeTickets = useMemo(() => analyticsTickets.filter((t) => !isTicketDone(t)), [analyticsTickets]);
 
   // 2. Project List & Colors
   const allProjects = useMemo(() => {
@@ -549,13 +534,14 @@ export function TicketReportView({ tickets: propTickets, onGoToTickets, assessme
     const sortedEntries = Object.entries(map).sort((a, b) => a[0].localeCompare(b[0]));
 
     let cumulativeBacklog = 0;
-    return sortedEntries.map(([date, data]) => {
+    const days = [];
+    for (const [date, data] of sortedEntries) {
       cumulativeBacklog += data.created - data.closed;
       // a day without a closed ticket has no average (0 here, and the duration charts leave such days out)
       const avgRes = data.resolutionTimes.length
         ? Math.round(data.resolutionTimes.reduce((a, b) => a + b, 0) / data.resolutionTimes.length)
         : 0;
-      return {
+      days.push({
         date,
         created: data.created,
         closed: data.closed,
@@ -564,8 +550,9 @@ export function TicketReportView({ tickets: propTickets, onGoToTickets, assessme
         avgResolution: avgRes,
         resolutionSum: data.resolutionTimes.reduce((a, b) => a + b, 0),
         resolvedCount: data.resolutionTimes.length,
-      };
-    });
+      });
+    }
+    return days;
   }, [analyticsTickets]);
 
   // 3B. Bulan Lalu vs Bulan Ini: this month (WIB) against the same days of last month (lib/mom-comparison.ts). All tickets, like before:
@@ -717,8 +704,6 @@ export function TicketReportView({ tickets: propTickets, onGoToTickets, assessme
   const volumeGranularity = volumeByDate.length ? chooseGranularity(volumeByDate[0].date, volumeByDate[volumeByDate.length - 1].date, volumeMaxBars) : "day";
   const volumeBars = useMemo(() => (volumeGranularity ? bucketVolume(volumeByDate, volumeGranularity) : []), [volumeByDate, volumeGranularity]);
   const maxDayCreated = Math.max(1, ...volumeBars.map((v) => v.created));
-  const maxDayThroughput = Math.max(1, ...volumeByDate.map((v) => Math.max(v.created, v.closed, v.backlog)));
-  const maxResTime = Math.max(70, ...volumeByDate.map((v) => v.avgResolution));
 
   // Compute Y-Ticks for main primary charts
   const stackedYTicks = useMemo(() => {
@@ -727,8 +712,6 @@ export function TicketReportView({ tickets: propTickets, onGoToTickets, assessme
     const yMax = Math.max(4, Math.ceil(peak * 1.1));
     return { yMax, ticks: Array.from({ length: 5 }, (_, index) => Math.round(yMax * index / 4)) };
   }, [mobile, maxDayCreated, volumeBars, hiddenCardProjects]);
-  const trajectoryYTicks = useMemo(() => computeYTicks(maxDayThroughput), [maxDayThroughput]);
-  const resolutionYTicks = useMemo(() => computeYTicks(maxResTime), [maxResTime]);
 
   useEffect(() => {
     if (!mobile || !volumeChartRef.current) return;
@@ -772,17 +755,17 @@ export function TicketReportView({ tickets: propTickets, onGoToTickets, assessme
   const [todayPage, setLocalTodayPage] = useState<number>(() => url.values.page || 1);
   const [todayPageSize, setLocalTodayPageSize] = useState<number>(() => url.values.size !== undefined ? url.values.size : 10);
 
-  useEffect(() => {
-    if (url.values.page && url.values.page !== todayPage) {
-      setLocalTodayPage(url.values.page);
-    }
-  }, [url.values.page]);
-
-  useEffect(() => {
-    if (url.values.size !== undefined && url.values.size !== todayPageSize) {
-      setLocalTodayPageSize(url.values.size);
-    }
-  }, [url.values.size]);
+  // Back and forward change the URL: the local copies follow it.
+  const [urlPage, setUrlPage] = useState(url.values.page);
+  if (url.values.page !== urlPage) {
+    setUrlPage(url.values.page);
+    if (url.values.page && url.values.page !== todayPage) setLocalTodayPage(url.values.page);
+  }
+  const [urlSize, setUrlSize] = useState(url.values.size);
+  if (url.values.size !== urlSize) {
+    setUrlSize(url.values.size);
+    if (url.values.size !== undefined && url.values.size !== todayPageSize) setLocalTodayPageSize(url.values.size);
+  }
 
   const setTodayPage = useCallback((next: number | ((p: number) => number)) => {
     setLocalTodayPage((prev) => {
@@ -845,11 +828,7 @@ export function TicketReportView({ tickets: propTickets, onGoToTickets, assessme
 
   const [selectedUserDetail, setSelectedUserDetail] = useState<UserSummaryData | null>(null);
   const userModalRef = useRef<HTMLDivElement>(null);
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  const isMounted = useIsClient();
 
   // The data attribute owns the scroll lock; lifecycle cleanup restores focus.
   useEffect(() => {
@@ -919,65 +898,6 @@ export function TicketReportView({ tickets: propTickets, onGoToTickets, assessme
       };
     }).sort((a, b) => a.name.localeCompare(b.name)); // Strictly alphabetical
   }, [ticketsWithoutDateFilter, roster, todayWib, analyticsSelectedShifters]);
-
-  // CSV Export with enriched auditable fields
-  const exportCsv = () => {
-    const headers = [
-      "ID",
-      "Date",
-      "Created Time",
-      "Shift",
-      "Project",
-      "Category/Type",
-      "Severity",
-      "Status",
-      "Response Time (mins)",
-      "Resolution Time (mins)",
-      "SLA Target (mins)",
-      "SLA Met",
-      "Aging (hours)",
-      "Root Cause Category",
-      "Subject",
-    ];
-
-    const rows = analyticsTickets.map((t) => {
-      const status = slaStatus(t);
-      return [
-        `#${ticketCode(t)}`,
-        ticketDateOf(t),
-        t.created,
-        t.shift ?? "",
-        t.project,
-        t.type || t.category || "",
-        t.severity,
-        t.status,
-        t.responseMinutes ?? "",
-        t.resolutionMinutes ?? "",
-        slaTargetFor(t),
-        status === "met" ? "YES" : status === "breached" ? "NO (BREACHED)" : "PENDING",
-        t.agingHours ? t.agingHours.toFixed(1) : "",
-        t.rootCauseCategory ?? "",
-        t.subject,
-      ];
-    });
-
-    const csvContent = [csvLine(headers), ...rows.map((r) => csvLine(r))].join("\n");
-    const blob = new Blob([`\uFEFF${csvContent}`], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement("a");
-    anchor.href = url;
-    anchor.download = `noc-ticket-analytics-${dateFilterLabel(analyticsDateFilter, todayWib).toLowerCase().replace(/[^a-z0-9]/g, "-")}-${new Date().toISOString().slice(0, 10)}.csv`;
-    anchor.click();
-    URL.revokeObjectURL(url);
-    notify.success(`NOC Ticket Analytics (${dateFilterLabel(analyticsDateFilter, todayWib)}) berhasil diekspor ke CSV.`, {
-      id: "ticket-report-csv",
-    });
-  };
-
-  const printReport = () => {
-    notify.info("Menyiapkan dialog cetak / PDF presentation-ready...", { id: "ticket-report-print" });
-    window.setTimeout(() => window.print(), 250);
-  };
 
   // Helper for Donut chart paths
   const renderDonutSlices = (
@@ -1478,7 +1398,7 @@ export function TicketReportView({ tickets: propTickets, onGoToTickets, assessme
         <div className="grid grid-cols-[minmax(210px,1.3fr)_repeat(auto-fit,minmax(140px,1fr))] max-[1024px]:grid-cols-2 max-[640px]:grid-cols-1 gap-[10px] items-end w-full analytics-filter-grid max-lg:gap-3 max-lg:[&_[data-select-trigger]]:h-11 max-lg:[&_.analytics-shifter-trigger]:h-11 max-lg:[&_.date-picker-input-wrapper]:h-11 max-lg:[&_.analytics-shifter-popover]:static max-lg:[&_.analytics-shifter-popover]:w-full max-lg:[&_.analytics-shifter-item]:min-h-11 max-lg:[&_.analytics-shifter-action]:min-h-10 max-lg:[&_.analytics-shifter-action]:min-w-10">
           {/* 1. Date Range Picker */}
           <div className="flex flex-col gap-[4px] min-w-0 analytics-filter-field date-field">
-            <label className="text-[10.5px] max-lg:text-[11px] font-semibold text-[#94a3b8] tracking-[0.02em] analytics-filter-label">Rentang Tanggal</label>
+            <span className="text-[10.5px] max-lg:text-[11px] font-semibold text-[#94a3b8] tracking-[0.02em] analytics-filter-label">Rentang Tanggal</span>
             <div className="relative w-full lg:[&_.date-picker-input-wrapper]:h-[34px] lg:[&_[role='button']]:h-[34px] max-lg:[&_.date-picker-input-wrapper]:h-11 analytics-date-picker-wrap">
               <DatePicker
                 value={dateFilterToPickerValue(analyticsDateFilter, todayWib)}
@@ -1493,7 +1413,7 @@ export function TicketReportView({ tickets: propTickets, onGoToTickets, assessme
 
           {/* 2. Project Filter */}
           <div className="flex flex-col gap-[4px] min-w-0 analytics-filter-field">
-            <label className="text-[10.5px] max-lg:text-[11px] font-semibold text-[#94a3b8] tracking-[0.02em] analytics-filter-label">Proyek</label>
+            <span className="text-[10.5px] max-lg:text-[11px] font-semibold text-[#94a3b8] tracking-[0.02em] analytics-filter-label">Proyek</span>
             <div className="relative flex items-center w-full analytics-select-wrap">
               
               <Select icon={<FolderKanban size={16}  />}
@@ -1514,7 +1434,7 @@ export function TicketReportView({ tickets: propTickets, onGoToTickets, assessme
 
           {/* 3. Shift Filter */}
           <div className="flex flex-col gap-[4px] min-w-0 analytics-filter-field">
-            <label className="text-[10.5px] max-lg:text-[11px] font-semibold text-[#94a3b8] tracking-[0.02em] analytics-filter-label">Shift</label>
+            <span className="text-[10.5px] max-lg:text-[11px] font-semibold text-[#94a3b8] tracking-[0.02em] analytics-filter-label">Shift</span>
             <div className="relative flex items-center w-full analytics-select-wrap">
               
               <Select icon={<Clock size={16}  />}
@@ -1535,7 +1455,7 @@ export function TicketReportView({ tickets: propTickets, onGoToTickets, assessme
 
           {/* 4. Shifter (PIC) Multi-Select */}
           <div className="flex flex-col gap-[4px] min-w-0 analytics-filter-field shifter-field">
-            <label className="text-[10.5px] max-lg:text-[11px] font-semibold text-[#94a3b8] tracking-[0.02em] analytics-filter-label">Shifter (PIC)</label>
+            <span className="text-[10.5px] max-lg:text-[11px] font-semibold text-[#94a3b8] tracking-[0.02em] analytics-filter-label">Shifter (PIC)</span>
             <AnalyticsShifterMultiSelect
               selectedList={analyticsSelectedShifters}
               onChange={setAnalyticsSelectedShifters}
@@ -1545,7 +1465,7 @@ export function TicketReportView({ tickets: propTickets, onGoToTickets, assessme
 
           {/* 5. Status Filter */}
           <div className="flex flex-col gap-[4px] min-w-0 analytics-filter-field">
-            <label className="text-[10.5px] max-lg:text-[11px] font-semibold text-[#94a3b8] tracking-[0.02em] analytics-filter-label">Status Tiket</label>
+            <span className="text-[10.5px] max-lg:text-[11px] font-semibold text-[#94a3b8] tracking-[0.02em] analytics-filter-label">Status Tiket</span>
             <div className="relative flex items-center w-full analytics-select-wrap">
               
               <Select icon={<Activity size={16}  />}
@@ -1576,7 +1496,7 @@ export function TicketReportView({ tickets: propTickets, onGoToTickets, assessme
 
           {/* 6. Severity Filter */}
           <div className="flex flex-col gap-[4px] min-w-0 analytics-filter-field">
-            <label className="text-[10.5px] max-lg:text-[11px] font-semibold text-[#94a3b8] tracking-[0.02em] analytics-filter-label">Keparahan</label>
+            <span className="text-[10.5px] max-lg:text-[11px] font-semibold text-[#94a3b8] tracking-[0.02em] analytics-filter-label">Keparahan</span>
             <div className="relative flex items-center w-full analytics-select-wrap">
               
               <Select icon={<AlertTriangle size={16}  />}
@@ -2178,7 +2098,7 @@ export function TicketReportView({ tickets: propTickets, onGoToTickets, assessme
                 <div className="relative w-[130px] h-[130px] max-lg:size-[140px] donut-chart-wrap">
                   <svg className="w-full h-full donut-svg" viewBox="0 0 160 160">
                     {renderDonutSlices(
-                      typeCounts.map(([type, count], idx) => ({
+                      typeCounts.map(([type, count]) => ({
                         label: categoryLabel(type),
                         count,
                         color: resolveCategoryColor(type, catalog.categories).hex,
@@ -2199,7 +2119,7 @@ export function TicketReportView({ tickets: propTickets, onGoToTickets, assessme
 
               {/* Ranked Category Bars */}
               <div className="flex flex-col justify-between h-full gap-2 w-full category-distribution-list max-lg:gap-0">
-                {typeCounts.map(([type, count], idx) => {
+                {typeCounts.map(([type, count]) => {
                   const pct = total > 0 ? Math.round((count / total) * 100) : 0;
                   const color = resolveCategoryColor(type, catalog.categories).hex;
 
@@ -3499,8 +3419,9 @@ export function TicketReportView({ tickets: propTickets, onGoToTickets, assessme
         selectedUserDetail &&
         typeof document !== "undefined" &&
         createPortal(
-          <div data-user-modal="true" className="fixed inset-0 w-screen h-screen bg-black/80 backdrop-blur-[6px] z-[999999] flex items-center justify-center p-[24px_16px] overflow-y-auto overscroll-contain animate-[modalFadeIn_0.15s_ease-out] user-modal-overlay max-lg:h-dvh max-lg:p-0 max-lg:[&_button]:min-h-10 max-lg:[&_button]:min-w-10" onClick={() => setSelectedUserDetail(null)}>
-            <div ref={userModalRef} role="dialog" aria-modal="true" aria-label={`Detail tiket ${selectedUserDetail.name}`} className="relative w-full max-w-[780px] max-h-[86vh] bg-[#0f172a] border border-[rgba(56,189,248,0.35)] rounded-[14px] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85),0_0_0_1px_rgba(255,255,255,0.05)] flex flex-col overflow-hidden m-auto animate-[modalScaleUp_0.15s_ease-out] user-modal-card max-lg:max-h-full max-lg:h-full max-lg:rounded-none max-lg:pt-[var(--ctd-safe-top,env(safe-area-inset-top,0px))] max-lg:pb-[var(--ctd-safe-bottom,env(safe-area-inset-bottom,0px))]" onClick={(e) => e.stopPropagation()}>
+          <div data-user-modal="true" className="fixed inset-0 w-screen h-screen bg-black/80 backdrop-blur-[6px] z-[999999] flex items-center justify-center p-[24px_16px] overflow-y-auto overscroll-contain animate-[modalFadeIn_0.15s_ease-out] user-modal-overlay max-lg:h-dvh max-lg:p-0 max-lg:[&_button]:min-h-10 max-lg:[&_button]:min-w-10">
+            <div className="fixed inset-0" aria-hidden="true" onClick={() => setSelectedUserDetail(null)} />
+            <div ref={userModalRef} role="dialog" aria-modal="true" aria-label={`Detail tiket ${selectedUserDetail.name}`} className="relative w-full max-w-[780px] max-h-[86vh] bg-[#0f172a] border border-[rgba(56,189,248,0.35)] rounded-[14px] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85),0_0_0_1px_rgba(255,255,255,0.05)] flex flex-col overflow-hidden m-auto animate-[modalScaleUp_0.15s_ease-out] user-modal-card max-lg:max-h-full max-lg:h-full max-lg:rounded-none max-lg:pt-[var(--ctd-safe-top,env(safe-area-inset-top,0px))] max-lg:pb-[var(--ctd-safe-bottom,env(safe-area-inset-bottom,0px))]">
               <div className="flex items-center justify-between p-[16px_20px] border-b border-[rgba(148,163,184,0.12)] bg-[rgba(148,163,184,0.04)] shrink-0 user-modal-header">
                 <div className="flex items-center gap-[12px] user-modal-profile">
                   <div
@@ -3519,7 +3440,7 @@ export function TicketReportView({ tickets: propTickets, onGoToTickets, assessme
                           undefined,
                           selectedUserDetail.name.toLowerCase().includes("galih"),
                           userStatus
-                        ) as any)["--status-ring-color"]
+                        ) as Record<string, string>)["--status-ring-color"]
                       }}
                     />
                   </div>
@@ -3656,7 +3577,7 @@ export function TicketReportView({ tickets: propTickets, onGoToTickets, assessme
           onSelectDate={setSelectedDate}
           momData={momComparison}
           userSummaries={userSummaries}
-          onSelectUserDetail={setSelectedUserDetail}
+          onSelectUserDetail={(user) => setSelectedUserDetail(user as UserSummaryData)}
           typeCounts={typeCounts}
           totalTickets={total}
           renderDonutSlices={renderDonutSlices}

@@ -50,14 +50,9 @@ test("Analytics Filter Toolbar is placed directly above Primary Charts and contr
   assert.ok(tsx.includes("analyticsTickets.filter("), "userSummaries must filter from analyticsTickets");
 });
 
-test("CSS rules for Analytics Filter Toolbar exist and are styled properly", () => {
-  const cssPath = path.resolve(__dirname, "../app/styles/tailwind/tickets-enhancements.css");
-  const css = fs.readFileSync(cssPath, "utf-8");
-
-  assert.ok(css.includes(".analytics-filter-section"), "CSS must contain .analytics-filter-section");
-  assert.ok(css.includes(".analytics-filter-header"), "CSS must contain .analytics-filter-header");
-  assert.ok(css.includes(".analytics-filter-grid"), "CSS must contain .analytics-filter-grid");
-  assert.ok(css.includes(".analytics-shifter-trigger"), "CSS must contain .analytics-shifter-trigger");
-  assert.ok(css.includes(".analytics-shifter-popover"), "CSS must contain .analytics-shifter-popover");
-  assert.ok(css.includes(".analytics-shifter-item"), "CSS must contain .analytics-shifter-item");
+test("Analytics Filter Toolbar keeps its class hooks in the component (the styles moved from CSS to Tailwind)", () => {
+  const tsx = fs.readFileSync(path.resolve(__dirname, "../app/components/tickets/TicketReportView.tsx"), "utf-8");
+  for (const name of ["analytics-filter-section", "analytics-filter-header", "analytics-filter-grid", "analytics-shifter-trigger", "analytics-shifter-popover", "analytics-shifter-item"]) {
+    assert.ok(tsx.includes(name), `Must render .${name}`);
+  }
 });

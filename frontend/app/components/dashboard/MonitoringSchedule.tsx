@@ -1,12 +1,12 @@
 
 import { Select } from "@/app/components/ui/Select";
-import { useMemo, useState, useEffect } from "react";
-import { AlertTriangle, Check, X, Layers, Server, MessageSquare, Pencil } from "lucide-react";
-import { Badge } from "@/app/components/ui/Badge";
-import { ProjectMark } from "@/app/components/ui/ProjectMark";
+import { useMemo, useState, useEffect, useId } from "react";
+import { AlertTriangle, Check, X, Layers, Server, MessageSquare, Pencil, Globe } from "lucide-react";
+import { ProjectTile } from "@/app/components/monitoring/ProjectTile";
 import { useToast } from "@/app/components/ui/Toast";
 import { Avatar } from "@/app/components/ui/Avatar";
 import { NotAdequateModal } from "@/app/components/dashboard/AssessmentModals";
+import { MonitoringLinksModal } from "@/app/components/monitoring/MonitoringLinksModal";
 import { getOwnerRole } from "@/app/lib/data";
 import type { CheckpointAssessment, MonitoringEntry } from "@/app/lib/types";
 import { useClient } from "@/app/context/ClientContext";
@@ -89,16 +89,16 @@ export const TAG_VARIANTS = {
 
 export const PENDING_AVATAR_VARIANTS = {
   overdue: {
-    textColor: "text-[#fbbf24] font-semibold",
-    text: "Belum diverifikasi (Overdue)",
+    textColor: "text-[#fbbf24]",
+    text: "Belum diverifikasi",
   },
   live: {
-    textColor: "text-[#38bdf8]",
-    text: "Pending verification",
+    textColor: "text-[#94a3b8]",
+    text: "Menunggu verifikasi",
   },
   upcoming: {
-    textColor: "text-[#94a3b8] opacity-80",
-    text: "Pending verification",
+    textColor: "text-[#64748b]",
+    text: "Belum waktunya",
   },
 } as const;
 
@@ -123,30 +123,36 @@ export const RESULT_BADGE_VARIANTS = {
   },
 } as const;
 
-export function PendingUserSilhouette({ className = "" }: { className?: string }) {
+/**
+ * Nobody has checked this checkpoint yet: the classic "no profile photo" mark, a grey circle with a white head and
+ * shoulders cut off by the circle (a thin grey rim stays visible). Same 26 px as the assigned avatar (ui/Avatar sm).
+ */
+export function PendingUserSilhouette({ className = "", size = 26 }: { className?: string; size?: number }) {
+  const clipId = `pending-avatar-${useId().replace(/:/g, "")}`;
   return (
-    <div
-      className={`w-8 h-8 min-w-[32px] min-h-[32px] rounded-full overflow-hidden flex items-center justify-center shrink-0 select-none shadow-none avatar-pending ${className}`}
+    <svg
+      viewBox="0 0 100 100"
+      width={size}
+      height={size}
+      className={`shrink-0 select-none ${className}`}
+      role="img"
+      aria-label="Belum ada pemeriksa"
     >
-      <svg
-        viewBox="0 0 100 100"
-        className="w-full h-full block pending-user-silhouette"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        aria-hidden="true"
-      >
-        {/* Outer circular background (dark gray) */}
-        <circle cx="50" cy="50" r="50" fill="#4b5563" />
-        {/* Head circle */}
-        <circle cx="50" cy="44" r="18.2" fill="#9ca3af" />
-        {/* Torso curve */}
-        <path
-          d="M 14 93 C 18 78, 32 67, 50 67 C 68 67, 82 78, 86 93 C 76.5 100.5, 64 105, 50 105 C 36 105, 23.5 100.5, 14 93 Z"
-          fill="#9ca3af"
-        />
-      </svg>
-    </div>
+      <defs>
+        <clipPath id={clipId}>
+          <circle cx="50" cy="50" r="46" />
+        </clipPath>
+      </defs>
+      <circle cx="50" cy="50" r="50" fill="#475569" />
+      <circle cx="50" cy="45" r="17.5" fill="#cbd5e1" />
+      <path d="M21.5 110 V82 Q21.5 67.5 36 67.5 H64 Q78.5 67.5 78.5 82 V110 Z" fill="#cbd5e1" clipPath={`url(#${clipId})`} />
+    </svg>
   );
+}
+
+function toMinutes(time: string) {
+  const [h, m] = time.split(":").map(Number);
+  return (h || 0) * 60 + (m || 0);
 }
 
 export function rowKey(entry: MonitoringEntry) {
@@ -182,6 +188,12 @@ export function MonitoringSchedule({
     key: string;
     verdict: "ok" | "nok" | "adequate" | "not-adequate";
     note: string;
+  } | null>(null);
+  const [activeLinksModal, setActiveLinksModal] = useState<{
+    project: string;
+    task?: string;
+    clientId?: string;
+    url?: string;
   } | null>(null);
 
   // Sync external props if controlled, otherwise use internal state
@@ -292,9 +304,13 @@ export function MonitoringSchedule({
     return result;
   }, [entries, filter, effectiveProjectFilter, effectiveSystemFilter, assessments]);
 
+  // Minutes since the schedule's first slot, so a schedule that runs past midnight (… 23:00, 00:00) stays in order.
+  const scheduleStart = entries.length ? toMinutes(entries[0].time) : 0;
+  const scheduleOrder = (time: string) => (toMinutes(time) - scheduleStart + 1440) % 1440;
+
   return (
     <article className="rounded-[10px] border border-[#334155] bg-[#1e293b] shadow-[0_4px_12px_rgba(0,0,0,0.25)] mb-6 min-[1920px]:-mb-8 group/card has-[button[aria-expanded=true]]:min-h-[460px]">
-      <div className="rounded-t-[10px] p-[16px_20px_14px] border-b border-[#334155] flex flex-wrap items-center justify-between gap-4">
+      <div className="rounded-t-[10px] p-[16px_20px_14px] max-md:p-[14px_12px_12px] max-md:gap-3 border-b border-[#334155] flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-2.5 flex-wrap">
           <div className="text-[14px] font-bold text-[#f8fafc] flex items-center gap-2">Monitoring Schedule</div>
           {(effectiveProjectFilter || effectiveSystemFilter) && (
@@ -332,8 +348,8 @@ export function MonitoringSchedule({
         </div>
 
         {showFilter && (
-          <div className="flex flex-wrap items-center gap-2.5">
-            <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2.5 max-md:w-full max-md:flex-col max-md:items-stretch">
+            <div className="grid grid-cols-2 gap-2 md:flex md:items-center [&>*]:min-w-0">
               {/* 1. Project / Service Filter Dropdown */}
               <ScheduleFilterDropdown
                 id="schedule-project-filter"
@@ -361,7 +377,7 @@ export function MonitoringSchedule({
 
             {/* 3. Status Tabs (Semua / Needs Attention / Upcoming) */}
             <div
-              className="inline-flex items-center gap-[3px] p-[3px] rounded-[6px] bg-[#0f172a] border border-[#334155]"
+              className="inline-flex items-center gap-[3px] p-[3px] rounded-[6px] bg-[#0f172a] border border-[#334155] max-md:grid max-md:grid-cols-[auto_1fr_auto] max-md:[&>button]:justify-center max-md:[&>button]:h-9 max-md:[&>button]:px-2 max-md:[&>button]:whitespace-nowrap max-md:[&>button]:text-[11.5px]"
               aria-label="Filter status monitoring"
             >
               <button
@@ -430,11 +446,13 @@ export function MonitoringSchedule({
           {visibleEntries.map((item) => {
             const key = rowKey(item);
             const assessment = assessments[key];
-            const canAssess = item.state !== "Upcoming" && item.state !== "Mendatang";
+            // A checkpoint can be judged from its own hour on; before that OK/NOK stay locked.
+            const notYetDue = item.state === "Upcoming" || item.state === "Mendatang" || Boolean(currentHour && scheduleOrder(item.time) > scheduleOrder(currentHour));
+            const canAssess = !notYetDue;
             const isOk = assessment?.verdict === "ok" || assessment?.verdict === "adequate";
             const hasVerdict = Boolean(assessment?.verdict);
             const isCurrentHour = currentHour === item.time;
-            const isOverdue = canAssess && !hasVerdict && currentHour && item.time < currentHour;
+            const isOverdue = canAssess && !hasVerdict && currentHour && scheduleOrder(item.time) < scheduleOrder(currentHour);
             const ownerRole = getOwnerRole(item.owner);
             const pendingVariant = isOverdue
               ? PENDING_AVATAR_VARIANTS.overdue
@@ -445,7 +463,7 @@ export function MonitoringSchedule({
             return (
               <div
                 key={key}
-                className={`grid grid-cols-[1fr_auto] [grid-template-areas:'time_actions''checkpoint_checkpoint''checked_checked'] gap-y-2.5 gap-x-2 p-[12px_14px] my-1 rounded-[8px] border border-[#334155]/60 bg-[#1e293b]/70 md:grid-cols-[88px_minmax(0,1.8fr)_minmax(140px,0.9fr)_152px] @min-[900px]/schedule:grid-cols-[144px_minmax(0,1.8fr)_minmax(140px,0.9fr)_152px] md:[grid-template-areas:none] md:items-center md:[column-gap:12px] md:min-h-[64px] md:px-3 md:py-0 md:my-[2px] md:border-transparent md:border-t-[#334155] md:hover:bg-[#243044] md:hover:border-[#334155] md:snap-start transition-all duration-150 border-l-[3px] ${
+                className={`grid grid-cols-[minmax(0,1fr)_auto] [grid-template-areas:'time_time''checkpoint_checkpoint''checked_actions'] gap-y-2.5 gap-x-3 p-[12px] my-1 rounded-[8px] border border-[#334155]/60 bg-[#1e293b]/70 md:grid-cols-[88px_minmax(0,1.8fr)_minmax(140px,0.9fr)_152px] @min-[900px]/schedule:grid-cols-[144px_minmax(0,1.8fr)_minmax(140px,0.9fr)_152px] md:[grid-template-areas:none] md:items-center md:[column-gap:12px] md:min-h-[64px] md:px-3 md:py-0 md:my-[2px] md:border-transparent md:border-t-[#334155] md:hover:bg-[#243044] md:hover:border-[#334155] md:snap-start transition-all duration-150 border-l-[3px] ${
                   isCurrentHour
                     ? "bg-[color-mix(in_srgb,#38bdf8_8%,#1e293b)] border-[#38bdf8]/30 border-l-[#38bdf8]"
                     : isOverdue
@@ -478,57 +496,54 @@ export function MonitoringSchedule({
                 </div>
 
                 {/* 2. Checkpoint Details */}
-                <div className="[grid-area:checkpoint] md:[grid-area:auto] flex items-start md:items-center gap-2 min-w-0">
-                  <div className="shrink-0 mt-0.5 md:mt-0">
-                    <ProjectMark name={item.project} />
-                  </div>
-                  <div className="flex flex-col justify-center min-w-0 flex-1 py-1">
-                    <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
-                      <strong className="text-[12px] font-semibold text-[#f8fafc] truncate max-w-full"><MasterProjectName value={item.project} historical /></strong>
+                <div className="[grid-area:checkpoint] md:[grid-area:auto] flex items-center gap-2.5 min-w-0">
+                  <ProjectTile name={item.project} clientId={item.clientId || activeClientId} />
+                  <div className="flex flex-col justify-center min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <strong className="text-[13px] md:text-[12px] font-semibold text-[#f8fafc] truncate min-w-0"><MasterProjectName value={item.project} historical /></strong>
                       {item.tone === "warning" && (
                         <span className="text-[#fbbf24] shrink-0" title="Perlu perhatian khusus">
                           <AlertTriangle size={13} className="stroke-[2.3px]" />
                         </span>
                       )}
                     </div>
-                    <small className="block mt-[1px] text-[10px] text-[#94a3b8] truncate leading-tight">{item.task}</small>
+                    <small className="block mt-[2px] text-[11.5px] md:text-[10.5px] text-[#94a3b8] leading-snug md:truncate">{item.task}</small>
                   </div>
+                  <button
+                    type="button"
+                    aria-haspopup="dialog"
+                    onClick={() => {
+                      setActiveLinksModal({
+                        project: item.project,
+                        task: item.task,
+                        clientId: item.clientId || activeClientId,
+                        url: item.url,
+                      });
+                    }}
+                    title={`Buka link monitoring ${item.project}`}
+                    aria-label={`Buka link monitoring ${item.project}`}
+                    className="w-8 h-8 max-md:w-10 max-md:h-10 [@media(pointer:coarse)]:w-10 [@media(pointer:coarse)]:h-10 grid place-items-center [&>svg]:block rounded-lg border border-[#38bdf8]/30 bg-[#38bdf8]/10 text-[#38bdf8] hover:bg-[#38bdf8]/20 hover:border-[#38bdf8]/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38bdf8] transition-colors duration-150 cursor-pointer shrink-0"
+                  >
+                    <Globe size={16} strokeWidth={1.75} absoluteStrokeWidth />
+                  </button>
                 </div>
 
                 {/* 3. Checked By column */}
-                <div className="[grid-area:checked] md:[grid-area:auto] flex items-center gap-[10px] min-w-0 max-md:pt-1 max-md:border-t max-md:border-[#334155]/40 md:border-t-0">
-                  <div className="relative group inline-flex items-center shrink-0">
-                    {hasVerdict ? (
-                      <Avatar
-                        size="md"
-                        name={item.owner}
-                        className="shrink-0 !w-8 !h-8 !min-w-[32px] !min-h-[32px] !rounded-full !border-0 !shadow-none !outline-none text-[11px] font-bold font-mono"
-                        title={`${item.owner} (${ownerRole})`}
-                      />
-                    ) : (
-                      <PendingUserSilhouette />
-                    )}
-
-                    {/* Tooltip on hover */}
-                    {hasVerdict && (
-                    <div
-                      role="tooltip"
-                      className="pointer-events-none absolute bottom-[calc(100%+6px)] left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-150 flex flex-col p-[6px_10px] bg-[#0f172a] text-white rounded-[6px] text-[11px] leading-[1.3] whitespace-nowrap shadow-[0_20px_40px_rgba(0,0,0,0.45)] z-50 border border-[#334155] select-none"
-                    >
-                      <strong className="text-[11px] text-white font-bold leading-tight">{item.owner}</strong>
-                      <span className="text-[10px] text-[#94a3b8] mt-0.5 leading-tight">{ownerRole}</span>
-                    </div>
-                    )}
-                  </div>
-
+                <div className="[grid-area:checked] md:[grid-area:auto] flex items-center gap-2 min-w-0 max-md:pt-2.5 max-md:border-t max-md:border-[#334155]/50">
                   {hasVerdict ? (
-                    <span className="text-[11.5px] font-semibold text-[#f8fafc] md:truncate min-w-0 break-words" title={`${item.owner} (${ownerRole})`}>
-                      {item.owner}
+                    <Avatar size="sm" name={item.owner} title={`${item.owner} (${ownerRole})`} />
+                  ) : (
+                    <PendingUserSilhouette />
+                  )}
+                  {hasVerdict ? (
+                    <span className="flex flex-col min-w-0" title={`${item.owner} (${ownerRole})`}>
+                      <span className="text-[12px] font-medium text-[#f8fafc] truncate leading-tight">{item.owner}</span>
+                      <span className="text-[10.5px] text-[#94a3b8] truncate leading-tight max-md:hidden">{ownerRole}</span>
                     </span>
                   ) : (
                     <span
-                      className={`font-mono text-[11px] md:truncate min-w-0 break-words select-none ${pendingVariant.textColor}`}
-                      title="Menunggu verifikasi penilaian OK/NOK"
+                      className={`text-[12px] truncate min-w-0 select-none ${pendingVariant.textColor}`}
+                      title="Menunggu penilaian OK/NOK"
                     >
                       {pendingVariant.text}
                     </span>
@@ -536,11 +551,11 @@ export function MonitoringSchedule({
                 </div>
 
                 {/* 4. Verdict / Status Actions Cell */}
-                <div className="[grid-area:actions] md:[grid-area:auto] flex items-center justify-end md:w-[152px] shrink-0 min-w-0">
+                <div className="[grid-area:actions] md:[grid-area:auto] flex items-center justify-end md:w-[152px] shrink-0 min-w-0 max-md:pt-2.5 max-md:border-t max-md:border-[#334155]/50">
                   {canAssess ? (
                     <div className="flex items-center justify-end w-full shrink-0">
                       {hasVerdict ? (
-                        <div className="inline-flex items-center justify-end gap-2 w-[152px] flex-nowrap shrink-0 transition-all duration-150 motion-reduce:transition-none">
+                        <div className="inline-flex items-center justify-end gap-2 md:w-[152px] flex-nowrap shrink-0 transition-all duration-150 motion-reduce:transition-none">
                           {/* Distinct Solid Result Badge */}
                           <div
                             className={isOk ? RESULT_BADGE_VARIANTS.ok.container : RESULT_BADGE_VARIANTS.nok.container}
@@ -603,7 +618,7 @@ export function MonitoringSchedule({
                           </button>
                         </div>
                       ) : (
-                        <div className="inline-flex items-center justify-end gap-2 w-[152px] flex-nowrap shrink-0">
+                        <div className="inline-flex items-center justify-end gap-2 md:w-[152px] flex-nowrap shrink-0">
                           <button
                             type="button"
                             className="inline-flex h-8 w-[72px] min-w-[72px] max-sm:h-10 max-sm:w-[70px] max-sm:min-w-[70px] [@media(pointer:coarse)]:h-10 items-center justify-center gap-1.5 rounded-lg border border-[#4ade80]/40 bg-[#4ade80]/[0.06] px-2 font-mono text-[11px] font-bold text-[#4ade80] leading-none whitespace-nowrap select-none transition-colors duration-150 hover:border-[#4ade80]/70 hover:bg-[#4ade80]/[0.16] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4ade80]/50 active:scale-[0.97] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
@@ -643,7 +658,23 @@ export function MonitoringSchedule({
                       )}
                     </div>
                   ) : (
-                    <Badge tone={item.tone}>{item.state}</Badge>
+                    <div
+                      className="inline-flex items-center justify-end gap-2 md:w-[152px] flex-nowrap shrink-0 cursor-not-allowed"
+                      title={`Belum waktunya. Checkpoint ini bisa dinilai mulai pukul ${item.time}.`}
+                    >
+                      {(["ok", "nok"] as const).map((v) => (
+                        <button
+                          key={v}
+                          type="button"
+                          disabled
+                          aria-label={`${v.toUpperCase()} belum bisa dipilih, checkpoint mulai pukul ${item.time}`}
+                          className="pointer-events-none inline-flex h-8 w-[72px] min-w-[72px] max-sm:h-10 max-sm:w-[70px] max-sm:min-w-[70px] [@media(pointer:coarse)]:h-10 items-center justify-center gap-1.5 rounded-lg border border-[#334155] bg-transparent px-2 font-mono text-[11px] font-bold text-[#475569] leading-none whitespace-nowrap select-none"
+                        >
+                          {v === "ok" ? <Check size={13} strokeWidth={2.5} className="shrink-0" /> : <X size={13} strokeWidth={2.5} className="shrink-0" />}
+                          <span>{v.toUpperCase()}</span>
+                        </button>
+                      ))}
+                    </div>
                   )}
                 </div>
               </div>
@@ -678,6 +709,17 @@ export function MonitoringSchedule({
             notify.info("Catatan dihapus.", { id: `note-${activeNoteModal.key}` });
             setActiveNoteModal(null);
           }}
+        />
+      )}
+
+      {activeLinksModal && (
+        <MonitoringLinksModal
+          open
+          project={activeLinksModal.project}
+          task={activeLinksModal.task}
+          clientId={activeLinksModal.clientId}
+          explicitUrl={activeLinksModal.url}
+          onClose={() => setActiveLinksModal(null)}
         />
       )}
 

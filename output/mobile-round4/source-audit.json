@@ -1,0 +1,207 @@
+{
+  "changed": [
+    {
+      "file": "frontend/app/components/dashboard/MemoPreview.tsx",
+      "new": false,
+      "nativeBefore": 0,
+      "nativeAfter": 0,
+      "inlineStyles": 0
+    },
+    {
+      "file": "frontend/app/components/dashboard/panel-viewer/CategoryDistributionView.tsx",
+      "new": false,
+      "nativeBefore": 0,
+      "nativeAfter": 0,
+      "inlineStyles": -2
+    },
+    {
+      "file": "frontend/app/components/dashboard/panel-viewer/DistributionDonut.tsx",
+      "new": true,
+      "nativeBefore": 0,
+      "nativeAfter": 0,
+      "inlineStyles": 1
+    },
+    {
+      "file": "frontend/app/components/dashboard/panel-viewer/PanelViewer.tsx",
+      "new": false,
+      "nativeBefore": 0,
+      "nativeAfter": 0,
+      "inlineStyles": 0
+    },
+    {
+      "file": "frontend/app/components/dashboard/panel-viewer/SeverityDistributionView.tsx",
+      "new": false,
+      "nativeBefore": 0,
+      "nativeAfter": 0,
+      "inlineStyles": -1
+    },
+    {
+      "file": "frontend/app/components/dashboard/panel-viewer/UserRecapMobile.tsx",
+      "new": true,
+      "nativeBefore": 0,
+      "nativeAfter": 0,
+      "inlineStyles": 0
+    },
+    {
+      "file": "frontend/app/components/dashboard/panel-viewer/UserRecapView.tsx",
+      "new": false,
+      "nativeBefore": 0,
+      "nativeAfter": 0,
+      "inlineStyles": 0
+    },
+    {
+      "file": "frontend/app/components/handover/HandoverHistoryControls.tsx",
+      "new": false,
+      "nativeBefore": 0,
+      "nativeAfter": 0,
+      "inlineStyles": 0
+    },
+    {
+      "file": "frontend/app/components/handover/HandoverWizard.tsx",
+      "new": false,
+      "nativeBefore": 0,
+      "nativeAfter": 0,
+      "inlineStyles": 0
+    },
+    {
+      "file": "frontend/app/components/layout/ClientSwitcher.tsx",
+      "new": false,
+      "nativeBefore": 0,
+      "nativeAfter": 0,
+      "inlineStyles": 0
+    },
+    {
+      "file": "frontend/app/components/reports/ReportPdfPreview.tsx",
+      "new": false,
+      "nativeBefore": 0,
+      "nativeAfter": 0,
+      "inlineStyles": 0
+    },
+    {
+      "file": "frontend/app/components/tickets/TicketReportView.tsx",
+      "new": false,
+      "nativeBefore": 0,
+      "nativeAfter": 0,
+      "inlineStyles": 0
+    },
+    {
+      "file": "frontend/app/components/ui/DatePicker.tsx",
+      "new": false,
+      "nativeBefore": 0,
+      "nativeAfter": 0,
+      "inlineStyles": 0
+    },
+    {
+      "file": "frontend/app/components/ui/select-styles.ts",
+      "new": false,
+      "nativeBefore": 0,
+      "nativeAfter": 0,
+      "inlineStyles": 0
+    },
+    {
+      "file": "frontend/app/components/ui/Select.tsx",
+      "new": false,
+      "nativeBefore": 0,
+      "nativeAfter": 0,
+      "inlineStyles": 0
+    },
+    {
+      "file": "frontend/app/components/ui/skeleton/DashboardSkeleton.tsx",
+      "new": false,
+      "nativeBefore": 0,
+      "nativeAfter": 0,
+      "inlineStyles": 0
+    },
+    {
+      "file": "frontend/app/components/views/NotificationsView.tsx",
+      "new": false,
+      "nativeBefore": 0,
+      "nativeAfter": 0,
+      "inlineStyles": 0
+    },
+    {
+      "file": "frontend/app/components/views/ReportsView.tsx",
+      "new": false,
+      "nativeBefore": 0,
+      "nativeAfter": 0,
+      "inlineStyles": 0
+    },
+    {
+      "file": "frontend/app/components/views/TeamRosterView.tsx",
+      "new": false,
+      "nativeBefore": 0,
+      "nativeAfter": 0,
+      "inlineStyles": 0
+    },
+    {
+      "file": "frontend/app/components/views/TicketsView.tsx",
+      "new": false,
+      "nativeBefore": 0,
+      "nativeAfter": 0,
+      "inlineStyles": 0
+    },
+    {
+      "file": "frontend/app/hooks/useMobileLayout.ts",
+      "new": false,
+      "nativeBefore": 0,
+      "nativeAfter": 0,
+      "inlineStyles": 0
+    }
+  ],
+  "unchangedFiles": [
+    {
+      "file": "package.json",
+      "unchanged": true
+    },
+    {
+      "file": "package-lock.json",
+      "unchanged": true
+    },
+    {
+      "file": "eslint.config.mjs",
+      "unchanged": true
+    },
+    {
+      "file": "vite.config.ts",
+      "unchanged": true,
+      "note": "Only the private reference-server copy received a separate cacheDir; excluded from comparison."
+    },
+    {
+      "file": "build/sites-vite-plugin.ts",
+      "unchanged": true
+    },
+    {
+      "file": "build/vinext-navigation-compat.ts",
+      "unchanged": true
+    }
+  ],
+  "lint": {
+    "baselineErrors": 179,
+    "baselineWarnings": 26,
+    "errors": 179,
+    "warnings": 26,
+    "added": []
+  },
+  "controls": {
+    "rows": 56,
+    "samples": 309,
+    "heights": [
+      34,
+      44
+    ],
+    "fonts": [
+      "11.5px"
+    ],
+    "weights": [
+      "400"
+    ],
+    "gaps": [
+      8
+    ],
+    "errors": []
+  },
+  "gallery": {
+    "rows": 41,
+    "errors": []
+  }
+}

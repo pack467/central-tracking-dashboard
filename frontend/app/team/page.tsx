@@ -43,7 +43,7 @@ export default function TeamPage() {
         <TeamSection
           title="Meet Our Team"
           eyebrow="Tim Pengembang"
-          subtitle="Tim inti rekayasa sistem di balik Central Tracking Dashboard."
+          subtitle="Tim inisiator dan pengembang awal di balik Central Tracking Dashboard."
         />
         </div>
       </main>

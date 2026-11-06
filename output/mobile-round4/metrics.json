@@ -1,0 +1,548 @@
+{
+  "distribution": [
+    {
+      "width": 2560,
+      "height": 1440,
+      "panel": "category",
+      "diameter": 520,
+      "rowHeights": [
+        161.421875,
+        161.4375
+      ],
+      "leftPanel": 1272,
+      "rightPanel": 1272,
+      "overflow": 0
+    },
+    {
+      "width": 2560,
+      "height": 1440,
+      "panel": "severity",
+      "diameter": 520,
+      "rowHeights": [
+        62.25
+      ],
+      "leftPanel": 1272,
+      "rightPanel": 1272,
+      "overflow": 0
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "panel": "category",
+      "diameter": 520,
+      "rowHeights": [
+        110
+      ],
+      "leftPanel": 912,
+      "rightPanel": 912,
+      "overflow": 0
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "panel": "severity",
+      "diameter": 520,
+      "rowHeights": [
+        60.25
+      ],
+      "leftPanel": 912,
+      "rightPanel": 912,
+      "overflow": 0
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "panel": "category",
+      "diameter": 511,
+      "rowHeights": [
+        84.28125,
+        84.296875
+      ],
+      "leftPanel": 732,
+      "rightPanel": 732,
+      "overflow": 0
+    },
+    {
+      "width": 1440,
+      "height": 900,
+      "panel": "severity",
+      "diameter": 511,
+      "rowHeights": [
+        46.75
+      ],
+      "leftPanel": 732,
+      "rightPanel": 732,
+      "overflow": 0
+    },
+    {
+      "width": 1366,
+      "height": 768,
+      "panel": "category",
+      "diameter": 438,
+      "rowHeights": [
+        65.421875,
+        65.4375
+      ],
+      "leftPanel": 600,
+      "rightPanel": 600,
+      "overflow": 0
+    },
+    {
+      "width": 1366,
+      "height": 768,
+      "panel": "severity",
+      "diameter": 438,
+      "rowHeights": [
+        44
+      ],
+      "leftPanel": 600,
+      "rightPanel": 600,
+      "overflow": 0
+    },
+    {
+      "width": 1024,
+      "height": 768,
+      "panel": "category",
+      "diameter": 337,
+      "rowHeights": [
+        65.421875,
+        65.4375
+      ],
+      "leftPanel": 600,
+      "rightPanel": 600,
+      "overflow": 0
+    },
+    {
+      "width": 1024,
+      "height": 768,
+      "panel": "severity",
+      "diameter": 337,
+      "rowHeights": [
+        44
+      ],
+      "leftPanel": 600,
+      "rightPanel": 600,
+      "overflow": 0
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "panel": "category",
+      "diameter": 300,
+      "rowHeights": [
+        76
+      ],
+      "leftPanel": 446,
+      "rightPanel": 658,
+      "overflow": 0
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "panel": "severity",
+      "diameter": 300,
+      "rowHeights": [
+        44
+      ],
+      "leftPanel": 394,
+      "rightPanel": 579,
+      "overflow": 0
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "panel": "category",
+      "diameter": 220,
+      "rowHeights": [
+        76
+      ],
+      "leftPanel": 470,
+      "rightPanel": 658,
+      "overflow": 0
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "panel": "severity",
+      "diameter": 220,
+      "rowHeights": [
+        44
+      ],
+      "leftPanel": 366,
+      "rightPanel": 579,
+      "overflow": 0
+    },
+    {
+      "width": 844,
+      "height": 390,
+      "panel": "category",
+      "diameter": 300,
+      "rowHeights": [
+        76
+      ],
+      "leftPanel": 446,
+      "rightPanel": 658,
+      "overflow": 0
+    },
+    {
+      "width": 844,
+      "height": 390,
+      "panel": "severity",
+      "diameter": 300,
+      "rowHeights": [
+        44
+      ],
+      "leftPanel": 394,
+      "rightPanel": 579,
+      "overflow": 0
+    }
+  ],
+  "recap": [
+    {
+      "width": 320,
+      "stats": 96,
+      "header": 52,
+      "footer": 56,
+      "small": [],
+      "keyboard": null
+    },
+    {
+      "width": 360,
+      "stats": 96,
+      "header": 52,
+      "footer": 56,
+      "small": [],
+      "keyboard": null
+    },
+    {
+      "width": 375,
+      "stats": 96,
+      "header": 52,
+      "footer": 56,
+      "small": [],
+      "keyboard": null
+    },
+    {
+      "width": 390,
+      "stats": 96,
+      "header": 52,
+      "footer": 56,
+      "small": [],
+      "keyboard": {
+        "hidden": true,
+        "restored": true
+      }
+    },
+    {
+      "width": 412,
+      "stats": 96,
+      "header": 52,
+      "footer": 56,
+      "small": [],
+      "keyboard": null
+    },
+    {
+      "width": 430,
+      "stats": 96,
+      "header": 52,
+      "footer": 56,
+      "small": [],
+      "keyboard": null
+    },
+    {
+      "width": 768,
+      "stats": 96,
+      "header": 52,
+      "footer": 56,
+      "small": [],
+      "keyboard": null
+    },
+    {
+      "width": 844,
+      "stats": 48,
+      "header": 52,
+      "footer": 56,
+      "small": [],
+      "keyboard": null
+    }
+  ],
+  "loading": {
+    "quality": {
+      "cls": 0.00018861156489677298,
+      "dashboardCls": 0.000011224805896842688,
+      "shifts": [
+        {
+          "value": 0.0001773867589999303,
+          "bootVisible": true,
+          "sources": [
+            {
+              "before": {
+                "x": 65,
+                "y": 399.875,
+                "width": 260,
+                "height": 24,
+                "top": 399.875,
+                "right": 325,
+                "bottom": 423.875,
+                "left": 65
+              },
+              "after": {
+                "x": 65,
+                "y": 400.875,
+                "width": 260,
+                "height": 24,
+                "top": 400.875,
+                "right": 325,
+                "bottom": 424.875,
+                "left": 65
+              }
+            },
+            {
+              "before": {
+                "x": 78,
+                "y": 502.5,
+                "width": 220,
+                "height": 16,
+                "top": 502.5,
+                "right": 298,
+                "bottom": 518.5,
+                "left": 78
+              },
+              "after": {
+                "x": 78,
+                "y": 503.5,
+                "width": 220,
+                "height": 16,
+                "top": 503.5,
+                "right": 298,
+                "bottom": 519.5,
+                "left": 78
+              }
+            }
+          ]
+        },
+        {
+          "value": 0.000011224805896842688,
+          "bootVisible": false,
+          "sources": [
+            {
+              "before": {
+                "x": 241,
+                "y": 18.5,
+                "width": 38,
+                "height": 13,
+                "top": 18.5,
+                "right": 279,
+                "bottom": 31.5,
+                "left": 241
+              },
+              "after": {
+                "x": 241,
+                "y": 18.5,
+                "width": 38,
+                "height": 13,
+                "top": 18.5,
+                "right": 279,
+                "bottom": 31.5,
+                "left": 241
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "beforeAfter": [
+      {
+        "title": "Tiket Hari Ini",
+        "yBefore": 467.890625,
+        "yAfter": 467.890625,
+        "heightBefore": 728,
+        "heightAfter": 728
+      },
+      {
+        "title": "Memo & Catatan Shift",
+        "yBefore": 168.890625,
+        "yAfter": 168.890625,
+        "heightBefore": 287,
+        "heightAfter": 287
+      },
+      {
+        "title": "List Monitoring Shift",
+        "yBefore": 1207.890625,
+        "yAfter": 1207.890625,
+        "heightBefore": 458.5,
+        "heightAfter": 458.5
+      },
+      {
+        "title": "Ticket Volume per Project (Stacked by System)Volume Tiket",
+        "yBefore": 1764.390625,
+        "yAfter": 1764.390625,
+        "heightBefore": 406,
+        "heightAfter": 406
+      },
+      {
+        "title": "Rekap Tiket per User",
+        "yBefore": 2182.390625,
+        "yAfter": 2182.390625,
+        "heightBefore": 451,
+        "heightAfter": 451
+      },
+      {
+        "title": "Distribusi Kategori / Tipe TiketDistribusi Kategori",
+        "yBefore": 2701.390625,
+        "yAfter": 2701.390625,
+        "heightBefore": 507,
+        "heightAfter": 507
+      },
+      {
+        "title": "Tren Durasi Penyelesaian (Resolution Velocity)Tren Durasi",
+        "yBefore": 3220.390625,
+        "yAfter": 3220.390625,
+        "heightBefore": 484,
+        "heightAfter": 484
+      },
+      {
+        "title": "Tren Trafik Beban per Shift (Shift Traffic Velocity)Tren Trafik",
+        "yBefore": 3716.390625,
+        "yAfter": 3716.390625,
+        "heightBefore": 556,
+        "heightAfter": 556
+      }
+    ]
+  },
+  "monitoring": [
+    {
+      "width": 2560,
+      "rows": [
+        40
+      ]
+    },
+    {
+      "width": 1920,
+      "rows": [
+        40
+      ]
+    },
+    {
+      "width": 1440,
+      "rows": [
+        40
+      ]
+    },
+    {
+      "width": 1366,
+      "rows": [
+        40
+      ]
+    },
+    {
+      "width": 1024,
+      "rows": [
+        40
+      ]
+    },
+    {
+      "width": 768,
+      "rows": [
+        46,
+        0
+      ]
+    },
+    {
+      "width": 390,
+      "rows": [
+        46,
+        0
+      ]
+    },
+    {
+      "width": 844,
+      "rows": [
+        46,
+        0
+      ]
+    },
+    {
+      "width": 320,
+      "rows": [
+        46,
+        0
+      ]
+    },
+    {
+      "width": 360,
+      "rows": [
+        46,
+        0
+      ]
+    },
+    {
+      "width": 375,
+      "rows": [
+        46,
+        0
+      ]
+    },
+    {
+      "width": 412,
+      "rows": [
+        46,
+        0
+      ]
+    },
+    {
+      "width": 430,
+      "rows": [
+        46,
+        0
+      ]
+    }
+  ],
+  "beforeRecap": [
+    {
+      "rect": {
+        "x": 13,
+        "y": 277.65625,
+        "width": 714.53125,
+        "height": 742.5,
+        "top": 277.65625,
+        "right": 727.53125,
+        "bottom": 1020.15625,
+        "left": 13
+      },
+      "parent": {
+        "x": 13,
+        "y": 277.65625,
+        "width": 364,
+        "height": 553.34375,
+        "top": 277.65625,
+        "right": 377,
+        "bottom": 831,
+        "left": 13
+      },
+      "client": 364,
+      "scroll": 715,
+      "left": 0,
+      "first": {
+        "x": 13,
+        "y": 277.65625,
+        "width": 301.109375,
+        "height": 40,
+        "top": 277.65625,
+        "right": 314.109375,
+        "bottom": 317.65625,
+        "left": 13
+      },
+      "last": {
+        "x": 674.71875,
+        "y": 277.65625,
+        "width": 52.8125,
+        "height": 40,
+        "top": 277.65625,
+        "right": 727.53125,
+        "bottom": 317.65625,
+        "left": 674.71875
+      }
+    }
+  ]
+}

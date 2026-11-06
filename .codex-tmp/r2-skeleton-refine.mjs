@@ -1,0 +1,12 @@
+import {readFileSync,writeFileSync} from 'node:fs';
+let p='frontend/app/components/tickets/TicketReportView.tsx',s=readFileSync(p,'utf8');
+s=s.replaceAll('loadingClassName="max-lg:h-[','loadingClassName="max-lg:flex-none max-lg:h-[').replace('max-lg:h-[553px] lg:min-h-[520px]','max-lg:h-[557px] lg:min-h-[520px]').replace('max-lg:h-[331.5px] lg:min-h-[260px]','max-lg:h-[335.5px] lg:min-h-[260px]');writeFileSync(p,s);
+p='frontend/app/components/ui/skeleton/DashboardSkeleton.tsx';s=readFileSync(p,'utf8');s=s.replace('max-lg:h-[553px]','max-lg:h-[557px]').replace('max-lg:h-[125px]','max-lg:h-[105px]').replaceAll('max-lg:h-[331.5px]','max-lg:h-[335.5px]').replaceAll('max-lg:min-h-[331.5px]','max-lg:min-h-[335.5px]').replace('max-lg:h-[656px]','max-lg:h-[660px]').replace('max-lg:h-[434.5px]','max-lg:h-[438.5px]');
+s=s.replace('max-lg:h-[78px] max-lg:overflow-hidden p-3','max-lg:h-[78px] max-lg:overflow-hidden max-lg:p-2 p-3');
+s=s.replace('flex flex-col justify-between h-full gap-2 w-full">','flex flex-col justify-between h-full gap-2 w-full max-lg:gap-0">');
+s=s.replace('max-lg:h-[480px]','max-lg:h-[484px]').replace('max-lg:h-[552px]','max-lg:h-[556px]');
+s=s.replace('max-lg:h-[404px] max-lg:overflow-hidden','max-lg:h-[404px] max-lg:min-h-0 max-lg:flex-none max-lg:overflow-hidden');
+s=s.replace('max-lg:h-[381px] max-lg:overflow-hidden','max-lg:h-[381px] max-lg:min-h-0 max-lg:flex-none max-lg:overflow-hidden');
+s=s.replace('max-lg:h-[453px] max-lg:overflow-hidden','max-lg:h-[453px] max-lg:min-h-0 max-lg:flex-none max-lg:overflow-hidden');
+writeFileSync(p,s);
+p='frontend/app/components/ui/FloatingNewTicketButton.tsx';s=readFileSync(p,'utf8').replace('motion-reduce:transition-none','motion-reduce:transition-none motion-reduce:[&.fab-new-ticket]:transition-none');writeFileSync(p,s);

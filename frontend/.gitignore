@@ -38,6 +38,10 @@ yarn-error.log*
 /dist/
 /.wrangler/
 /outputs/
+# handover notes when running on plain Node
+/.data/
+# real reports used as local test fixtures, and the files tests/weekly-report.test.mjs writes
+/.report-qa/
 /work/
 /.run/
 /*-site.tgz

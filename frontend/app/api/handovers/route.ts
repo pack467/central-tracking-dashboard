@@ -176,7 +176,7 @@ async function seedHandoverNotes(db: D1Database) {
   // 3. Seed Pending Active Handover (Shift Subuh → Pagi) - Active Confirmation Record
   const content = JSON.stringify({
     ...initialHandoverRecord,
-    receiverEmail: "galih.khairi@company.internal",
+    receiverEmail: "",
     createdBy: seedActor,
     acceptance: null,
     tasks: initialHandoverRecord.tasks.map((task) => ({ ...task })),
@@ -313,7 +313,7 @@ export async function GET(request: Request) {
     const where = `WHERE (? = '' OR (handover_date >= ? AND handover_date <= ?))
       AND (? = '' OR instr(lower(title), ?) > 0 OR instr(lower(json_extract(content, '$.sourceShift')), ?) > 0 OR instr(lower(json_extract(content, '$.targetShift')), ?) > 0)
       AND (json_array_length(?) = 0 OR EXISTS (SELECT 1 FROM json_each(?) AS pic WHERE instr(lower(json_extract(content, '$.sourcePic')), pic.value) > 0 OR instr(lower(json_extract(content, '$.targetPic')), pic.value) > 0))`;
-    const db = getHandoverDb();
+    const db = await getHandoverDb();
 
     await seedDemoHandoversOnce(db);
 
@@ -333,8 +333,8 @@ export async function GET(request: Request) {
         .bind(...baseBinds)
         .first(),
     ]);
-    const notes = ((rows as any)?.results ?? []) as StoredHandoverRecord[];
-    const total = Number((count as any)?.total ?? 0);
+    const notes = ((rows as { results?: StoredHandoverRecord[] } | null)?.results ?? []) as StoredHandoverRecord[];
+    const total = Number((count as { total?: number | string } | null)?.total ?? 0);
     return handoverResponse({ notes, total, page, hasMore: page * limit < total, actor });
   } catch (error) { return handoverFailure(error); }
 }
@@ -347,7 +347,7 @@ export async function POST(request: Request) {
     if (typeof body.requestId !== "string" || !/^[a-zA-Z0-9-]{10,100}$/.test(body.requestId)) throw new HandoverError("ID draf tidak valid.");
     const { record, date } = validatedDraft(body.draft);
     const requestId = `${actor.id}:${body.requestId}`;
-    const db = getHandoverDb();
+    const db = await getHandoverDb();
     const existing = ((await db.prepare(`SELECT ${noteColumns} FROM handover_notes WHERE create_request_id = ?`).bind(requestId).first()) as StoredHandoverRecord | null);
     if (existing) return handoverResponse({ note: existing, replayed: true });
     const now = new Date().toISOString();

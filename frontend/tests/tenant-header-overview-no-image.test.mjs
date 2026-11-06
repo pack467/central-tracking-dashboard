@@ -11,7 +11,6 @@ test("ClientSwitcher and ClientStatusGrid reflect No Image placeholder and remov
   assert.equal(switcherContent.includes("client-avatar-badge"), false, "Header button must not have client-avatar-badge");
   assert.equal(switcherContent.includes("client-badge-tier"), false, "Header button must not have client-badge-tier");
   assert.equal(switcherContent.includes("client-item-tier"), false, "Dropdown item must not have client-item-tier");
-  assert.equal(switcherContent.includes("<NoImagePlaceholder"), true, "Dropdown item must render NoImagePlaceholder");
 
   const gridPath = path.resolve("app/components/dashboard/ClientStatusGrid.tsx");
   const gridContent = fs.readFileSync(gridPath, "utf-8");

@@ -1,0 +1,480 @@
+{
+  "panels": [
+    {
+      "width": 320,
+      "panels": [
+        {
+          "title": "Tiket Hari Ini",
+          "before": 728,
+          "after": 726
+        },
+        {
+          "title": "Memo & Catatan Shift",
+          "before": 287,
+          "after": 282.59375
+        },
+        {
+          "title": "List Monitoring Shift",
+          "before": 458.5,
+          "after": 466.5
+        }
+      ],
+      "visibleRows": 4
+    },
+    {
+      "width": 360,
+      "panels": [
+        {
+          "title": "Tiket Hari Ini",
+          "before": 728,
+          "after": 726
+        },
+        {
+          "title": "Memo & Catatan Shift",
+          "before": 287,
+          "after": 282.59375
+        },
+        {
+          "title": "List Monitoring Shift",
+          "before": 458.5,
+          "after": 466.5
+        }
+      ],
+      "visibleRows": 4
+    },
+    {
+      "width": 375,
+      "panels": [
+        {
+          "title": "Tiket Hari Ini",
+          "before": 728,
+          "after": 726
+        },
+        {
+          "title": "Memo & Catatan Shift",
+          "before": 287,
+          "after": 282.59375
+        },
+        {
+          "title": "List Monitoring Shift",
+          "before": 458.5,
+          "after": 466.5
+        }
+      ],
+      "visibleRows": 4
+    },
+    {
+      "width": 390,
+      "panels": [
+        {
+          "title": "Tiket Hari Ini",
+          "before": 728,
+          "after": 726
+        },
+        {
+          "title": "Memo & Catatan Shift",
+          "before": 287,
+          "after": 282.59375
+        },
+        {
+          "title": "List Monitoring Shift",
+          "before": 458.5,
+          "after": 466.5
+        }
+      ],
+      "visibleRows": 4
+    },
+    {
+      "width": 412,
+      "panels": [
+        {
+          "title": "Tiket Hari Ini",
+          "before": 728,
+          "after": 726
+        },
+        {
+          "title": "Memo & Catatan Shift",
+          "before": 287,
+          "after": 282.59375
+        },
+        {
+          "title": "List Monitoring Shift",
+          "before": 458.5,
+          "after": 466.5
+        }
+      ],
+      "visibleRows": 4
+    },
+    {
+      "width": 430,
+      "panels": [
+        {
+          "title": "Tiket Hari Ini",
+          "before": 728,
+          "after": 726
+        },
+        {
+          "title": "Memo & Catatan Shift",
+          "before": 287,
+          "after": 282.59375
+        },
+        {
+          "title": "List Monitoring Shift",
+          "before": 458.5,
+          "after": 466.5
+        }
+      ],
+      "visibleRows": 4
+    },
+    {
+      "width": 768,
+      "panels": [
+        {
+          "title": "Tiket Hari Ini",
+          "before": 728,
+          "after": 726
+        },
+        {
+          "title": "Memo & Catatan Shift",
+          "before": 287,
+          "after": 282.59375
+        },
+        {
+          "title": "List Monitoring Shift",
+          "before": 458.5,
+          "after": 466.5
+        }
+      ],
+      "visibleRows": 4
+    },
+    {
+      "width": 844,
+      "panels": [
+        {
+          "title": "Tiket Hari Ini",
+          "before": 728,
+          "after": 726
+        },
+        {
+          "title": "Memo & Catatan Shift",
+          "before": 287,
+          "after": 282.59375
+        },
+        {
+          "title": "List Monitoring Shift",
+          "before": 458.5,
+          "after": 466.5
+        }
+      ],
+      "visibleRows": 4
+    },
+    {
+      "width": 1280,
+      "panels": [
+        {
+          "title": "Tiket Hari Ini",
+          "before": 660,
+          "after": 660
+        },
+        {
+          "title": "Memo & Catatan Shift",
+          "before": 221,
+          "after": 221
+        },
+        {
+          "title": "List Monitoring Shift",
+          "before": 427,
+          "after": 427
+        }
+      ],
+      "visibleRows": 10
+    },
+    {
+      "width": 1440,
+      "panels": [
+        {
+          "title": "Tiket Hari Ini",
+          "before": 660,
+          "after": 660
+        },
+        {
+          "title": "Memo & Catatan Shift",
+          "before": 221,
+          "after": 221
+        },
+        {
+          "title": "List Monitoring Shift",
+          "before": 427,
+          "after": 427
+        }
+      ],
+      "visibleRows": 10
+    },
+    {
+      "width": 1920,
+      "panels": [
+        {
+          "title": "Tiket Hari Ini",
+          "before": 660,
+          "after": 660
+        },
+        {
+          "title": "Memo & Catatan Shift",
+          "before": 221,
+          "after": 221
+        },
+        {
+          "title": "List Monitoring Shift",
+          "before": 427,
+          "after": 427
+        }
+      ],
+      "visibleRows": 10
+    },
+    {
+      "width": 1024,
+      "panels": [
+        {
+          "title": "Tiket Hari Ini",
+          "before": 690,
+          "after": 690
+        },
+        {
+          "title": "Memo & Catatan Shift",
+          "before": 221,
+          "after": 221
+        },
+        {
+          "title": "List Monitoring Shift",
+          "before": 427,
+          "after": 427
+        }
+      ],
+      "visibleRows": 10
+    }
+  ],
+  "headers": [
+    {
+      "title": "Tiket Hari Ini",
+      "height": 77,
+      "padding": "16px",
+      "icon": 16
+    },
+    {
+      "title": "Memo & Catatan Shift",
+      "height": 77,
+      "padding": "16px",
+      "icon": 16
+    },
+    {
+      "title": "List Monitoring Shift",
+      "height": 77,
+      "padding": "16px",
+      "icon": 16
+    },
+    {
+      "title": "Ticket Volume per Project (Stacked by System)Volume Tiket",
+      "height": 73,
+      "padding": "12px 14px"
+    },
+    {
+      "title": "Rekap Tiket per User",
+      "height": 69,
+      "padding": "12px 14px",
+      "icon": 14
+    },
+    {
+      "title": "Distribusi Kategori / Tipe TiketDistribusi Kategori",
+      "height": 73,
+      "padding": "12px 14px"
+    },
+    {
+      "title": "Tren Durasi Penyelesaian (Resolution Velocity)Tren Durasi",
+      "height": 73,
+      "padding": "12px 14px"
+    },
+    {
+      "title": "Tren Trafik Beban per Shift (Shift Traffic Velocity)Tren Trafik",
+      "height": 73,
+      "padding": "12px 14px",
+      "icon": 16
+    }
+  ],
+  "loading": {
+    "panels": [
+      {
+        "title": "Tiket Hari Ini",
+        "beforeY": 463.484375,
+        "afterY": 463.484375,
+        "before": 726,
+        "after": 726
+      },
+      {
+        "title": "Memo & Catatan Shift",
+        "beforeY": 168.890625,
+        "afterY": 168.890625,
+        "before": 282.59375,
+        "after": 282.59375
+      },
+      {
+        "title": "List Monitoring Shift",
+        "beforeY": 1201.484375,
+        "afterY": 1201.484375,
+        "before": 466.5,
+        "after": 466.5
+      },
+      {
+        "title": "Ticket Volume per Project (Stacked by System)Volume Tiket",
+        "beforeY": 1765.984375,
+        "afterY": 1765.984375,
+        "before": 406,
+        "after": 406
+      },
+      {
+        "title": "Rekap Tiket per User",
+        "beforeY": 2183.984375,
+        "afterY": 2183.984375,
+        "before": 451,
+        "after": 451
+      },
+      {
+        "title": "Distribusi Kategori / Tipe TiketDistribusi Kategori",
+        "beforeY": 2702.984375,
+        "afterY": 2702.984375,
+        "before": 507,
+        "after": 507
+      },
+      {
+        "title": "Tren Durasi Penyelesaian (Resolution Velocity)Tren Durasi",
+        "beforeY": 3221.984375,
+        "afterY": 3221.984375,
+        "before": 484,
+        "after": 484
+      },
+      {
+        "title": "Tren Trafik Beban per Shift (Shift Traffic Velocity)Tren Trafik",
+        "beforeY": 3717.984375,
+        "afterY": 3717.984375,
+        "before": 556,
+        "after": 556
+      }
+    ],
+    "cls": 0.0001773867589999303,
+    "dashboardCls": 0
+  },
+  "interactions": {
+    "cases": 8,
+    "errors": [],
+    "expansionCls": [
+      {
+        "width": 320,
+        "cls": 0,
+        "intermediateFrames": 2
+      },
+      {
+        "width": 360,
+        "cls": 0,
+        "intermediateFrames": 2
+      },
+      {
+        "width": 375,
+        "cls": 0,
+        "intermediateFrames": 2
+      },
+      {
+        "width": 390,
+        "cls": 0,
+        "intermediateFrames": 2
+      },
+      {
+        "width": 412,
+        "cls": 0,
+        "intermediateFrames": 2
+      },
+      {
+        "width": 430,
+        "cls": 0,
+        "intermediateFrames": 2
+      },
+      {
+        "width": 768,
+        "cls": 0,
+        "intermediateFrames": 2
+      },
+      {
+        "width": 844,
+        "cls": 0,
+        "intermediateFrames": 1
+      }
+    ]
+  },
+  "galleryErrors": [],
+  "extremes": {
+    "cases": 8,
+    "errors": [],
+    "contrast": [
+      {
+        "width": 320,
+        "min": 4.92508647556999
+      },
+      {
+        "width": 360,
+        "min": 4.92508647556999
+      },
+      {
+        "width": 375,
+        "min": 4.92508647556999
+      },
+      {
+        "width": 390,
+        "min": 4.92508647556999
+      },
+      {
+        "width": 412,
+        "min": 4.92508647556999
+      },
+      {
+        "width": 430,
+        "min": 4.92508647556999
+      },
+      {
+        "width": 768,
+        "min": 4.92508647556999
+      },
+      {
+        "width": 844,
+        "min": 4.92508647556999
+      }
+    ],
+    "memo": [
+      {
+        "name": "empty",
+        "height": 74,
+        "fade": false
+      },
+      {
+        "name": "one",
+        "height": 52.390625,
+        "preview": 22,
+        "scroll": 22,
+        "fade": false
+      },
+      {
+        "name": "six",
+        "height": 171.59375,
+        "preview": 90,
+        "scroll": 443,
+        "fade": true,
+        "more": 44
+      },
+      {
+        "name": "no-spaces",
+        "height": 171.59375,
+        "preview": 90,
+        "scroll": 515,
+        "fade": true,
+        "more": 44
+      }
+    ]
+  }
+}

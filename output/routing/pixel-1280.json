@@ -1,0 +1,30 @@
+[
+  {
+    "page": "/dashboard",
+    "percent": 0
+  },
+  {
+    "page": "/tickets",
+    "percent": 0
+  },
+  {
+    "page": "/monitoring",
+    "percent": 0.04974426147704591
+  },
+  {
+    "page": "/shift-log",
+    "percent": 0
+  },
+  {
+    "page": "/reports",
+    "percent": 0
+  },
+  {
+    "page": "/team-roster",
+    "percent": 0
+  },
+  {
+    "page": "/runbooks",
+    "percent": 0
+  }
+]

@@ -1,0 +1,4577 @@
+{
+  "rows": [
+    {
+      "width": 320,
+      "height": 568,
+      "geometry": {
+        "pageOverflow": 0,
+        "headers": [
+          {
+            "height": 77,
+            "padding": "16px",
+            "icons": [
+              {
+                "x": 37,
+                "y": 392.484375,
+                "width": 16,
+                "height": 16,
+                "top": 392.484375,
+                "right": 53,
+                "bottom": 408.484375,
+                "left": 37
+              }
+            ]
+          },
+          {
+            "height": 77,
+            "padding": "16px",
+            "icons": [
+              {
+                "x": 37,
+                "y": 97.890625,
+                "width": 16,
+                "height": 16,
+                "top": 97.890625,
+                "right": 53,
+                "bottom": 113.890625,
+                "left": 37
+              }
+            ]
+          },
+          {
+            "height": 77,
+            "padding": "16px",
+            "icons": [
+              {
+                "x": 37,
+                "y": 1130.484375,
+                "width": 16,
+                "height": 16,
+                "top": 1130.484375,
+                "right": 53,
+                "bottom": 1146.484375,
+                "left": 37
+              }
+            ]
+          }
+        ],
+        "rows": [
+          {
+            "rect": {
+              "x": 13,
+              "y": 439.484375,
+              "width": 294,
+              "height": 129.5,
+              "top": 439.484375,
+              "right": 307,
+              "bottom": 568.984375,
+              "left": 13
+            },
+            "bg": "rgba(0, 0, 0, 0)",
+            "borderLeft": "0px",
+            "title": {
+              "x": 29,
+              "y": 483.484375,
+              "width": 262,
+              "height": 40.5,
+              "top": 483.484375,
+              "right": 291,
+              "bottom": 523.984375,
+              "left": 29
+            },
+            "titleFont": "15px",
+            "titleLine": "20.25px",
+            "id": {
+              "x": 156.09375,
+              "y": 456.234375,
+              "width": 134.90625,
+              "height": 16.5,
+              "top": 456.234375,
+              "right": 291,
+              "bottom": 472.734375,
+              "left": 156.09375
+            },
+            "badges": {
+              "x": 29,
+              "y": 453.484375,
+              "width": 119.09375,
+              "height": 22,
+              "top": 453.484375,
+              "right": 148.09375,
+              "bottom": 475.484375,
+              "left": 29
+            },
+            "project": {
+              "x": 29,
+              "y": 531.984375,
+              "width": 33.609375,
+              "height": 22,
+              "top": 531.984375,
+              "right": 62.609375,
+              "bottom": 553.984375,
+              "left": 29
+            },
+            "meta": {
+              "x": 70.609375,
+              "y": 531.984375,
+              "width": 220.390625,
+              "height": 22,
+              "top": 531.984375,
+              "right": 291,
+              "bottom": 553.984375,
+              "left": 70.609375
+            },
+            "owner": {
+              "x": 173.109375,
+              "y": 531.984375,
+              "width": 117.890625,
+              "height": 22,
+              "top": 531.984375,
+              "right": 291,
+              "bottom": 553.984375,
+              "left": 173.109375
+            },
+            "categoryDisplay": "none",
+            "small": []
+          },
+          {
+            "rect": {
+              "x": 13,
+              "y": 568.984375,
+              "width": 294,
+              "height": 129.5,
+              "top": 568.984375,
+              "right": 307,
+              "bottom": 698.484375,
+              "left": 13
+            },
+            "bg": "rgba(0, 0, 0, 0)",
+            "borderLeft": "0px",
+            "title": {
+              "x": 29,
+              "y": 612.984375,
+              "width": 262,
+              "height": 40.5,
+              "top": 612.984375,
+              "right": 291,
+              "bottom": 653.484375,
+              "left": 29
+            },
+            "titleFont": "15px",
+            "titleLine": "20.25px",
+            "id": {
+              "x": 164.203125,
+              "y": 585.734375,
+              "width": 126.796875,
+              "height": 16.5,
+              "top": 585.734375,
+              "right": 291,
+              "bottom": 602.234375,
+              "left": 164.203125
+            },
+            "badges": {
+              "x": 29,
+              "y": 582.984375,
+              "width": 127.203125,
+              "height": 22,
+              "top": 582.984375,
+              "right": 156.203125,
+              "bottom": 604.984375,
+              "left": 29
+            },
+            "project": {
+              "x": 29,
+              "y": 661.484375,
+              "width": 33.609375,
+              "height": 22,
+              "top": 661.484375,
+              "right": 62.609375,
+              "bottom": 683.484375,
+              "left": 29
+            },
+            "meta": {
+              "x": 70.609375,
+              "y": 661.484375,
+              "width": 220.390625,
+              "height": 22,
+              "top": 661.484375,
+              "right": 291,
+              "bottom": 683.484375,
+              "left": 70.609375
+            },
+            "owner": {
+              "x": 173.109375,
+              "y": 661.484375,
+              "width": 117.890625,
+              "height": 22,
+              "top": 661.484375,
+              "right": 291,
+              "bottom": 683.484375,
+              "left": 173.109375
+            },
+            "categoryDisplay": "none",
+            "small": []
+          },
+          {
+            "rect": {
+              "x": 13,
+              "y": 698.484375,
+              "width": 294,
+              "height": 129.5,
+              "top": 698.484375,
+              "right": 307,
+              "bottom": 827.984375,
+              "left": 13
+            },
+            "bg": "rgba(0, 0, 0, 0)",
+            "borderLeft": "0px",
+            "title": {
+              "x": 29,
+              "y": 742.484375,
+              "width": 262,
+              "height": 40.5,
+              "top": 742.484375,
+              "right": 291,
+              "bottom": 782.984375,
+              "left": 29
+            },
+            "titleFont": "15px",
+            "titleLine": "20.25px",
+            "id": {
+              "x": 156.09375,
+              "y": 715.234375,
+              "width": 134.90625,
+              "height": 16.5,
+              "top": 715.234375,
+              "right": 291,
+              "bottom": 731.734375,
+              "left": 156.09375
+            },
+            "badges": {
+              "x": 29,
+              "y": 712.484375,
+              "width": 119.09375,
+              "height": 22,
+              "top": 712.484375,
+              "right": 148.09375,
+              "bottom": 734.484375,
+              "left": 29
+            },
+            "project": {
+              "x": 29,
+              "y": 790.984375,
+              "width": 48,
+              "height": 22,
+              "top": 790.984375,
+              "right": 77,
+              "bottom": 812.984375,
+              "left": 29
+            },
+            "meta": {
+              "x": 85,
+              "y": 790.984375,
+              "width": 206,
+              "height": 22,
+              "top": 790.984375,
+              "right": 291,
+              "bottom": 812.984375,
+              "left": 85
+            },
+            "owner": {
+              "x": 173.109375,
+              "y": 790.984375,
+              "width": 117.890625,
+              "height": 22,
+              "top": 790.984375,
+              "right": 291,
+              "bottom": 812.984375,
+              "left": 173.109375
+            },
+            "categoryDisplay": "none",
+            "small": []
+          },
+          {
+            "rect": {
+              "x": 13,
+              "y": 827.984375,
+              "width": 294,
+              "height": 129.5,
+              "top": 827.984375,
+              "right": 307,
+              "bottom": 957.484375,
+              "left": 13
+            },
+            "bg": "rgba(0, 0, 0, 0)",
+            "borderLeft": "0px",
+            "title": {
+              "x": 29,
+              "y": 871.984375,
+              "width": 262,
+              "height": 40.5,
+              "top": 871.984375,
+              "right": 291,
+              "bottom": 912.484375,
+              "left": 29
+            },
+            "titleFont": "15px",
+            "titleLine": "20.25px",
+            "id": {
+              "x": 177.78125,
+              "y": 844.734375,
+              "width": 113.21875,
+              "height": 16.5,
+              "top": 844.734375,
+              "right": 291,
+              "bottom": 861.234375,
+              "left": 177.78125
+            },
+            "badges": {
+              "x": 29,
+              "y": 841.984375,
+              "width": 140.78125,
+              "height": 22,
+              "top": 841.984375,
+              "right": 169.78125,
+              "bottom": 863.984375,
+              "left": 29
+            },
+            "project": {
+              "x": 29,
+              "y": 920.484375,
+              "width": 40.8125,
+              "height": 22,
+              "top": 920.484375,
+              "right": 69.8125,
+              "bottom": 942.484375,
+              "left": 29
+            },
+            "meta": {
+              "x": 77.8125,
+              "y": 920.484375,
+              "width": 213.1875,
+              "height": 22,
+              "top": 920.484375,
+              "right": 291,
+              "bottom": 942.484375,
+              "left": 77.8125
+            },
+            "owner": {
+              "x": 173.109375,
+              "y": 920.484375,
+              "width": 117.890625,
+              "height": 22,
+              "top": 920.484375,
+              "right": 291,
+              "bottom": 942.484375,
+              "left": 173.109375
+            },
+            "categoryDisplay": "none",
+            "small": []
+          }
+        ],
+        "targets": [
+          {
+            "name": "Lihat semua (33)",
+            "rect": {
+              "x": 29,
+              "y": 957.484375,
+              "width": 262,
+              "height": 44,
+              "top": 957.484375,
+              "right": 291,
+              "bottom": 1001.484375,
+              "left": 29
+            }
+          },
+          {
+            "name": "Halaman tiket sebelumnya",
+            "rect": {
+              "x": 29,
+              "y": 1026.484375,
+              "width": 44,
+              "height": 44,
+              "top": 1026.484375,
+              "right": 73,
+              "bottom": 1070.484375,
+              "left": 29
+            }
+          },
+          {
+            "name": "Halaman tiket berikutnya",
+            "rect": {
+              "x": 125,
+              "y": 1026.484375,
+              "width": 44,
+              "height": 44,
+              "top": 1026.484375,
+              "right": 169,
+              "bottom": 1070.484375,
+              "left": 125
+            }
+          },
+          {
+            "name": "Jumlah tiket per halaman",
+            "rect": {
+              "x": 199,
+              "y": 1026.484375,
+              "width": 92,
+              "height": 44,
+              "top": 1026.484375,
+              "right": 291,
+              "bottom": 1070.484375,
+              "left": 199
+            }
+          },
+          {
+            "name": "Lihat Memo & Catatan Shift dalam tampilan penuh",
+            "rect": {
+              "x": 247,
+              "y": 83.890625,
+              "width": 44,
+              "height": 44,
+              "top": 83.890625,
+              "right": 291,
+              "bottom": 127.890625,
+              "left": 247
+            }
+          },
+          {
+            "name": "Buka memo dan catatan shift lengkap",
+            "rect": {
+              "x": 29,
+              "y": 160.890625,
+              "width": 262,
+              "height": 171.59375,
+              "top": 160.890625,
+              "right": 291,
+              "bottom": 332.484375,
+              "left": 29
+            }
+          },
+          {
+            "name": "Status B2B: Health check gateway B2B sekunder, OK",
+            "rect": {
+              "x": 234,
+              "y": 1194.484375,
+              "width": 56,
+              "height": 44,
+              "top": 1194.484375,
+              "right": 290,
+              "bottom": 1238.484375,
+              "left": 234
+            }
+          },
+          {
+            "name": "Status SM: Queue distributor check & routing, OK",
+            "rect": {
+              "x": 234,
+              "y": 1247.484375,
+              "width": 56,
+              "height": 44,
+              "top": 1247.484375,
+              "right": 290,
+              "bottom": 1291.484375,
+              "left": 234
+            }
+          },
+          {
+            "name": "Status USIEM: Graylog indexer rate & pipeline buffer, OK",
+            "rect": {
+              "x": 234,
+              "y": 1300.484375,
+              "width": 56,
+              "height": 44,
+              "top": 1300.484375,
+              "right": 290,
+              "bottom": 1344.484375,
+              "left": 234
+            }
+          },
+          {
+            "name": "Status ActiveMQ: Broker health check broker #228, NOK",
+            "rect": {
+              "x": 234,
+              "y": 1353.484375,
+              "width": 56,
+              "height": 44,
+              "top": 1353.484375,
+              "right": 290,
+              "bottom": 1397.484375,
+              "left": 234
+            }
+          },
+          {
+            "name": "Status EPC Tools: Validation worker cluster FMC, OK",
+            "rect": {
+              "x": 234,
+              "y": 1406.484375,
+              "width": 56,
+              "height": 44,
+              "top": 1406.484375,
+              "right": 290,
+              "bottom": 1450.484375,
+              "left": 234
+            }
+          },
+          {
+            "name": "Lihat semua (13)",
+            "rect": {
+              "x": 29,
+              "y": 1467.484375,
+              "width": 262,
+              "height": 44,
+              "top": 1467.484375,
+              "right": 291,
+              "bottom": 1511.484375,
+              "left": 29
+            }
+          }
+        ]
+      },
+      "before": [
+        "86d40sep14",
+        "86d40dm01",
+        "86d40dm03",
+        "86d40sep19"
+      ],
+      "pageTwo": [
+        "86d40dm15",
+        "86d40sep18",
+        "86d40dm16",
+        "86d40dm19"
+      ],
+      "expanded": {
+        "height": 4273.5,
+        "samples": [
+          {
+            "time": 9,
+            "height": 518
+          },
+          {
+            "time": 24,
+            "height": 518
+          },
+          {
+            "time": 40,
+            "height": 518
+          },
+          {
+            "time": 272,
+            "height": 2052.28125
+          },
+          {
+            "time": 317,
+            "height": 3531.28125
+          }
+        ],
+        "cls": 0,
+        "transition": "height, padding, border-width, opacity"
+      },
+      "release": {
+        "html": "visible",
+        "body": "visible",
+        "inert": 0,
+        "hidden": null
+      }
+    },
+    {
+      "width": 360,
+      "height": 740,
+      "geometry": {
+        "pageOverflow": 0,
+        "headers": [
+          {
+            "height": 77,
+            "padding": "16px",
+            "icons": [
+              {
+                "x": 37,
+                "y": 494.484375,
+                "width": 16,
+                "height": 16,
+                "top": 494.484375,
+                "right": 53,
+                "bottom": 510.484375,
+                "left": 37
+              }
+            ]
+          },
+          {
+            "height": 77,
+            "padding": "16px",
+            "icons": [
+              {
+                "x": 37,
+                "y": 199.890625,
+                "width": 16,
+                "height": 16,
+                "top": 199.890625,
+                "right": 53,
+                "bottom": 215.890625,
+                "left": 37
+              }
+            ]
+          },
+          {
+            "height": 77,
+            "padding": "16px",
+            "icons": [
+              {
+                "x": 37,
+                "y": 1232.484375,
+                "width": 16,
+                "height": 16,
+                "top": 1232.484375,
+                "right": 53,
+                "bottom": 1248.484375,
+                "left": 37
+              }
+            ]
+          }
+        ],
+        "rows": [
+          {
+            "rect": {
+              "x": 13,
+              "y": 541.484375,
+              "width": 334,
+              "height": 129.5,
+              "top": 541.484375,
+              "right": 347,
+              "bottom": 670.984375,
+              "left": 13
+            },
+            "bg": "rgba(0, 0, 0, 0)",
+            "borderLeft": "0px",
+            "title": {
+              "x": 29,
+              "y": 585.484375,
+              "width": 302,
+              "height": 40.5,
+              "top": 585.484375,
+              "right": 331,
+              "bottom": 625.984375,
+              "left": 29
+            },
+            "titleFont": "15px",
+            "titleLine": "20.25px",
+            "id": {
+              "x": 156.09375,
+              "y": 558.234375,
+              "width": 174.90625,
+              "height": 16.5,
+              "top": 558.234375,
+              "right": 331,
+              "bottom": 574.734375,
+              "left": 156.09375
+            },
+            "badges": {
+              "x": 29,
+              "y": 555.484375,
+              "width": 119.09375,
+              "height": 22,
+              "top": 555.484375,
+              "right": 148.09375,
+              "bottom": 577.484375,
+              "left": 29
+            },
+            "project": {
+              "x": 29,
+              "y": 633.984375,
+              "width": 33.609375,
+              "height": 22,
+              "top": 633.984375,
+              "right": 62.609375,
+              "bottom": 655.984375,
+              "left": 29
+            },
+            "meta": {
+              "x": 70.609375,
+              "y": 633.984375,
+              "width": 260.390625,
+              "height": 22,
+              "top": 633.984375,
+              "right": 331,
+              "bottom": 655.984375,
+              "left": 70.609375
+            },
+            "owner": {
+              "x": 195.109375,
+              "y": 633.984375,
+              "width": 135.890625,
+              "height": 22,
+              "top": 633.984375,
+              "right": 331,
+              "bottom": 655.984375,
+              "left": 195.109375
+            },
+            "categoryDisplay": "flex",
+            "small": []
+          },
+          {
+            "rect": {
+              "x": 13,
+              "y": 670.984375,
+              "width": 334,
+              "height": 129.5,
+              "top": 670.984375,
+              "right": 347,
+              "bottom": 800.484375,
+              "left": 13
+            },
+            "bg": "rgba(0, 0, 0, 0)",
+            "borderLeft": "0px",
+            "title": {
+              "x": 29,
+              "y": 714.984375,
+              "width": 302,
+              "height": 40.5,
+              "top": 714.984375,
+              "right": 331,
+              "bottom": 755.484375,
+              "left": 29
+            },
+            "titleFont": "15px",
+            "titleLine": "20.25px",
+            "id": {
+              "x": 164.203125,
+              "y": 687.734375,
+              "width": 166.796875,
+              "height": 16.5,
+              "top": 687.734375,
+              "right": 331,
+              "bottom": 704.234375,
+              "left": 164.203125
+            },
+            "badges": {
+              "x": 29,
+              "y": 684.984375,
+              "width": 127.203125,
+              "height": 22,
+              "top": 684.984375,
+              "right": 156.203125,
+              "bottom": 706.984375,
+              "left": 29
+            },
+            "project": {
+              "x": 29,
+              "y": 763.484375,
+              "width": 33.609375,
+              "height": 22,
+              "top": 763.484375,
+              "right": 62.609375,
+              "bottom": 785.484375,
+              "left": 29
+            },
+            "meta": {
+              "x": 70.609375,
+              "y": 763.484375,
+              "width": 260.390625,
+              "height": 22,
+              "top": 763.484375,
+              "right": 331,
+              "bottom": 785.484375,
+              "left": 70.609375
+            },
+            "owner": {
+              "x": 208.75,
+              "y": 763.484375,
+              "width": 122.25,
+              "height": 22,
+              "top": 763.484375,
+              "right": 331,
+              "bottom": 785.484375,
+              "left": 208.75
+            },
+            "categoryDisplay": "flex",
+            "small": []
+          },
+          {
+            "rect": {
+              "x": 13,
+              "y": 800.484375,
+              "width": 334,
+              "height": 129.5,
+              "top": 800.484375,
+              "right": 347,
+              "bottom": 929.984375,
+              "left": 13
+            },
+            "bg": "rgba(0, 0, 0, 0)",
+            "borderLeft": "0px",
+            "title": {
+              "x": 29,
+              "y": 844.484375,
+              "width": 302,
+              "height": 40.5,
+              "top": 844.484375,
+              "right": 331,
+              "bottom": 884.984375,
+              "left": 29
+            },
+            "titleFont": "15px",
+            "titleLine": "20.25px",
+            "id": {
+              "x": 156.09375,
+              "y": 817.234375,
+              "width": 174.90625,
+              "height": 16.5,
+              "top": 817.234375,
+              "right": 331,
+              "bottom": 833.734375,
+              "left": 156.09375
+            },
+            "badges": {
+              "x": 29,
+              "y": 814.484375,
+              "width": 119.09375,
+              "height": 22,
+              "top": 814.484375,
+              "right": 148.09375,
+              "bottom": 836.484375,
+              "left": 29
+            },
+            "project": {
+              "x": 29,
+              "y": 892.984375,
+              "width": 48,
+              "height": 22,
+              "top": 892.984375,
+              "right": 77,
+              "bottom": 914.984375,
+              "left": 29
+            },
+            "meta": {
+              "x": 85,
+              "y": 892.984375,
+              "width": 246,
+              "height": 22,
+              "top": 892.984375,
+              "right": 331,
+              "bottom": 914.984375,
+              "left": 85
+            },
+            "owner": {
+              "x": 195.109375,
+              "y": 892.984375,
+              "width": 135.890625,
+              "height": 22,
+              "top": 892.984375,
+              "right": 331,
+              "bottom": 914.984375,
+              "left": 195.109375
+            },
+            "categoryDisplay": "flex",
+            "small": []
+          },
+          {
+            "rect": {
+              "x": 13,
+              "y": 929.984375,
+              "width": 334,
+              "height": 129.5,
+              "top": 929.984375,
+              "right": 347,
+              "bottom": 1059.484375,
+              "left": 13
+            },
+            "bg": "rgba(0, 0, 0, 0)",
+            "borderLeft": "0px",
+            "title": {
+              "x": 29,
+              "y": 973.984375,
+              "width": 302,
+              "height": 40.5,
+              "top": 973.984375,
+              "right": 331,
+              "bottom": 1014.484375,
+              "left": 29
+            },
+            "titleFont": "15px",
+            "titleLine": "20.25px",
+            "id": {
+              "x": 177.78125,
+              "y": 946.734375,
+              "width": 153.21875,
+              "height": 16.5,
+              "top": 946.734375,
+              "right": 331,
+              "bottom": 963.234375,
+              "left": 177.78125
+            },
+            "badges": {
+              "x": 29,
+              "y": 943.984375,
+              "width": 140.78125,
+              "height": 22,
+              "top": 943.984375,
+              "right": 169.78125,
+              "bottom": 965.984375,
+              "left": 29
+            },
+            "project": {
+              "x": 29,
+              "y": 1022.484375,
+              "width": 40.8125,
+              "height": 22,
+              "top": 1022.484375,
+              "right": 69.8125,
+              "bottom": 1044.484375,
+              "left": 29
+            },
+            "meta": {
+              "x": 77.8125,
+              "y": 1022.484375,
+              "width": 253.1875,
+              "height": 22,
+              "top": 1022.484375,
+              "right": 331,
+              "bottom": 1044.484375,
+              "left": 77.8125
+            },
+            "owner": {
+              "x": 195.109375,
+              "y": 1022.484375,
+              "width": 135.890625,
+              "height": 22,
+              "top": 1022.484375,
+              "right": 331,
+              "bottom": 1044.484375,
+              "left": 195.109375
+            },
+            "categoryDisplay": "flex",
+            "small": []
+          }
+        ],
+        "targets": [
+          {
+            "name": "Lihat semua (33)",
+            "rect": {
+              "x": 29,
+              "y": 1059.484375,
+              "width": 302,
+              "height": 44,
+              "top": 1059.484375,
+              "right": 331,
+              "bottom": 1103.484375,
+              "left": 29
+            }
+          },
+          {
+            "name": "Halaman tiket sebelumnya",
+            "rect": {
+              "x": 29,
+              "y": 1128.484375,
+              "width": 44,
+              "height": 44,
+              "top": 1128.484375,
+              "right": 73,
+              "bottom": 1172.484375,
+              "left": 29
+            }
+          },
+          {
+            "name": "Halaman tiket berikutnya",
+            "rect": {
+              "x": 125,
+              "y": 1128.484375,
+              "width": 44,
+              "height": 44,
+              "top": 1128.484375,
+              "right": 169,
+              "bottom": 1172.484375,
+              "left": 125
+            }
+          },
+          {
+            "name": "Jumlah tiket per halaman",
+            "rect": {
+              "x": 239,
+              "y": 1128.484375,
+              "width": 92,
+              "height": 44,
+              "top": 1128.484375,
+              "right": 331,
+              "bottom": 1172.484375,
+              "left": 239
+            }
+          },
+          {
+            "name": "Lihat Memo & Catatan Shift dalam tampilan penuh",
+            "rect": {
+              "x": 287,
+              "y": 185.890625,
+              "width": 44,
+              "height": 44,
+              "top": 185.890625,
+              "right": 331,
+              "bottom": 229.890625,
+              "left": 287
+            }
+          },
+          {
+            "name": "Buka memo dan catatan shift lengkap",
+            "rect": {
+              "x": 29,
+              "y": 262.890625,
+              "width": 302,
+              "height": 171.59375,
+              "top": 262.890625,
+              "right": 331,
+              "bottom": 434.484375,
+              "left": 29
+            }
+          },
+          {
+            "name": "Status B2B: Health check gateway B2B sekunder, OK",
+            "rect": {
+              "x": 274,
+              "y": 1296.484375,
+              "width": 56,
+              "height": 44,
+              "top": 1296.484375,
+              "right": 330,
+              "bottom": 1340.484375,
+              "left": 274
+            }
+          },
+          {
+            "name": "Status SM: Queue distributor check & routing, OK",
+            "rect": {
+              "x": 274,
+              "y": 1349.484375,
+              "width": 56,
+              "height": 44,
+              "top": 1349.484375,
+              "right": 330,
+              "bottom": 1393.484375,
+              "left": 274
+            }
+          },
+          {
+            "name": "Status USIEM: Graylog indexer rate & pipeline buffer, OK",
+            "rect": {
+              "x": 274,
+              "y": 1402.484375,
+              "width": 56,
+              "height": 44,
+              "top": 1402.484375,
+              "right": 330,
+              "bottom": 1446.484375,
+              "left": 274
+            }
+          },
+          {
+            "name": "Status ActiveMQ: Broker health check broker #228, NOK",
+            "rect": {
+              "x": 274,
+              "y": 1455.484375,
+              "width": 56,
+              "height": 44,
+              "top": 1455.484375,
+              "right": 330,
+              "bottom": 1499.484375,
+              "left": 274
+            }
+          },
+          {
+            "name": "Status EPC Tools: Validation worker cluster FMC, OK",
+            "rect": {
+              "x": 274,
+              "y": 1508.484375,
+              "width": 56,
+              "height": 44,
+              "top": 1508.484375,
+              "right": 330,
+              "bottom": 1552.484375,
+              "left": 274
+            }
+          },
+          {
+            "name": "Lihat semua (13)",
+            "rect": {
+              "x": 29,
+              "y": 1569.484375,
+              "width": 302,
+              "height": 44,
+              "top": 1569.484375,
+              "right": 331,
+              "bottom": 1613.484375,
+              "left": 29
+            }
+          }
+        ]
+      },
+      "before": [
+        "86d40sep14",
+        "86d40dm01",
+        "86d40dm03",
+        "86d40sep19"
+      ],
+      "pageTwo": [
+        "86d40dm15",
+        "86d40sep18",
+        "86d40dm16",
+        "86d40dm19"
+      ],
+      "expanded": {
+        "height": 4273.5,
+        "samples": [
+          {
+            "time": 10,
+            "height": 518
+          },
+          {
+            "time": 24,
+            "height": 518
+          },
+          {
+            "time": 44,
+            "height": 518
+          },
+          {
+            "time": 295,
+            "height": 2449.671875
+          },
+          {
+            "time": 315,
+            "height": 2992.0625
+          }
+        ],
+        "cls": 0,
+        "transition": "height, padding, border-width, opacity"
+      },
+      "release": {
+        "html": "visible",
+        "body": "visible",
+        "inert": 0,
+        "hidden": null
+      }
+    },
+    {
+      "width": 375,
+      "height": 667,
+      "geometry": {
+        "pageOverflow": 0,
+        "headers": [
+          {
+            "height": 77,
+            "padding": "16px",
+            "icons": [
+              {
+                "x": 37,
+                "y": 491.484375,
+                "width": 16,
+                "height": 16,
+                "top": 491.484375,
+                "right": 53,
+                "bottom": 507.484375,
+                "left": 37
+              }
+            ]
+          },
+          {
+            "height": 77,
+            "padding": "16px",
+            "icons": [
+              {
+                "x": 37,
+                "y": 196.890625,
+                "width": 16,
+                "height": 16,
+                "top": 196.890625,
+                "right": 53,
+                "bottom": 212.890625,
+                "left": 37
+              }
+            ]
+          },
+          {
+            "height": 77,
+            "padding": "16px",
+            "icons": [
+              {
+                "x": 37,
+                "y": 1229.484375,
+                "width": 16,
+                "height": 16,
+                "top": 1229.484375,
+                "right": 53,
+                "bottom": 1245.484375,
+                "left": 37
+              }
+            ]
+          }
+        ],
+        "rows": [
+          {
+            "rect": {
+              "x": 13,
+              "y": 538.484375,
+              "width": 349,
+              "height": 129.5,
+              "top": 538.484375,
+              "right": 362,
+              "bottom": 667.984375,
+              "left": 13
+            },
+            "bg": "rgba(0, 0, 0, 0)",
+            "borderLeft": "0px",
+            "title": {
+              "x": 29,
+              "y": 582.484375,
+              "width": 317,
+              "height": 40.5,
+              "top": 582.484375,
+              "right": 346,
+              "bottom": 622.984375,
+              "left": 29
+            },
+            "titleFont": "15px",
+            "titleLine": "20.25px",
+            "id": {
+              "x": 156.09375,
+              "y": 555.234375,
+              "width": 189.90625,
+              "height": 16.5,
+              "top": 555.234375,
+              "right": 346,
+              "bottom": 571.734375,
+              "left": 156.09375
+            },
+            "badges": {
+              "x": 29,
+              "y": 552.484375,
+              "width": 119.09375,
+              "height": 22,
+              "top": 552.484375,
+              "right": 148.09375,
+              "bottom": 574.484375,
+              "left": 29
+            },
+            "project": {
+              "x": 29,
+              "y": 630.984375,
+              "width": 33.609375,
+              "height": 22,
+              "top": 630.984375,
+              "right": 62.609375,
+              "bottom": 652.984375,
+              "left": 29
+            },
+            "meta": {
+              "x": 70.609375,
+              "y": 630.984375,
+              "width": 275.390625,
+              "height": 22,
+              "top": 630.984375,
+              "right": 346,
+              "bottom": 652.984375,
+              "left": 70.609375
+            },
+            "owner": {
+              "x": 203.359375,
+              "y": 630.984375,
+              "width": 142.640625,
+              "height": 22,
+              "top": 630.984375,
+              "right": 346,
+              "bottom": 652.984375,
+              "left": 203.359375
+            },
+            "categoryDisplay": "flex",
+            "small": []
+          },
+          {
+            "rect": {
+              "x": 13,
+              "y": 667.984375,
+              "width": 349,
+              "height": 129.5,
+              "top": 667.984375,
+              "right": 362,
+              "bottom": 797.484375,
+              "left": 13
+            },
+            "bg": "rgba(0, 0, 0, 0)",
+            "borderLeft": "0px",
+            "title": {
+              "x": 29,
+              "y": 711.984375,
+              "width": 317,
+              "height": 40.5,
+              "top": 711.984375,
+              "right": 346,
+              "bottom": 752.484375,
+              "left": 29
+            },
+            "titleFont": "15px",
+            "titleLine": "20.25px",
+            "id": {
+              "x": 164.203125,
+              "y": 684.734375,
+              "width": 181.796875,
+              "height": 16.5,
+              "top": 684.734375,
+              "right": 346,
+              "bottom": 701.234375,
+              "left": 164.203125
+            },
+            "badges": {
+              "x": 29,
+              "y": 681.984375,
+              "width": 127.203125,
+              "height": 22,
+              "top": 681.984375,
+              "right": 156.203125,
+              "bottom": 703.984375,
+              "left": 29
+            },
+            "project": {
+              "x": 29,
+              "y": 760.484375,
+              "width": 33.609375,
+              "height": 22,
+              "top": 760.484375,
+              "right": 62.609375,
+              "bottom": 782.484375,
+              "left": 29
+            },
+            "meta": {
+              "x": 70.609375,
+              "y": 760.484375,
+              "width": 275.390625,
+              "height": 22,
+              "top": 760.484375,
+              "right": 346,
+              "bottom": 782.484375,
+              "left": 70.609375
+            },
+            "owner": {
+              "x": 223.75,
+              "y": 760.484375,
+              "width": 122.25,
+              "height": 22,
+              "top": 760.484375,
+              "right": 346,
+              "bottom": 782.484375,
+              "left": 223.75
+            },
+            "categoryDisplay": "flex",
+            "small": []
+          },
+          {
+            "rect": {
+              "x": 13,
+              "y": 797.484375,
+              "width": 349,
+              "height": 129.5,
+              "top": 797.484375,
+              "right": 362,
+              "bottom": 926.984375,
+              "left": 13
+            },
+            "bg": "rgba(0, 0, 0, 0)",
+            "borderLeft": "0px",
+            "title": {
+              "x": 29,
+              "y": 841.484375,
+              "width": 317,
+              "height": 40.5,
+              "top": 841.484375,
+              "right": 346,
+              "bottom": 881.984375,
+              "left": 29
+            },
+            "titleFont": "15px",
+            "titleLine": "20.25px",
+            "id": {
+              "x": 156.09375,
+              "y": 814.234375,
+              "width": 189.90625,
+              "height": 16.5,
+              "top": 814.234375,
+              "right": 346,
+              "bottom": 830.734375,
+              "left": 156.09375
+            },
+            "badges": {
+              "x": 29,
+              "y": 811.484375,
+              "width": 119.09375,
+              "height": 22,
+              "top": 811.484375,
+              "right": 148.09375,
+              "bottom": 833.484375,
+              "left": 29
+            },
+            "project": {
+              "x": 29,
+              "y": 889.984375,
+              "width": 48,
+              "height": 22,
+              "top": 889.984375,
+              "right": 77,
+              "bottom": 911.984375,
+              "left": 29
+            },
+            "meta": {
+              "x": 85,
+              "y": 889.984375,
+              "width": 261,
+              "height": 22,
+              "top": 889.984375,
+              "right": 346,
+              "bottom": 911.984375,
+              "left": 85
+            },
+            "owner": {
+              "x": 203.359375,
+              "y": 889.984375,
+              "width": 142.640625,
+              "height": 22,
+              "top": 889.984375,
+              "right": 346,
+              "bottom": 911.984375,
+              "left": 203.359375
+            },
+            "categoryDisplay": "flex",
+            "small": []
+          },
+          {
+            "rect": {
+              "x": 13,
+              "y": 926.984375,
+              "width": 349,
+              "height": 129.5,
+              "top": 926.984375,
+              "right": 362,
+              "bottom": 1056.484375,
+              "left": 13
+            },
+            "bg": "rgba(0, 0, 0, 0)",
+            "borderLeft": "0px",
+            "title": {
+              "x": 29,
+              "y": 970.984375,
+              "width": 317,
+              "height": 40.5,
+              "top": 970.984375,
+              "right": 346,
+              "bottom": 1011.484375,
+              "left": 29
+            },
+            "titleFont": "15px",
+            "titleLine": "20.25px",
+            "id": {
+              "x": 177.78125,
+              "y": 943.734375,
+              "width": 168.21875,
+              "height": 16.5,
+              "top": 943.734375,
+              "right": 346,
+              "bottom": 960.234375,
+              "left": 177.78125
+            },
+            "badges": {
+              "x": 29,
+              "y": 940.984375,
+              "width": 140.78125,
+              "height": 22,
+              "top": 940.984375,
+              "right": 169.78125,
+              "bottom": 962.984375,
+              "left": 29
+            },
+            "project": {
+              "x": 29,
+              "y": 1019.484375,
+              "width": 40.8125,
+              "height": 22,
+              "top": 1019.484375,
+              "right": 69.8125,
+              "bottom": 1041.484375,
+              "left": 29
+            },
+            "meta": {
+              "x": 77.8125,
+              "y": 1019.484375,
+              "width": 268.1875,
+              "height": 22,
+              "top": 1019.484375,
+              "right": 346,
+              "bottom": 1041.484375,
+              "left": 77.8125
+            },
+            "owner": {
+              "x": 203.359375,
+              "y": 1019.484375,
+              "width": 142.640625,
+              "height": 22,
+              "top": 1019.484375,
+              "right": 346,
+              "bottom": 1041.484375,
+              "left": 203.359375
+            },
+            "categoryDisplay": "flex",
+            "small": []
+          }
+        ],
+        "targets": [
+          {
+            "name": "Lihat semua (33)",
+            "rect": {
+              "x": 29,
+              "y": 1056.484375,
+              "width": 317,
+              "height": 44,
+              "top": 1056.484375,
+              "right": 346,
+              "bottom": 1100.484375,
+              "left": 29
+            }
+          },
+          {
+            "name": "Halaman tiket sebelumnya",
+            "rect": {
+              "x": 29,
+              "y": 1125.484375,
+              "width": 44,
+              "height": 44,
+              "top": 1125.484375,
+              "right": 73,
+              "bottom": 1169.484375,
+              "left": 29
+            }
+          },
+          {
+            "name": "Halaman tiket berikutnya",
+            "rect": {
+              "x": 125,
+              "y": 1125.484375,
+              "width": 44,
+              "height": 44,
+              "top": 1125.484375,
+              "right": 169,
+              "bottom": 1169.484375,
+              "left": 125
+            }
+          },
+          {
+            "name": "Jumlah tiket per halaman",
+            "rect": {
+              "x": 254,
+              "y": 1125.484375,
+              "width": 92,
+              "height": 44,
+              "top": 1125.484375,
+              "right": 346,
+              "bottom": 1169.484375,
+              "left": 254
+            }
+          },
+          {
+            "name": "Lihat Memo & Catatan Shift dalam tampilan penuh",
+            "rect": {
+              "x": 302,
+              "y": 182.890625,
+              "width": 44,
+              "height": 44,
+              "top": 182.890625,
+              "right": 346,
+              "bottom": 226.890625,
+              "left": 302
+            }
+          },
+          {
+            "name": "Buka memo dan catatan shift lengkap",
+            "rect": {
+              "x": 29,
+              "y": 259.890625,
+              "width": 317,
+              "height": 171.59375,
+              "top": 259.890625,
+              "right": 346,
+              "bottom": 431.484375,
+              "left": 29
+            }
+          },
+          {
+            "name": "Status B2B: Health check gateway B2B sekunder, OK",
+            "rect": {
+              "x": 289,
+              "y": 1293.484375,
+              "width": 56,
+              "height": 44,
+              "top": 1293.484375,
+              "right": 345,
+              "bottom": 1337.484375,
+              "left": 289
+            }
+          },
+          {
+            "name": "Status SM: Queue distributor check & routing, OK",
+            "rect": {
+              "x": 289,
+              "y": 1346.484375,
+              "width": 56,
+              "height": 44,
+              "top": 1346.484375,
+              "right": 345,
+              "bottom": 1390.484375,
+              "left": 289
+            }
+          },
+          {
+            "name": "Status USIEM: Graylog indexer rate & pipeline buffer, OK",
+            "rect": {
+              "x": 289,
+              "y": 1399.484375,
+              "width": 56,
+              "height": 44,
+              "top": 1399.484375,
+              "right": 345,
+              "bottom": 1443.484375,
+              "left": 289
+            }
+          },
+          {
+            "name": "Status ActiveMQ: Broker health check broker #228, NOK",
+            "rect": {
+              "x": 289,
+              "y": 1452.484375,
+              "width": 56,
+              "height": 44,
+              "top": 1452.484375,
+              "right": 345,
+              "bottom": 1496.484375,
+              "left": 289
+            }
+          },
+          {
+            "name": "Status EPC Tools: Validation worker cluster FMC, OK",
+            "rect": {
+              "x": 289,
+              "y": 1505.484375,
+              "width": 56,
+              "height": 44,
+              "top": 1505.484375,
+              "right": 345,
+              "bottom": 1549.484375,
+              "left": 289
+            }
+          },
+          {
+            "name": "Lihat semua (13)",
+            "rect": {
+              "x": 29,
+              "y": 1566.484375,
+              "width": 317,
+              "height": 44,
+              "top": 1566.484375,
+              "right": 346,
+              "bottom": 1610.484375,
+              "left": 29
+            }
+          }
+        ]
+      },
+      "before": [
+        "86d40sep14",
+        "86d40dm01",
+        "86d40dm03",
+        "86d40sep19"
+      ],
+      "pageTwo": [
+        "86d40dm15",
+        "86d40sep18",
+        "86d40dm16",
+        "86d40dm19"
+      ],
+      "expanded": {
+        "height": 4273.5,
+        "samples": [
+          {
+            "time": 16,
+            "height": 518
+          },
+          {
+            "time": 30,
+            "height": 518
+          },
+          {
+            "time": 302,
+            "height": 2680.3125
+          },
+          {
+            "time": 329,
+            "height": 3396.703125
+          }
+        ],
+        "cls": 0,
+        "transition": "height, padding, border-width, opacity"
+      },
+      "release": {
+        "html": "visible",
+        "body": "visible",
+        "inert": 0,
+        "hidden": null
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "geometry": {
+        "pageOverflow": 0,
+        "headers": [
+          {
+            "height": 77,
+            "padding": "16px",
+            "icons": [
+              {
+                "x": 37,
+                "y": 494.484375,
+                "width": 16,
+                "height": 16,
+                "top": 494.484375,
+                "right": 53,
+                "bottom": 510.484375,
+                "left": 37
+              }
+            ]
+          },
+          {
+            "height": 77,
+            "padding": "16px",
+            "icons": [
+              {
+                "x": 37,
+                "y": 199.890625,
+                "width": 16,
+                "height": 16,
+                "top": 199.890625,
+                "right": 53,
+                "bottom": 215.890625,
+                "left": 37
+              }
+            ]
+          },
+          {
+            "height": 77,
+            "padding": "16px",
+            "icons": [
+              {
+                "x": 37,
+                "y": 1232.484375,
+                "width": 16,
+                "height": 16,
+                "top": 1232.484375,
+                "right": 53,
+                "bottom": 1248.484375,
+                "left": 37
+              }
+            ]
+          }
+        ],
+        "rows": [
+          {
+            "rect": {
+              "x": 13,
+              "y": 541.484375,
+              "width": 364,
+              "height": 129.5,
+              "top": 541.484375,
+              "right": 377,
+              "bottom": 670.984375,
+              "left": 13
+            },
+            "bg": "rgba(0, 0, 0, 0)",
+            "borderLeft": "0px",
+            "title": {
+              "x": 29,
+              "y": 585.484375,
+              "width": 332,
+              "height": 40.5,
+              "top": 585.484375,
+              "right": 361,
+              "bottom": 625.984375,
+              "left": 29
+            },
+            "titleFont": "15px",
+            "titleLine": "20.25px",
+            "id": {
+              "x": 156.09375,
+              "y": 558.234375,
+              "width": 204.90625,
+              "height": 16.5,
+              "top": 558.234375,
+              "right": 361,
+              "bottom": 574.734375,
+              "left": 156.09375
+            },
+            "badges": {
+              "x": 29,
+              "y": 555.484375,
+              "width": 119.09375,
+              "height": 22,
+              "top": 555.484375,
+              "right": 148.09375,
+              "bottom": 577.484375,
+              "left": 29
+            },
+            "project": {
+              "x": 29,
+              "y": 633.984375,
+              "width": 33.609375,
+              "height": 22,
+              "top": 633.984375,
+              "right": 62.609375,
+              "bottom": 655.984375,
+              "left": 29
+            },
+            "meta": {
+              "x": 70.609375,
+              "y": 633.984375,
+              "width": 290.390625,
+              "height": 22,
+              "top": 633.984375,
+              "right": 361,
+              "bottom": 655.984375,
+              "left": 70.609375
+            },
+            "owner": {
+              "x": 211.609375,
+              "y": 633.984375,
+              "width": 149.390625,
+              "height": 22,
+              "top": 633.984375,
+              "right": 361,
+              "bottom": 655.984375,
+              "left": 211.609375
+            },
+            "categoryDisplay": "flex",
+            "small": []
+          },
+          {
+            "rect": {
+              "x": 13,
+              "y": 670.984375,
+              "width": 364,
+              "height": 129.5,
+              "top": 670.984375,
+              "right": 377,
+              "bottom": 800.484375,
+              "left": 13
+            },
+            "bg": "rgba(0, 0, 0, 0)",
+            "borderLeft": "0px",
+            "title": {
+              "x": 29,
+              "y": 714.984375,
+              "width": 332,
+              "height": 40.5,
+              "top": 714.984375,
+              "right": 361,
+              "bottom": 755.484375,
+              "left": 29
+            },
+            "titleFont": "15px",
+            "titleLine": "20.25px",
+            "id": {
+              "x": 164.203125,
+              "y": 687.734375,
+              "width": 196.796875,
+              "height": 16.5,
+              "top": 687.734375,
+              "right": 361,
+              "bottom": 704.234375,
+              "left": 164.203125
+            },
+            "badges": {
+              "x": 29,
+              "y": 684.984375,
+              "width": 127.203125,
+              "height": 22,
+              "top": 684.984375,
+              "right": 156.203125,
+              "bottom": 706.984375,
+              "left": 29
+            },
+            "project": {
+              "x": 29,
+              "y": 763.484375,
+              "width": 33.609375,
+              "height": 22,
+              "top": 763.484375,
+              "right": 62.609375,
+              "bottom": 785.484375,
+              "left": 29
+            },
+            "meta": {
+              "x": 70.609375,
+              "y": 763.484375,
+              "width": 290.390625,
+              "height": 22,
+              "top": 763.484375,
+              "right": 361,
+              "bottom": 785.484375,
+              "left": 70.609375
+            },
+            "owner": {
+              "x": 238.75,
+              "y": 763.484375,
+              "width": 122.25,
+              "height": 22,
+              "top": 763.484375,
+              "right": 361,
+              "bottom": 785.484375,
+              "left": 238.75
+            },
+            "categoryDisplay": "flex",
+            "small": []
+          },
+          {
+            "rect": {
+              "x": 13,
+              "y": 800.484375,
+              "width": 364,
+              "height": 129.5,
+              "top": 800.484375,
+              "right": 377,
+              "bottom": 929.984375,
+              "left": 13
+            },
+            "bg": "rgba(0, 0, 0, 0)",
+            "borderLeft": "0px",
+            "title": {
+              "x": 29,
+              "y": 844.484375,
+              "width": 332,
+              "height": 40.5,
+              "top": 844.484375,
+              "right": 361,
+              "bottom": 884.984375,
+              "left": 29
+            },
+            "titleFont": "15px",
+            "titleLine": "20.25px",
+            "id": {
+              "x": 156.09375,
+              "y": 817.234375,
+              "width": 204.90625,
+              "height": 16.5,
+              "top": 817.234375,
+              "right": 361,
+              "bottom": 833.734375,
+              "left": 156.09375
+            },
+            "badges": {
+              "x": 29,
+              "y": 814.484375,
+              "width": 119.09375,
+              "height": 22,
+              "top": 814.484375,
+              "right": 148.09375,
+              "bottom": 836.484375,
+              "left": 29
+            },
+            "project": {
+              "x": 29,
+              "y": 892.984375,
+              "width": 48,
+              "height": 22,
+              "top": 892.984375,
+              "right": 77,
+              "bottom": 914.984375,
+              "left": 29
+            },
+            "meta": {
+              "x": 85,
+              "y": 892.984375,
+              "width": 276,
+              "height": 22,
+              "top": 892.984375,
+              "right": 361,
+              "bottom": 914.984375,
+              "left": 85
+            },
+            "owner": {
+              "x": 211.609375,
+              "y": 892.984375,
+              "width": 149.390625,
+              "height": 22,
+              "top": 892.984375,
+              "right": 361,
+              "bottom": 914.984375,
+              "left": 211.609375
+            },
+            "categoryDisplay": "flex",
+            "small": []
+          },
+          {
+            "rect": {
+              "x": 13,
+              "y": 929.984375,
+              "width": 364,
+              "height": 129.5,
+              "top": 929.984375,
+              "right": 377,
+              "bottom": 1059.484375,
+              "left": 13
+            },
+            "bg": "rgba(0, 0, 0, 0)",
+            "borderLeft": "0px",
+            "title": {
+              "x": 29,
+              "y": 973.984375,
+              "width": 332,
+              "height": 40.5,
+              "top": 973.984375,
+              "right": 361,
+              "bottom": 1014.484375,
+              "left": 29
+            },
+            "titleFont": "15px",
+            "titleLine": "20.25px",
+            "id": {
+              "x": 177.78125,
+              "y": 946.734375,
+              "width": 183.21875,
+              "height": 16.5,
+              "top": 946.734375,
+              "right": 361,
+              "bottom": 963.234375,
+              "left": 177.78125
+            },
+            "badges": {
+              "x": 29,
+              "y": 943.984375,
+              "width": 140.78125,
+              "height": 22,
+              "top": 943.984375,
+              "right": 169.78125,
+              "bottom": 965.984375,
+              "left": 29
+            },
+            "project": {
+              "x": 29,
+              "y": 1022.484375,
+              "width": 40.8125,
+              "height": 22,
+              "top": 1022.484375,
+              "right": 69.8125,
+              "bottom": 1044.484375,
+              "left": 29
+            },
+            "meta": {
+              "x": 77.8125,
+              "y": 1022.484375,
+              "width": 283.1875,
+              "height": 22,
+              "top": 1022.484375,
+              "right": 361,
+              "bottom": 1044.484375,
+              "left": 77.8125
+            },
+            "owner": {
+              "x": 211.609375,
+              "y": 1022.484375,
+              "width": 149.390625,
+              "height": 22,
+              "top": 1022.484375,
+              "right": 361,
+              "bottom": 1044.484375,
+              "left": 211.609375
+            },
+            "categoryDisplay": "flex",
+            "small": []
+          }
+        ],
+        "targets": [
+          {
+            "name": "Lihat semua (33)",
+            "rect": {
+              "x": 29,
+              "y": 1059.484375,
+              "width": 332,
+              "height": 44,
+              "top": 1059.484375,
+              "right": 361,
+              "bottom": 1103.484375,
+              "left": 29
+            }
+          },
+          {
+            "name": "Halaman tiket sebelumnya",
+            "rect": {
+              "x": 29,
+              "y": 1128.484375,
+              "width": 44,
+              "height": 44,
+              "top": 1128.484375,
+              "right": 73,
+              "bottom": 1172.484375,
+              "left": 29
+            }
+          },
+          {
+            "name": "Halaman tiket berikutnya",
+            "rect": {
+              "x": 125,
+              "y": 1128.484375,
+              "width": 44,
+              "height": 44,
+              "top": 1128.484375,
+              "right": 169,
+              "bottom": 1172.484375,
+              "left": 125
+            }
+          },
+          {
+            "name": "Jumlah tiket per halaman",
+            "rect": {
+              "x": 269,
+              "y": 1128.484375,
+              "width": 92,
+              "height": 44,
+              "top": 1128.484375,
+              "right": 361,
+              "bottom": 1172.484375,
+              "left": 269
+            }
+          },
+          {
+            "name": "Lihat Memo & Catatan Shift dalam tampilan penuh",
+            "rect": {
+              "x": 317,
+              "y": 185.890625,
+              "width": 44,
+              "height": 44,
+              "top": 185.890625,
+              "right": 361,
+              "bottom": 229.890625,
+              "left": 317
+            }
+          },
+          {
+            "name": "Buka memo dan catatan shift lengkap",
+            "rect": {
+              "x": 29,
+              "y": 262.890625,
+              "width": 332,
+              "height": 171.59375,
+              "top": 262.890625,
+              "right": 361,
+              "bottom": 434.484375,
+              "left": 29
+            }
+          },
+          {
+            "name": "Status B2B: Health check gateway B2B sekunder, OK",
+            "rect": {
+              "x": 304,
+              "y": 1296.484375,
+              "width": 56,
+              "height": 44,
+              "top": 1296.484375,
+              "right": 360,
+              "bottom": 1340.484375,
+              "left": 304
+            }
+          },
+          {
+            "name": "Status SM: Queue distributor check & routing, OK",
+            "rect": {
+              "x": 304,
+              "y": 1349.484375,
+              "width": 56,
+              "height": 44,
+              "top": 1349.484375,
+              "right": 360,
+              "bottom": 1393.484375,
+              "left": 304
+            }
+          },
+          {
+            "name": "Status USIEM: Graylog indexer rate & pipeline buffer, OK",
+            "rect": {
+              "x": 304,
+              "y": 1402.484375,
+              "width": 56,
+              "height": 44,
+              "top": 1402.484375,
+              "right": 360,
+              "bottom": 1446.484375,
+              "left": 304
+            }
+          },
+          {
+            "name": "Status ActiveMQ: Broker health check broker #228, NOK",
+            "rect": {
+              "x": 304,
+              "y": 1455.484375,
+              "width": 56,
+              "height": 44,
+              "top": 1455.484375,
+              "right": 360,
+              "bottom": 1499.484375,
+              "left": 304
+            }
+          },
+          {
+            "name": "Status EPC Tools: Validation worker cluster FMC, OK",
+            "rect": {
+              "x": 304,
+              "y": 1508.484375,
+              "width": 56,
+              "height": 44,
+              "top": 1508.484375,
+              "right": 360,
+              "bottom": 1552.484375,
+              "left": 304
+            }
+          },
+          {
+            "name": "Lihat semua (13)",
+            "rect": {
+              "x": 29,
+              "y": 1569.484375,
+              "width": 332,
+              "height": 44,
+              "top": 1569.484375,
+              "right": 361,
+              "bottom": 1613.484375,
+              "left": 29
+            }
+          }
+        ]
+      },
+      "before": [
+        "86d40sep14",
+        "86d40dm01",
+        "86d40dm03",
+        "86d40sep19"
+      ],
+      "pageTwo": [
+        "86d40dm15",
+        "86d40sep18",
+        "86d40dm16",
+        "86d40dm19"
+      ],
+      "expanded": {
+        "height": 4273.5,
+        "samples": [
+          {
+            "time": 14,
+            "height": 518
+          },
+          {
+            "time": 29,
+            "height": 518
+          },
+          {
+            "time": 293,
+            "height": 2184.140625
+          },
+          {
+            "time": 332,
+            "height": 3398.96875
+          }
+        ],
+        "cls": 0,
+        "transition": "height, padding, border-width, opacity"
+      },
+      "release": {
+        "html": "visible",
+        "body": "visible",
+        "inert": 0,
+        "hidden": null
+      }
+    },
+    {
+      "width": 412,
+      "height": 915,
+      "geometry": {
+        "pageOverflow": 0,
+        "headers": [
+          {
+            "height": 77,
+            "padding": "16px",
+            "icons": [
+              {
+                "x": 41,
+                "y": 494.484375,
+                "width": 16,
+                "height": 16,
+                "top": 494.484375,
+                "right": 57,
+                "bottom": 510.484375,
+                "left": 41
+              }
+            ]
+          },
+          {
+            "height": 77,
+            "padding": "16px",
+            "icons": [
+              {
+                "x": 41,
+                "y": 199.890625,
+                "width": 16,
+                "height": 16,
+                "top": 199.890625,
+                "right": 57,
+                "bottom": 215.890625,
+                "left": 41
+              }
+            ]
+          },
+          {
+            "height": 77,
+            "padding": "16px",
+            "icons": [
+              {
+                "x": 41,
+                "y": 1232.484375,
+                "width": 16,
+                "height": 16,
+                "top": 1232.484375,
+                "right": 57,
+                "bottom": 1248.484375,
+                "left": 41
+              }
+            ]
+          }
+        ],
+        "rows": [
+          {
+            "rect": {
+              "x": 17,
+              "y": 541.484375,
+              "width": 378,
+              "height": 129.5,
+              "top": 541.484375,
+              "right": 395,
+              "bottom": 670.984375,
+              "left": 17
+            },
+            "bg": "rgba(0, 0, 0, 0)",
+            "borderLeft": "0px",
+            "title": {
+              "x": 33,
+              "y": 585.484375,
+              "width": 346,
+              "height": 40.5,
+              "top": 585.484375,
+              "right": 379,
+              "bottom": 625.984375,
+              "left": 33
+            },
+            "titleFont": "15px",
+            "titleLine": "20.25px",
+            "id": {
+              "x": 160.09375,
+              "y": 558.234375,
+              "width": 218.90625,
+              "height": 16.5,
+              "top": 558.234375,
+              "right": 379,
+              "bottom": 574.734375,
+              "left": 160.09375
+            },
+            "badges": {
+              "x": 33,
+              "y": 555.484375,
+              "width": 119.09375,
+              "height": 22,
+              "top": 555.484375,
+              "right": 152.09375,
+              "bottom": 577.484375,
+              "left": 33
+            },
+            "project": {
+              "x": 33,
+              "y": 633.984375,
+              "width": 33.609375,
+              "height": 22,
+              "top": 633.984375,
+              "right": 66.609375,
+              "bottom": 655.984375,
+              "left": 33
+            },
+            "meta": {
+              "x": 74.609375,
+              "y": 633.984375,
+              "width": 304.390625,
+              "height": 22,
+              "top": 633.984375,
+              "right": 379,
+              "bottom": 655.984375,
+              "left": 74.609375
+            },
+            "owner": {
+              "x": 223.3125,
+              "y": 633.984375,
+              "width": 155.6875,
+              "height": 22,
+              "top": 633.984375,
+              "right": 379,
+              "bottom": 655.984375,
+              "left": 223.3125
+            },
+            "categoryDisplay": "flex",
+            "small": []
+          },
+          {
+            "rect": {
+              "x": 17,
+              "y": 670.984375,
+              "width": 378,
+              "height": 129.5,
+              "top": 670.984375,
+              "right": 395,
+              "bottom": 800.484375,
+              "left": 17
+            },
+            "bg": "rgba(0, 0, 0, 0)",
+            "borderLeft": "0px",
+            "title": {
+              "x": 33,
+              "y": 714.984375,
+              "width": 346,
+              "height": 40.5,
+              "top": 714.984375,
+              "right": 379,
+              "bottom": 755.484375,
+              "left": 33
+            },
+            "titleFont": "15px",
+            "titleLine": "20.25px",
+            "id": {
+              "x": 168.203125,
+              "y": 687.734375,
+              "width": 210.796875,
+              "height": 16.5,
+              "top": 687.734375,
+              "right": 379,
+              "bottom": 704.234375,
+              "left": 168.203125
+            },
+            "badges": {
+              "x": 33,
+              "y": 684.984375,
+              "width": 127.203125,
+              "height": 22,
+              "top": 684.984375,
+              "right": 160.203125,
+              "bottom": 706.984375,
+              "left": 33
+            },
+            "project": {
+              "x": 33,
+              "y": 763.484375,
+              "width": 33.609375,
+              "height": 22,
+              "top": 763.484375,
+              "right": 66.609375,
+              "bottom": 785.484375,
+              "left": 33
+            },
+            "meta": {
+              "x": 74.609375,
+              "y": 763.484375,
+              "width": 304.390625,
+              "height": 22,
+              "top": 763.484375,
+              "right": 379,
+              "bottom": 785.484375,
+              "left": 74.609375
+            },
+            "owner": {
+              "x": 256.75,
+              "y": 763.484375,
+              "width": 122.25,
+              "height": 22,
+              "top": 763.484375,
+              "right": 379,
+              "bottom": 785.484375,
+              "left": 256.75
+            },
+            "categoryDisplay": "flex",
+            "small": []
+          },
+          {
+            "rect": {
+              "x": 17,
+              "y": 800.484375,
+              "width": 378,
+              "height": 129.5,
+              "top": 800.484375,
+              "right": 395,
+              "bottom": 929.984375,
+              "left": 17
+            },
+            "bg": "rgba(0, 0, 0, 0)",
+            "borderLeft": "0px",
+            "title": {
+              "x": 33,
+              "y": 844.484375,
+              "width": 346,
+              "height": 40.5,
+              "top": 844.484375,
+              "right": 379,
+              "bottom": 884.984375,
+              "left": 33
+            },
+            "titleFont": "15px",
+            "titleLine": "20.25px",
+            "id": {
+              "x": 160.09375,
+              "y": 817.234375,
+              "width": 218.90625,
+              "height": 16.5,
+              "top": 817.234375,
+              "right": 379,
+              "bottom": 833.734375,
+              "left": 160.09375
+            },
+            "badges": {
+              "x": 33,
+              "y": 814.484375,
+              "width": 119.09375,
+              "height": 22,
+              "top": 814.484375,
+              "right": 152.09375,
+              "bottom": 836.484375,
+              "left": 33
+            },
+            "project": {
+              "x": 33,
+              "y": 892.984375,
+              "width": 48,
+              "height": 22,
+              "top": 892.984375,
+              "right": 81,
+              "bottom": 914.984375,
+              "left": 33
+            },
+            "meta": {
+              "x": 89,
+              "y": 892.984375,
+              "width": 290,
+              "height": 22,
+              "top": 892.984375,
+              "right": 379,
+              "bottom": 914.984375,
+              "left": 89
+            },
+            "owner": {
+              "x": 223.3125,
+              "y": 892.984375,
+              "width": 155.6875,
+              "height": 22,
+              "top": 892.984375,
+              "right": 379,
+              "bottom": 914.984375,
+              "left": 223.3125
+            },
+            "categoryDisplay": "flex",
+            "small": []
+          },
+          {
+            "rect": {
+              "x": 17,
+              "y": 929.984375,
+              "width": 378,
+              "height": 129.5,
+              "top": 929.984375,
+              "right": 395,
+              "bottom": 1059.484375,
+              "left": 17
+            },
+            "bg": "rgba(0, 0, 0, 0)",
+            "borderLeft": "0px",
+            "title": {
+              "x": 33,
+              "y": 973.984375,
+              "width": 346,
+              "height": 40.5,
+              "top": 973.984375,
+              "right": 379,
+              "bottom": 1014.484375,
+              "left": 33
+            },
+            "titleFont": "15px",
+            "titleLine": "20.25px",
+            "id": {
+              "x": 181.78125,
+              "y": 946.734375,
+              "width": 197.21875,
+              "height": 16.5,
+              "top": 946.734375,
+              "right": 379,
+              "bottom": 963.234375,
+              "left": 181.78125
+            },
+            "badges": {
+              "x": 33,
+              "y": 943.984375,
+              "width": 140.78125,
+              "height": 22,
+              "top": 943.984375,
+              "right": 173.78125,
+              "bottom": 965.984375,
+              "left": 33
+            },
+            "project": {
+              "x": 33,
+              "y": 1022.484375,
+              "width": 40.8125,
+              "height": 22,
+              "top": 1022.484375,
+              "right": 73.8125,
+              "bottom": 1044.484375,
+              "left": 33
+            },
+            "meta": {
+              "x": 81.8125,
+              "y": 1022.484375,
+              "width": 297.1875,
+              "height": 22,
+              "top": 1022.484375,
+              "right": 379,
+              "bottom": 1044.484375,
+              "left": 81.8125
+            },
+            "owner": {
+              "x": 223.3125,
+              "y": 1022.484375,
+              "width": 155.6875,
+              "height": 22,
+              "top": 1022.484375,
+              "right": 379,
+              "bottom": 1044.484375,
+              "left": 223.3125
+            },
+            "categoryDisplay": "flex",
+            "small": []
+          }
+        ],
+        "targets": [
+          {
+            "name": "Lihat semua (33)",
+            "rect": {
+              "x": 33,
+              "y": 1059.484375,
+              "width": 346,
+              "height": 44,
+              "top": 1059.484375,
+              "right": 379,
+              "bottom": 1103.484375,
+              "left": 33
+            }
+          },
+          {
+            "name": "Halaman tiket sebelumnya",
+            "rect": {
+              "x": 33,
+              "y": 1128.484375,
+              "width": 44,
+              "height": 44,
+              "top": 1128.484375,
+              "right": 77,
+              "bottom": 1172.484375,
+              "left": 33
+            }
+          },
+          {
+            "name": "Halaman tiket berikutnya",
+            "rect": {
+              "x": 129,
+              "y": 1128.484375,
+              "width": 44,
+              "height": 44,
+              "top": 1128.484375,
+              "right": 173,
+              "bottom": 1172.484375,
+              "left": 129
+            }
+          },
+          {
+            "name": "Jumlah tiket per halaman",
+            "rect": {
+              "x": 287,
+              "y": 1128.484375,
+              "width": 92,
+              "height": 44,
+              "top": 1128.484375,
+              "right": 379,
+              "bottom": 1172.484375,
+              "left": 287
+            }
+          },
+          {
+            "name": "Lihat Memo & Catatan Shift dalam tampilan penuh",
+            "rect": {
+              "x": 335,
+              "y": 185.890625,
+              "width": 44,
+              "height": 44,
+              "top": 185.890625,
+              "right": 379,
+              "bottom": 229.890625,
+              "left": 335
+            }
+          },
+          {
+            "name": "Buka memo dan catatan shift lengkap",
+            "rect": {
+              "x": 33,
+              "y": 262.890625,
+              "width": 346,
+              "height": 171.59375,
+              "top": 262.890625,
+              "right": 379,
+              "bottom": 434.484375,
+              "left": 33
+            }
+          },
+          {
+            "name": "Status B2B: Health check gateway B2B sekunder, OK",
+            "rect": {
+              "x": 322,
+              "y": 1296.484375,
+              "width": 56,
+              "height": 44,
+              "top": 1296.484375,
+              "right": 378,
+              "bottom": 1340.484375,
+              "left": 322
+            }
+          },
+          {
+            "name": "Status SM: Queue distributor check & routing, OK",
+            "rect": {
+              "x": 322,
+              "y": 1349.484375,
+              "width": 56,
+              "height": 44,
+              "top": 1349.484375,
+              "right": 378,
+              "bottom": 1393.484375,
+              "left": 322
+            }
+          },
+          {
+            "name": "Status USIEM: Graylog indexer rate & pipeline buffer, OK",
+            "rect": {
+              "x": 322,
+              "y": 1402.484375,
+              "width": 56,
+              "height": 44,
+              "top": 1402.484375,
+              "right": 378,
+              "bottom": 1446.484375,
+              "left": 322
+            }
+          },
+          {
+            "name": "Status ActiveMQ: Broker health check broker #228, NOK",
+            "rect": {
+              "x": 322,
+              "y": 1455.484375,
+              "width": 56,
+              "height": 44,
+              "top": 1455.484375,
+              "right": 378,
+              "bottom": 1499.484375,
+              "left": 322
+            }
+          },
+          {
+            "name": "Status EPC Tools: Validation worker cluster FMC, OK",
+            "rect": {
+              "x": 322,
+              "y": 1508.484375,
+              "width": 56,
+              "height": 44,
+              "top": 1508.484375,
+              "right": 378,
+              "bottom": 1552.484375,
+              "left": 322
+            }
+          },
+          {
+            "name": "Lihat semua (13)",
+            "rect": {
+              "x": 33,
+              "y": 1569.484375,
+              "width": 346,
+              "height": 44,
+              "top": 1569.484375,
+              "right": 379,
+              "bottom": 1613.484375,
+              "left": 33
+            }
+          }
+        ]
+      },
+      "before": [
+        "86d40sep14",
+        "86d40dm01",
+        "86d40dm03",
+        "86d40sep19"
+      ],
+      "pageTwo": [
+        "86d40dm15",
+        "86d40sep18",
+        "86d40dm16",
+        "86d40dm19"
+      ],
+      "expanded": {
+        "height": 4273.5,
+        "samples": [
+          {
+            "time": 6,
+            "height": 518
+          },
+          {
+            "time": 18,
+            "height": 518
+          },
+          {
+            "time": 36,
+            "height": 518
+          },
+          {
+            "time": 299,
+            "height": 2789.0625
+          },
+          {
+            "time": 335,
+            "height": 3398.96875
+          }
+        ],
+        "cls": 0,
+        "transition": "height, padding, border-width, opacity"
+      },
+      "release": {
+        "html": "visible",
+        "body": "visible",
+        "inert": 0,
+        "hidden": null
+      }
+    },
+    {
+      "width": 430,
+      "height": 932,
+      "geometry": {
+        "pageOverflow": 0,
+        "headers": [
+          {
+            "height": 77,
+            "padding": "16px",
+            "icons": [
+              {
+                "x": 41,
+                "y": 494.484375,
+                "width": 16,
+                "height": 16,
+                "top": 494.484375,
+                "right": 57,
+                "bottom": 510.484375,
+                "left": 41
+              }
+            ]
+          },
+          {
+            "height": 77,
+            "padding": "16px",
+            "icons": [
+              {
+                "x": 41,
+                "y": 199.890625,
+                "width": 16,
+                "height": 16,
+                "top": 199.890625,
+                "right": 57,
+                "bottom": 215.890625,
+                "left": 41
+              }
+            ]
+          },
+          {
+            "height": 77,
+            "padding": "16px",
+            "icons": [
+              {
+                "x": 41,
+                "y": 1232.484375,
+                "width": 16,
+                "height": 16,
+                "top": 1232.484375,
+                "right": 57,
+                "bottom": 1248.484375,
+                "left": 41
+              }
+            ]
+          }
+        ],
+        "rows": [
+          {
+            "rect": {
+              "x": 17,
+              "y": 541.484375,
+              "width": 396,
+              "height": 129.5,
+              "top": 541.484375,
+              "right": 413,
+              "bottom": 670.984375,
+              "left": 17
+            },
+            "bg": "rgba(0, 0, 0, 0)",
+            "borderLeft": "0px",
+            "title": {
+              "x": 33,
+              "y": 585.484375,
+              "width": 364,
+              "height": 40.5,
+              "top": 585.484375,
+              "right": 397,
+              "bottom": 625.984375,
+              "left": 33
+            },
+            "titleFont": "15px",
+            "titleLine": "20.25px",
+            "id": {
+              "x": 160.09375,
+              "y": 558.234375,
+              "width": 236.90625,
+              "height": 16.5,
+              "top": 558.234375,
+              "right": 397,
+              "bottom": 574.734375,
+              "left": 160.09375
+            },
+            "badges": {
+              "x": 33,
+              "y": 555.484375,
+              "width": 119.09375,
+              "height": 22,
+              "top": 555.484375,
+              "right": 152.09375,
+              "bottom": 577.484375,
+              "left": 33
+            },
+            "project": {
+              "x": 33,
+              "y": 633.984375,
+              "width": 33.609375,
+              "height": 22,
+              "top": 633.984375,
+              "right": 66.609375,
+              "bottom": 655.984375,
+              "left": 33
+            },
+            "meta": {
+              "x": 74.609375,
+              "y": 633.984375,
+              "width": 322.390625,
+              "height": 22,
+              "top": 633.984375,
+              "right": 397,
+              "bottom": 655.984375,
+              "left": 74.609375
+            },
+            "owner": {
+              "x": 233.203125,
+              "y": 633.984375,
+              "width": 163.796875,
+              "height": 22,
+              "top": 633.984375,
+              "right": 397,
+              "bottom": 655.984375,
+              "left": 233.203125
+            },
+            "categoryDisplay": "flex",
+            "small": []
+          },
+          {
+            "rect": {
+              "x": 17,
+              "y": 670.984375,
+              "width": 396,
+              "height": 129.5,
+              "top": 670.984375,
+              "right": 413,
+              "bottom": 800.484375,
+              "left": 17
+            },
+            "bg": "rgba(0, 0, 0, 0)",
+            "borderLeft": "0px",
+            "title": {
+              "x": 33,
+              "y": 714.984375,
+              "width": 364,
+              "height": 40.5,
+              "top": 714.984375,
+              "right": 397,
+              "bottom": 755.484375,
+              "left": 33
+            },
+            "titleFont": "15px",
+            "titleLine": "20.25px",
+            "id": {
+              "x": 168.203125,
+              "y": 687.734375,
+              "width": 228.796875,
+              "height": 16.5,
+              "top": 687.734375,
+              "right": 397,
+              "bottom": 704.234375,
+              "left": 168.203125
+            },
+            "badges": {
+              "x": 33,
+              "y": 684.984375,
+              "width": 127.203125,
+              "height": 22,
+              "top": 684.984375,
+              "right": 160.203125,
+              "bottom": 706.984375,
+              "left": 33
+            },
+            "project": {
+              "x": 33,
+              "y": 763.484375,
+              "width": 33.609375,
+              "height": 22,
+              "top": 763.484375,
+              "right": 66.609375,
+              "bottom": 785.484375,
+              "left": 33
+            },
+            "meta": {
+              "x": 74.609375,
+              "y": 763.484375,
+              "width": 322.390625,
+              "height": 22,
+              "top": 763.484375,
+              "right": 397,
+              "bottom": 785.484375,
+              "left": 74.609375
+            },
+            "owner": {
+              "x": 274.75,
+              "y": 763.484375,
+              "width": 122.25,
+              "height": 22,
+              "top": 763.484375,
+              "right": 397,
+              "bottom": 785.484375,
+              "left": 274.75
+            },
+            "categoryDisplay": "flex",
+            "small": []
+          },
+          {
+            "rect": {
+              "x": 17,
+              "y": 800.484375,
+              "width": 396,
+              "height": 129.5,
+              "top": 800.484375,
+              "right": 413,
+              "bottom": 929.984375,
+              "left": 17
+            },
+            "bg": "rgba(0, 0, 0, 0)",
+            "borderLeft": "0px",
+            "title": {
+              "x": 33,
+              "y": 844.484375,
+              "width": 364,
+              "height": 40.5,
+              "top": 844.484375,
+              "right": 397,
+              "bottom": 884.984375,
+              "left": 33
+            },
+            "titleFont": "15px",
+            "titleLine": "20.25px",
+            "id": {
+              "x": 160.09375,
+              "y": 817.234375,
+              "width": 236.90625,
+              "height": 16.5,
+              "top": 817.234375,
+              "right": 397,
+              "bottom": 833.734375,
+              "left": 160.09375
+            },
+            "badges": {
+              "x": 33,
+              "y": 814.484375,
+              "width": 119.09375,
+              "height": 22,
+              "top": 814.484375,
+              "right": 152.09375,
+              "bottom": 836.484375,
+              "left": 33
+            },
+            "project": {
+              "x": 33,
+              "y": 892.984375,
+              "width": 48,
+              "height": 22,
+              "top": 892.984375,
+              "right": 81,
+              "bottom": 914.984375,
+              "left": 33
+            },
+            "meta": {
+              "x": 89,
+              "y": 892.984375,
+              "width": 308,
+              "height": 22,
+              "top": 892.984375,
+              "right": 397,
+              "bottom": 914.984375,
+              "left": 89
+            },
+            "owner": {
+              "x": 233.203125,
+              "y": 892.984375,
+              "width": 163.796875,
+              "height": 22,
+              "top": 892.984375,
+              "right": 397,
+              "bottom": 914.984375,
+              "left": 233.203125
+            },
+            "categoryDisplay": "flex",
+            "small": []
+          },
+          {
+            "rect": {
+              "x": 17,
+              "y": 929.984375,
+              "width": 396,
+              "height": 129.5,
+              "top": 929.984375,
+              "right": 413,
+              "bottom": 1059.484375,
+              "left": 17
+            },
+            "bg": "rgba(0, 0, 0, 0)",
+            "borderLeft": "0px",
+            "title": {
+              "x": 33,
+              "y": 973.984375,
+              "width": 364,
+              "height": 40.5,
+              "top": 973.984375,
+              "right": 397,
+              "bottom": 1014.484375,
+              "left": 33
+            },
+            "titleFont": "15px",
+            "titleLine": "20.25px",
+            "id": {
+              "x": 181.78125,
+              "y": 946.734375,
+              "width": 215.21875,
+              "height": 16.5,
+              "top": 946.734375,
+              "right": 397,
+              "bottom": 963.234375,
+              "left": 181.78125
+            },
+            "badges": {
+              "x": 33,
+              "y": 943.984375,
+              "width": 140.78125,
+              "height": 22,
+              "top": 943.984375,
+              "right": 173.78125,
+              "bottom": 965.984375,
+              "left": 33
+            },
+            "project": {
+              "x": 33,
+              "y": 1022.484375,
+              "width": 40.8125,
+              "height": 22,
+              "top": 1022.484375,
+              "right": 73.8125,
+              "bottom": 1044.484375,
+              "left": 33
+            },
+            "meta": {
+              "x": 81.8125,
+              "y": 1022.484375,
+              "width": 315.1875,
+              "height": 22,
+              "top": 1022.484375,
+              "right": 397,
+              "bottom": 1044.484375,
+              "left": 81.8125
+            },
+            "owner": {
+              "x": 233.203125,
+              "y": 1022.484375,
+              "width": 163.796875,
+              "height": 22,
+              "top": 1022.484375,
+              "right": 397,
+              "bottom": 1044.484375,
+              "left": 233.203125
+            },
+            "categoryDisplay": "flex",
+            "small": []
+          }
+        ],
+        "targets": [
+          {
+            "name": "Lihat semua (33)",
+            "rect": {
+              "x": 33,
+              "y": 1059.484375,
+              "width": 364,
+              "height": 44,
+              "top": 1059.484375,
+              "right": 397,
+              "bottom": 1103.484375,
+              "left": 33
+            }
+          },
+          {
+            "name": "Halaman tiket sebelumnya",
+            "rect": {
+              "x": 33,
+              "y": 1128.484375,
+              "width": 44,
+              "height": 44,
+              "top": 1128.484375,
+              "right": 77,
+              "bottom": 1172.484375,
+              "left": 33
+            }
+          },
+          {
+            "name": "Halaman tiket berikutnya",
+            "rect": {
+              "x": 129,
+              "y": 1128.484375,
+              "width": 44,
+              "height": 44,
+              "top": 1128.484375,
+              "right": 173,
+              "bottom": 1172.484375,
+              "left": 129
+            }
+          },
+          {
+            "name": "Jumlah tiket per halaman",
+            "rect": {
+              "x": 305,
+              "y": 1128.484375,
+              "width": 92,
+              "height": 44,
+              "top": 1128.484375,
+              "right": 397,
+              "bottom": 1172.484375,
+              "left": 305
+            }
+          },
+          {
+            "name": "Lihat Memo & Catatan Shift dalam tampilan penuh",
+            "rect": {
+              "x": 353,
+              "y": 185.890625,
+              "width": 44,
+              "height": 44,
+              "top": 185.890625,
+              "right": 397,
+              "bottom": 229.890625,
+              "left": 353
+            }
+          },
+          {
+            "name": "Buka memo dan catatan shift lengkap",
+            "rect": {
+              "x": 33,
+              "y": 262.890625,
+              "width": 364,
+              "height": 171.59375,
+              "top": 262.890625,
+              "right": 397,
+              "bottom": 434.484375,
+              "left": 33
+            }
+          },
+          {
+            "name": "Status B2B: Health check gateway B2B sekunder, OK",
+            "rect": {
+              "x": 340,
+              "y": 1296.484375,
+              "width": 56,
+              "height": 44,
+              "top": 1296.484375,
+              "right": 396,
+              "bottom": 1340.484375,
+              "left": 340
+            }
+          },
+          {
+            "name": "Status SM: Queue distributor check & routing, OK",
+            "rect": {
+              "x": 340,
+              "y": 1349.484375,
+              "width": 56,
+              "height": 44,
+              "top": 1349.484375,
+              "right": 396,
+              "bottom": 1393.484375,
+              "left": 340
+            }
+          },
+          {
+            "name": "Status USIEM: Graylog indexer rate & pipeline buffer, OK",
+            "rect": {
+              "x": 340,
+              "y": 1402.484375,
+              "width": 56,
+              "height": 44,
+              "top": 1402.484375,
+              "right": 396,
+              "bottom": 1446.484375,
+              "left": 340
+            }
+          },
+          {
+            "name": "Status ActiveMQ: Broker health check broker #228, NOK",
+            "rect": {
+              "x": 340,
+              "y": 1455.484375,
+              "width": 56,
+              "height": 44,
+              "top": 1455.484375,
+              "right": 396,
+              "bottom": 1499.484375,
+              "left": 340
+            }
+          },
+          {
+            "name": "Status EPC Tools: Validation worker cluster FMC, OK",
+            "rect": {
+              "x": 340,
+              "y": 1508.484375,
+              "width": 56,
+              "height": 44,
+              "top": 1508.484375,
+              "right": 396,
+              "bottom": 1552.484375,
+              "left": 340
+            }
+          },
+          {
+            "name": "Lihat semua (13)",
+            "rect": {
+              "x": 33,
+              "y": 1569.484375,
+              "width": 364,
+              "height": 44,
+              "top": 1569.484375,
+              "right": 397,
+              "bottom": 1613.484375,
+              "left": 33
+            }
+          }
+        ]
+      },
+      "before": [
+        "86d40sep14",
+        "86d40dm01",
+        "86d40dm03",
+        "86d40sep19"
+      ],
+      "pageTwo": [
+        "86d40dm15",
+        "86d40sep18",
+        "86d40dm16",
+        "86d40dm19"
+      ],
+      "expanded": {
+        "height": 4273.5,
+        "samples": [
+          {
+            "time": 8,
+            "height": 518
+          },
+          {
+            "time": 21,
+            "height": 518
+          },
+          {
+            "time": 36,
+            "height": 518
+          },
+          {
+            "time": 292,
+            "height": 2188.21875
+          },
+          {
+            "time": 352,
+            "height": 3842.125
+          }
+        ],
+        "cls": 0,
+        "transition": "height, padding, border-width, opacity"
+      },
+      "release": {
+        "html": "visible",
+        "body": "visible",
+        "inert": 0,
+        "hidden": null
+      }
+    },
+    {
+      "width": 768,
+      "height": 1024,
+      "geometry": {
+        "pageOverflow": 0,
+        "headers": [
+          {
+            "height": 77,
+            "padding": "16px",
+            "icons": [
+              {
+                "x": 47,
+                "y": 514.484375,
+                "width": 16,
+                "height": 16,
+                "top": 514.484375,
+                "right": 63,
+                "bottom": 530.484375,
+                "left": 47
+              }
+            ]
+          },
+          {
+            "height": 77,
+            "padding": "16px",
+            "icons": [
+              {
+                "x": 47,
+                "y": 219.890625,
+                "width": 16,
+                "height": 16,
+                "top": 219.890625,
+                "right": 63,
+                "bottom": 235.890625,
+                "left": 47
+              }
+            ]
+          },
+          {
+            "height": 77,
+            "padding": "16px",
+            "icons": [
+              {
+                "x": 47,
+                "y": 1252.484375,
+                "width": 16,
+                "height": 16,
+                "top": 1252.484375,
+                "right": 63,
+                "bottom": 1268.484375,
+                "left": 47
+              }
+            ]
+          }
+        ],
+        "rows": [
+          {
+            "rect": {
+              "x": 23,
+              "y": 561.484375,
+              "width": 722,
+              "height": 129.5,
+              "top": 561.484375,
+              "right": 745,
+              "bottom": 690.984375,
+              "left": 23
+            },
+            "bg": "rgba(0, 0, 0, 0)",
+            "borderLeft": "0px",
+            "title": {
+              "x": 39,
+              "y": 605.484375,
+              "width": 690,
+              "height": 40.5,
+              "top": 605.484375,
+              "right": 729,
+              "bottom": 645.984375,
+              "left": 39
+            },
+            "titleFont": "15px",
+            "titleLine": "20.25px",
+            "id": {
+              "x": 166.09375,
+              "y": 578.234375,
+              "width": 562.90625,
+              "height": 16.5,
+              "top": 578.234375,
+              "right": 729,
+              "bottom": 594.734375,
+              "left": 166.09375
+            },
+            "badges": {
+              "x": 39,
+              "y": 575.484375,
+              "width": 119.09375,
+              "height": 22,
+              "top": 575.484375,
+              "right": 158.09375,
+              "bottom": 597.484375,
+              "left": 39
+            },
+            "project": {
+              "x": 39,
+              "y": 653.984375,
+              "width": 33.609375,
+              "height": 22,
+              "top": 653.984375,
+              "right": 72.609375,
+              "bottom": 675.984375,
+              "left": 39
+            },
+            "meta": {
+              "x": 80.609375,
+              "y": 653.984375,
+              "width": 648.390625,
+              "height": 22,
+              "top": 653.984375,
+              "right": 729,
+              "bottom": 675.984375,
+              "left": 80.609375
+            },
+            "owner": {
+              "x": 559.78125,
+              "y": 653.984375,
+              "width": 169.21875,
+              "height": 22,
+              "top": 653.984375,
+              "right": 729,
+              "bottom": 675.984375,
+              "left": 559.78125
+            },
+            "categoryDisplay": "flex",
+            "small": []
+          },
+          {
+            "rect": {
+              "x": 23,
+              "y": 690.984375,
+              "width": 722,
+              "height": 129.5,
+              "top": 690.984375,
+              "right": 745,
+              "bottom": 820.484375,
+              "left": 23
+            },
+            "bg": "rgba(0, 0, 0, 0)",
+            "borderLeft": "0px",
+            "title": {
+              "x": 39,
+              "y": 734.984375,
+              "width": 690,
+              "height": 40.5,
+              "top": 734.984375,
+              "right": 729,
+              "bottom": 775.484375,
+              "left": 39
+            },
+            "titleFont": "15px",
+            "titleLine": "20.25px",
+            "id": {
+              "x": 174.203125,
+              "y": 707.734375,
+              "width": 554.796875,
+              "height": 16.5,
+              "top": 707.734375,
+              "right": 729,
+              "bottom": 724.234375,
+              "left": 174.203125
+            },
+            "badges": {
+              "x": 39,
+              "y": 704.984375,
+              "width": 127.203125,
+              "height": 22,
+              "top": 704.984375,
+              "right": 166.203125,
+              "bottom": 726.984375,
+              "left": 39
+            },
+            "project": {
+              "x": 39,
+              "y": 783.484375,
+              "width": 33.609375,
+              "height": 22,
+              "top": 783.484375,
+              "right": 72.609375,
+              "bottom": 805.484375,
+              "left": 39
+            },
+            "meta": {
+              "x": 80.609375,
+              "y": 783.484375,
+              "width": 648.390625,
+              "height": 22,
+              "top": 783.484375,
+              "right": 729,
+              "bottom": 805.484375,
+              "left": 80.609375
+            },
+            "owner": {
+              "x": 606.75,
+              "y": 783.484375,
+              "width": 122.25,
+              "height": 22,
+              "top": 783.484375,
+              "right": 729,
+              "bottom": 805.484375,
+              "left": 606.75
+            },
+            "categoryDisplay": "flex",
+            "small": []
+          },
+          {
+            "rect": {
+              "x": 23,
+              "y": 820.484375,
+              "width": 722,
+              "height": 129.5,
+              "top": 820.484375,
+              "right": 745,
+              "bottom": 949.984375,
+              "left": 23
+            },
+            "bg": "rgba(0, 0, 0, 0)",
+            "borderLeft": "0px",
+            "title": {
+              "x": 39,
+              "y": 864.484375,
+              "width": 690,
+              "height": 40.5,
+              "top": 864.484375,
+              "right": 729,
+              "bottom": 904.984375,
+              "left": 39
+            },
+            "titleFont": "15px",
+            "titleLine": "20.25px",
+            "id": {
+              "x": 166.09375,
+              "y": 837.234375,
+              "width": 562.90625,
+              "height": 16.5,
+              "top": 837.234375,
+              "right": 729,
+              "bottom": 853.734375,
+              "left": 166.09375
+            },
+            "badges": {
+              "x": 39,
+              "y": 834.484375,
+              "width": 119.09375,
+              "height": 22,
+              "top": 834.484375,
+              "right": 158.09375,
+              "bottom": 856.484375,
+              "left": 39
+            },
+            "project": {
+              "x": 39,
+              "y": 912.984375,
+              "width": 48,
+              "height": 22,
+              "top": 912.984375,
+              "right": 87,
+              "bottom": 934.984375,
+              "left": 39
+            },
+            "meta": {
+              "x": 95,
+              "y": 912.984375,
+              "width": 634,
+              "height": 22,
+              "top": 912.984375,
+              "right": 729,
+              "bottom": 934.984375,
+              "left": 95
+            },
+            "owner": {
+              "x": 559.78125,
+              "y": 912.984375,
+              "width": 169.21875,
+              "height": 22,
+              "top": 912.984375,
+              "right": 729,
+              "bottom": 934.984375,
+              "left": 559.78125
+            },
+            "categoryDisplay": "flex",
+            "small": []
+          },
+          {
+            "rect": {
+              "x": 23,
+              "y": 949.984375,
+              "width": 722,
+              "height": 129.5,
+              "top": 949.984375,
+              "right": 745,
+              "bottom": 1079.484375,
+              "left": 23
+            },
+            "bg": "rgba(0, 0, 0, 0)",
+            "borderLeft": "0px",
+            "title": {
+              "x": 39,
+              "y": 993.984375,
+              "width": 690,
+              "height": 40.5,
+              "top": 993.984375,
+              "right": 729,
+              "bottom": 1034.484375,
+              "left": 39
+            },
+            "titleFont": "15px",
+            "titleLine": "20.25px",
+            "id": {
+              "x": 187.78125,
+              "y": 966.734375,
+              "width": 541.21875,
+              "height": 16.5,
+              "top": 966.734375,
+              "right": 729,
+              "bottom": 983.234375,
+              "left": 187.78125
+            },
+            "badges": {
+              "x": 39,
+              "y": 963.984375,
+              "width": 140.78125,
+              "height": 22,
+              "top": 963.984375,
+              "right": 179.78125,
+              "bottom": 985.984375,
+              "left": 39
+            },
+            "project": {
+              "x": 39,
+              "y": 1042.484375,
+              "width": 40.8125,
+              "height": 22,
+              "top": 1042.484375,
+              "right": 79.8125,
+              "bottom": 1064.484375,
+              "left": 39
+            },
+            "meta": {
+              "x": 87.8125,
+              "y": 1042.484375,
+              "width": 641.1875,
+              "height": 22,
+              "top": 1042.484375,
+              "right": 729,
+              "bottom": 1064.484375,
+              "left": 87.8125
+            },
+            "owner": {
+              "x": 559.78125,
+              "y": 1042.484375,
+              "width": 169.21875,
+              "height": 22,
+              "top": 1042.484375,
+              "right": 729,
+              "bottom": 1064.484375,
+              "left": 559.78125
+            },
+            "categoryDisplay": "flex",
+            "small": []
+          }
+        ],
+        "targets": [
+          {
+            "name": "Lihat semua (33)",
+            "rect": {
+              "x": 39,
+              "y": 1079.484375,
+              "width": 690,
+              "height": 44,
+              "top": 1079.484375,
+              "right": 729,
+              "bottom": 1123.484375,
+              "left": 39
+            }
+          },
+          {
+            "name": "Halaman tiket sebelumnya",
+            "rect": {
+              "x": 39,
+              "y": 1148.484375,
+              "width": 44,
+              "height": 44,
+              "top": 1148.484375,
+              "right": 83,
+              "bottom": 1192.484375,
+              "left": 39
+            }
+          },
+          {
+            "name": "Halaman tiket berikutnya",
+            "rect": {
+              "x": 135,
+              "y": 1148.484375,
+              "width": 44,
+              "height": 44,
+              "top": 1148.484375,
+              "right": 179,
+              "bottom": 1192.484375,
+              "left": 135
+            }
+          },
+          {
+            "name": "Jumlah tiket per halaman",
+            "rect": {
+              "x": 637,
+              "y": 1148.484375,
+              "width": 92,
+              "height": 44,
+              "top": 1148.484375,
+              "right": 729,
+              "bottom": 1192.484375,
+              "left": 637
+            }
+          },
+          {
+            "name": "Lihat Memo & Catatan Shift dalam tampilan penuh",
+            "rect": {
+              "x": 685,
+              "y": 205.890625,
+              "width": 44,
+              "height": 44,
+              "top": 205.890625,
+              "right": 729,
+              "bottom": 249.890625,
+              "left": 685
+            }
+          },
+          {
+            "name": "Buka memo dan catatan shift lengkap",
+            "rect": {
+              "x": 39,
+              "y": 282.890625,
+              "width": 690,
+              "height": 171.59375,
+              "top": 282.890625,
+              "right": 729,
+              "bottom": 454.484375,
+              "left": 39
+            }
+          },
+          {
+            "name": "Status B2B: Health check gateway B2B sekunder, OK",
+            "rect": {
+              "x": 672,
+              "y": 1316.484375,
+              "width": 56,
+              "height": 44,
+              "top": 1316.484375,
+              "right": 728,
+              "bottom": 1360.484375,
+              "left": 672
+            }
+          },
+          {
+            "name": "Status SM: Queue distributor check & routing, OK",
+            "rect": {
+              "x": 672,
+              "y": 1369.484375,
+              "width": 56,
+              "height": 44,
+              "top": 1369.484375,
+              "right": 728,
+              "bottom": 1413.484375,
+              "left": 672
+            }
+          },
+          {
+            "name": "Status USIEM: Graylog indexer rate & pipeline buffer, OK",
+            "rect": {
+              "x": 672,
+              "y": 1422.484375,
+              "width": 56,
+              "height": 44,
+              "top": 1422.484375,
+              "right": 728,
+              "bottom": 1466.484375,
+              "left": 672
+            }
+          },
+          {
+            "name": "Status ActiveMQ: Broker health check broker #228, NOK",
+            "rect": {
+              "x": 672,
+              "y": 1475.484375,
+              "width": 56,
+              "height": 44,
+              "top": 1475.484375,
+              "right": 728,
+              "bottom": 1519.484375,
+              "left": 672
+            }
+          },
+          {
+            "name": "Status EPC Tools: Validation worker cluster FMC, OK",
+            "rect": {
+              "x": 672,
+              "y": 1528.484375,
+              "width": 56,
+              "height": 44,
+              "top": 1528.484375,
+              "right": 728,
+              "bottom": 1572.484375,
+              "left": 672
+            }
+          },
+          {
+            "name": "Lihat semua (13)",
+            "rect": {
+              "x": 39,
+              "y": 1589.484375,
+              "width": 690,
+              "height": 44,
+              "top": 1589.484375,
+              "right": 729,
+              "bottom": 1633.484375,
+              "left": 39
+            }
+          }
+        ]
+      },
+      "before": [
+        "86d40sep14",
+        "86d40dm01",
+        "86d40dm03",
+        "86d40sep19"
+      ],
+      "pageTwo": [
+        "86d40dm15",
+        "86d40sep18",
+        "86d40dm16",
+        "86d40dm19"
+      ],
+      "expanded": {
+        "height": 4273.5,
+        "samples": [
+          {
+            "time": 14,
+            "height": 518
+          },
+          {
+            "time": 27,
+            "height": 518
+          },
+          {
+            "time": 303,
+            "height": 1912.265625
+          },
+          {
+            "time": 331,
+            "height": 3081.328125
+          }
+        ],
+        "cls": 0,
+        "transition": "height, padding, border-width, opacity"
+      },
+      "release": {
+        "html": "visible",
+        "body": "visible",
+        "inert": 0,
+        "hidden": null
+      }
+    },
+    {
+      "width": 844,
+      "height": 390,
+      "geometry": {
+        "pageOverflow": 0,
+        "headers": [
+          {
+            "height": 77,
+            "padding": "16px",
+            "icons": [
+              {
+                "x": 47,
+                "y": 83.484375,
+                "width": 16,
+                "height": 16,
+                "top": 83.484375,
+                "right": 63,
+                "bottom": 99.484375,
+                "left": 47
+              }
+            ]
+          },
+          {
+            "height": 77,
+            "padding": "16px",
+            "icons": [
+              {
+                "x": 47,
+                "y": -211.109375,
+                "width": 16,
+                "height": 16,
+                "top": -211.109375,
+                "right": 63,
+                "bottom": -195.109375,
+                "left": 47
+              }
+            ]
+          },
+          {
+            "height": 77,
+            "padding": "16px",
+            "icons": [
+              {
+                "x": 47,
+                "y": 821.484375,
+                "width": 16,
+                "height": 16,
+                "top": 821.484375,
+                "right": 63,
+                "bottom": 837.484375,
+                "left": 47
+              }
+            ]
+          }
+        ],
+        "rows": [
+          {
+            "rect": {
+              "x": 23,
+              "y": 130.484375,
+              "width": 798,
+              "height": 129.5,
+              "top": 130.484375,
+              "right": 821,
+              "bottom": 259.984375,
+              "left": 23
+            },
+            "bg": "rgba(0, 0, 0, 0)",
+            "borderLeft": "0px",
+            "title": {
+              "x": 39,
+              "y": 174.484375,
+              "width": 766,
+              "height": 40.5,
+              "top": 174.484375,
+              "right": 805,
+              "bottom": 214.984375,
+              "left": 39
+            },
+            "titleFont": "15px",
+            "titleLine": "20.25px",
+            "id": {
+              "x": 166.09375,
+              "y": 147.234375,
+              "width": 638.90625,
+              "height": 16.5,
+              "top": 147.234375,
+              "right": 805,
+              "bottom": 163.734375,
+              "left": 166.09375
+            },
+            "badges": {
+              "x": 39,
+              "y": 144.484375,
+              "width": 119.09375,
+              "height": 22,
+              "top": 144.484375,
+              "right": 158.09375,
+              "bottom": 166.484375,
+              "left": 39
+            },
+            "project": {
+              "x": 39,
+              "y": 222.984375,
+              "width": 33.609375,
+              "height": 22,
+              "top": 222.984375,
+              "right": 72.609375,
+              "bottom": 244.984375,
+              "left": 39
+            },
+            "meta": {
+              "x": 80.609375,
+              "y": 222.984375,
+              "width": 724.390625,
+              "height": 22,
+              "top": 222.984375,
+              "right": 805,
+              "bottom": 244.984375,
+              "left": 80.609375
+            },
+            "owner": {
+              "x": 635.78125,
+              "y": 222.984375,
+              "width": 169.21875,
+              "height": 22,
+              "top": 222.984375,
+              "right": 805,
+              "bottom": 244.984375,
+              "left": 635.78125
+            },
+            "categoryDisplay": "flex",
+            "small": []
+          },
+          {
+            "rect": {
+              "x": 23,
+              "y": 259.984375,
+              "width": 798,
+              "height": 129.5,
+              "top": 259.984375,
+              "right": 821,
+              "bottom": 389.484375,
+              "left": 23
+            },
+            "bg": "rgba(0, 0, 0, 0)",
+            "borderLeft": "0px",
+            "title": {
+              "x": 39,
+              "y": 303.984375,
+              "width": 766,
+              "height": 40.5,
+              "top": 303.984375,
+              "right": 805,
+              "bottom": 344.484375,
+              "left": 39
+            },
+            "titleFont": "15px",
+            "titleLine": "20.25px",
+            "id": {
+              "x": 174.203125,
+              "y": 276.734375,
+              "width": 630.796875,
+              "height": 16.5,
+              "top": 276.734375,
+              "right": 805,
+              "bottom": 293.234375,
+              "left": 174.203125
+            },
+            "badges": {
+              "x": 39,
+              "y": 273.984375,
+              "width": 127.203125,
+              "height": 22,
+              "top": 273.984375,
+              "right": 166.203125,
+              "bottom": 295.984375,
+              "left": 39
+            },
+            "project": {
+              "x": 39,
+              "y": 352.484375,
+              "width": 33.609375,
+              "height": 22,
+              "top": 352.484375,
+              "right": 72.609375,
+              "bottom": 374.484375,
+              "left": 39
+            },
+            "meta": {
+              "x": 80.609375,
+              "y": 352.484375,
+              "width": 724.390625,
+              "height": 22,
+              "top": 352.484375,
+              "right": 805,
+              "bottom": 374.484375,
+              "left": 80.609375
+            },
+            "owner": {
+              "x": 682.75,
+              "y": 352.484375,
+              "width": 122.25,
+              "height": 22,
+              "top": 352.484375,
+              "right": 805,
+              "bottom": 374.484375,
+              "left": 682.75
+            },
+            "categoryDisplay": "flex",
+            "small": []
+          },
+          {
+            "rect": {
+              "x": 23,
+              "y": 389.484375,
+              "width": 798,
+              "height": 129.5,
+              "top": 389.484375,
+              "right": 821,
+              "bottom": 518.984375,
+              "left": 23
+            },
+            "bg": "rgba(0, 0, 0, 0)",
+            "borderLeft": "0px",
+            "title": {
+              "x": 39,
+              "y": 433.484375,
+              "width": 766,
+              "height": 40.5,
+              "top": 433.484375,
+              "right": 805,
+              "bottom": 473.984375,
+              "left": 39
+            },
+            "titleFont": "15px",
+            "titleLine": "20.25px",
+            "id": {
+              "x": 166.09375,
+              "y": 406.234375,
+              "width": 638.90625,
+              "height": 16.5,
+              "top": 406.234375,
+              "right": 805,
+              "bottom": 422.734375,
+              "left": 166.09375
+            },
+            "badges": {
+              "x": 39,
+              "y": 403.484375,
+              "width": 119.09375,
+              "height": 22,
+              "top": 403.484375,
+              "right": 158.09375,
+              "bottom": 425.484375,
+              "left": 39
+            },
+            "project": {
+              "x": 39,
+              "y": 481.984375,
+              "width": 48,
+              "height": 22,
+              "top": 481.984375,
+              "right": 87,
+              "bottom": 503.984375,
+              "left": 39
+            },
+            "meta": {
+              "x": 95,
+              "y": 481.984375,
+              "width": 710,
+              "height": 22,
+              "top": 481.984375,
+              "right": 805,
+              "bottom": 503.984375,
+              "left": 95
+            },
+            "owner": {
+              "x": 635.78125,
+              "y": 481.984375,
+              "width": 169.21875,
+              "height": 22,
+              "top": 481.984375,
+              "right": 805,
+              "bottom": 503.984375,
+              "left": 635.78125
+            },
+            "categoryDisplay": "flex",
+            "small": []
+          },
+          {
+            "rect": {
+              "x": 23,
+              "y": 518.984375,
+              "width": 798,
+              "height": 129.5,
+              "top": 518.984375,
+              "right": 821,
+              "bottom": 648.484375,
+              "left": 23
+            },
+            "bg": "rgba(0, 0, 0, 0)",
+            "borderLeft": "0px",
+            "title": {
+              "x": 39,
+              "y": 562.984375,
+              "width": 766,
+              "height": 40.5,
+              "top": 562.984375,
+              "right": 805,
+              "bottom": 603.484375,
+              "left": 39
+            },
+            "titleFont": "15px",
+            "titleLine": "20.25px",
+            "id": {
+              "x": 187.78125,
+              "y": 535.734375,
+              "width": 617.21875,
+              "height": 16.5,
+              "top": 535.734375,
+              "right": 805,
+              "bottom": 552.234375,
+              "left": 187.78125
+            },
+            "badges": {
+              "x": 39,
+              "y": 532.984375,
+              "width": 140.78125,
+              "height": 22,
+              "top": 532.984375,
+              "right": 179.78125,
+              "bottom": 554.984375,
+              "left": 39
+            },
+            "project": {
+              "x": 39,
+              "y": 611.484375,
+              "width": 40.8125,
+              "height": 22,
+              "top": 611.484375,
+              "right": 79.8125,
+              "bottom": 633.484375,
+              "left": 39
+            },
+            "meta": {
+              "x": 87.8125,
+              "y": 611.484375,
+              "width": 717.1875,
+              "height": 22,
+              "top": 611.484375,
+              "right": 805,
+              "bottom": 633.484375,
+              "left": 87.8125
+            },
+            "owner": {
+              "x": 635.78125,
+              "y": 611.484375,
+              "width": 169.21875,
+              "height": 22,
+              "top": 611.484375,
+              "right": 805,
+              "bottom": 633.484375,
+              "left": 635.78125
+            },
+            "categoryDisplay": "flex",
+            "small": []
+          }
+        ],
+        "targets": [
+          {
+            "name": "Lihat semua (33)",
+            "rect": {
+              "x": 39,
+              "y": 648.484375,
+              "width": 766,
+              "height": 44,
+              "top": 648.484375,
+              "right": 805,
+              "bottom": 692.484375,
+              "left": 39
+            }
+          },
+          {
+            "name": "Halaman tiket sebelumnya",
+            "rect": {
+              "x": 39,
+              "y": 717.484375,
+              "width": 44,
+              "height": 44,
+              "top": 717.484375,
+              "right": 83,
+              "bottom": 761.484375,
+              "left": 39
+            }
+          },
+          {
+            "name": "Halaman tiket berikutnya",
+            "rect": {
+              "x": 135,
+              "y": 717.484375,
+              "width": 44,
+              "height": 44,
+              "top": 717.484375,
+              "right": 179,
+              "bottom": 761.484375,
+              "left": 135
+            }
+          },
+          {
+            "name": "Jumlah tiket per halaman",
+            "rect": {
+              "x": 713,
+              "y": 717.484375,
+              "width": 92,
+              "height": 44,
+              "top": 717.484375,
+              "right": 805,
+              "bottom": 761.484375,
+              "left": 713
+            }
+          },
+          {
+            "name": "Lihat Memo & Catatan Shift dalam tampilan penuh",
+            "rect": {
+              "x": 761,
+              "y": -225.109375,
+              "width": 44,
+              "height": 44,
+              "top": -225.109375,
+              "right": 805,
+              "bottom": -181.109375,
+              "left": 761
+            }
+          },
+          {
+            "name": "Buka memo dan catatan shift lengkap",
+            "rect": {
+              "x": 39,
+              "y": -148.109375,
+              "width": 766,
+              "height": 171.59375,
+              "top": -148.109375,
+              "right": 805,
+              "bottom": 23.484375,
+              "left": 39
+            }
+          },
+          {
+            "name": "Status B2B: Health check gateway B2B sekunder, OK",
+            "rect": {
+              "x": 748,
+              "y": 885.484375,
+              "width": 56,
+              "height": 44,
+              "top": 885.484375,
+              "right": 804,
+              "bottom": 929.484375,
+              "left": 748
+            }
+          },
+          {
+            "name": "Status SM: Queue distributor check & routing, OK",
+            "rect": {
+              "x": 748,
+              "y": 938.484375,
+              "width": 56,
+              "height": 44,
+              "top": 938.484375,
+              "right": 804,
+              "bottom": 982.484375,
+              "left": 748
+            }
+          },
+          {
+            "name": "Status USIEM: Graylog indexer rate & pipeline buffer, OK",
+            "rect": {
+              "x": 748,
+              "y": 991.484375,
+              "width": 56,
+              "height": 44,
+              "top": 991.484375,
+              "right": 804,
+              "bottom": 1035.484375,
+              "left": 748
+            }
+          },
+          {
+            "name": "Status ActiveMQ: Broker health check broker #228, NOK",
+            "rect": {
+              "x": 748,
+              "y": 1044.484375,
+              "width": 56,
+              "height": 44,
+              "top": 1044.484375,
+              "right": 804,
+              "bottom": 1088.484375,
+              "left": 748
+            }
+          },
+          {
+            "name": "Status EPC Tools: Validation worker cluster FMC, OK",
+            "rect": {
+              "x": 748,
+              "y": 1097.484375,
+              "width": 56,
+              "height": 44,
+              "top": 1097.484375,
+              "right": 804,
+              "bottom": 1141.484375,
+              "left": 748
+            }
+          },
+          {
+            "name": "Lihat semua (13)",
+            "rect": {
+              "x": 39,
+              "y": 1158.484375,
+              "width": 766,
+              "height": 44,
+              "top": 1158.484375,
+              "right": 805,
+              "bottom": 1202.484375,
+              "left": 39
+            }
+          }
+        ]
+      },
+      "before": [
+        "86d40sep14",
+        "86d40dm01",
+        "86d40dm03",
+        "86d40sep19"
+      ],
+      "pageTwo": [
+        "86d40dm15",
+        "86d40sep18",
+        "86d40dm16",
+        "86d40dm19"
+      ],
+      "expanded": {
+        "height": 4273.5,
+        "samples": [
+          {
+            "time": 12,
+            "height": 518
+          },
+          {
+            "time": 27,
+            "height": 518
+          },
+          {
+            "time": 342,
+            "height": 3591.546875
+          }
+        ],
+        "cls": 0,
+        "transition": "height, padding, border-width, opacity"
+      },
+      "release": {
+        "html": "visible",
+        "body": "visible",
+        "inert": 0,
+        "hidden": null
+      }
+    }
+  ],
+  "errors": []
+}

@@ -346,7 +346,7 @@ export function RosterShiftCoverage({
               isCurrentUser,
               userStatus
             );
-            const ringColor = (ringStyle as any)["--status-ring-color"] || "#22c55e";
+            const ringColor = (ringStyle as Record<string, string>)["--status-ring-color"] || "#22c55e";
 
             const indicatorStatus =
               canonical === "On Duty" ? "bertugas" : canonical === "Online" ? "online" : "offline";

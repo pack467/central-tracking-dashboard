@@ -27,8 +27,22 @@ async function csrfFrom(response: Response): Promise<string | null> {
 
 const base = () => getApiConfig().apiUrl.replace(/\/+$/, "");
 let csrfToken: string | null = null;
-export const getCsrfToken = () => csrfToken;
+function readCsrfCookie(): string | null {
+  if (typeof document === "undefined") return null;
+  const match = document.cookie.match(/(?:^|;\s*)ctd\.csrf=([^;]+)/);
+  return match ? decodeURIComponent(match[1]) : null;
+}
+export const getCsrfToken = () => csrfToken ?? readCsrfCookie();
 export const setCsrfToken = (value: string | null) => { csrfToken = value; };
+export async function refreshCsrfToken(): Promise<string | null> {
+  try {
+    const fresh = await csrfFrom(await call("/auth/csrf", { signal: AbortSignal.timeout(8000) }));
+    if (fresh) csrfToken = fresh;
+    return fresh ?? readCsrfCookie();
+  } catch {
+    return readCsrfCookie();
+  }
+}
 
 /**
  * When the server last answered a request of this session with a success (here or through the API client). The session check on
@@ -80,22 +94,38 @@ export async function loginRequest(identifier: string, password: string): Promis
 const JUST_LOGGED_IN_MS = 10_000;
 let justLoggedIn: { user: BackendUser; at: number } | null = null;
 
-/** The logged-in user, or null when there is no (valid) session. A network failure is also "not logged in" here. */
-export async function fetchSession(): Promise<BackendUser | null> {
+/**
+ * Who is logged in, as far as the server can say:
+ *  - "user": a valid session.
+ *  - "none": the server said there is none (401), or answered with something that is not a user.
+ *  - "unknown": the server could not answer (no connection, 5xx, or 429 from its limit of requests per address). That is not a logout:
+ *    treating it as one sent people with a live session to the login page whenever the backend throttled a page reload.
+ */
+export type SessionLookup = { state: "user"; user: BackendUser } | { state: "none" } | { state: "unknown"; throttled: boolean };
+
+export async function fetchSession(): Promise<SessionLookup> {
   const recent = justLoggedIn;
   justLoggedIn = null;
-  if (recent && csrfToken && Date.now() - recent.at < JUST_LOGGED_IN_MS) return recent.user;
+  if (recent && csrfToken && Date.now() - recent.at < JUST_LOGGED_IN_MS) return { state: "user", user: recent.user };
+  let me: Response;
   try {
-    const me = await call("/auth/me");
-    if (!me.ok) { csrfToken = null; return null; }
+    me = await call("/auth/me", { signal: AbortSignal.timeout(8000) });
+  } catch {
+    return { state: "unknown", throttled: false };
+  }
+  if (me.status === 401) { csrfToken = null; return { state: "none" }; }
+  if (!me.ok) return { state: "unknown", throttled: me.status === 429 };
+  let user: BackendUser;
+  try {
     // an answer that is not a user counts as no session (the reason is written to the console)
-    const user = parseResponse(authUserSchema, await me.json(), "sesi login");
-    csrfToken = await csrfFrom(await call("/auth/csrf"));
-    return user;
+    user = parseResponse(authUserSchema, await me.json(), "sesi login");
   } catch {
     csrfToken = null;
-    return null;
+    return { state: "none" };
   }
+  // the person is logged in even if this fails: a write asks for the token again (see refreshCsrfToken)
+  csrfToken = await call("/auth/csrf").then(csrfFrom, () => null);
+  return { state: "user", user };
 }
 
 /**
@@ -128,6 +158,31 @@ export async function logoutRequest(): Promise<"ended" | "throttled" | "failed">
     if (response.ok || response.status === 401) { csrfToken = null; confirmedAt = 0; return "ended"; }
     return response.status === 429 ? "throttled" : "failed";
   } catch { return "failed"; }
+}
+
+/**
+ * Changes the logged-in person's password (PATCH /auth/password). Not through the API client: there a 401 logs the person out, and here a 401
+ * usually only means the current password was mistyped. The backend then ends their other sessions and keeps this one.
+ */
+export async function changePasswordRequest(currentPassword: string, newPassword: string): Promise<void> {
+  const send = (token: string | null) => call("/auth/password", {
+    method: "PATCH",
+    signal: AbortSignal.timeout(15000),
+    body: JSON.stringify({ current_password: currentPassword, new_password: newPassword }),
+    headers: token ? { "X-CSRF-Token": token } : {},
+  });
+  let response = await send(getCsrfToken() ?? await refreshCsrfToken());
+  if (response.status === 403) response = await send(await refreshCsrfToken());
+  if (response.ok) return;
+  if (response.status === 401) {
+    const body = await response.json().catch(() => null) as { message?: unknown } | null;
+    if (/current password/i.test(String(body?.message ?? ""))) throw new AuthError("invalid", "Password saat ini salah.");
+    throw new AuthError("unavailable", "Sesi Anda sudah berakhir. Silakan login lagi.");
+  }
+  if (response.status === 400) throw new AuthError("invalid", "Password baru tidak memenuhi syarat. Periksa kembali lalu coba lagi.");
+  if (response.status === 429) throw new AuthError("throttled", "Terlalu banyak percobaan. Tunggu satu menit lalu coba lagi.");
+  if (response.status === 403) throw new AuthError("forbidden", "Permintaan ditolak oleh server. Muat ulang halaman lalu coba lagi.");
+  throw new AuthError("server", "Server sedang bermasalah. Coba lagi nanti.");
 }
 
 /** Backend role names as people read them. */

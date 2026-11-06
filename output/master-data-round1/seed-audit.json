@@ -1,0 +1,16 @@
+{
+  "clients": 8,
+  "projects": 47,
+  "systems": 47,
+  "tickets": 105,
+  "duplicateProjectCodes": [],
+  "categories": [
+    "Change Request",
+    "Escalation",
+    "Ad-hoc Request",
+    "Maintenance",
+    "Incident",
+    "Monitoring Alert",
+    "Monitoring"
+  ]
+}

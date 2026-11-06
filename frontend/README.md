@@ -57,7 +57,7 @@ npm run dev
 ### 5. Buka di Browser
 Setelah server berjalan, buka URL berikut di browser Anda:
 ```text
-http://localhost:3000
+http://localhost:3001
 ```
 
 ### 6. Menghubungkan ke Backend dan Database
@@ -74,10 +74,11 @@ Berikut daftar perintah npm yang sering digunakan dalam proyek:
 | Perintah | Deskripsi |
 | :--- | :--- |
 | `npm run dev` | Menjalankan server pengembangan lokal (lengkap dengan hot reload dan migrasi database otomatis). |
-| `npm run dev:backend` | Sama dengan `npm run dev`, tetapi di port 3001 (port 3000 dipakai backend). |
+| `npm run dev:backend` | Sama dengan `npm run dev`. Keduanya di port 3001 (port 3000 dipakai backend). |
 | `npm run check:backend` | Mengecek sambungan frontend → backend → database sesuai `.env.local`. |
 | `npm run build` | Melakukan build dan validasi bundling aplikasi untuk lingkungan produksi. |
-| `npm run start` | Menjalankan server dalam mode produksi setelah di-build. |
+| `npm run start` | Menjalankan server dalam mode produksi setelah di-build. Lihat [docs/deploy-production.md](docs/deploy-production.md). |
+| `npm run test:all` | Build, lalu menjalankan semua test; server dinyalakan otomatis untuk test yang butuh halaman. |
 | `npm run db:migrate:local` | Menerapkan migrasi D1 SQLite lokal secara manual menggunakan Wrangler. |
 | `npm run db:generate` | Menghasilkan file migrasi SQL baru dari schema Drizzle (`db/schema.ts`). |
 | `npx tsc --noEmit` | Memeriksa validitas tipe data TypeScript di seluruh proyek tanpa membuat file kompilasi. |

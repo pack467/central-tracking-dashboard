@@ -148,7 +148,8 @@ function SelectBase({ value, onSingleChange, onMultiChange, formatValue, selectA
     const trigger = triggerRef.current;
     const associatedLabel = suppliedId ? document.querySelector<HTMLLabelElement>(`label[for="${CSS.escape(suppliedId)}"]`) : trigger?.closest("label")?.querySelector("span");
     setLabel(suppliedLabel ?? triggerProps["aria-label"] ?? associatedLabel?.textContent?.trim().replace(/\s*\*$/, "") ?? "Pilihan");
-    setQuery(allowCustom && !multiple ? singleValue : "");
+    // always starts empty: starting from the current value filtered the list down to that one option
+    setQuery("");
     const selectedIndex = options.findIndex(option => currentValues.includes(String(option.value)) && !option.disabled);
     setActiveIndex(index ?? (allowCustom && multiple ? -1 : selectedIndex < 0 ? options.findIndex(option => !option.disabled) : selectedIndex));
     locate(); setOpenedOnPath(pathname); setRequestedOpen(true);
@@ -197,7 +198,7 @@ function SelectBase({ value, onSingleChange, onMultiChange, formatValue, selectA
     }
     if (event.key === "Enter" || (event.key === " " && !inSearch && (!open || !typing.current.text || performance.now() - typing.current.time > 700))) {
       event.preventDefault(); event.stopPropagation();
-      if (!open) show(undefined, true); else if (allowCustom && inSearch && activeIndex < 0) { onSingleChange?.(query); close(); } else choose(activeIndex);
+      if (!open) show(undefined, true); else if (allowCustom && inSearch && activeIndex < 0) { onSingleChange?.(query.trim()); close(); } else choose(activeIndex);
       return;
     }
     if (!inSearch && event.key.length === 1 && !event.ctrlKey && !event.altKey && !event.metaKey) {
@@ -246,8 +247,8 @@ function SelectBase({ value, onSingleChange, onMultiChange, formatValue, selectA
       <Search size={14} className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-[#94a3b8]" />
       <input ref={searchRef} data-select-initial-focus role="combobox" aria-expanded={open} aria-controls={listId} aria-activedescendant={activeId} aria-autocomplete="list" aria-label={`Cari ${label}`} value={query} placeholder="Cari pilihan…" className={S.search} onKeyDown={handleKey} onChange={event => {
         const next = event.target.value; setQuery(next);
+        // searching only searches: typing used to replace the chosen value with every letter
         setActiveIndex(allowCustom && multiple ? -1 : options.findIndex(option => !option.disabled && normalize(option.textValue ?? textOf(option.label)).includes(normalize(next))));
-        if (allowCustom) onSingleChange?.(next);
       }} />
     </div>}
     {multiple && <div className="flex shrink-0 flex-wrap items-center justify-between gap-x-2 border-b border-[#334155] px-1 pb-1 text-[11px] text-[#94a3b8]">
@@ -272,6 +273,7 @@ function SelectBase({ value, onSingleChange, onMultiChange, formatValue, selectA
         </Fragment>;
       })}
       {allowCustom && multiple && query.trim() && !selected.some(value => normalize(value.trim()) === normalize(query.trim())) && <button type="button" className={`${S.option} text-[#38bdf8]`} onPointerDown={event => event.preventDefault()} onClick={() => { onMultiChange?.([...selected, query.trim()]); setQuery(""); setActiveIndex(-1); }}>Tambahkan “{query.trim()}”</button>}
+      {allowCustom && !multiple && query.trim() && !options.some(option => [String(option.value), option.textValue ?? textOf(option.label)].some(text => normalize(text) === normalize(query.trim()))) && <button type="button" className={`${S.option} text-[#38bdf8]`} onPointerDown={event => event.preventDefault()} onClick={() => { onSingleChange?.(query.trim()); close(); }}>Gunakan “{query.trim()}”</button>}
       {!filtered.length && !allowCustom && <div role="status" className="px-3 py-5 text-center text-[13px] text-[#94a3b8]">Tidak ada pilihan yang cocok.</div>}
     </div>
   </div>;

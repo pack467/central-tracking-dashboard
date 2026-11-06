@@ -9,5 +9,22 @@
     "lint": "npm --prefix frontend run lint",
     "test": "npm --prefix frontend run test",
     "db:migrate": "npm --prefix frontend run db:migrate:local"
-  }
+  },
+  "description": "Dashboard operasional terpadu untuk monitoring layanan jaringan/sistem, serah terima shift dinas (*Shift Handover*), manajemen tiket gangguan (*Tickets*), dan manajemen jadwal tim (*Team Roster*).",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pack467/central-tracking-dashboard.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/pack467/central-tracking-dashboard/issues"
+  },
+  "homepage": "https://github.com/pack467/central-tracking-dashboard#readme"
 }

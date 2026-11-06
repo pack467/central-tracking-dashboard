@@ -33,6 +33,11 @@
   "exclude": [
     "node_modules",
     "dist",
-    ".next"
+    ".next",
+    ".wrangler",
+    ".vinext",
+    ".report-qa",
+    ".run",
+    ".openai"
   ]
 }

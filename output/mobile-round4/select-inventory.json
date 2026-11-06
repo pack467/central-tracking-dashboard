@@ -1,0 +1,796 @@
+[
+  {
+    "file": "frontend/app/components/dashboard/MonitoringSchedule.tsx",
+    "line": 59,
+    "tag": "Select",
+    "attrs": [
+      "id={id}",
+      "label={label}",
+      "aria-label={\"Filter \" + label + \": \" + displayLabel}",
+      "title={\"Filter \" + label + \": \" + displayLabel}",
+      "value={selectedValue ?? \"\"}",
+      "onValueChange={value => onSelect(value || null)}",
+      "icon={icon}",
+      "renderValue={() => displayLabel}",
+      "className=\"h-8 text-[11.5px] font-semibold\"",
+      "options={[{ value: \"\", label: allLabel, meta: totalCount }, ...options.map(option => ({ value: option.name, label: option.name, meta: option.count }))]}"
+    ]
+  },
+  {
+    "file": "frontend/app/components/handover/HandoverHistoryControls.tsx",
+    "line": 72,
+    "tag": "MultiSelect",
+    "attrs": [
+      "label=\"Shifter (PIC)\"",
+      "aria-label=\"Filter Shifter PIC\"",
+      "value={selectedList}",
+      "onChange={names => onChange(names.join(\", \"))}",
+      "options={allShifters.map(name => ({ value: name, label: name }))}",
+      "selectAllMode=\"add-filtered\"",
+      "icon={<Users size={16} />}",
+      "className=\"w-full h-[38px] text-[12px]\"",
+      "formatValue={names => !names.length ? \"Semua Shifter\" : names.length <= 2 ? names.join(\", \") : names.slice(0, 2).join(\", \") + \" (+\" + (names.length - 2) + \")\"}"
+    ]
+  },
+  {
+    "file": "frontend/app/components/handover/HandoverHistoryControls.tsx",
+    "line": 115,
+    "tag": "Select",
+    "attrs": [
+      "className={`${HISTORY_SHIFT_SELECT_CLASS} ${\r\n                workflow.filters.shift\r\n                  ? \"border-[rgba(56,189,248,0.4)] bg-[rgba(56,189,248,0.08)] text-[var(--accent-blue,#38bdf8)] font-semibold\"\r\n                  : \"\"\r\n              }`}",
+      "value={workflow.filters.shift}",
+      "onChange={(event) => workflow.setFilters((prev) => ({ ...prev, shift: event.target.value }))}",
+      "aria-label=\"Filter berdasarkan shift\""
+    ],
+    "legacyIcon": "<Clock\r\n              size={14}\r\n              className={`absolute left-[10px] pointer-events-none z-1 transition-colors duration-150 ease-out ${\r\n                workflow.filters.shift ? \"text-[var(--accent-blue,#38bdf8)]\" : \"text-[var(--ink-muted)]\"\r\n              }`}\r\n              aria-hidden=\"true\"\r\n            />",
+    "legacyStart": 6358,
+    "legacyEnd": 6679
+  },
+  {
+    "file": "frontend/app/components/handover/HandoverWizard.tsx",
+    "line": 586,
+    "tag": "Select",
+    "attrs": [
+      "className=\"w-full min-h-[42px] pl-[40px] pr-[42px] py-[10px] rounded-[7px] text-[13px] bg-[var(--input-bg)] border border-[var(--panel-border)] text-[var(--ink-primary)] font-normal appearance-none cursor-pointer focus:border-[var(--accent-blue)] focus:shadow-[0_0_0_3px_var(--accent-blue-soft)] focus:outline-none transition-all duration-150\"",
+      "value={finding.state}",
+      "onChange={(event) =>\r\n                                updateFinding(index, { state: event.target.value as \"waiting\" | \"in-progress\" })\r\n                              }"
+    ],
+    "legacyIcon": "<Activity className=\"absolute z-[1] left-[13px] top-[21px] -translate-y-1/2 text-[var(--ink-muted)] pointer-events-none transition-colors duration-150 group-focus-within/shell:text-[var(--accent-blue)]\" size={16} aria-hidden=\"true\" />",
+    "legacyStart": 35496,
+    "legacyEnd": 35730
+  },
+  {
+    "file": "frontend/app/components/handover/HandoverWizard.tsx",
+    "line": 786,
+    "tag": "Select",
+    "attrs": [
+      "className=\"w-full min-h-[42px] pl-[40px] pr-[42px] py-[10px] rounded-[7px] text-[13px] bg-[var(--input-bg)] border border-[var(--panel-border)] text-[var(--ink-primary)] font-normal appearance-none cursor-pointer focus:border-[var(--accent-blue)] focus:shadow-[0_0_0_3px_var(--accent-blue-soft)] focus:outline-none transition-all duration-150\"",
+      "value={task.state}",
+      "onChange={(event) =>\r\n                                    updateTask(task.id, { state: event.target.value as HandoverState })\r\n                                  }"
+    ],
+    "legacyIcon": "<Activity className=\"absolute z-[1] left-[13px] top-[21px] -translate-y-1/2 text-[var(--ink-muted)] pointer-events-none transition-colors duration-150 group-focus-within/shell:text-[var(--accent-blue)]\" size={16} aria-hidden=\"true\" />",
+    "legacyStart": 51276,
+    "legacyEnd": 51510
+  },
+  {
+    "file": "frontend/app/components/handover/HandoverWizard.tsx",
+    "line": 809,
+    "tag": "Select",
+    "attrs": [
+      "className=\"w-full min-h-[42px] pl-[40px] pr-[42px] py-[10px] rounded-[7px] text-[13px] bg-[var(--input-bg)] border border-[var(--panel-border)] text-[var(--ink-primary)] font-normal appearance-none cursor-pointer focus:border-[var(--accent-blue)] focus:shadow-[0_0_0_3px_var(--accent-blue-soft)] focus:outline-none transition-all duration-150\"",
+      "value={task.priority || \"Medium\"}",
+      "onChange={(event) =>\r\n                                    updateTask(task.id, { priority: event.target.value })\r\n                                  }"
+    ],
+    "legacyIcon": "<Flag className=\"absolute z-[1] left-[13px] top-[21px] -translate-y-1/2 text-[var(--ink-muted)] pointer-events-none transition-colors duration-150 group-focus-within/shell:text-[var(--accent-blue)]\" size={16} aria-hidden=\"true\" />",
+    "legacyStart": 53329,
+    "legacyEnd": 53559
+  },
+  {
+    "file": "frontend/app/components/handover/ProjectSelect.tsx",
+    "line": 43,
+    "tag": "Select",
+    "attrs": [
+      "id={selectId}",
+      "listboxId={`${selectId}-options`}",
+      "value={value}",
+      "onValueChange={onChange}",
+      "placeholder={placeholder}",
+      "label=\"Proyek\"",
+      "allowCustom",
+      "options={options.map(project => ({ value: project, label: project }))}",
+      "size=\"form\"",
+      "className={PROJECT_SELECT_INPUT_CLASS}"
+    ]
+  },
+  {
+    "file": "frontend/app/components/layout/ClientSwitcher.tsx",
+    "line": 22,
+    "tag": "Select",
+    "attrs": [
+      "id=\"active-client-select\"",
+      "label=\"Pilih klien\"",
+      "aria-label={`Klien aktif: ${activeClient.name}. Klik untuk beralih organisasi`}",
+      "title={`Organisasi/Klien: ${activeClient.name}`}",
+      "value={activeClient.id}",
+      "onValueChange={id => { const client = clients.find(client => client.id === id); if (client) handleSelect(client); }}",
+      "icon={<Building2 size={16} />}",
+      "options={clients.map(client => ({ value: client.id, label: client.name, meta: client.systemsCount + \" Monitored Systems\" }))}",
+      "className=\"app-client-switcher h-8 px-2.5 text-[12px] max-lg:h-10 max-md:px-1 max-md:pr-1 max-md:gap-1.5 max-md:max-w-[72px] max-md:[&>svg]:hidden\"",
+      "renderValue={() => <span className=\"app-client-name text-[12px] max-md:text-[11px] font-bold min-w-0 truncate\"><span className=\"hidden md:inline\">{activeClient.shortName}</span><span className=\"md:hidden\">{activeClient.code}</span></span>}"
+    ]
+  },
+  {
+    "file": "frontend/app/components/master-data/ClientFormModal.tsx",
+    "line": 267,
+    "tag": "Select",
+    "attrs": [
+      "id=\"client-tier-select\"",
+      "value={tier}",
+      "onChange={(e) => setTier(e.target.value as ClientTier)}",
+      "className=\"w-full h-[38px] px-3 rounded-lg text-[12.5px] bg-slate-900/80 border border-slate-700 text-white focus:outline-none focus:border-sky-400 cursor-pointer\""
+    ]
+  },
+  {
+    "file": "frontend/app/components/master-data/ClientListTab.tsx",
+    "line": 126,
+    "tag": "Select",
+    "attrs": [
+      "value={statusFilter}",
+      "onChange={(e) => onStatusFilterChange(e.target.value)}",
+      "aria-label=\"Filter status klien\"",
+      "className=\"h-[36px] px-3 rounded-lg text-[12px] bg-slate-800/80 border border-slate-700/80 text-slate-200 focus:outline-none focus:border-sky-400 cursor-pointer\""
+    ]
+  },
+  {
+    "file": "frontend/app/components/master-data/ProjectFormModal.tsx",
+    "line": 223,
+    "tag": "Select",
+    "attrs": [
+      "id=\"project-client-select\"",
+      "value={clientId}",
+      "onChange={(e) => {\n                  setClientId(e.target.value);\n                  if (errors.clientId) setErrors((prev) => ({ ...prev, clientId: \"\" }));\n                }}",
+      "disabled={isEdit}",
+      "className=\"w-full h-[38px] px-3 rounded-lg text-[13px] bg-slate-900/80 border border-slate-700 text-white focus:outline-none focus:border-sky-400 disabled:opacity-50 disabled:bg-slate-800 cursor-pointer\""
+    ]
+  },
+  {
+    "file": "frontend/app/components/master-data/ProjectFormModal.tsx",
+    "line": 250,
+    "tag": "Select",
+    "attrs": [
+      "id=\"project-health-select\"",
+      "value={healthDefault}",
+      "onChange={(e) => setHealthDefault(e.target.value as ProjectHealthDefault)}",
+      "className=\"w-full h-[38px] px-3 rounded-lg text-[13px] bg-slate-900/80 border border-slate-700 text-white focus:outline-none focus:border-sky-400 cursor-pointer\""
+    ]
+  },
+  {
+    "file": "frontend/app/components/master-data/ProjectListTab.tsx",
+    "line": 91,
+    "tag": "Select",
+    "attrs": [
+      "value={selectedClientId || \"all\"}",
+      "onChange={(e) => onSelectedClientIdChange(e.target.value)}",
+      "aria-label=\"Filter berdasarkan klien\"",
+      "className=\"w-full h-[36px] px-3 rounded-lg text-[12px] bg-slate-800/80 border border-slate-700/80 text-slate-200 focus:outline-none focus:border-sky-400 cursor-pointer font-medium\""
+    ]
+  },
+  {
+    "file": "frontend/app/components/master-data/ProjectListTab.tsx",
+    "line": 126,
+    "tag": "Select",
+    "attrs": [
+      "value={statusFilter}",
+      "onChange={(e) => onStatusFilterChange(e.target.value)}",
+      "aria-label=\"Filter status proyek\"",
+      "className=\"h-[36px] px-3 rounded-lg text-[12px] bg-slate-800/80 border border-slate-700/80 text-slate-200 focus:outline-none focus:border-sky-400 cursor-pointer\""
+    ]
+  },
+  {
+    "file": "frontend/app/components/master-data/SystemFormModal.tsx",
+    "line": 204,
+    "tag": "Select",
+    "attrs": [
+      "id=\"system-client-select\"",
+      "value={clientId}",
+      "onChange={(e) => handleClientChange(e.target.value)}",
+      "disabled={isEdit}",
+      "className=\"w-full h-[38px] px-3 rounded-lg text-[13px] bg-slate-900/80 border border-slate-700 text-white focus:outline-none focus:border-sky-400 disabled:opacity-50 cursor-pointer\""
+    ]
+  },
+  {
+    "file": "frontend/app/components/master-data/SystemFormModal.tsx",
+    "line": 223,
+    "tag": "Select",
+    "attrs": [
+      "id=\"system-project-select\"",
+      "value={projectId}",
+      "onChange={(e) => {\n                  setProjectId(e.target.value);\n                  if (errors.projectId) setErrors((prev) => ({ ...prev, projectId: \"\" }));\n                }}",
+      "className=\"w-full h-[38px] px-3 rounded-lg text-[13px] bg-slate-900/80 border border-slate-700 text-white focus:outline-none focus:border-sky-400 cursor-pointer\""
+    ]
+  },
+  {
+    "file": "frontend/app/components/master-data/SystemFormModal.tsx",
+    "line": 279,
+    "tag": "Select",
+    "attrs": [
+      "id=\"system-criticality-select\"",
+      "value={criticality}",
+      "onChange={(e) => setCriticality(e.target.value as SystemCriticality)}",
+      "className=\"w-full h-[38px] px-3 rounded-lg text-[13px] bg-slate-900/80 border border-slate-700 text-white focus:outline-none focus:border-sky-400 cursor-pointer\""
+    ]
+  },
+  {
+    "file": "frontend/app/components/master-data/SystemFormModal.tsx",
+    "line": 297,
+    "tag": "Select",
+    "attrs": [
+      "id=\"system-env-select\"",
+      "value={environment}",
+      "onChange={(e) => setEnvironment(e.target.value as SystemEnvironment)}",
+      "className=\"w-full h-[38px] px-3 rounded-lg text-[13px] bg-slate-900/80 border border-slate-700 text-white focus:outline-none focus:border-sky-400 cursor-pointer\""
+    ]
+  },
+  {
+    "file": "frontend/app/components/master-data/SystemFormModal.tsx",
+    "line": 318,
+    "tag": "Select",
+    "attrs": [
+      "id=\"system-status-select\"",
+      "value={status}",
+      "onChange={(e) => setStatus(e.target.value as SystemStatus)}",
+      "className=\"w-full h-[38px] px-3 rounded-lg text-[13px] bg-slate-900/80 border border-slate-700 text-white focus:outline-none focus:border-sky-400 cursor-pointer\""
+    ]
+  },
+  {
+    "file": "frontend/app/components/master-data/SystemListTab.tsx",
+    "line": 114,
+    "tag": "Select",
+    "attrs": [
+      "value={selectedClientId || \"all\"}",
+      "onChange={(e) => {\n              onSelectedClientIdChange(e.target.value);\n              onSelectedProjectIdChange(\"all\");\n            }}",
+      "aria-label=\"Filter berdasarkan klien\"",
+      "className=\"h-[36px] px-2.5 rounded-lg text-[12px] bg-slate-800/80 border border-slate-700/80 text-slate-200 focus:outline-none focus:border-sky-400 cursor-pointer font-medium\""
+    ]
+  },
+  {
+    "file": "frontend/app/components/master-data/SystemListTab.tsx",
+    "line": 132,
+    "tag": "Select",
+    "attrs": [
+      "value={selectedProjectId || \"all\"}",
+      "onChange={(e) => onSelectedProjectIdChange(e.target.value)}",
+      "aria-label=\"Filter berdasarkan proyek\"",
+      "className=\"h-[36px] px-2.5 rounded-lg text-[12px] bg-slate-800/80 border border-slate-700/80 text-slate-200 focus:outline-none focus:border-sky-400 cursor-pointer font-medium\""
+    ]
+  },
+  {
+    "file": "frontend/app/components/master-data/SystemListTab.tsx",
+    "line": 166,
+    "tag": "Select",
+    "attrs": [
+      "value={criticalityFilter}",
+      "onChange={(e) => onCriticalityFilterChange(e.target.value)}",
+      "aria-label=\"Filter kriticalitas\"",
+      "className=\"h-[36px] px-2.5 rounded-lg text-[12px] bg-slate-800/80 border border-slate-700/80 text-slate-200 focus:outline-none focus:border-sky-400 cursor-pointer\""
+    ]
+  },
+  {
+    "file": "frontend/app/components/master-data/SystemListTab.tsx",
+    "line": 180,
+    "tag": "Select",
+    "attrs": [
+      "value={environmentFilter}",
+      "onChange={(e) => onEnvironmentFilterChange(e.target.value)}",
+      "aria-label=\"Filter environment\"",
+      "className=\"h-[36px] px-2.5 rounded-lg text-[12px] bg-slate-800/80 border border-slate-700/80 text-slate-200 focus:outline-none focus:border-sky-400 cursor-pointer\""
+    ]
+  },
+  {
+    "file": "frontend/app/components/reports/ReportPdfPreview.tsx",
+    "line": 138,
+    "tag": "Select",
+    "attrs": [
+      "className={`${reportSelectClass} h-[34px] w-auto text-xs`}",
+      "aria-label=\"Zoom pratinjau PDF\"",
+      "value={zoom}",
+      "onChange={(event) => setZoom(event.target.value)}"
+    ],
+    "legacyIcon": "<ZoomIn size={14} className=\"text-[#94a3b8]\" />",
+    "legacyStart": 5120,
+    "legacyEnd": 5167
+  },
+  {
+    "file": "frontend/app/components/runbooks/SopSection.tsx",
+    "line": 306,
+    "tag": "Select",
+    "attrs": [
+      "id={`sop-${sop.id}-document-type`}",
+      "value={formType}",
+      "onChange={(e) => setFormType(e.target.value as SopAttachmentType)}",
+      "className=\"h-[32px] px-[8px] rounded-[5px] border border-[var(--panel-border)] bg-[var(--input-bg)] text-[var(--ink-primary)] text-[11.5px] focus:outline-none focus:border-[var(--accent-blue)]\""
+    ]
+  },
+  {
+    "file": "frontend/app/components/team/MemberCreateModal.tsx",
+    "line": 139,
+    "tag": "Select",
+    "attrs": [
+      "size=\"form\"",
+      "className=\"w-full\"",
+      "value={role}",
+      "onChange={(e) => setRole(e.target.value as RosterRole)}"
+    ]
+  },
+  {
+    "file": "frontend/app/components/team/MemberCreateModal.tsx",
+    "line": 162,
+    "tag": "Select",
+    "attrs": [
+      "size=\"form\"",
+      "className=\"w-full\"",
+      "value={currentShift}",
+      "onChange={(e) => setCurrentShift(e.target.value)}"
+    ]
+  },
+  {
+    "file": "frontend/app/components/team/MemberCreateModal.tsx",
+    "line": 195,
+    "tag": "Select",
+    "attrs": [
+      "size=\"form\"",
+      "className=\"w-full\"",
+      "value={status}",
+      "onChange={(e) => setStatus(e.target.value as RosterMemberStatus)}"
+    ]
+  },
+  {
+    "file": "frontend/app/components/team/RosterCalendarView.tsx",
+    "line": 440,
+    "tag": "Select",
+    "attrs": [
+      "className=\"h-[30px] pl-2.5 pr-6 py-0 text-[11.5px] rounded-[6px] bg-[position:right_7px_center] bg-[#0f172a] [color-scheme:dark] border border-[#334155] text-[#f8fafc] cursor-pointer inline-flex items-center appearance-none -webkit-appearance-none focus:border-[#38bdf8] focus:outline-none\"",
+      "value={pageSize === \"all\" ? \"all\" : String(pageSize)}",
+      "onChange={(e) => {\n                    const val = e.target.value;\n                    setPageSize(val === \"all\" ? \"all\" : Number(val));\n                  }}",
+      "aria-label=\"Jumlah baris per halaman\""
+    ]
+  },
+  {
+    "file": "frontend/app/components/team/RosterTable.tsx",
+    "line": 405,
+    "tag": "Select",
+    "attrs": [
+      "className=\"h-[34px] sm:h-[30px] pl-[9px] pr-[24px] py-0 text-[11.5px] font-medium font-sans rounded-[6px] bg-[right_7px_center] bg-[var(--input-bg,#0f172a)] [color-scheme:dark] border border-[var(--panel-border)] cursor-pointer inline-flex items-center appearance-none -webkit-appearance-none transition-[border-color,box-shadow,background-color,color] duration-150 ease shrink-0 hover:border-[rgba(148,163,184,0.35)] focus:border-[var(--accent-blue)] focus:shadow-[0_0_0_3px_rgba(56,189,248,0.12)] focus:outline-none text-[var(--ink-primary)]\"",
+      "value={pageSize === \"all\" ? \"all\" : String(pageSize)}",
+      "onChange={(e) => {\n                const val = e.target.value;\n                setPageSize(val === \"all\" ? \"all\" : Number(val));\n              }}",
+      "aria-label=\"Jumlah baris per halaman\""
+    ]
+  },
+  {
+    "file": "frontend/app/components/team/ShiftSwapModal.tsx",
+    "line": 146,
+    "tag": "Select",
+    "attrs": [
+      "size=\"form\"",
+      "className=\"w-full\"",
+      "value={requesterId}",
+      "onChange={(e) => setRequesterId(e.target.value)}",
+      "required"
+    ]
+  },
+  {
+    "file": "frontend/app/components/team/ShiftSwapModal.tsx",
+    "line": 161,
+    "tag": "Select",
+    "attrs": [
+      "size=\"form\"",
+      "className=\"w-full\"",
+      "value={targetId}",
+      "onChange={(e) => setTargetId(e.target.value)}",
+      "required"
+    ]
+  },
+  {
+    "file": "frontend/app/components/team/ShiftSwapModal.tsx",
+    "line": 189,
+    "tag": "Select",
+    "attrs": [
+      "size=\"form\"",
+      "className=\"w-full\"",
+      "value={targetShift}",
+      "onChange={(e) => setTargetShift(e.target.value)}"
+    ]
+  },
+  {
+    "file": "frontend/app/components/tickets/OwnerTagInput.tsx",
+    "line": 15,
+    "tag": "MultiSelect",
+    "attrs": [
+      "label=\"PIC\"",
+      "aria-label=\"Penanggung jawab (PIC)\"",
+      "value={owners}",
+      "disabled={disabled}",
+      "allowCustom",
+      "icon={<User size={16} />}",
+      "size=\"form\"",
+      "className=\"w-full text-[12.5px]\"",
+      "options={seedRosterMembers.map(member => ({ value: owners.find(owner => owner.trim().toLowerCase() === member.name.toLowerCase()) ?? member.name, label: member.name, meta: member.role, key: member.id }))}",
+      "formatValue={names => !names.length ? placeholder : names.length <= 2 ? names.join(\", \") : names.slice(0, 2).join(\", \") + \" (+\" + (names.length - 2) + \")\"}",
+      "onChange={names => {\n    const seen = new Set<string>();\n    onChange(names.map(name => name.trim()).filter(name => {\n      if (!name || seen.has(name.toLowerCase())) return false;\n      seen.add(name.toLowerCase()); return true;\n    }));\n  }}"
+    ]
+  },
+  {
+    "file": "frontend/app/components/tickets/TicketCreateModal.tsx",
+    "line": 283,
+    "tag": "Select",
+    "attrs": [
+      "size=\"form\"",
+      "className=\"w-full\"",
+      "value={project}",
+      "onChange={(event) => setProject(event.target.value)}"
+    ]
+  },
+  {
+    "file": "frontend/app/components/tickets/TicketCreateModal.tsx",
+    "line": 298,
+    "tag": "Select",
+    "attrs": [
+      "size=\"form\"",
+      "className=\"w-full\"",
+      "value={severity}",
+      "onChange={(event) => setSeverity(event.target.value)}"
+    ]
+  },
+  {
+    "file": "frontend/app/components/tickets/TicketCreateModal.tsx",
+    "line": 313,
+    "tag": "Select",
+    "attrs": [
+      "value={status}",
+      "onChange={(event) => {\n                  setStatus(event.target.value);\n                  if (error) setError(\"\");\n                }}",
+      "className=\"ticket-status-select\""
+    ]
+  },
+  {
+    "file": "frontend/app/components/tickets/TicketCreateModal.tsx",
+    "line": 337,
+    "tag": "Select",
+    "attrs": [
+      "value={category}",
+      "onChange={(event) => {\n                setCategory(event.target.value);\n                if (error) setError(\"\");\n              }}",
+      "className={category && category !== \"--\" ? \"selected-category\" : \"\"}"
+    ]
+  },
+  {
+    "file": "frontend/app/components/tickets/TicketEditModal.tsx",
+    "line": 145,
+    "tag": "Select",
+    "attrs": [
+      "size=\"form\"",
+      "className=\"w-full\"",
+      "value={project}",
+      "onChange={(event) => setProject(event.target.value)}"
+    ]
+  },
+  {
+    "file": "frontend/app/components/tickets/TicketEditModal.tsx",
+    "line": 159,
+    "tag": "Select",
+    "attrs": [
+      "size=\"form\"",
+      "className=\"w-full\"",
+      "value={severity}",
+      "onChange={(event) => setSeverity(event.target.value)}"
+    ]
+  },
+  {
+    "file": "frontend/app/components/tickets/TicketEditModal.tsx",
+    "line": 173,
+    "tag": "Select",
+    "attrs": [
+      "size=\"form\"",
+      "className=\"w-full\"",
+      "value={status}",
+      "onChange={(event) => setStatus(event.target.value)}"
+    ]
+  },
+  {
+    "file": "frontend/app/components/tickets/TicketEditModal.tsx",
+    "line": 187,
+    "tag": "Select",
+    "attrs": [
+      "allowCustom",
+      "value={owner}",
+      "onValueChange={setOwner}",
+      "label=\"Penanggung jawab\"",
+      "aria-label=\"Penanggung jawab (Assignee)\"",
+      "listboxId=\"roster-assignees-list\"",
+      "placeholder=\"Nama penanggung jawab\"",
+      "options={seedRosterMembers.map(member => ({ value: member.name, label: member.name }))}",
+      "size=\"form\"",
+      "className=\"w-full\""
+    ]
+  },
+  {
+    "file": "frontend/app/components/tickets/TicketEditModal.tsx",
+    "line": 192,
+    "tag": "Select",
+    "attrs": [
+      "size=\"form\"",
+      "className=\"w-full\"",
+      "value={category}",
+      "onChange={(e) => setCategory(e.target.value)}"
+    ]
+  },
+  {
+    "file": "frontend/app/components/tickets/TicketReportView.tsx",
+    "line": 232,
+    "tag": "MultiSelect",
+    "attrs": [
+      "label=\"Shifter (PIC)\"",
+      "aria-label=\"Filter Shifter / PIC\"",
+      "value={selectedList}",
+      "onChange={onChange}",
+      "options={staffList.map(staff => ({ value: staff.name, label: staff.name }))}",
+      "icon={<Users size={16} />}",
+      "className=\"analytics-shifter-trigger h-[34px] w-full text-[11.5px]\"",
+      "title={selectedList.length ? selectedList.join(\", \") : \"Filter Shifter / PIC\"}",
+      "formatValue={values => {\n    if (!values.length) return \"Semua Shifter (14 Staf)\";\n    if (values.length === 1) return values[0].split(\" \").slice(0, 2).join(\" \");\n    if (values.length === 2) return values.map(value => value.split(\" \")[0]).join(\", \");\n    return values.length + \" Shifter Terpilih\";\n  }}"
+    ]
+  },
+  {
+    "file": "frontend/app/components/tickets/TicketReportView.tsx",
+    "line": 1631,
+    "tag": "Select",
+    "attrs": [
+      "aria-label=\"Jumlah tiket per halaman\"",
+      "value={todayPageSize}",
+      "onChange={e => setTodayPageSize(Number(e.target.value))}",
+      "className=\"h-10 w-[76px] max-w-[76px] rounded-lg border border-slate-700 bg-slate-900 px-1 text-[12px] text-slate-200\""
+    ]
+  },
+  {
+    "file": "frontend/app/components/tickets/TicketReportView.tsx",
+    "line": 1953,
+    "tag": "Select",
+    "attrs": [
+      "value={analyticsProjectFilter}",
+      "onChange={(e) => setAnalyticsProjectFilter(e.target.value)}",
+      "aria-label=\"Filter proyek\"",
+      "className=\"w-full h-[34px] p-[0_28px_0_30px] bg-[rgba(15,23,42,0.85)] border border-[rgba(148,163,184,0.16)] rounded-[7px] text-[11.5px] text-[#f8fafc] [appearance:none] [-webkit-appearance:none] cursor-pointer [transition:all_0.15s_ease] [outline:none] whitespace-nowrap overflow-hidden text-ellipsis [color-scheme:dark] hover:border-[rgba(56,189,248,0.3)] hover:bg-[rgba(15,23,42,0.95)] focus:border-[#38bdf8] focus:shadow-[0_0_0_2px_rgba(56,189,248,0.2)] [&_option]:bg-[#0f172a] [&_option]:text-[#f8fafc] [&_option]:p-[6px_10px] data-[active=true]:border-[rgba(56,189,248,0.45)] data-[active=true]:bg-[rgba(56,189,248,0.08)] data-[active=true]:text-[#38bdf8] data-[active=true]:font-semibold analytics-select-input\"",
+      "data-active={analyticsProjectFilter !== \"All\" ? \"true\" : undefined}"
+    ],
+    "legacyIcon": "<FolderKanban size={13} className=\"absolute left-[10px] text-[#94a3b8] pointer-events-none shrink-0 analytics-select-icon\" />",
+    "legacyStart": 103447,
+    "legacyEnd": 103572
+  },
+  {
+    "file": "frontend/app/components/tickets/TicketReportView.tsx",
+    "line": 1974,
+    "tag": "Select",
+    "attrs": [
+      "value={analyticsShiftFilter}",
+      "onChange={(e) => setAnalyticsShiftFilter(e.target.value)}",
+      "aria-label=\"Filter shift\"",
+      "className=\"w-full h-[34px] p-[0_28px_0_30px] bg-[rgba(15,23,42,0.85)] border border-[rgba(148,163,184,0.16)] rounded-[7px] text-[11.5px] text-[#f8fafc] [appearance:none] [-webkit-appearance:none] cursor-pointer [transition:all_0.15s_ease] [outline:none] whitespace-nowrap overflow-hidden text-ellipsis [color-scheme:dark] hover:border-[rgba(56,189,248,0.3)] hover:bg-[rgba(15,23,42,0.95)] focus:border-[#38bdf8] focus:shadow-[0_0_0_2px_rgba(56,189,248,0.2)] [&_option]:bg-[#0f172a] [&_option]:text-[#f8fafc] [&_option]:p-[6px_10px] data-[active=true]:border-[rgba(56,189,248,0.45)] data-[active=true]:bg-[rgba(56,189,248,0.08)] data-[active=true]:text-[#38bdf8] data-[active=true]:font-semibold analytics-select-input\"",
+      "data-active={analyticsShiftFilter !== \"All\" ? \"true\" : undefined}"
+    ],
+    "legacyIcon": "<Clock size={13} className=\"absolute left-[10px] text-[#94a3b8] pointer-events-none shrink-0 analytics-select-icon\" />",
+    "legacyStart": 105214,
+    "legacyEnd": 105332
+  },
+  {
+    "file": "frontend/app/components/tickets/TicketReportView.tsx",
+    "line": 2005,
+    "tag": "Select",
+    "attrs": [
+      "value={\n                  analyticsStatusFilter === \"All\"\n                    ? \"All\"\n                    : [\"Open\", \"Closed\", \"Activity\", \"Meeting\", \"Re-Open\", \"Pending\", \"RCA\"].find(\n                        (opt) => opt.toLowerCase() === analyticsStatusFilter.toLowerCase()\n                      ) || analyticsStatusFilter\n                }",
+      "onChange={(e) => setAnalyticsStatusFilter(e.target.value)}",
+      "aria-label=\"Filter status tiket\"",
+      "className=\"w-full h-[34px] p-[0_28px_0_30px] bg-[rgba(15,23,42,0.85)] border border-[rgba(148,163,184,0.16)] rounded-[7px] text-[11.5px] text-[#f8fafc] [appearance:none] [-webkit-appearance:none] cursor-pointer [transition:all_0.15s_ease] [outline:none] whitespace-nowrap overflow-hidden text-ellipsis [color-scheme:dark] hover:border-[rgba(56,189,248,0.3)] hover:bg-[rgba(15,23,42,0.95)] focus:border-[#38bdf8] focus:shadow-[0_0_0_2px_rgba(56,189,248,0.2)] [&_option]:bg-[#0f172a] [&_option]:text-[#f8fafc] [&_option]:p-[6px_10px] data-[active=true]:border-[rgba(56,189,248,0.45)] data-[active=true]:bg-[rgba(56,189,248,0.08)] data-[active=true]:text-[#38bdf8] data-[active=true]:font-semibold analytics-select-input\"",
+      "data-active={analyticsStatusFilter !== \"All\" ? \"true\" : undefined}"
+    ],
+    "legacyIcon": "<Activity size={13} className=\"absolute left-[10px] text-[#94a3b8] pointer-events-none shrink-0 analytics-select-icon\" />",
+    "legacyStart": 107595,
+    "legacyEnd": 107716
+  },
+  {
+    "file": "frontend/app/components/tickets/TicketReportView.tsx",
+    "line": 2036,
+    "tag": "Select",
+    "attrs": [
+      "value={analyticsSeverityFilter}",
+      "onChange={(e) => setAnalyticsSeverityFilter(e.target.value)}",
+      "aria-label=\"Filter keparahan\"",
+      "className=\"w-full h-[34px] p-[0_28px_0_30px] bg-[rgba(15,23,42,0.85)] border border-[rgba(148,163,184,0.16)] rounded-[7px] text-[11.5px] text-[#f8fafc] [appearance:none] [-webkit-appearance:none] cursor-pointer [transition:all_0.15s_ease] [outline:none] whitespace-nowrap overflow-hidden text-ellipsis [color-scheme:dark] hover:border-[rgba(56,189,248,0.3)] hover:bg-[rgba(15,23,42,0.95)] focus:border-[#38bdf8] focus:shadow-[0_0_0_2px_rgba(56,189,248,0.2)] [&_option]:bg-[#0f172a] [&_option]:text-[#f8fafc] [&_option]:p-[6px_10px] data-[active=true]:border-[rgba(56,189,248,0.45)] data-[active=true]:bg-[rgba(56,189,248,0.08)] data-[active=true]:text-[#38bdf8] data-[active=true]:font-semibold analytics-select-input\"",
+      "data-active={analyticsSeverityFilter !== \"All\" ? \"true\" : undefined}"
+    ],
+    "legacyIcon": "<AlertTriangle size={13} className=\"absolute left-[10px] text-[#94a3b8] pointer-events-none shrink-0 analytics-select-icon\" />",
+    "legacyStart": 109947,
+    "legacyEnd": 110073
+  },
+  {
+    "file": "frontend/app/components/ui/PaginationBar.tsx",
+    "line": 49,
+    "tag": "Select",
+    "attrs": [
+      "className=\"h-[30px] px-[8px] text-[11.5px] rounded-[6px] bg-[var(--input-bg,#0f172a)] [color-scheme:dark] border border-[var(--panel-border)] text-[var(--ink-primary)] font-medium cursor-pointer transition-colors duration-150 hover:border-[rgba(148,163,184,0.35)] focus:border-[var(--accent-blue)] focus:outline-none\"",
+      "value={pageSize}",
+      "onChange={(e) => onPageSizeChange(Number(e.target.value))}",
+      "aria-label={selectAriaLabel}"
+    ]
+  },
+  {
+    "file": "frontend/app/components/views/NotificationsView.tsx",
+    "line": 493,
+    "tag": "Select",
+    "attrs": [
+      "className=\"h-[34px] px-[28px] rounded-[8px] border border-[var(--panel-border)] bg-[var(--input-bg,#0f172a)] text-[var(--ink-primary)] text-[11.5px] font-medium outline-none cursor-pointer box-border appearance-none bg-[url('data:image/svg+xml,%3Csvg_xmlns=%27http://www.w3.org/2000/svg%27_width=%2712%27_height=%2712%27_viewBox=%270_0_24_24%27_fill=%27none%27_stroke=%27%2364748b%27_stroke-width=%272.5%27_stroke-linecap=%27round%27_stroke-linejoin=%27round%27%3E%3Cpolyline_points=%276_9_12_15_18_9%27/%3E%3C/svg%3E')] bg-no-repeat bg-[right_9px_center] transition-[border-color,box-shadow,color] duration-150 ease-out hover:border-[rgba(148,163,184,0.35)] focus:border-[var(--accent-blue)] focus:[box-shadow:0_0_0_3px_rgba(56,189,248,0.12)] data-[active='true']:border-[rgba(56,189,248,0.4)] data-[active='true']:text-[#38bdf8] max-[640px]:w-full transform-none\"",
+      "value={categoryFilter}",
+      "onChange={(e) => {\n                  setCategoryFilter(e.target.value);\n                }}",
+      "aria-label=\"Filter kategori notifikasi\"",
+      "data-active={categoryFilter !== \"all\" ? \"true\" : undefined}"
+    ],
+    "legacyIcon": "<Tag size={13} className=\"select-icon absolute left-[10px] text-[var(--ink-muted)] pointer-events-none z-[1] transition-colors duration-150\" />",
+    "legacyStart": 23958,
+    "legacyEnd": 24101
+  },
+  {
+    "file": "frontend/app/components/views/NotificationsView.tsx",
+    "line": 514,
+    "tag": "Select",
+    "attrs": [
+      "className=\"h-[34px] px-[28px] rounded-[8px] border border-[var(--panel-border)] bg-[var(--input-bg,#0f172a)] text-[var(--ink-primary)] text-[11.5px] font-medium outline-none cursor-pointer box-border appearance-none bg-[url('data:image/svg+xml,%3Csvg_xmlns=%27http://www.w3.org/2000/svg%27_width=%2712%27_height=%2712%27_viewBox=%270_0_24_24%27_fill=%27none%27_stroke=%27%2364748b%27_stroke-width=%272.5%27_stroke-linecap=%27round%27_stroke-linejoin=%27round%27%3E%3Cpolyline_points=%276_9_12_15_18_9%27/%3E%3C/svg%3E')] bg-no-repeat bg-[right_9px_center] transition-[border-color,box-shadow,color] duration-150 ease-out hover:border-[rgba(148,163,184,0.35)] focus:border-[var(--accent-blue)] focus:[box-shadow:0_0_0_3px_rgba(56,189,248,0.12)] data-[active='true']:border-[rgba(56,189,248,0.4)] data-[active='true']:text-[#38bdf8] max-[640px]:w-full transform-none\"",
+      "value={sortBy}",
+      "onChange={(e) => {\n                  setSortBy(e.target.value as \"newest\" | \"oldest\" | \"severity\");\n                }}",
+      "aria-label=\"Urutkan notifikasi\"",
+      "data-active={sortBy !== \"newest\" ? \"true\" : undefined}"
+    ],
+    "legacyIcon": "<ArrowUpDown size={13} className=\"select-icon absolute left-[10px] text-[var(--ink-muted)] pointer-events-none z-[1] transition-colors duration-150\" />",
+    "legacyStart": 25800,
+    "legacyEnd": 25951
+  },
+  {
+    "file": "frontend/app/components/views/ReportsView.tsx",
+    "line": 265,
+    "tag": "Select",
+    "attrs": [
+      "id=\"filter-project\"",
+      "aria-label=\"Filter proyek laporan\"",
+      "value={project}",
+      "disabled={busy}",
+      "onChange={(event) => {\n              url.update({ project: event.target.value, page: 1 });\n            }}",
+      "className=\"h-[32px] max-sm:h-[40px] w-full appearance-none rounded-[7px] border border-[#334155] bg-[#0f172a] pl-8 pr-8 text-[11.5px] font-semibold text-[#cbd5e1] hover:border-[#64748b] hover:text-[#f8fafc] focus:border-[#38bdf8] focus:ring-1 focus:ring-[#38bdf8] focus:outline-none transition-all cursor-pointer [color-scheme:dark] [&_option]:bg-[#1e293b] [&_option]:text-[#f8fafc]\""
+    ],
+    "legacyIcon": "<FolderKanban size={13} className=\"absolute left-2.5 text-[#94a3b8] pointer-events-none z-10\" />",
+    "legacyStart": 12455,
+    "legacyEnd": 12551
+  },
+  {
+    "file": "frontend/app/components/views/TeamRosterView.tsx",
+    "line": 231,
+    "tag": "Select",
+    "attrs": [
+      "className={`w-full min-[900px]:w-auto h-[40px] min-[900px]:h-[36px] box-border pl-[30px] pr-[28px] py-0 text-[var(--ink-primary)] border border-[var(--panel-border)] rounded-[8px] bg-[var(--input-bg,#0f172a)] text-[12px] font-medium font-sans cursor-pointer inline-flex items-center appearance-none -webkit-appearance-none transition-[border-color,box-shadow,background-color,color] duration-150 ease shrink-0 [color-scheme:dark] hover:border-[rgba(148,163,184,0.35)] focus:border-[var(--accent-blue)] focus:shadow-[0_0_0_3px_rgba(56,189,248,0.12)] focus:outline-none ${\n                      roleFilter !== \"All\"\n                        ? \"border-[rgba(56,189,248,0.4)] bg-[rgba(56,189,248,0.08)] text-[var(--accent-blue,#38bdf8)] font-semibold\"\n                        : \"\"\n                    }`}",
+      "value={roleFilter}",
+      "onChange={(e) => setRoleFilter(e.target.value)}",
+      "aria-label=\"Filter role\""
+    ],
+    "legacyIcon": "<Users size={13} className=\"absolute left-[10px] text-[var(--ink-muted,#94a3b8)] pointer-events-none flex items-center justify-center transition-colors duration-150 ease z-[1] group-hover:text-[var(--accent-blue,#38bdf8)] group-focus-within:text-[var(--accent-blue,#38bdf8)]\" />",
+    "legacyStart": 10819,
+    "legacyEnd": 11097
+  },
+  {
+    "file": "frontend/app/components/views/TeamRosterView.tsx",
+    "line": 254,
+    "tag": "Select",
+    "attrs": [
+      "className={`w-full min-[900px]:w-auto h-[40px] min-[900px]:h-[36px] box-border pl-[30px] pr-[28px] py-0 text-[var(--ink-primary)] border border-[var(--panel-border)] rounded-[8px] bg-[var(--input-bg,#0f172a)] text-[12px] font-medium font-sans cursor-pointer inline-flex items-center appearance-none -webkit-appearance-none transition-[border-color,box-shadow,background-color,color] duration-150 ease shrink-0 [color-scheme:dark] hover:border-[rgba(148,163,184,0.35)] focus:border-[var(--accent-blue)] focus:shadow-[0_0_0_3px_rgba(56,189,248,0.12)] focus:outline-none ${\n                      shiftFilter !== \"All\"\n                        ? \"border-[rgba(56,189,248,0.4)] bg-[rgba(56,189,248,0.08)] text-[var(--accent-blue,#38bdf8)] font-semibold\"\n                        : \"\"\n                    }`}",
+      "value={shiftFilter}",
+      "onChange={(e) => setShiftFilter(e.target.value)}",
+      "aria-label=\"Filter shift\""
+    ],
+    "legacyIcon": "<Clock size={13} className=\"absolute left-[10px] text-[var(--ink-muted,#94a3b8)] pointer-events-none flex items-center justify-center transition-colors duration-150 ease z-[1] group-hover:text-[var(--accent-blue,#38bdf8)] group-focus-within:text-[var(--accent-blue,#38bdf8)]\" />",
+    "legacyStart": 12888,
+    "legacyEnd": 13166
+  },
+  {
+    "file": "frontend/app/components/views/TeamRosterView.tsx",
+    "line": 275,
+    "tag": "Select",
+    "attrs": [
+      "className={`w-full min-[900px]:w-auto h-[40px] min-[900px]:h-[36px] box-border pl-[30px] pr-[28px] py-0 text-[var(--ink-primary)] border border-[var(--panel-border)] rounded-[8px] bg-[var(--input-bg,#0f172a)] text-[12px] font-medium font-sans cursor-pointer inline-flex items-center appearance-none -webkit-appearance-none transition-[border-color,box-shadow,background-color,color] duration-150 ease shrink-0 [color-scheme:dark] hover:border-[rgba(148,163,184,0.35)] focus:border-[var(--accent-blue)] focus:shadow-[0_0_0_3px_rgba(56,189,248,0.12)] focus:outline-none ${\n                      statusFilter !== \"All\"\n                        ? \"border-[rgba(56,189,248,0.4)] bg-[rgba(56,189,248,0.08)] text-[var(--accent-blue,#38bdf8)] font-semibold\"\n                        : \"\"\n                    }`}",
+      "value={statusFilter}",
+      "onChange={(e) => setStatusFilter(e.target.value)}",
+      "aria-label=\"Filter status\""
+    ],
+    "legacyIcon": "<Activity size={13} className=\"absolute left-[10px] text-[var(--ink-muted,#94a3b8)] pointer-events-none flex items-center justify-center transition-colors duration-150 ease z-[1] group-hover:text-[var(--accent-blue,#38bdf8)] group-focus-within:text-[var(--accent-blue,#38bdf8)]\" />",
+    "legacyStart": 14733,
+    "legacyEnd": 15014
+  },
+  {
+    "file": "frontend/app/components/views/TicketsView.tsx",
+    "line": 330,
+    "tag": "Select",
+    "attrs": [
+      "className=\"h-[30px] pl-[9px] pr-[24px] text-[11.5px] font-medium border border-[#334155] rounded-[6px] bg-[#0f172a] text-[#f8fafc] cursor-pointer outline-hidden [color-scheme:dark] transition-all duration-150 hover:border-[#94a3b8]/35 focus:border-[#38bdf8] focus:shadow-[0_0_0_3px_rgba(56,189,248,0.12)]\"",
+      "value={pageSize}",
+      "onChange={(e) => {\n                setPageSize(Number(e.target.value));\n              }}",
+      "aria-label=\"Jumlah tiket per halaman\""
+    ]
+  },
+  {
+    "file": "frontend/app/components/views/TicketsView.tsx",
+    "line": 600,
+    "tag": "Select",
+    "attrs": [
+      "value={typeFilter}",
+      "onChange={(e) => setTypeFilter(e.target.value)}",
+      "aria-label=\"Filter kategori tiket\"",
+      "data-active={typeFilter !== \"All Types\" ? \"true\" : undefined}",
+      "className=\"h-[34px] pl-7 pr-7 border border-[#334155] rounded-[8px] bg-[#0f172a] text-[#f8fafc] text-[11.5px] cursor-pointer appearance-none outline-hidden hover:border-[rgba(56,189,248,0.3)] focus:border-[#38bdf8] focus:shadow-[0_0_0_3px_rgba(56,189,248,0.12)] data-[active=true]:border-[#38bdf8] data-[active=true]:bg-[rgba(56,189,248,0.06)] data-[active=true]:text-[#38bdf8] data-[active=true]:font-semibold transition-[border-color,box-shadow,color,background-color] duration-150\""
+    ],
+    "legacyIcon": "<Tag size={13} className=\"pointer-events-none absolute left-[9px] text-[#94a3b8] transition-colors duration-150 z-1 group-has-[[role=combobox][data-active=true]]/select:text-[#38bdf8]\" />",
+    "legacyStart": 27412,
+    "legacyEnd": 27599
+  },
+  {
+    "file": "frontend/app/components/views/TicketsView.tsx",
+    "line": 618,
+    "tag": "Select",
+    "attrs": [
+      "value={priorityFilter}",
+      "onChange={(e) => setPriorityFilter(e.target.value)}",
+      "aria-label=\"Filter severity\"",
+      "data-active={\n                  priorityFilter !== \"All Severities\" && priorityFilter !== \"All Priorities\"\n                    ? \"true\"\n                    : undefined\n                }",
+      "className=\"h-[34px] pl-7 pr-7 border border-[#334155] rounded-[8px] bg-[#0f172a] text-[#f8fafc] text-[11.5px] cursor-pointer appearance-none outline-hidden hover:border-[rgba(56,189,248,0.3)] focus:border-[#38bdf8] focus:shadow-[0_0_0_3px_rgba(56,189,248,0.12)] data-[active=true]:border-[#38bdf8] data-[active=true]:bg-[rgba(56,189,248,0.06)] data-[active=true]:text-[#38bdf8] data-[active=true]:font-semibold transition-[border-color,box-shadow,color,background-color] duration-150\""
+    ],
+    "legacyIcon": "<BarChart2 size={13} className=\"pointer-events-none absolute left-[9px] text-[#94a3b8] transition-colors duration-150 z-1 group-has-[[role=combobox][data-active=true]]/select:text-[#38bdf8]\" />",
+    "legacyStart": 28691,
+    "legacyEnd": 28884
+  },
+  {
+    "file": "frontend/app/components/views/TicketsView.tsx",
+    "line": 640,
+    "tag": "Select",
+    "attrs": [
+      "value={projectFilter}",
+      "onChange={(e) => setProjectFilter(e.target.value)}",
+      "aria-label=\"Filter proyek\"",
+      "data-active={projectFilter !== \"All Projects\" ? \"true\" : undefined}",
+      "className=\"h-[34px] pl-7 pr-7 border border-[#334155] rounded-[8px] bg-[#0f172a] text-[#f8fafc] text-[11.5px] cursor-pointer appearance-none outline-hidden hover:border-[rgba(56,189,248,0.3)] focus:border-[#38bdf8] focus:shadow-[0_0_0_3px_rgba(56,189,248,0.12)] data-[active=true]:border-[#38bdf8] data-[active=true]:bg-[rgba(56,189,248,0.06)] data-[active=true]:text-[#38bdf8] data-[active=true]:font-semibold transition-[border-color,box-shadow,color,background-color] duration-150\""
+    ],
+    "legacyIcon": "<FolderOpen size={13} className=\"pointer-events-none absolute left-[9px] text-[#94a3b8] transition-colors duration-150 z-1 group-has-[[role=combobox][data-active=true]]/select:text-[#38bdf8]\" />",
+    "legacyStart": 30105,
+    "legacyEnd": 30299
+  },
+  {
+    "file": "frontend/app/components/views/TicketsView.tsx",
+    "line": 658,
+    "tag": "Select",
+    "attrs": [
+      "value={shiftFilter}",
+      "onChange={(e) => setShiftFilter(e.target.value)}",
+      "aria-label=\"Filter shift tiket\"",
+      "data-active={shiftFilter !== \"Semua Shift\" ? \"true\" : undefined}",
+      "className=\"h-[34px] pl-7 pr-7 border border-[#334155] rounded-[8px] bg-[#0f172a] text-[#f8fafc] text-[11.5px] cursor-pointer appearance-none outline-hidden hover:border-[rgba(56,189,248,0.3)] focus:border-[#38bdf8] focus:shadow-[0_0_0_3px_rgba(56,189,248,0.12)] data-[active=true]:border-[#38bdf8] data-[active=true]:bg-[rgba(56,189,248,0.06)] data-[active=true]:text-[#38bdf8] data-[active=true]:font-semibold transition-[border-color,box-shadow,color,background-color] duration-150\""
+    ],
+    "legacyIcon": "<Clock size={13} className=\"pointer-events-none absolute left-[9px] text-[#94a3b8] transition-colors duration-150 z-1 group-has-[[role=combobox][data-active=true]]/select:text-[#38bdf8]\" />",
+    "legacyStart": 31406,
+    "legacyEnd": 31595
+  },
+  {
+    "file": "frontend/app/components/views/TicketsView.tsx",
+    "line": 679,
+    "tag": "Select",
+    "attrs": [
+      "value={sort}",
+      "onChange={(e) => setSort(e.target.value)}",
+      "aria-label=\"Urutkan tiket\"",
+      "className=\"h-[34px] pl-7 pr-7 border border-[#334155] rounded-[8px] bg-[#0f172a] text-[#f8fafc] text-[11.5px] cursor-pointer appearance-none outline-hidden hover:border-[rgba(56,189,248,0.3)] focus:border-[#38bdf8] focus:shadow-[0_0_0_3px_rgba(56,189,248,0.12)] transition-[border-color,box-shadow] duration-150\""
+    ],
+    "legacyIcon": "<ArrowUpDown size={13} className=\"pointer-events-none absolute left-[9px] text-[#94a3b8] transition-colors duration-150 z-1\" />",
+    "legacyStart": 32839,
+    "legacyEnd": 32966
+  }
+]

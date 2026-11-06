@@ -1,0 +1,14 @@
+[
+  {
+    "name": "typecheck",
+    "code": 2
+  },
+  {
+    "name": "lint",
+    "code": 1
+  },
+  {
+    "name": "build",
+    "code": 0
+  }
+]

@@ -1,0 +1,12 @@
+{
+  "checks": [
+    "category create stable key",
+    "severity label edit",
+    "severity dropdown follows master",
+    "new ticket stores stable category + project ID",
+    "8+ category chart",
+    "inactive category remains in historical filters",
+    "inactive category excluded from new tickets"
+  ],
+  "errors": []
+}

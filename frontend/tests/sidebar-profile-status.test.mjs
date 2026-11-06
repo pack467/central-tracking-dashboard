@@ -1,8 +1,9 @@
 import test from "node:test";
+import { BASE, needsServer } from "./live-server.mjs";
 import assert from "node:assert/strict";
 
-test("Sidebar profile renders circular avatar, status ring wrapper, and status options", async () => {
-  const res = await fetch("http://localhost:3000/dashboard");
+test("Sidebar profile renders circular avatar, status ring wrapper, and status options", needsServer, async () => {
+  const res = await fetch(`${BASE}/dashboard`);
   assert.equal(res.status, 200);
   const html = await res.text();
 

@@ -7,7 +7,7 @@ export function useLocalStorage<T>(key: string, initial: T) {
   const hydrated = useRef(false);
   const [ready, setReady] = useState(false);
   const initialRef = useRef(initial);
-  initialRef.current = initial;
+  useEffect(() => { initialRef.current = initial; });
 
   // localStorage is only available after hydration; reading it here keeps the
   // server-rendered markup and the first client render identical.
@@ -20,7 +20,7 @@ export function useLocalStorage<T>(key: string, initial: T) {
           const currentInitial = initialRef.current;
 
           if (Array.isArray(parsed)) {
-            parsed = (parsed as any[]).filter((item: any) => item?.project !== "L2") as T;
+            parsed = (parsed as Array<{ project?: unknown } | null>).filter((item) => item?.project !== "L2") as T;
           }
 
           // If stored tickets in localStorage has fewer items than seedTickets (e.g. stale mock data with only 5 tickets),

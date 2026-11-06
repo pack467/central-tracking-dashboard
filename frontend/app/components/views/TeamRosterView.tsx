@@ -127,13 +127,18 @@ export function TeamRosterView({ members: propMembers, onMembersChange: setMembe
     setSwapModalOpen(true);
   }, [markOverlayLoaded]);
 
-  const openMemberCreate = useCallback((member: RosterMember | null = null) => {
-    if (!canMaster(access, "person", member ? "update" : "create")) {
+  const openMemberCreate = useCallback((member: RosterMember) => {
+    if (!canMaster(access, "person", "update")) {
       notify.info("Hanya Pengelola Master Data yang dapat mengubah personel.", { id: "member-permission" });
       return;
     }
+    const person = people.find((entry) => entry.id === member.id);
+    if (!person) {
+      notify.info("Data personel belum tersedia di Master Data.", { id: "member-missing" });
+      return;
+    }
     markOverlayLoaded("create");
-    setEditingPerson(member ? people.find((person) => person.id === member.id) ?? null : null);
+    setEditingPerson(person);
     setCreateModalOpen(true);
   }, [access, markOverlayLoaded, notify, people]);
 
@@ -181,39 +186,44 @@ export function TeamRosterView({ members: propMembers, onMembersChange: setMembe
     openSwap(member);
   };
 
-  const handleAddNewMember = () => openMemberCreate(null);
-
   const activeSelectedMember = useMemo(() => {
     if (!selectedMember) return null;
     return derivedMembers.find((m) => m.id === selectedMember.id) ?? selectedMember;
   }, [selectedMember, derivedMembers]);
 
+  const pendingSwaps = swapRequests.filter((r) => r.status === "Pending").length;
+  const viewButton = (active: boolean) =>
+    `inline-flex h-8 items-center justify-center gap-1.5 rounded-[6px] px-3 text-[11.5px] font-semibold transition-colors cursor-pointer max-md:h-9 ${
+      active ? "bg-[#1e293b] text-[#38bdf8] ring-1 ring-[#38bdf8]/30" : "text-[#94a3b8] hover:text-[#f8fafc]"
+    }`;
+
   return (
-    <>
-      {/* 1. Page Header */}
-      <section className="page-heading flex justify-between items-end mb-[22px] max-[660px]:flex-col max-[660px]:items-start max-[660px]:gap-[12px] max-[640px]:mb-0">
-        <div>
-          <div className="flex items-center gap-[8px] text-[var(--ink-muted)] text-[10px] tracking-[1px] font-bold font-mono uppercase">
-            <span className="live-dot live-dot-pulse" /> TEAM ROSTER
+    <div className="min-w-0 space-y-5 pb-24 sm:space-y-6 lg:pb-16">
+      {/* 1. Page header */}
+      <section className="flex flex-wrap items-end justify-between gap-x-4 gap-y-3">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 font-mono text-[10px] font-bold uppercase tracking-[1px] text-[#94a3b8]">
+            <span className="h-[7px] w-[7px] shrink-0 rounded-full bg-[#4ade80]" /> TEAM ROSTER
           </div>
-          <h1 className="m-[6px_0_4px] text-[var(--ink-primary)] text-[24px] leading-[1.2] tracking-[-0.4px] font-bold">Team Roster</h1>
+          <h1 className="mt-1.5 text-[24px] font-bold leading-[1.2] tracking-[-0.4px] text-[#f8fafc] sm:text-[28px]">Team Roster</h1>
+          <p className="mt-1 text-[12.5px] text-[#94a3b8]">Jadwal shift tim dan siapa yang sedang bertugas.</p>
         </div>
 
-        <div className="page-actions flex gap-[9px]">
-          <button
-            className="button button-secondary button-swap-badge disabled:opacity-50 disabled:cursor-not-allowed"
-            onClick={() => setSwapModalOpen(true)}
-            aria-label="Shift swap requests"
-            disabled={isLoading}
-          >
-            <ArrowRightLeft size={14} /> Shift Swaps ({swapRequests.filter((r) => r.status === "Pending").length})
-          </button>
-          {canMaster(access, "person", "create") && (
-            <button className="button button-primary disabled:opacity-50 disabled:cursor-not-allowed" onClick={handleAddNewMember} disabled={isLoading}>
-              <span>＋</span> Tambah Anggota
-            </button>
+        <button
+          type="button"
+          className="relative inline-flex h-9 items-center justify-center gap-2 rounded-[8px] border border-[#334155] bg-[#1e293b] px-3.5 text-[12px] font-semibold text-[#f8fafc] transition-colors hover:bg-[#243044] disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer max-sm:h-11 max-sm:w-full"
+          onClick={() => openSwap()}
+          aria-label={`Permintaan tukar shift, ${pendingSwaps} menunggu`}
+          disabled={isLoading}
+        >
+          <ArrowRightLeft size={14} className="text-[#38bdf8]" />
+          Tukar Shift
+          {pendingSwaps > 0 && (
+            <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-[#f87171] px-1.5 font-mono text-[10.5px] font-bold leading-5 text-[#0f172a]">
+              {pendingSwaps}
+            </span>
           )}
-        </div>
+        </button>
       </section>
 
       <PanelSkeletonWrapper
@@ -224,161 +234,96 @@ export function TeamRosterView({ members: propMembers, onMembersChange: setMembe
         minHeight={560}
         skeleton={<TeamRosterSkeleton />}
         liveRegionText="Memuat daftar anggota tim..."
+        className="gap-5 sm:gap-6"
       >
-      {/* 2. Top Summary Stat Cards */}
-      <RosterStatCards
-        members={derivedMembers}
-        swapRequests={swapRequests}
-        onOpenSwaps={() => openSwap()}
-      />
+        {/* 2. Summary cards */}
+        <RosterStatCards members={derivedMembers} swapRequests={swapRequests} onOpenSwaps={() => openSwap()} />
 
-      {/* 3. Main Roster Content (2 columns: Table/Calendar & Shift Coverage Widget) */}
-      <div className="block w-full mt-[20px] pb-24 lg:pb-16">
-        <div className="min-w-0 w-full flex flex-col gap-[20px]">
-          <article className="mb-0 overflow-hidden bg-[var(--panel-bg)] border border-[var(--panel-border)] rounded-[10px] shadow-[var(--shadow-panel)]">
-            {/* Toolbar: Search, Filters & View Toggle */}
-            <div className="flex items-center gap-[10px] p-[12px_16px] border-b border-[var(--line)] flex-wrap bg-[var(--panel-bg)]">
-              {/* Search Field */}
-              <div className="group relative flex items-center w-full min-[900px]:w-auto min-[900px]:flex-[1_1_200px] min-[900px]:max-w-[280px] h-[40px] min-[900px]:h-[36px] px-[10px] border border-[var(--panel-border)] rounded-[8px] bg-[var(--input-bg,#0f172a)] transition-[border-color,box-shadow] duration-150 ease gap-[8px] box-border focus-within:border-[rgba(56,189,248,0.4)] focus-within:bg-[#141f33] ">
-                <Search size={14} className="text-[var(--ink-muted)] shrink-0 transition-colors duration-150 ease group-focus-within:text-[var(--accent-blue)]" />
-                <input
-                  type="text"
-                  placeholder="Cari nama, role, employee ID..."
-                  value={searchDraft.input}
-                  onChange={(e) => setSearch(e.target.value)}
-                  aria-label="Cari anggota tim"
-                  className="flex-1 min-w-0 h-full border-none outline-none bg-transparent text-[var(--ink-primary)] text-[12px] font-sans placeholder:text-[var(--ink-muted)]"
-                />
-                {search && (
-                  <button className="flex items-center justify-center p-0 border-none bg-transparent text-[var(--ink-muted)] hover:text-[var(--ink-primary)] cursor-pointer" onClick={() => setSearch("")} aria-label="Hapus pencarian">
-                    <X size={12} />
-                  </button>
-                )}
+        {/* 3. Roster panel */}
+        <article className="min-w-0 rounded-[12px] border border-[#334155] bg-[#1e293b] shadow-[0_4px_16px_rgba(0,0,0,0.2)]">
+          {/* Toolbar: search, filters, view */}
+          <div className="relative z-20 flex flex-col gap-2 rounded-t-[12px] border-b border-[#334155] bg-[rgba(15,23,42,0.45)] p-3 sm:px-4 min-[1100px]:flex-row min-[1100px]:items-center">
+            <div className="group flex h-11 min-w-0 items-center gap-2 rounded-[8px] border border-[#334155] bg-[#0f172a] px-3 transition-colors focus-within:border-[#38bdf8]/60 md:h-9 min-[1100px]:w-[260px] min-[1100px]:shrink-0">
+              <Search size={14} className="shrink-0 text-[#94a3b8] group-focus-within:text-[#38bdf8]" />
+              <input
+                type="text"
+                placeholder="Cari nama, peran, atau ID…"
+                value={searchDraft.input}
+                onChange={(e) => setSearch(e.target.value)}
+                aria-label="Cari anggota tim"
+                className="h-full min-w-0 flex-1 border-none bg-transparent text-[12px] text-[#f8fafc] outline-none placeholder:text-[#64748b]"
+              />
+              {search && (
+                <button type="button" className="grid h-6 w-6 place-items-center rounded-full text-[#94a3b8] hover:bg-[#243044] hover:text-[#f8fafc] cursor-pointer" onClick={() => setSearch("")} aria-label="Hapus pencarian">
+                  <X size={12} />
+                </button>
+              )}
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 md:grid-cols-3 min-[1100px]:flex min-[1100px]:flex-1 min-[1100px]:items-center">
+              <div className="min-w-0 min-[1100px]:w-[180px]">
+                <Select icon={<Users size={16} />} className="w-full" value={roleFilterKey} onChange={(e) => setRoleFilter(e.target.value)} aria-label="Filter peran">
+                  <option value="All">Semua peran ({derivedMembers.length})</option>
+                  {visibleRoles.map((role) => (
+                    <option key={role.key} value={role.key}>{role.name}</option>
+                  ))}
+                </Select>
               </div>
-
-              {/* Filter Group */}
-              <div className="flex items-center gap-[8px] flex-wrap w-full min-[900px]:w-auto min-[900px]:flex-initial flex-1">
-                {/* Role Filter */}
-                <div className="group relative inline-flex items-center w-full min-[560px]:flex-1 min-[560px]:min-w-[140px] min-[900px]:w-auto min-[900px]:flex-initial">
-                  
-                  <Select icon={<Users size={16}  />}
-                    className={`w-full min-[900px]:w-auto h-[40px] min-[900px]:h-[36px] box-border pl-[30px] pr-[28px] py-0 text-[var(--ink-primary)] border border-[var(--panel-border)] rounded-[8px] bg-[var(--input-bg,#0f172a)] text-[12px] font-medium font-sans cursor-pointer inline-flex items-center appearance-none -webkit-appearance-none transition-[border-color,box-shadow,background-color,color] duration-150 ease shrink-0 [color-scheme:dark] hover:border-[rgba(148,163,184,0.35)] focus:border-[var(--accent-blue)] focus:shadow-[0_0_0_3px_rgba(56,189,248,0.12)] focus:outline-none ${
-                      roleFilterKey !== "All"
-                        ? "border-[rgba(56,189,248,0.4)] bg-[rgba(56,189,248,0.08)] text-[var(--accent-blue,#38bdf8)] font-semibold"
-                        : ""
-                    }`}
-                    value={roleFilterKey}
-                    onChange={(e) => setRoleFilter(e.target.value)}
-                    aria-label="Filter role"
-                  >
-                    <option value="All">All Roles ({derivedMembers.length})</option>
-                    {visibleRoles.map((role) => (
-                      <option key={role.key} value={role.key}>{role.name}</option>
-                    ))}
-                  </Select>
-                  
-                </div>
-
-                {/* Shift Filter */}
-                <div className="group relative inline-flex items-center w-full min-[560px]:flex-1 min-[560px]:min-w-[140px] min-[900px]:w-auto min-[900px]:flex-initial">
-                  
-                  <Select icon={<Clock size={16}  />}
-                    className={`w-full min-[900px]:w-auto h-[40px] min-[900px]:h-[36px] box-border pl-[30px] pr-[28px] py-0 text-[var(--ink-primary)] border border-[var(--panel-border)] rounded-[8px] bg-[var(--input-bg,#0f172a)] text-[12px] font-medium font-sans cursor-pointer inline-flex items-center appearance-none -webkit-appearance-none transition-[border-color,box-shadow,background-color,color] duration-150 ease shrink-0 [color-scheme:dark] hover:border-[rgba(148,163,184,0.35)] focus:border-[var(--accent-blue)] focus:shadow-[0_0_0_3px_rgba(56,189,248,0.12)] focus:outline-none ${
-                      shiftFilter !== "All"
-                        ? "border-[rgba(56,189,248,0.4)] bg-[rgba(56,189,248,0.08)] text-[var(--accent-blue,#38bdf8)] font-semibold"
-                        : ""
-                    }`}
-                    value={shiftFilter}
-                    onChange={(e) => setShiftFilter(e.target.value)}
-                    aria-label="Filter shift"
-                  >
-                    <option value="All">All Shifts</option>
-                    <option value="Subuh">Shift Subuh</option>
-                    <option value="Pagi">Shift Pagi</option>
-                    <option value="Malam">Shift Malam</option>
-                  </Select>
-                  
-                </div>
-
-                {/* Status Filter */}
-                <div className="group relative inline-flex items-center w-full min-[560px]:flex-1 min-[560px]:min-w-[140px] min-[900px]:w-auto min-[900px]:flex-initial">
-                  
-                  <Select icon={<Activity size={16}  />}
-                    className={`w-full min-[900px]:w-auto h-[40px] min-[900px]:h-[36px] box-border pl-[30px] pr-[28px] py-0 text-[var(--ink-primary)] border border-[var(--panel-border)] rounded-[8px] bg-[var(--input-bg,#0f172a)] text-[12px] font-medium font-sans cursor-pointer inline-flex items-center appearance-none -webkit-appearance-none transition-[border-color,box-shadow,background-color,color] duration-150 ease shrink-0 [color-scheme:dark] hover:border-[rgba(148,163,184,0.35)] focus:border-[var(--accent-blue)] focus:shadow-[0_0_0_3px_rgba(56,189,248,0.12)] focus:outline-none ${
-                      statusFilter !== "All"
-                        ? "border-[rgba(56,189,248,0.4)] bg-[rgba(56,189,248,0.08)] text-[var(--accent-blue,#38bdf8)] font-semibold"
-                        : ""
-                    }`}
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    aria-label="Filter status"
-                  >
-                    <option value="All">All Statuses</option>
-                    <option value="Active">Active (On Duty)</option>
-                    <option value="On Break">On Break</option>
-                    <option value="Off Duty">Off Duty</option>
-                    <option value="On Leave">On Leave</option>
-                  </Select>
-                  
-                </div>
+              <div className="min-w-0 min-[1100px]:w-[150px]">
+                <Select icon={<Clock size={16} />} className="w-full" value={shiftFilter} onChange={(e) => setShiftFilter(e.target.value)} aria-label="Filter shift">
+                  <option value="All">Semua shift</option>
+                  <option value="Subuh">Shift Subuh</option>
+                  <option value="Pagi">Shift Pagi</option>
+                  <option value="Malam">Shift Malam</option>
+                </Select>
               </div>
+              <div className="col-span-2 min-w-0 md:col-span-1 min-[1100px]:w-[160px]">
+                <Select icon={<Activity size={16} />} className="w-full" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} aria-label="Filter status">
+                  <option value="All">Semua status</option>
+                  <option value="Active">Active (bertugas)</option>
+                  <option value="On Break">On Break</option>
+                  <option value="Off Duty">Off Duty</option>
+                  <option value="On Leave">On Leave</option>
+                </Select>
+              </div>
+            </div>
 
+            <div className="flex items-center gap-2 min-[1100px]:ml-auto">
               {hasInactive && (
                 <button
                   type="button"
                   role="switch"
                   aria-checked={includeInactive}
                   onClick={() => setIncludeInactive((value) => !value)}
-                  className={`inline-flex items-center gap-[8px] h-[40px] min-[900px]:h-[36px] px-[12px] rounded-[8px] border text-[12px] font-medium cursor-pointer transition-[border-color,background-color,color] duration-150 motion-reduce:transition-none shrink-0 ${includeInactive ? "border-[rgba(56,189,248,0.4)] bg-[rgba(56,189,248,0.08)] text-[var(--accent-blue,#38bdf8)] font-semibold" : "border-[var(--panel-border)] bg-[var(--input-bg,#0f172a)] text-[var(--ink-primary)] hover:border-[rgba(148,163,184,0.35)]"}`}
+                  className={`inline-flex h-11 shrink-0 items-center gap-2 rounded-[8px] border px-3 text-[12px] font-medium transition-colors cursor-pointer md:h-9 ${
+                    includeInactive ? "border-[#38bdf8]/50 bg-[#0c2a3d] text-[#38bdf8]" : "border-[#334155] bg-[#0f172a] text-[#cbd5e1] hover:bg-[#243044]"
+                  }`}
                 >
-                  <span aria-hidden="true" className={`size-[8px] rounded-full ${includeInactive ? "bg-[var(--accent-blue,#38bdf8)]" : "bg-[var(--ink-muted)]"}`} />
-                  Termasuk nonaktif
+                  <span aria-hidden="true" className={`relative h-4 w-7 rounded-full transition-colors ${includeInactive ? "bg-[#38bdf8]" : "bg-[#334155]"}`}>
+                    <span className={`absolute top-0.5 h-3 w-3 rounded-full bg-white transition-[left] ${includeInactive ? "left-3.5" : "left-0.5"}`} />
+                  </span>
+                  Nonaktif
                 </button>
               )}
-
-              {/* View Mode Switcher */}
-              <div className="w-full min-[560px]:w-auto min-[900px]:ml-auto grid grid-cols-2 min-[560px]:inline-flex items-center gap-[2px] h-[40px] min-[900px]:h-[36px] box-border p-[3px] bg-[var(--surface,#0f172a)] border border-[var(--panel-border)] rounded-[8px] shrink-0" aria-label="Pilihan tampilan roster">
-                <button
-                  className={`inline-flex items-center justify-center flex-1 min-[560px]:flex-initial h-[32px] min-[900px]:h-[28px] px-[12px] text-[11.5px] font-semibold rounded-[6px] gap-[6px] border border-transparent cursor-pointer transition-[color,background-color] duration-150 ease ${
-                    viewMode === "table"
-                      ? "bg-[var(--accent-blue,#2563eb)] text-white shadow-[0_1px_3px_rgba(0,0,0,0.25)]"
-                      : "bg-transparent text-[var(--ink-muted)] hover:text-[var(--ink-primary)] hover:bg-[rgba(148,163,184,0.08)]"
-                  }`}
-                  onClick={() => startTransition(() => setViewMode("table"))}
-                >
-                  <Table size={13} /> Table
+              <div className="grid flex-1 grid-cols-2 gap-0.5 rounded-[8px] border border-[#334155] bg-[#0f172a] p-0.5 min-[1100px]:flex-none" role="group" aria-label="Pilihan tampilan roster">
+                <button type="button" aria-pressed={viewMode === "calendar"} className={viewButton(viewMode === "calendar")} onClick={() => startTransition(() => setViewMode("calendar"))}>
+                  <Calendar size={13} /> Kalender
                 </button>
-                <button
-                  className={`inline-flex items-center justify-center flex-1 min-[560px]:flex-initial h-[32px] min-[900px]:h-[28px] px-[12px] text-[11.5px] font-semibold rounded-[6px] gap-[6px] border border-transparent cursor-pointer transition-[color,background-color] duration-150 ease ${
-                    viewMode === "calendar"
-                      ? "bg-[var(--accent-blue,#2563eb)] text-white shadow-[0_1px_3px_rgba(0,0,0,0.25)]"
-                      : "bg-transparent text-[var(--ink-muted)] hover:text-[var(--ink-primary)] hover:bg-[rgba(148,163,184,0.08)]"
-                  }`}
-                  onClick={() => startTransition(() => setViewMode("calendar"))}
-                >
-                  <Calendar size={13} /> Weekly Calendar
+                <button type="button" aria-pressed={viewMode === "table"} className={viewButton(viewMode === "table")} onClick={() => startTransition(() => setViewMode("table"))}>
+                  <Table size={13} /> Tabel
                 </button>
               </div>
             </div>
+          </div>
 
-            {/* View Render */}
-            <div className="roster-view-body">
-              <Suspense fallback={null}>
-                {viewMode === "table" ? (
-                  <RosterTable
-                    members={filteredMembers}
-                    onSelectMember={openMemberDetail}
-                    onEditMember={openMemberCreate}
-                    onRequestSwap={handleOpenSwapForMember}
-                  />
-                ) : (
-                  <RosterCalendarView members={filteredMembers} onSelectMember={openMemberDetail} />
-                )}
-              </Suspense>
-            </div>
-          </article>
-        </div>
-      </div>
+          <Suspense fallback={null}>
+            {viewMode === "table" ? (
+              <RosterTable members={filteredMembers} onSelectMember={openMemberDetail} onEditMember={openMemberCreate} onRequestSwap={handleOpenSwapForMember} />
+            ) : (
+              <RosterCalendarView members={filteredMembers} onSelectMember={openMemberDetail} />
+            )}
+          </Suspense>
+        </article>
       </PanelSkeletonWrapper>
 
       {selectedId && !selectedMember && <DetailNotFound title="Anggota tidak ditemukan" href={routes.teamRoster(url.query)} />}
@@ -393,8 +338,9 @@ export function TeamRosterView({ members: propMembers, onMembersChange: setMembe
           />
         )}
 
-        {loadedOverlays.swap && (
+        {loadedOverlays.swap && swapModalOpen && (
           <ShiftSwapModal
+            key={swapPreselectedMember?.id ?? "all"}
             open={swapModalOpen}
             onClose={() => setSwapModalOpen(false)}
             requests={swapRequests}
@@ -404,25 +350,19 @@ export function TeamRosterView({ members: propMembers, onMembersChange: setMembe
           />
         )}
 
-        {loadedOverlays.create && createModalOpen && (
+        {loadedOverlays.create && createModalOpen && editingPerson && (
           <PersonFormModal
-            person={editingPerson ?? undefined}
+            person={editingPerson}
             roles={roles}
             people={people}
             onClose={() => setCreateModalOpen(false)}
             onSaved={(person) => {
               setCreateModalOpen(false);
-              notify.success(
-                editingPerson
-                  ? `Data anggota ${person.fullName} berhasil diperbarui.`
-                  : `Anggota tim baru ${person.fullName} ditambahkan ke roster.`,
-                { id: "member-save" },
-              );
+              notify.success(`Data anggota ${person.fullName} berhasil diperbarui.`, { id: "member-save" });
             }}
           />
         )}
       </Suspense>
-    </>
+    </div>
   );
 }
-

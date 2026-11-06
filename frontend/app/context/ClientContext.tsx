@@ -75,7 +75,9 @@ export interface ClientContextValue {
   getSystemsForClient: (clientId?: string, projectId?: string, includeArchived?: boolean) => SystemMaster[];
 }
 
-const ClientContext = createContext<ClientContextValue | null>(null);
+const GLOBAL_CLIENT_CTX = "__ctd_client_context__";
+const g = globalThis as unknown as Record<string, React.Context<ClientContextValue | null> | undefined>;
+const ClientContext = g[GLOBAL_CLIENT_CTX] ?? (g[GLOBAL_CLIENT_CTX] = createContext<ClientContextValue | null>(null));
 
 const STORAGE_ACTIVE_CLIENT_KEY = "ctd.activeClientId";
 const MASTER_DATA_STORAGE_KEY = "ctd.masterData.v2";
@@ -144,6 +146,7 @@ export function ClientProvider({ children }: { children: React.ReactNode }) {
     try {
       const savedActive = window.localStorage.getItem(STORAGE_ACTIVE_CLIENT_KEY);
       if (savedActive) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- Browser storage only exists after hydration; reading it here keeps the server HTML and the first client render identical.
         setActiveClientIdState(savedActive as ClientId);
       }
     } catch {
@@ -195,6 +198,7 @@ export function ClientProvider({ children }: { children: React.ReactNode }) {
     if (current && current.status !== "active") {
       const fallback = activeClients[0];
       if (fallback && fallback.id !== activeClientId) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- also writes browser storage and shows a toast, which cannot happen during render
         setActiveClientId(fallback.id);
         notify.warning(
           `Klien "${current.shortName || current.name}" telah diarsipkan/dinonaktifkan. Otomatis beralih ke: ${

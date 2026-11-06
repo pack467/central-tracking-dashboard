@@ -1,0 +1,2759 @@
+{
+  "rows": [
+    {
+      "entity": "organization",
+      "width": 1920,
+      "height": 1080,
+      "state": "list",
+      "documentWidth": 1920,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 34
+        },
+        {
+          "size": "11.5px",
+          "height": 34
+        },
+        {
+          "size": "11.5px",
+          "height": 34
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0,
+      "cls": 0.0015013698609277544
+    },
+    {
+      "entity": "organization",
+      "width": 1920,
+      "height": 1080,
+      "state": "detail",
+      "documentWidth": 1920,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [],
+      "dialog": {
+        "top": 0,
+        "bottom": 1080,
+        "width": 560
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 200
+    },
+    {
+      "entity": "organization",
+      "width": 1920,
+      "height": 1080,
+      "state": "form",
+      "documentWidth": 1920,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "14px",
+          "height": 44
+        },
+        {
+          "size": "14px",
+          "height": 44
+        },
+        {
+          "size": "14px",
+          "height": 44
+        }
+      ],
+      "dialog": {
+        "top": 145.375,
+        "bottom": 934.625,
+        "width": 720
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 200
+    },
+    {
+      "entity": "organization",
+      "width": 1920,
+      "height": 1080,
+      "state": "closed",
+      "documentWidth": 1920,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 34
+        },
+        {
+          "size": "11.5px",
+          "height": 34
+        },
+        {
+          "size": "11.5px",
+          "height": 34
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0
+    },
+    {
+      "entity": "project",
+      "width": 1920,
+      "height": 1080,
+      "state": "list",
+      "documentWidth": 1920,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 34
+        },
+        {
+          "size": "11.5px",
+          "height": 34
+        },
+        {
+          "size": "11.5px",
+          "height": 34
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0,
+      "cls": 0.001440527704026964
+    },
+    {
+      "entity": "project",
+      "width": 1920,
+      "height": 1080,
+      "state": "detail",
+      "documentWidth": 1920,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [],
+      "dialog": {
+        "top": 0,
+        "bottom": 1080,
+        "width": 560
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 200
+    },
+    {
+      "entity": "project",
+      "width": 1920,
+      "height": 1080,
+      "state": "form",
+      "documentWidth": 1920,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "14px",
+          "height": 44
+        },
+        {
+          "size": "14px",
+          "height": 44
+        },
+        {
+          "size": "14px",
+          "height": 44
+        },
+        {
+          "size": "14px",
+          "height": 44
+        }
+      ],
+      "dialog": {
+        "top": 181.375,
+        "bottom": 898.625,
+        "width": 720
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 200
+    },
+    {
+      "entity": "project",
+      "width": 1920,
+      "height": 1080,
+      "state": "closed",
+      "documentWidth": 1920,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 34
+        },
+        {
+          "size": "11.5px",
+          "height": 34
+        },
+        {
+          "size": "11.5px",
+          "height": 34
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0
+    },
+    {
+      "entity": "system",
+      "width": 1920,
+      "height": 1080,
+      "state": "list",
+      "documentWidth": 1920,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 34
+        },
+        {
+          "size": "11.5px",
+          "height": 34
+        },
+        {
+          "size": "11.5px",
+          "height": 34
+        },
+        {
+          "size": "11.5px",
+          "height": 34
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0,
+      "cls": 0.001440527704026964
+    },
+    {
+      "entity": "system",
+      "width": 1920,
+      "height": 1080,
+      "state": "detail",
+      "documentWidth": 1920,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [],
+      "dialog": {
+        "top": 0,
+        "bottom": 1080,
+        "width": 560
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 200
+    },
+    {
+      "entity": "system",
+      "width": 1920,
+      "height": 1080,
+      "state": "form",
+      "documentWidth": 1920,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "14px",
+          "height": 44
+        },
+        {
+          "size": "14px",
+          "height": 44
+        },
+        {
+          "size": "14px",
+          "height": 44
+        },
+        {
+          "size": "14px",
+          "height": 44
+        },
+        {
+          "size": "14px",
+          "height": 44
+        },
+        {
+          "size": "14px",
+          "height": 44
+        }
+      ],
+      "dialog": {
+        "top": 137.375,
+        "bottom": 942.625,
+        "width": 720
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 200
+    },
+    {
+      "entity": "system",
+      "width": 1920,
+      "height": 1080,
+      "state": "closed",
+      "documentWidth": 1920,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 34
+        },
+        {
+          "size": "11.5px",
+          "height": 34
+        },
+        {
+          "size": "11.5px",
+          "height": 34
+        },
+        {
+          "size": "11.5px",
+          "height": 34
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0
+    },
+    {
+      "entity": "category",
+      "width": 1920,
+      "height": 1080,
+      "state": "list",
+      "documentWidth": 1920,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 34
+        },
+        {
+          "size": "11.5px",
+          "height": 34
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0,
+      "cls": 0.001440527704026964
+    },
+    {
+      "entity": "category",
+      "width": 1920,
+      "height": 1080,
+      "state": "detail",
+      "documentWidth": 1920,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [],
+      "dialog": {
+        "top": 0,
+        "bottom": 1080,
+        "width": 560
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 200
+    },
+    {
+      "entity": "category",
+      "width": 1920,
+      "height": 1080,
+      "state": "form",
+      "documentWidth": 1920,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "14px",
+          "height": 44
+        }
+      ],
+      "dialog": {
+        "top": 277.375,
+        "bottom": 802.625,
+        "width": 720
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 200
+    },
+    {
+      "entity": "category",
+      "width": 1920,
+      "height": 1080,
+      "state": "closed",
+      "documentWidth": 1920,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 34
+        },
+        {
+          "size": "11.5px",
+          "height": 34
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0
+    },
+    {
+      "entity": "severity",
+      "width": 1920,
+      "height": 1080,
+      "state": "list",
+      "documentWidth": 1920,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 34
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0,
+      "cls": 0.001440527704026964
+    },
+    {
+      "entity": "severity",
+      "width": 1920,
+      "height": 1080,
+      "state": "detail",
+      "documentWidth": 1920,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [],
+      "dialog": {
+        "top": 0,
+        "bottom": 1080,
+        "width": 560
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 201
+    },
+    {
+      "entity": "severity",
+      "width": 1920,
+      "height": 1080,
+      "state": "form",
+      "documentWidth": 1920,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [],
+      "dialog": {
+        "top": 313.375,
+        "bottom": 766.625,
+        "width": 720
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 201
+    },
+    {
+      "entity": "severity",
+      "width": 1920,
+      "height": 1080,
+      "state": "closed",
+      "documentWidth": 1920,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 34
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0
+    },
+    {
+      "entity": "organization",
+      "width": 1440,
+      "height": 900,
+      "state": "list",
+      "documentWidth": 1440,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 34
+        },
+        {
+          "size": "11.5px",
+          "height": 34
+        },
+        {
+          "size": "11.5px",
+          "height": 34
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0,
+      "cls": 0.003202922369979209
+    },
+    {
+      "entity": "organization",
+      "width": 1440,
+      "height": 900,
+      "state": "detail",
+      "documentWidth": 1440,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [],
+      "dialog": {
+        "top": 0,
+        "bottom": 900,
+        "width": 560
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 200
+    },
+    {
+      "entity": "organization",
+      "width": 1440,
+      "height": 900,
+      "state": "form",
+      "documentWidth": 1440,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "14px",
+          "height": 44
+        },
+        {
+          "size": "14px",
+          "height": 44
+        },
+        {
+          "size": "14px",
+          "height": 44
+        }
+      ],
+      "dialog": {
+        "top": 55.375,
+        "bottom": 844.625,
+        "width": 720
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 200
+    },
+    {
+      "entity": "organization",
+      "width": 1440,
+      "height": 900,
+      "state": "closed",
+      "documentWidth": 1440,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 34
+        },
+        {
+          "size": "11.5px",
+          "height": 34
+        },
+        {
+          "size": "11.5px",
+          "height": 34
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0
+    },
+    {
+      "entity": "project",
+      "width": 1440,
+      "height": 900,
+      "state": "list",
+      "documentWidth": 1440,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 34
+        },
+        {
+          "size": "11.5px",
+          "height": 34
+        },
+        {
+          "size": "11.5px",
+          "height": 34
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0,
+      "cls": 0.0030731257685908562
+    },
+    {
+      "entity": "project",
+      "width": 1440,
+      "height": 900,
+      "state": "detail",
+      "documentWidth": 1440,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [],
+      "dialog": {
+        "top": 0,
+        "bottom": 900,
+        "width": 560
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 200
+    },
+    {
+      "entity": "project",
+      "width": 1440,
+      "height": 900,
+      "state": "form",
+      "documentWidth": 1440,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "14px",
+          "height": 44
+        },
+        {
+          "size": "14px",
+          "height": 44
+        },
+        {
+          "size": "14px",
+          "height": 44
+        },
+        {
+          "size": "14px",
+          "height": 44
+        }
+      ],
+      "dialog": {
+        "top": 91.375,
+        "bottom": 808.625,
+        "width": 720
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 200
+    },
+    {
+      "entity": "project",
+      "width": 1440,
+      "height": 900,
+      "state": "closed",
+      "documentWidth": 1440,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 34
+        },
+        {
+          "size": "11.5px",
+          "height": 34
+        },
+        {
+          "size": "11.5px",
+          "height": 34
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0
+    },
+    {
+      "entity": "system",
+      "width": 1440,
+      "height": 900,
+      "state": "list",
+      "documentWidth": 1440,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 34
+        },
+        {
+          "size": "11.5px",
+          "height": 34
+        },
+        {
+          "size": "11.5px",
+          "height": 34
+        },
+        {
+          "size": "11.5px",
+          "height": 34
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0,
+      "cls": 0.0030731257685908562
+    },
+    {
+      "entity": "system",
+      "width": 1440,
+      "height": 900,
+      "state": "detail",
+      "documentWidth": 1440,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [],
+      "dialog": {
+        "top": 0,
+        "bottom": 900,
+        "width": 560
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 200
+    },
+    {
+      "entity": "system",
+      "width": 1440,
+      "height": 900,
+      "state": "form",
+      "documentWidth": 1440,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "14px",
+          "height": 44
+        },
+        {
+          "size": "14px",
+          "height": 44
+        },
+        {
+          "size": "14px",
+          "height": 44
+        },
+        {
+          "size": "14px",
+          "height": 44
+        },
+        {
+          "size": "14px",
+          "height": 44
+        },
+        {
+          "size": "14px",
+          "height": 44
+        }
+      ],
+      "dialog": {
+        "top": 47.375,
+        "bottom": 852.625,
+        "width": 720
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 200
+    },
+    {
+      "entity": "system",
+      "width": 1440,
+      "height": 900,
+      "state": "closed",
+      "documentWidth": 1440,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 34
+        },
+        {
+          "size": "11.5px",
+          "height": 34
+        },
+        {
+          "size": "11.5px",
+          "height": 34
+        },
+        {
+          "size": "11.5px",
+          "height": 34
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0
+    },
+    {
+      "entity": "category",
+      "width": 1440,
+      "height": 900,
+      "state": "list",
+      "documentWidth": 1440,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 34
+        },
+        {
+          "size": "11.5px",
+          "height": 34
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0,
+      "cls": 0.0030731257685908562
+    },
+    {
+      "entity": "category",
+      "width": 1440,
+      "height": 900,
+      "state": "detail",
+      "documentWidth": 1440,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [],
+      "dialog": {
+        "top": 0,
+        "bottom": 900,
+        "width": 560
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 200
+    },
+    {
+      "entity": "category",
+      "width": 1440,
+      "height": 900,
+      "state": "form",
+      "documentWidth": 1440,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "14px",
+          "height": 44
+        }
+      ],
+      "dialog": {
+        "top": 187.375,
+        "bottom": 712.625,
+        "width": 720
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 200
+    },
+    {
+      "entity": "category",
+      "width": 1440,
+      "height": 900,
+      "state": "closed",
+      "documentWidth": 1440,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 34
+        },
+        {
+          "size": "11.5px",
+          "height": 34
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0
+    },
+    {
+      "entity": "severity",
+      "width": 1440,
+      "height": 900,
+      "state": "list",
+      "documentWidth": 1440,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 34
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0,
+      "cls": 0.0030731257685908562
+    },
+    {
+      "entity": "severity",
+      "width": 1440,
+      "height": 900,
+      "state": "detail",
+      "documentWidth": 1440,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [],
+      "dialog": {
+        "top": 0,
+        "bottom": 900,
+        "width": 560
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 200
+    },
+    {
+      "entity": "severity",
+      "width": 1440,
+      "height": 900,
+      "state": "form",
+      "documentWidth": 1440,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [],
+      "dialog": {
+        "top": 223.375,
+        "bottom": 676.625,
+        "width": 720
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 200
+    },
+    {
+      "entity": "severity",
+      "width": 1440,
+      "height": 900,
+      "state": "closed",
+      "documentWidth": 1440,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 34
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0
+    },
+    {
+      "entity": "organization",
+      "width": 1024,
+      "height": 768,
+      "state": "list",
+      "documentWidth": 1024,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 34
+        },
+        {
+          "size": "11.5px",
+          "height": 34
+        },
+        {
+          "size": "11.5px",
+          "height": 34
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0,
+      "cls": 0.007418688541899125
+    },
+    {
+      "entity": "organization",
+      "width": 1024,
+      "height": 768,
+      "state": "detail",
+      "documentWidth": 1024,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [],
+      "dialog": {
+        "top": 0,
+        "bottom": 768,
+        "width": 560
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 200
+    },
+    {
+      "entity": "organization",
+      "width": 1024,
+      "height": 768,
+      "state": "form",
+      "documentWidth": 1024,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "14px",
+          "height": 44
+        },
+        {
+          "size": "14px",
+          "height": 44
+        },
+        {
+          "size": "14px",
+          "height": 44
+        }
+      ],
+      "dialog": {
+        "top": 16,
+        "bottom": 752,
+        "width": 720
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 200
+    },
+    {
+      "entity": "organization",
+      "width": 1024,
+      "height": 768,
+      "state": "closed",
+      "documentWidth": 1024,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 34
+        },
+        {
+          "size": "11.5px",
+          "height": 34
+        },
+        {
+          "size": "11.5px",
+          "height": 34
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0
+    },
+    {
+      "entity": "project",
+      "width": 1024,
+      "height": 768,
+      "state": "list",
+      "documentWidth": 1024,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 34
+        },
+        {
+          "size": "11.5px",
+          "height": 34
+        },
+        {
+          "size": "11.5px",
+          "height": 34
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0,
+      "cls": 0.0071217495133168995
+    },
+    {
+      "entity": "project",
+      "width": 1024,
+      "height": 768,
+      "state": "detail",
+      "documentWidth": 1024,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [],
+      "dialog": {
+        "top": 0,
+        "bottom": 768,
+        "width": 560
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 200
+    },
+    {
+      "entity": "project",
+      "width": 1024,
+      "height": 768,
+      "state": "form",
+      "documentWidth": 1024,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "14px",
+          "height": 44
+        },
+        {
+          "size": "14px",
+          "height": 44
+        },
+        {
+          "size": "14px",
+          "height": 44
+        },
+        {
+          "size": "14px",
+          "height": 44
+        }
+      ],
+      "dialog": {
+        "top": 25.375,
+        "bottom": 742.625,
+        "width": 720
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 200
+    },
+    {
+      "entity": "project",
+      "width": 1024,
+      "height": 768,
+      "state": "closed",
+      "documentWidth": 1024,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 34
+        },
+        {
+          "size": "11.5px",
+          "height": 34
+        },
+        {
+          "size": "11.5px",
+          "height": 34
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0
+    },
+    {
+      "entity": "system",
+      "width": 1024,
+      "height": 768,
+      "state": "list",
+      "documentWidth": 1024,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 34
+        },
+        {
+          "size": "11.5px",
+          "height": 34
+        },
+        {
+          "size": "11.5px",
+          "height": 34
+        },
+        {
+          "size": "11.5px",
+          "height": 34
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0,
+      "cls": 0.0071217495133168995
+    },
+    {
+      "entity": "system",
+      "width": 1024,
+      "height": 768,
+      "state": "detail",
+      "documentWidth": 1024,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [],
+      "dialog": {
+        "top": 0,
+        "bottom": 768,
+        "width": 560
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 199
+    },
+    {
+      "entity": "system",
+      "width": 1024,
+      "height": 768,
+      "state": "form",
+      "documentWidth": 1024,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "14px",
+          "height": 44
+        },
+        {
+          "size": "14px",
+          "height": 44
+        },
+        {
+          "size": "14px",
+          "height": 44
+        },
+        {
+          "size": "14px",
+          "height": 44
+        },
+        {
+          "size": "14px",
+          "height": 44
+        },
+        {
+          "size": "14px",
+          "height": 44
+        }
+      ],
+      "dialog": {
+        "top": 16,
+        "bottom": 752,
+        "width": 720
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 199
+    },
+    {
+      "entity": "system",
+      "width": 1024,
+      "height": 768,
+      "state": "closed",
+      "documentWidth": 1024,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 34
+        },
+        {
+          "size": "11.5px",
+          "height": 34
+        },
+        {
+          "size": "11.5px",
+          "height": 34
+        },
+        {
+          "size": "11.5px",
+          "height": 34
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0
+    },
+    {
+      "entity": "category",
+      "width": 1024,
+      "height": 768,
+      "state": "list",
+      "documentWidth": 1024,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 34
+        },
+        {
+          "size": "11.5px",
+          "height": 34
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0,
+      "cls": 0.0071217495133168995
+    },
+    {
+      "entity": "category",
+      "width": 1024,
+      "height": 768,
+      "state": "detail",
+      "documentWidth": 1024,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [],
+      "dialog": {
+        "top": 0,
+        "bottom": 768,
+        "width": 560
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 200
+    },
+    {
+      "entity": "category",
+      "width": 1024,
+      "height": 768,
+      "state": "form",
+      "documentWidth": 1024,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "14px",
+          "height": 44
+        }
+      ],
+      "dialog": {
+        "top": 121.375,
+        "bottom": 646.625,
+        "width": 720
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 200
+    },
+    {
+      "entity": "category",
+      "width": 1024,
+      "height": 768,
+      "state": "closed",
+      "documentWidth": 1024,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 34
+        },
+        {
+          "size": "11.5px",
+          "height": 34
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0
+    },
+    {
+      "entity": "severity",
+      "width": 1024,
+      "height": 768,
+      "state": "list",
+      "documentWidth": 1024,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 34
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0,
+      "cls": 0.0071217495133168995
+    },
+    {
+      "entity": "severity",
+      "width": 1024,
+      "height": 768,
+      "state": "detail",
+      "documentWidth": 1024,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [],
+      "dialog": {
+        "top": 0,
+        "bottom": 768,
+        "width": 560
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 199
+    },
+    {
+      "entity": "severity",
+      "width": 1024,
+      "height": 768,
+      "state": "form",
+      "documentWidth": 1024,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [],
+      "dialog": {
+        "top": 157.375,
+        "bottom": 610.625,
+        "width": 720
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 199
+    },
+    {
+      "entity": "severity",
+      "width": 1024,
+      "height": 768,
+      "state": "closed",
+      "documentWidth": 1024,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 34
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0
+    },
+    {
+      "entity": "organization",
+      "width": 768,
+      "height": 1024,
+      "state": "list",
+      "documentWidth": 768,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 44
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0,
+      "cls": 0.007934409271304807
+    },
+    {
+      "entity": "organization",
+      "width": 768,
+      "height": 1024,
+      "state": "detail",
+      "documentWidth": 768,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [],
+      "dialog": {
+        "top": 0,
+        "bottom": 1024,
+        "width": 768
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 200
+    },
+    {
+      "entity": "organization",
+      "width": 768,
+      "height": 1024,
+      "state": "form",
+      "documentWidth": 768,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "16px",
+          "height": 44
+        },
+        {
+          "size": "16px",
+          "height": 44
+        }
+      ],
+      "dialog": {
+        "top": 0,
+        "bottom": 1024,
+        "width": 768
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 200
+    },
+    {
+      "entity": "organization",
+      "width": 768,
+      "height": 1024,
+      "state": "closed",
+      "documentWidth": 768,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 44
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0
+    },
+    {
+      "entity": "project",
+      "width": 768,
+      "height": 1024,
+      "state": "list",
+      "documentWidth": 768,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 44
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0,
+      "cls": 0.007814942703892788
+    },
+    {
+      "entity": "project",
+      "width": 768,
+      "height": 1024,
+      "state": "detail",
+      "documentWidth": 768,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [],
+      "dialog": {
+        "top": 0,
+        "bottom": 1024,
+        "width": 768
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 200
+    },
+    {
+      "entity": "project",
+      "width": 768,
+      "height": 1024,
+      "state": "form",
+      "documentWidth": 768,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "16px",
+          "height": 44
+        },
+        {
+          "size": "16px",
+          "height": 44
+        }
+      ],
+      "dialog": {
+        "top": 0,
+        "bottom": 1024,
+        "width": 768
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 200
+    },
+    {
+      "entity": "project",
+      "width": 768,
+      "height": 1024,
+      "state": "closed",
+      "documentWidth": 768,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 44
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0
+    },
+    {
+      "entity": "system",
+      "width": 768,
+      "height": 1024,
+      "state": "list",
+      "documentWidth": 768,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 44
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0,
+      "cls": 0.007814942703892788
+    },
+    {
+      "entity": "system",
+      "width": 768,
+      "height": 1024,
+      "state": "detail",
+      "documentWidth": 768,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [],
+      "dialog": {
+        "top": 0,
+        "bottom": 1024,
+        "width": 768
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 201
+    },
+    {
+      "entity": "system",
+      "width": 768,
+      "height": 1024,
+      "state": "form",
+      "documentWidth": 768,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "16px",
+          "height": 44
+        },
+        {
+          "size": "16px",
+          "height": 44
+        },
+        {
+          "size": "16px",
+          "height": 44
+        },
+        {
+          "size": "16px",
+          "height": 44
+        },
+        {
+          "size": "16px",
+          "height": 44
+        }
+      ],
+      "dialog": {
+        "top": 0,
+        "bottom": 1024,
+        "width": 768
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 201
+    },
+    {
+      "entity": "system",
+      "width": 768,
+      "height": 1024,
+      "state": "closed",
+      "documentWidth": 768,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 44
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0
+    },
+    {
+      "entity": "category",
+      "width": 768,
+      "height": 1024,
+      "state": "list",
+      "documentWidth": 768,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 44
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0,
+      "cls": 0.007814942703892788
+    },
+    {
+      "entity": "category",
+      "width": 768,
+      "height": 1024,
+      "state": "detail",
+      "documentWidth": 768,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [],
+      "dialog": {
+        "top": 0,
+        "bottom": 1024,
+        "width": 768
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 199
+    },
+    {
+      "entity": "category",
+      "width": 768,
+      "height": 1024,
+      "state": "form",
+      "documentWidth": 768,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "16px",
+          "height": 44
+        }
+      ],
+      "dialog": {
+        "top": 0,
+        "bottom": 1024,
+        "width": 768
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 199
+    },
+    {
+      "entity": "category",
+      "width": 768,
+      "height": 1024,
+      "state": "closed",
+      "documentWidth": 768,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 44
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0
+    },
+    {
+      "entity": "severity",
+      "width": 768,
+      "height": 1024,
+      "state": "list",
+      "documentWidth": 768,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 44
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0,
+      "cls": 0.007814942703892788
+    },
+    {
+      "entity": "severity",
+      "width": 768,
+      "height": 1024,
+      "state": "detail",
+      "documentWidth": 768,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [],
+      "dialog": {
+        "top": 0,
+        "bottom": 1024,
+        "width": 768
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 200
+    },
+    {
+      "entity": "severity",
+      "width": 768,
+      "height": 1024,
+      "state": "form",
+      "documentWidth": 768,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [],
+      "dialog": {
+        "top": 0,
+        "bottom": 1024,
+        "width": 768
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 200
+    },
+    {
+      "entity": "severity",
+      "width": 768,
+      "height": 1024,
+      "state": "closed",
+      "documentWidth": 768,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 44
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0
+    },
+    {
+      "entity": "organization",
+      "width": 390,
+      "height": 844,
+      "state": "list",
+      "documentWidth": 390,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 44
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0,
+      "cls": 0.0001773867589999303
+    },
+    {
+      "entity": "organization",
+      "width": 390,
+      "height": 844,
+      "state": "detail",
+      "documentWidth": 390,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [],
+      "dialog": {
+        "top": 0,
+        "bottom": 844,
+        "width": 390
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 200
+    },
+    {
+      "entity": "organization",
+      "width": 390,
+      "height": 844,
+      "state": "form",
+      "documentWidth": 390,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "16px",
+          "height": 44
+        },
+        {
+          "size": "16px",
+          "height": 44
+        }
+      ],
+      "dialog": {
+        "top": 0,
+        "bottom": 844,
+        "width": 390
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 200
+    },
+    {
+      "entity": "organization",
+      "width": 390,
+      "height": 844,
+      "state": "closed",
+      "documentWidth": 390,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 44
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0
+    },
+    {
+      "entity": "project",
+      "width": 390,
+      "height": 844,
+      "state": "list",
+      "documentWidth": 390,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 44
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0,
+      "cls": 0
+    },
+    {
+      "entity": "project",
+      "width": 390,
+      "height": 844,
+      "state": "detail",
+      "documentWidth": 390,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [],
+      "dialog": {
+        "top": 0,
+        "bottom": 844,
+        "width": 390
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 200
+    },
+    {
+      "entity": "project",
+      "width": 390,
+      "height": 844,
+      "state": "form",
+      "documentWidth": 390,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "16px",
+          "height": 44
+        },
+        {
+          "size": "16px",
+          "height": 44
+        }
+      ],
+      "dialog": {
+        "top": 0,
+        "bottom": 844,
+        "width": 390
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 200
+    },
+    {
+      "entity": "project",
+      "width": 390,
+      "height": 844,
+      "state": "closed",
+      "documentWidth": 390,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 44
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0
+    },
+    {
+      "entity": "system",
+      "width": 390,
+      "height": 844,
+      "state": "list",
+      "documentWidth": 390,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 44
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0,
+      "cls": 0
+    },
+    {
+      "entity": "system",
+      "width": 390,
+      "height": 844,
+      "state": "detail",
+      "documentWidth": 390,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [],
+      "dialog": {
+        "top": 0,
+        "bottom": 844,
+        "width": 390
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 199
+    },
+    {
+      "entity": "system",
+      "width": 390,
+      "height": 844,
+      "state": "form",
+      "documentWidth": 390,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "16px",
+          "height": 44
+        },
+        {
+          "size": "16px",
+          "height": 44
+        },
+        {
+          "size": "16px",
+          "height": 44
+        },
+        {
+          "size": "16px",
+          "height": 44
+        },
+        {
+          "size": "16px",
+          "height": 44
+        }
+      ],
+      "dialog": {
+        "top": 0,
+        "bottom": 844,
+        "width": 390
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 199
+    },
+    {
+      "entity": "system",
+      "width": 390,
+      "height": 844,
+      "state": "closed",
+      "documentWidth": 390,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 44
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0
+    },
+    {
+      "entity": "category",
+      "width": 390,
+      "height": 844,
+      "state": "list",
+      "documentWidth": 390,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 44
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0,
+      "cls": 0
+    },
+    {
+      "entity": "category",
+      "width": 390,
+      "height": 844,
+      "state": "detail",
+      "documentWidth": 390,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [],
+      "dialog": {
+        "top": 0,
+        "bottom": 844,
+        "width": 390
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 199
+    },
+    {
+      "entity": "category",
+      "width": 390,
+      "height": 844,
+      "state": "form",
+      "documentWidth": 390,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "16px",
+          "height": 44
+        }
+      ],
+      "dialog": {
+        "top": 0,
+        "bottom": 844,
+        "width": 390
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 199
+    },
+    {
+      "entity": "category",
+      "width": 390,
+      "height": 844,
+      "state": "closed",
+      "documentWidth": 390,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 44
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0
+    },
+    {
+      "entity": "severity",
+      "width": 390,
+      "height": 844,
+      "state": "list",
+      "documentWidth": 390,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 44
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0,
+      "cls": 0
+    },
+    {
+      "entity": "severity",
+      "width": 390,
+      "height": 844,
+      "state": "detail",
+      "documentWidth": 390,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [],
+      "dialog": {
+        "top": 0,
+        "bottom": 844,
+        "width": 390
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 199
+    },
+    {
+      "entity": "severity",
+      "width": 390,
+      "height": 844,
+      "state": "form",
+      "documentWidth": 390,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [],
+      "dialog": {
+        "top": 0,
+        "bottom": 844,
+        "width": 390
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 199
+    },
+    {
+      "entity": "severity",
+      "width": 390,
+      "height": 844,
+      "state": "closed",
+      "documentWidth": 390,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 44
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0
+    },
+    {
+      "entity": "organization",
+      "width": 844,
+      "height": 390,
+      "state": "list",
+      "documentWidth": 844,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 44
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0,
+      "cls": 0.022992317120478722
+    },
+    {
+      "entity": "organization",
+      "width": 844,
+      "height": 390,
+      "state": "detail",
+      "documentWidth": 844,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [],
+      "dialog": {
+        "top": 0,
+        "bottom": 390,
+        "width": 844
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 199
+    },
+    {
+      "entity": "organization",
+      "width": 844,
+      "height": 390,
+      "state": "form",
+      "documentWidth": 844,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "16px",
+          "height": 44
+        },
+        {
+          "size": "16px",
+          "height": 44
+        }
+      ],
+      "dialog": {
+        "top": 0,
+        "bottom": 390,
+        "width": 844
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 199
+    },
+    {
+      "entity": "organization",
+      "width": 844,
+      "height": 390,
+      "state": "closed",
+      "documentWidth": 844,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 44
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0
+    },
+    {
+      "entity": "project",
+      "width": 844,
+      "height": 390,
+      "state": "list",
+      "documentWidth": 844,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 44
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0,
+      "cls": 0.02265361061605039
+    },
+    {
+      "entity": "project",
+      "width": 844,
+      "height": 390,
+      "state": "detail",
+      "documentWidth": 844,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [],
+      "dialog": {
+        "top": 0,
+        "bottom": 390,
+        "width": 844
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 199
+    },
+    {
+      "entity": "project",
+      "width": 844,
+      "height": 390,
+      "state": "form",
+      "documentWidth": 844,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "16px",
+          "height": 44
+        },
+        {
+          "size": "16px",
+          "height": 44
+        }
+      ],
+      "dialog": {
+        "top": 0,
+        "bottom": 390,
+        "width": 844
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 199
+    },
+    {
+      "entity": "project",
+      "width": 844,
+      "height": 390,
+      "state": "closed",
+      "documentWidth": 844,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 44
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0
+    },
+    {
+      "entity": "system",
+      "width": 844,
+      "height": 390,
+      "state": "list",
+      "documentWidth": 844,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 44
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0,
+      "cls": 0.02265361061605039
+    },
+    {
+      "entity": "system",
+      "width": 844,
+      "height": 390,
+      "state": "detail",
+      "documentWidth": 844,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [],
+      "dialog": {
+        "top": 0,
+        "bottom": 390,
+        "width": 844
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 200
+    },
+    {
+      "entity": "system",
+      "width": 844,
+      "height": 390,
+      "state": "form",
+      "documentWidth": 844,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "16px",
+          "height": 44
+        },
+        {
+          "size": "16px",
+          "height": 44
+        },
+        {
+          "size": "16px",
+          "height": 44
+        },
+        {
+          "size": "16px",
+          "height": 44
+        },
+        {
+          "size": "16px",
+          "height": 44
+        }
+      ],
+      "dialog": {
+        "top": 0,
+        "bottom": 390,
+        "width": 844
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 200
+    },
+    {
+      "entity": "system",
+      "width": 844,
+      "height": 390,
+      "state": "closed",
+      "documentWidth": 844,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 44
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0
+    },
+    {
+      "entity": "category",
+      "width": 844,
+      "height": 390,
+      "state": "list",
+      "documentWidth": 844,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 44
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0,
+      "cls": 0.02265361061605039
+    },
+    {
+      "entity": "category",
+      "width": 844,
+      "height": 390,
+      "state": "detail",
+      "documentWidth": 844,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [],
+      "dialog": {
+        "top": 0,
+        "bottom": 390,
+        "width": 844
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 199
+    },
+    {
+      "entity": "category",
+      "width": 844,
+      "height": 390,
+      "state": "form",
+      "documentWidth": 844,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "16px",
+          "height": 44
+        }
+      ],
+      "dialog": {
+        "top": 0,
+        "bottom": 390,
+        "width": 844
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 199
+    },
+    {
+      "entity": "category",
+      "width": 844,
+      "height": 390,
+      "state": "closed",
+      "documentWidth": 844,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 44
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0
+    },
+    {
+      "entity": "severity",
+      "width": 844,
+      "height": 390,
+      "state": "list",
+      "documentWidth": 844,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 44
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0,
+      "cls": 0.02265361061605039
+    },
+    {
+      "entity": "severity",
+      "width": 844,
+      "height": 390,
+      "state": "detail",
+      "documentWidth": 844,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [],
+      "dialog": {
+        "top": 0,
+        "bottom": 390,
+        "width": 844
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 200
+    },
+    {
+      "entity": "severity",
+      "width": 844,
+      "height": 390,
+      "state": "form",
+      "documentWidth": 844,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [],
+      "dialog": {
+        "top": 0,
+        "bottom": 390,
+        "width": 844
+      },
+      "body": "hidden",
+      "html": "",
+      "inert": 200
+    },
+    {
+      "entity": "severity",
+      "width": 844,
+      "height": 390,
+      "state": "closed",
+      "documentWidth": 844,
+      "smallText": [],
+      "smallTargets": [],
+      "selects": [
+        {
+          "size": "11.5px",
+          "height": 44
+        }
+      ],
+      "dialog": null,
+      "body": "",
+      "html": "",
+      "inert": 0
+    }
+  ],
+  "errors": []
+}

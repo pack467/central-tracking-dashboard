@@ -1,81 +1,69 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { BIO_MAX, normalizeBio } from "../app/lib/profile-bio.ts";
+import { formatDuration, isTicketOf, permissionLabel, rosterDayIndex, ticketStats } from "../app/lib/profile-stats.ts";
 
-test("Profile page renders updated all-time operational metrics and summary grid", async () => {
-  const res = await fetch("http://localhost:3000/profile");
-  assert.equal(res.status, 200);
-  const html = await res.text();
+const budi = { id: "6", name: "Budi Santoso" };
+const ticket = over => ({ id: "1", subject: "s", project: "SM", severity: "Low", status: "Open", owner: "Lain", created: "09:00", ...over });
 
-  // 1. Header & Subtitle of the section
-  assert.ok(html.includes("Aktivitas Operasional Terbaru"), "Contains section title 'Aktivitas Operasional Terbaru'");
-  assert.ok(
-    html.includes("Referensi catatan kontribusi pribadi (bukan pemeringkatan)"),
-    "Contains clarifying subtitle 'Referensi catatan kontribusi pribadi (bukan pemeringkatan)'"
-  );
+test("the profile page is about whoever is logged in, not a sample person, and shows no made-up numbers", () => {
+  const source = readFileSync("app/components/views/ProfileView.tsx", "utf8");
+  assert.ok(source.includes("useAuth"));
+  for (const sample of ["galih", "seedRosterMembers", "seedTickets", "98.5%", "1.184 Jam"]) assert.ok(!source.toLowerCase().includes(sample.toLowerCase()), `has no ${sample}`);
+  const mobile = readFileSync("app/components/layout/MobileNav.tsx", "utf8");
+  assert.ok(!mobile.includes("Galih Khairi"), "the mobile menu names the person logged in");
+});
 
-  // 2. Primary 4-card row: All-time Total Tiket
-  assert.ok(
-    html.includes("Total Tiket"),
-    "Has 'Total Tiket' (updated from monthly to all-time)"
-  );
-  assert.ok(
-    !html.includes("Tiket Ditangani (Bulan Ini)"),
-    "Does NOT contain old monthly label 'Tiket Ditangani (Bulan Ini)'"
-  );
-  assert.ok(html.includes("341"), "Reflects all-time ticket count (341)");
+test("a ticket is someone's by the backend's assignee, a person id, or a PIC name", () => {
+  assert.ok(isTicketOf(ticket({ backend: { userId: "6" } }), budi));
+  assert.ok(isTicketOf(ticket({ ownerIds: ["6"] }), budi));
+  assert.ok(isTicketOf(ticket({ owner: " budi santoso " }), budi));
+  assert.ok(isTicketOf(ticket({ owners: ["Andi", "Budi Santoso"] }), budi));
+  assert.ok(!isTicketOf(ticket({ owner: "Budi" }), budi), "only the whole name counts");
+});
 
-  // 3. Preserved cards: Serah Terima & Ketepatan Waktu
-  assert.ok(html.includes("142"), "Preserves 142 handover count");
-  assert.ok(html.includes("Serah Terima Diselesaikan"), "Has 'Serah Terima Diselesaikan'");
-  assert.ok(html.includes("98.5%"), "Preserves 98.5% on-time rate");
-  assert.ok(html.includes("Ketepatan Waktu Shift (On-Time)"), "Has 'Ketepatan Waktu Shift (On-Time)'");
+test("ticket numbers are counted, and an average needs something to average", () => {
+  const stats = ticketStats([
+    ticket({ status: "Open" }),
+    ticket({ status: "Closed", isStillOpen: false, resolutionMinutes: 30 }),
+    ticket({ status: "Closed", isStillOpen: false, resolutionMinutes: 90, escalationLevel: "Level 2" }),
+  ]);
+  assert.deepEqual([stats.total, stats.open, stats.closed, stats.escalated, stats.averageMinutes], [3, 1, 2, 1, 60]);
+  assert.equal(ticketStats([ticket()]).averageMinutes, null);
+  assert.deepEqual([formatDuration(null), formatDuration(45), formatDuration(60), formatDuration(135)], ["—", "45 mnt", "1 jam", "2 jam 15 mnt"]);
+});
 
-  // 4. 4th card: New SLA Metric
-  assert.ok(html.includes("Kepatuhan SLA Tiket"), "Has new 4th card 'Kepatuhan SLA Tiket'");
-  assert.ok(html.includes("98.2%"), "Has SLA compliance rate 98.2%");
+test("SLA is the dashboard's: finished tickets against their own target, and no finished ticket means no number rather than 0%", () => {
+  const closed = (severity, resolutionMinutes) => ticket({ status: "Closed", isStillOpen: false, severity, resolutionMinutes });
+  assert.equal(ticketStats([closed("High", 60), closed("High", 61), closed("Low", 120), closed("Low", 121), ticket({ status: "Open" })]).slaRate, 50);
+  assert.equal(ticketStats([ticket({ status: "Open" })]).slaRate, null);
+});
 
-  // 5. Additional Operational Summary Metrics Grid (Replaces Activity Log)
-  assert.ok(html.includes("profile-metrics-grid"), "Has .profile-metrics-grid container");
-  assert.ok(html.includes("Checkpoint Dievaluasi"), "Has 'Checkpoint Dievaluasi' metric");
-  assert.ok(html.includes("312"), "Has '312' checkpoints evaluated");
+test("a roster week runs Monday to Sunday, whatever day the calendar week starts on", () => {
+  assert.deepEqual(["2026-11-02", "2026-11-06", "2026-11-08"].map(rosterDayIndex), [0, 4, 6]);
+});
 
-  assert.ok(html.includes("Total Eskalasi"), "Has 'Total Eskalasi' metric");
-  assert.ok(html.includes("9"), "Has '9' escalations handled");
+test("a bio is tidied, kept short, and stays plain text on the page", () => {
+  assert.equal(normalizeBio("  Operator NOC\r\n\r\n\r\n\r\nShift malam  "), "Operator NOC\n\nShift malam");
+  assert.equal(normalizeBio("a".repeat(BIO_MAX + 50)).length, BIO_MAX);
+  assert.equal(normalizeBio("   \n "), "");
+  assert.ok(!readFileSync("app/components/profile/BioSection.tsx", "utf8").includes("dangerouslySetInnerHTML"));
+});
 
-  assert.ok(html.includes("Total Temuan"), "Has 'Total Temuan' metric");
-  assert.ok(html.includes("5"), "Has '5' findings recorded");
+test("saving a password always answers: the button is not silently locked, and failure and success both notify", () => {
+  const source = readFileSync("app/components/profile/PasswordCard.tsx", "utf8");
+  assert.ok(source.includes("disabled={saving}"), "only locked while a request is running");
+  assert.ok(source.includes("notify.critical(") && source.includes("notify.success("));
+});
 
-  assert.ok(html.includes("Rata-rata Respon Tiket"), "Has 'Rata-rata Respon Tiket' metric");
-  assert.ok(html.includes("8.4m"), "Has '8.4m' average response time");
+test("the avatar only shows who you are: changing the photo is the one labelled button", () => {
+  const source = readFileSync("app/components/views/ProfileView.tsx", "utf8");
+  assert.ok(!source.includes('aria-label="Edit foto profil"'));
+  assert.ok(source.includes('"Edit Foto"') && source.includes('"Tambah Foto"'));
+});
 
-  // 6. Additional Grid 2: Shift Hours & Overall Operational Activity
-  assert.ok(html.includes("Total Jam Shift"), "Has 'Total Jam Shift' metric");
-  assert.ok(html.includes("1.184 Jam"), "Has '1.184 Jam' shift hours");
-
-  assert.ok(html.includes("Jam Kerja di Luar Shift"), "Has 'Jam Kerja di Luar Shift' metric");
-  assert.ok(html.includes("46.5 Jam"), "Has '46.5 Jam' overtime hours");
-
-  assert.ok(html.includes("Tugas Diselesaikan"), "Has 'Tugas Diselesaikan' metric");
-  assert.ok(html.includes("512"), "Has '512' completed tasks");
-
-  assert.ok(html.includes("Total Activity"), "Has 'Total Activity' metric");
-  assert.ok(html.includes("864"), "Has '864' total activities");
-
-  // 7. Chronological log entries are replaced and no longer rendered
-  assert.ok(
-    !html.includes("Serah Terima Shift Subuh → Pagi selesai divalidasi"),
-    "Old timeline log entry 1 is removed"
-  );
-  assert.ok(
-    !html.includes("Menutup tiket #86d40dm01: [DM] Polling SNMP Over-Threshold"),
-    "Old timeline log entry 2 is removed"
-  );
-  assert.ok(
-    !html.includes("Eskalasi tiket #86d40usc1 [USIEM] Latency Spike ke Tier-2 SIEM"),
-    "Old timeline log entry 3 is removed"
-  );
-  assert.ok(
-    !html.includes("15/15 Checkpoint Monitoring Tritronik Shift Subuh dievaluasi"),
-    "Old timeline log entry 4 is removed"
-  );
+test("a permission the app has no words for shows as it is", () => {
+  assert.equal(permissionLabel("tickets.read"), "Lihat tiket");
+  assert.equal(permissionLabel("baru.saja"), "baru.saja");
 });

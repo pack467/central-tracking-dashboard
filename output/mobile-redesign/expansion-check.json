@@ -1,0 +1,10 @@
+{
+  "results": [
+    {
+      "name": "ticket/staff/monitoring expansion and distribution swipe tabs",
+      "pass": true,
+      "detail": true
+    }
+  ],
+  "errors": []
+}

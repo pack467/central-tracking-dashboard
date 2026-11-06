@@ -42,7 +42,6 @@ type StatusFilterType = "all" | "urgent" | "healthy";
 export function ClientStatusGrid({
   allTickets,
   assessments = {},
-  onNavigateToMonitoring,
   activeHandoverTasks,
   overrideClients,
   forceShowSingleClient = false,
@@ -503,8 +502,6 @@ export function ClientStatusGrid({
                 const ticketPct = Math.round(
                   (openTickets / (totalTickets || 1)) * 100
                 );
-
-                const isDistressed = statusTone === "danger" || statusTone === "warning";
 
                 return (
                   <div

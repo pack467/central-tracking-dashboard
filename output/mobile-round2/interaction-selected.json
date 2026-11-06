@@ -1,0 +1,15 @@
+{
+  "results": [
+    {
+      "name": "fixed volume axis, native scrolling, legend isolation",
+      "pass": true,
+      "detail": {
+        "left": 752,
+        "width": 1052,
+        "client": 300,
+        "scrollbar": "none"
+      }
+    }
+  ],
+  "errors": []
+}

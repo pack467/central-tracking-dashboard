@@ -1,0 +1,234 @@
+{
+  "rows": [
+    {
+      "width": 390,
+      "panel": "category",
+      "method": "Escape",
+      "release": {
+        "html": "visible",
+        "body": "visible",
+        "inert": 0,
+        "hiddenRoot": null
+      },
+      "wheel": 500,
+      "keyboard": 16,
+      "touch": 345
+    },
+    {
+      "width": 390,
+      "panel": "category",
+      "method": "back button",
+      "release": {
+        "html": "visible",
+        "body": "visible",
+        "inert": 0,
+        "hiddenRoot": null
+      },
+      "wheel": 500,
+      "keyboard": 738,
+      "touch": 462
+    },
+    {
+      "width": 390,
+      "panel": "category",
+      "method": "close button",
+      "release": {
+        "html": "visible",
+        "body": "visible",
+        "inert": 0,
+        "hiddenRoot": null
+      },
+      "wheel": 500,
+      "keyboard": 511,
+      "touch": 475
+    },
+    {
+      "width": 390,
+      "panel": "category",
+      "method": "browser back",
+      "release": {
+        "html": "visible",
+        "body": "visible",
+        "inert": 0,
+        "hiddenRoot": null
+      },
+      "wheel": 462,
+      "keyboard": 462,
+      "touch": 462
+    },
+    {
+      "width": 390,
+      "panel": "recap",
+      "method": "Escape",
+      "release": {
+        "html": "visible",
+        "body": "visible",
+        "inert": 0,
+        "hiddenRoot": null
+      },
+      "wheel": 500,
+      "keyboard": 738,
+      "touch": 345
+    },
+    {
+      "width": 390,
+      "panel": "recap",
+      "method": "back button",
+      "release": {
+        "html": "visible",
+        "body": "visible",
+        "inert": 0,
+        "hiddenRoot": null
+      },
+      "wheel": 500,
+      "keyboard": 738,
+      "touch": 474
+    },
+    {
+      "width": 390,
+      "panel": "recap",
+      "method": "close button",
+      "release": {
+        "html": "visible",
+        "body": "visible",
+        "inert": 0,
+        "hiddenRoot": null
+      },
+      "wheel": 500,
+      "keyboard": 738,
+      "touch": 345
+    },
+    {
+      "width": 390,
+      "panel": "recap",
+      "method": "browser back",
+      "release": {
+        "html": "visible",
+        "body": "visible",
+        "inert": 0,
+        "hiddenRoot": null
+      },
+      "wheel": 500,
+      "keyboard": 738,
+      "touch": 485
+    },
+    {
+      "width": 1920,
+      "panel": "category",
+      "method": "Escape",
+      "release": {
+        "html": "visible",
+        "body": "visible",
+        "inert": 0,
+        "hiddenRoot": null
+      },
+      "wheel": 500,
+      "keyboard": 945,
+      "touch": null
+    },
+    {
+      "width": 1920,
+      "panel": "category",
+      "method": "back button",
+      "release": {
+        "html": "visible",
+        "body": "visible",
+        "inert": 0,
+        "hiddenRoot": null
+      },
+      "wheel": 500,
+      "keyboard": 945,
+      "touch": null
+    },
+    {
+      "width": 1920,
+      "panel": "category",
+      "method": "close button",
+      "release": {
+        "html": "visible",
+        "body": "visible",
+        "inert": 0,
+        "hiddenRoot": null
+      },
+      "wheel": 500,
+      "keyboard": 945,
+      "touch": null
+    },
+    {
+      "width": 1920,
+      "panel": "category",
+      "method": "browser back",
+      "release": {
+        "html": "visible",
+        "body": "visible",
+        "inert": 0,
+        "hiddenRoot": null
+      },
+      "documentRange": 0,
+      "wheel": 0,
+      "keyboard": 0,
+      "touch": null
+    },
+    {
+      "width": 1920,
+      "panel": "recap",
+      "method": "Escape",
+      "release": {
+        "html": "visible",
+        "body": "visible",
+        "inert": 0,
+        "hiddenRoot": null
+      },
+      "documentRange": 2103,
+      "wheel": 500,
+      "keyboard": 945,
+      "touch": null
+    },
+    {
+      "width": 1920,
+      "panel": "recap",
+      "method": "back button",
+      "release": {
+        "html": "visible",
+        "body": "visible",
+        "inert": 0,
+        "hiddenRoot": null
+      },
+      "documentRange": 2103,
+      "wheel": 500,
+      "keyboard": 945,
+      "touch": null
+    },
+    {
+      "width": 1920,
+      "panel": "recap",
+      "method": "close button",
+      "release": {
+        "html": "visible",
+        "body": "visible",
+        "inert": 0,
+        "hiddenRoot": null
+      },
+      "documentRange": 2103,
+      "wheel": 500,
+      "keyboard": 945,
+      "touch": null
+    },
+    {
+      "width": 1920,
+      "panel": "recap",
+      "method": "browser back",
+      "release": {
+        "html": "visible",
+        "body": "visible",
+        "inert": 0,
+        "hiddenRoot": null
+      },
+      "documentRange": 0,
+      "wheel": 0,
+      "keyboard": 0,
+      "touch": null
+    }
+  ],
+  "errors": []
+}

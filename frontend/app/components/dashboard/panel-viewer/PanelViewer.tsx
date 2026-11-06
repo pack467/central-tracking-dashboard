@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type ComponentProps } from "react";
 import { createPortal } from "react-dom";
 import {
   ArrowLeft,
@@ -39,25 +39,25 @@ interface PanelViewerProps {
   totalTicketCount: number;
 
   // Shared Data Sources
-  volumeByDate: any[];
+  volumeByDate: ComponentProps<typeof TicketVolumeView>["volumeByDate"];
   allProjects: string[];
   projectColors: Record<string, string>;
   selectedDate: string | null;
   onSelectDate: (date: string | null) => void;
 
-  momData: any;
-  userSummaries: any[];
-  onSelectUserDetail: (user: any) => void;
+  momData: ComponentProps<typeof TicketMomView>["momData"];
+  userSummaries: ComponentProps<typeof UserRecapView>["userSummaries"];
+  onSelectUserDetail: ComponentProps<typeof UserRecapView>["onSelectUserDetail"];
 
   typeCounts: [string, number][];
   totalTickets: number;
-  renderDonutSlices: any;
+  renderDonutSlices: ComponentProps<typeof CategoryDistributionView>["renderDonutSlices"];
 
   priorityCounts: { High: number; Medium: number; Low: number };
   priorityColors: Record<TicketSeverity, string>;
   severityStyles: Record<TicketSeverity, { borderLeft: string; dot: string; bar: string }>;
 
-  shiftTrafficData: any;
+  shiftTrafficData: ComponentProps<typeof ShiftTrafficView>["shiftTrafficData"];
   activeShiftLineFilter: "all" | "Pagi" | "Malam" | "Subuh";
   onShiftLineFilterChange: (filter: "all" | "Pagi" | "Malam" | "Subuh") => void;
 

@@ -65,7 +65,14 @@ export function AuthGuard() {
   useEffect(() => {
     if (ready && !user) router.replace(routes.login(query ? `${pathname}?${query}` : pathname));
   }, [ready, user, pathname, query, router]);
-  return null;
+  if (ready && user) return null;
+  // The session is only known in the browser, so the page below is already there: it stays covered until the session is confirmed, or the person
+  // would see the app for a moment on the way to the login page. It sits under the splash of a first load.
+  return (
+    <div data-auth-cover className="fixed inset-0 z-[99999] flex items-center justify-center bg-[#0f172a] text-sm text-[#94a3b8]" role="status">
+      Memeriksa sesi...
+    </div>
+  );
 }
 export function DetailNotFound({ title, href }: { title: string; href: string }) {
   const router = useRouter();

@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import { ImagePlus, LoaderCircle, Trash2 } from "lucide-react";
 import { formatReportDate, type SignatoryConfig } from "@/app/lib/weekly-report";
-import { reportButtonClass, reportInputClass } from "./report-styles";
+import { reportInputClass } from "./report-styles";
 
 const MAX_SIGNATURE_BYTES = 5 * 1024 * 1024;
 

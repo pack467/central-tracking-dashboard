@@ -1,0 +1,24 @@
+[
+  {
+    "kind": "category",
+    "segment": "Maintenance",
+    "tap": true,
+    "toggleBack": true,
+    "rowTap": true,
+    "unchangedURL": true,
+    "before": 220,
+    "after": 300,
+    "overflow": 0
+  },
+  {
+    "kind": "severity",
+    "segment": "Critical",
+    "tap": true,
+    "toggleBack": true,
+    "rowTap": true,
+    "unchangedURL": true,
+    "before": 220,
+    "after": 300,
+    "overflow": 0
+  }
+]

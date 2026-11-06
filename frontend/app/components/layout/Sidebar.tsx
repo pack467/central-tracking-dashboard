@@ -3,6 +3,7 @@ import { paths, isActivePath } from "@/app/lib/routes";
 import { usePathname } from "next/navigation";
 
 import { useEffect, useRef, useState } from "react";
+import { useIsClient } from "@/app/hooks/useIsClient";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { Users, User, MoreHorizontal, Edit3, SlidersHorizontal, LogOut, ChevronLeft, ChevronRight, PanelLeft, Sun, Sunset, Moon } from "lucide-react";
@@ -13,6 +14,7 @@ import { useActiveShift } from "@/app/hooks/useLiveClock";
 import { useUserStatus } from "@/app/hooks/useUserStatus";
 import { useAuth } from "@/app/lib/auth";
 import { initials } from "@/app/lib/data";
+import { useProfilePhoto } from "@/app/hooks/useProfilePhoto";
 
 export { operationalNavItems, managementNavItems, navItems } from "@/app/lib/routes";
 import { navItems } from "@/app/lib/routes";
@@ -76,32 +78,37 @@ interface SidebarProps {
   collapsed?: boolean;
   onToggleCollapse?: () => void;
   shiftPanelOpen?: boolean;
+  isOnActiveShift?: boolean;
 }
 
 export function Sidebar({
   activeNav,
   onPrepareHandover,
-  openTicketCount,
   collapsed = false,
   onToggleCollapse,
   shiftPanelOpen = false,
+  isOnActiveShift = false,
 }: SidebarProps) {
   const pathname = usePathname();
   const notify = useToast();
   const { user, logout } = useAuth();
+  const photo = useProfilePhoto(user?.id);
   const activeShift = useActiveShift();
   const lastActionTimeRef = useRef<Record<string, number>>({});
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const mounted = useIsClient();
+  const openHandoverFromTile = () =>
+    throttleAction("prepare-handover", () => {
+      onPrepareHandover();
+      notify(isOnActiveShift ? `Persiapan handover ${activeShift.label} dibuka.` : `Membaca catatan handover ${activeShift.label}.`, "info", {
+        id: "handover-prepare",
+      });
+    });
   const { userStatus, currentStatusConfig } = useUserStatus();
 
   const profileCardRef = useRef<HTMLDivElement>(null);
   const moreBtnRef = useRef<HTMLButtonElement>(null);
   const [menuPosition, setMenuPosition] = useState<{ left: number; width: number; bottom: number } | null>(null);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const updateMenuPosition = () => {
     if (!profileCardRef.current) return;
@@ -201,7 +208,7 @@ export function Sidebar({
         })}
       </nav>
 
-      <section
+      <div
         className={`shift-card shift-card-${activeShift.id} ${
           collapsed
             ? `w-[44px] h-[44px] min-h-[44px] p-0 m-[auto_auto_12px_auto] flex items-center justify-center rounded-[12px] cursor-pointer box-border relative [transition:all_0.2s_ease] ${
@@ -213,18 +220,13 @@ export function Sidebar({
               }`
             : "m-[auto_0_14px] p-[14px] text-[#e2e8f0] bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] rounded-[10px]"
         }`}
-        title={collapsed ? `${activeShift.label} (${activeShift.period}) · Klik untuk Siapkan Handover` : undefined}
-        onClick={
-          collapsed
-            ? () =>
-                throttleAction("prepare-handover", () => {
-                  onPrepareHandover();
-                  notify(`Persiapan handover ${activeShift.label} dibuka.`, "info", {
-                    id: "handover-prepare",
-                  });
-                })
-            : undefined
-        }
+        title={collapsed ? `${activeShift.label} (${activeShift.period}) · Klik untuk ${isOnActiveShift ? "Siapkan Handover" : "Baca Handover"}` : undefined}
+        // collapsed, the whole tile is the button (the one inside the card is hidden then), so it has to work from the keyboard too
+        role={collapsed ? "button" : undefined}
+        tabIndex={collapsed ? 0 : undefined}
+        aria-label={collapsed ? `${activeShift.label} (${activeShift.period}): ${isOnActiveShift ? "Siapkan Handover" : "Baca Handover"}` : undefined}
+        onClick={collapsed ? openHandoverFromTile : undefined}
+        onKeyDown={collapsed ? (event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); openHandoverFromTile(); } } : undefined}
       >
         {/* Collapsed Tile View */}
         <div className={`shift-card-collapsed-view ${collapsed ? "flex items-center justify-center w-full h-full relative" : "hidden"}`} aria-hidden={!collapsed}>
@@ -268,16 +270,16 @@ export function Sidebar({
             onClick={() =>
               throttleAction("prepare-handover", () => {
                 onPrepareHandover();
-                notify(`Persiapan handover ${activeShift.label} dibuka.`, "info", {
+                notify(isOnActiveShift ? `Persiapan handover ${activeShift.label} dibuka.` : `Membaca catatan handover ${activeShift.label}.`, "info", {
                   id: "handover-prepare",
                 });
               })
             }
           >
-            Siapkan Handover <span>→</span>
+            {isOnActiveShift ? "Siapkan Handover" : "Baca Handover"} <span>→</span>
           </button>
         </div>
-      </section>
+      </div>
 
       <div className={`profile-container relative w-full mt-0 box-border ${collapsed ? "flex justify-center items-center" : ""}`}>
         <div
@@ -320,6 +322,7 @@ export function Sidebar({
                 size="md"
                 name={user?.name ?? "Mhd. Galih Khairi"}
                 initials={initials(user?.name ?? "Galih Khairi")}
+                photo={photo}
                 style={user?.avatarBg ? ({ "--avatar-bg": user.avatarBg } as React.CSSProperties) : undefined}
                 shape="circle"
                 className="profile-avatar grid place-items-center !w-full !h-full !min-w-full !min-h-full rounded-full bg-[var(--avatar-bg,#3a3a3e)] text-[var(--avatar-text,#f8fafc)] font-bold text-[11px] font-['JetBrains_Mono',monospace] ![box-shadow:none] border border-[rgba(148,163,184,0.22)] shrink-0 box-border m-0 outline-none"

@@ -2,7 +2,7 @@
 import { paths, routes, safeNext } from "@/app/lib/routes";
 
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
@@ -32,7 +32,7 @@ const LOCK_MS = 30_000;
 export function LoginView({ onSuccessRedirect = paths.dashboard }: LoginViewProps) {
   const router = useRouter();
   const next = useSearchParams().get("next");
-  const { signIn, mode } = useAuth();
+  const { signIn, mode, user } = useAuth();
   const notify = useToast();
   const shouldReduceMotion = useReducedMotion();
 
@@ -46,6 +46,12 @@ export function LoginView({ onSuccessRedirect = paths.dashboard }: LoginViewProp
   const [isNavigatingToTeam, setIsNavigatingToTeam] = useState(false);
   const [failures, setFailures] = useState(0);
   const [lockedUntil, setLockedUntil] = useState(0);
+
+  // With the real login, a live session has no business here: the first check may have found the server busy or down, and this is where it comes back.
+  const liveSession = mode === "backend" && user !== null;
+  useEffect(() => {
+    if (liveSession) router.replace(safeNext(next ?? onSuccessRedirect));
+  }, [liveSession, next, onSuccessRedirect, router]);
 
   const handleNavigateToTeam = (e: React.MouseEvent<HTMLAnchorElement>) => {
     // Biarkan browser menangani klik tombol tengah / Cmd+Click / Ctrl+Click
@@ -260,6 +266,7 @@ export function LoginView({ onSuccessRedirect = paths.dashboard }: LoginViewProp
 
         {/* Brand Lockup Atas: Logo Central */}
         <motion.div variants={leftHeaderVariants} className="relative z-10 flex items-center gap-3">
+          {/* eslint-disable-next-line @next/next/no-img-element -- a small local logo, nothing for the optimiser to do */}
           <img
             src="/hutabyte_icon_transparent.png"
             alt="Hutabyte"
@@ -351,6 +358,7 @@ export function LoginView({ onSuccessRedirect = paths.dashboard }: LoginViewProp
         >
           {/* Logo kecil khusus tampilan mobile */}
           <motion.div variants={formItemVariants} className="lg:hidden flex items-center gap-2.5 mb-8">
+            {/* eslint-disable-next-line @next/next/no-img-element -- a small local logo, nothing for the optimiser to do */}
             <img
               src="/hutabyte_icon_transparent.png"
               alt="Hutabyte"

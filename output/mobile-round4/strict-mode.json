@@ -1,0 +1,128 @@
+{
+  "setup": {
+    "reactUrl": "/node_modules/.vite/deps/react.js?v=c27d0846"
+  },
+  "cycles": [
+    {
+      "cycle": 1,
+      "html": "visible",
+      "body": "visible",
+      "inert": 0
+    },
+    {
+      "cycle": 2,
+      "html": "visible",
+      "body": "visible",
+      "inert": 0
+    },
+    {
+      "cycle": 3,
+      "html": "visible",
+      "body": "visible",
+      "inert": 0
+    },
+    {
+      "cycle": 4,
+      "html": "visible",
+      "body": "visible",
+      "inert": 0
+    },
+    {
+      "cycle": 5,
+      "html": "visible",
+      "body": "visible",
+      "inert": 0
+    },
+    {
+      "cycle": 6,
+      "html": "visible",
+      "body": "visible",
+      "inert": 0
+    },
+    {
+      "cycle": 7,
+      "html": "visible",
+      "body": "visible",
+      "inert": 0
+    },
+    {
+      "cycle": 8,
+      "html": "visible",
+      "body": "visible",
+      "inert": 0
+    },
+    {
+      "cycle": 9,
+      "html": "visible",
+      "body": "visible",
+      "inert": 0
+    },
+    {
+      "cycle": 10,
+      "html": "visible",
+      "body": "visible",
+      "inert": 0
+    },
+    {
+      "cycle": 11,
+      "html": "visible",
+      "body": "visible",
+      "inert": 0
+    },
+    {
+      "cycle": 12,
+      "html": "visible",
+      "body": "visible",
+      "inert": 0
+    },
+    {
+      "cycle": 13,
+      "html": "visible",
+      "body": "visible",
+      "inert": 0
+    },
+    {
+      "cycle": 14,
+      "html": "visible",
+      "body": "visible",
+      "inert": 0
+    },
+    {
+      "cycle": 15,
+      "html": "visible",
+      "body": "visible",
+      "inert": 0
+    },
+    {
+      "cycle": 16,
+      "html": "visible",
+      "body": "visible",
+      "inert": 0
+    },
+    {
+      "cycle": 17,
+      "html": "visible",
+      "body": "visible",
+      "inert": 0
+    },
+    {
+      "cycle": 18,
+      "html": "visible",
+      "body": "visible",
+      "inert": 0
+    },
+    {
+      "cycle": 19,
+      "html": "visible",
+      "body": "visible",
+      "inert": 0
+    },
+    {
+      "cycle": 20,
+      "html": "visible",
+      "body": "visible",
+      "inert": 0
+    }
+  ],
+  "errors": []
+}

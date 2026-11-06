@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { getShiftInfoForMinutes, getDerivedMemberStatus, isShiftActiveForMember, shiftDefinitions } from "../app/lib/shifts.ts";
+import { getShiftInfoForMinutes, getDerivedMemberStatus, shiftDefinitions } from "../app/lib/shifts.ts";
 import { seedRosterMembers } from "../app/lib/data.ts";
 
 test("Shift determination across 24-hour cycle", () => {

@@ -1,17 +1,19 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useCallback, useState, useEffect, useRef } from "react";
+import { useIsClient } from "@/app/hooks/useIsClient";
 import { createPortal } from "react-dom";
-import { X, Check, FileText, AlertTriangle, Trash2 } from "lucide-react";
+import { X, Check, FileText, AlertTriangle, Trash2, Clock, Lock, Moon, Sun, Sunset, User } from "lucide-react";
 import { Modal } from "@/app/components/ui/Modal";
 import { ModalCloseButton } from "@/app/components/ui/ModalCloseButton";
-import { ProjectMark } from "@/app/components/ui/ProjectMark";
+import { ProjectTile } from "@/app/components/monitoring/ProjectTile";
+import { getShiftInfoForMinutes, getShiftType } from "@/app/lib/shifts";
 import type { MonitoringEntry } from "@/app/lib/types";
 
 export interface NotAdequateModalProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (note: string) => void;
+  onSubmit?: (note: string) => void;
   onDeleteNote?: () => void;
   mode?: "alasan-nok-wajib" | "catatan";
   entry?: MonitoringEntry | null;
@@ -20,6 +22,48 @@ export interface NotAdequateModalProps {
   time?: string;
   verdict?: "ok" | "nok" | "adequate" | "not-adequate" | null;
   initialNote?: string;
+  readOnly?: boolean;
+  shift?: string;
+  owner?: string;
+}
+
+function resolveShiftLabel(shiftProp?: string, timeStr?: string): string {
+  if (shiftProp && shiftProp.trim()) {
+    const trimmed = shiftProp.trim();
+    return /^shift\s+/i.test(trimmed) ? trimmed : `Shift ${trimmed}`;
+  }
+  const match = /^(\d{1,2}):(\d{2})/.exec((timeStr || "").trim());
+  if (match) {
+    const mins = parseInt(match[1], 10) * 60 + parseInt(match[2], 10);
+    return getShiftInfoForMinutes(mins).label;
+  }
+  return "";
+}
+
+function getShiftBadgeStyle(shiftLabel: string) {
+  const type = getShiftType(shiftLabel);
+  if (type === "subuh") {
+    return {
+      Icon: Moon,
+      className: "text-[#38bdf8] bg-[rgba(56,189,248,0.14)] border-[rgba(56,189,248,0.35)]",
+    };
+  }
+  if (type === "pagi") {
+    return {
+      Icon: Sun,
+      className: "text-[#fbbf24] bg-[rgba(245,158,11,0.14)] border-[rgba(245,158,11,0.35)]",
+    };
+  }
+  if (type === "malam") {
+    return {
+      Icon: Sunset,
+      className: "text-[#c084fc] bg-[rgba(168,85,247,0.14)] border-[rgba(168,85,247,0.35)]",
+    };
+  }
+  return {
+    Icon: Clock,
+    className: "text-[#94a3b8] bg-[rgba(148,163,184,0.14)] border-[rgba(148,163,184,0.3)]",
+  };
 }
 
 export function NotAdequateModal({
@@ -34,9 +78,12 @@ export function NotAdequateModal({
   time,
   verdict,
   initialNote = "",
+  readOnly = false,
+  shift,
+  owner,
 }: NotAdequateModalProps) {
   const [note, setNote] = useState(initialNote);
-  const [mounted, setMounted] = useState(false);
+  const mounted = useIsClient();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLElement | null>(null);
@@ -44,23 +91,33 @@ export function NotAdequateModal({
   const displayProject = entry?.project || projectName || "Checkpoint";
   const displayTask = entry?.task || checkpointName || "Observasi monitoring operasional";
   const displayTime = entry?.time || time || "";
+  const displayShift = resolveShiftLabel(shift, displayTime);
+  const displayOwner = owner || entry?.owner || "";
+  const shiftStyle = getShiftBadgeStyle(displayShift);
+  const ShiftBadgeIcon = shiftStyle.Icon;
+
   const isNokMode = mode === "alasan-nok-wajib" || verdict === "nok" || verdict === "not-adequate";
   const isNoteMode = mode === "catatan";
   const isOkVerdict = verdict === "ok" || verdict === "adequate";
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  // The text box starts from the saved note each time the dialog opens, or when that note changes while it is open.
+  const noteSource = open ? initialNote : null;
+  const [loadedSource, setLoadedSource] = useState(noteSource);
+  if (noteSource !== loadedSource) {
+    setLoadedSource(noteSource);
+    if (noteSource !== null) setNote(noteSource);
+  }
 
   useEffect(() => {
     if (open) {
-      setNote(initialNote);
       triggerRef.current = (document.activeElement as HTMLElement) || null;
       const prevOverflow = document.body.style.overflow;
       document.body.style.overflow = "hidden";
 
       const timer = setTimeout(() => {
-        textareaRef.current?.focus();
+        if (!readOnly) {
+          textareaRef.current?.focus();
+        }
       }, 50);
 
       return () => {
@@ -69,23 +126,24 @@ export function NotAdequateModal({
         triggerRef.current?.focus?.();
       };
     }
-  }, [open, initialNote]);
+  }, [open, initialNote, readOnly]);
 
-  const isDirty = note.trim() !== initialNote.trim();
-  const canSubmit = isNokMode
+  const isDirty = !readOnly && note.trim() !== initialNote.trim();
+  const canSubmit = !readOnly && (isNokMode
     ? note.trim().length > 0 && (isDirty || mode === "alasan-nok-wajib")
-    : isDirty;
+    : isDirty);
 
-  const handleSave = () => {
-    if (!canSubmit) return;
+  const handleSave = useCallback(() => {
+    if (!canSubmit || !onSubmit) return;
     onSubmit(note.trim());
     onClose();
-  };
+  }, [canSubmit, onSubmit, note, onClose]);
 
   const handleDelete = () => {
+    if (readOnly) return;
     if (onDeleteNote) {
       onDeleteNote();
-    } else {
+    } else if (onSubmit) {
       onSubmit("");
     }
     onClose();
@@ -99,7 +157,7 @@ export function NotAdequateModal({
       if (e.key === "Escape") {
         e.stopPropagation();
         onClose();
-      } else if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+      } else if (!readOnly && e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
         if (canSubmit) {
           handleSave();
@@ -127,13 +185,13 @@ export function NotAdequateModal({
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [open, canSubmit, note, initialNote]);
+  }, [open, canSubmit, handleSave, onClose, readOnly]);
 
   if (!open || !mounted) return null;
 
   const modalContent = (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150"
+      className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150"
       role="presentation"
       onMouseDown={(e) => {
         // Prevent accidental closing if user has typed unsaved changes
@@ -154,13 +212,19 @@ export function NotAdequateModal({
         <div className="p-4 sm:p-5 border-b border-[#334155] flex items-start justify-between gap-3 bg-slate-900/40">
           <div className="flex flex-col min-w-0 flex-1">
             <div className="flex items-center gap-2 flex-wrap">
-              <ProjectMark name={displayProject} />
+              <ProjectTile name={displayProject} clientId={entry?.clientId} size="xs" />
               <strong className="text-xs font-bold text-[#f8fafc] truncate max-w-[140px]">
                 {displayProject}
               </strong>
               {displayTime && (
                 <span className="font-mono text-[11px] font-bold text-[#38bdf8] bg-[rgba(56,189,248,0.12)] border border-[rgba(56,189,248,0.3)] px-1.5 py-0.5 rounded-[4px] leading-none shrink-0">
                   {displayTime}
+                </span>
+              )}
+              {displayShift && (
+                <span className={`inline-flex items-center gap-1 font-mono text-[10.5px] font-bold border px-2 py-0.5 rounded-full leading-none shrink-0 ${shiftStyle.className}`}>
+                  <ShiftBadgeIcon size={11} />
+                  <span>{displayShift}</span>
                 </span>
               )}
               {isOkVerdict && (
@@ -193,92 +257,165 @@ export function NotAdequateModal({
 
         {/* Content */}
         <div className="p-4 sm:p-5 flex flex-col gap-3.5 overflow-y-auto">
-          {isNokMode ? (
-            <div
-              id="checkpoint-dialog-desc"
-              className="bg-[rgba(248,113,113,0.1)] border border-[rgba(248,113,113,0.25)] rounded-lg p-2.5 text-xs text-[#f87171] leading-relaxed flex items-start gap-2"
-            >
-              <AlertTriangle size={15} className="shrink-0 mt-0.5" />
-              <span>
-                <strong>Format anomali:</strong> Jelaskan gejala (queue, CPU, latensi), komponen terdampak, dan tindakan / ID ticket terkait.
-              </span>
-            </div>
+          {readOnly ? (
+            <>
+              {/* Shift & Checker Info Box */}
+              <div
+                id="checkpoint-dialog-desc"
+                className="grid grid-cols-2 gap-2.5 rounded-xl border border-[#334155]/80 bg-[#0f172a]/70 p-3 text-xs max-[440px]:grid-cols-1"
+              >
+                <div className="flex flex-col gap-1">
+                  <span className="font-mono text-[10px] font-bold uppercase tracking-[0.6px] text-[#94a3b8]">
+                    Shift Ketika Monitoring
+                  </span>
+                  <div className="flex items-center gap-1.5 font-semibold text-[#f8fafc]">
+                    <ShiftBadgeIcon size={13} className="text-[#38bdf8] shrink-0" />
+                    <span>{displayShift || "Shift Operasional"}</span>
+                    {displayTime && <span className="font-mono text-[11px] text-[#94a3b8]">· {displayTime} WIB</span>}
+                  </div>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="font-mono text-[10px] font-bold uppercase tracking-[0.6px] text-[#94a3b8]">
+                    Pemeriksa / PIC Monitoring
+                  </span>
+                  <div className="flex items-center gap-1.5 font-semibold text-[#f8fafc] truncate">
+                    <User size={13} className="text-[#38bdf8] shrink-0" />
+                    <span className="truncate">{displayOwner || "Operator Shift"}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Read-Only Monitoring Message */}
+              <div>
+                <div className="flex items-center justify-between text-xs font-semibold text-[#cbd5e1] mb-1.5">
+                  <span>Pesan / Catatan Hasil Monitoring</span>
+                  <span className="inline-flex items-center gap-1 font-mono text-[10px] font-bold text-[#94a3b8] bg-slate-800/80 border border-slate-700 px-2 py-0.5 rounded-md">
+                    <Lock size={10} />
+                    <span>Hanya Baca</span>
+                  </span>
+                </div>
+
+                <div
+                  className={`w-full min-h-[92px] rounded-xl bg-[#0f172a] border p-3 text-xs leading-relaxed whitespace-pre-wrap break-words ${
+                    initialNote.trim()
+                      ? isNokMode
+                        ? "border-red-500/30 text-[#f8fafc]"
+                        : "border-[#334155] text-[#f8fafc]"
+                      : "border-[#334155]/70 text-[#64748b] italic"
+                  }`}
+                >
+                  {initialNote.trim() || "Tidak ada pesan atau catatan tambahan yang dicatat pada checkpoint monitoring ini."}
+                </div>
+              </div>
+            </>
           ) : (
-            <div
-              id="checkpoint-dialog-desc"
-              className="bg-[rgba(56,189,248,0.08)] border border-[rgba(56,189,248,0.2)] rounded-lg p-2.5 text-xs text-[#cbd5e1] leading-relaxed flex items-start gap-2"
-            >
-              <FileText size={15} className="shrink-0 text-[#38bdf8] mt-0.5" />
-              <span>
-                Catatan ini akan tersimpan pada jadwal checkpoint dan terangkum otomatis pada handover shift.
-              </span>
-            </div>
+            <>
+              {isNokMode ? (
+                <div
+                  id="checkpoint-dialog-desc"
+                  className="bg-[rgba(248,113,113,0.1)] border border-[rgba(248,113,113,0.25)] rounded-lg p-2.5 text-xs text-[#f87171] leading-relaxed flex items-start gap-2"
+                >
+                  <AlertTriangle size={15} className="shrink-0 mt-0.5" />
+                  <span>
+                    <strong>Format anomali:</strong> Jelaskan gejala (queue, CPU, latensi), komponen terdampak, dan tindakan / ID ticket terkait.
+                  </span>
+                </div>
+              ) : (
+                <div
+                  id="checkpoint-dialog-desc"
+                  className="bg-[rgba(56,189,248,0.08)] border border-[rgba(56,189,248,0.2)] rounded-lg p-2.5 text-xs text-[#cbd5e1] leading-relaxed flex items-start gap-2"
+                >
+                  <FileText size={15} className="shrink-0 text-[#38bdf8] mt-0.5" />
+                  <span>
+                    Catatan ini akan tersimpan pada jadwal checkpoint dan terangkum otomatis pada handover shift.
+                  </span>
+                </div>
+              )}
+
+              <div>
+                <div className="flex items-center justify-between text-xs font-semibold text-[#cbd5e1] mb-1.5">
+                  <label htmlFor="checkpoint-note-input" className="cursor-pointer">
+                    {isNokMode ? "Alasan NOK & Catatan Tindakan *" : "Catatan / Update Operasional"}
+                  </label>
+                  <span className={`font-mono text-[11px] ${note.length >= 500 ? "text-[#f87171] font-bold" : "text-[#94a3b8]"}`}>
+                    {note.length}/500
+                  </span>
+                </div>
+
+                <textarea
+                  id="checkpoint-note-input"
+                  ref={textareaRef}
+                  rows={4}
+                  maxLength={500}
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  placeholder={
+                    isNokMode
+                      ? "Contoh: Queue ActiveMQ menumpuk 4.200 pesan. Service di-restart pukul 20:15; pantau laju draining."
+                      : "Tambahkan catatan atau update operasional mengenai checkpoint ini (opsional)..."
+                  }
+                  className="w-full min-h-[96px] max-h-[220px] rounded-xl bg-[#0f172a] border border-[#334155] p-3 text-xs text-[#f8fafc] placeholder:text-[#64748b] focus:border-[#38bdf8] focus:ring-2 focus:ring-[#38bdf8]/20 focus:outline-none transition-all resize-y font-sans leading-relaxed"
+                />
+
+                <div className="flex items-center justify-between mt-1 text-[11px] text-[#64748b]">
+                  <span>Tekan Ctrl+Enter untuk menyimpan</span>
+                </div>
+              </div>
+            </>
           )}
-
-          <div>
-            <div className="flex items-center justify-between text-xs font-semibold text-[#cbd5e1] mb-1.5">
-              <label htmlFor="checkpoint-note-input" className="cursor-pointer">
-                {isNokMode ? "Alasan NOK & Catatan Tindakan *" : "Catatan / Update Operasional"}
-              </label>
-              <span className={`font-mono text-[11px] ${note.length >= 500 ? "text-[#f87171] font-bold" : "text-[#94a3b8]"}`}>
-                {note.length}/500
-              </span>
-            </div>
-
-            <textarea
-              id="checkpoint-note-input"
-              ref={textareaRef}
-              rows={4}
-              maxLength={500}
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              placeholder={
-                isNokMode
-                  ? "Contoh: Queue ActiveMQ menumpuk 4.200 pesan. Service di-restart pukul 20:15; pantau laju draining."
-                  : "Tambahkan catatan atau update operasional mengenai checkpoint ini (opsional)..."
-              }
-              className="w-full min-h-[96px] max-h-[220px] rounded-xl bg-[#0f172a] border border-[#334155] p-3 text-xs text-[#f8fafc] placeholder:text-[#64748b] focus:border-[#38bdf8] focus:ring-2 focus:ring-[#38bdf8]/20 focus:outline-none transition-all resize-y font-sans leading-relaxed"
-            />
-
-            <div className="flex items-center justify-between mt-1 text-[11px] text-[#64748b]">
-              <span>Tekan Ctrl+Enter untuk menyimpan</span>
-            </div>
-          </div>
         </div>
 
         {/* Footer */}
         <div className="p-4 sm:p-5 border-t border-[#334155] bg-slate-900/30 flex items-center justify-between gap-3 max-sm:flex-col-reverse">
-          <div>
-            {isNoteMode && isOkVerdict && initialNote && (
+          {readOnly ? (
+            <>
+              <span className="inline-flex items-center gap-1.5 text-[11px] text-[#94a3b8]">
+                <Lock size={12} className="shrink-0" />
+                <span>Catatan monitoring pada handover bersifat hanya baca</span>
+              </span>
               <button
                 type="button"
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#f87171] hover:text-[#fca5a5] hover:bg-[#f87171]/10 px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer"
-                onClick={handleDelete}
-                title="Hapus catatan pada checkpoint ini"
+                className="px-4 py-2 rounded-xl border border-[#334155] bg-[#243044] hover:bg-[#334155] text-[#f8fafc] text-xs font-semibold transition-colors cursor-pointer max-sm:w-full max-sm:h-11"
+                onClick={onClose}
               >
-                <Trash2 size={13} />
-                <span>Hapus catatan</span>
+                Tutup
               </button>
-            )}
-          </div>
+            </>
+          ) : (
+            <>
+              <div>
+                {isNoteMode && isOkVerdict && initialNote && (
+                  <button
+                    type="button"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#f87171] hover:text-[#fca5a5] hover:bg-[#f87171]/10 px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer"
+                    onClick={handleDelete}
+                    title="Hapus catatan pada checkpoint ini"
+                  >
+                    <Trash2 size={13} />
+                    <span>Hapus catatan</span>
+                  </button>
+                )}
+              </div>
 
-          <div className="flex items-center gap-2.5 max-sm:w-full">
-            <button
-              type="button"
-              className="px-3.5 py-2 rounded-xl border border-[#334155] bg-transparent hover:bg-[#243044] text-[#cbd5e1] hover:text-[#f8fafc] text-xs font-semibold transition-colors cursor-pointer max-sm:flex-1 max-sm:h-11"
-              onClick={onClose}
-            >
-              Batal
-            </button>
-            <button
-              type="button"
-              disabled={!canSubmit}
-              onClick={handleSave}
-              className="px-4 py-2 rounded-xl bg-[#38bdf8] hover:bg-[#0284c7] disabled:opacity-40 disabled:cursor-not-allowed text-slate-950 text-xs font-bold transition-all shadow-[0_2px_8px_rgba(56,189,248,0.25)] cursor-pointer max-sm:flex-1 max-sm:h-11 flex items-center justify-center gap-1.5"
-            >
-              <span>Simpan</span>
-            </button>
-          </div>
+              <div className="flex items-center gap-2.5 max-sm:w-full">
+                <button
+                  type="button"
+                  className="px-3.5 py-2 rounded-xl border border-[#334155] bg-transparent hover:bg-[#243044] text-[#cbd5e1] hover:text-[#f8fafc] text-xs font-semibold transition-colors cursor-pointer max-sm:flex-1 max-sm:h-11"
+                  onClick={onClose}
+                >
+                  Batal
+                </button>
+                <button
+                  type="button"
+                  disabled={!canSubmit}
+                  onClick={handleSave}
+                  className="px-4 py-2 rounded-xl bg-[#38bdf8] hover:bg-[#0284c7] disabled:opacity-40 disabled:cursor-not-allowed text-slate-950 text-xs font-bold transition-all shadow-[0_2px_8px_rgba(56,189,248,0.25)] cursor-pointer max-sm:flex-1 max-sm:h-11 flex items-center justify-center gap-1.5"
+                >
+                  <span>Simpan</span>
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>

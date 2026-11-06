@@ -135,7 +135,6 @@ export default function GlobalError({
               Coba lagi
             </button>
 
-            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
             <a
               href={paths.dashboard}
               style={{

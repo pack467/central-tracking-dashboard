@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { paths, safeNext } from "@/app/lib/routes";
 import { ArrowLeft } from "lucide-react";
@@ -11,22 +10,11 @@ interface TeamBackButtonProps {
 
 export function TeamBackButton({ className = "" }: TeamBackButtonProps) {
   const router = useRouter();
-  const [fromParam, setFromParam] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
-      const from = params.get("from");
-      if (from) {
-        setFromParam(from);
-      }
-    }
-  }, []);
-
   const handleBack = () => {
     // 1. Prioritaskan query param ?from= jika eksplisit disediakan (misal dari /login)
-    if (fromParam) {
-      router.push(safeNext(fromParam, true));
+    const from = new URLSearchParams(window.location.search).get("from");
+    if (from) {
+      router.push(safeNext(from, true));
       return;
     }
 

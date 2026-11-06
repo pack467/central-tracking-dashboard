@@ -44,6 +44,11 @@ const eslintConfig = defineConfig([
     },
   },
   {
+    rules: {
+      "jsx-a11y/label-has-associated-control": ["error", { depth: 4, controlComponents: ["TimePicker"] }],
+    },
+  },
+  {
     languageOptions: {
       globals: {
         ...globals.browser,

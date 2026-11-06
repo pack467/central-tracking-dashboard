@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { Maximize2 } from "lucide-react";
 
 interface PanelViewButtonProps {

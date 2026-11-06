@@ -193,7 +193,7 @@ test("Outside Handover Windows (Normal & Upcoming)", () => {
 test("ShiftTransitionBadge file structure has clean hierarchy and no cluttered icon list", async () => {
   const fs = await import("node:fs/promises");
   const badgeSource = await fs.readFile(
-    "f:/Website/Central Tracking Dashboard/Central_Tracking_Dashboard/frontend/app/components/layout/ShiftTransitionBadge.tsx",
+    "app/components/layout/ShiftTransitionBadge.tsx",
     "utf-8"
   );
 
@@ -215,7 +215,7 @@ test("ShiftTransitionBadge file structure has clean hierarchy and no cluttered i
   } catch {
     try {
       layoutCss = await fs.readFile("app/styles/layout.css", "utf-8");
-    } catch {}
+    } catch { /* the styles may live in the component instead; checked below */ }
   }
   assert.ok(layoutCss.includes(".transition-icon-container") || badgeSource.includes("transition-icon-container"), "Defines .transition-icon-container");
   assert.ok(layoutCss.includes(".transition-timer-badge") || badgeSource.includes("transition-timer-badge"), "Defines .transition-timer-badge");

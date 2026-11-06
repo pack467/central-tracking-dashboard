@@ -1,0 +1,30 @@
+[
+  {
+    "label": "Dashboard",
+    "percent": 0
+  },
+  {
+    "label": "Tickets",
+    "percent": 0
+  },
+  {
+    "label": "Monitoring",
+    "percent": 0.04938040585495675
+  },
+  {
+    "label": "Shift Log",
+    "percent": 0
+  },
+  {
+    "label": "Reports",
+    "percent": 0
+  },
+  {
+    "label": "Team Roster",
+    "percent": 0
+  },
+  {
+    "label": "Runbooks",
+    "percent": 0
+  }
+]

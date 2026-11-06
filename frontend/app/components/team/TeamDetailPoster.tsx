@@ -206,6 +206,7 @@ export function TeamDetailPoster({ member, isOpen, onClose }: TeamDetailPosterPr
           {/* Brand Logo Lockup */}
           <div className="inline-flex items-center gap-2">
             <span className="w-6 h-6 inline-flex items-center justify-center shrink-0">
+              {/* eslint-disable-next-line @next/next/no-img-element -- a small local logo, nothing for the optimiser to do */}
               <img
                 src="/hutabyte_icon_transparent.png"
                 alt="Logo"

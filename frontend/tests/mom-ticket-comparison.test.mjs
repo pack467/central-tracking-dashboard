@@ -36,56 +36,35 @@ test("Month-over-Month (MoM) ticket comparison is properly implemented in Ticket
   assert.ok(viewer.includes("<MomComparison") && viewer.includes('variant="full"'), "The expanded panel uses the same component");
 });
 
-function getTicketsEnhancementsCss() {
-  const p1 = path.resolve("app/styles/tailwind/tickets-enhancements.css");
-  const p2 = path.resolve("app/styles/tickets-enhancements.css");
-  return fs.existsSync(p1) ? fs.readFileSync(p1, "utf8") : fs.readFileSync(p2, "utf8");
-}
+const readTsx = () => fs.readFileSync(path.resolve("app/components/tickets/TicketReportView.tsx"), "utf8");
+const classLine = (tsx, name) => tsx.split("\n").find((line) => line.includes(name));
 
-test("CSS rules for Month-over-Month comparison are styled cleanly in tickets-enhancements.css", async () => {
-  const css = getTicketsEnhancementsCss();
-
-  assert.ok(css.includes(".mom-metrics-strip"), "Contains .mom-metrics-strip");
-  assert.ok(css.includes(".mom-metric-card"), "Contains .mom-metric-card");
-  assert.ok(css.includes(".mom-val-current"), "Contains .mom-val-current styling");
-  assert.ok(css.includes(".mom-val-prev"), "Contains .mom-val-prev styling");
-  assert.ok(css.includes(".mom-subview-toggle-bar"), "Contains .mom-subview-toggle-bar");
-  assert.ok(css.includes(".mom-toggle-btn"), "Contains .mom-toggle-btn");
+test("Month-over-Month controls keep their class hooks in the shared component", () => {
+  const component = fs.readFileSync(path.resolve("app/components/dashboard/MomComparison.tsx"), "utf8");
+  assert.ok(component.includes("mom-subview-toggle-bar"), "Has .mom-subview-toggle-bar");
+  assert.ok(component.includes("mom-toggle-btn"), "Has .mom-toggle-btn");
+  const responsive = fs.readFileSync(path.resolve("app/styles/tailwind/responsive.css"), "utf8");
+  assert.ok(responsive.includes(".mom-subview-toggle-bar"), "The phone layout still targets the toggle bar");
 });
 
-test("user-summary-list expands to fill full height of the adjacent chart card", async () => {
-  const css = getTicketsEnhancementsCss();
-
-  // Verify user-summary-list doesn't have artificial max-height cap and uses flex stretch
-  const listBlockMatch = css.match(/\.user-summary-list\s*\{([^}]+)\}/);
-  assert.ok(listBlockMatch, ".user-summary-list CSS rule exists");
-  const listCss = listBlockMatch[1];
-  assert.ok(!listCss.includes("max-height"), ".user-summary-list does NOT have max-height restriction");
-  assert.ok(listCss.includes("flex: 1") || listCss.includes("flex:1"), ".user-summary-list has flex: 1 to fill height");
-  assert.ok(css.includes(".user-summary-wrapper"), ".user-summary-wrapper CSS rule exists");
-  assert.ok(css.includes("justify-content: flex-start") || css.includes("justify-content:flex-start"), "Chart panels use justify-content: flex-start to prevent pushed down charts");
+test("user-summary-list expands to fill full height of the adjacent chart card", () => {
+  const tsx = readTsx();
+  const line = classLine(tsx, "user-summary-list");
+  assert.ok(line, ".user-summary-list is rendered");
+  assert.ok(!/max-h-/.test(line), ".user-summary-list does NOT have a max-height restriction");
+  assert.ok(line.includes("flex-1"), ".user-summary-list grows to fill the height");
+  assert.ok(tsx.includes("user-summary-wrapper"), ".user-summary-wrapper is rendered");
 });
 
-test("engineer-workload-list expands dynamically to fill ops-engineer-panel without empty void", async () => {
-  const css = getTicketsEnhancementsCss();
-
-  const tsxPath = path.resolve("app/components/tickets/TicketReportView.tsx");
-  const tsx = fs.readFileSync(tsxPath, "utf8");
-
-  // Verify engineer-workload-list does not have artificial max-height cap
-  const engListMatch = css.match(/\.engineer-workload-list\s*\{([^}]+)\}/);
-  assert.ok(engListMatch, ".engineer-workload-list CSS rule exists");
-  const engListCss = engListMatch[1];
-  assert.ok(!engListCss.includes("max-height: 180px") && !engListCss.includes("max-height:180px"), ".engineer-workload-list does NOT have max-height: 180px cap");
-  assert.ok(engListCss.includes("flex: 1 1 0%") || engListCss.includes("flex:1_1_0%"), ".engineer-workload-list has flex: 1 1 0% to fill height dynamically");
-
-  // Verify ops-engineer-panel and report-panel-body have flex setup
-  assert.ok(css.includes(".ops-engineer-panel"), "Contains .ops-engineer-panel");
-  assert.ok(css.includes(".engineer-workload-footer"), "Contains .engineer-workload-footer");
-  assert.ok(css.includes(".engineer-workload-stats"), "Contains .engineer-workload-stats");
-
-  // Verify JSX renders engineer-workload-footer with total and average metrics
+test("engineer-workload-list expands dynamically to fill ops-engineer-panel without empty void", () => {
+  const tsx = readTsx();
+  const line = classLine(tsx, "engineer-workload-list");
+  assert.ok(line, ".engineer-workload-list is rendered");
+  assert.ok(!line.includes("max-h-[180px]"), ".engineer-workload-list does NOT have the old 180px cap");
+  assert.ok(line.includes("flex-1"), ".engineer-workload-list grows to fill the height");
+  assert.ok(tsx.includes("ops-engineer-panel"), "Renders .ops-engineer-panel");
   assert.ok(tsx.includes("engineer-workload-footer"), "TicketReportView renders .engineer-workload-footer");
+  assert.ok(tsx.includes("engineer-workload-stats"), "TicketReportView renders .engineer-workload-stats");
   assert.ok(tsx.includes("Total:"), "TicketReportView footer displays total tickets");
   assert.ok(tsx.includes("Rata-rata:"), "TicketReportView footer displays average workload per staff");
 });
@@ -109,8 +88,6 @@ test("Shift Traffic is rendered as clean interactive Multi-Line Trajectory Chart
   const tsxPath = path.resolve("app/components/tickets/TicketReportView.tsx");
   const tsx = fs.readFileSync(tsxPath, "utf8");
 
-  const css = getTicketsEnhancementsCss();
-
   // Verify multi-line chart structure & elements
   assert.ok(tsx.includes("shift-traffic-panel"), "Renders .shift-traffic-panel container");
   assert.ok(tsx.includes("shift-traffic-chart-container"), "Renders .shift-traffic-chart-container for SVG chart");
@@ -133,14 +110,6 @@ test("Shift Traffic is rendered as clean interactive Multi-Line Trajectory Chart
   assert.ok(tsx.includes("shift-traffic-y-label"), "Renders HTML Y-axis label numbers");
   assert.ok(tsx.includes("shift-traffic-x-axis"), "Renders HTML X-axis overlay");
   assert.ok(tsx.includes("shift-traffic-x-label"), "Renders HTML X-axis date labels");
-  assert.ok(css.includes(".shift-traffic-y-axis"), "CSS includes .shift-traffic-y-axis");
-  assert.ok(css.includes(".shift-traffic-y-label"), "CSS includes .shift-traffic-y-label");
-  assert.ok(css.includes(".shift-traffic-x-axis"), "CSS includes .shift-traffic-x-axis");
-  assert.ok(css.includes(".shift-traffic-x-label"), "CSS includes .shift-traffic-x-label");
 
-  // Verify CSS styles
-  assert.ok(css.includes(".shift-traffic-chart-container"), "CSS includes .shift-traffic-chart-container");
-  assert.ok(css.includes(".shift-traffic-tooltip"), "CSS includes .shift-traffic-tooltip");
-  assert.ok(css.includes(".shift-traffic-metrics-strip"), "CSS includes .shift-traffic-metrics-strip");
 });
 
