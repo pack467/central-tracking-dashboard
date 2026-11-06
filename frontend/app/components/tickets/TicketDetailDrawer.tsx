@@ -3,7 +3,7 @@ import { useMasterReferences } from "@/app/hooks/useMasterReferences";
 import { usePeople } from "@/app/hooks/useMasterData";
 import { ownerNames } from "@/app/lib/ticket-owner";
 
-import { X, PlusCircle, MessageSquare, Headphones, CheckCircle2, Edit3, Clock, Tag, Zap, Cpu } from "lucide-react";
+import { PlusCircle, MessageSquare, Headphones, CheckCircle2, Edit3, Clock, Tag, Zap, Cpu, Share2 } from "lucide-react";
 import { Badge } from "@/app/components/ui/Badge";
 import { Avatar } from "@/app/components/ui/Avatar";
 import { ConfirmDialog } from "@/app/components/ui/ConfirmDialog";
@@ -13,10 +13,11 @@ import { EntityIconTile } from "@/app/components/master-data/master-ui";
 import { useToast } from "@/app/components/ui/Toast";
 import { severityTone, statusTone } from "@/app/components/tickets/TicketTable";
 import { useState } from "react";
-import { nowClockLabel, initials } from "@/app/lib/data";
+import { nowClockLabel } from "@/app/lib/data";
 import { useAuth } from "@/app/lib/auth";
 import type { Ticket } from "@/app/lib/types";
 import { ticketCode } from "@/app/lib/ticket-code";
+import { getTimelineConfig } from "@/app/lib/ticket-timeline";
 
 export type ActivityTypeLabel = "Tiket Dibuat" | "User Request" | "Kita Merespon" | "Tiket Closed" | "Tiket Open";
 
@@ -251,7 +252,9 @@ export function TicketDetailDrawer({ ticket, onClose, onUpdate, readOnlyReason }
       ? categoryLabel(ticket.type)
       : null;
 
-  const hasAdhocTimeline = Boolean(
+  const timelineConfig = getTimelineConfig(ticket.category || ticket.type);
+
+  const hasTimeline = Boolean(
     ticket.requestTime || ticket.responseTime || ticket.completionTime || ticket.isStillOpen
   );
 
@@ -352,47 +355,62 @@ export function TicketDetailDrawer({ ticket, onClose, onUpdate, readOnlyReason }
                     ))}
                   </div>
                 </div>
+
+                {/* Escalation Target (if set) */}
+                {ticket.escalatedTo && (
+                  <div className="[margin-top:10px]! [padding:8px_12px]! [background:rgba(168,_85,_247,_0.08)]! [border:1px_solid_rgba(168,_85,_247,_0.25)]! [border-radius:6px]!">
+                    <span className="[font-size:11px]! [color:#c084fc]! [display:flex]! [align-items:center]! [gap:5px]! [font-weight:600]! [font-family:var(--font-mono)]!">
+                      <Share2 size={11} />
+                      TARGET ESKALASI ({ticket.escalationLevel || "Level 2"}):
+                    </span>
+                    <span className="[font-size:13px]! [font-weight:600]! [color:var(--ink-primary)]! [margin-top:2px]! [display:block]!">
+                      {ticket.escalatedTo}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Timeline Permintaan Ad-hoc (Explicit Time Fields captured at creation) */}
-            {hasAdhocTimeline && (
+            {/* Timeline Pekerjaan / Layanan (Adapted by Category) */}
+            {hasTimeline && (
               <div className="drawer-adhoc-timeline [margin-bottom:22px]!">
                 <div className="drawer-adhoc-header">
                   <span className="drawer-adhoc-badge">
                     <Zap size={11} className="[display:inline-block]! [vertical-align:middle]! [margin-right:4px]!" />
-                    TIMELINE PERMINTAAN AD-HOC
+                    {timelineConfig.badgeTitle.toUpperCase()}
                   </span>
                   <small className="[color:var(--ink-muted)]! [font-size:11px]!">
-                    Waktu masuk, respon, dan penyelesaian operasional
+                    {timelineConfig.badgeSub}
                   </small>
                 </div>
 
-                <div className="drawer-adhoc-grid">
+                <div className={`drawer-adhoc-grid ${timelineConfig.fieldCount === 2 ? "[grid-template-columns:repeat(2,minmax(0,1fr))]!" : ""}`}>
                   <div className="drawer-adhoc-cell">
                     <div className="drawer-adhoc-label">
                       <Clock size={11} className="drawer-adhoc-icon" />
-                      <span>REQUEST TIME</span>
+                      <span>{timelineConfig.firstLabel}</span>
                     </div>
                     <div className="drawer-adhoc-value">
                       {ticket.requestTime || "—"}
                     </div>
                   </div>
 
-                  <div className="drawer-adhoc-cell">
-                    <div className="drawer-adhoc-label">
-                      <Clock size={11} className="drawer-adhoc-icon" />
-                      <span>RESPONSE TIME</span>
+                  {timelineConfig.fieldCount === 3 && (
+                    <div className="drawer-adhoc-cell">
+                      <div className="drawer-adhoc-label">
+                        <Clock size={11} className="drawer-adhoc-icon" />
+                        <span>{timelineConfig.secondLabel || "RESPONSE TIME"}</span>
+                      </div>
+                      <div className="drawer-adhoc-value">
+                        {ticket.responseTime || "—"}
+                      </div>
                     </div>
-                    <div className="drawer-adhoc-value">
-                      {ticket.responseTime || "—"}
-                    </div>
-                  </div>
+                  )}
 
                   <div className="drawer-adhoc-cell">
                     <div className="drawer-adhoc-label">
                       <CheckCircle2 size={11} className="drawer-adhoc-icon" />
-                      <span>COMPLETION TIME</span>
+                      <span>{timelineConfig.completionLabel}</span>
                     </div>
                     <div className="drawer-adhoc-value">
                       {ticket.isStillOpen ? (

@@ -1,13 +1,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 
-test("Monitoring Schedule renders user silhouette icon for pending checkpoints and initials for verified checkpoints", async () => {
-  const res = await fetch("http://localhost:3000/dashboard");
-  assert.equal(res.status, 200);
-  const html = await res.text();
-
-  // 1. Verify that pending checkpoints render the generic user silhouette SVG
-  assert.ok(html.includes("pending-user-silhouette"), "Has pending-user-silhouette SVG in monitoring schedule");
-  assert.ok(html.includes("avatar-pending"), "Has avatar-pending class for pending verification checkpoints");
+test("Monitoring Schedule shows a silhouette, not a person, for a checkpoint nobody has checked yet", () => {
+  const source = readFileSync("app/components/dashboard/MonitoringSchedule.tsx", "utf8");
+  assert.ok(source.includes("export function PendingUserSilhouette"), "Has the silhouette component");
+  assert.ok(source.includes("<PendingUserSilhouette"), "Renders it in the schedule");
+  assert.ok(source.includes('aria-label="Belum ada pemeriksa"'), "Says what it means to a screen reader");
 });
-

@@ -25,7 +25,6 @@ const SHIFT_THEME_CLASSES: Record<string, string> = {
 };
 
 export function Topbar({
-  activeNav,
   onOpenMobileNav,
   onRefresh,
   onNavigate,

@@ -6,13 +6,15 @@ import { monitoringSchema } from "@/app/lib/query-state";
 import { getClientProjects } from "@/app/lib/clientData";
 import { CLIENT_MONITORING_SYSTEMS } from "@/app/components/dashboard/MonitoringSchedule";
 
-import { useMemo, useCallback } from "react";
-import { Search, Download, User, X, Check } from "lucide-react";
+import { useMemo, useCallback, useState } from "react";
+import { Search, Download, User, X, Check, Globe } from "lucide-react";
 import { DatePicker } from "@/app/components/ui/DatePicker";
-import { ProjectMark } from "@/app/components/ui/ProjectMark";
+import { ProjectTile } from "@/app/components/monitoring/ProjectTile";
+import { Avatar } from "@/app/components/ui/Avatar";
 import { EmptyState } from "@/app/components/ui/EmptyState";
 import { PaginationBar } from "@/app/components/ui/PaginationBar";
 import { useToast } from "@/app/components/ui/Toast";
+import { MonitoringLinksModal } from "@/app/components/monitoring/MonitoringLinksModal";
 import { getOwnerRole } from "@/app/lib/data";
 import type { CheckpointAssessment, HistoricalAssessmentEntry, MonitoringEntry } from "@/app/lib/types";
 import { useClient } from "@/app/context/ClientContext";
@@ -74,6 +76,11 @@ export function MonitoringHistorySection({ todayEntries, todayAssessments }: Mon
   const setPageSize = url.field("size", "replace");
   const currentPage = url.values.page;
   const setCurrentPage = url.field("page", "push");
+  const [activeLinksModal, setActiveLinksModal] = useState<{
+    project: string;
+    task?: string;
+    clientId?: string;
+  } | null>(null);
 
   // Reset pagination to page 1 whenever any filter changes
 
@@ -111,7 +118,7 @@ export function MonitoringHistorySection({ todayEntries, todayAssessments }: Mon
       if (a.date !== b.date) return b.date.localeCompare(a.date);
       return b.time.localeCompare(a.time);
     });
-  }, [todayEntries, todayAssessments]);
+  }, [todayEntries, todayAssessments, seedHistorical]);
 
   // Apply Date and Search Query filters (for top summary counts)
   const dateAndSearchFiltered = useMemo(() => {
@@ -267,7 +274,7 @@ export function MonitoringHistorySection({ todayEntries, todayAssessments }: Mon
   return (
     <article className="[background:var(--panel-bg)] [border:1px_solid_var(--panel-border)] rounded-[10px] [box-shadow:var(--shadow-panel)] [scroll-margin-top:var(--sticky-content-offset)] [margin-top:24px] mb-5 min-[1920px]:-mb-9">
       {/* 1. Header & Title */}
-      <div className="rounded-t-[10px] [display:flex] [align-items:center] [justify-content:space-between] [gap:14px] [flex-wrap:wrap] [padding:var(--space-4)_var(--space-5)] [border-bottom:1px_solid_var(--line)]">
+      <div className="rounded-t-[10px] [display:flex] [align-items:center] [justify-content:space-between] [gap:14px] [padding:var(--space-4)_var(--space-5)] max-md:px-3 max-md:py-3 [border-bottom:1px_solid_var(--line)]">
         <div>
           <div className="panel-title">Riwayat Asesmen Checkpoint</div>
         </div>
@@ -285,14 +292,14 @@ export function MonitoringHistorySection({ todayEntries, todayAssessments }: Mon
       </div>
 
       {/* 2. Filter & Search Toolbar */}
-      <div className="flex flex-wrap items-center gap-x-6 gap-y-3 p-[16px_20px] bg-[#0f172a] border-b border-[#334155]">
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-3 max-md:gap-y-2.5 p-[16px_20px] max-md:p-3 bg-[#0f172a] border-b border-[#334155]">
         {/* Search input (order-1 w-full xl:w-[380px], rata kiri di desktop) */}
         <div className="relative flex items-center order-1 w-full xl:w-[380px]">
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#64748b] pointer-events-none shrink-0" />
           <input
             type="text"
             className="w-full h-[38px] pl-9 pr-8 bg-[#0f172a] border border-[#334155] rounded-[7px] text-[13px] text-[#f1f5f9] placeholder-[#64748b] transition-all focus-visible:border-[#38bdf8]/60 focus-visible:ring-2 focus-visible:ring-[#38bdf8]/25 focus-visible:outline-none"
-            placeholder="Cari checkpoint, sistem, pemeriksa, atau catatan..."
+            placeholder="Cari checkpoint, pemeriksa, catatan…"
             value={searchDraft.input}
             onChange={(e) => setSearchQuery(e.target.value)}
             aria-label="Cari riwayat checkpoint"
@@ -378,13 +385,13 @@ export function MonitoringHistorySection({ todayEntries, todayAssessments }: Mon
             const stats = dateStatsMap.get(group.date);
             return (
               <div key={group.date} className="[display:flex] [flex-direction:column]">
-                <div className="[box-sizing:border-box] [padding:12px_16px_6px] [display:flex] [align-items:center] [background:var(--panel-bg)]">
-                  <div className="[width:100%] [display:flex] [align-items:center] [justify-content:space-between] [gap:10px] [padding:6px_12px] [background:color-mix(in_srgb,_var(--accent-blue-soft)_30%,_var(--bg))] [border:1px_solid_var(--line)] [border-radius:6px]">
-                    <span className="[font-size:11px] [font-weight:700] [color:var(--ink-primary)] [font-family:var(--font-mono)]">{group.header}</span>
-                    <div className="[display:flex] [align-items:center] [gap:6px]">
-                      <span className="[font-size:9.5px] [font-weight:700] [font-family:var(--font-mono)] [padding:1px_5px] [border-radius:4px] [color:var(--green)] [background:var(--green-soft)]">✓ {stats?.ok ?? 0} OK</span>
-                      <span className="[font-size:9.5px] [font-weight:700] [font-family:var(--font-mono)] [padding:1px_5px] [border-radius:4px] [color:var(--red)] [background:var(--red-soft)]">✗ {stats?.nok ?? 0} NOK</span>
-                      <span className="[font-size:9.5px] [font-weight:700] [font-family:var(--font-mono)] [padding:1px_5px] [border-radius:4px] [color:var(--ink-muted)] [background:rgba(148,_163,_184,_0.15)]">{stats?.total ?? 0} total</span>
+                <div className="box-border pt-3 px-4 pb-1.5 max-md:px-3 max-md:pb-0 flex items-center bg-[var(--panel-bg)]">
+                  <div className="w-full flex flex-wrap items-center justify-between gap-x-2.5 gap-y-1.5 py-1.5 px-3 max-md:py-2 bg-[color-mix(in_srgb,var(--accent-blue-soft)_30%,var(--bg))] border border-[var(--line)] rounded-md max-md:rounded-lg">
+                    <span className="text-[11px] max-md:text-[12px] font-bold text-[var(--ink-primary)] font-mono">{group.header}</span>
+                    <div className="flex items-center gap-1.5 [&>span]:whitespace-nowrap [&>span]:text-[9.5px] max-md:[&>span]:text-[10.5px] [&>span]:font-bold [&>span]:font-mono [&>span]:px-[5px] max-md:[&>span]:px-1.5 [&>span]:py-px [&>span]:rounded">
+                      <span className="text-[var(--green)] bg-[var(--green-soft)]">✓ {stats?.ok ?? 0} OK</span>
+                      <span className="text-[var(--red)] bg-[var(--red-soft)]">✗ {stats?.nok ?? 0} NOK</span>
+                      <span className="text-[var(--ink-muted)] bg-[rgba(148,163,184,0.15)]">{stats?.total ?? 0} total</span>
                     </div>
                   </div>
                 </div>
@@ -397,50 +404,75 @@ export function MonitoringHistorySection({ todayEntries, todayAssessments }: Mon
                     return (
                       <div
                         key={entry.id}
-                        className={`[box-sizing:border-box] [display:grid] [grid-template-columns:70px_minmax(160px,_1.4fr)_80px_minmax(0,_2.2fr)] [align-items:center] [gap:12px] [padding:8px_16px] [border-bottom:1px_solid_var(--line)] [transition:background_0.15s_ease] [@media(max-width:940px)]:[grid-template-columns:58px_minmax(0,_1fr)_auto] [@media(max-width:940px)]:[grid-template-areas:'time_project_verdict'_'time_note_note'] [@media(max-width:940px)]:[align-items:start] [@media(max-width:940px)]:[gap:8px] [@media(max-width:940px)]:[height:auto]! [@media(max-width:940px)]:[position:relative]! [@media(max-width:940px)]:[transform:none]! [@media(max-width:940px)]:[padding:10px_14px] ${
+                        className={`box-border grid border-b border-[var(--line)] transition-colors duration-150
+                          min-[941px]:grid-cols-[70px_minmax(160px,1.4fr)_80px_minmax(0,2.2fr)] min-[941px]:items-center min-[941px]:gap-3 min-[941px]:px-4 min-[941px]:py-2
+                          max-[940px]:grid-cols-[minmax(0,1fr)_auto] max-[940px]:[grid-template-areas:'time_verdict''project_project''note_note'] max-[940px]:gap-x-3 max-[940px]:gap-y-2.5 max-[940px]:p-[12px_14px]
+                          max-md:mx-3 max-md:my-2 max-md:rounded-xl max-md:border max-md:border-[#334155] ${
                           isOk
-                            ? "[background:color-mix(in_srgb,_var(--green-soft)_20%,_var(--panel-bg))]"
-                            : "[background:color-mix(in_srgb,_var(--red-soft)_25%,_var(--panel-bg))] [border-left:3px_solid_var(--red)]"
+                            ? "bg-[color-mix(in_srgb,var(--green-soft)_20%,var(--panel-bg))]"
+                            : "bg-[color-mix(in_srgb,var(--red-soft)_25%,var(--panel-bg))] border-l-[3px] border-l-[var(--red)]"
                         }`}
                       >
                         {/* Time */}
-                        <span className="[display:flex] [flex-direction:column] [@media(max-width:940px)]:[grid-area:time] [@media(max-width:940px)]:[padding-top:2px]">
-                          <strong className="[font-size:12px] [font-weight:700] [font-family:var(--font-mono)] [color:var(--ink-primary)]">{entry.time}</strong>
-                          <small className="[font-size:9px] [color:var(--ink-muted)] [font-family:var(--font-mono)]">{entry.date.slice(5)}</small>
+                        <span className="flex flex-col max-[940px]:[grid-area:time] max-[940px]:flex-row max-[940px]:items-center max-[940px]:gap-2">
+                          <strong className="text-[12px] max-[940px]:text-[14px] font-bold font-mono text-[var(--ink-primary)] tabular-nums">{entry.time}</strong>
+                          <small className="text-[9px] max-[940px]:text-[11px] text-[var(--ink-muted)] font-mono">{entry.date.slice(5)}</small>
                         </span>
 
                         {/* Project & Task */}
-                        <div className="[display:flex] [align-items:center] [gap:8px] [min-width:0] [@media(max-width:940px)]:[grid-area:project]">
-                          <ProjectMark name={entry.project} />
-                          <div className="[display:flex] [flex-direction:column] [min-width:0]">
-                            <strong className="[font-size:12px] [font-weight:700] [color:var(--ink-primary)]"><MasterProjectName value={entry.project} historical /></strong>
-                            <span className="[font-size:10.5px] [color:var(--ink-secondary)] [overflow:hidden] [text-overflow:ellipsis] [white-space:nowrap]">{entry.task}</span>
+                        <div className="flex items-center gap-2 max-[940px]:gap-2.5 min-w-0 max-[940px]:[grid-area:project]">
+                          <ProjectTile name={entry.project} clientId={entry.clientId} size="xs" />
+                          <div className="flex flex-col min-w-0 flex-1">
+                            <strong className="text-[12px] max-[940px]:text-[13px] font-bold text-[var(--ink-primary)] truncate"><MasterProjectName value={entry.project} historical /></strong>
+                            <span className="text-[10.5px] max-[940px]:text-[11.5px] text-[var(--ink-secondary)] min-[941px]:truncate leading-snug">{entry.task}</span>
                           </div>
+                          <button
+                            type="button"
+                            aria-haspopup="dialog"
+                            onClick={() => {
+                              setActiveLinksModal({
+                                project: entry.project,
+                                task: entry.task,
+                                clientId: entry.clientId || activeClientId,
+                              });
+                            }}
+                            title={`Buka link monitoring ${entry.project}`}
+                            aria-label={`Buka link monitoring ${entry.project}`}
+                            className="size-7 max-[940px]:size-10 [@media(pointer:coarse)]:size-10 grid place-items-center [&>svg]:block rounded-lg border border-[#38bdf8]/30 bg-[#38bdf8]/10 text-[#38bdf8] hover:bg-[#38bdf8]/20 hover:border-[#38bdf8]/60 shrink-0 transition-colors duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#38bdf8]"
+                          >
+                            <Globe size={16} strokeWidth={1.75} absoluteStrokeWidth />
+                          </button>
                         </div>
 
                         {/* Verdict Badge */}
-                        <div className="history-verdict-cell [@media(max-width:940px)]:[grid-area:verdict] [@media(max-width:940px)]:[justify-self:end]">
+                        <div className="history-verdict-cell max-[940px]:[grid-area:verdict] max-[940px]:justify-self-end">
                           <span
-                            className={`[display:inline-flex] [align-items:center] [justify-content:center] [padding:2px_7px] [border-radius:5px] [font-size:10px] [font-weight:800] [font-family:var(--font-mono)] [line-height:1.2] ${
+                            className={`inline-flex items-center justify-center gap-1 px-[7px] py-[2px] max-[940px]:px-2.5 max-[940px]:py-1 rounded-[5px] max-[940px]:rounded-full text-[10px] max-[940px]:text-[11px] font-extrabold font-mono leading-[1.2] border ${
                               isOk
-                                ? "[color:var(--green)] [background:var(--green-soft)] [border:1px_solid_var(--green-border)]"
-                                : "[color:var(--red)] [background:var(--red-soft)] [border:1px_solid_var(--red-border)]"
+                                ? "text-[var(--green)] bg-[var(--green-soft)] border-[var(--green-border)]"
+                                : "text-[var(--red)] bg-[var(--red-soft)] border-[var(--red-border)]"
                             }`}
                           >
-                            {isOk ? "✓ OK" : "✗ NOK"}
+                            {isOk ? <Check size={11} strokeWidth={3} /> : <X size={11} strokeWidth={3} />}
+                            {isOk ? "OK" : "NOK"}
                           </span>
                         </div>
 
                         {/* Note & Checker */}
-                        <div className="[display:flex] [flex-direction:column] [min-width:0] [gap:2px] [@media(max-width:940px)]:[grid-area:note]">
-                          <span className="[font-size:11.5px] [color:var(--ink-primary)] [overflow:hidden] [text-overflow:ellipsis] [white-space:nowrap]" title={entry.note}>
+                        <div className="flex flex-col min-w-0 gap-0.5 max-[940px]:gap-2 max-[940px]:[grid-area:note]">
+                          <span
+                            className={`text-[11.5px] text-[var(--ink-primary)] min-[941px]:truncate max-[940px]:text-[12.5px] max-[940px]:leading-relaxed max-[940px]:rounded-lg max-[940px]:px-3 max-[940px]:py-2 max-[940px]:border ${
+                              isOk ? "max-[940px]:bg-[#0f172a]/60 max-[940px]:border-[#334155]/70" : "max-[940px]:bg-[#f87171]/[0.07] max-[940px]:border-[#f87171]/25"
+                            } ${entry.note ? "" : "text-[var(--ink-muted)] italic"}`}
+                            title={entry.note}
+                          >
                             {entry.note || "Tanpa catatan tambahan."}
                           </span>
-                          <div className="[display:flex] [align-items:center] [gap:4px] [font-size:9.5px] [color:var(--ink-muted)] [font-family:var(--font-mono)]">
-                            <span className="[display:inline-flex] [align-items:center] [gap:3px] [font-weight:600]">
-                              <User size={11} /> {entry.owner}
-                            </span>
-                            <span className="history-checker-role">· {ownerRole}</span>
+                          <div className="flex items-center gap-1 max-[940px]:gap-2 min-w-0 text-[9.5px] max-[940px]:text-[11.5px] text-[var(--ink-muted)] font-mono max-[940px]:font-sans">
+                            <User size={11} className="shrink-0 max-[940px]:hidden" />
+                            <span className="contents min-[941px]:hidden"><Avatar size="xs" name={entry.owner} /></span>
+                            <span className="font-semibold max-[940px]:font-medium max-[940px]:text-[var(--ink-primary)] truncate min-w-0">{entry.owner}</span>
+                            <span className="history-checker-role truncate min-w-0">· {ownerRole}</span>
                           </div>
                         </div>
                       </div>
@@ -481,6 +513,16 @@ export function MonitoringHistorySection({ todayEntries, todayAssessments }: Mon
             }
           />
         </div>
+      )}
+
+      {activeLinksModal && (
+        <MonitoringLinksModal
+          open
+          project={activeLinksModal.project}
+          task={activeLinksModal.task}
+          clientId={activeLinksModal.clientId}
+          onClose={() => setActiveLinksModal(null)}
+        />
       )}
     </article>
   );

@@ -138,6 +138,7 @@ export function useUserStatus() {
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Browser storage only exists after hydration; reading it here keeps the server HTML and the first client render identical.
     setUserStatus(readStatusFromStorage());
 
     const handleCustomChange = (e: Event) => {

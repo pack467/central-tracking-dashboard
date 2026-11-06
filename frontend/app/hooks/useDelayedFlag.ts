@@ -43,18 +43,11 @@ export function useDelayedFlag(
     }
 
     if (isLoading) {
-      // Jika delayMs adalah 0 (mis. untuk pengujian atau preview), tampilkan seketika
-      if (delayMs <= 0) {
-        shownAtRef.current = Date.now();
-        setShowSkeleton(true);
-        return;
-      }
-
       // Tunggu delayMs sebelum menampilkan skeleton
       delayTimerRef.current = setTimeout(() => {
         shownAtRef.current = Date.now();
         setShowSkeleton(true);
-      }, delayMs);
+      }, Math.max(0, delayMs));
     } else {
       // Loading selesai: periksa apakah skeleton sempat muncul
       if (shownAtRef.current !== null) {
@@ -83,5 +76,6 @@ export function useDelayedFlag(
     };
   }, [isLoading, delayMs, minDurationMs]);
 
-  return showSkeleton;
+  // Jika delayMs adalah 0 (mis. untuk pengujian atau preview), tampilkan seketika
+  return showSkeleton || (isLoading && delayMs <= 0);
 }

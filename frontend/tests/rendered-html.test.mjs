@@ -1,12 +1,15 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-const {default:worker} = await import('../dist/server/index.js');
+const {default:entry} = await import('../dist/server/index.js');
 const env={ASSETS:{fetch:async()=>new Response('Not found',{status:404})}};
 const ctx={waitUntil(){},passThroughOnException(){}};
-const render=path=>worker.fetch(new Request('http://localhost'+path,{headers:{accept:'text/html'}}),env,ctx);
+const render=path=>{
+  const request=new Request('http://localhost'+path,{headers:{accept:'text/html'}});
+  return typeof entry==='function'?entry(request,ctx):entry.fetch(request,env,ctx);
+};
 test('production root and casing/alias/slash redirect in one response',async()=>{
   for(const [from,to,status] of [['/','/dashboard',307],['/MONITORING/','/monitoring',308],['/reports/overview/','/reports',308]]){
-    const response=await render(from);assert.equal(response.status,status);assert.equal(new URL(response.headers.get('location')).pathname,to);
+    const response=await render(from);assert.equal(response.status,status);assert.equal(new URL(response.headers.get('location'),'http://localhost').pathname,to);
     assert.equal((await render(to)).status,200);
   }
 });

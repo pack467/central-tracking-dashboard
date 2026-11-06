@@ -215,7 +215,8 @@
   @apply [border:none];
 }
 
-.ticket-modal label {
+.ticket-modal label,
+.ticket-modal .ticket-field-stack {
   @apply [display:flex];
   @apply [flex-direction:column];
   @apply [gap:5px];
@@ -232,6 +233,12 @@
   @apply [display:inline-flex];
   @apply [align-items:center];
   @apply [gap:5px];
+  @apply [color:var(--ink-secondary)];
+  @apply [font-size:10px];
+  @apply [font-weight:700];
+  @apply [font-family:var(--font-mono)];
+  @apply [letter-spacing:0.4px];
+  @apply [text-transform:uppercase];
 }
 
 .ticket-field-icon {
@@ -284,9 +291,9 @@
 .ticket-optional-hint {
   @apply [font-size:9px];
   @apply [font-weight:600];
-  @apply [color:var(--ink-muted)];
-  @apply [background:rgba(255,_255,_255,_0.04)];
-  @apply [border:1px_solid_rgba(255,_255,_255,_0.1)];
+  @apply [color:#38bdf8];
+  @apply [background:rgba(56,_189,_248,_0.1)];
+  @apply [border:1px_solid_rgba(56,_189,_248,_0.28)];
   @apply [padding:1px_6px];
   @apply [border-radius:3.5px];
   @apply [text-transform:none];
@@ -367,7 +374,7 @@
 .ticket-editable-code-input {
   @apply ![height:38px];
   @apply ![padding-left:28px];
-  @apply ![padding-right:36px];
+  @apply ![padding-right:12px];
   @apply ![font-family:var(--font-mono)];
   @apply ![font-weight:600];
   @apply [letter-spacing:0.5px];
@@ -435,6 +442,35 @@
 }
 
 
+
+.ticket-modal-title-row {
+  @apply [display:flex];
+  @apply [align-items:center];
+  @apply [gap:8px];
+  @apply [flex-wrap:wrap];
+}
+
+.ticket-client-badge {
+  @apply [display:inline-flex];
+  @apply [align-items:center];
+  @apply [gap:4.5px];
+  @apply [padding:2px_8px_2px_7px];
+  @apply [border-radius:9999px];
+  @apply [font-size:10.5px];
+  @apply [font-weight:600];
+  @apply [letter-spacing:0.2px];
+  @apply [color:#38bdf8];
+  @apply [background:linear-gradient(135deg,_rgba(56,_189,_248,_0.14)_0%,_rgba(99,_102,_241,_0.12)_100%)];
+  @apply [border:1px_solid_rgba(56,_189,_248,_0.3)];
+  @apply [box-shadow:0_1px_3px_rgba(0,_0,_0,_0.25)];
+  @apply [line-height:normal];
+}
+
+.ticket-client-badge-icon {
+  @apply [color:#38bdf8];
+  @apply [flex-shrink:0];
+}
+
 .ticket-field-system {
   @apply [display:flex];
   @apply [flex-direction:column];
@@ -458,6 +494,24 @@
   @apply [display:flex];
   @apply [flex-direction:column];
   @apply [gap:10px];
+}
+
+/* Conditional Escalation Fields Container */
+.escalation-fields-container {
+  @apply [padding:12px_14px];
+  @apply [border:1px_solid_rgba(168,_85,_247,_0.28)];
+  @apply [border-radius:8px];
+  @apply [background:rgba(168,_85,_247,_0.04)];
+  @apply [display:flex];
+  @apply [flex-direction:column];
+  @apply [gap:8px];
+}
+
+.escalation-fields-badge {
+  @apply [font-size:10.5px];
+  @apply [font-weight:700];
+  @apply [color:#c084fc];
+  @apply [font-family:var(--font-mono)];
 }
 
 .adhoc-fields-header {
@@ -487,7 +541,8 @@
   @apply [align-items:start];
 }
 
-.adhoc-inputs-row label {
+.adhoc-inputs-row label,
+.adhoc-inputs-row .ticket-field-stack {
   @apply [min-width:0];
 }
 

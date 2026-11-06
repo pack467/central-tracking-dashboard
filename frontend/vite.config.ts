@@ -3,7 +3,6 @@ import { defineConfig, loadEnv, type ViteDevServer } from "vite";
 import hostingConfig from "./.openai/hosting.json";
 import { sites } from "./build/sites-vite-plugin";
 import { canonicalRoute } from "./app/lib/canonical-route";
-import { vinextNavigationCompat } from "./build/vinext-navigation-compat";
 
 const SITE_CREATOR_PLACEHOLDER_DATABASE_ID =
   "00000000-0000-4000-8000-000000000000";
@@ -35,7 +34,7 @@ const localBindingConfig = {
     : [],
 };
 
-export default defineConfig(async ({ mode }) => {
+export default defineConfig(async ({ command, mode }) => {
   // An unset NEXT_PUBLIC_* variable is left as `{}.NAME` in the browser code, which the bundler cannot evaluate. This one decides whether the
   // demo accounts (a known password) are in the build at all, so it is always written in, empty when unset (see lib/auth.tsx).
   const publicEnv = { ...loadEnv(mode, process.cwd(), ["NEXT_PUBLIC_", "CTD_"]), ...process.env };
@@ -50,11 +49,21 @@ export default defineConfig(async ({ mode }) => {
   process.env.WRANGLER_LOG_PATH ??= ".wrangler/logs";
   process.env.MINIFLARE_REGISTRY_PATH ??= ".wrangler/registry";
 
+  // A build for Cloudflare Workers imports cloudflare:* modules at the top level, so it cannot run on plain Node, and `npm run start` is plain Node.
+  // The plugin is therefore only for the dev server (local D1) and for a build that says it is going to Cloudflare (CTD_TARGET=cloudflare).
+  const forCloudflare = command === "serve" || publicEnv.CTD_TARGET === "cloudflare";
   // Wrangler snapshots its log path while the Cloudflare plugin is imported.
-  const { cloudflare } = await import("@cloudflare/vite-plugin");
+  const cloudflarePlugins = forCloudflare
+    ? [(await import("@cloudflare/vite-plugin")).cloudflare({
+        viteEnvironment: { name: "rsc", childEnvironments: ["ssr"] },
+        config: localBindingConfig,
+      })]
+    : [];
 
   return {
     define: { "process.env.NEXT_PUBLIC_ALLOW_DEMO_LOGIN": JSON.stringify(demoLogin) },
+    // db/index.ts tries this module at run time and falls back to SQLite on Node: there is nothing to bundle
+    ...(forCloudflare ? {} : { environments: { rsc: { build: { rolldownOptions: { external: ["cloudflare:workers"] } } } } }),
     server: {
       ...(isCodexSeatbeltSandbox ? { watch: { useFsEvents: false, usePolling: true } } : {}),
       allowedHosts: devHosts.includes("*") ? (true as const) : devHosts,
@@ -74,12 +83,8 @@ export default defineConfig(async ({ mode }) => {
         },
       },
       vinext(),
-      vinextNavigationCompat(),
       sites(),
-      cloudflare({
-        viteEnvironment: { name: "rsc", childEnvironments: ["ssr"] },
-        config: localBindingConfig,
-      }),
+      ...cloudflarePlugins,
     ],
   };
 });

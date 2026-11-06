@@ -18,15 +18,15 @@ test("FloatingNewTicketButton preserves '+ New Ticket' text and expands appropri
 
   // Verify expansion logic: isExpanded = isHovered || isOpen
   assert.ok(fabSource.includes("isExpanded = isHovered || isOpen"), "Button must expand on hover or when window is open");
-  assert.ok(fabSource.includes("[max-width:120px]"), "Expanded label must have max-width: 120px");
-  assert.ok(fabSource.includes("[max-width:0]"), "Idle unhovered label must collapse with max-width: 0");
+  assert.ok(fabSource.includes("max-w-[120px]"), "Expanded label must have max-width: 120px");
+  assert.ok(fabSource.includes("max-w-0"), "Idle unhovered label must collapse with max-width: 0");
 
   // Verify isOpen prop is supported
   assert.ok(fabSource.includes("isOpen?: boolean"), "FloatingNewTicketButtonProps must accept isOpen");
   assert.ok(fabSource.includes("fab-modal-open"), "Must apply fab-modal-open styling when modal is open");
 
-  // Verify page.tsx passes isOpen={ticketModalOpen}
-  const pagePath = path.join(ROOT, "app", "page.tsx");
-  const pageSource = fs.readFileSync(pagePath, "utf8");
-  assert.ok(pageSource.includes("isOpen={ticketModalOpen}"), "page.tsx must pass ticketModalOpen to FloatingNewTicketButton");
+  // Verify the app shell passes isOpen={ticketModalOpen}
+  const shellPath = path.join(ROOT, "app", "components", "routing", "AppShell.tsx");
+  const shellSource = fs.readFileSync(shellPath, "utf8");
+  assert.ok(shellSource.includes("isOpen={ticketModalOpen}"), "AppShell must pass ticketModalOpen to FloatingNewTicketButton");
 });

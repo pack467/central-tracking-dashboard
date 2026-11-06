@@ -16,6 +16,7 @@ interface AttentionPanelProps {
 }
 
 const UNDO_WINDOW_MS = 6500;
+const undoExpiry = () => Date.now() + UNDO_WINDOW_MS;
 
 function getBadgeTone(item: NotificationItem): "warning" | "critical" | "info" | "success" {
   if (item.severity === "critical") return "critical";
@@ -95,7 +96,7 @@ export function AttentionPanel({
     }
 
     // Track active undo window for this item
-    const expiresAt = Date.now() + UNDO_WINDOW_MS;
+    const expiresAt = undoExpiry();
     setRecentAcks((prev) => ({ ...prev, [item.id]: expiresAt }));
 
     if (timersRef.current[item.id]) {

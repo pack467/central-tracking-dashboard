@@ -426,7 +426,7 @@ export function RosterMemberRow({ member, onClick }: RosterMemberRowProps) {
   const { userStatus } = useUserStatus();
   const isCurrentUser = member.name.toLowerCase().includes("galih");
   const ringStyle = getStatusRingStyle(member.status, isCurrentUser, userStatus);
-  const ringColor = (ringStyle as any)["--status-ring-color"] || "#22c55e";
+  const ringColor = (ringStyle as Record<string, string>)["--status-ring-color"] || "#22c55e";
 
   const indicatorStatus = isCurrentUser
     ? userStatus === "Online"
@@ -585,7 +585,7 @@ export function RosterTeamPanel({
   const rosterMembers: TeamMemberItem[] = useMemo(() => {
     if (members && members.length > 0) {
       return members.map((m) => ({
-        id: (m as any).id || m.name,
+        id: (m as { id?: string }).id || m.name,
         name: m.name,
         role: m.role,
         initials: m.initials || initials(m.name),

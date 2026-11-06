@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { useCompactLayout } from "@/app/hooks/useMobileLayout";
 import { Skeleton } from "./Skeleton";
 import { SkeletonAvatar } from "./SkeletonAvatar";

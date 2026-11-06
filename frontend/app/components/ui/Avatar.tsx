@@ -13,6 +13,8 @@ export interface AvatarProps {
   className?: string;
   style?: React.CSSProperties;
   statusRing?: "active" | "break" | "off" | "verified" | "pending" | string;
+  /** The person's own picture, instead of their initials. */
+  photo?: string | null;
   title?: string;
   ariaLabel?: string;
   children?: React.ReactNode;
@@ -54,6 +56,7 @@ export function Avatar({
   className = "",
   style,
   statusRing,
+  photo,
   title,
   ariaLabel,
   children,
@@ -85,12 +88,16 @@ export function Avatar({
   return (
     <span
       className={`ui-avatar ${AVATAR_BASE_CLASS} ui-avatar-${shape} ${AVATAR_SHAPE_CLASS[shape]} ${sizeClass} ${tailwindSizeClass} ${ringClass} ${className}`.trim()}
-      style={{ ...customSizeStyle, ...style }}
+      // initials are kept grey (utilities.css); a photo keeps its own colours
+      style={{ ...customSizeStyle, ...style, ...(photo ? { filter: "none", WebkitFilter: "none", overflow: "hidden" } : {}) }}
       title={title ?? (name || undefined)}
       aria-label={ariaLabel ?? (name ? `Avatar ${name}` : undefined)}
       aria-hidden={!ariaLabel && !title ? true : undefined}
     >
-      {displayText}
+      {photo ? (
+        // eslint-disable-next-line @next/next/no-img-element -- a data URL made on this device: there is nothing for an image optimizer to do
+        <img src={photo} alt="" className="block size-full rounded-[inherit] object-cover" />
+      ) : displayText}
     </span>
   );
 }

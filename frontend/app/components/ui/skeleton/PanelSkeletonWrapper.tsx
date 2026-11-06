@@ -59,23 +59,20 @@ export function PanelSkeletonWrapper({
   const minHeightStyle = typeof minHeight === "number" ? `${minHeight}px` : minHeight;
 
   // Deteksi status muat lama (> 6s)
-  const [isLongLoading, setIsLongLoading] = useState(false);
+  const [loadingTooLong, setLoadingTooLong] = useState(false);
   useEffect(() => {
-    if (!isLoading) {
-      setIsLongLoading(false);
-      return;
-    }
-    const timer = setTimeout(() => {
-      setIsLongLoading(true);
-    }, 6000);
-    return () => clearTimeout(timer);
+    if (!isLoading) return;
+    const timer = setTimeout(() => setLoadingTooLong(true), 6000);
+    return () => { clearTimeout(timer); setLoadingTooLong(false); };
   }, [isLoading]);
+  const isLongLoading = isLoading && loadingTooLong;
 
   // 1. In-panel Error State (mempertahankan tinggi agar CLS = 0)
   if (error && !isLoading) {
+    const { status, code } = error as Error & { status?: number; code?: string };
     const isTimeout =
-      (error as any).status === 408 ||
-      (error as any).code === "TIMEOUT" ||
+      status === 408 ||
+      code === "TIMEOUT" ||
       error.message?.toLowerCase().includes("timeout");
 
     return (

@@ -1,172 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { copyTextToClipboard } from "@/app/lib/copy-text";
-import { Mail, Phone, Clock, CalendarDays, X } from "lucide-react";
+import { ArrowRightLeft, CalendarCheck, Clock, Copy, History, Mail, Phone, X } from "lucide-react";
 import { Badge } from "@/app/components/ui/Badge";
-import { Avatar } from "@/app/components/ui/Avatar";
-import { ModalCloseButton } from "@/app/components/ui/ModalCloseButton";
+import { MemberAvatar, useIsCurrentMember } from "@/app/components/team/MemberAvatar";
 import { useToast } from "@/app/components/ui/Toast";
-import { initials } from "@/app/lib/data";
 import { statusTone, shiftColor } from "@/app/components/team/RosterTable";
-import { useUserStatus, getStatusRingStyle } from "@/app/hooks/useUserStatus";
-import type { RosterMember, RosterMemberStatus } from "@/app/lib/types";
+import { useUserStatus } from "@/app/hooks/useUserStatus";
+import type { DayScheduleType, RosterMember, RosterMemberStatus } from "@/app/lib/types";
 
-/* ─────────────────────────────────────────────────────────────
-   HistorySection helpers — defined before the components
-───────────────────────────────────────────────────────────── */
-const MONTH_DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const SHIFT_LABEL: Record<DayScheduleType, string> = { Subuh: "Subuh", Pagi: "Pagi", Malam: "Malam", Leave: "Cuti", Off: "Libur" };
+const STATUS_OPTIONS: RosterMemberStatus[] = ["Active", "On Break", "Off Duty", "On Leave"];
+const HISTORY_LABEL: Record<RosterMember["history"][number]["status"], string> = { Present: "Hadir", Late: "Terlambat", Leave: "Cuti", Swapped: "Tukar shift" };
 
-function buildAugHeatmap(member: RosterMember) {
-  // Aug 1 2026 = Saturday (JS getDay()=6) → Mon-based dow = (6+6)%7 = 5
-  const firstDow = 5;
-  const days: { day: number; shiftDay: RosterMember["weeklySchedule"][number] | null }[] = [];
-  for (let d = 1; d <= 31; d++) {
-    const dow = (firstDow + d - 1) % 7;
-    const shiftDay = member.weeklySchedule[dow] ?? null;
-    days.push({ day: d, shiftDay });
-  }
-  return { firstDow, days };
+function SectionTitle({ children }: { children: React.ReactNode }) {
+  return <h3 className="mb-2.5 font-mono text-[10px] font-bold uppercase tracking-[0.8px] text-[#94a3b8]">{children}</h3>;
 }
 
-/* ─────────────────────────────────────────────────────────────
-   HistorySection — list view + monthly heatmap toggle
-───────────────────────────────────────────────────────────── */
-function HistorySection({ member }: { member: RosterMember }) {
-  const [mode, setMode] = useState<"list" | "heatmap">("list");
-  const { firstDow, days } = buildAugHeatmap(member);
-
-  return (
-    <div>
-      {/* Header + toggle */}
-      <div className="flex justify-between items-center mb-[10px]">
-        <span className="block text-[10px] font-mono font-bold tracking-[0.8px] text-[var(--ink-muted)] uppercase m-0">
-          SHIFT &amp; ATTENDANCE HISTORY
-        </span>
-        <div className="inline-flex items-center gap-[2px] h-[36px] box-border p-[3px] bg-[var(--surface,#0f172a)] border border-[var(--panel-border)] rounded-[8px] shrink-0 scale-[0.85] origin-right" aria-label="Toggle history view">
-          <button
-            type="button"
-            className={`inline-flex items-center justify-center h-[28px] px-[12px] text-[11.5px] font-semibold rounded-[6px] gap-[6px] border border-transparent cursor-pointer transition-[color,background-color] duration-150 ease ${
-              mode === "list"
-                ? "bg-[var(--accent-blue,#2563eb)] text-white shadow-[0_1px_3px_rgba(0,0,0,0.25)]"
-                : "bg-transparent text-[var(--ink-muted)] hover:text-[var(--ink-primary)] hover:bg-[rgba(148,163,184,0.08)]"
-            }`}
-            onClick={() => setMode("list")}
-          >
-            List
-          </button>
-          <button
-            type="button"
-            className={`inline-flex items-center justify-center h-[28px] px-[12px] text-[11.5px] font-semibold rounded-[6px] gap-[6px] border border-transparent cursor-pointer transition-[color,background-color] duration-150 ease ${
-              mode === "heatmap"
-                ? "bg-[var(--accent-blue,#2563eb)] text-white shadow-[0_1px_3px_rgba(0,0,0,0.25)]"
-                : "bg-transparent text-[var(--ink-muted)] hover:text-[var(--ink-primary)] hover:bg-[rgba(148,163,184,0.08)]"
-            }`}
-            onClick={() => setMode("heatmap")}
-          >
-            Monthly
-          </button>
-        </div>
-      </div>
-
-      {/* ── List view ── */}
-      {mode === "list" && (
-        <div className="grid gap-[8px]">
-          {member.history.map((h, i) => (
-            <div
-              key={i}
-              className="flex justify-between items-center p-[10px_12px] bg-[rgba(127,127,127,0.05)] border border-[var(--line)] rounded-[8px] text-[12px]"
-            >
-              <div className="flex gap-[10px] items-center">
-                <span className="font-mono font-bold text-[var(--accent-blue)] shrink-0">
-                  <Clock size={12} className="inline vertical-middle mr-[4px]" />
-                  {h.date}
-                </span>
-                <div>
-                  <strong className="block text-[var(--ink-primary)] text-[12.5px]">{h.shift}</strong>
-                  {h.note && <small className="text-[var(--ink-muted)] text-[11px]">{h.note}</small>}
-                </div>
-              </div>
-              <Badge tone={h.status === "Present" ? "success" : h.status === "Leave" ? "critical" : "warning"}>
-                {h.status}
-              </Badge>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* ── Monthly heatmap ── */}
-      {mode === "heatmap" && (
-        <div className="mt-[4px]">
-          <p className="m-[0_0_10px] text-[11px] text-[var(--ink-muted)]">
-            <CalendarDays size={12} className="inline vertical-middle mr-[4px]" />
-            August 2026 — shift pattern based on weekly schedule
-          </p>
-
-          <div className="grid grid-cols-[repeat(7,1fr)] gap-[3px] mb-[4px]">
-            {MONTH_DAYS.map((d) => (
-              <div key={d} className="text-center text-[9px] font-bold font-mono text-[var(--ink-muted)] uppercase py-[2px]">{d}</div>
-            ))}
-          </div>
-
-          <div className="grid grid-cols-[repeat(7,1fr)] gap-[3px]">
-            {Array(firstDow).fill(null).map((_, i) => (
-              <div key={`e-${i}`} className="aspect-square rounded-[5px] border border-transparent bg-transparent cursor-default" />
-            ))}
-            {days.map(({ day, shiftDay }) => {
-              const shift = (shiftDay?.shift ?? "Off") as Parameters<typeof shiftColor>[0];
-              const sc = shiftColor(shift);
-              const isToday = day === 28;
-              return (
-                <div
-                  key={day}
-                  className={`aspect-square rounded-[5px] flex flex-col items-center justify-center cursor-default ${
-                    isToday
-                      ? "border-2 border-[var(--accent-blue)]"
-                      : "border border-[var(--line)]"
-                  }`}
-                  style={{
-                    backgroundColor: sc.bg,
-                    borderColor: isToday ? "var(--accent-blue)" : sc.border,
-                    color: sc.color,
-                  }}
-                  title={`${day} Aug — ${shift}${shiftDay?.hours ? ` (${shiftDay.hours})` : ""}`}
-                >
-                  <span className="text-[8px] font-mono font-bold leading-none opacity-75">{day}</span>
-                  <span className="text-[10px] font-extrabold leading-none mt-[1px]">
-                    {shift === "Off" ? "—" : shift === "Leave" ? "L" : shift[0]}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-
-          <div className="flex gap-[10px] flex-wrap mt-[8px] pt-[8px] border-t border-[var(--line)]">
-            {(["Subuh", "Pagi", "Malam", "Leave", "Off"] as const).map((shift) => {
-              const sc = shiftColor(shift);
-              return (
-                <span key={shift} className="inline-flex items-center gap-[6px] text-[10.5px]">
-                  <i
-                    className="block w-[12px] h-[12px] rounded-[3px] border border-[var(--line)]"
-                    style={{
-                      backgroundColor: sc.bg,
-                      borderColor: sc.border,
-                    }}
-                  />
-                  {shift}
-                </span>
-              );
-            })}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-/* ═══════════════════════════════════════════════════════════
-   Main MemberDetailDrawer component
-═══════════════════════════════════════════════════════════ */
 interface MemberDetailDrawerProps {
   member: RosterMember | null;
   onClose: () => void;
@@ -174,161 +26,247 @@ interface MemberDetailDrawerProps {
   onRequestSwap: (member: RosterMember) => void;
 }
 
-export function MemberDetailDrawer({
-  member,
-  onClose,
-  onUpdateMember,
-  onRequestSwap,
-}: MemberDetailDrawerProps) {
+export function MemberDetailDrawer({ member, onClose, onUpdateMember, onRequestSwap }: MemberDetailDrawerProps) {
   const notify = useToast();
-
+  const panelRef = useRef<HTMLElement>(null);
+  const isCurrentUser = useIsCurrentMember(member);
   const { userStatus } = useUserStatus();
-  if (!member) return null;
 
-  const isCurrentUser = member.name.toLowerCase().includes("galih");
-  const ringStyle = getStatusRingStyle(member.status, isCurrentUser, userStatus);
-  const ringColor = (ringStyle as any)["--status-ring-color"] || "#22c55e";
-  const displayStatus = isCurrentUser ? userStatus : member.status;
+  useEffect(() => {
+    if (!member) return;
+    panelRef.current?.focus();
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [member, onClose]);
 
-  const handleStatusChange = (newStatus: RosterMemberStatus) => {
-    const updated: RosterMember = { ...member, status: newStatus };
-    onUpdateMember(updated);
-    notify.success(`Status ${member.name} changed to ${newStatus}.`, { id: `status-${member.id}` });
+  if (!member || typeof document === "undefined") return null;
+
+  const hasHistory = member.history.length > 0;
+  const hasStats = member.stats.shiftsCompleted > 0 || hasHistory;
+  const workingDays = member.weeklySchedule.filter((day) => day.shift !== "Off" && day.shift !== "Leave").length;
+
+  const changeStatus = (status: RosterMemberStatus) => {
+    if (status === member.status) return;
+    onUpdateMember({ ...member, status });
+    notify.success(`Status ${member.name} diubah menjadi ${status}.`, { id: `status-${member.id}` });
   };
 
-  const copyToClipboard = (text: string, label: string) => {
-    void copyTextToClipboard(text).then(copied => {
-      if (copied) notify.success(`${label} copied: ${text}`, { id: `copy-${text}` });
-      else notify.warning(`${label} could not be copied.`, { id: `copy-failed-${text}` });
+  const copy = (text: string, label: string) => {
+    void copyTextToClipboard(text).then((copied) => {
+      if (copied) notify.success(`${label} disalin: ${text}`, { id: `copy-${text}` });
+      else notify.warning(`${label} tidak dapat disalin.`, { id: `copy-failed-${text}` });
     });
   };
 
-  return (
-    <div
-      className="drawer-backdrop anim-fade"
-      role="presentation"
-      onMouseDown={(event) => {
-        if (event.target === event.currentTarget) onClose();
-      }}
-    >
-      <div
-        className="drawer-body anim-slide-left"
+  const contacts = [
+    { icon: Mail, label: "Email", value: member.email },
+    { icon: Phone, label: "Nomor HP", value: member.phone },
+  ];
+
+  return createPortal(
+    <div className="fixed inset-0 z-[90] flex justify-end">
+      <button type="button" tabIndex={-1} aria-label="Tutup detail anggota" className="absolute inset-0 cursor-default bg-[rgba(2,6,23,0.72)]" onClick={onClose} />
+
+      <section
+        ref={panelRef}
+        tabIndex={-1}
+        data-focus-ring="none"
+        className="relative flex h-full outline-none w-full flex-col border-l border-[#334155] bg-[#162033] shadow-[-12px_0_40px_rgba(0,0,0,0.45)] sm:w-[460px] animate-[member-drawer-in_0.18s_ease-out] motion-reduce:animate-none"
         role="dialog"
         aria-modal="true"
-        aria-label={`Team Member Detail — ${member.name}`}
+        aria-label={`Detail anggota — ${member.name}`}
       >
+        <style>{"@keyframes member-drawer-in{from{transform:translateX(24px);opacity:0}to{transform:none;opacity:1}}"}</style>
+
         {/* Header */}
-        <div className="drawer-header">
-          <div className="[display:flex]! [gap:12px]! [align-items:center]!">
-            <div
-              className="drawer-avatar-ring-wrapper"
-              style={ringStyle as React.CSSProperties}
-              title={`${member.name} (${displayStatus})`}
-            >
-              <Avatar size="lg" name={member.name} />
-              <span
-                className="drawer-avatar-status-badge [background-color:var(--drawer-status-ring-color)]!"
-                style={{ "--drawer-status-ring-color": ringColor } as React.CSSProperties}
-              />
-            </div>
-            <div>
-              <div className="[display:flex]! [gap:8px]! [align-items:center]! [margin-bottom:4px]!">
-                <h2 className="[font-size:17px]! [font-weight:700]! [margin:0]! [color:var(--ink-primary)]!">
-                  {member.name}
-                </h2>
-                {isCurrentUser ? (
-                  <Badge tone={userStatus === "Online" ? "success" : userStatus === "Busy" ? "critical" : userStatus === "On Break" ? "warning" : "info"}>
-                    {userStatus}
-                  </Badge>
-                ) : (
-                  <Badge tone={statusTone(member.status)}>{member.status}</Badge>
-                )}
-              </div>
-              <span className="[font-size:11.5px]! [color:var(--ink-muted)]! [font-family:var(--font-mono)]!">
-                {member.role} · ID: {member.employeeId}
-              </span>
-            </div>
-          </div>
-          <ModalCloseButton onClose={onClose} label="Tutup panel" />
-        </div>
-
-        {/* Scrollable content */}
-        <div className="drawer-content-inner">
-          {/* Contact quick-copy */}
-          <div className="[display:flex]! [gap:8px]! [margin-bottom:20px]! [flex-wrap:wrap]!">
-            <button className="button button-secondary [font-size:11px]! [padding:6px_10px]!" onClick={() => copyToClipboard(member.email, "Email")}>
-              <Mail size={13} /> {member.email}
-            </button>
-            <button className="button button-secondary [font-size:11px]! [padding:6px_10px]!" onClick={() => copyToClipboard(member.phone, "Phone")}>
-              <Phone size={13} /> {member.phone}
-            </button>
-          </div>
-
-          {/* Attendance stats */}
-          <div className="[margin-bottom:24px]!">
-            <span className="block text-[10px] font-mono font-bold tracking-[0.8px] text-[var(--ink-muted)] uppercase mb-[8px]">ATTENDANCE &amp; PERFORMANCE</span>
-            <div className="metrics-grid [grid-template-columns:repeat(3,_1fr)]! [gap:10px]! [margin-top:8px]!">
-              <div className="metric-card [padding:12px]!">
-                <span className="metric-title [font-size:9px]!">ON-TIME RATE</span>
-                <strong className="[font-size:18px]! [color:var(--green)]! [margin-top:4px]!">{member.stats.onTimePercentage}%</strong>
-                <small className="[color:var(--ink-muted)]! [font-size:10px]!">On-time attendance</small>
-              </div>
-              <div className="metric-card [padding:12px]!">
-                <span className="metric-title [font-size:9px]!">SHIFTS DONE</span>
-                <strong className="[font-size:18px]! [color:var(--accent-blue)]! [margin-top:4px]!">{member.stats.shiftsCompleted}</strong>
-                <small className="[color:var(--ink-muted)]! [font-size:10px]!">Completed shifts</small>
-              </div>
-              <div className="metric-card [padding:12px]!">
-                <span className="metric-title [font-size:9px]!">HANDOVER QUALITY</span>
-                <strong className="[font-size:18px]! [color:var(--purple)]! [margin-top:4px]!">{member.stats.handoverScore}%</strong>
-                <small className="[color:var(--ink-muted)]! [font-size:10px]!">SOP compliance score</small>
-              </div>
-            </div>
-          </div>
-
-          {/* Current shift & status switcher */}
-          <div className="[margin-bottom:24px]! [padding:14px]! [background:var(--panel-bg)]! [border:1px_solid_var(--panel-border)]! [border-radius:10px]!">
-            <div className="[display:flex]! [justify-content:space-between]! [align-items:center]! [margin-bottom:8px]!">
-              <span className="block text-[10px] font-mono font-bold tracking-[0.8px] text-[var(--ink-muted)] uppercase m-0">CURRENT ASSIGNED SHIFT</span>
-              <Badge tone="info">
-                <Clock size={11} className="[display:inline]! [vertical-align:middle]! [margin-right:3px]!" />
-                {member.currentShift}
-              </Badge>
-            </div>
-            <p className="[margin:0_0_12px]! [font-size:12px]! [color:var(--ink-secondary)]!">
-              Assigned to Console 01 / NOC Command Desk. Joined <strong>{member.joinDate}</strong>.
+        <header className="flex items-start gap-3 border-b border-[#334155] bg-[#1e293b] px-4 pb-4 pt-[max(16px,env(safe-area-inset-top))] sm:px-5">
+          <span className="mt-1 inline-flex shrink-0"><MemberAvatar size="lg" member={member} /></span>
+          <div className="min-w-0 flex-1">
+            <h2 className="text-[16px] font-bold leading-snug text-[#f8fafc]">{member.name}</h2>
+            <p className="mt-0.5 text-[12px] text-[#94a3b8]">
+              {member.role}
+              {member.employeeId && <span className="font-mono text-[11px] text-[#64748b]"> · {member.employeeId}</span>}
             </p>
-            <div className="[display:flex]! [gap:6px]! [align-items:center]! [flex-wrap:wrap]!">
-              <span className="[font-size:11px]! [color:var(--ink-muted)]! [font-weight:600]! [margin-right:4px]!">Quick Status:</span>
-              {(["Active", "On Break", "Off Duty", "On Leave"] as const).map((s) => (
-                <button
-                  key={s}
-                  className={`button ${member.status === s ? "button-primary" : "button-secondary"} [font-size:11px]! [padding:4px_8px]!`}
-                  onClick={() => handleStatusChange(s)}
-                >
-                  {s}
-                </button>
-              ))}
+            <div className="mt-2">
+              {isCurrentUser ? (
+                <Badge tone={userStatus === "Online" ? "success" : userStatus === "Busy" ? "critical" : userStatus === "On Break" ? "warning" : "info"}>{userStatus}</Badge>
+              ) : (
+                <Badge tone={statusTone(member.status)}>{member.status}</Badge>
+              )}
             </div>
           </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Tutup panel"
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-[8px] border border-[#334155] bg-[#0f172a] text-[#94a3b8] transition-colors hover:bg-[#243044] hover:text-[#f8fafc] cursor-pointer max-sm:h-10 max-sm:w-10"
+          >
+            <X size={16} />
+          </button>
+        </header>
 
-          {/* Shift history — list or monthly heatmap */}
-          <HistorySection member={member} />
+        {/* Body */}
+        <div className="flex-1 space-y-6 overflow-y-auto overscroll-contain px-4 py-5 sm:px-5">
+          {/* Current shift */}
+          <section>
+            <SectionTitle>Shift saat ini</SectionTitle>
+            <div className="flex items-center gap-3 rounded-[10px] border border-[#334155] bg-[#0f172a] p-3">
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-[8px] bg-[#0c2a3d] text-[#38bdf8]">
+                <Clock size={16} />
+              </span>
+              <div className="min-w-0">
+                <strong className="block text-[13px] font-semibold text-[#f8fafc]">{member.currentShift}</strong>
+                <span className="block text-[11.5px] text-[#94a3b8]">
+                  {workingDays} hari kerja minggu ini{member.joinDate ? ` · Bergabung ${member.joinDate}` : ""}
+                </span>
+              </div>
+            </div>
+          </section>
+
+          {/* This week */}
+          <section>
+            <SectionTitle>Jadwal minggu ini</SectionTitle>
+            <div className="grid grid-cols-7 gap-1">
+              {member.weeklySchedule.map((day, index) => {
+                const color = shiftColor(day.shift);
+                return (
+                  <div
+                    key={index}
+                    className="flex min-h-[58px] flex-col items-center justify-center gap-1 rounded-[8px] border px-0.5 text-center"
+                    style={{ background: color.bg, color: color.color, borderColor: color.border }}
+                    title={`${day.day} ${day.date}: ${SHIFT_LABEL[day.shift]}${day.hours ? ` · ${day.hours}` : ""}`}
+                  >
+                    <span className="font-mono text-[9px] font-bold uppercase leading-none opacity-80">{day.day}</span>
+                    <span className="text-[10.5px] font-bold leading-none">{SHIFT_LABEL[day.shift]}</span>
+                    <span className="font-mono text-[8.5px] leading-none opacity-70">{day.date}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+
+          {/* Contact */}
+          <section>
+            <SectionTitle>Kontak</SectionTitle>
+            <ul className="divide-y divide-[#334155]/70 overflow-hidden rounded-[10px] border border-[#334155] bg-[#0f172a]">
+              {contacts.map(({ icon: Icon, label, value }) => (
+                <li key={label} className="flex items-center gap-3 px-3 py-2.5">
+                  <Icon size={15} className="shrink-0 text-[#94a3b8]" />
+                  <div className="min-w-0 flex-1">
+                    <span className="block text-[10.5px] text-[#64748b]">{label}</span>
+                    <span className={`block truncate text-[12.5px] ${value ? "text-[#f8fafc]" : "italic text-[#64748b]"}`}>{value || "Belum diisi"}</span>
+                  </div>
+                  {value && (
+                    <button
+                      type="button"
+                      onClick={() => copy(value, label)}
+                      aria-label={`Salin ${label.toLowerCase()} ${member.name}`}
+                      className="grid h-8 w-8 shrink-0 place-items-center rounded-[7px] border border-[#334155] text-[#94a3b8] transition-colors hover:bg-[#243044] hover:text-[#38bdf8] cursor-pointer max-sm:h-10 max-sm:w-10"
+                    >
+                      <Copy size={13} />
+                    </button>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          {/* Status override */}
+          <section>
+            <SectionTitle>Ubah status</SectionTitle>
+            <div className="grid grid-cols-2 gap-1 rounded-[10px] border border-[#334155] bg-[#0f172a] p-1 sm:grid-cols-4" role="group" aria-label="Status anggota">
+              {STATUS_OPTIONS.map((status) => {
+                const active = member.status === status;
+                return (
+                  <button
+                    key={status}
+                    type="button"
+                    aria-pressed={active}
+                    onClick={() => changeStatus(status)}
+                    className={`h-9 rounded-[7px] text-[11.5px] font-semibold transition-colors cursor-pointer max-sm:h-10 ${
+                      active ? "bg-[#1e293b] text-[#38bdf8] ring-1 ring-[#38bdf8]/35" : "text-[#94a3b8] hover:bg-[#1e293b] hover:text-[#f8fafc]"
+                    }`}
+                  >
+                    {status}
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+
+          {/* Performance + history only when there is something recorded */}
+          <section>
+            <SectionTitle>Kinerja &amp; riwayat</SectionTitle>
+            {hasStats ? (
+              <>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { label: "Tepat waktu", value: `${member.stats.onTimePercentage}%`, tone: "text-[#4ade80]" },
+                    { label: "Shift selesai", value: member.stats.shiftsCompleted, tone: "text-[#38bdf8]" },
+                    { label: "Kualitas handover", value: `${member.stats.handoverScore}%`, tone: "text-[#c084fc]" },
+                  ].map((stat) => (
+                    <div key={stat.label} className="rounded-[10px] border border-[#334155] bg-[#0f172a] p-3">
+                      <strong className={`block font-mono text-[18px] font-bold leading-none ${stat.tone}`}>{stat.value}</strong>
+                      <span className="mt-1.5 block text-[10.5px] leading-tight text-[#94a3b8]">{stat.label}</span>
+                    </div>
+                  ))}
+                </div>
+                {hasHistory && (
+                  <ul className="mt-3 space-y-1.5">
+                    {member.history.map((entry, index) => (
+                      <li key={index} className="flex items-center justify-between gap-3 rounded-[8px] border border-[#334155] bg-[#0f172a] px-3 py-2.5">
+                        <div className="min-w-0">
+                          <strong className="block text-[12.5px] font-semibold text-[#f8fafc]">{entry.shift}</strong>
+                          <span className="block truncate text-[11px] text-[#94a3b8]">
+                            <span className="font-mono">{entry.date}</span>
+                            {entry.note ? ` · ${entry.note}` : ""}
+                          </span>
+                        </div>
+                        <Badge tone={entry.status === "Present" ? "success" : entry.status === "Leave" ? "critical" : "warning"}>{HISTORY_LABEL[entry.status]}</Badge>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </>
+            ) : (
+              <div className="flex items-center gap-3 rounded-[10px] border border-dashed border-[#334155] px-3 py-4">
+                <History size={16} className="shrink-0 text-[#64748b]" />
+                <p className="text-[12px] leading-relaxed text-[#94a3b8]">Belum ada shift yang tercatat untuk anggota ini. Kinerja dan riwayat akan muncul setelah shift pertama selesai.</p>
+              </div>
+            )}
+          </section>
         </div>
 
         {/* Footer */}
-        <div className="drawer-footer">
+        <footer className="grid grid-cols-2 gap-2 border-t border-[#334155] bg-[#1e293b] px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-3 sm:flex sm:justify-end sm:px-5">
           <button
-            className="button button-secondary"
-            onClick={() => { onClose(); onRequestSwap(member); }}
+            type="button"
+            onClick={() => {
+              onClose();
+              onRequestSwap(member);
+            }}
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-[8px] border border-[#334155] bg-[#0f172a] px-3.5 text-[12px] font-semibold text-[#f8fafc] transition-colors hover:bg-[#243044] cursor-pointer"
           >
-            Request Shift Swap
+            <ArrowRightLeft size={14} className="text-[#38bdf8]" /> Tukar shift
           </button>
-          <button className="button button-primary" onClick={onClose}>
-            Done
+          <button
+            type="button"
+            onClick={onClose}
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-[8px] bg-[#0284c7] px-4 text-[12px] font-bold text-white transition-colors hover:bg-[#0369a1] cursor-pointer"
+          >
+            <CalendarCheck size={14} /> Selesai
           </button>
-        </div>
-      </div>
-    </div>
+        </footer>
+      </section>
+    </div>,
+    document.body,
   );
 }

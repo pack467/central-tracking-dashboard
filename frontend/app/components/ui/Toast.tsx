@@ -130,19 +130,16 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const notifier = useMemo<ToastNotifier>(() => {
-    const fn = ((message: string, toneOrOptions?: ToastTone | ToastOptions, maybeOptions?: ToastOptions) => {
-      return push(message, toneOrOptions, maybeOptions);
+    const notify = (message: string, toneOrOptions?: ToastTone | ToastOptions, maybeOptions?: ToastOptions) => push(message, toneOrOptions, maybeOptions);
+    // eslint-disable-next-line react-hooks/refs -- the functions are only stored here; they read the refs when called, from events
+    return Object.assign(notify, {
+      success: (message: string, options?: ToastOptions) => push(message, "success", options),
+      warning: (message: string, options?: ToastOptions) => push(message, "warning", options),
+      critical: (message: string, options?: ToastOptions) => push(message, "critical", options),
+      info: (message: string, options?: ToastOptions) => push(message, "info", options),
+      category: (category: string, message: string, tone: ToastTone = "info", options?: ToastOptions) => push(message, tone, { ...options, category }),
+      dismiss: (id: string | number) => dismiss(id),
     }) as ToastNotifier;
-
-    fn.success = (message: string, options?: ToastOptions) => push(message, "success", options);
-    fn.warning = (message: string, options?: ToastOptions) => push(message, "warning", options);
-    fn.critical = (message: string, options?: ToastOptions) => push(message, "critical", options);
-    fn.info = (message: string, options?: ToastOptions) => push(message, "info", options);
-    fn.category = (category: string, message: string, tone: ToastTone = "info", options?: ToastOptions) =>
-      push(message, tone, { ...options, category });
-    fn.dismiss = (id: string | number) => dismiss(id);
-
-    return fn;
   }, [push, dismiss]);
 
   return (

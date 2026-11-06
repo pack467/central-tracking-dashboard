@@ -43,6 +43,7 @@ export class ApiClient {
   private onUnauthorized: UnauthorizedHandler | null = null;
   private onSuccess: (() => void) | null = null;
   private csrfProvider: (() => string | null) | null = null;
+  private csrfRefresher: (() => Promise<string | null>) | null = null;
 
   constructor(baseUrl?: string) {
     this.baseUrl = (baseUrl ?? getApiConfig().apiUrl).replace(/\/+$/, "");
@@ -59,6 +60,11 @@ export class ApiClient {
   /** The session's CSRF token (backend login). Sent as X-CSRF-Token on every write. */
   setCsrfTokenProvider(provider: () => string | null): void {
     this.csrfProvider = provider;
+  }
+
+  /** Refreshes the session's CSRF token when a write is missing one or gets a 403 CSRF error. */
+  setCsrfRefresher(refresher: (() => Promise<string | null>) | null): void {
+    this.csrfRefresher = refresher;
   }
 
   setOnUnauthorized(handler: UnauthorizedHandler): void {
@@ -97,8 +103,12 @@ export class ApiClient {
     headers.set("Accept", "application/json");
 
     // writes carry the session's CSRF token; the session itself is the httpOnly cookie
-    const csrf = this.csrfProvider?.();
-    if (csrf && !/^(GET|HEAD|OPTIONS)$/i.test(fetchOptions.method ?? "GET") && !headers.has("X-CSRF-Token")) headers.set("X-CSRF-Token", csrf);
+    const isWrite = !/^(GET|HEAD|OPTIONS)$/i.test(fetchOptions.method ?? "GET");
+    let csrf = this.csrfProvider?.() ?? null;
+    if (isWrite && !csrf && this.csrfRefresher) {
+      csrf = await this.csrfRefresher();
+    }
+    if (csrf && isWrite && !headers.has("X-CSRF-Token")) headers.set("X-CSRF-Token", csrf);
     const auth = this.getAuthHeader();
     if (auth && !headers.has("Authorization")) {
       headers.set("Authorization", auth);
@@ -126,12 +136,25 @@ export class ApiClient {
     }
 
     try {
-      const response = await fetch(url, {
+      let response = await fetch(url, {
         credentials: "include",
         ...fetchOptions,
         headers,
         signal: controller.signal,
       });
+
+      if (response.status === 403 && isWrite && this.csrfRefresher) {
+        const freshCsrf = await this.csrfRefresher();
+        if (freshCsrf) {
+          headers.set("X-CSRF-Token", freshCsrf);
+          response = await fetch(url, {
+            credentials: "include",
+            ...fetchOptions,
+            headers,
+            signal: controller.signal,
+          });
+        }
+      }
 
       clearTimeout(timeoutId);
 

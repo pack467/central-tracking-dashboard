@@ -271,6 +271,7 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
         collapsed={sidebarCollapsed}
         onToggleCollapse={() => setSidebarCollapsed((prev) => !prev)}
         shiftPanelOpen={shiftPanelOpen}
+        isOnActiveShift={handover.isOnActiveShift}
       />
 
       <section className="workspace flex-auto min-w-0 flex flex-col min-h-screen will-change-[margin-left] [transition:margin-left_0.35s_cubic-bezier(0.16,_1,_0.3,_1)] [overflow-x:clip] ml-[250px] [.sidebar-is-collapsed_&]:ml-[68px] [.shift-panel-is-open_&]:mr-0 max-[940px]:ml-0 max-[940px]:w-full">
@@ -285,7 +286,7 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
 
         <div className="page-content max-w-[1600px] w-full mx-auto pt-[28px] px-[32px] pb-[44px] [contain:layout_style] max-[1240px]:px-[22px] max-[660px]:pt-[18px] max-[660px]:px-[16px] max-[660px]:pb-[36px] max-md:pt-3 min-[400px]:max-md:px-4 max-[400px]:px-3">
           <LocalDataNotice />
-          <div className="app-page-view w-full [animation:pageViewEnter_0.22s_cubic-bezier(0.16,_1,_0.3,_1)_both] will-change-[opacity,transform] [&>*]:scroll-mt-[76px] motion-reduce:animate-none">
+          <div className="app-page-view w-full [&>*]:scroll-mt-[76px]">
             {children}
           </div>
           <div aria-hidden="true" className="h-[calc(112px+var(--ctd-safe-bottom,env(safe-area-inset-bottom,0px)))] md:hidden [@media(max-height:499px)_and_(max-width:1023px)]:block" />
@@ -294,7 +295,7 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
 
       {/* ── Floating Action Button: New Ticket (persists across all pages & viewport fixed) ── */}
       {ticketWritable && <FloatingNewTicketButton onClick={openTicketCreate} isOpen={ticketModalOpen} scrollHidden={mobileChrome.scrollHidden} keyboardOpen={mobileChrome.keyboardOpen} onReveal={mobileChrome.revealFab} />}
-      <BottomNav keyboardOpen={mobileChrome.keyboardOpen} openTicketCount={openTicketCount} onOpenHandover={() => handover.openActive()} />
+      <BottomNav keyboardOpen={mobileChrome.keyboardOpen} openTicketCount={openTicketCount} onOpenHandover={() => handover.openActive()} isOnActiveShift={handover.isOnActiveShift} />
 
       {/* ── Global Shift Coverage Panel (Discord-style right panel) ── */}
       <ShiftCoveragePanel
@@ -312,6 +313,7 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
             onPrepareHandover={() => handover.openActive()}
             handoverRecord={handover.record}
             openTicketCount={openTicketCount}
+            isOnActiveShift={handover.isOnActiveShift}
           />
         )}
 
@@ -396,7 +398,7 @@ function DashboardShell({ children }: { children: React.ReactNode }) {
           <HandoverModal
             workflow={handover}
             tickets={clientTickets}
-            onSelectTicket={selectTicket}
+            onSelectTicket={(ticket) => { handover.close(); selectTicket(ticket); }}
           />
         )}
 

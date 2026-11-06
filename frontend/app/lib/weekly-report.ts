@@ -4,7 +4,6 @@ import { ticketCode } from "@/app/lib/ticket-code";
 
 export { DEFAULT_REPORT_CONFIG, resolveReportConfig, type ReportConfig, type SignatoryConfig } from "./weekly-report-config";
 
-export const REPORT_REFERENCE_URL = "/reports/laporan-serah-terima-2026-39.pdf";
 export const REPORT_COLORS = DEFAULT_REPORT_CONFIG.master_projects.map((project) => DEFAULT_REPORT_CONFIG.project_colors[project]);
 // Contract-specific application names for Tritronik; other clients use their configured projects.
 export const REPORT_SCOPE = ["Single Mediation", "Message Broker", "APH Mediation", "Unified Network Mediation", "Umbrella SIEM", "Enterprise Product Catalog", "Device Management", "B2B Surveillance"];

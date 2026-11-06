@@ -136,6 +136,9 @@ export interface HandoverTask {
   sourceRef?: string;
   confirmedBy?: string;
   confirmedAt?: string;
+  /** The ticket this task became when it was marked Done. */
+  ticketId?: string;
+  ticketCode?: string;
 }
 
 export interface HandoverCheckpoint {
@@ -144,6 +147,8 @@ export interface HandoverCheckpoint {
   task: string;
   verdict: "ok" | "nok";
   note?: string;
+  owner?: string;
+  shift?: string;
 }
 
 export interface HandoverFinding {
@@ -174,6 +179,8 @@ export interface HandoverAuditEntry {
 }
 
 export interface HandoverRecordData {
+  /** The client, partner or tenant the handover is for, by name (Master Data). Older notes have none. */
+  organization?: string;
   sourceShift: string;
   targetShift: string;
   sourcePic: string;
@@ -207,6 +214,7 @@ export interface StoredHandoverRecord {
 
 export type HandoverDraft = {
   date: string;
+  organization?: string;
   sourceShift: string;
   targetShift: string;
   sourcePic: string;
@@ -222,6 +230,7 @@ export type HandoverDraft = {
   closedTickets?: Ticket[];
   receiverEmail?: string;
   monitoringExceptions?: MonitoringException[];
+  monitoringCheckpoints?: HandoverCheckpoint[];
 };
 
 export interface MonitoringEntry {
@@ -233,6 +242,7 @@ export interface MonitoringEntry {
   tone: Tone;
   overview?: boolean;
   clientId?: string;
+  url?: string;
 }
 
 export interface ProjectHealthEntry {
@@ -295,4 +305,3 @@ export interface ShiftSwapRequest {
   status: "Pending" | "Approved" | "Rejected";
   createdAt: string;
 }
-

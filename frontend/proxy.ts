@@ -30,4 +30,6 @@ export function proxy(request: NextRequest) {
   response.headers.set("Content-Security-Policy", policy);
   return response;
 }
-export const config = { matcher: ["/((?!api|_next|_vinext|.*\\..*).*)"] };
+// Skips the API, framework files and static files by their extension. It used to skip every path with a dot, so /tickets/a.b rendered the app
+// with no CSP and without the guard above.
+export const config = { matcher: ["/((?!api(?:/|$)|_next|_vinext|.*\\.(?:avif|css|csv|gif|ico|jpe?g|js|json|map|mjs|pdf|png|svg|ttf|txt|webmanifest|webp|woff2?|xml)$).*)"] };

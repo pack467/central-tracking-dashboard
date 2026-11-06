@@ -1,5 +1,5 @@
 import { getHandoverDb } from "@/db";
-import { canDeleteHandover, canEditHandover, HandoverError, parseHandoverContent, updateHandoverRecord } from "@/app/lib/handover";
+import { canDeleteHandover, canEditHandover, HandoverError, parseHandoverContent, restartChecklist, updateHandoverRecord } from "@/app/lib/handover";
 import { assertSameOrigin, findHandover, handoverFailure, handoverResponse, noteColumns, noteId, readHandoverBody, requestActor, validatedDraft } from "@/app/lib/handover-server";
 import type { HandoverRecordData, StoredHandoverRecord } from "@/app/lib/types";
 
@@ -27,13 +27,14 @@ export async function PUT(request: Request, { params }: Context) {
       if (!canEditHandover(record, actor)) throw new HandoverError("Hanya pembuat catatan yang dapat merevisi handover.", 403);
       const validated = validatedDraft(body.draft);
       date = validated.date;
-      next = { ...validated.record, openTickets: record.openTickets, closedTickets: record.closedTickets, createdBy: record.createdBy ?? actor, acceptance: null, tasks: validated.record.tasks.map((task) => ({ ...task, completed: false })), auditTrail: [...(record.auditTrail ?? []), { action: record.acceptance ? "reopened" : "edited", actor, at: now }] };
+      next = { ...validated.record, openTickets: record.openTickets, closedTickets: record.closedTickets, createdBy: record.createdBy ?? actor, acceptance: null, tasks: restartChecklist(record.tasks, validated.record.tasks), auditTrail: [...(record.auditTrail ?? []), { action: record.acceptance ? "reopened" : "edited", actor, at: now }] };
     } else {
       next = updateHandoverRecord(record, actor, String(body.action), body, now);
     }
     const content = JSON.stringify(next);
     if (content.length > 100000) throw new HandoverError("Riwayat catatan terlalu panjang. Buat handover lanjutan.", 413);
-    const note = ((await getHandoverDb().prepare(`UPDATE handover_notes SET title = ?, handover_date = ?, content = ?, updated_at = ?, revision = revision + 1 WHERE id = ? AND revision = ? RETURNING ${noteColumns}`)
+    const db = await getHandoverDb();
+    const note = ((await db.prepare(`UPDATE handover_notes SET title = ?, handover_date = ?, content = ?, updated_at = ?, revision = revision + 1 WHERE id = ? AND revision = ? RETURNING ${noteColumns}`)
       .bind(`Handover Shift ${next.sourceShift} → ${next.targetShift}`, date, content, now, current.id, current.revision!).first()) as StoredHandoverRecord | null);
     if (!note) throw new HandoverError("Catatan baru saja berubah. Muat ulang sebelum mencoba lagi.", 409);
     return handoverResponse({ note });
@@ -48,8 +49,11 @@ export async function DELETE(request: Request, { params }: Context) {
     if (!canDeleteHandover(parseHandoverContent(current.content), actor)) throw new HandoverError("Hanya pengirim atau penerima handover yang dapat menghapusnya.", 403);
     const revision = Number(new URL(request.url).searchParams.get("revision"));
     if (revision !== current.revision) throw new HandoverError("Catatan telah berubah. Muat ulang sebelum menghapus.", 409);
-    const note = await getHandoverDb().prepare("DELETE FROM handover_notes WHERE id = ? AND revision = ? RETURNING id").bind(current.id, revision).first();
+    const db = await getHandoverDb();
+    const note = await db.prepare("DELETE FROM handover_notes WHERE id = ? AND revision = ? RETURNING id").bind(current.id, revision).first();
     if (!note) throw new HandoverError("Catatan telah berubah. Muat ulang sebelum menghapus.", 409);
+    // a delete is permanent and leaves nothing in the note's own audit trail, so the server log is the only trace of who did it
+    console.info(`[handover] note ${current.id} deleted by user ${actor.id}`);
     return handoverResponse({ id: current.id });
   } catch (error) { return handoverFailure(error); }
 }

@@ -22,6 +22,7 @@ import {
   Sun,
   Sunset,
   Moon,
+  Building2,
 } from "lucide-react";
 import { EmptyState } from "@/app/components/ui/EmptyState";
 import { ConfirmDialog } from "@/app/components/ui/ConfirmDialog";
@@ -399,6 +400,7 @@ export function ShiftLogView({ workflow }: { workflow: HandoverWorkflow }) {
 
                       {content ? (
                         <>
+                          {content.organization && <div className="mt-1.5"><span className="inline-flex max-w-full items-center gap-1.5 rounded-md border border-slate-600/60 bg-slate-800/70 px-2 py-0.5 text-[11.5px] font-semibold text-slate-200 " title="Klien/Mitra atau tenant"><Building2 size={12} className="shrink-0 text-slate-400" aria-hidden="true" /><span className="truncate">{content.organization}</span></span></div>}
                           {/* Sender → Receiver Flow with Avatars & Color-Coded Shift Badges */}
                           {(() => {
                             const sourceShiftMeta = getShiftTagMeta(content.sourceShift);

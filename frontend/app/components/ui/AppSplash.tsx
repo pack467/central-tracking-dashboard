@@ -275,7 +275,6 @@ export function AppSplash() {
 
         {/* ─── E. Anti-Macet CSS-Only Fallback (muncul setelah 10 detik jika JS macet) ─── */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 opacity-0 pointer-events-none animate-[bootEmergencyFade_0.4s_ease-out_10s_forwards] text-center">
-          {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
           <a
             href={paths.dashboard}
             className="inline-flex items-center justify-center min-h-[40px] px-4 py-2 rounded-lg bg-[#1e293b] border border-[#334155] text-[12px] font-medium text-[#f8fafc] hover:bg-[#243044] hover:border-[#38bdf8] transition-colors pointer-events-auto select-auto shadow-md"

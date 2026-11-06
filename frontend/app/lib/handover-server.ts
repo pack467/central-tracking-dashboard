@@ -28,7 +28,8 @@ export function validatedDraft(value: unknown) {
 }
 
 export async function findHandover(id: number) {
-  const note = ((await getHandoverDb().prepare(`SELECT ${noteColumns} FROM handover_notes WHERE id = ?`).bind(id).first()) as StoredHandoverRecord | null);
+  const db = await getHandoverDb();
+  const note = ((await db.prepare(`SELECT ${noteColumns} FROM handover_notes WHERE id = ?`).bind(id).first()) as StoredHandoverRecord | null);
   if (!note) throw new HandoverError("Catatan handover tidak ditemukan.", 404);
   return note;
 }

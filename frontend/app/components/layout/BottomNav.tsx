@@ -21,6 +21,7 @@ interface BottomNavProps {
   keyboardOpen?: boolean;
   onOpenHandover?: () => void;
   onOpenShiftCoverage?: () => void;
+  isOnActiveShift?: boolean;
 }
 
 export function BottomNav({
@@ -28,6 +29,7 @@ export function BottomNav({
   keyboardOpen = false,
   onOpenHandover,
   onOpenShiftCoverage,
+  isOnActiveShift = false,
 }: BottomNavProps) {
   const pathname = usePathname();
   const [moreOpen, setMoreOpen] = useState(false);
@@ -144,7 +146,7 @@ export function BottomNav({
                   className="flex items-center justify-center gap-1.5 min-h-10 py-2 px-3 rounded-lg text-xs font-semibold bg-sky-500/10 hover:bg-sky-500/20 text-sky-300 border border-sky-500/30 transition-colors cursor-pointer"
                 >
                   <ShieldCheck size={13} />
-                  <span>Handover</span>
+                  <span>{isOnActiveShift ? "Siapkan Handover" : "Baca Handover"}</span>
                 </button>
               )}
 

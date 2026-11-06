@@ -3,9 +3,11 @@
 import { useMasterReferences } from "@/app/hooks/useMasterReferences";
 import { TicketSystemSelect } from "./TicketSystemSelect";
 import { Select } from "@/app/components/ui/Select";
+import { TimePicker } from "@/app/components/ui/TimePicker";
+import { getTimelineConfig } from "@/app/lib/ticket-timeline";
 
-import { useEffect, useState, useMemo } from "react";
-import { X, Check, Edit3 } from "lucide-react";
+import { useState, useMemo } from "react";
+import { X, Check, Edit3, Clock, CheckCircle2, Zap } from "lucide-react";
 import { Modal } from "@/app/components/ui/Modal";
 import { Badge } from "@/app/components/ui/Badge";
 import { severityTone, statusTone } from "@/app/components/tickets/TicketTable";
@@ -33,12 +35,16 @@ const STATUS_OPTIONS = ["Open", "Closed", "Activity", "Meeting", "Re-Open", "Pen
 
 export function TicketEditModal({ open, ticket, onClose, onSave }: TicketEditModalProps) {
   const notify = useToast();
-  const { user } = useAuth();
+  const { user, hasPermission } = useAuth();
   const master = useMasterReferences();
   // with the backend as the source its projects (by id) and categories are offered instead of the Master Data ones
   const backend = useBackendTicketOptions();
   const { severityLabel, projectFor } = master;
   const activeCategories = backend ? backend.categories : master.activeCategories;
+  const statusOptions = useMemo(
+    () => (backend ? STATUS_OPTIONS.filter((opt) => opt !== "RCA" || ticket?.status === "RCA") : STATUS_OPTIONS),
+    [backend, ticket?.status]
+  );
   const categoryLabel = backend ? (key: string) => key : master.categoryLabel;
   const { activeClientId, getProjectsForClient } = useClient();
   const operatorName = user?.name || "Operator NOC";
@@ -61,12 +67,35 @@ export function TicketEditModal({ open, ticket, onClose, onSave }: TicketEditMod
   const [category, setCategory] = useState<string>("");
   const [owner, setOwner] = useState("");
   const assignees = useActivePeople();
+  const [escalatedTo, setEscalatedTo] = useState("");
   const [description, setDescription] = useState("");
+  const [requestTime, setRequestTime] = useState("");
+  const [responseTime, setResponseTime] = useState("");
+  const [completionTime, setCompletionTime] = useState("");
+  const [isStillOpen, setIsStillOpen] = useState(false);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    if (ticket && open) {
+  const isEscalation = useMemo(() => {
+    const normCategory = (category || "").toLowerCase();
+    const normStatus = (status || "").toLowerCase();
+    return (
+      normCategory.includes("escalat") ||
+      normCategory.includes("eskalasi") ||
+      normStatus.includes("escalat") ||
+      normStatus.includes("eskalasi")
+    );
+  }, [category, status]);
+
+  const timelineConfig = useMemo(() => getTimelineConfig(category), [category]);
+
+  // The form is filled when it opens for a ticket, and only then: this used to run for every new copy of the ticket, so the 60-second refresh
+  // from the backend threw away what was being typed.
+  const formTicketId = open && ticket ? ticket.id : null;
+  const [loadedTicketId, setLoadedTicketId] = useState<typeof formTicketId>(null);
+  if (formTicketId !== loadedTicketId) {
+    setLoadedTicketId(formTicketId);
+    if (ticket && formTicketId !== null) {
       setSubject(ticket.subject);
       setProject(ticketProject);
       setSystemId(ticket.systemComponent || ticket.systemId || "");
@@ -74,10 +103,15 @@ export function TicketEditModal({ open, ticket, onClose, onSave }: TicketEditMod
       setStatus(ticket.status);
       setCategory(ticket.type || (ticket.category && ticket.category !== "--" ? ticket.category : ""));
       setOwner(ticket.owner);
+      setEscalatedTo(ticket.escalatedTo || "");
       setDescription(ticket.description || "");
+      setRequestTime(ticket.requestTime || "");
+      setResponseTime(ticket.responseTime || "");
+      setCompletionTime(ticket.completionTime || "");
+      setIsStillOpen(Boolean(ticket.isStillOpen));
       setError("");
     }
-  }, [ticket, open, ticketProject]);
+  }
 
   if (!ticket) return null;
 
@@ -89,9 +123,17 @@ export function TicketEditModal({ open, ticket, onClose, onSave }: TicketEditMod
       return;
     }
 
+    if (category) {
+      if (!isStillOpen && completionTime.trim() && requestTime.trim() && completionTime.trim() < requestTime.trim()) {
+        setError(`${timelineConfig.completionLabel} tidak boleh lebih awal dari ${timelineConfig.firstLabel}.`);
+        return;
+      }
+    }
+
     const owners = owner.trim() ? owner.trim().split(",").map((s) => s.trim()).filter(Boolean) : ticket.owners;
     const changedOwner = !!owner.trim() && owner.trim() !== ticket.owner;
-    const ownerIds = changedOwner ? ownerIdsFor(owners ?? [], assignees) : ticket.ownerIds;
+    const rawOwnerIds = changedOwner ? ownerIdsFor(owners ?? [], assignees) : ticket.ownerIds;
+    const ownerIds = backend && !hasPermission("tickets.write.any") ? ticket.ownerIds : rawOwnerIds;
     const matchingSystem = master.catalog.systems.find(
       (s) =>
         s.id === systemId.trim() ||
@@ -112,6 +154,12 @@ export function TicketEditModal({ open, ticket, onClose, onSave }: TicketEditMod
       status,
       category: category || undefined,
       type: category || undefined,
+      requestTime: requestTime.trim() || undefined,
+      responseTime: timelineConfig.fieldCount === 3 ? (responseTime.trim() || undefined) : undefined,
+      completionTime: isStillOpen ? undefined : (completionTime.trim() || undefined),
+      isStillOpen: isStillOpen || undefined,
+      escalatedTo: isEscalation && escalatedTo.trim() ? escalatedTo.trim() : (isEscalation ? ticket.escalatedTo : undefined),
+      escalationLevel: isEscalation ? (ticket.escalationLevel || "Level 2") : undefined,
       owner: owner.trim() || ticket.owner,
       owners,
       ...(ownerIds?.length ? { ownerIds } : {}),
@@ -168,7 +216,6 @@ export function TicketEditModal({ open, ticket, onClose, onSave }: TicketEditMod
               if (error) setError("");
             }}
             placeholder="Subjek ticket"
-            autoFocus
           />
         </label>
 
@@ -205,7 +252,7 @@ export function TicketEditModal({ open, ticket, onClose, onSave }: TicketEditMod
               <Badge tone={statusTone(status)}>{status}</Badge>
             </div>
             <Select size="form" className="w-full" value={status} onChange={(event) => setStatus(event.target.value)}>
-              {STATUS_OPTIONS.map((opt) => (
+              {statusOptions.map((opt) => (
                 <option key={opt} value={opt}>
                   {opt}
                 </option>
@@ -231,7 +278,159 @@ export function TicketEditModal({ open, ticket, onClose, onSave }: TicketEditMod
           </label>
         </div>
 
-        <TicketSystemSelect project={backend ? backend.projectName(project) : project}organizationId={ticket?.clientId || activeClientId} value={systemId} onChange={setSystemId} originalId={ticket?.systemId} />
+        <TicketSystemSelect project={backend ? backend.projectName(project) : project} organizationId={ticket?.clientId || activeClientId} value={systemId} onChange={setSystemId} originalId={ticket?.systemId} />
+
+        {/* Conditional Escalation target */}
+        {isEscalation && (
+          <label className="[grid-column:1_/_-1]!">
+            <div className="ticket-field-label-wrapper">
+              <span>TARGET ESKALASI</span>
+              <span className="text-[11px] text-[var(--ink-muted)]">Target eskalasi (L2 / L3 / Vendor)</span>
+            </div>
+            <input
+              type="text"
+              value={escalatedTo}
+              onChange={(e) => setEscalatedTo(e.target.value)}
+              placeholder="Masukkan nama penerima eskalasi atau tim target (contoh: L2 Support, Dimas Suryo, Vendor Core)..."
+              className="w-full"
+            />
+          </label>
+        )}
+
+        {/* Dynamic Timeline Fields (Adapted to Category) */}
+        {Boolean(category) && (
+          <div className="adhoc-fields-container [grid-column:1_/_-1]!">
+            <div className="adhoc-fields-header">
+              <span className="adhoc-fields-badge">
+                <Zap size={11} className="[display:inline-block]! [vertical-align:middle]! [margin-right:4px]!" />
+                {timelineConfig.badgeTitle}
+              </span>
+              <small>{timelineConfig.badgeSub}</small>
+            </div>
+
+            {timelineConfig.fieldCount === 3 ? (
+              <div className="three-inputs adhoc-inputs-row">
+                <label>
+                  <div className="ticket-field-label-wrapper">
+                    <span className="ticket-field-label">
+                      <Clock size={12} className="ticket-field-icon" />
+                      {timelineConfig.firstLabel}
+                    </span>
+                  </div>
+                  <TimePicker
+                    value={requestTime}
+                    onChange={(val) => {
+                      setRequestTime(val);
+                      if (error) setError("");
+                    }}
+                    placeholder="00:00"
+                    title={timelineConfig.firstHint}
+                  />
+                </label>
+
+                <label>
+                  <div className="ticket-field-label-wrapper">
+                    <span className="ticket-field-label">
+                      <Clock size={12} className="ticket-field-icon" />
+                      {timelineConfig.secondLabel || "RESPONSE TIME"}
+                    </span>
+                  </div>
+                  <TimePicker
+                    value={responseTime}
+                    onChange={(val) => {
+                      setResponseTime(val);
+                      if (error) setError("");
+                    }}
+                    placeholder="00:00"
+                    title={timelineConfig.secondHint || "Waktu respon"}
+                  />
+                </label>
+
+                <div className="ticket-field-stack">
+                  <div className="ticket-field-label-wrapper">
+                    <span className="ticket-field-label">
+                      <CheckCircle2 size={12} className="ticket-field-icon" />
+                      {timelineConfig.completionLabel}
+                    </span>
+                    <label className="still-open-toggle-label" title="Centang jika pekerjaan belum selesai">
+                      <input
+                        type="checkbox"
+                        checked={isStillOpen}
+                        onChange={(e) => {
+                          setIsStillOpen(e.target.checked);
+                          if (error) setError("");
+                        }}
+                        className="still-open-checkbox"
+                      />
+                      <span>Still Open</span>
+                    </label>
+                  </div>
+                  <TimePicker
+                    value={isStillOpen ? "" : completionTime}
+                    onChange={(val) => {
+                      setCompletionTime(val);
+                      if (error) setError("");
+                    }}
+                    disabled={isStillOpen}
+                    placeholder={isStillOpen ? "Masih berlangsung" : "--:--"}
+                    title={isStillOpen ? "Pekerjaan masih berlangsung" : `Waktu selesai (${timelineConfig.completionLabel})`}
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="[display:grid]! [grid-template-columns:1fr_1.35fr]! [gap:12px]! max-[640px]:[grid-template-columns:1fr]!">
+                <label>
+                  <div className="ticket-field-label-wrapper">
+                    <span className="ticket-field-label">
+                      <Clock size={12} className="ticket-field-icon" />
+                      {timelineConfig.firstLabel}
+                    </span>
+                  </div>
+                  <TimePicker
+                    value={requestTime}
+                    onChange={(val) => {
+                      setRequestTime(val);
+                      if (error) setError("");
+                    }}
+                    placeholder="00:00"
+                    title={timelineConfig.firstHint}
+                  />
+                </label>
+
+                <div className="ticket-field-stack">
+                  <div className="ticket-field-label-wrapper">
+                    <span className="ticket-field-label">
+                      <CheckCircle2 size={12} className="ticket-field-icon" />
+                      {timelineConfig.completionLabel}
+                    </span>
+                    <label className="still-open-toggle-label" title="Centang jika pekerjaan belum selesai">
+                      <input
+                        type="checkbox"
+                        checked={isStillOpen}
+                        onChange={(e) => {
+                          setIsStillOpen(e.target.checked);
+                          if (error) setError("");
+                        }}
+                        className="still-open-checkbox"
+                      />
+                      <span>Still Open</span>
+                    </label>
+                  </div>
+                  <TimePicker
+                    value={isStillOpen ? "" : completionTime}
+                    onChange={(val) => {
+                      setCompletionTime(val);
+                      if (error) setError("");
+                    }}
+                    disabled={isStillOpen}
+                    placeholder={isStillOpen ? "Masih berlangsung" : "--:--"}
+                    title={isStillOpen ? "Pekerjaan masih berlangsung" : `Waktu selesai (${timelineConfig.completionLabel})`}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Row 4: Description */}
         <label className="[grid-column:1_/_-1]!">

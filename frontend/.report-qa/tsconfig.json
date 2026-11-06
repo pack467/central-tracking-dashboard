@@ -1,6 +1,0 @@
-{
-  "extends": "../tsconfig.json",
-  "compilerOptions": { "incremental": false },
-  "include": ["../app/components/views/ReportsView.tsx", "../app/components/reports/ReportPdfPreview.tsx", "../app/lib/weekly-report.ts", "../app/lib/weekly-report-pdf.ts", "../next-env.d.ts"],
-  "exclude": ["../node_modules", "../.next"]
-}

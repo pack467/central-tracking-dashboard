@@ -17,10 +17,21 @@ export function useMasterSync() {
   useEffect(() => { masterRepository.bootstrap(); }, []);
   return state;
 }
+/**
+ * One copy of the catalog for every screen, made again when the store says it changed. A copy per render of every component that reads it (a
+ * project name in each row of a list, for one) deep-cloned all of Master Data hundreds of times while a page opened. Read-only for its readers.
+ */
+let sharedCatalog: { sync: unknown; catalog: ReturnType<typeof masterRepository.snapshot> } | null = null;
+function catalogFor(sync: unknown) {
+  if (sharedCatalog && sharedCatalog.sync === sync) return sharedCatalog.catalog;
+  const catalog = masterRepository.snapshot();
+  sharedCatalog = { sync, catalog };
+  return catalog;
+}
+
 export function useMasterCatalog() {
   const sync = useMasterSync();
-  const catalog = masterRepository.snapshot();
-  return { catalog, sync };
+  return { catalog: catalogFor(sync), sync };
 }
 export function useMasterRecords<E extends MasterEntity>(entity: E, query: MasterQuery) {
   const { revision, ready } = useMasterSync();

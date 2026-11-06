@@ -42,13 +42,13 @@ export function RosterStatCards({ members, swapRequests, onOpenSwaps }: RosterSt
 
   return (
     <section
-      className="roster-metrics-grid grid grid-cols-[repeat(4,_1fr)] gap-[14px] mb-[20px] max-[1140px]:grid-cols-[repeat(2,_1fr)] max-[640px]:grid-cols-[repeat(2,_minmax(0,_1fr))]"
+      className="grid grid-cols-2 gap-3 min-[1140px]:grid-cols-4 min-[1140px]:gap-4 [&_.sc]:h-full [&_.sc-footer]:mt-auto max-sm:gap-2 max-sm:[&_.sc]:p-3 max-sm:[&_.sc]:gap-1.5 max-sm:[&_.sc-subtitle]:hidden max-sm:[&_.sc-value]:text-[26px] max-sm:[&_.sc-icon]:size-6 max-sm:[&_.sc-label]:text-[9px] max-sm:[&_.sc-label]:tracking-[0.5px] max-sm:[&_.sc-hint]:hidden"
       aria-label="Ringkasan statistik tim"
     >
 
       {/* 1. TOTAL MEMBERS */}
       <StatCard
-        label="TOTAL MEMBERS"
+        label="TOTAL ANGGOTA"
         value={total}
         accentColor="blue"
         icon={<Users size={15} strokeWidth={2} />}
@@ -61,29 +61,29 @@ export function RosterStatCards({ members, swapRequests, onOpenSwaps }: RosterSt
             { label: "Specialists", percentage: specPct, color: "#a855f7" },
           ],
         }}
-        badgeText="Full NOC Roster"
+        badgeText={`${total} orang`}
         badgeTone="blue"
       />
 
       {/* 2. ACTIVE ON SHIFT */}
       <StatCard
-        label="ACTIVE ON SHIFT"
+        label="SEDANG BERTUGAS"
         value={activeNow}
         accentColor={shiftAccent}
         icon={<Activity size={15} strokeWidth={2} />}
         subtitle={`${activeShift.label} · ${activeShift.period}`}
         progress={{ value: quorumPct, color: activeShift.color }}
-        badgeText={quorumPct >= 100 ? "100% Minimum Quorum" : `${quorumPct}% Quorum`}
+        badgeText={`${quorumPct}% kuorum`}
         badgeTone={shiftAccent}
       />
 
       {/* 3. OFF / ON LEAVE TODAY */}
       <StatCard
-        label="OFF / ON LEAVE TODAY"
+        label="LIBUR / CUTI"
         value={onLeaveOrOff}
         accentColor="amber"
         icon={<Coffee size={15} strokeWidth={2} />}
-        subtitle={`${onLeaveCount} On Leave · ${offDutyCount} Off Duty`}
+        subtitle={`${onLeaveCount} cuti · ${offDutyCount} libur hari ini`}
         progress={{
           value: leavePct,
           segments: [
@@ -91,18 +91,18 @@ export function RosterStatCards({ members, swapRequests, onOpenSwaps }: RosterSt
             { label: "Off Duty", percentage: offPct,   color: "#475569" },
           ],
         }}
-        badgeText={onLeaveCount > 0 ? `${onLeaveCount} Planned Leave` : "Resting & Standby"}
+        badgeText={onLeaveCount > 0 ? `${onLeaveCount} cuti` : "Standby"}
         badgeTone="amber"
       />
 
       {/* 4. SHIFT SWAPS */}
       <StatCard
-        label="SHIFT SWAPS (NEXT 24H)"
+        label="TUKAR SHIFT"
         value={pendingSwaps}
         accentColor={pendingSwaps > 0 ? "rose" : "blue"}
         icon={<ArrowRightLeft size={15} strokeWidth={2} />}
-        subtitle={pendingSwaps > 0 ? `${pendingSwaps} request pending review` : "Semua shift terkonfirmasi"}
-        badgeText={pendingSwaps > 0 ? "Needs Approval" : "Roster Sync OK"}
+        subtitle={pendingSwaps > 0 ? `${pendingSwaps} permintaan menunggu persetujuan` : "Semua shift terkonfirmasi"}
+        badgeText={pendingSwaps > 0 ? "Perlu review" : "Sinkron"}
         badgeTone={pendingSwaps > 0 ? "rose" : "neutral"}
         isClickable
         onClick={onOpenSwaps}

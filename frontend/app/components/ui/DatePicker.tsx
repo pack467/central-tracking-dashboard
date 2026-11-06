@@ -182,7 +182,10 @@ export function DatePicker({
   const [hoverDate, setHoverDate] = useState<string | null>(null);
 
   // When opening or external value changes, sync views
-  useEffect(() => {
+  const viewSource = isOpen ? `${selectedStart ?? ""}|${formatToYMD(baseToday)}` : null;
+  const [syncedView, setSyncedView] = useState<string | null>(null);
+  if (viewSource !== syncedView) {
+    setSyncedView(viewSource);
     if (isOpen) {
       if (selectedStart) {
         const d = parseYMD(selectedStart);
@@ -197,7 +200,7 @@ export function DatePicker({
       setRangeStart(null);
       setHoverDate(null);
     }
-  }, [isOpen, selectedStart, baseToday]);
+  }
 
   // Commit pending single-date if user closes without picking a second date
   const commitSingleIfPending = useCallback(() => {
@@ -302,11 +305,6 @@ export function DatePicker({
     const yesterdayDate = new Date(baseToday);
     yesterdayDate.setDate(yesterdayDate.getDate() - 1);
     const yesterday = formatToYMD(yesterdayDate);
-
-    // 7 days up to today
-    const sevenDaysAgoDate = new Date(baseToday);
-    sevenDaysAgoDate.setDate(sevenDaysAgoDate.getDate() - 6);
-    const sevenDays = `${formatToYMD(sevenDaysAgoDate)}..${today}`;
 
     // This week: Monday to Sunday
     const dayOfWeek = baseToday.getDay();

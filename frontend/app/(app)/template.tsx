@@ -1,30 +1,7 @@
-"use client";
-
-import React from "react";
-import { motion, useReducedMotion } from "framer-motion";
-
-const easeOutCubic = [0.16, 1, 0.3, 1] as const;
-
+/**
+ * Remade by the router for every page, so its animation (.route-enter, styles/tailwind/utilities.css) plays each time one opens.
+ * Only CSS: the browser's compositor runs it, so it stays smooth while the new page is still being rendered.
+ */
 export default function Template({ children }: { children: React.ReactNode }) {
-  const shouldReduceMotion = useReducedMotion();
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{
-        opacity: 1,
-        y: 0,
-        transitionEnd: {
-          transform: "none",
-        },
-      }}
-      transition={{
-        duration: shouldReduceMotion ? 0 : 0.35,
-        ease: easeOutCubic,
-      }}
-      className="w-full"
-    >
-      {children}
-    </motion.div>
-  );
+  return <div className="route-enter w-full">{children}</div>;
 }

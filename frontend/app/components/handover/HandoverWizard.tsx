@@ -1,17 +1,17 @@
 "use client";
 
-import { MultiSelect, Select } from "@/app/components/ui/Select";
+import { MultiSelect, Select, type SelectOption } from "@/app/components/ui/Select";
 
-import { useMemo, useRef, useState, type ReactNode } from "react";
-import { ArrowRightLeft, ArrowRight, Check, Calendar, Users, ShieldCheck, Plus, Trash2, ChevronDown, CheckSquare, ChevronsUpDown, FileText, Clock3, UserRound, Activity, Type, AlignLeft, ListTodo, Flag, AlertCircle, Lightbulb } from "lucide-react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { ArrowRightLeft, ArrowRight, Check, Calendar, Clock, Eye, Loader2, RotateCw, Users, ShieldCheck, Plus, Trash2, ChevronDown, CheckSquare, ChevronsUpDown, FileText, Clock3, UserRound, Type, AlignLeft, ListTodo, AlertCircle, Lightbulb } from "lucide-react";
 import { Modal } from "@/app/components/ui/Modal";
 import { ModalCloseButton } from "@/app/components/ui/ModalCloseButton";
 import { ConfirmDialog } from "@/app/components/ui/ConfirmDialog";
 import { DatePicker } from "@/app/components/ui/DatePicker";
 import type { HandoverActor, HandoverDraft, HandoverState, RosterMember } from "@/app/lib/types";
 import { TaskStatusBadge } from "./TaskStatusBadge";
-import { TaskPriorityBadge } from "./TaskPriorityBadge";
-import { ProjectSelect } from "./ProjectSelect";
+import { getTaskPriorityConfig, TaskPriorityBadge } from "./TaskPriorityBadge";
+import { FORM_SELECT, ProjectSelect } from "./ProjectSelect";
 
 interface HandoverWizardProps {
   open: boolean;
@@ -45,19 +45,45 @@ const SHIFT_ROTATIONS = [
 ];
 
 // One look for every field in the wizard
-const INPUT = "w-full min-h-[42px] pl-[40px] pr-[12px] py-[10px] rounded-lg text-[13px] bg-[var(--input-bg)] border border-[var(--panel-border)] text-[var(--ink-primary)] font-normal placeholder:text-[var(--ink-muted)] focus:border-[var(--accent-blue)] focus:shadow-[0_0_0_3px_var(--accent-blue-soft)] focus:outline-none transition-[border-color,box-shadow] duration-150";
+const INPUT = "w-full min-h-[44px] pl-[40px] pr-[12px] py-[10px] rounded-lg text-[13px] bg-[var(--input-bg)] border border-[var(--panel-border)] text-[var(--ink-primary)] font-normal placeholder:text-[var(--ink-muted)] focus:border-[var(--accent-blue)] focus:shadow-[0_0_0_3px_var(--accent-blue-soft)] focus:outline-none transition-[border-color,box-shadow] duration-150";
 const TEXTAREA = `${INPUT} min-h-[96px] leading-[1.55] resize-y`;
 const SELECT = "w-full min-h-[42px] pl-[40px] pr-[42px] py-[10px] rounded-lg text-[13px] bg-[var(--input-bg)] border border-[var(--panel-border)] text-[var(--ink-primary)] font-normal appearance-none cursor-pointer focus:border-[var(--accent-blue)] focus:shadow-[0_0_0_3px_var(--accent-blue-soft)] focus:outline-none transition-[border-color,box-shadow] duration-150";
-const FIELD_ICON = "absolute z-[1] left-[13px] top-[21px] -translate-y-1/2 text-[var(--ink-muted)] pointer-events-none transition-colors duration-150 group-focus-within/shell:text-[var(--accent-blue)]";
+const FIELD_ICON = "absolute z-[1] left-[13px] top-[22px] -translate-y-1/2 text-[var(--ink-muted)] pointer-events-none transition-colors duration-150 group-focus-within/shell:text-[var(--accent-blue)]";
 const CARD = "rounded-xl border border-[var(--panel-border)] bg-[var(--panel-bg)] p-5 max-[660px]:p-4";
 const SECONDARY_BUTTON = "inline-flex items-center justify-center gap-1.5 min-h-[36px] px-[15px] rounded-lg text-[12px] font-semibold cursor-pointer transition-colors duration-150 border border-[var(--line)] bg-[var(--panel-bg)] text-[var(--ink-secondary)] hover:bg-[var(--panel-bg-hover)] hover:text-[var(--ink-primary)] disabled:opacity-50 disabled:cursor-not-allowed";
-const ADD_BUTTON = "inline-flex items-center justify-center gap-1.5 min-h-[34px] px-3.5 rounded-lg border border-sky-400/40 bg-sky-400/10 text-[12px] font-bold text-sky-300 cursor-pointer transition-colors duration-150 hover:border-sky-400 hover:bg-sky-400/20 hover:text-white";
+const ADD_BUTTON = "inline-flex items-center justify-center gap-1.5 min-h-[36px] px-3.5 rounded-lg border border-sky-400/40 bg-sky-400/10 text-[12px] font-bold text-sky-300 cursor-pointer transition-colors duration-150 hover:border-sky-400 hover:bg-sky-400/20 hover:text-white";
+const DELETE_BUTTON = "grid size-9 shrink-0 place-items-center rounded-lg border border-transparent text-[var(--ink-muted)] transition-colors duration-150 hover:border-[var(--red-border)] hover:bg-[var(--red-soft)] hover:text-[var(--red)]";
+const PROJECT_HINT = "Tidak ada di daftar? Ketik namanya di kolom cari.";
+
+type Finding = HandoverDraft["findings"][number];
+type Task = HandoverDraft["tasks"][number];
+/** What saving will ask for (validateDraft), named so the person sees it on the card instead of finding out when saving. */
+const namesOf = (...pairs: Array<[string, string]>) => pairs.filter(([value]) => !value.trim()).map(([, name]) => name);
+const findingMissing = (finding: Finding) => namesOf([finding.title, "temuan"], [finding.project, "proyek"], [finding.detail, "keterangan"]);
+const taskMissing = (task: Task) => namesOf([task.title, "tugas"], [task.project, "proyek"]);
+
+/** An option of a short list; what the chosen one means is shown under the field. */
+interface Choice extends SelectOption { description?: string }
+const FINDING_STATES: Choice[] = [
+  { value: "waiting", label: "Perlu dipantau", description: "Belum ada yang menangani, shift penerima perlu mengawasinya.", icon: <Eye size={16} /> },
+  { value: "in-progress", label: "Sedang ditindaklanjuti", description: "Sudah ada yang menangani, shift penerima mengikuti perkembangannya.", icon: <Loader2 size={16} /> },
+];
+// the states a note can hold (parseHandoverContent), named as the badge on the card names them
+const TASK_STATES: Choice[] = [
+  { value: "repeat", label: "Routine", meta: "Rutin", description: "Pekerjaan rutin yang diulang setiap shift.", icon: <RotateCw size={16} /> },
+  { value: "waiting", label: "Pending", meta: "Menunggu", description: "Menunggu tindak lanjut atau pihak lain.", icon: <Clock size={16} /> },
+  { value: "in-progress", label: "In Progress", meta: "Dikerjakan", description: "Sedang dikerjakan, shift penerima melanjutkan.", icon: <Loader2 size={16} /> },
+];
+const TASK_PRIORITIES: Choice[] = [["High", "Tinggi"], ["Medium", "Sedang"], ["Low", "Rendah"]].map(([priority, meta]) => {
+  const config = getTaskPriorityConfig(priority);
+  return { value: priority, label: config.label, meta, icon: config.icon };
+});
 
 /** A field's label: the name, an optional "Opsional" tag, and the control under it. */
-function Field({ label, optional, hint, children, className = "", htmlFor }: { label: string; optional?: boolean; hint?: string; children: ReactNode; className?: string; htmlFor?: string }) {
+function Field({ label, optional, required, hint, children, className = "", htmlFor }: { label: string; optional?: boolean; required?: boolean; hint?: string; children: ReactNode; className?: string; htmlFor?: string }) {
   return (
     <label className={`grid gap-1.5 text-[12.5px] font-semibold text-[var(--ink-secondary)] ${className}`} htmlFor={htmlFor}>
-      <span className="flex items-center gap-2">{label}{optional && <span className="rounded bg-slate-700/60 px-1.5 py-[1px] text-[10.5px] font-medium text-slate-400">Opsional</span>}</span>
+      <span className="flex items-center gap-1.5">{label}{required && <span className="text-red-400" aria-hidden="true">*</span>}{optional && <span className="ml-0.5 rounded bg-slate-700/60 px-1.5 py-[1px] text-[10.5px] font-medium text-slate-400">Opsional</span>}</span>
       {children}
       {hint && <small className="text-[11.5px] font-normal leading-[1.45] text-[var(--ink-muted)]">{hint}</small>}
     </label>
@@ -96,7 +122,53 @@ function ProjectPill({ name }: { name: string }) {
   return <span className="inline-flex shrink-0 items-center rounded-md border border-slate-600/60 bg-slate-800/70 px-1.5 py-0.5 font-mono text-[10.5px] font-semibold text-slate-200">{name}</span>;
 }
 
-const PRIORITY_ACCENT: Record<string, string> = { Critical: "border-l-red-500", High: "border-l-orange-400", Medium: "border-l-amber-400", Low: "border-l-teal-400" };
+/** A short list for one question: the chosen option's icon on the field, its meaning under it. */
+function ChoiceSelect({ label, value, choices, onChange }: { label: string; value: string; choices: Choice[]; onChange: (value: string) => void }) {
+  const chosen = choices.find((choice) => choice.value === value);
+  return (
+    <Field label={label} hint={chosen?.description}>
+      <Select {...FORM_SELECT} aria-label={label} label={label} icon={chosen?.icon} value={value} options={choices} onValueChange={onChange} />
+    </Field>
+  );
+}
+
+/** The number of a card in its list. */
+function ItemNumber({ value }: { value: number }) {
+  return <span className="grid h-[22px] min-w-[28px] shrink-0 place-items-center rounded-md border border-[var(--accent-blue-border)] bg-[var(--accent-blue-soft)] px-1.5 font-mono text-[11px] font-bold text-[var(--accent-blue)]">#{value}</span>;
+}
+
+/** Whether a card can be saved and, if not, what it still needs. */
+function CompletionNote({ missing }: { missing: string[] }) {
+  if (!missing.length) return <span className="inline-flex items-center gap-1 text-[11.5px] font-medium text-emerald-400"><Check size={12} strokeWidth={3} aria-hidden="true" /> Lengkap</span>;
+  return <span className="inline-flex items-center gap-1 text-[11.5px] font-medium text-amber-300"><AlertCircle size={12} aria-hidden="true" /> Belum diisi: {missing.join(", ")}</span>;
+}
+
+/** The title of a list, how many it holds, and what can be done with it. */
+function ListHeader({ icon, title, count, children }: { icon: ReactNode; title: string; count: number; children: ReactNode }) {
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+      <div className="flex items-center gap-2 text-[13.5px] font-semibold text-[var(--ink-primary)]">
+        <span className="text-[var(--accent-blue)]" aria-hidden="true">{icon}</span> {title}
+        <span className="grid h-[22px] min-w-[22px] place-items-center rounded-md bg-[var(--accent-blue-soft)] px-1.5 font-mono text-[11px] font-bold text-[var(--accent-blue)]">{count}</span>
+      </div>
+      <div className="flex flex-wrap items-center gap-2 max-[660px]:w-full max-[660px]:[&>button]:flex-1">{children}</div>
+    </div>
+  );
+}
+
+/** What a list says when it has nothing. */
+function EmptyList({ icon, title, text, tone, children }: { icon: ReactNode; title: string; text: string; tone?: "green"; children?: ReactNode }) {
+  return (
+    <div className="flex flex-col items-center justify-center rounded-xl border-[1.5px] border-dashed border-[var(--line)] bg-[var(--panel-bg)] p-[32px_24px] text-center">
+      <div className={`mb-3 grid size-12 place-items-center rounded-full border ${tone === "green" ? "border-[var(--green-border)] bg-[var(--green-soft)] text-[var(--green)]" : "border-[var(--line)] text-[var(--ink-muted)]"}`} aria-hidden="true">{icon}</div>
+      <div className="mb-1 text-[14px] font-bold text-[var(--ink-primary)]">{title}</div>
+      <div className={`max-w-[420px] text-[12.5px] leading-[1.5] text-[var(--ink-secondary)] ${children ? "mb-4" : ""}`}>{text}</div>
+      {children}
+    </div>
+  );
+}
+
+const PRIORITY_ACCENT: Record<string, string> = { High: "border-l-orange-400", Medium: "border-l-amber-400", Low: "border-l-teal-400" };
 
 export function HandoverWizard({
   open,
@@ -122,8 +194,19 @@ export function HandoverWizard({
     return [...names].sort((a, b) => a.localeCompare(b, "id")).map((name) => ({ value: name, label: name }));
   }, [members, draft.sourcePic, draft.targetPic]);
   const [confirmDiscard, setConfirmDiscard] = useState(false);
-  const [collapsedTasks, setCollapsedTasks] = useState<Record<number, boolean>>({});
+  // a list of complete tasks starts closed so it can be read; what still needs filling in starts open. Set once: typing a title must not close the card.
+  const [collapsedTasks, setCollapsedTasks] = useState<Record<number, boolean>>(() => Object.fromEntries(draft.tasks.map((task) => [task.id, taskMissing(task).length === 0])));
   const formScrollRef = useRef<HTMLDivElement>(null);
+  // a card just added: its first field gets the focus once it is on screen, or the person is left looking at the top of a long list
+  const focusAfterAdd = useRef<string | null>(null);
+  useEffect(() => {
+    const id = focusAfterAdd.current;
+    if (!id) return;
+    focusAfterAdd.current = null;
+    const field = document.getElementById(id);
+    field?.scrollIntoView({ block: "center" });
+    field?.focus({ preventScroll: true });
+  }, [draft.tasks.length, draft.findings.length]);
 
   const title = mode === "edit" ? "Edit Catatan Handover" : mode === "prepare" ? "Siapkan Handover" : "Buat Handover Baru";
 
@@ -166,7 +249,7 @@ export function HandoverWizard({
           taskTemplateId: `custom-${newId}`,
           isNewlyAdded: true,
           title: "",
-          project: "NOC",
+          project: "",
           detail: "",
           state: "repeat" as HandoverState,
           priority: "Medium",
@@ -174,8 +257,8 @@ export function HandoverWizard({
         },
       ],
     }));
-    // Keep the newly added task expanded
     setCollapsedTasks((prev) => ({ ...prev, [newId]: false }));
+    focusAfterAdd.current = `task-title-${newId}`;
   };
 
   const removeTask = (taskId: number) => {
@@ -185,11 +268,14 @@ export function HandoverWizard({
     }));
   };
 
-  const toggleTaskCollapse = (taskId: number, index: number) => {
-    setCollapsedTasks((prev) => ({
-      ...prev,
-      [taskId]: !(prev[taskId] ?? index > 0),
-    }));
+  const toggleTaskCollapse = (taskId: number) => {
+    setCollapsedTasks((prev) => ({ ...prev, [taskId]: !(prev[taskId] ?? true) }));
+  };
+
+  const showIncompleteTasks = () => {
+    setCollapsedTasks(Object.fromEntries(draft.tasks.map((task) => [task.id, taskMissing(task).length === 0])));
+    const first = draft.tasks.find((task) => taskMissing(task).length > 0);
+    if (first) requestAnimationFrame(() => formScrollRef.current?.querySelector(`[data-task-id="${first.id}"]`)?.scrollIntoView({ block: "start" }));
   };
 
   const toggleAllTasks = (collapse: boolean) => {
@@ -200,13 +286,14 @@ export function HandoverWizard({
     setCollapsedTasks(nextState);
   };
 
-  const areAllTasksCollapsed = draft.tasks.length > 0 && draft.tasks.every((task, index) => collapsedTasks[task.id] ?? index > 0);
+  const areAllTasksCollapsed = draft.tasks.length > 0 && draft.tasks.every((task) => collapsedTasks[task.id] ?? true);
 
   const addFinding = () => {
     onDraftChange((previous) => ({
       ...previous,
-      findings: [...previous.findings, { project: "NOC", title: "", detail: "", state: "waiting" as const }],
+      findings: [...previous.findings, { project: "", title: "", detail: "", state: "waiting" as const }],
     }));
+    focusAfterAdd.current = `finding-title-${draft.findings.length}`;
   };
 
   const removeFinding = (findingIndex: number) => {
@@ -224,16 +311,16 @@ export function HandoverWizard({
     }));
   };
 
-  // What is still missing per step, shown on the stepper and in the summary (it does not block anything: saving checks it)
+  // What is still missing per step, shown on the stepper (it does not block anything: saving checks it)
   const shiftInfoComplete = Boolean(draft.date && draft.sourceShift.trim() && draft.targetShift.trim() && draft.sourcePic.trim() && draft.targetPic.trim());
-  const untitledFindings = draft.findings.filter((finding) => !finding.title.trim()).length;
-  const untitledTasks = draft.tasks.filter((task) => !task.title.trim()).length;
+  const incompleteFindings = draft.findings.filter((finding) => findingMissing(finding).length > 0).length;
+  const incompleteTasks = draft.tasks.filter((task) => taskMissing(task).length > 0).length;
   const hasNote = Boolean(draft.notes?.trim());
   const steps: Array<{ step: Step; label: string; sub: string; ok: boolean }> = [
     { step: 1, label: "Shift & PIC", sub: shiftInfoComplete ? `${draft.sourceShift} → ${draft.targetShift}` : "Belum lengkap", ok: shiftInfoComplete },
     { step: 2, label: "Catatan", sub: hasNote ? "Ada catatan" : "Opsional", ok: true },
-    { step: 3, label: "Temuan", sub: draft.findings.length ? `${draft.findings.length} temuan` : "Tidak ada", ok: untitledFindings === 0 },
-    { step: 4, label: "Tugas", sub: `${draft.tasks.length} tugas`, ok: untitledTasks === 0 },
+    { step: 3, label: "Temuan", sub: incompleteFindings ? `${incompleteFindings} belum lengkap` : draft.findings.length ? `${draft.findings.length} temuan` : "Tidak ada", ok: incompleteFindings === 0 },
+    { step: 4, label: "Tugas", sub: incompleteTasks ? `${incompleteTasks} belum lengkap` : `${draft.tasks.length} tugas`, ok: incompleteTasks === 0 },
   ];
   const nextLabel = step === 1 ? "Lanjut ke Catatan" : step === 2 ? "Lanjut ke Temuan" : "Lanjut ke Tugas";
 
@@ -249,7 +336,7 @@ export function HandoverWizard({
             <div className="min-w-0">
               <span className="block font-mono text-[10.5px] font-bold tracking-[0.75px] text-[var(--accent-blue)]">{mode === "prepare" ? "PERSIAPAN SERAH TERIMA SHIFT" : "CATATAN SERAH TERIMA"}</span>
               <h2 className="m-0 mt-0.5 text-[20px] font-bold leading-[1.25] tracking-[-0.35px] text-[var(--ink-primary)] max-[660px]:text-[17px]">{title}</h2>
-              <p className="m-0 mt-1 text-[12.5px] leading-[1.5] text-[var(--ink-secondary)]">Isi empat langkah singkat untuk shift penerima, lalu periksa ringkasannya sebelum menyimpan.</p>
+              <p className="m-0 mt-1 text-[12.5px] leading-[1.5] text-[var(--ink-secondary)] max-[660px]:hidden">Isi empat langkah singkat untuk shift penerima, lalu simpan.</p>
               {(!draftSaved || mode === "edit") && (
                 <p className="mt-2 inline-flex w-fit items-center gap-2 rounded-md border border-[var(--line)] bg-[var(--panel-bg)] px-2.5 py-1 text-[11.5px] text-[var(--ink-secondary)]" role="status">
                   {!draftSaved && <span className="size-[7px] shrink-0 rounded-full bg-[var(--orange)]" />}
@@ -428,65 +515,59 @@ export function HandoverWizard({
           )}
 
           {/* ══════════════════════════════════════
-              STEP 3: TEMUAN & PENGECUALIAN
+              STEP 3: TEMUAN
              ══════════════════════════════════════ */}
           {step === 3 && (
             <section className="flex flex-col gap-4">
-              <StepIntro step={3} title="Adakah kendala atau hal yang perlu dipantau?" text="Satu kartu untuk satu temuan. Jika tidak ada, langsung lanjut ke langkah Tugas." />
-              <div className="flex items-center justify-between gap-3 max-[660px]:flex-col max-[660px]:items-start">
-                <div className="flex items-center gap-2 text-[13.5px] font-semibold text-[var(--ink-primary)]">
-                  <ShieldCheck size={16} className="text-[var(--accent-blue)]" /> Temuan yang diteruskan
-                  <span className="grid h-[22px] min-w-[22px] place-items-center rounded-md bg-[var(--accent-blue-soft)] px-1.5 font-mono text-[11px] font-bold text-[var(--accent-blue)]">{draft.findings.length}</span>
-                </div>
-                {draft.findings.length > 0 && (
+              <StepIntro step={3} title="Adakah kendala yang perlu diketahui shift berikutnya?" text="Temuan adalah kondisi yang perlu diawasi, misalnya checkpoint yang bermasalah. Pekerjaan yang harus diselesaikan dicatat di langkah Tugas. Tidak ada kendala? Langsung lanjut." />
+
+              {draft.findings.length > 0 && (
+                <ListHeader icon={<ShieldCheck size={16} />} title="Temuan untuk shift penerima" count={draft.findings.length}>
                   <button type="button" className={ADD_BUTTON} onClick={addFinding}>
                     <Plus size={14} strokeWidth={2.5} /> Tambah Temuan
                   </button>
-                )}
-              </div>
+                </ListHeader>
+              )}
 
               <div className="flex flex-col gap-3">
                 {draft.findings.length > 0 ? (
                   draft.findings.map((finding, index) => {
-                    const waiting = finding.state === "waiting";
+                    const missing = findingMissing(finding);
                     return (
-                      <article key={`finding-${index}`} className={`rounded-xl border border-[var(--panel-border)] border-l-[3px] bg-[var(--panel-bg)] p-5 max-[660px]:p-4 ${waiting ? "border-l-amber-400" : "border-l-violet-400"}`}>
-                        <div className="mb-4 flex items-center justify-between gap-2 border-b border-[var(--line)] pb-3">
-                          <div className="flex min-w-0 items-center gap-2">
-                            <span className="grid h-[22px] min-w-[28px] shrink-0 place-items-center rounded-md border border-[var(--accent-blue-border)] bg-[var(--accent-blue-soft)] px-1.5 font-mono text-[11px] font-bold text-[var(--accent-blue)]">#{index + 1}</span>
-                            <strong className={`truncate text-[13px] font-semibold ${finding.title ? "text-[var(--ink-primary)]" : "text-[var(--ink-muted)] italic"}`}>{finding.title || "Belum diberi judul"}</strong>
-                            {finding.project && <ProjectPill name={finding.project} />}
+                      <article key={`finding-${index}`} className={`overflow-hidden rounded-xl border border-[var(--panel-border)] border-l-[3px] bg-[var(--panel-bg)] ${finding.state === "waiting" ? "border-l-amber-400" : "border-l-violet-400"}`}>
+                        <header className="flex items-start justify-between gap-3 border-b border-[var(--line)] px-5 py-3 max-[660px]:px-4">
+                          <div className="flex min-w-0 items-start gap-2.5">
+                            <ItemNumber value={index + 1} />
+                            <div className="min-w-0">
+                              <strong className={`block truncate text-[13.5px] font-semibold leading-[22px] ${finding.title.trim() ? "text-[var(--ink-primary)]" : "text-[var(--ink-muted)]"}`}>{finding.title.trim() || "Temuan baru"}</strong>
+                              <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                                {finding.project && <ProjectPill name={finding.project} />}
+                                <CompletionNote missing={missing} />
+                              </div>
+                            </div>
                           </div>
-                          <button
-                            type="button"
-                            className="inline-flex shrink-0 items-center gap-1 rounded-md border border-transparent px-2 py-1 text-[12px] font-semibold text-[var(--ink-muted)] transition-colors duration-150 hover:border-[var(--red-border)] hover:bg-[var(--red-soft)] hover:text-[var(--red)]"
-                            onClick={() => removeFinding(index)}
-                            aria-label="Hapus temuan"
-                          >
-                            <Trash2 size={13} /> Hapus
+                          <button type="button" className={DELETE_BUTTON} onClick={() => removeFinding(index)} aria-label={`Hapus temuan #${index + 1}`} title="Hapus temuan">
+                            <Trash2 size={14} aria-hidden="true" />
                           </button>
-                        </div>
+                        </header>
 
-                        <div className="grid grid-cols-2 items-start gap-4 max-[660px]:grid-cols-1">
-                          <Field label="Proyek terkait" htmlFor={`finding-project-${index}`} hint="Pilih dari saran atau ketik nama proyek lain.">
-                            <ProjectSelect id={`finding-project-${index}`} value={finding.project} onChange={(project) => updateFinding(index, { project })} placeholder="Pilih atau ketik proyek" />
-                          </Field>
-                          <Field label="Kondisi saat ini">
-                            <Select icon={<Activity size={16} aria-hidden="true" />} className={SELECT} value={finding.state} onChange={(event) => updateFinding(index, { state: event.target.value as "waiting" | "in-progress" })}>
-                              <option value="waiting">Perlu dipantau</option>
-                              <option value="in-progress">Sedang ditindaklanjuti</option>
-                            </Select>
-                          </Field>
-                          <Field label="Ringkasan temuan" className="col-span-2 max-[660px]:col-span-1">
+                        <div className="grid gap-4 p-5 max-[660px]:p-4">
+                          <Field label="Apa temuannya?" required>
                             <span className="group/shell relative block w-full min-w-0">
                               <Type className={FIELD_ICON} size={16} aria-hidden="true" />
-                              <input className={INPUT} value={finding.title} onChange={(event) => updateFinding(index, { title: event.target.value })} placeholder="Contoh: Checkpoint SIEM belum menerima data terbaru" />
+                              <input id={`finding-title-${index}`} className={INPUT} value={finding.title} onChange={(event) => updateFinding(index, { title: event.target.value })} placeholder="Contoh: Checkpoint SIEM belum menerima data terbaru" />
                             </span>
                           </Field>
-                          <Field label="Kondisi terakhir dan tindak lanjut" className="col-span-2 max-[660px]:col-span-1">
+                          <div className="grid items-start gap-4 min-[561px]:grid-cols-2">
+                            <Field label="Proyek terkait" required htmlFor={`finding-project-${index}`} hint={PROJECT_HINT}>
+                              <ProjectSelect id={`finding-project-${index}`} value={finding.project} onChange={(project) => updateFinding(index, { project })} />
+                            </Field>
+                            <ChoiceSelect label="Bagaimana kondisinya sekarang?" value={finding.state} choices={FINDING_STATES} onChange={(state) => updateFinding(index, { state: state as Finding["state"] })} />
+                          </div>
+                          <Field label="Apa yang sudah diperiksa, dan apa yang harus dilakukan shift penerima?" required>
                             <span className="group/shell relative block w-full min-w-0">
                               <AlignLeft className={FIELD_ICON} size={16} aria-hidden="true" />
-                              <textarea rows={3} className={TEXTAREA} value={finding.detail} onChange={(event) => updateFinding(index, { detail: event.target.value })} placeholder="Apa yang sudah diperiksa? Apa yang harus dipantau atau dilakukan shift penerima?" />
+                              <textarea rows={3} className={TEXTAREA} value={finding.detail} onChange={(event) => updateFinding(index, { detail: event.target.value })} placeholder="Contoh: Data berhenti masuk sejak 06.30, indexer sudah direstart. Pantau sampai data masuk kembali." />
                             </span>
                           </Field>
                         </div>
@@ -494,170 +575,100 @@ export function HandoverWizard({
                     );
                   })
                 ) : (
-                  <div className="flex flex-col items-center justify-center rounded-xl border-[1.5px] border-dashed border-[var(--line)] bg-[var(--panel-bg)] p-[36px_24px] text-center">
-                    <div className="mb-3 grid size-12 place-items-center rounded-full border border-[var(--green-border)] bg-[var(--green-soft)] text-[var(--green)]">
-                      <ShieldCheck size={24} />
-                    </div>
-                    <div className="mb-1 text-[14px] font-bold text-[var(--ink-primary)]">Belum ada temuan</div>
-                    <div className="mb-4 max-w-[380px] text-[12.5px] leading-[1.5] text-[var(--ink-secondary)]">
-                      Tambahkan bila ada kendala atau anomali yang perlu diketahui shift berikutnya. Jika tidak ada, langsung lanjut ke langkah Tugas.
-                    </div>
-                    <button
-                      type="button"
-                      className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--accent-blue)] px-4 py-2 text-[12.5px] font-bold text-white transition-colors duration-150 hover:bg-sky-500"
-                      onClick={addFinding}
-                    >
-                      <Plus size={15} strokeWidth={2.5} /> Tambah Temuan
+                  <EmptyList icon={<ShieldCheck size={24} />} tone="green" title="Tidak ada temuan" text="Bagus kalau memang tidak ada kendala. Tambahkan hanya bila ada kondisi yang perlu diawasi shift berikutnya.">
+                    <button type="button" className={ADD_BUTTON} onClick={addFinding}>
+                      <Plus size={14} strokeWidth={2.5} /> Tambah Temuan
                     </button>
-                  </div>
+                  </EmptyList>
                 )}
               </div>
             </section>
           )}
 
           {/* ══════════════════════════════════════
-              STEP 4: CEKLIS TUGAS SHIFT
+              STEP 4: TUGAS
              ══════════════════════════════════════ */}
           {step === 4 && (
             <section className="flex flex-col gap-4">
-              <StepIntro step={4} title="Pekerjaan apa yang harus dilanjutkan?" text="Tugas sudah terisi dari dashboard. Buka kartunya untuk mengubah judul, proyek, kondisi, atau prioritas." />
-              <div className="flex items-center justify-between gap-3 max-[660px]:flex-col max-[660px]:items-start">
-                <div className="flex items-center gap-2 text-[13.5px] font-semibold text-[var(--ink-primary)]">
-                  <CheckSquare size={16} className="text-[var(--accent-blue)]" /> Tugas untuk shift penerima
-                  <span className="grid h-[22px] min-w-[22px] place-items-center rounded-md bg-[var(--accent-blue-soft)] px-1.5 font-mono text-[11px] font-bold text-[var(--accent-blue)]">{draft.tasks.length}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  {draft.tasks.length > 1 && (
-                    <button type="button" className={`${SECONDARY_BUTTON} min-h-[34px] px-3 text-[11.5px]`} onClick={() => toggleAllTasks(!areAllTasksCollapsed)}>
-                      <ChevronsUpDown size={13} />
-                      {areAllTasksCollapsed ? "Buka Semua" : "Tutup Semua"}
-                    </button>
-                  )}
-                  <button type="button" className={ADD_BUTTON} onClick={addTask}>
-                    <Plus size={14} strokeWidth={2.5} /> Tambah Tugas
+              <StepIntro step={4} title="Pekerjaan apa yang harus dilanjutkan?" text="Daftar ini sudah terisi dari shift sebelumnya dan tiket yang masih terbuka. Klik sebuah tugas untuk mengubahnya, hapus yang tidak perlu, dan tambahkan yang belum ada." />
+
+              <ListHeader icon={<CheckSquare size={16} />} title="Tugas untuk shift penerima" count={draft.tasks.length}>
+                {draft.tasks.length > 1 && (
+                  <button type="button" className={`${SECONDARY_BUTTON} min-h-[36px] px-3 text-[12px]`} onClick={() => toggleAllTasks(!areAllTasksCollapsed)}>
+                    <ChevronsUpDown size={14} aria-hidden="true" />
+                    {areAllTasksCollapsed ? "Buka Semua" : "Tutup Semua"}
                   </button>
+                )}
+                <button type="button" className={ADD_BUTTON} onClick={addTask}>
+                  <Plus size={14} strokeWidth={2.5} /> Tambah Tugas
+                </button>
+              </ListHeader>
+
+              {incompleteTasks > 0 && (
+                <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded-xl border border-amber-400/30 bg-amber-400/[0.06] px-4 py-2.5 text-[12.5px] text-amber-100" role="status">
+                  <span className="flex items-center gap-2"><AlertCircle size={15} className="shrink-0 text-amber-400" aria-hidden="true" /> {incompleteTasks} tugas belum lengkap dan harus diisi sebelum disimpan.</span>
+                  <button type="button" className="min-h-[28px] font-semibold text-amber-300 underline-offset-2 hover:underline" onClick={showIncompleteTasks}>Tampilkan</button>
                 </div>
-              </div>
+              )}
 
               <div className="flex flex-col gap-2.5">
+                {draft.tasks.length === 0 && (
+                  <EmptyList icon={<CheckSquare size={24} />} title="Belum ada tugas" text="Tambahkan pekerjaan yang harus dilanjutkan shift penerima." />
+                )}
                 {draft.tasks.map((task, index) => {
-                  const isCollapsed = collapsedTasks[task.id] ?? index > 0;
-                  const untitled = !task.title.trim();
+                  const isCollapsed = collapsedTasks[task.id] ?? true;
+                  const missing = taskMissing(task);
+                  const origin = task.sourceRef?.startsWith("ticket:") ? "Dari tiket" : String(task.taskTemplateId ?? "").startsWith("custom-") ? "Baru" : null;
+                  const summary = task.detail.split("\n")[0].trim();
                   return (
-                    <article
-                      key={task.id}
-                      className={`overflow-hidden rounded-xl border border-[var(--panel-border)] border-l-[3px] bg-[var(--panel-bg)] transition-colors duration-150 hover:border-[var(--accent-blue-border)] ${PRIORITY_ACCENT[task.priority || "Medium"] ?? "border-l-slate-500"}`}
-                    >
-                      {/* Accordion Header */}
-                      <div
-                        className={`flex min-h-[56px] cursor-pointer select-none items-center justify-between gap-3 px-4 py-3 transition-colors duration-150 hover:bg-[var(--panel-bg-hover)] ${!isCollapsed ? "border-b border-[var(--line)]" : ""}`}
-                        onClick={() => toggleTaskCollapse(task.id, index)}
-                        role="button"
-                        tabIndex={0}
-                        aria-expanded={!isCollapsed}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" || e.key === " ") {
-                            e.preventDefault();
-                            toggleTaskCollapse(task.id, index);
-                          }
-                        }}
-                      >
-                        <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-                          <div className="flex min-w-0 items-center gap-2">
-                            <span className="grid h-[22px] min-w-[28px] shrink-0 place-items-center rounded-md border border-[var(--accent-blue-border)] bg-[var(--accent-blue-soft)] px-1.5 font-mono text-[11px] font-bold text-[var(--accent-blue)]">#{index + 1}</span>
-                            <span className={`truncate text-[13.5px] font-semibold ${untitled ? "italic text-amber-300" : "text-[var(--ink-primary)]"}`}>{untitled ? "Belum ada judul" : task.title}</span>
-                          </div>
-                          <div className="flex flex-wrap items-center gap-1.5 pl-[36px]">
-                            {task.project && <ProjectPill name={task.project} />}
-                            <TaskStatusBadge state={task.state} />
-                            <TaskPriorityBadge priority={task.priority} />
-                          </div>
-                        </div>
-
-                        <div className="flex shrink-0 items-center gap-1">
-                          <button
-                            type="button"
-                            className="grid size-8 place-items-center rounded-md border border-transparent text-[var(--ink-muted)] transition-colors duration-150 hover:border-[var(--red-border)] hover:bg-[var(--red-soft)] hover:text-[var(--red)]"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              removeTask(task.id);
-                            }}
-                            aria-label={`Hapus Tugas #${index + 1}`}
-                            title="Hapus tugas"
-                          >
-                            <Trash2 size={14} />
-                          </button>
-                          <span className={`grid size-8 place-items-center text-[var(--ink-muted)] transition-transform duration-200 ${!isCollapsed ? "rotate-180" : ""}`}>
-                            <ChevronDown size={16} />
+                    <article key={task.id} data-task-id={task.id} className={`overflow-hidden rounded-xl border border-[var(--panel-border)] border-l-[3px] bg-[var(--panel-bg)] transition-colors duration-150 hover:border-[var(--accent-blue-border)] ${PRIORITY_ACCENT[task.priority || "Medium"] ?? "border-l-slate-500"}`}>
+                      <div className={`flex items-start gap-1 pr-2 ${!isCollapsed ? "border-b border-[var(--line)]" : ""}`}>
+                        <button type="button" className="flex min-w-0 flex-1 items-start gap-2.5 py-3 pl-3.5 pr-1 text-left" aria-expanded={!isCollapsed} onClick={() => toggleTaskCollapse(task.id)}>
+                          <ChevronDown size={16} aria-hidden="true" className={`mt-[3px] shrink-0 text-[var(--ink-muted)] transition-transform duration-200 motion-reduce:transition-none ${!isCollapsed ? "rotate-180" : ""}`} />
+                          <ItemNumber value={index + 1} />
+                          <span className="min-w-0 flex-1">
+                            <span className={`block truncate text-[13.5px] font-semibold leading-[22px] ${task.title.trim() ? "text-[var(--ink-primary)]" : "text-[var(--ink-muted)]"}`}>{task.title.trim() || "Tugas baru"}</span>
+                            {isCollapsed && summary && <span className="mt-0.5 block truncate text-[12px] font-normal text-[var(--ink-muted)]">{summary}</span>}
+                            <span className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                              {task.project && <ProjectPill name={task.project} />}
+                              <TaskStatusBadge state={task.state} />
+                              <TaskPriorityBadge priority={task.priority || "Medium"} />
+                              {origin && <span className="rounded-md border border-[var(--line)] px-1.5 py-0.5 text-[10.5px] font-medium text-[var(--ink-muted)]">{origin}</span>}
+                              {missing.length > 0 && <CompletionNote missing={missing} />}
+                            </span>
                           </span>
-                        </div>
+                        </button>
+                        <button type="button" className={`${DELETE_BUTTON} mt-2`} onClick={() => removeTask(task.id)} aria-label={`Hapus tugas #${index + 1}`} title="Hapus tugas">
+                          <Trash2 size={14} aria-hidden="true" />
+                        </button>
                       </div>
 
-                      {/* Accordion Body */}
                       {!isCollapsed && (
-                        <div className="bg-[var(--bg)] p-5 max-[660px]:p-4">
-                          <div className="grid grid-cols-2 items-start gap-4 max-[660px]:grid-cols-1">
-                            <Field label="Judul tugas" className="col-span-2 max-[660px]:col-span-1">
-                              <span className="group/shell relative block w-full min-w-0">
-                                <ListTodo className={FIELD_ICON} size={16} aria-hidden="true" />
-                                <input className={INPUT} value={task.title} onChange={(event) => updateTask(task.id, { title: event.target.value })} placeholder="Contoh: Periksa alarm dan laporan SIEM" required />
-                              </span>
+                        <div className="grid gap-4 bg-[var(--bg)] p-5 max-[660px]:p-4">
+                          <Field label="Apa tugasnya?" required>
+                            <span className="group/shell relative block w-full min-w-0">
+                              <ListTodo className={FIELD_ICON} size={16} aria-hidden="true" />
+                              <input id={`task-title-${task.id}`} className={INPUT} value={task.title} onChange={(event) => updateTask(task.id, { title: event.target.value })} placeholder="Contoh: Periksa alarm dan laporan SIEM" />
+                            </span>
+                          </Field>
+                          <div className="grid items-start gap-4 min-[761px]:grid-cols-3">
+                            <Field label="Proyek" required htmlFor={`task-project-${task.id}`} hint={PROJECT_HINT}>
+                              <ProjectSelect id={`task-project-${task.id}`} value={task.project} onChange={(project) => updateTask(task.id, { project })} />
                             </Field>
-                            <Field label="Proyek" htmlFor={`task-project-${task.id}`} className="col-span-2 max-[660px]:col-span-1">
-                              <ProjectSelect id={`task-project-${task.id}`} value={task.project} onChange={(project) => updateTask(task.id, { project })} placeholder="Pilih atau ketik proyek" />
-                            </Field>
-                            <Field label="Kondisi tugas">
-                              <Select icon={<Activity size={16} aria-hidden="true" />} className={SELECT} value={task.state} onChange={(event) => updateTask(task.id, { state: event.target.value as HandoverState })}>
-                                <option value="repeat">Rutin / berulang</option>
-                                <option value="waiting">Menunggu tindak lanjut</option>
-                                <option value="in-progress">Sedang dikerjakan</option>
-                                <option value="done">Selesai</option>
-                                <option value="escalated">Dieskalasi</option>
-                                <option value="blocked">Terhambat</option>
-                                <option value="waiting-vendor">Menunggu Vendor</option>
-                                <option value="activity">Aktivitas</option>
-                              </Select>
-                            </Field>
-                            <Field label="Prioritas">
-                              <Select icon={<Flag size={16} aria-hidden="true" />} className={SELECT} value={task.priority || "Medium"} onChange={(event) => updateTask(task.id, { priority: event.target.value })}>
-                                <option value="Critical">Kritis</option>
-                                <option value="High">Tinggi</option>
-                                <option value="Medium">Sedang</option>
-                                <option value="Low">Rendah</option>
-                              </Select>
-                            </Field>
-                            <Field label="Apa yang perlu dilakukan shift penerima?" className="col-span-2 max-[660px]:col-span-1">
-                              <span className="group/shell relative block w-full min-w-0">
-                                <AlignLeft className={FIELD_ICON} size={16} aria-hidden="true" />
-                                <textarea rows={3} className={TEXTAREA} value={task.detail} onChange={(event) => updateTask(task.id, { detail: event.target.value })} placeholder="Tulis langkah berikutnya, batas waktu bila ada, dan informasi yang diperlukan untuk mengerjakannya." />
-                              </span>
-                            </Field>
+                            <ChoiceSelect label="Seberapa penting?" value={task.priority || "Medium"} choices={TASK_PRIORITIES} onChange={(priority) => updateTask(task.id, { priority })} />
+                            <ChoiceSelect label="Bagaimana statusnya?" value={task.state} choices={TASK_STATES} onChange={(state) => updateTask(task.id, { state })} />
                           </div>
+                          <Field label="Apa yang perlu dilakukan shift penerima?" optional>
+                            <span className="group/shell relative block w-full min-w-0">
+                              <AlignLeft className={FIELD_ICON} size={16} aria-hidden="true" />
+                              <textarea rows={3} className={TEXTAREA} value={task.detail} onChange={(event) => updateTask(task.id, { detail: event.target.value })} placeholder="Tulis langkah berikutnya, batas waktu bila ada, dan informasi yang diperlukan." />
+                            </span>
+                          </Field>
                         </div>
                       )}
                     </article>
                   );
                 })}
-              </div>
-
-              {/* the whole handover in one look before saving */}
-              <div className="rounded-xl border border-[var(--panel-border)] bg-[var(--panel-bg)] p-4">
-                <strong className="mb-3 block text-[13px] font-semibold text-[var(--ink-primary)]">Ringkasan sebelum disimpan</strong>
-                <ul className="m-0 grid list-none grid-cols-2 gap-2 p-0 max-[560px]:grid-cols-1">
-                  {[
-                    { ok: shiftInfoComplete, text: shiftInfoComplete ? `Shift ${draft.sourceShift} → ${draft.targetShift}, ${draft.sourcePic} → ${draft.targetPic}` : "Shift & PIC belum lengkap", step: 1 as Step },
-                    { ok: true, text: hasNote ? "Catatan untuk shift penerima terisi" : "Tanpa catatan (opsional)", step: 2 as Step },
-                    { ok: untitledFindings === 0, text: untitledFindings ? `${untitledFindings} temuan belum diberi judul` : draft.findings.length ? `${draft.findings.length} temuan diteruskan` : "Tidak ada temuan", step: 3 as Step },
-                    { ok: untitledTasks === 0, text: untitledTasks ? `${untitledTasks} tugas belum diberi judul` : `${draft.tasks.length} tugas diteruskan`, step: 4 as Step },
-                  ].map((row) => (
-                    <li key={row.step}>
-                      <button type="button" onClick={() => handleStepChange(row.step)} className={`flex w-full items-center gap-2 rounded-lg border px-3 py-2 text-left text-[12.5px] transition-colors duration-150 ${row.ok ? "border-emerald-400/20 bg-emerald-500/[0.05] text-slate-200 hover:border-emerald-400/40" : "border-amber-400/30 bg-amber-400/[0.06] text-amber-100 hover:border-amber-400/60"}`}>
-                        {row.ok ? <Check size={14} strokeWidth={3} className="shrink-0 text-emerald-400" aria-hidden="true" /> : <AlertCircle size={14} className="shrink-0 text-amber-400" aria-hidden="true" />}
-                        <span className="min-w-0 truncate">{row.text}</span>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
               </div>
             </section>
           )}
@@ -685,7 +696,7 @@ export function HandoverWizard({
           </div>
 
           <div className="flex items-center gap-3 max-[660px]:w-full max-[660px]:flex-col max-[660px]:items-stretch">
-            <span className="text-[11.5px] text-[var(--ink-muted)] max-[660px]:text-center">Langkah {step} dari 4</span>
+            <span className="text-[11.5px] text-[var(--ink-muted)] max-[660px]:hidden">Langkah {step} dari 4</span>
             {step < 4 ? (
               <button
                 type="button"

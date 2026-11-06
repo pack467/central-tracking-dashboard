@@ -3,9 +3,10 @@
 import { useMasterReferences } from "@/app/hooks/useMasterReferences";
 import { TicketSystemSelect } from "./TicketSystemSelect";
 import { Select } from "@/app/components/ui/Select";
+import { getTimelineConfig } from "@/app/lib/ticket-timeline";
 
-import { useEffect, useState, useMemo } from "react";
-import { X, Zap, Check, Ticket, FileText, Layers, AlertTriangle, Activity, Tag, AlignLeft, RefreshCw, Clock, CheckCircle2, Users } from "lucide-react";
+import { useState, useMemo } from "react";
+import { X, Zap, Check, Ticket, FileText, Layers, AlertTriangle, Activity, Tag, AlignLeft, Clock, CheckCircle2, Users, Building2, Share2 } from "lucide-react";
 import { Modal } from "@/app/components/ui/Modal";
 import { Badge } from "@/app/components/ui/Badge";
 import { TimePicker } from "@/app/components/ui/TimePicker";
@@ -13,7 +14,7 @@ import { OwnerTagInput } from "@/app/components/tickets/OwnerTagInput";
 import { usePeople } from "@/app/hooks/useMasterData";
 import { useBackendTicketOptions } from "@/app/hooks/useBackendTicketOptions";
 import { ownerIdsFor } from "@/app/lib/ticket-owner";
-import { makeTicketId, nowClockLabel } from "@/app/lib/data";
+import { nowClockLabel } from "@/app/lib/data";
 import { severityTone, statusTone } from "@/app/components/tickets/TicketTable";
 import { useAuth } from "@/app/lib/auth";
 import type { Ticket as TicketType } from "@/app/lib/types";
@@ -33,12 +34,16 @@ const STATUS_OPTIONS = ["Open", "Closed", "Activity", "Meeting", "Re-Open", "Pen
 
 
 export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModalProps) {
-  const { user } = useAuth();
+  const { user, hasPermission } = useAuth();
   const master = useMasterReferences();
   // with the backend as the source its projects (by id) and categories are offered instead of the Master Data ones
   const backend = useBackendTicketOptions();
   const { severityLabel, projectFor } = master;
   const activeCategories = backend ? backend.categories : master.activeCategories;
+  const statusOptions = useMemo(
+    () => (backend ? STATUS_OPTIONS.filter((opt) => opt !== "RCA") : STATUS_OPTIONS),
+    [backend]
+  );
   const projectLabel = (value: string, organizationId?: string) => backend ? backend.projectName(value) : master.projectLabel(value, organizationId);
   const { activeClient, activeClientId, getProjectsForClient } = useClient();
   const clientSystems = useMemo(() => {
@@ -48,18 +53,36 @@ export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModal
     return getClientSystems(activeClientId);
   }, [backend, activeClientId, getProjectsForClient]);
 
+  const defaultProject = clientSystems[0] || (backend ? "1" : "SM");
   const operatorName = user?.name || "Mhd. Galih Khairi";
-  const [ticketCode, setTicketCode] = useState(() => makeTicketId());
+  const [ticketCode, setTicketCode] = useState("");
   const [subject, setSubject] = useState("");
   const [owners, setOwners] = useState<string[]>(() => [operatorName]);
   const people = usePeople();
-  const ownerIds = ownerIdsFor(owners, people);
-  const [project, setProject] = useState(() => clientSystems[0] || "SM");
+  const ownerIds = useMemo(() => {
+    const matched = ownerIdsFor(owners, people);
+    if (
+      matched.length === 0 &&
+      user?.id &&
+      /^\d+$/.test(user.id) &&
+      owners.some((o) => o.trim().toLowerCase() === (user.name || "").trim().toLowerCase())
+    ) {
+      matched.push(user.id);
+    }
+    if (backend && !hasPermission("tickets.write.any")) {
+      return matched.filter((id) => id === user?.id);
+    }
+    return matched;
+  }, [owners, people, user, backend, hasPermission]);
+  const [project, setProject] = useState(() => defaultProject);
   const [systemId, setSystemId] = useState("");
   const [severity, setSeverity] = useState("Low");
   const [status, setStatus] = useState<string>("Open");
   const [category, setCategory] = useState<string>("");
   const [description, setDescription] = useState("");
+
+  // Conditional Escalation fields
+  const [escalatedTo, setEscalatedTo] = useState("");
 
   // Conditional Ad-hoc Request fields
   const [requestTime, setRequestTime] = useState("");
@@ -70,31 +93,54 @@ export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModal
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
-  // Pre-fill suggested ticket code & current time whenever modal opens
-  useEffect(() => {
+  const isEscalation = useMemo(() => {
+    const normCategory = (category || "").toLowerCase();
+    const normStatus = (status || "").toLowerCase();
+    return (
+      normCategory.includes("escalat") ||
+      normCategory.includes("eskalasi") ||
+      normStatus.includes("escalat") ||
+      normStatus.includes("eskalasi")
+    );
+  }, [category, status]);
+
+  const timelineConfig = useMemo(() => getTimelineConfig(category), [category]);
+
+  // Pre-fill current time & default project when the modal opens, and only then: this used to run again whenever the system list or the
+  // operator changed, which wiped what was already typed.
+  const [wasOpen, setWasOpen] = useState(false);
+  if (open !== wasOpen) {
+    setWasOpen(open);
     if (open) {
       const current = nowClockLabel();
       setSystemId("");
-      setTicketCode(makeTicketId());
+      setTicketCode("");
+      setEscalatedTo("");
       setRequestTime(current);
       setResponseTime(current);
       setCompletionTime("");
       setIsStillOpen(false);
       setError("");
-      setProject(clientSystems[0] || "SM");
+      setProject(clientSystems[0] || (backend ? "1" : "SM"));
       setOwners([operatorName]);
     }
-  }, [open, clientSystems, operatorName]);
+  }
+
+  // Keep project valid if clientSystems loads asynchronously while modal is open
+  if (clientSystems.length > 0 && !clientSystems.includes(project)) {
+    setProject(clientSystems[0]);
+  }
 
   const reset = () => {
     setSystemId("");
-    setTicketCode(makeTicketId());
+    setTicketCode("");
     setSubject("");
     setOwners([operatorName]);
-    setProject("SM");
+    setProject(clientSystems[0] || (backend ? "1" : "SM"));
     setSeverity("Low");
     setStatus("Open");
     setCategory("");
+    setEscalatedTo("");
     setDescription("");
     setRequestTime("");
     setResponseTime("");
@@ -109,11 +155,11 @@ export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModal
     const trimmedSubject = subject.trim();
 
     if (!cleanCode) {
-      setError("Kode tiket wajib diisi. Masukkan kode manual atau klik tombol generate.");
+      setError("Kode tiket wajib diisi.");
       return;
     }
-    if (!/^[a-zA-Z0-9_\-]+$/.test(cleanCode) || cleanCode.length < 3) {
-      setError("Format kode tiket tidak valid (gunakan minimal 3 karakter alfanumerik atau tanda hubung).");
+    if (cleanCode.length > 100) {
+      setError("Kode tiket maksimal 100 karakter.");
       return;
     }
     if (!trimmedSubject) {
@@ -131,24 +177,27 @@ export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModal
 
     if (!clientSystems.includes(project)) { setError("Pilih proyek aktif."); return; }
 
-    // Validation for Ad-hoc Request category
-    if (category === "Ad-hoc Request") {
+    // Validation for timeline fields according to selected category
+    if (category) {
       if (!requestTime.trim()) {
-        setError("Request Time wajib diisi untuk kategori Ad-hoc Request.");
+        setError(`${timelineConfig.firstLabel} wajib diisi.`);
         return;
       }
-      if (!responseTime.trim()) {
-        setError("Response Time wajib diisi untuk kategori Ad-hoc Request.");
+      if (timelineConfig.fieldCount === 3 && !responseTime.trim()) {
+        setError(`${timelineConfig.secondLabel || "Response Time"} wajib diisi.`);
         return;
       }
       if (!isStillOpen && !completionTime.trim()) {
-        setError("Completion Time wajib diisi, atau centang 'Still Open' jika pekerjaan belum selesai.");
+        setError(`${timelineConfig.completionLabel} wajib diisi, atau centang 'Still Open' jika pekerjaan belum selesai.`);
+        return;
+      }
+      if (!isStillOpen && completionTime.trim() && requestTime.trim() && completionTime.trim() < requestTime.trim()) {
+        setError(`${timelineConfig.completionLabel} tidak boleh lebih awal dari ${timelineConfig.firstLabel}.`);
         return;
       }
     }
 
     const created = nowClockLabel();
-    const isAdhoc = category === "Ad-hoc Request";
     const primaryOwner = owners.length > 0 ? owners.join(", ") : "Unassigned";
     const matchingSystem = master.catalog.systems.find(
       (s) =>
@@ -164,10 +213,12 @@ export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModal
       // the backend keeps the project by id and the ticket code as its third-party id
       ...(backend ? { project: backend.projectName(project), backend: { projectId: project, thirdPartyId: cleanCode } } : { project }),
       severity,
-      requestTime: isAdhoc ? requestTime : undefined,
-      responseTime: isAdhoc ? responseTime : undefined,
-      completionTime: isAdhoc ? (isStillOpen ? undefined : completionTime) : undefined,
-      isStillOpen: isAdhoc ? isStillOpen : undefined,
+      requestTime: requestTime.trim() || undefined,
+      responseTime: timelineConfig.fieldCount === 3 ? (responseTime.trim() || undefined) : undefined,
+      completionTime: isStillOpen ? undefined : (completionTime.trim() || undefined),
+      isStillOpen: isStillOpen || undefined,
+      escalatedTo: isEscalation && escalatedTo.trim() ? escalatedTo.trim() : undefined,
+      escalationLevel: isEscalation ? "Level 2" : undefined,
       owner: primaryOwner,
       owners,
       ...(ownerIds.length ? { ownerIds } : {}),
@@ -180,15 +231,18 @@ export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModal
       created,
       description:
         description.trim() ||
-        (isAdhoc
-          ? `Permintaan Ad-hoc (Req: ${requestTime}, Resp: ${responseTime}${isStillOpen ? ", Status: Still Open" : `, Selesai: ${completionTime}`}).`
-          : `Item aktivitas operasional kategori ${category}.`),
+        (timelineConfig.fieldCount === 3
+          ? `${category} (${timelineConfig.firstLabel}: ${requestTime}, ${timelineConfig.secondLabel}: ${responseTime}${isStillOpen ? ", Status: Still Open" : `, ${timelineConfig.completionLabel}: ${completionTime}`}).`
+          : `${category} (${timelineConfig.firstLabel}: ${requestTime}${isStillOpen ? ", Status: Still Open" : `, ${timelineConfig.completionLabel}: ${completionTime}`}).` +
+            (isEscalation && escalatedTo.trim() ? ` Eskalasi ke ${escalatedTo.trim()}.` : "")),
       clientId: activeClientId,
       history: [
         {
           time: created,
-          type: "created",
-          action: `Ticket #${cleanCode} dibuat oleh ${operatorName} (Assignee: ${primaryOwner}, Kategori: ${category}, Status: ${status})`,
+          type: isEscalation ? "status_change" : "created",
+          action: isEscalation && escalatedTo.trim()
+            ? `Ticket #${cleanCode} dibuat dan dieskalasikan ke ${escalatedTo.trim()} oleh ${operatorName}`
+            : `Ticket #${cleanCode} dibuat oleh ${operatorName} (Assignee: ${primaryOwner}, Kategori: ${category}, Status: ${status})`,
           author: operatorName,
         },
       ],
@@ -207,14 +261,17 @@ export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModal
     onClose();
   };
 
-  const isAdhoc = category === "Ad-hoc Request";
-
   return (
     <Modal open={open} onClose={onClose} label="Buat ticket baru" width={640}>
       <div className="modal-title">
         <div>
-          <strong>Buat Ticket NOC Baru — {activeClient.shortName}</strong>
-          <small>Catat tugas operasional, permintaan ad-hoc, atau penanganan insiden untuk {activeClient.name}.</small>
+          <div className="ticket-modal-title-row">
+            <strong>Buat Ticket Baru</strong>
+            <span className="ticket-client-badge">
+              <Building2 size={11} className="ticket-client-badge-icon" />
+              <span>{activeClient.shortName || activeClient.name}</span>
+            </span>
+          </div>
         </div>
         <button onClick={onClose} aria-label="Tutup modal">
           <X size={15} />
@@ -233,7 +290,7 @@ export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModal
               <div className="ticket-field-label-wrapper">
                 <span className="ticket-field-label">
                   <Ticket size={12} className="ticket-field-icon" />
-                  TICKET CODE
+                  TICKET CODE <span className="ticket-required-star" title="Wajib diisi">*</span>
                 </span>
               </div>
               <div className="ticket-input-wrapper">
@@ -247,20 +304,8 @@ export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModal
                   }}
                   placeholder="Kode tiket"
                   className="ticket-editable-code-input"
-                  title="Kode tiket (dapat diketik manual atau digenerate otomatis)"
+                  title="Kode tiket"
                 />
-                <button
-                  type="button"
-                  onClick={() => {
-                    setTicketCode(makeTicketId());
-                    if (error) setError("");
-                  }}
-                  className="ticket-generate-code-btn"
-                  title="Generate Otomatis Kode Baru"
-                  aria-label="Generate Otomatis Kode Baru"
-                >
-                  <RefreshCw size={12} />
-                </button>
               </div>
             </label>
 
@@ -278,7 +323,6 @@ export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModal
                   if (error) setError("");
                 }}
                 placeholder="Judul singkat pekerjaan atau observasi"
-                autoFocus
               />
             </label>
           </div>
@@ -355,7 +399,7 @@ export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModal
                 }}
                 className="ticket-status-select"
               >
-                {STATUS_OPTIONS.map((option) => (
+                {statusOptions.map((option) => (
                   <option key={option} value={option}>{option}</option>
                 ))}
               </Select>
@@ -390,85 +434,161 @@ export function TicketCreateModal({ open, onClose, onCreate }: TicketCreateModal
 
           <TicketSystemSelect project={backend ? backend.projectName(project) : project}organizationId={activeClientId} value={systemId} onChange={setSystemId} />
 
-          {/* Conditional Fields for "Ad-hoc Request" */}
-          {isAdhoc && (
+          {/* Conditional Fields for "Escalation" */}
+          {isEscalation && (
+            <label className="ticket-field-escalated">
+              <div className="ticket-field-label-wrapper">
+                <span className="ticket-field-label">
+                  <Share2 size={12} className="ticket-field-icon" />
+                  TARGET ESKALASI
+                </span>
+                <span className="ticket-field-hint">Target eskalasi penanganan</span>
+              </div>
+              <input
+                type="text"
+                value={escalatedTo}
+                onChange={(event) => {
+                  setEscalatedTo(event.target.value);
+                  if (error) setError("");
+                }}
+                placeholder="Ketik target eskalasi (contoh: L2 Support, Dimas Suryo, Vendor Core)..."
+                className="w-full"
+              />
+            </label>
+          )}
+
+          {/* Dynamic Timeline Fields (Adapted to Category) */}
+          {Boolean(category) && (
             <div className="adhoc-fields-container">
               <div className="adhoc-fields-header">
                 <span className="adhoc-fields-badge">
                   <Zap size={11} className="[display:inline-block]! [vertical-align:middle]! [margin-right:4px]!" />
-                  Timeline Permintaan Ad-hoc
+                  {timelineConfig.badgeTitle}
                 </span>
-                <small>Waktu masuk, respon, dan estimasi selesai pekerjaan.</small>
+                <small>{timelineConfig.badgeSub}</small>
               </div>
 
-              <div className="three-inputs adhoc-inputs-row">
-                <label>
-                  <div className="ticket-field-label-wrapper">
-                    <span className="ticket-field-label">
-                      <Clock size={12} className="ticket-field-icon" />
-                      REQUEST TIME <span className="ticket-required-star">*</span>
-                    </span>
-                  </div>
-                  <TimePicker
-                    value={requestTime}
-                    onChange={(val) => {
-                      setRequestTime(val);
-                      if (error) setError("");
-                    }}
-                    placeholder="00:00"
-                    title="Waktu masuk permintaan ad-hoc"
-                  />
-                </label>
+              {timelineConfig.fieldCount === 3 ? (
+                <div className="three-inputs adhoc-inputs-row">
+                  <label>
+                    <div className="ticket-field-label-wrapper">
+                      <span className="ticket-field-label">
+                        <Clock size={12} className="ticket-field-icon" />
+                        {timelineConfig.firstLabel} <span className="ticket-required-star">*</span>
+                      </span>
+                    </div>
+                    <TimePicker
+                      value={requestTime}
+                      onChange={(val) => {
+                        setRequestTime(val);
+                        if (error) setError("");
+                      }}
+                      placeholder="00:00"
+                      title={timelineConfig.firstHint}
+                    />
+                  </label>
 
-                <label>
-                  <div className="ticket-field-label-wrapper">
-                    <span className="ticket-field-label">
-                      <Clock size={12} className="ticket-field-icon" />
-                      RESPONSE TIME <span className="ticket-required-star">*</span>
-                    </span>
-                  </div>
-                  <TimePicker
-                    value={responseTime}
-                    onChange={(val) => {
-                      setResponseTime(val);
-                      if (error) setError("");
-                    }}
-                    placeholder="00:00"
-                    title="Waktu respon pertama penanganan"
-                  />
-                </label>
+                  <label>
+                    <div className="ticket-field-label-wrapper">
+                      <span className="ticket-field-label">
+                        <Clock size={12} className="ticket-field-icon" />
+                        {timelineConfig.secondLabel || "RESPONSE TIME"} <span className="ticket-required-star">*</span>
+                      </span>
+                    </div>
+                    <TimePicker
+                      value={responseTime}
+                      onChange={(val) => {
+                        setResponseTime(val);
+                        if (error) setError("");
+                      }}
+                      placeholder="00:00"
+                      title={timelineConfig.secondHint || "Waktu respon pertama penanganan"}
+                    />
+                  </label>
 
-                <label>
-                  <div className="ticket-field-label-wrapper">
-                    <span className="ticket-field-label">
-                      <CheckCircle2 size={12} className="ticket-field-icon" />
-                      COMPLETION TIME
-                    </span>
-                    <label className="still-open-toggle-label" title="Centang jika permintaan belum selesai">
-                      <input
-                        type="checkbox"
-                        checked={isStillOpen}
-                        onChange={(e) => {
-                          setIsStillOpen(e.target.checked);
-                          if (error) setError("");
-                        }}
-                        className="still-open-checkbox"
-                      />
-                      <span>Still Open</span>
-                    </label>
+                  <div className="ticket-field-stack">
+                    <div className="ticket-field-label-wrapper">
+                      <span className="ticket-field-label">
+                        <CheckCircle2 size={12} className="ticket-field-icon" />
+                        {timelineConfig.completionLabel}
+                      </span>
+                      <label className="still-open-toggle-label" title="Centang jika pekerjaan belum selesai">
+                        <input
+                          type="checkbox"
+                          checked={isStillOpen}
+                          onChange={(e) => {
+                            setIsStillOpen(e.target.checked);
+                            if (error) setError("");
+                          }}
+                          className="still-open-checkbox"
+                        />
+                        <span>Still Open</span>
+                      </label>
+                    </div>
+                    <TimePicker
+                      value={isStillOpen ? "" : completionTime}
+                      onChange={(val) => {
+                        setCompletionTime(val);
+                        if (error) setError("");
+                      }}
+                      disabled={isStillOpen}
+                      placeholder={isStillOpen ? "Masih berlangsung" : "--:--"}
+                      title={isStillOpen ? "Pekerjaan masih berlangsung" : `Waktu selesai (${timelineConfig.completionLabel})`}
+                    />
                   </div>
-                  <TimePicker
-                    value={isStillOpen ? "" : completionTime}
-                    onChange={(val) => {
-                      setCompletionTime(val);
-                      if (error) setError("");
-                    }}
-                    disabled={isStillOpen}
-                    placeholder={isStillOpen ? "Masih berlangsung" : "--:--"}
-                    title={isStillOpen ? "Permintaan masih berlangsung" : "Waktu penyelesaian permintaan"}
-                  />
-                </label>
-              </div>
+                </div>
+              ) : (
+                <div className="[display:grid]! [grid-template-columns:1fr_1.35fr]! [gap:12px]! max-[640px]:[grid-template-columns:1fr]!">
+                  <label>
+                    <div className="ticket-field-label-wrapper">
+                      <span className="ticket-field-label">
+                        <Clock size={12} className="ticket-field-icon" />
+                        {timelineConfig.firstLabel} <span className="ticket-required-star">*</span>
+                      </span>
+                    </div>
+                    <TimePicker
+                      value={requestTime}
+                      onChange={(val) => {
+                        setRequestTime(val);
+                        if (error) setError("");
+                      }}
+                      placeholder="00:00"
+                      title={timelineConfig.firstHint}
+                    />
+                  </label>
+
+                  <div className="ticket-field-stack">
+                    <div className="ticket-field-label-wrapper">
+                      <span className="ticket-field-label">
+                        <CheckCircle2 size={12} className="ticket-field-icon" />
+                        {timelineConfig.completionLabel}
+                      </span>
+                      <label className="still-open-toggle-label" title="Centang jika pekerjaan belum selesai">
+                        <input
+                          type="checkbox"
+                          checked={isStillOpen}
+                          onChange={(e) => {
+                            setIsStillOpen(e.target.checked);
+                            if (error) setError("");
+                          }}
+                          className="still-open-checkbox"
+                        />
+                        <span>Still Open</span>
+                      </label>
+                    </div>
+                    <TimePicker
+                      value={isStillOpen ? "" : completionTime}
+                      onChange={(val) => {
+                        setCompletionTime(val);
+                        if (error) setError("");
+                      }}
+                      disabled={isStillOpen}
+                      placeholder={isStillOpen ? "Masih berlangsung" : "--:--"}
+                      title={isStillOpen ? "Pekerjaan masih berlangsung" : `Waktu selesai (${timelineConfig.completionLabel})`}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>

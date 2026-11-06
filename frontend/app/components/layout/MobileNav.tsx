@@ -3,11 +3,14 @@ import Link from "next/link";
 import { paths, isActivePath } from "@/app/lib/routes";
 import { usePathname } from "next/navigation";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useUserStatus } from "@/app/hooks/useUserStatus";
+import { useProfilePhoto } from "@/app/hooks/useProfilePhoto";
+import { useAuth } from "@/app/lib/auth";
 import { X } from "lucide-react";
 import { BrandLogo } from "@/app/components/ui/BrandLogo";
 import { Avatar } from "@/app/components/ui/Avatar";
-import { navItems, USER_STATUS_CONFIG, type UserPresenceStatus } from "./Sidebar";
+import { navItems, USER_STATUS_CONFIG } from "./Sidebar";
 import { useActiveShift } from "@/app/hooks/useLiveClock";
 import type { HandoverRecordData } from "@/app/lib/types";
 
@@ -18,6 +21,7 @@ interface MobileNavProps {
   onPrepareHandover: () => void;
   handoverRecord: HandoverRecordData;
   openTicketCount?: number;
+  isOnActiveShift?: boolean;
 }
 
 export function MobileNav({
@@ -26,21 +30,13 @@ export function MobileNav({
   onPrepareHandover,
   handoverRecord,
   openTicketCount = 0,
+  isOnActiveShift = false,
 }: MobileNavProps) {
   const activeShift = useActiveShift();
   const pathname = usePathname();
-  const [userStatus, setUserStatus] = useState<UserPresenceStatus>("Online");
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("ctd.user.status") as string | null;
-      if (saved === "On Leave") {
-        setUserStatus("AFK");
-      } else if (saved && USER_STATUS_CONFIG[saved as UserPresenceStatus]) {
-        setUserStatus(saved as UserPresenceStatus);
-      }
-    }
-  }, [open]);
+  const { userStatus } = useUserStatus();
+  const { user } = useAuth();
+  const photo = useProfilePhoto(user?.id);
 
   const currentStatusConfig = USER_STATUS_CONFIG[userStatus] || USER_STATUS_CONFIG["Online"];
 
@@ -109,7 +105,7 @@ export function MobileNav({
               onClose();
             }}
           >
-            Siapkan Handover <span>→</span>
+            {isOnActiveShift ? "Siapkan Handover" : "Baca Handover"} <span>→</span>
           </button>
         </section>
 
@@ -124,14 +120,14 @@ export function MobileNav({
               "--status-ring-glow": currentStatusConfig.glow,
             } as React.CSSProperties}
           >
-            <Avatar size="md" initials="GK" shape="circle" className="profile-avatar" />
+            <Avatar size="md" name={user?.name} photo={photo} shape="circle" className="profile-avatar" />
             <span
               className="profile-status-badge"
               style={{ backgroundColor: currentStatusConfig.color }}
             />
           </div>
           <span>
-            <strong>Galih Khairi</strong>
+            <strong>{user?.name}</strong>
             <small className="profile-status-row">
               <span
                 className="profile-status-indicator-dot"

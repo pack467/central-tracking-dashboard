@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { Skeleton } from "./Skeleton";
 import { SkeletonKpi } from "./SkeletonKpi";
 import { SkeletonChart } from "./SkeletonChart";

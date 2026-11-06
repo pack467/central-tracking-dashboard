@@ -1,53 +1,67 @@
 "use client";
 
-import { Select } from "@/app/components/ui/Select";
-import { useId, useMemo } from "react";
-import { STANDARD_MONITORED_PROJECTS } from "@/app/lib/data";
+import { FolderKanban } from "lucide-react";
+import { useId, type ReactNode } from "react";
+import { Select, type SelectOption } from "@/app/components/ui/Select";
+import { useAppData } from "@/app/components/routing/AppShell";
 import { useClient } from "@/app/context/ClientContext";
 import { useMasterReferences } from "@/app/hooks/useMasterReferences";
 import { useToast } from "@/app/components/ui/Toast";
+import { GENERAL_PROJECT } from "@/app/lib/handover";
+import { backendProjectChoices, ticketsFromBackend } from "@/app/services/backend-tickets";
 
 export interface ProjectSelectProps {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
-  className?: string;
   id?: string;
 }
 
-const FALLBACK_PROJECT_OPTIONS = ["NOC", ...STANDARD_MONITORED_PROJECTS, "EPC Tools"];
-const PROJECT_SELECT_CONTAINER_CLASS = "block w-full";
-const PROJECT_SELECT_INPUT_CLASS =
-  "w-full min-h-[42px] rounded-[7px] p-[10px_12px] text-[13px] bg-[var(--input-bg)] border border-[var(--panel-border)] text-[var(--ink-primary)] outline-none transition-[border-color,box-shadow] duration-150 focus:border-[var(--accent-blue)] focus:shadow-[0_0_0_3px_var(--accent-blue-soft)]";
+// The fields of the handover form that are lists: their height and text size match the text fields next to them (a select's own are set for filter bars).
+const VALUE_SIZE = { fontSize: 13 };
+export const FORM_SELECT = {
+  size: "form",
+  active: false,
+  style: { height: 44, minHeight: 44 },
+  renderValue: (label: ReactNode) => <span style={VALUE_SIZE}>{label}</span>,
+} as const;
 
-export function ProjectSelect({
-  value,
-  onChange,
-  placeholder = "Pilih atau ketik proyek",
-  className = "",
-  id,
-}: ProjectSelectProps) {
+const GENERAL_OPTION: SelectOption = { value: GENERAL_PROJECT, label: GENERAL_PROJECT, meta: "Tanpa proyek khusus", textValue: `${GENERAL_PROJECT} Tanpa proyek khusus`, group: "Lainnya" };
+
+/** The projects a handover can name: the same list as the ticket forms (the backend's, or Master Data's for the active client), then "Umum" for work that belongs to no project. */
+export function ProjectSelect({ value, onChange, placeholder = "Pilih proyek", id }: ProjectSelectProps) {
   const generatedId = useId();
   const selectId = id || generatedId;
-  const { activeClientId, getProjectsForClient, projects } = useClient();
+  const { activeClient, activeClientId, getProjectsForClient, projects } = useClient();
+  const { tickets } = useAppData();
   const { projectLabel } = useMasterReferences();
   const toast = useToast();
 
-  const options = useMemo(() => {
-    try {
-      const clientProjs = getProjectsForClient(activeClientId, false).map((p) => p.name);
-      return Array.from(new Set(["NOC", ...clientProjs, ...STANDARD_MONITORED_PROJECTS, "EPC Tools"])).filter(name => !projects.some(p => p.clientId === activeClientId && p.name === name && p.status === "archived"));
-    } catch {
-      return FALLBACK_PROJECT_OPTIONS;
-    }
-  }, [activeClientId, getProjectsForClient, projects]);
+  const clientGroup = `Proyek ${activeClient?.shortName ?? ""}`.trim();
+  const listed: SelectOption[] = [
+    ...(ticketsFromBackend()
+      ? backendProjectChoices(tickets).map(({ value: code, name }) => ({ value: code, label: name, textValue: `${name} ${code}`, meta: code === name ? undefined : code, group: "Proyek" }))
+      : getProjectsForClient(activeClientId, false).map(({ name }) => ({ value: name, label: projectLabel(name, activeClientId), group: clientGroup }))),
+    GENERAL_OPTION,
+  ];
+  // a name from an older note, or one typed in, stays in the list so it reads as chosen
+  const current: SelectOption[] = value.trim() && !listed.some(option => option.value === value) ? [{ value, label: value, group: "Pilihan saat ini" }] : [];
 
   return (
-    <div className={`${PROJECT_SELECT_CONTAINER_CLASS} ${className}`}>
-      <Select id={selectId} listboxId={`${selectId}-options`} value={value} onValueChange={next => {
-        if (projects.some(p => p.clientId === activeClientId && p.name === next && p.status === "archived")) { toast.warning("Proyek sudah diarsipkan."); return; }
+    <Select
+      id={selectId}
+      listboxId={`${selectId}-options`}
+      value={value}
+      onValueChange={next => {
+        if (projects.some(project => project.clientId === activeClientId && project.name === next && project.status === "archived")) { toast.warning("Proyek sudah diarsipkan."); return; }
         onChange(next);
-      }} placeholder={placeholder} label="Proyek" allowCustom options={options.map(project => ({ value: project, label: projectLabel(project, activeClientId) }))} size="form" className={PROJECT_SELECT_INPUT_CLASS} />
-    </div>
+      }}
+      placeholder={placeholder}
+      label="Proyek"
+      allowCustom
+      icon={<FolderKanban size={16} aria-hidden="true" />}
+      options={[...current, ...listed]}
+      {...FORM_SELECT}
+    />
   );
 }

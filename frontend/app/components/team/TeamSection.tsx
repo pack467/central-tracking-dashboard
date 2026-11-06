@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { teamMembers, type TeamMember } from "@/app/data/team";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, type Transition, type Variants } from "framer-motion";
 import { TeamGroupHero } from "@/app/components/team/TeamGroupHero";
 import { TeamSpotlight } from "@/app/components/team/TeamSpotlight";
 import { TeamDetailPoster } from "@/app/components/team/TeamDetailPoster";
@@ -15,12 +15,12 @@ interface TeamSectionProps {
   className?: string;
 }
 
-const layoutTransition = {
+const layoutTransition: Transition = {
   duration: 0.35,
   ease: [0.16, 1, 0.3, 1] as [number, number, number, number],
 };
 
-const viewVariants = {
+const viewVariants: Variants = {
   initial: (direction: "to-single" | "to-group") => ({
     opacity: 0,
     y: direction === "to-single" ? 16 : -14,
@@ -49,7 +49,7 @@ const viewVariants = {
 export function TeamSection({
   members = teamMembers,
   title = "Meet Our Team",
-  subtitle = "Tim inti rekayasa sistem di balik Central Tracking Dashboard.",
+  subtitle = "Tim inisiator dan pengembang awal di balik Central Tracking Dashboard.",
   eyebrow = "Tim Pengembang",
   className = "",
 }: TeamSectionProps) {
@@ -58,7 +58,7 @@ export function TeamSection({
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPosterOpen, setIsPosterOpen] = useState(false);
 
-  const activeMember = members[activeIndex] || members[0];
+  const activeMember: TeamMember | null = members[activeIndex] ?? members[0] ?? null;
 
   const handleSelectMember = (index: number) => {
     setActiveIndex(index);

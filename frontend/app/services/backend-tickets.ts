@@ -44,30 +44,89 @@ function severityOf(name: string | undefined): TicketSeverity {
   return "Medium";
 }
 
+function unpackDescription(raw: string | null | undefined): {
+  description?: string;
+  systemComponent?: string;
+  responseTime?: string;
+  escalatedTo?: string;
+} {
+  if (!raw) return {};
+  let text = raw;
+  let systemComponent: string | undefined;
+  let responseTime: string | undefined;
+  let escalatedTo: string | undefined;
+
+  const sysMatch = text.match(/\[Sistem\/Komponen:\s*([^\]]+)\]/);
+  if (sysMatch) {
+    systemComponent = sysMatch[1].trim();
+    text = text.replace(sysMatch[0], "");
+  }
+
+  const respMatch = text.match(/\[Response:\s*(\d{2}:\d{2})\]/);
+  if (respMatch) {
+    responseTime = respMatch[1].trim();
+    text = text.replace(respMatch[0], "");
+  }
+
+  const escMatch = text.match(/\[Eskalasi:\s*([^\]]+)\]/);
+  if (escMatch) {
+    escalatedTo = escMatch[1].trim();
+    text = text.replace(escMatch[0], "");
+  }
+
+  const cleanDesc = text.replace(/^\s*\n+|\n+\s*$/g, "").trim();
+  return {
+    description: cleanDesc || undefined,
+    systemComponent,
+    responseTime,
+    escalatedTo,
+  };
+}
+
+function packDescription(ticket: Ticket): string | undefined {
+  const sys = (ticket.systemComponent || ticket.systemId || "").trim();
+  const resp = (ticket.responseTime || "").trim();
+  const esc = (ticket.escalatedTo || "").trim();
+  const tags: string[] = [];
+  if (sys) tags.push(`[Sistem/Komponen: ${sys}]`);
+  if (resp) tags.push(`[Response: ${resp}]`);
+  if (esc) tags.push(`[Eskalasi: ${esc}]`);
+  if (!tags.length) return ticket.description;
+  const desc = (ticket.description || "").trim();
+  return desc ? `${tags.join(" ")}\n${desc}` : tags.join(" ");
+}
+
 /** Backend ticket -> the ticket the UI works with. */
 export function backendTicketToModel(source: BackendTicket): Ticket {
   const opened = wib(source.open_at), closed = wib(source.closed_at);
-  const owner = source.user?.name?.trim() || source.requester?.trim() || "—";
+  const requesterText = source.requester?.trim();
+  const requesterList = requesterText ? requesterText.split(",").map(s => s.trim()).filter(Boolean) : [];
+  const owner = requesterList.length > 0 ? requesterList.join(", ") : (source.user?.name?.trim() || "—");
+  const owners = requesterList.length > 0 ? requesterList : (owner === "—" ? [] : [owner]);
   const minutes = source.closed_at && source.open_at ? Math.max(0, Math.round((Date.parse(source.closed_at) - Date.parse(source.open_at)) / 60000)) : undefined;
   const category = source.category?.name;
   const status = source.status === "ReOpen" ? "Re-Open" : source.status;
+  const unpacked = unpackDescription(source.description);
   return {
     id: String(source.id),
     subject: source.subject,
     project: source.project?.code_prefix?.trim() || source.project?.name || "—",
     severity: severityOf(source.severity?.name),
     ...(category ? { category, type: category } : {}),
+    ...(unpacked.systemComponent ? { systemId: unpacked.systemComponent, systemComponent: unpacked.systemComponent } : {}),
     date: opened?.date,
     requestTime: opened?.time,
+    ...(unpacked.responseTime ? { responseTime: unpacked.responseTime } : {}),
+    ...(unpacked.escalatedTo ? { escalatedTo: unpacked.escalatedTo, escalationLevel: "Level 2" } : {}),
     ...(closed ? { completionTime: closed.time } : {}),
     isStillOpen: !source.closed_at && status !== "Closed",
     owner,
-    owners: owner === "—" ? [] : [owner],
+    owners,
     // the assignee's id, the same id the people list uses, so tickets are matched to people by id and not by name text
     ...(source.user?.id ?? source.user_id ? { ownerIds: [String(source.user?.id ?? source.user_id)] } : {}),
     status,
     created: opened?.time ?? source.created_at,
-    ...(source.description ? { description: source.description } : {}),
+    ...(unpacked.description ? { description: unpacked.description } : {}),
     ...(minutes !== undefined ? { resolutionMinutes: minutes } : {}),
     // the app has one definition of the shifts (lib/shifts.ts); the backend has none
     shift: opened ? getShiftInfoForMinutes(opened.minuteOfDay).shortLabel : undefined,
@@ -183,17 +242,53 @@ type Lookup = z.output<typeof lookupListSchema>[number];
 export interface TicketLookups { categories: Lookup[]; severities: Lookup[] }
 export const ticketLookupsKey = ["backend", "ticket-lookups"] as const;
 
+export const SEEDED_BACKEND_LOOKUPS: TicketLookups = {
+  categories: [
+    { id: "1", name: "Ad-hoc Request" },
+    { id: "2", name: "Escalation Handling" },
+    { id: "3", name: "Incident & Issue Handling" },
+    { id: "4", name: "Validate End-to-End Process Flow" },
+    { id: "5", name: "Knowledge Management & Documentation" },
+    { id: "6", name: "Monitoring VM, Platform & Services" },
+    { id: "7", name: "Others" },
+  ],
+  severities: [
+    { id: "1", code_name: "Low", name: "Low" },
+    { id: "2", code_name: "Med", name: "Medium" },
+    { id: "3", code_name: "High", name: "High" },
+  ],
+};
+
 export async function loadTicketLookups(): Promise<TicketLookups> {
   const [categories, severities] = await Promise.all([apiClient.get<unknown>("/ticket-categories"), apiClient.get<unknown>("/ticket-severities")]);
   return { categories: parseResponse(lookupListSchema, categories, "kategori tiket"), severities: parseResponse(lookupListSchema, severities, "severity tiket") };
 }
 /**
  * Categories and severities as the backend names them (GET /ticket-categories, /ticket-severities). Kept in the query cache for the whole
- * session (the forms read the same entry through useBackendTicketOptions) and dropped at logout; a failure is not kept.
+ * session (the forms read the same entry through useBackendTicketOptions) and dropped at logout; falls back to SEEDED_BACKEND_LOOKUPS if rate-limited.
  */
-export function fetchTicketLookups(): Promise<TicketLookups> {
-  return getQueryClient().fetchQuery({ queryKey: ticketLookupsKey, queryFn: loadTicketLookups, staleTime: Infinity });
+export async function fetchTicketLookups(): Promise<TicketLookups> {
+  try {
+    return await getQueryClient().fetchQuery({ queryKey: ticketLookupsKey, queryFn: loadTicketLookups, staleTime: Infinity });
+  } catch {
+    return SEEDED_BACKEND_LOOKUPS;
+  }
 }
+
+/** Seeded projects in ctd_config.projects so project options are always available even before all ticket pages finish loading. */
+export const SEEDED_BACKEND_PROJECTS: readonly { id: string; name: string; codePrefix: string }[] = [
+  { id: "11", name: "ALINA-CDR-LUADR", codePrefix: "CDR-LUADR" },
+  { id: "8", name: "APH Mediation", codePrefix: "APH" },
+  { id: "9", name: "B2B Surveillance", codePrefix: "B2B" },
+  { id: "10", name: "Device Management", codePrefix: "DM" },
+  { id: "3", name: "Enterprise Product Catalog - Core", codePrefix: "EPC" },
+  { id: "4", name: "Enterprise Product Catalog - Tools", codePrefix: "EPC Tools" },
+  { id: "5", name: "ERICA", codePrefix: "EPC Tools" },
+  { id: "2", name: "Message Broker", codePrefix: "MB" },
+  { id: "1", name: "Single Mediation", codePrefix: "SM" },
+  { id: "6", name: "Umbrella SIEM", codePrefix: "USIEM" },
+  { id: "7", name: "Unified Network Mediation", codePrefix: "UNEM" },
+];
 
 /** The backend's projects, read from its tickets (there is no GET /projects): one per id, by name. A project without tickets is not listed. */
 export function backendProjects(tickets: readonly Ticket[]): { id: string; name: string }[] {
@@ -203,6 +298,36 @@ export function backendProjects(tickets: readonly Ticket[]): { id: string; name:
     if (id && !byId.has(id)) byId.set(id, ticket.backend?.projectName || ticket.project);
   }
   return [...byId].map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name));
+}
+
+/** Complete project options for forms: merges projects discovered from loaded tickets with the seeded database projects. */
+export function backendProjectOptions(tickets: readonly Ticket[]): { id: string; name: string }[] {
+  const byId = new Map<string, string>();
+  for (const item of SEEDED_BACKEND_PROJECTS) byId.set(item.id, item.name);
+  for (const ticket of tickets) {
+    const id = ticket.backend?.projectId;
+    if (id && !byId.has(id)) byId.set(id, ticket.backend?.projectName || ticket.project);
+  }
+  return [...byId].map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name));
+}
+
+/**
+ * The same projects as a handover names them: by the short code a ticket's project shows (Ticket.project), with the full name to read.
+ * Two projects can share a code (the seeded EPC Tools and ERICA do): the later one goes by its name, so each can still be chosen.
+ */
+export function backendProjectChoices(tickets: readonly Ticket[]): { id: string; value: string; name: string }[] {
+  const byId = new Map<string, { value: string; name: string }>();
+  for (const item of SEEDED_BACKEND_PROJECTS) byId.set(item.id, { value: item.codePrefix, name: item.name });
+  for (const ticket of tickets) {
+    const id = ticket.backend?.projectId;
+    if (id && !byId.has(id)) byId.set(id, { value: ticket.project, name: ticket.backend?.projectName || ticket.project });
+  }
+  const taken = new Set<string>();
+  return [...byId].map(([id, project]) => ({ id, ...project })).sort((a, b) => a.name.localeCompare(b.name)).map(project => {
+    const value = taken.has(project.value) ? project.name : project.value;
+    taken.add(value);
+    return { ...project, value };
+  });
 }
 
 /** The UI's statuses the backend has (`TicketStatus`). Escalated and RCA exist only in the app. */
@@ -229,6 +354,11 @@ export function ticketToCreateBody(ticket: Ticket, known: TicketLookups): Record
   const projectId = ticket.backend?.projectId;
   if (!projectId) throw new Error("Pilih proyek.");
   const assignee = assigneeOf(ticket);
+  const packedDescription = packDescription(ticket);
+  const requester =
+    ticket.owners && (ticket.owners.length > 1 || !assignee)
+      ? ticket.owners.join(", ").slice(0, 100)
+      : undefined;
   return {
     subject: ticket.subject,
     project_id: projectId,
@@ -236,7 +366,8 @@ export function ticketToCreateBody(ticket: Ticket, known: TicketLookups): Record
     severity_id: lookupId(known.severities, ticket.severity, "Severity"),
     category_id: lookupId(known.categories, ticket.category, "Kategori"),
     ...(ticket.backend?.clientId ? { client_id: ticket.backend.clientId } : {}),
-    ...(ticket.description ? { description: ticket.description } : {}),
+    ...(packedDescription ? { description: packedDescription } : {}),
+    ...(requester ? { requester } : {}),
     ...(ticket.backend?.thirdPartyId ? { third_party_ticket_id: ticket.backend.thirdPartyId } : {}),
     // without one the backend assigns the ticket to whoever creates it
     ...(assignee ? { user_id: assignee } : {}),
@@ -253,22 +384,53 @@ export function ticketToUpdateBody(next: Ticket, previous: Ticket, known: Ticket
   if (next.severity !== previous.severity) body.severity_id = lookupId(known.severities, next.severity, "Severity");
   if ((next.category || "") !== (previous.category || "")) body.category_id = lookupId(known.categories, next.category, "Kategori");
   if (next.status !== previous.status) body.status = backendStatus(String(next.status));
-  if ((next.description || "") !== (previous.description || "")) body.description = next.description || null;
+  const nextDesc = packDescription(next) || "";
+  const prevDesc = packDescription(previous) || "";
+  if (nextDesc !== prevDesc) body.description = nextDesc || null;
+  if (next.requestTime && next.requestTime !== previous.requestTime) {
+    body.open_at = wibToday(next.requestTime);
+  }
+  if (next.completionTime !== previous.completionTime) {
+    body.closed_at = next.completionTime ? wibToday(next.completionTime) : null;
+  }
   const assignee = assigneeOf(next);
   if (assignee && assignee !== previous.backend?.userId) body.user_id = assignee;
+  if (next.owners && (next.owners.join(", ") !== (previous.owners?.join(", ") || previous.owner || ""))) {
+    if (next.owners.length > 1 || !assignee) {
+      body.requester = next.owners.join(", ").slice(0, 100);
+    }
+  }
   return body;
 }
+
+const KNOWN_CLIENT_IDS: Readonly<Record<string, string>> = {
+  tritronik: "1",
+  iotera: "2",
+};
 
 /**
  * Creates the ticket in the backend and answers with it as the backend saved it (its own id, times and names). The client is the backend
  * client of the app's active client, read from the loaded tickets (`known`), as there is no GET /clients.
  */
 export async function createBackendTicket(ticket: Ticket, known: readonly Ticket[]): Promise<Ticket> {
-  const appClient = ticket.clientId || "tritronik";
-  const clientId = known.find(item => (item.clientId || "tritronik") === appClient && item.backend?.clientId)?.backend?.clientId;
-  if (!clientId) throw new Error("Klien ini belum punya tiket di backend, jadi tiket baru belum bisa dicatat untuknya.");
+  const appClient = (ticket.clientId || "tritronik").toLowerCase();
+  const clientId =
+    known.find(item => (item.clientId || "tritronik") === appClient && item.backend?.clientId)?.backend?.clientId ??
+    KNOWN_CLIENT_IDS[appClient] ??
+    known.find(item => item.backend?.clientId)?.backend?.clientId ??
+    "1";
   const body = ticketToCreateBody({ ...ticket, backend: { ...ticket.backend, clientId } }, await fetchTicketLookups());
   return backendTicketToModel(parseResponse(backendTicketSchema, await apiClient.post<unknown>("/tickets", body), "tiket yang disimpan"));
+}
+
+/**
+ * The ticket with exactly this code, asked of the backend itself: the list on screen cannot tell about a ticket whose answer was lost on the way, or
+ * one made from another session. The search also matches longer codes and any text that contains it, so only an exact code counts.
+ */
+export async function findBackendTicketByCode(code: string): Promise<Ticket | null> {
+  const page = parseResponse(ticketPageSchema, await apiClient.get<unknown>("/tickets", { params: { q: code, limit: PAGE, page: 1 } }), "pencarian tiket");
+  const found = page.data.find(ticket => ticket.third_party_ticket_id === code);
+  return found ? backendTicketToModel(found) : null;
 }
 
 /** Saves the changes from `previous` to `next`; nothing changed sends nothing. */

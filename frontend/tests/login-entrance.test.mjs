@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
 import test from "node:test";
+import { BASE, needsServer } from "./live-server.mjs";
 
 const frontendRoot = resolve(import.meta.dirname, "..");
 
@@ -37,8 +38,8 @@ test("LoginView component has Framer Motion entrance animation with staggered re
   assert.ok(content.includes("handleSubmit"));
 });
 
-test("Server renders /login with status 200 and key branding content", async () => {
-  const res = await fetch("http://localhost:3000/login");
+test("Server renders /login with status 200 and key branding content", needsServer, async () => {
+  const res = await fetch(`${BASE}/login`);
   assert.equal(res.status, 200);
 
   const html = await res.text();

@@ -1,4 +1,3 @@
-import React from "react";
 import { Skeleton as PremiumSkeleton, type SkeletonProps as PremiumSkeletonProps } from "./skeleton/Skeleton";
 
 export type SkeletonProps = PremiumSkeletonProps;

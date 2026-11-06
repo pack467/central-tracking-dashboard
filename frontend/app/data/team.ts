@@ -75,13 +75,13 @@ export const teamMembers: TeamMember[] = [
   {
     id: "ihsanul",
     name: "Muhammad Ihsanul Arifin",
-    role: "Automation Engineer & Networking Engineer",
-    task: "Script otomasi dan infrastruktur jaringan",
-    bio: "Membuat script otomasi berbasis Python serta mengelola dan menjaga kestabilan infrastruktur jaringan.",
+    role: "Network Engineer",
+    task: "Infrastruktur jaringan",
+    bio: "Mengelola dan menjaga kestabilan infrastruktur jaringan.",
     photo: "/team/ihsanul-transparent.png",
     hasRealPhoto: true,
     initials: "MI",
-    badge: "Automation & Networking",
+    badge: "Networking",
     accentColor: "#f472b6",
     social: {
       email: "ihsanul.arifin@company.id",

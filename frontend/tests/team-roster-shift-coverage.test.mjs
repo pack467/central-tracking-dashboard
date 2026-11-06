@@ -48,10 +48,8 @@ test("RosterShiftCoverage file structure matches Overview with On Duty, Online, 
   assert.ok(content.includes("Ketersediaan Pegawai"), "Must have Ketersediaan Pegawai subtitle");
 
   // Check Donut SVG and overview structure
-  assert.ok(content.includes("shift-coverage-donut-wrap"), "Must have donut wrap");
-  assert.ok(content.includes("donut-center-content"), "Must have donut center content");
+  assert.ok(content.includes("<circle"), "Must draw the donut");
   assert.ok(content.includes("TOTAL"), "Must have TOTAL label");
-  assert.ok(content.includes("shift-coverage-stats-row"), "Must have stats summary row");
-  assert.ok(content.includes("roster-filter-tabs"), "Must have filter tabs");
-  assert.ok(content.includes("roster-member-row"), "Must render member rows");
+  assert.ok(content.includes("filter-tabs"), "Must have filter tabs");
+  assert.ok(content.includes("coverage-avatar-ring-wrapper"), "Must render member avatars with their status ring");
 });

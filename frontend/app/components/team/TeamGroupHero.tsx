@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import type { TeamMember } from "@/app/data/team";
@@ -181,7 +181,7 @@ export function TeamGroupHero({ members, onSelectMember }: TeamGroupHeroProps) {
 
                   {/* Short Role */}
                   <p className="mt-0.5 text-xs text-slate-400 line-clamp-1 w-full font-medium">
-                    {member.shortRole || member.role.split("&")[0].trim()}
+                    {member.shortRole || (member.role.split("&")[0] ?? member.role).trim()}
                   </p>
 
                   {/* "Buka Profil" Action Button */}
@@ -322,7 +322,7 @@ export function TeamGroupHero({ members, onSelectMember }: TeamGroupHeroProps) {
 
                       {/* Short Role */}
                       <p className="mt-0.5 text-[10px] sm:text-[11px] text-slate-400 line-clamp-1 w-full font-medium">
-                        {member.shortRole || member.role.split("&")[0].trim()}
+                        {member.shortRole || (member.role.split("&")[0] ?? member.role).trim()}
                       </p>
 
                       {/* "Buka Profil" Button */}

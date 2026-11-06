@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import test from "node:test";
+import { BASE, needsServer } from "./live-server.mjs";
 
 const frontendRoot = resolve(process.cwd());
 
@@ -80,8 +81,8 @@ test("TeamSection manages view state (group <-> single)", () => {
   assert.ok(content.includes("handleBackToGroup"));
 });
 
-test("Server renders /team with Group Hero as initial view", async () => {
-  const res = await fetch("http://localhost:3000/team");
+test("Server renders /team with Group Hero as initial view", needsServer, async () => {
+  const res = await fetch(`${BASE}/team`);
   assert.equal(res.status, 200);
 
   const html = await res.text();
@@ -136,7 +137,7 @@ test("TeamBackButton exists and handles dynamic previous page navigation", () =>
   const btnContent = readFileSync(backBtnPath, "utf8");
   assert.ok(btnContent.includes("useRouter"));
   assert.ok(btnContent.includes("router.back()"));
-  assert.ok(btnContent.includes("fromParam"));
+  assert.ok(btnContent.includes('.get("from")'), "goes back to the page named in ?from=");
 
   const pagePath = resolve(frontendRoot, "app/team/page.tsx");
   const pageContent = readFileSync(pagePath, "utf8");
@@ -144,6 +145,8 @@ test("TeamBackButton exists and handles dynamic previous page navigation", () =>
 
   const loginPath = resolve(frontendRoot, "app/components/auth/LoginView.tsx");
   const loginContent = readFileSync(loginPath, "utf8");
-  assert.ok(loginContent.includes("/team?from=/login"));
+  assert.ok(loginContent.includes("routes.publicTeam()"), "the login page links to the team page");
+  const routesContent = readFileSync(resolve(frontendRoot, "app/lib/routes.ts"), "utf8");
+  assert.ok(routesContent.includes("publicTeam: (from = paths.login as string)"), "and that link comes back to the login page");
 });
 

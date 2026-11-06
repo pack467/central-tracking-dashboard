@@ -429,6 +429,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
       if (saved) {
         const parsed = JSON.parse(saved) as NotificationItem[];
         if (Array.isArray(parsed) && parsed.length > 0) {
+          // eslint-disable-next-line react-hooks/set-state-in-effect -- Browser storage only exists after hydration; reading it here keeps the server HTML and the first client render identical.
           setNotifications(
             parsed.map((item) => ({
               ...item,

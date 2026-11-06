@@ -15,7 +15,7 @@ import { usePathname } from "next/navigation";
 import { api } from "@/app/lib/api";
 import { apiModuleEnabled } from "@/app/lib/config";
 import { bindSessionData } from "@/app/lib/session-data";
-import { AuthError, BAD_CREDENTIALS, checkSession, fetchSession, getCsrfToken, loginRequest, logoutRequest, markSessionConfirmed, roleLabel, sessionConfirmedAt, setCsrfToken, type BackendUser } from "@/app/lib/auth-api";
+import { AuthError, BAD_CREDENTIALS, checkSession, fetchSession, getCsrfToken, loginRequest, logoutRequest, markSessionConfirmed, refreshCsrfToken, roleLabel, sessionConfirmedAt, setCsrfToken, type BackendUser } from "@/app/lib/auth-api";
 
 export interface AuthUser {
   id: string;
@@ -24,6 +24,9 @@ export interface AuthUser {
   role: string;
   email: string;
   avatarBg?: string;
+  department?: string;
+  /** When the account was made, as the backend wrote it. */
+  joinedAt?: string;
   shift?: "Subuh" | "Pagi" | "Malam";
   /** Backend mode: what the server allows this user ("*" already expanded). Use hasPermission(), never trust it for security. */
   permissions?: string[];
@@ -32,7 +35,7 @@ export interface AuthUser {
 /** Backend user -> the shape the UI uses. */
 export function toAuthUser(user: BackendUser): AuthUser {
   const name = user.name?.trim() || user.email || "Pengguna";
-  return { id: user.id, name, employeeId: user.nik || "-", role: roleLabel(user.role), email: user.email || "", avatarBg: "#2563eb", permissions: user.permissions ?? [] };
+  return { id: user.id, name, employeeId: user.nik || "-", role: roleLabel(user.role), email: user.email || "", avatarBg: "#2563eb", ...(user.department ? { department: user.department } : {}), ...(user.created_at ? { joinedAt: user.created_at } : {}), permissions: user.permissions ?? [] };
 }
 
 interface AuthContextValue {
@@ -57,7 +60,9 @@ interface AuthContextValue {
   can: (action: "create" | "edit" | "delete" | "escalate" | "admin", resource: "ticket" | "handover" | "roster" | "system") => boolean;
 }
 
-const AuthContext = createContext<AuthContextValue | null>(null);
+const GLOBAL_AUTH_CTX = "__ctd_auth_context__";
+const g = globalThis as unknown as Record<string, React.Context<AuthContextValue | null> | undefined>;
+const AuthContext = g[GLOBAL_AUTH_CTX] ?? (g[GLOBAL_AUTH_CTX] = createContext<AuthContextValue | null>(null));
 
 const TOKEN_STORAGE_KEY = "ctd.auth_token";
 const USER_STORAGE_KEY = "ctd.auth_user";
@@ -82,6 +87,13 @@ const newToken = () => `ctd_token_${typeof crypto !== "undefined" && "randomUUID
 const AUTH_CHANNEL = "ctd-auth";
 /** Wait a moment after a message: a logout request may still be on its way to the server when the other tab hears about it. */
 const RECHECK_DELAY_MS = 700;
+/**
+ * When the server cannot say who this is, the person goes to the login page at once, because the app is only for a confirmed session. The check
+ * goes on in the background for this long, and a session that turns out to be alive takes them back (LoginView). The backend limits requests per
+ * address per minute, so a throttled check is worth waiting out longer than a server that is down.
+ */
+const THROTTLED_RETRY_MS = [5_000, 15_000, 40_000];
+const UNAVAILABLE_RETRY_MS = [2_000, 5_000];
 /**
  * Pages that never call the backend (Monitoring, Shift Log, Handover...) would keep working after the session ended elsewhere (logout in
  * another browser, expiry, revoked by an admin). So moving to another page, or coming back to the tab, checks the session with one
@@ -109,6 +121,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Backend mode: whoever is logged in changes only here, so data cached for the previous person is dropped at the same moment.
   const userRef = useRef<AuthUser | null>(null);
   const setSessionUser = useCallback((next: AuthUser | null) => { userRef.current = next; bindSessionData(next?.id ?? null); setUser(next); }, []);
+  const retry = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const retriesStopped = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -120,9 +134,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (hadSession) announceSessionChange(); // once, not for every call that fails together
       });
       api.setCsrfTokenProvider(getCsrfToken);
+      api.setCsrfRefresher(refreshCsrfToken);
       api.setOnSuccess(markSessionConfirmed);
-      void fetchSession().then(session => { if (!cancelled) { setSessionUser(session ? toAuthUser(session) : null); setReady(true); } });
-      // another tab logged in, out, or lost its session: look at the cookie again
+      const load = (attempt: number) => {
+        void fetchSession().then(session => {
+          if (cancelled || retriesStopped.current) return;
+          setReady(true);
+          if (session.state !== "unknown") { setSessionUser(session.state === "user" ? toAuthUser(session.user) : null); return; }
+          // no answer says nothing about the session: nobody is logged in here for now, and what is cached for the last person stays
+          const waits = session.throttled ? THROTTLED_RETRY_MS : UNAVAILABLE_RETRY_MS;
+          if (attempt < waits.length) retry.current = setTimeout(() => load(attempt + 1), waits[attempt]);
+        });
+      };
+      load(0);
+      // another tab logged in, out, or lost its session: look at the cookie again (no answer changes nothing here)
       let recheck: ReturnType<typeof setTimeout> | undefined;
       let channel: BroadcastChannel | undefined;
       try {
@@ -130,10 +155,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         channel.onmessage = (event: MessageEvent) => {
           if (event.data === thisTab()) return;
           if (recheck) clearTimeout(recheck);
-          recheck = setTimeout(() => { void fetchSession().then(session => { if (!cancelled) setSessionUser(session ? toAuthUser(session) : null); }); }, RECHECK_DELAY_MS);
+          recheck = setTimeout(() => {
+            void fetchSession().then(session => {
+              if (!cancelled && session.state !== "unknown") setSessionUser(session.state === "user" ? toAuthUser(session.user) : null);
+            });
+          }, RECHECK_DELAY_MS);
         };
       } catch { /* BroadcastChannel not available */ }
-      return () => { cancelled = true; if (recheck) clearTimeout(recheck); channel?.close(); api.setOnSuccess(null); };
+      return () => { cancelled = true; if (retry.current) clearTimeout(retry.current); if (recheck) clearTimeout(recheck); channel?.close(); api.setOnSuccess(null); };
     }
     // restore the demo session from browser storage (a callback, not state set synchronously in the effect body)
     void Promise.resolve().then(() => {
@@ -156,6 +185,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = async (identifier: string, password: string, remember = true): Promise<AuthUser> => {
     if (backend) {
+      // from here on this login decides: an answer to an older check must not overwrite it
+      retriesStopped.current = true;
+      if (retry.current) clearTimeout(retry.current);
       const { user: session } = await loginRequest(identifier, password);
       const next = toAuthUser(session);
       setSessionUser(next);

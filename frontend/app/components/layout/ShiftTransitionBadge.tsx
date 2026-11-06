@@ -3,7 +3,7 @@ import Link from "next/link";
 import { paths } from "@/app/lib/routes";
 
 import { useEffect, useRef, useState } from "react";
-import { ArrowRight, ArrowRightLeft, CheckCircle2, ChevronDown, Clock, ExternalLink, Moon, Sun, Sunset, Users } from "lucide-react";
+import { ArrowRight, ArrowRightLeft, CheckCircle2, ChevronDown, Clock, ExternalLink, Moon, Sun, Sunset, Users, type LucideProps } from "lucide-react";
 import { useMobileLayout } from "@/app/hooks/useMobileLayout";
 import { useShiftTransition } from "@/app/hooks/useLiveClock";
 
@@ -13,10 +13,10 @@ interface ShiftTransitionBadgeProps {
   onNavigate?: (label: string) => void;
 }
 
-function getShiftIcon(id: string) {
-  if (id === "subuh") return Moon;
-  if (id === "pagi") return Sun;
-  return Sunset;
+function ShiftIcon({ shift, ...props }: LucideProps & { shift: string }) {
+  if (shift === "subuh") return <Moon {...props} />;
+  if (shift === "pagi") return <Sun {...props} />;
+  return <Sunset {...props} />;
 }
 
 export function ShiftTransitionBadge({ onOpenHandover, onNavigate }: ShiftTransitionBadgeProps) {
@@ -57,8 +57,6 @@ export function ShiftTransitionBadge({ onOpenHandover, onNavigate }: ShiftTransi
     return null;
   }
 
-  const FromIcon = getShiftIcon(transition.fromShift.id);
-  const ToIcon = getShiftIcon(transition.toShift.id);
 
   const handleOpenHandover = () => {
     setIsOpen(false);
@@ -207,7 +205,7 @@ export function ShiftTransitionBadge({ onOpenHandover, onNavigate }: ShiftTransi
             }`}>
               <div className="shift-card-header flex items-center justify-between mb-[4px]">
                 <span className="shift-card-role-tag text-[8px] max-lg:text-[11px] font-extrabold tracking-[0.6px] text-[var(--ink-muted)] font-[var(--font-mono)]">SHIFT KELUAR</span>
-                <FromIcon size={14} className={`shift-card-icon ${transition.fromShift.id === "malam" ? "text-[#c084fc]" : transition.fromShift.id === "subuh" ? "text-[#38bdf8]" : "text-[#fbbf24]"}`} />
+                <ShiftIcon shift={transition.fromShift.id} size={14} className={`shift-card-icon ${transition.fromShift.id === "malam" ? "text-[#c084fc]" : transition.fromShift.id === "subuh" ? "text-[#38bdf8]" : "text-[#fbbf24]"}`} />
               </div>
               <strong className="shift-card-name text-[12px] font-bold text-[#ffffff]">{transition.fromShift.label}</strong>
               <span className="shift-card-hours text-[9.5px] max-lg:text-[11px] font-[var(--font-mono)] text-[#94a3b8] mt-[1px]">{transition.fromShift.period}</span>
@@ -237,7 +235,7 @@ export function ShiftTransitionBadge({ onOpenHandover, onNavigate }: ShiftTransi
             }`}>
               <div className="shift-card-header flex items-center justify-between mb-[4px]">
                 <span className="shift-card-role-tag text-[8px] max-lg:text-[11px] font-extrabold tracking-[0.6px] text-[var(--ink-muted)] font-[var(--font-mono)]">SHIFT MASUK</span>
-                <ToIcon size={14} className={`shift-card-icon ${transition.toShift.id === "malam" ? "text-[#c084fc]" : transition.toShift.id === "subuh" ? "text-[#38bdf8]" : "text-[#fbbf24]"}`} />
+                <ShiftIcon shift={transition.toShift.id} size={14} className={`shift-card-icon ${transition.toShift.id === "malam" ? "text-[#c084fc]" : transition.toShift.id === "subuh" ? "text-[#38bdf8]" : "text-[#fbbf24]"}`} />
               </div>
               <strong className="shift-card-name text-[12px] font-bold text-[#ffffff]">{transition.toShift.label}</strong>
               <span className="shift-card-hours text-[9.5px] max-lg:text-[11px] font-[var(--font-mono)] text-[#94a3b8] mt-[1px]">{transition.toShift.period}</span>
