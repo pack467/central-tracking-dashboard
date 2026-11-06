@@ -1,2 +1,0 @@
-import {readFileSync,writeFileSync} from 'node:fs';const raw=JSON.parse(readFileSync('output/mobile-round5/before.json','utf8')),row=raw.rows.find(r=>r.width===390),d=row.detail;
-const result={width:390,panels:row.dashboard.panels.filter(p=>['Tiket Hari Ini','Memo & Catatan Shift','List Monitoring Shift'].includes(p.title)),headers:d.headers.slice(0,3),tickets:d.tickets.slice(0,2),count:d.tickets.length,memo:d.memo};writeFileSync('output/mobile-round5/diagnosis.json',JSON.stringify(result,null,2));console.log(JSON.stringify(result,null,2));
